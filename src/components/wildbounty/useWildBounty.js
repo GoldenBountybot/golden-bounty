@@ -1,0 +1,227 @@
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { REEL_ROWS, buildReel, evaluateWins, MULTIPLIERS, BETS, randomSymbol } from './symbols';
+
+const STORAGE_KEY = 'wb_balance';
+const START_BALANCE = 25000;
+
+export function useWildBounty() {
+  const [grid, setGrid] = useState(() => REEL_ROWS.map(r => buildReel(r)));
+  const [balance, setBalance] = useState(() => {
+    const s = localStorage.getItem(STORAGE_KEY);
+    return s ? parseFloat(s) : START_BALANCE;
+  });
+  const [betIndex, setBetIndex] = useState(1);
+  const [spinning, setSpinning] = useState(false);
+  const [multIndex, setMultIndex] = useState(0);
+  const [lastWin, setLastWin] = useState(0);
+  const [message, setMessage] = useState('WIN UP TO 3600 WAYS!');
+  const [winningPositions, setWinningPositions] = useState(new Set());
+  const [goldFrames, setGoldFrames] = useState(new Set());
+  const [freeSpins, setFreeSpins] = useState(0);
+  const [scatterCount, setScatterCount] = useState(0);
+  const [turbo, setTurbo] = useState(false);
+  const [autoSpin, setAutoSpin] = useState(false);
+  const [stoppedReels, setStoppedReels] = useState(new Set([0, 1, 2, 3, 4, 5]));
+  const [shattering, setShattering] = useState(new Set());
+  const [cascading, setCascading] = useState(false);
+  const [cascadePositions, setCascadePositions] = useState(new Set());
+  const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
+  const [freeSpinsActive, setFreeSpinsActive] = useState(false);
+
+  const timers = useRef([]);
+  const bet = BETS[betIndex];
+
+  useEffect(() => { localStorage.setItem(STORAGE_KEY, String(balance)); }, [balance]);
+  useEffect(() => () => { timers.current.forEach(clearTimeout); timers.current.forEach(clearInterval); }, []);
+
+  const assignGoldFrames = (newGrid) => {
+    const frames = new Set();
+    newGrid.forEach((reel, ri) => {
+      reel.forEach((_, row) => {
+        if (Math.random() < 0.14) frames.add(`${ri}-${row}`);
+      });
+    });
+    return frames;
+  };
+
+  // Remove winning symbols from each reel; remaining symbols fall to the
+  // bottom and new random symbols drop in at the top (tumble mechanic).
+  // Replace only the winning (blasted) positions with new symbols;
+  // all other symbols stay exactly where they were.
+  const cascadeStep = (currentGrid, removePositions) => {
+    return currentGrid.map((reel, ri) => {
+      return reel.map((sym, row) => {
+        if (removePositions.has(`${ri}-${row}`)) return randomSymbol();
+        return sym;
+      });
+    });
+  };
+
+  // Evaluate wins, shatter winners, cascade new symbols, repeat until no win.
+  const evaluateAndCascade = (currentGrid, cascadeCount, totalWin, currentMultIndex, wasFree, scatterAwarded = false) => {
+    const { wins, scatterCount: sc } = evaluateWins(currentGrid, bet);
+    const multiplier = MULTIPLIERS[currentMultIndex];
+    const stepWin = wins.reduce((sum, w) => sum + w.pay, 0) * multiplier;
+
+    const wpos = new Set();
+    wins.forEach(w => {
+      for (let r = 0; r < w.reels; r++) {
+        currentGrid[r].forEach((sym, row) => {
+          if (sym === w.symbol || sym === 'wild') wpos.add(`${r}-${row}`);
+        });
+      }
+    });
+
+    // Scatter check runs on every cascade (not just the first) — 3+ scatters
+    // anywhere during the round award 10 free spins, but only once per round.
+    setScatterCount(sc);
+    let awarded = scatterAwarded;
+    let justAwarded = false;
+    if (sc >= 3 && !scatterAwarded) {
+      setFreeSpins(f => f + 10);
+      // First trigger shows the START screen; retrigger during free spins
+      // just adds the spins and keeps the round going.
+      if (!wasFree) setShowFreeSpinStart(true);
+      awarded = true;
+      justAwarded = true;
+    }
+
+    if (stepWin > 0) {
+      const newTotal = totalWin + stepWin;
+      const newMult = Math.min(currentMultIndex + 1, MULTIPLIERS.length - 1);
+
+      setWinningPositions(wpos);
+      setBalance(b => b + stepWin);
+      setLastWin(newTotal);
+      setMultIndex(newMult);
+      setMessage(justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`);
+
+      // Shatter winning symbols after a brief highlight
+      const shatterT = setTimeout(() => setShattering(new Set(wpos)), 400);
+      timers.current.push(shatterT);
+
+      // Cascade: drop new symbols, then re-evaluate
+      const cascadeT = setTimeout(() => {
+        const newGrid = cascadeStep(currentGrid, wpos);
+        setShattering(new Set());
+        setWinningPositions(new Set());
+        setGoldFrames(new Set());
+        setGrid(newGrid);
+        setCascading(true);
+        setCascadePositions(wpos);
+
+        const evalT = setTimeout(() => {
+          setCascading(false);
+          setCascadePositions(new Set());
+          evaluateAndCascade(newGrid, cascadeCount + 1, newTotal, newMult, wasFree, awarded);
+        }, 450);
+        timers.current.push(evalT);
+      }, 1000);
+      timers.current.push(cascadeT);
+    } else {
+      // No more wins — end the chain
+      if (cascadeCount === 0) setLastWin(0);
+      if (!wasFree) setMultIndex(0);
+      if (awarded) {
+        setMessage(wasFree ? 'RETRIGGER! +10 FREE SPINS' : '3+ SCATTER! 10 FREE SPINS');
+      } else if (cascadeCount === 0) {
+        setMessage(sc === 2 ? 'ONE MORE SCATTER!' : 'WIN UP TO 3600 WAYS!');
+      }
+      setSpinning(false);
+    }
+  };
+
+  const settle = (finalGrid, frames, wasFree) => {
+    setGoldFrames(frames);
+    evaluateAndCascade(finalGrid, 0, 0, multIndex, wasFree, false);
+  };
+
+  const spin = useCallback(() => {
+    if (spinning) return;
+    const usingFree = freeSpins > 0;
+    if (!usingFree && balance < bet) {
+      setMessage('Insufficient balance! Reset');
+      return;
+    }
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+
+    setSpinning(true);
+    setStoppedReels(new Set());
+    setWinningPositions(new Set());
+    setGoldFrames(new Set());
+    setShattering(new Set());
+    setCascading(false);
+    setLastWin(0);
+    if (!usingFree) setBalance(b => b - bet);
+    if (usingFree) setFreeSpins(f => f - 1);
+    setMessage('Spinning...');
+
+    const finalGrid = REEL_ROWS.map(r => buildReel(r));
+    const frames = assignGoldFrames(finalGrid);
+    const reelDur = turbo
+      ? [300, 480, 660, 840, 1020, 1200]
+      : [450, 750, 1050, 1350, 1650, 1950];
+
+    let done = 0;
+    reelDur.forEach((dur, i) => {
+      const t = setTimeout(() => {
+        setGrid(prev => {
+          const next = [...prev];
+          next[i] = finalGrid[i];
+          return next;
+        });
+        setStoppedReels(prev => new Set([...prev, i]));
+        done++;
+        if (done === 6) settle(finalGrid, frames, usingFree);
+      }, dur);
+      timers.current.push(t);
+    });
+  }, [spinning, balance, bet, freeSpins, turbo, multIndex]);
+
+  // auto spin
+  useEffect(() => {
+    if (autoSpin && !spinning && balance >= bet) {
+      const t = setTimeout(() => spin(), turbo ? 300 : 700);
+      return () => clearTimeout(t);
+    }
+    if (autoSpin && balance < bet) setAutoSpin(false);
+  }, [autoSpin, spinning, balance, bet, turbo, spin]);
+
+  // free spins auto trigger
+  useEffect(() => {
+    if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart) {
+      const t = setTimeout(() => spin(), turbo ? 400 : 800);
+      return () => clearTimeout(t);
+    }
+    if (freeSpinsActive && freeSpins === 0) {
+      setFreeSpinsActive(false);
+      setMessage('FREE SPINS ENDED!');
+    }
+  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin]);
+
+  const startFreeSpins = useCallback(() => {
+    setShowFreeSpinStart(false);
+    setFreeSpinsActive(true);
+    spin();
+  }, [spin]);
+
+  const reset = () => {
+    setBalance(START_BALANCE);
+    setMultIndex(0);
+    setLastWin(0);
+    setFreeSpins(0);
+    setFreeSpinsActive(false);
+    setShowFreeSpinStart(false);
+    setMessage('Balance reset');
+  };
+
+  return {
+    grid, balance, bet, betIndex, spinning, stoppedReels,
+    multiplier: MULTIPLIERS[multIndex], multIndex,
+    lastWin, message, winningPositions, goldFrames, shattering, cascading, cascadePositions,
+    freeSpins, scatterCount, turbo, autoSpin,
+    showFreeSpinStart, freeSpinsActive, startFreeSpins,
+    spin, setBetIndex, setTurbo, setAutoSpin, reset,
+  };
+}

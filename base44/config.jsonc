@@ -1,0 +1,9 @@
+{
+  "name": "PG \u0997\u09c7\u09ae \u09b9\u09be\u09ac",
+  "site": {
+    "installCommand": "npm install",
+    "buildCommand": "npm run build",
+    "serveCommand": "npm run dev",
+    "outputDirectory": "./dist"
+  }
+}
