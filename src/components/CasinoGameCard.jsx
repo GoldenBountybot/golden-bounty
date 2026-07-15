@@ -1,8 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Lock, Play } from 'lucide-react';
+import { Lock, Play, Share2, Check } from 'lucide-react';
 
 export default function CasinoGameCard({ game }) {
+  const [copied, setCopied] = useState(false);
+
+  const share = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/games/${game.id}`;
+    try {
+      navigator.clipboard?.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // clipboard unavailable — ignore
+    }
+  };
+
   const inner = (
     <div className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-amber-700/40 shadow-lg shadow-black/40 transition-transform hover:-translate-y-1 hover:shadow-amber-900/40">
       <div className={`absolute inset-0 bg-gradient-to-br ${game.accent}`} />
@@ -13,6 +28,16 @@ export default function CasinoGameCard({ game }) {
         <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-yellow-300 text-stone-900 text-[10px] font-black tracking-wider shadow" style={{ fontFamily: 'Georgia, serif' }}>
           {game.tag}
         </span>
+      )}
+
+      {!game.coming && (
+        <button
+          onClick={share}
+          title="Share game link"
+          className="absolute top-2 right-2 z-10 flex items-center justify-center w-7 h-7 rounded-full bg-black/50 border border-amber-600/40 text-amber-200/90 hover:bg-black/70 transition-colors"
+        >
+          {copied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Share2 className="w-3.5 h-3.5" />}
+        </button>
       )}
 
       <div className="absolute bottom-0 inset-x-0 p-3">

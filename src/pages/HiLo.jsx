@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowUp, ArrowDown, RotateCcw } from 'lucide-react';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import ShareButton from '@/components/ShareButton';
+import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-const STORAGE = 'hl_balance';
-const START_BAL = 5000;
 const BETS = [25, 50, 100, 250, 500];
 
 function drawCard() {
@@ -45,7 +44,7 @@ function CardFace({ card, hidden }) {
 }
 
 export default function HiLo() {
-  const [balance, setBalance] = useState(() => parseFloat(localStorage.getItem(STORAGE) || String(START_BAL)));
+  const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
   const [betIdx, setBetIdx] = useState(1);
   const [current, setCurrent] = useState(null);
   const [revealed, setRevealed] = useState(null);
@@ -55,7 +54,6 @@ export default function HiLo() {
   const [streak, setStreak] = useState(0);
 
   const bet = BETS[betIdx];
-  useEffect(() => localStorage.setItem(STORAGE, String(balance)), [balance]);
 
   const deal = () => {
     if (phase === 'guessing') return;
@@ -108,7 +106,7 @@ export default function HiLo() {
     setStreak(0);
   };
 
-  const reset = () => { setBalance(START_BAL); setPhase('idle'); setCurrent(null); setRevealed(null); setPot(0); setStreak(0); setMessage('Balance reset'); };
+  const reset = () => { resetBalance(); setPhase('idle'); setCurrent(null); setRevealed(null); setPot(0); setStreak(0); setMessage('Balance reset'); };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950">

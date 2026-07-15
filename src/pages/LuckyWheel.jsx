@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, RotateCw } from 'lucide-react';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import ShareButton from '@/components/ShareButton';
+import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
 const SEGMENTS = [
   { mult: 0, label: '0', color: '#3a2810' },
@@ -16,20 +17,17 @@ const SEGMENTS = [
 ];
 const N = SEGMENTS.length;
 const SEG = 360 / N;
-const STORAGE = 'lw_balance';
-const START_BAL = 5000;
 const BETS = [25, 50, 100, 250, 500];
 
 export default function LuckyWheel() {
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [betIdx, setBetIdx] = useState(1);
-  const [balance, setBalance] = useState(() => parseFloat(localStorage.getItem(STORAGE) || String(START_BAL)));
+  const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
   const [message, setMessage] = useState('Spin the Wheel!');
   const [lastWin, setLastWin] = useState(0);
 
   const bet = BETS[betIdx];
-  useEffect(() => localStorage.setItem(STORAGE, String(balance)), [balance]);
 
   const conic = `conic-gradient(${SEGMENTS.map((s, i) => `${s.color} ${i * SEG}deg ${(i + 1) * SEG}deg`).join(', ')})`;
 
@@ -58,7 +56,7 @@ export default function LuckyWheel() {
     }, 4500);
   };
 
-  const reset = () => { setBalance(START_BAL); setMessage('Balance reset'); setLastWin(0); };
+  const reset = () => { resetBalance(); setMessage('Balance reset'); setLastWin(0); };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-950 via-stone-950 to-stone-950">

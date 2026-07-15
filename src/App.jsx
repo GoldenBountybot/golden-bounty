@@ -11,6 +11,8 @@ import Home from './pages/Home';
 import SlotGame from './pages/SlotGame';
 import LuckyWheel from './pages/LuckyWheel';
 import HiLo from './pages/HiLo';
+import Plinko from './pages/Plinko';
+import Mines from './pages/Mines';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -43,6 +45,8 @@ const AuthenticatedApp = () => {
       <Route path="/games/wild-bounty" element={<SlotGame />} />
       <Route path="/games/lucky-wheel" element={<LuckyWheel />} />
       <Route path="/games/hi-lo" element={<HiLo />} />
+      <Route path="/games/plinko" element={<Plinko />} />
+      <Route path="/games/mines" element={<Mines />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

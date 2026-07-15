@@ -1,15 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { REEL_ROWS, buildReel, evaluateWins, MULTIPLIERS, BETS, randomSymbol } from './symbols';
-
-const STORAGE_KEY = 'wb_balance';
-const START_BALANCE = 25000;
+import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
 export function useWildBounty() {
   const [grid, setGrid] = useState(() => REEL_ROWS.map(r => buildReel(r)));
-  const [balance, setBalance] = useState(() => {
-    const s = localStorage.getItem(STORAGE_KEY);
-    return s ? parseFloat(s) : START_BALANCE;
-  });
+  const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
   const [betIndex, setBetIndex] = useState(1);
   const [spinning, setSpinning] = useState(false);
   const [multIndex, setMultIndex] = useState(0);
@@ -31,7 +26,6 @@ export function useWildBounty() {
   const timers = useRef([]);
   const bet = BETS[betIndex];
 
-  useEffect(() => { localStorage.setItem(STORAGE_KEY, String(balance)); }, [balance]);
   useEffect(() => () => { timers.current.forEach(clearTimeout); timers.current.forEach(clearInterval); }, []);
 
   const assignGoldFrames = (newGrid) => {
@@ -207,7 +201,7 @@ export function useWildBounty() {
   }, [spin]);
 
   const reset = () => {
-    setBalance(START_BALANCE);
+    resetBalance();
     setMultIndex(0);
     setLastWin(0);
     setFreeSpins(0);
