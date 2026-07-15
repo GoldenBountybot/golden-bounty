@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, RotateCw } from 'lucide-react';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import ShareButton from '@/components/ShareButton';
 
 const SEGMENTS = [
   { mult: 0, label: '0', color: '#3a2810' },
@@ -70,7 +71,7 @@ export default function LuckyWheel() {
           <div className="flex-1 text-center">
             <h1 className="text-base font-black italic text-rose-200" style={{ fontFamily: 'Georgia, serif' }}>Lucky Wheel</h1>
           </div>
-          <div className="w-16" />
+          <ShareButton />
         </div>
       </header>
 

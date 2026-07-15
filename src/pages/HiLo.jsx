@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowUp, ArrowDown, RotateCcw } from 'lucide-react';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import ShareButton from '@/components/ShareButton';
 
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -120,7 +121,7 @@ export default function HiLo() {
           <div className="flex-1 text-center">
             <h1 className="text-base font-black italic text-emerald-200" style={{ fontFamily: 'Georgia, serif' }}>High or Low</h1>
           </div>
-          <div className="w-16" />
+          <ShareButton />
         </div>
       </header>
 

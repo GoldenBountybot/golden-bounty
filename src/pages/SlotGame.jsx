@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Gamepad2 } from "lucide-react";
 import WildBountyMachine from "@/components/wildbounty/WildBountyMachine";
 import WesternFrame from "@/components/wildbounty/WesternFrame";
+import ShareButton from "@/components/ShareButton";
 
 export default function SlotGame() {
   return (
@@ -21,7 +22,7 @@ export default function SlotGame() {
               Wild Bounty Showdown
             </h1>
           </div>
-          <div className="w-16" />
+          <ShareButton />
         </div>
       </header>
 
