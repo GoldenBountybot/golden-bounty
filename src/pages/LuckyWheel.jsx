@@ -25,7 +25,7 @@ export default function LuckyWheel() {
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [betIdx, setBetIdx] = useState(1);
-  const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
+  const { balance, setBalance } = useCasinoBalance();
   const { rtp } = useGameSettings('lucky-wheel');
   const [message, setMessage] = useState('Spin the Wheel!');
   const [lastWin, setLastWin] = useState(0);
@@ -63,8 +63,6 @@ export default function LuckyWheel() {
       setSpinning(false);
     }, 4500);
   };
-
-  const reset = () => { resetBalance(); setMessage('Balance reset'); setLastWin(0); };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-950 via-stone-950 to-stone-950">
@@ -146,9 +144,6 @@ export default function LuckyWheel() {
           {spinning ? 'Spinning...' : `SPIN · $${bet}`}
         </button>
 
-        <button onClick={reset} className="text-[10px] italic text-amber-600/80 hover:text-amber-300 tracking-[0.2em] uppercase" style={{ fontFamily: 'Georgia, serif' }}>
-          Reset Balance
-        </button>
       </main>
     </div>
   );

@@ -12,7 +12,7 @@ const MINE_OPTS = [1, 3, 5];
 const BETS = [25, 50, 100, 250, 500];
 
 export default function Mines() {
-  const { balance, setBalance, reset } = useCasinoBalance();
+  const { balance, setBalance } = useCasinoBalance();
   const { rtp } = useGameSettings('mines');
   const [betIdx, setBetIdx] = useState(1);
   const [mineIdx, setMineIdx] = useState(1);
@@ -223,9 +223,6 @@ export default function Mines() {
           </button>
         )}
 
-        <button onClick={reset} className="text-[10px] italic text-amber-600/80 hover:text-amber-300 tracking-[0.2em] uppercase" style={{ fontFamily: 'Georgia, serif' }}>
-          Reset Balance
-        </button>
       </main>
     </div>
   );

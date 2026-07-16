@@ -60,7 +60,7 @@ function CardFace({ card, hidden }) {
 }
 
 export default function HiLo() {
-  const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
+  const { balance, setBalance } = useCasinoBalance();
   const { rtp } = useGameSettings('hi-lo');
   const [betIdx, setBetIdx] = useState(1);
   const [current, setCurrent] = useState(null);
@@ -127,8 +127,6 @@ export default function HiLo() {
     setRevealed(null);
     setStreak(0);
   };
-
-  const reset = () => { resetBalance(); setPhase('idle'); setCurrent(null); setRevealed(null); setPot(0); setStreak(0); setMessage('Balance reset'); };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950">
@@ -240,9 +238,6 @@ export default function HiLo() {
           </button>
         )}
 
-        <button onClick={reset} className="text-[10px] italic text-amber-600/80 hover:text-amber-300 tracking-[0.2em] uppercase" style={{ fontFamily: 'Georgia, serif' }}>
-          Reset Balance
-        </button>
       </main>
     </div>
   );

@@ -11,7 +11,7 @@ const MULTS = [25, 5, 2, 1, 0.5, 0.5, 1, 2, 5, 25];
 const BETS = [25, 50, 100, 250, 500];
 
 export default function Plinko() {
-  const { balance, setBalance, reset } = useCasinoBalance();
+  const { balance, setBalance } = useCasinoBalance();
   const { rtp } = useGameSettings('plinko');
   const [betIdx, setBetIdx] = useState(1);
   const [dropping, setDropping] = useState(false);
@@ -162,9 +162,6 @@ export default function Plinko() {
           <RotateCw className="w-5 h-5" /> {dropping ? 'Dropping...' : `DROP · $${bet}`}
         </button>
 
-        <button onClick={reset} className="text-[10px] italic text-amber-600/80 hover:text-amber-300 tracking-[0.2em] uppercase" style={{ fontFamily: 'Georgia, serif' }}>
-          Reset Balance
-        </button>
       </main>
     </div>
   );

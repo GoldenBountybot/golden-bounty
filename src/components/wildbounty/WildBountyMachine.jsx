@@ -122,14 +122,6 @@ export default function WildBountyMachine() {
         setAutoSpin={g.setAutoSpin}
       />
 
-      <button
-        onClick={g.reset}
-        className="text-[10px] italic text-amber-600/80 hover:text-amber-300 tracking-[0.2em] uppercase mx-auto mb-2"
-        style={{ fontFamily: 'Rye, Georgia, serif' }}
-      >
-        Reset Balance
-      </button>
-
       {g.showFreeSpinStart && !g.spinning && (
         <FreeSpinStart count={g.freeSpins} onStart={g.startFreeSpins} />
       )}
