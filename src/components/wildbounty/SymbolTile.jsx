@@ -47,17 +47,17 @@ export default function SymbolTile({ symbolId, highlighted, goldFramed, shatteri
         </div>
       )}
 
-      {/* Anticipation golden beam on landed wild & scatter */}
+      {/* Subtle golden beam on landed wild & scatter */}
       {(symbolId === 'scatter' || symbolId === 'wild') && scatterBeam && (
         <span
-          className="absolute inset-x-0 pointer-events-none z-30"
+          className="absolute inset-x-2 pointer-events-none z-30"
           style={{
-            top: '-30%',
-            bottom: '-30%',
+            top: '-12%',
+            bottom: '-12%',
             background:
-              'linear-gradient(to bottom, rgba(255,250,205,0) 0%, rgba(255,215,0,0.85) 22%, rgba(255,255,255,0.95) 50%, rgba(255,215,0,0.85) 78%, rgba(255,250,205,0) 100%)',
-            filter: 'blur(2px)',
-            boxShadow: '0 0 22px rgba(255,215,0,0.9), 0 0 40px rgba(255,215,0,0.6)',
+              'linear-gradient(to bottom, rgba(255,215,0,0) 0%, rgba(255,215,0,0.28) 35%, rgba(255,240,180,0.4) 50%, rgba(255,215,0,0.28) 65%, rgba(255,215,0,0) 100%)',
+            filter: 'blur(3px)',
+            boxShadow: '0 0 10px rgba(255,200,80,0.45)',
           }}
         />
       )}
