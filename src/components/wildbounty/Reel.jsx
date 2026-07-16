@@ -36,7 +36,7 @@ export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, wi
   }, [spinning, symbols, rowCount, anticipationGlow]);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-md" style={{ aspectRatio: '1 / ' + rowCount }}>
+    <div className={`relative w-full rounded-md ${spinning || cascading ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount }}>
       {/* Anticipation golden edge glow on both sides (brighter) */}
       {anticipationGlow && spinning && (
         <>
