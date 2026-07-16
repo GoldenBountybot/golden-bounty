@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CasinoGameCard from '@/components/CasinoGameCard';
-import { Gamepad2, LayoutDashboard, Gift, Users, Play, UserCircle } from 'lucide-react';
+import { Gamepad2, LayoutDashboard, Gift, Users, Play, UserCircle, Wallet } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
 const GAMES = [
   { id: 'wild-bounty', title: 'Wild Bounty Showdown', category: 'Slots', desc: '3600 Ways · Cascade Wins', accent: 'from-amber-500 to-orange-700', tag: 'HOT' },
@@ -22,6 +23,7 @@ const CATEGORIES = ['All', 'Slots', 'Wheel', 'Cards', 'Table', 'Arcade'];
 export default function Home() {
   const [cat, setCat] = useState('All');
   const { toast } = useToast();
+  const { balance } = useCasinoBalance();
   const filtered = cat === 'All' ? GAMES : GAMES.filter(g => g.category === cat);
   const playable = GAMES.filter(g => !g.coming).length;
 
@@ -42,6 +44,15 @@ export default function Home() {
             </div>
           </div>
 
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-black/40 border border-amber-600/50 hover:border-amber-400/70 hover:bg-black/60 transition-colors"
+          >
+            <Wallet className="w-4 h-4 text-amber-400" />
+            <span className="text-sm font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
+              ${balance.toFixed(2)}
+            </span>
+          </Link>
         </div>
       </header>
 
