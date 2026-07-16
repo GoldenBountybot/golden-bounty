@@ -16,7 +16,16 @@ export default function MultiplierBanner({ multIndex }) {
         <div className="w-0.5 h-3 bg-stone-500" />
         <div className="w-0.5 h-3 bg-stone-500" />
       </div>
-      <div className="rounded-lg bg-gradient-to-b from-amber-800 via-amber-900 to-stone-900 border-2 border-amber-700/60 shadow-lg px-2 py-1.5">
+      <div
+        className="rounded-lg px-3 py-2 shadow-lg"
+        style={{
+          backgroundImage:
+            'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/88b423add_InShot_20260715_212417291.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
         <div className="flex items-center justify-center gap-1">
           {view.map((m, i) => {
             const realIndex = start + i;
