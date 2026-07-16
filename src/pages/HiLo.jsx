@@ -4,6 +4,7 @@ import WesternFrame from '@/components/wildbounty/WesternFrame';
 import ShareButton from '@/components/ShareButton';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
+import { useLogActivity } from '@/lib/useLogActivity';
 
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -67,6 +68,7 @@ export default function HiLo() {
   const [pot, setPot] = useState(0);
   const [message, setMessage] = useState('Deal a card to start!');
   const [streak, setStreak] = useState(0);
+  const logActivity = useLogActivity();
 
   const bet = BETS[betIdx];
 
@@ -94,6 +96,7 @@ export default function HiLo() {
       setPhase('result');
       setMessage(`Same rank — push lost! Card was ${RANKS[next.rank]}.`);
       setPot(0);
+      logActivity('hi-lo', bet, 0, 'loss');
     } else if (correct) {
       const newPot = pot * 2;
       setPot(newPot);
@@ -108,6 +111,7 @@ export default function HiLo() {
       setPhase('result');
       setMessage(`Wrong! The card was ${RANKS[next.rank]}. You lost the pot.`);
       setPot(0);
+      logActivity('hi-lo', bet, 0, 'loss');
     }
   };
 
@@ -115,6 +119,7 @@ export default function HiLo() {
     if (phase !== 'guessing' || pot === 0) return;
     setBalance(b => b + pot);
     setMessage(`Collected $${pot.toFixed(2)}!`);
+    logActivity('hi-lo', bet, pot, 'win');
     setPot(0);
     setPhase('idle');
     setCurrent(null);

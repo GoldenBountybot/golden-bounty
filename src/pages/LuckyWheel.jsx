@@ -4,6 +4,7 @@ import WesternFrame from '@/components/wildbounty/WesternFrame';
 import ShareButton from '@/components/ShareButton';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
+import { useLogActivity } from '@/lib/useLogActivity';
 
 const SEGMENTS = [
   { mult: 0, label: '0', color: '#3a2810' },
@@ -27,6 +28,7 @@ export default function LuckyWheel() {
   const { rtp } = useGameSettings('lucky-wheel');
   const [message, setMessage] = useState('Spin the Wheel!');
   const [lastWin, setLastWin] = useState(0);
+  const logActivity = useLogActivity();
 
   const bet = BETS[betIdx];
 
@@ -56,6 +58,7 @@ export default function LuckyWheel() {
       } else {
         setMessage('No win — try again!');
       }
+      logActivity('lucky-wheel', bet, win, win > 0 ? 'win' : 'loss');
       setSpinning(false);
     }, 4500);
   };

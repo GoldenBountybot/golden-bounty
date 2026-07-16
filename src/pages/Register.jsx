@@ -45,9 +45,8 @@ export default function Register() {
       const result = await base44.auth.verifyOtp({ email, otpCode });
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
-        if (phone) {
-          try { await base44.auth.updateMe({ phone }); } catch { /* phone is optional */ }
-        }
+        const uid = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+        try { await base44.auth.updateMe({ uid, phone }); } catch { /* profile fields optional */ }
       }
       window.location.href = "/";
     } catch (err) {

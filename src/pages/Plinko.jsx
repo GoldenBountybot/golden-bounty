@@ -4,6 +4,7 @@ import GameHeader from '@/components/GameHeader';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
+import { useLogActivity } from '@/lib/useLogActivity';
 
 const ROWS = 9;          // 9 bounces → 10 buckets
 const MULTS = [25, 5, 2, 1, 0.5, 0.5, 1, 2, 5, 25];
@@ -20,6 +21,7 @@ export default function Plinko() {
   const [lastWin, setLastWin] = useState(0);
   const timers = useRef([]);
   const bet = BETS[betIdx];
+  const logActivity = useLogActivity();
 
   useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
 
@@ -62,6 +64,7 @@ export default function Plinko() {
           setLastWin(win);
           setResultBucket(bucket);
           setMessage(`${mult}x · You won $${win.toFixed(2)}`);
+          logActivity('plinko', bet, win, win > 0 ? 'win' : 'loss');
           setDropping(false);
         }, 220);
         timers.current.push(t);

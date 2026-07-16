@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { REEL_ROWS, buildReel, evaluateWins, MULTIPLIERS, BETS, randomSymbol } from './symbols';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
+import { useLogActivity } from '@/lib/useLogActivity';
 
 export function useWildBounty() {
   const [grid, setGrid] = useState(() => REEL_ROWS.map(r => buildReel(r)));
@@ -25,6 +26,7 @@ export function useWildBounty() {
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
 
   const settings = useGameSettings('wild-bounty');
+  const logActivity = useLogActivity();
   const rtpRef = useRef(50);
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
 
@@ -127,6 +129,7 @@ export function useWildBounty() {
         setMessage(sc === 2 ? 'ONE MORE SCATTER!' : 'WIN UP TO 3600 WAYS!');
       }
       setSpinning(false);
+      logActivity('wild-bounty', bet, totalWin, totalWin > 0 ? 'win' : 'loss');
     }
   };
 

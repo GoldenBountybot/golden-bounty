@@ -4,6 +4,7 @@ import GameHeader from '@/components/GameHeader';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
+import { useLogActivity } from '@/lib/useLogActivity';
 
 const TOTAL = 25;
 const COLS = 5;
@@ -25,6 +26,7 @@ export default function Mines() {
   const [lastWin, setLastWin] = useState(0);
   const [forceFirstMine, setForceFirstMine] = useState(false);
   const bet = BETS[betIdx];
+  const logActivity = useLogActivity();
 
   const start = () => {
     if (phase === 'playing') return;
@@ -69,6 +71,7 @@ export default function Mines() {
       setPhase('over');
       setPot(0);
       setMessage('BOOM! You hit a mine.');
+      logActivity('mines', bet, 0, 'loss');
       return;
     }
     const k = newRev.size;
@@ -80,6 +83,7 @@ export default function Mines() {
       setBalance(b => b + win);
       setLastWin(win);
       setMessage(`Cleared! Won $${win.toFixed(2)} (${newPot.toFixed(2)}x)`);
+      logActivity('mines', bet, win, 'win');
       setPhase('over');
     } else {
       setMessage(`Safe! Pot $${(bet * newPot).toFixed(2)} · cash out or continue`);
@@ -92,6 +96,7 @@ export default function Mines() {
     setBalance(b => b + win);
     setLastWin(win);
     setMessage(`Cashed out $${win.toFixed(2)} (${pot.toFixed(2)}x)`);
+    logActivity('mines', bet, win, 'win');
     setPhase('over');
   };
 

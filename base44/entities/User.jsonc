@@ -8,6 +8,10 @@
         "user"
       ]
     },
+    "uid": {
+      "type": "string",
+      "description": "10-digit unique player id"
+    },
     "username": {
       "type": "string",
       "description": "Display username chosen by the player"
