@@ -71,7 +71,7 @@ export default function WildBountyMachine() {
         <span className="absolute right-0.5 top-1/2 -translate-y-1/2 rotate-90 text-[7px] font-bold text-amber-600/60 tracking-[0.2em] whitespace-nowrap">3600 WAYS</span>
 
         {/* Grid — 24 cells (3-4-5-5-4-3), centered diamond */}
-        <div className="grid grid-cols-6 gap-1 px-1 items-center mt-8 mb-1">
+        <div className="grid grid-cols-6 gap-1 px-1 items-center mt-12 mb-1">
           {g.grid.map((reel, ri) => (
             <Reel
               key={ri}
