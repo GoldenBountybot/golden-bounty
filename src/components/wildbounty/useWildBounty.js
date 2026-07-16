@@ -244,8 +244,10 @@ export function useWildBounty() {
 
     const frames = assignGoldFrames(finalGrid);
     const baseGap = turbo ? 130 : 230;
+    const slowGap = turbo ? 900 : 1500; // slow-motion anticipation for remaining reels
 
-    const stopReel = (i) => {
+    let stoppedScatter = 0;
+    const stopReel = (i, slow) => {
       const t = setTimeout(() => {
         setGrid(prev => {
           const next = [...prev];
@@ -253,21 +255,31 @@ export function useWildBounty() {
           return next;
         });
         setStoppedReels(prev => new Set([...prev, i]));
+        const scattersInReel = finalGrid[i].filter(s => s === 'scatter').length;
+        stoppedScatter += scattersInReel;
         // Light up any landed wild & scatter symbols with a golden beam
         const glow = new Set();
         for (let r = 0; r <= i; r++) {
           finalGrid[r].forEach((s, row) => { if (s === 'scatter' || s === 'wild') glow.add(`${r}-${row}`); });
         }
         setScatterGlow(glow);
+        if (stoppedScatter >= 2) {
+          // 2 scatters landed — slow the remaining reels + golden side glow
+          if (i < 5) {
+            if (!slow) { setAnticipation(true); sfx.anticipation(); }
+            stopReel(i + 1, true);
+            return;
+          }
+        }
         if (i < 5) {
-          stopReel(i + 1);
+          stopReel(i + 1, false);
         } else {
           settle(finalGrid, frames, usingFree);
         }
-      }, baseGap);
+      }, slow ? slowGap : baseGap);
       timers.current.push(t);
     };
-    stopReel(0);
+    stopReel(0, false);
   }, [spinning, balance, bet, freeSpins, turbo, multIndex]);
 
   // auto spin
