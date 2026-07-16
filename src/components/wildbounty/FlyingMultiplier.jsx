@@ -5,9 +5,9 @@ import { sfx } from './sounds';
 // swells big at the centre of the reels, then turns into a shower of gold coins
 // that stream down and pile into the win banner — with coin-clink sounds.
 export default function FlyingMultiplier({ value, onComplete }) {
-  const TOTAL = 1950;
-  const COIN_START = 980;
-  const HOLD_END = 1560;
+  const TOTAL = 2350;
+  const COIN_START = 1180;
+  const HOLD_END = 1880;
 
   // Pre-build coin particles with spread offsets + staggered delays.
   const coins = useMemo(() => {
@@ -16,7 +16,7 @@ export default function FlyingMultiplier({ value, onComplete }) {
       const dx = (i - 6.5) * 14 + (Math.random() - 0.5) * 22;
       list.push({
         dx,
-        delay: COIN_START + (i * 38) + Math.random() * 40,
+        delay: COIN_START + (i * 46) + Math.random() * 50,
         rot: (Math.random() * 2 - 1) * 220,
         size: 16 + Math.random() * 10,
       });
