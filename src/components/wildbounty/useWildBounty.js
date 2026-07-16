@@ -98,13 +98,25 @@ export function useWildBounty() {
 
       // Wild conversion: a 4/5+ of-a-kind turns the matching symbol on the
       // last matched reel into a wild (which persists through the cascade).
-      const convertSet = new Set();
+      // Cap at max 3 wilds per reel (including any already-landed wilds).
+      const existingWilds = {};
+      currentGrid.forEach((reel, ri) => { existingWilds[ri] = reel.filter(s => s === 'wild').length; });
+      const convertByReel = {};
       wins.forEach(w => {
         if (w.reels >= 3) {
           // Wild lands only on reels 3 & 4 (indices 2 & 3)
           const tr = Math.min(w.reels - 1, 3);
-          currentGrid[tr].forEach((s, row) => { if (s === w.symbol) convertSet.add(`${tr}-${row}`); });
+          if (!convertByReel[tr]) convertByReel[tr] = [];
+          currentGrid[tr].forEach((s, row) => {
+            const key = `${tr}-${row}`;
+            if (s === w.symbol && !convertByReel[tr].includes(key)) convertByReel[tr].push(key);
+          });
         }
+      });
+      const convertSet = new Set();
+      Object.entries(convertByReel).forEach(([tr, keys]) => {
+        const room = Math.max(0, 3 - (existingWilds[tr] || 0));
+        keys.slice(0, room).forEach(k => convertSet.add(k));
       });
       let gridForCascade = currentGrid;
       if (convertSet.size) {
