@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CasinoGameCard from '@/components/CasinoGameCard';
-import { Gamepad2, Coins } from 'lucide-react';
+import { Gamepad2, Coins, LayoutDashboard, Gift, Users, Play } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const GAMES = [
   { id: 'wild-bounty', title: 'Wild Bounty Showdown', category: 'Slots', desc: '3600 Ways · Cascade Wins', accent: 'from-amber-500 to-orange-700', tag: 'HOT' },
@@ -20,6 +21,7 @@ const CATEGORIES = ['All', 'Slots', 'Wheel', 'Cards', 'Table', 'Arcade'];
 
 export default function Home() {
   const [cat, setCat] = useState('All');
+  const { toast } = useToast();
   const filtered = cat === 'All' ? GAMES : GAMES.filter(g => g.category === cat);
   const playable = GAMES.filter(g => !g.coming).length;
 
@@ -45,6 +47,40 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      {/* Quick actions */}
+      <div className="max-w-6xl mx-auto px-4 mt-4">
+        <div className="grid grid-cols-4 gap-2">
+          <button
+            onClick={() => toast({ title: 'Dashboard', description: 'Coming soon!' })}
+            className="flex flex-col items-center gap-1 py-3 rounded-xl bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors"
+          >
+            <LayoutDashboard className="w-5 h-5 text-amber-300" />
+            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Dashboard</span>
+          </button>
+          <button
+            onClick={() => toast({ title: 'Referral', description: 'Coming soon!' })}
+            className="flex flex-col items-center gap-1 py-3 rounded-xl bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors"
+          >
+            <Users className="w-5 h-5 text-amber-300" />
+            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Referral</span>
+          </button>
+          <button
+            onClick={() => document.getElementById('games')?.scrollIntoView({ behavior: 'smooth' })}
+            className="flex flex-col items-center gap-1 py-3 rounded-xl bg-gradient-to-b from-amber-400 to-orange-600 border border-amber-300 hover:from-amber-300 hover:to-orange-500 transition-colors"
+          >
+            <Play className="w-5 h-5 text-stone-950" />
+            <span className="text-[11px] font-black italic text-stone-950" style={{ fontFamily: 'Georgia, serif' }}>Play Game</span>
+          </button>
+          <button
+            onClick={() => toast({ title: 'Bonus', description: 'Coming soon!' })}
+            className="flex flex-col items-center gap-1 py-3 rounded-xl bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors"
+          >
+            <Gift className="w-5 h-5 text-amber-300" />
+            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Bonus</span>
+          </button>
+        </div>
+      </div>
 
       {/* Hero strip */}
       <div className="max-w-6xl mx-auto px-4 pt-6">
@@ -85,7 +121,7 @@ export default function Home() {
       </div>
 
       {/* Game grid */}
-      <main className="max-w-6xl mx-auto px-4 py-6">
+      <main id="games" className="max-w-6xl mx-auto px-4 py-6 scroll-mt-20">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {filtered.map(g => (
             <CasinoGameCard key={g.id} game={g} />
