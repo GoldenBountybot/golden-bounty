@@ -28,9 +28,9 @@ export default function Home() {
   const playable = GAMES.filter(g => !g.coming).length;
 
   return (
-    <div className="min-h-screen pb-20 bg-gradient-to-b from-amber-950 via-stone-900 to-stone-950">
+    <div className="min-h-screen pb-20 bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/40">
+      <header className="sticky top-0 z-20 bg-emerald-950/90 backdrop-blur-xl border-b border-amber-600/30">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-700/40">
@@ -57,6 +57,28 @@ export default function Home() {
       </header>
 
 
+
+      {/* Hero strip */}
+      <div className="max-w-6xl mx-auto px-4 pt-6">
+        <div className="relative rounded-2xl overflow-hidden border border-amber-600/40 p-6 bg-gradient-to-r from-amber-900/60 via-stone-900/60 to-emerald-900/60">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,200,80,0.25),transparent_55%)]" />
+          <div className="relative">
+            <h2 className="text-2xl sm:text-3xl font-black italic text-amber-200 drop-shadow" style={{ fontFamily: 'Georgia, serif' }}>
+              Welcome to the Saloon
+            </h2>
+            <p className="text-sm text-amber-100/80 mt-1 max-w-md">
+              Spin the reels of Wild Bounty Showdown, test your luck on the wheel, or read the cards. New games added often!
+            </p>
+            <Link
+              to="/games/wild-bounty"
+              className="inline-flex items-center gap-2 mt-3 px-5 py-2.5 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 text-sm font-black italic shadow-lg hover:from-amber-300 hover:to-orange-400 transition-colors"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              <Gamepad2 className="w-4 h-4" /> Play Wild Bounty
+            </Link>
+          </div>
+        </div>
+      </div>
 
       {/* Category tabs */}
       <div className="max-w-6xl mx-auto px-4 mt-6">
@@ -90,7 +112,7 @@ export default function Home() {
       </footer>
 
       {/* Bottom quick actions — fixed at the very bottom */}
-      <div className="fixed bottom-0 inset-x-0 z-30 border-t border-amber-700/40 bg-stone-950/95 backdrop-blur-xl">
+      <div className="fixed bottom-0 inset-x-0 z-30 border-t border-amber-700/40 bg-emerald-950/95 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-4 py-2 grid grid-cols-5 gap-2">
           <Link to="/dashboard" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
             <LayoutDashboard className="w-5 h-5 text-amber-300" />
