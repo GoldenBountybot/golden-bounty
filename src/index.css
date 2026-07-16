@@ -106,6 +106,14 @@
   100% { transform: translateY(0%); }
 }
 
+@keyframes reelLandSlow {
+  0% { transform: translateY(-22%); }
+  35% { transform: translateY(6%); }
+  60% { transform: translateY(-4%); }
+  80% { transform: translateY(2%); }
+  100% { transform: translateY(0%); }
+}
+
 @keyframes shatterWin {
   0% { transform: scale(1); opacity: 1; filter: brightness(1); }
   25% { transform: scale(1.4); opacity: 1; filter: brightness(1.6); }

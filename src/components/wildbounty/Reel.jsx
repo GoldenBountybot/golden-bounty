@@ -7,11 +7,14 @@ import { randomSymbol } from './symbols';
 export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions, goldFrames, shatteringPositions, cascading, cascadePositions, scatterGlow, anticipationGlow }) {
   const [justStopped, setJustStopped] = useState(false);
   const prevSpinning = useRef(false);
+  const wasAnticipation = useRef(false);
+
+  useEffect(() => { if (spinning && anticipationGlow) wasAnticipation.current = true; }, [spinning, anticipationGlow]);
 
   useEffect(() => {
     if (prevSpinning.current && !spinning) {
       setJustStopped(true);
-      const t = setTimeout(() => setJustStopped(false), 400);
+      const t = setTimeout(() => { setJustStopped(false); wasAnticipation.current = false; }, wasAnticipation.current ? 1100 : 400);
       prevSpinning.current = spinning;
       return () => clearTimeout(t);
     }
@@ -50,7 +53,7 @@ export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, wi
       )}
       <div
         className="flex flex-col w-full"
-        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? 'reelLand 0.4s ease-out' : 'none' }}
+        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s ease-out' : 'reelLand 0.4s ease-out') : 'none' }}
       >
         {strip.map((sym, i) => {
           const isDropping = cascading && cascadePositions && cascadePositions.has(`${reelIndex}-${i}`);
