@@ -56,32 +56,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero shield plaque */}
-      <div className="max-w-6xl mx-auto px-4 pt-6">
-        <div className="relative rounded-2xl overflow-hidden border-2 border-amber-600/60 shadow-2xl shadow-amber-900/50">
-          <img
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11bb10de3_InShot_20260715_212512483.jpg"
-            alt="Golden Bounty Saloon"
-            className="w-full h-72 sm:h-80 object-cover"
-          />
-          <div className="absolute inset-0 bg-black/15" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-            <h2 className="text-3xl sm:text-4xl font-black italic text-amber-200 drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)]" style={{ fontFamily: 'Georgia, serif' }}>
-              Golden Bounty Casino
-            </h2>
-            <p className="text-sm sm:text-base text-amber-100/90 mt-2 max-w-sm italic" style={{ fontFamily: 'Georgia, serif' }}>
-              Welcome to the Saloon — spin, wager & win the bounty of the West.
-            </p>
-            <Link
-              to="/games/wild-bounty"
-              className="inline-flex items-center gap-2 mt-4 px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 text-sm font-black italic shadow-lg hover:from-amber-300 hover:to-orange-400 transition-colors"
-              style={{ fontFamily: 'Georgia, serif' }}
-            >
-              <Gamepad2 className="w-4 h-4" /> Play Wild Bounty
-            </Link>
-          </div>
-        </div>
-      </div>
+
 
       {/* Category tabs */}
       <div className="max-w-6xl mx-auto px-4 mt-6">
