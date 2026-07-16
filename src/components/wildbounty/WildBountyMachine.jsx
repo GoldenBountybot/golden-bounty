@@ -52,7 +52,7 @@ export default function WildBountyMachine() {
 
       {/* Reel board — bronze western frame (web asset) around symbols */}
       <div
-        className="relative px-3 py-3 mx-1 my-0 rounded-2xl"
+        className="relative px-5 py-3 mx-1 my-0 rounded-2xl"
         style={{
           backgroundImage:
             'linear-gradient(rgba(20,14,8,0.35), rgba(20,14,8,0.45)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a416f3da8_generated_image.png)',
@@ -70,7 +70,7 @@ export default function WildBountyMachine() {
 
 
         {/* Grid — 24 cells (3-4-5-5-4-3), centered diamond */}
-        <div className="grid grid-cols-6 gap-1.5 px-1 items-center mt-8 mb-1">
+        <div className="grid grid-cols-6 gap-1.5 px-1 items-center mt-2 mb-1">
           {g.grid.map((reel, ri) => (
             <Reel
               key={ri}
