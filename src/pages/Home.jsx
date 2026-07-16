@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CasinoGameCard from '@/components/CasinoGameCard';
-import { Gamepad2, LayoutDashboard, Gift, Users, Play } from 'lucide-react';
+import { Gamepad2, LayoutDashboard, Gift, Users, Play, UserCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const GAMES = [
@@ -100,7 +100,7 @@ export default function Home() {
 
       {/* Bottom quick actions — fixed at the very bottom */}
       <div className="fixed bottom-0 inset-x-0 z-30 border-t border-amber-700/40 bg-emerald-950/95 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-4 py-2 grid grid-cols-4 gap-2">
+        <div className="max-w-6xl mx-auto px-4 py-2 grid grid-cols-5 gap-2">
           <Link to="/dashboard" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
             <LayoutDashboard className="w-5 h-5 text-amber-300" />
             <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Dashboard</span>
@@ -119,6 +119,10 @@ export default function Home() {
           <Link to="/dashboard?tab=bonus" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
             <Gift className="w-5 h-5 text-amber-300" />
             <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Bonus</span>
+          </Link>
+          <Link to="/profile" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
+            <UserCircle className="w-5 h-5 text-amber-300" />
+            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Profile</span>
           </Link>
         </div>
       </div>

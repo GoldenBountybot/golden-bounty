@@ -8,6 +8,10 @@
         "user"
       ]
     },
+    "username": {
+      "type": "string",
+      "description": "Display username chosen by the player"
+    },
     "phone": {
       "type": "string",
       "description": "Phone number of the user"

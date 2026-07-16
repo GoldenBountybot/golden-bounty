@@ -17,6 +17,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
+import Profile from './pages/Profile';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 const AuthenticatedApp = () => {
@@ -45,17 +46,21 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Public casino — play without login */}
+      {/* Public lobby & auth */}
       <Route path="/" element={<Home />} />
-      <Route path="/games/wild-bounty" element={<SlotGame />} />
-      <Route path="/games/lucky-wheel" element={<LuckyWheel />} />
-      <Route path="/games/hi-lo" element={<HiLo />} />
-      <Route path="/games/plinko" element={<Plinko />} />
-      <Route path="/games/mines" element={<Mines />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/admin" element={<Admin />} />
+      {/* Authenticated casino — login required to play */}
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route path="/games/wild-bounty" element={<SlotGame />} />
+        <Route path="/games/lucky-wheel" element={<LuckyWheel />} />
+        <Route path="/games/hi-lo" element={<HiLo />} />
+        <Route path="/games/plinko" element={<Plinko />} />
+        <Route path="/games/mines" element={<Mines />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/admin" element={<Admin />} />
+      </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
