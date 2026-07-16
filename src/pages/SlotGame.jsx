@@ -1,6 +1,7 @@
 import React from "react";
-import { ArrowLeft, Gamepad2 } from "lucide-react";
+import { Gamepad2 } from "lucide-react";
 import WildBountyMachine from "@/components/wildbounty/WildBountyMachine";
+import BackButton from "@/components/BackButton";
 import WesternFrame from "@/components/wildbounty/WesternFrame";
 import ShareButton from "@/components/ShareButton";
 
@@ -9,9 +10,7 @@ export default function SlotGame() {
     <div className="min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/40 to-stone-950">
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
-          <button onClick={() => { window.location.href = '/'; }} title="Back" className="flex items-center justify-center w-9 h-9 rounded-lg text-stone-300 hover:text-amber-200 hover:bg-black/40 transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+          <BackButton />
           <div className="flex-1 flex items-center justify-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
               <Gamepad2 className="w-4 h-4 text-stone-950" />

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  ArrowLeft, User as UserIcon, Phone, Hash, LogOut, Loader2, Check,
+  User as UserIcon, Phone, Hash, LogOut, Loader2, Check,
   Wallet, ArrowDownToLine, ArrowUpFromLine, Gift, Gamepad2,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import BackButton from '@/components/BackButton';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -106,9 +107,7 @@ export default function Profile() {
     <div className="min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/40 to-stone-950 pb-10">
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
-          <button onClick={() => { window.location.href = '/'; }} title="Back" className="flex items-center justify-center w-9 h-9 rounded-lg text-stone-300 hover:text-amber-200 hover:bg-black/40 transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+          <BackButton />
           <div className="flex-1 text-center">
             <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Profile</h1>
           </div>

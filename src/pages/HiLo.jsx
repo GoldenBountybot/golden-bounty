@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowUp, ArrowDown, RotateCcw } from 'lucide-react';
+import { ArrowUp, ArrowDown, RotateCcw } from 'lucide-react';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import BackButton from '@/components/BackButton';
 import ShareButton from '@/components/ShareButton';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -133,9 +134,7 @@ export default function HiLo() {
     <div className="min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950">
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-emerald-600/30">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
-          <button onClick={() => { window.location.href = '/'; }} title="Back" className="flex items-center justify-center w-9 h-9 rounded-lg text-stone-300 hover:text-amber-200 hover:bg-black/40 transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+          <BackButton />
           <div className="flex-1 text-center">
             <h1 className="text-base font-black italic text-emerald-200" style={{ fontFamily: 'Georgia, serif' }}>High or Low</h1>
           </div>

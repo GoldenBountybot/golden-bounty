@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Wallet, Gift, Users, Copy, Check, ArrowDownToLine, ArrowUpFromLine, Shield } from 'lucide-react';
+import { Wallet, Gift, Users, Copy, Check, ArrowDownToLine, ArrowUpFromLine, Shield } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
+import BackButton from '@/components/BackButton';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/lib/AuthContext';
@@ -100,9 +101,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950 pb-10">
       <header className="sticky top-0 z-20 bg-emerald-950/90 backdrop-blur-xl border-b border-amber-600/30">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
-          <button onClick={() => { window.location.href = '/'; }} title="Back" className="flex items-center justify-center w-9 h-9 rounded-lg text-stone-300 hover:text-amber-200 hover:bg-black/40 transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+          <BackButton />
           <div className="flex-1 text-center">
             <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Dashboard</h1>
           </div>
