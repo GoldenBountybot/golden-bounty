@@ -51,7 +51,17 @@ export default function WildBountyMachine() {
       </div>
 
       {/* Reel board — bronze western frame (web asset) around symbols */}
-      <div className="relative px-3 py-3 mx-2 my-1 rounded-2xl">
+      <div
+        className="relative px-3 py-3 mx-2 my-1 rounded-2xl"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(20,14,8,0.35), rgba(20,14,8,0.45)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a416f3da8_generated_image.png)',
+          backgroundSize: 'cover, cover',
+          backgroundPosition: 'center, center',
+          backgroundRepeat: 'no-repeat, no-repeat',
+          boxShadow: '0 14px 40px rgba(0,0,0,0.7)',
+        }}
+      >
         {/* Copper frame rivets */}
         <span className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
         <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
