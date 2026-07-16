@@ -26,7 +26,7 @@ export default function Home() {
   const playable = GAMES.filter(g => !g.coming).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950">
+    <div className="min-h-screen pb-20 bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950">
       {/* Header */}
       <header className="sticky top-0 z-20 bg-emerald-950/90 backdrop-blur-xl border-b border-amber-600/30">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -47,40 +47,6 @@ export default function Home() {
           </div>
         </div>
       </header>
-
-      {/* Quick actions */}
-      <div className="max-w-6xl mx-auto px-4 mt-4">
-        <div className="grid grid-cols-4 gap-2">
-          <button
-            onClick={() => toast({ title: 'Dashboard', description: 'Coming soon!' })}
-            className="flex flex-col items-center gap-1 py-3 rounded-xl bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors"
-          >
-            <LayoutDashboard className="w-5 h-5 text-amber-300" />
-            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Dashboard</span>
-          </button>
-          <button
-            onClick={() => toast({ title: 'Referral', description: 'Coming soon!' })}
-            className="flex flex-col items-center gap-1 py-3 rounded-xl bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors"
-          >
-            <Users className="w-5 h-5 text-amber-300" />
-            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Referral</span>
-          </button>
-          <button
-            onClick={() => document.getElementById('games')?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex flex-col items-center gap-1 py-3 rounded-xl bg-gradient-to-b from-amber-400 to-orange-600 border border-amber-300 hover:from-amber-300 hover:to-orange-500 transition-colors"
-          >
-            <Play className="w-5 h-5 text-stone-950" />
-            <span className="text-[11px] font-black italic text-stone-950" style={{ fontFamily: 'Georgia, serif' }}>Play Game</span>
-          </button>
-          <button
-            onClick={() => toast({ title: 'Bonus', description: 'Coming soon!' })}
-            className="flex flex-col items-center gap-1 py-3 rounded-xl bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors"
-          >
-            <Gift className="w-5 h-5 text-amber-300" />
-            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Bonus</span>
-          </button>
-        </div>
-      </div>
 
       {/* Hero strip */}
       <div className="max-w-6xl mx-auto px-4 pt-6">
@@ -134,6 +100,40 @@ export default function Home() {
           Golden Bounty Casino · Play responsibly · For entertainment only
         </p>
       </footer>
+
+      {/* Bottom quick actions — fixed at the very bottom */}
+      <div className="fixed bottom-0 inset-x-0 z-30 border-t border-amber-700/40 bg-emerald-950/95 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto px-4 py-2 grid grid-cols-4 gap-2">
+          <button
+            onClick={() => toast({ title: 'Dashboard', description: 'Coming soon!' })}
+            className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors"
+          >
+            <LayoutDashboard className="w-5 h-5 text-amber-300" />
+            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Dashboard</span>
+          </button>
+          <button
+            onClick={() => toast({ title: 'Referral', description: 'Coming soon!' })}
+            className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors"
+          >
+            <Users className="w-5 h-5 text-amber-300" />
+            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Referral</span>
+          </button>
+          <button
+            onClick={() => document.getElementById('games')?.scrollIntoView({ behavior: 'smooth' })}
+            className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-gradient-to-b from-amber-400 to-orange-600 border border-amber-300 hover:from-amber-300 hover:to-orange-500 transition-colors"
+          >
+            <Play className="w-5 h-5 text-stone-950" />
+            <span className="text-[11px] font-black italic text-stone-950" style={{ fontFamily: 'Georgia, serif' }}>Play Game</span>
+          </button>
+          <button
+            onClick={() => toast({ title: 'Bonus', description: 'Coming soon!' })}
+            className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors"
+          >
+            <Gift className="w-5 h-5 text-amber-300" />
+            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Bonus</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
