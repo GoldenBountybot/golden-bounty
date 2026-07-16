@@ -99,8 +99,9 @@ export function useWildBounty() {
       // last matched reel into a wild (which persists through the cascade).
       const convertSet = new Set();
       wins.forEach(w => {
-        if (w.reels >= 4) {
-          const tr = w.reels - 1;
+        if (w.reels >= 3) {
+          // Wild lands only on reels 3 & 4 (indices 2 & 3)
+          const tr = Math.min(w.reels - 1, 3);
           currentGrid[tr].forEach((s, row) => { if (s === w.symbol) convertSet.add(`${tr}-${row}`); });
         }
       });
