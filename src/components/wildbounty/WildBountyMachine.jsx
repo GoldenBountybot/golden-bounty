@@ -79,8 +79,8 @@ export default function WildBountyMachine() {
 
         {/* FEATURE BUY — wooden plaque on the right */}
         <button
-          className="absolute -right-2 top-1/2 -translate-y-1/2 rounded-md bg-gradient-to-b from-amber-700 to-amber-950 border border-amber-500/50 px-1.5 py-2 text-[8px] font-bold text-amber-100 tracking-wider shadow-md writing-mode-vertical"
-          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+          className="absolute -right-2 top-1/2 -translate-y-1/2 rounded-md bg-gradient-to-b from-amber-700 to-amber-950 border border-amber-500/50 px-1.5 py-2 text-[8px] font-bold italic text-amber-100 tracking-wider shadow-md writing-mode-vertical"
+          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', fontFamily: 'Georgia, serif' }}
           title="Feature Buy"
         >
           FEATURE BUY
