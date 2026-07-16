@@ -18,7 +18,7 @@ export default function MultiplierBanner({ multIndex }) {
         <div className="w-0.5 h-3 bg-stone-500" />
       </div>
       <PlaqueBanner className="rounded-lg px-3 py-2">
-        <div className="flex items-center justify-center gap-1">
+        <div className="flex items-center justify-center gap-4 sm:gap-6">
           {view.map((m, i) => {
             const realIndex = start + i;
             const isActive = realIndex === multIndex;
