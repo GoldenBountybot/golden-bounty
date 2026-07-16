@@ -49,7 +49,7 @@ export default function SymbolTile({ symbolId, highlighted, goldFramed, shatteri
             maskSize: '100% 100%',
             maskRepeat: 'no-repeat',
             maskMode: 'luminance',
-            transform: 'scale(2.2)',
+            transform: 'scale(3.2)',
           } : undefined}
         />
       ) : isCard ? (
