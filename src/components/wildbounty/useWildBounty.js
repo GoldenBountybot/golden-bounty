@@ -216,7 +216,7 @@ export function useWildBounty() {
 
     // 3 scatters landing together is capped at 0.01% per spin.
     finalGrid = finalGrid.map(reel => [...reel]);
-    const SCATTER_TRIGGER_RATE = 0.0001;
+    const SCATTER_TRIGGER_RATE = 0.00005;
     const forceScatters = Math.random() < SCATTER_TRIGGER_RATE;
     let scatterTotal = finalGrid.reduce((n, reel) => n + reel.filter(s => s === 'scatter').length, 0);
     const nonScatter = () => { let s = randomSymbol(); while (s === 'scatter') s = randomSymbol(); return s; };
