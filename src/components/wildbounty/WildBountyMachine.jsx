@@ -59,7 +59,7 @@ export default function WildBountyMachine() {
 
 
         {/* Grid — 24 cells (3-4-5-5-4-3), centered diamond */}
-        <div className="grid grid-cols-6 gap-1.5 px-1 items-center mt-1 mb-1">
+        <div className="grid grid-cols-6 gap-0 px-0 items-center mt-1 mb-1">
           {g.grid.map((reel, ri) => (
             <Reel
               key={ri}
