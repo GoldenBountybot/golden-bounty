@@ -3,6 +3,7 @@ import { REEL_ROWS, buildReel, evaluateWins, MULTIPLIERS, BETS, randomSymbol } f
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
+import { sfx } from './sounds';
 
 export function useWildBounty() {
   const [grid, setGrid] = useState(() => REEL_ROWS.map(r => buildReel(r)));
@@ -88,6 +89,7 @@ export function useWildBounty() {
     }
 
     if (stepWin > 0) {
+      sfx.win();
       const newTotal = totalWin + stepWin;
       const newMult = Math.min(currentMultIndex + 1, MULTIPLIERS.length - 1);
 
@@ -98,7 +100,7 @@ export function useWildBounty() {
       setMessage(justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`);
 
       // Shatter winning symbols after a brief highlight
-      const shatterT = setTimeout(() => setShattering(new Set(wpos)), 400);
+      const shatterT = setTimeout(() => { sfx.blast(); setShattering(new Set(wpos)); }, 400);
       timers.current.push(shatterT);
 
       // Cascade: drop new symbols, then re-evaluate
@@ -121,7 +123,7 @@ export function useWildBounty() {
       timers.current.push(cascadeT);
     } else {
       // No more wins — end the chain
-      if (cascadeCount === 0) setLastWin(0);
+      if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
       if (!wasFree) setMultIndex(0);
       if (awarded) {
         setMessage(wasFree ? 'RETRIGGER! +10 FREE SPINS' : '3+ SCATTER! 10 FREE SPINS');
@@ -149,6 +151,7 @@ export function useWildBounty() {
     timers.current = [];
 
     setSpinning(true);
+    sfx.spin();
     setStoppedReels(new Set());
     setWinningPositions(new Set());
     setGoldFrames(new Set());
