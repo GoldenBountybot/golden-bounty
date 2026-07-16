@@ -31,10 +31,10 @@ export default function WesternStatBanner({ icon: Icon, label, value, glow = fal
           <Icon className="w-3.5 h-3.5 text-stone-900" strokeWidth={2.4} />
         </span>
         <div className="flex flex-col leading-tight min-w-0">
-          <span className="text-[8px] text-amber-300/80 tracking-[0.15em] uppercase" style={{ fontFamily: 'Georgia, serif' }}>
+          <span className="text-[9px] italic text-amber-300/90 tracking-[0.18em] uppercase" style={{ fontFamily: 'Georgia, serif', textShadow: '0 1px 1px rgba(0,0,0,0.6)' }}>
             {label}
           </span>
-          <span className="text-xs font-bold italic text-yellow-100 tabular-nums truncate" style={{ fontFamily: 'Georgia, serif' }}>
+          <span className="text-sm font-bold italic text-yellow-100 tabular-nums truncate" style={{ fontFamily: 'Georgia, serif', textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>
             {value}
           </span>
         </div>
