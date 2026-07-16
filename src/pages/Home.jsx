@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CasinoGameCard from '@/components/CasinoGameCard';
-import { Gamepad2, Coins, LayoutDashboard, Gift, Users, Play } from 'lucide-react';
+import { Gamepad2, LogIn, LayoutDashboard, Gift, Users, Play } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const GAMES = [
@@ -41,10 +41,9 @@ export default function Home() {
               <p className="text-[11px] text-amber-100/70 tracking-wide">{playable} Games Live · Play & Win</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/40 border border-amber-600/40">
-            <Coins className="w-4 h-4 text-amber-300" />
-            <span className="text-sm font-bold text-amber-200 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>Free Play</span>
-          </div>
+          <Link to="/login" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 text-sm font-black italic shadow-lg hover:from-amber-300 hover:to-orange-400 transition-colors" style={{ fontFamily: 'Georgia, serif' }}>
+            <LogIn className="w-4 h-4" /> Sign In
+          </Link>
         </div>
       </header>
 
@@ -104,20 +103,14 @@ export default function Home() {
       {/* Bottom quick actions — fixed at the very bottom */}
       <div className="fixed bottom-0 inset-x-0 z-30 border-t border-amber-700/40 bg-emerald-950/95 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-4 py-2 grid grid-cols-4 gap-2">
-          <button
-            onClick={() => toast({ title: 'Dashboard', description: 'Coming soon!' })}
-            className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors"
-          >
+          <Link to="/dashboard" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
             <LayoutDashboard className="w-5 h-5 text-amber-300" />
             <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Dashboard</span>
-          </button>
-          <button
-            onClick={() => toast({ title: 'Referral', description: 'Coming soon!' })}
-            className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors"
-          >
+          </Link>
+          <Link to="/dashboard?tab=referral" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
             <Users className="w-5 h-5 text-amber-300" />
             <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Referral</span>
-          </button>
+          </Link>
           <button
             onClick={() => document.getElementById('games')?.scrollIntoView({ behavior: 'smooth' })}
             className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-gradient-to-b from-amber-400 to-orange-600 border border-amber-300 hover:from-amber-300 hover:to-orange-500 transition-colors"
@@ -125,13 +118,10 @@ export default function Home() {
             <Play className="w-5 h-5 text-stone-950" />
             <span className="text-[11px] font-black italic text-stone-950" style={{ fontFamily: 'Georgia, serif' }}>Play Game</span>
           </button>
-          <button
-            onClick={() => toast({ title: 'Bonus', description: 'Coming soon!' })}
-            className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors"
-          >
+          <Link to="/dashboard?tab=bonus" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
             <Gift className="w-5 h-5 text-amber-300" />
             <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Bonus</span>
-          </button>
+          </Link>
         </div>
       </div>
     </div>

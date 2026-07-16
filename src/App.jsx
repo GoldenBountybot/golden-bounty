@@ -13,6 +13,9 @@ import LuckyWheel from './pages/LuckyWheel';
 import HiLo from './pages/HiLo';
 import Plinko from './pages/Plinko';
 import Mines from './pages/Mines';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -47,6 +50,9 @@ const AuthenticatedApp = () => {
       <Route path="/games/hi-lo" element={<HiLo />} />
       <Route path="/games/plinko" element={<Plinko />} />
       <Route path="/games/mines" element={<Mines />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

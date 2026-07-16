@@ -7,6 +7,10 @@
         "admin",
         "user"
       ]
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number of the user"
     }
   },
   "required": [
