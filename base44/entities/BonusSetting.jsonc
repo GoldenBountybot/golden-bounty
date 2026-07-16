@@ -1,0 +1,29 @@
+{
+  "name": "BonusSetting",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "signup | daily | monthly | deposit"
+    },
+    "label": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number",
+      "default": 0
+    },
+    "deposit_percent": {
+      "type": "number",
+      "default": 0,
+      "description": "For deposit bonus: percent of deposit awarded"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

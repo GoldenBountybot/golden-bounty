@@ -1,0 +1,36 @@
+{
+  "name": "PlayerActivity",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "game_id": {
+      "type": "string"
+    },
+    "bet": {
+      "type": "number",
+      "default": 0
+    },
+    "win": {
+      "type": "number",
+      "default": 0
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "win",
+        "loss",
+        "push"
+      ],
+      "default": "loss"
+    }
+  },
+  "required": [
+    "user_id",
+    "game_id"
+  ]
+}
