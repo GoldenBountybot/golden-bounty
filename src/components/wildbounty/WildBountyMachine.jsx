@@ -26,7 +26,7 @@ export default function WildBountyMachine() {
 
   return (
     <div
-      className="w-full max-w-lg mx-auto rounded-2xl relative p-[4px]"
+      className="w-full max-w-2xl mx-auto rounded-2xl relative p-[4px]"
       style={{
         background: 'linear-gradient(145deg, #e0b34a, #7a4f17 38%, #c8932e 68%, #5e3d12)',
         boxShadow: '0 0 0 2px #2e1d0a, 0 0 0 4px rgba(200,150,60,0.4), 0 16px 48px rgba(0,0,0,0.75)',
@@ -70,7 +70,7 @@ export default function WildBountyMachine() {
 
 
         {/* Grid — 24 cells (3-4-5-5-4-3), centered diamond */}
-        <div className="grid grid-cols-6 gap-1.5 px-1 items-center mt-10 mb-1">
+        <div className="grid grid-cols-6 gap-1.5 px-1 items-center mt-8 mb-1">
           {g.grid.map((reel, ri) => (
             <Reel
               key={ri}

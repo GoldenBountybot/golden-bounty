@@ -2,7 +2,6 @@ import React from "react";
 import { Gamepad2 } from "lucide-react";
 import WildBountyMachine from "@/components/wildbounty/WildBountyMachine";
 import BackButton from "@/components/BackButton";
-import WesternFrame from "@/components/wildbounty/WesternFrame";
 import ShareButton from "@/components/ShareButton";
 
 export default function SlotGame() {
@@ -23,14 +22,9 @@ export default function SlotGame() {
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-3 py-4">
-        <div className="text-center mb-3 flex flex-col items-center">
-          <WesternFrame glow className="inline-block px-5 py-1.5 mb-1">
-            <h2 className="text-xl font-black italic bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent" style={{ fontFamily: 'Georgia, serif' }}>
-              Wild Bounty Showdown
-            </h2>
-          </WesternFrame>
-          <p className="text-xs text-amber-400/80 italic tracking-[0.15em] uppercase" style={{ fontFamily: 'Georgia, serif' }}>
+      <main className="max-w-2xl mx-auto px-2 py-1">
+        <div className="text-center mb-1 flex items-center justify-center gap-2">
+          <p className="text-[11px] text-amber-400/80 italic tracking-[0.15em] uppercase" style={{ fontFamily: 'Georgia, serif' }}>
             3600 Ways · Multiplier Doubles Every Win
           </p>
         </div>
