@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Wallet, Gift, Users2, Copy, Check, ArrowDownToLine, ArrowUpFromLine, LogIn } from 'lucide-react';
+import { ArrowLeft, Wallet, Gift, Users, Copy, Check, ArrowDownToLine, ArrowUpFromLine, LogIn } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useToast } from '@/components/ui/use-toast';
@@ -8,7 +8,7 @@ import { useToast } from '@/components/ui/use-toast';
 const TABS = [
   { id: 'wallet', label: 'Wallet', icon: Wallet },
   { id: 'bonus', label: 'Bonuses', icon: Gift },
-  { id: 'referral', label: 'Referral', icon: Users2 },
+  { id: 'referral', label: 'Referral', icon: Users },
 ];
 
 const REF_KEY = 'casino_referral_code';
@@ -180,7 +180,7 @@ export default function Dashboard() {
 
         {tab === 'referral' && (
           <WesternFrame className="p-5 flex flex-col items-center gap-4">
-            <Users2 className="w-10 h-10 text-amber-400" />
+            <Users className="w-10 h-10 text-amber-400" />
             <div className="text-center">
               <h2 className="font-black italic text-amber-200 text-lg" style={{ fontFamily: 'Georgia, serif' }}>Refer & Earn</h2>
               <p className="text-sm text-amber-100/70 mt-1">Share your link. When friends sign up, you both get a bonus.</p>
