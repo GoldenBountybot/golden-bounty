@@ -35,20 +35,20 @@ export default function WildBountyMachine() {
         }}
       >
       {/* Multiplier banner */}
-      <div className="pt-1.5 px-2">
+      <div className="pt-0.5 px-2">
         <MultiplierBanner multIndex={g.multIndex} />
       </div>
 
       {/* Reel board — bronze western frame (web asset) around symbols */}
       <div
-        className="relative px-16 py-10 mx-0 my-0 rounded-2xl"
+        className="relative px-16 py-6 mx-0 my-0 rounded-2xl"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(20,14,8,0.35), rgba(20,14,8,0.45)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a416f3da8_generated_image.png)',
+            'linear-gradient(rgba(20,14,8,0.3), rgba(20,14,8,0.4)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a416f3da8_generated_image.png)',
           backgroundSize: 'cover, cover',
           backgroundPosition: 'center, center',
           backgroundRepeat: 'no-repeat, no-repeat',
-          boxShadow: '0 0 0 5px rgba(74,48,18,0.9), 0 0 0 8px rgba(200,150,60,0.55), 0 0 0 10px rgba(46,30,12,0.8), 0 16px 48px rgba(0,0,0,0.8)',
+          boxShadow: '0 0 0 7px rgba(74,48,18,0.9), 0 0 0 11px rgba(200,150,60,0.6), 0 0 0 14px rgba(46,30,12,0.85), 0 0 0 16px rgba(120,80,30,0.5), 0 18px 52px rgba(0,0,0,0.85)',
         }}
       >
         {/* Copper frame rivets */}
