@@ -1,34 +1,41 @@
 import { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 
-// Shared casino balance + bonus claim state, persisted in localStorage.
+// Shared casino balance (localStorage) + bonus claim state.
+// Bonus amounts/active flags come from the admin-configured BonusSetting entity.
+// Claim state is stored PER USER so a new user never inherits another player's claimed bonuses.
 const BAL_KEY = 'casino_balance';
 const START_BALANCE = 0;
-const BONUS_KEY = 'casino_bonuses';
 
-const SIGNUP_BONUS = 500;
-const DAILY_BONUS = 100;
-const MONTHLY_BONUS = 1000;
-const DEPOSIT_BONUS_RATE = 0.5;
+// Fallbacks only when the admin has not configured a BonusSetting row for a bonus.
+const DEFAULTS = {
+  signup: { amount: 500, active: true },
+  daily: { amount: 100, active: true },
+  weekly: { amount: 300, active: true },
+  monthly: { amount: 1000, active: true },
+  deposit: { amount: 0, deposit_percent: 50, active: true },
+};
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
 const monthStr = () => new Date().toISOString().slice(0, 7);
+const weekStr = () => {
+  const d = new Date();
+  const tmp = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const dayNum = tmp.getUTCDay() || 7;
+  tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+  const week = Math.ceil(((tmp - yearStart) / 86400000 + 1) / 7);
+  return `${tmp.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+};
 
-const defaultBonuses = {
+const defaultClaim = {
   signupClaimed: false,
   dailyLast: null,
+  weeklyLast: null,
   monthlyLast: null,
   depositAvailable: false,
   depositAmount: 0,
 };
-
-function readBonuses() {
-  try {
-    const s = localStorage.getItem(BONUS_KEY);
-    return s ? { ...defaultBonuses, ...JSON.parse(s) } : { ...defaultBonuses };
-  } catch {
-    return { ...defaultBonuses };
-  }
-}
 
 export function useCasinoAccount() {
   const [balance, setBalance] = useState(() => {
@@ -41,51 +48,108 @@ export function useCasinoAccount() {
     const s = localStorage.getItem(BAL_KEY);
     return s ? parseFloat(s) : START_BALANCE;
   });
-  const [bonuses, setBonuses] = useState(readBonuses);
+  const [userId, setUserId] = useState(null);
+  const [settings, setSettings] = useState([]);
+  const [claim, setClaim] = useState(defaultClaim);
 
   useEffect(() => { localStorage.setItem(BAL_KEY, String(balance)); }, [balance]);
-  useEffect(() => { localStorage.setItem(BONUS_KEY, JSON.stringify(bonuses)); }, [bonuses]);
+
+  // Load current user + admin-configured bonus settings.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const [me, rows] = await Promise.all([
+          base44.auth.me().catch(() => null),
+          base44.entities.BonusSetting.list(),
+        ]);
+        if (!active) return;
+        if (me) setUserId(me.id);
+        setSettings(rows);
+      } catch {
+        if (active) setSettings([]);
+      }
+    })();
+    return () => { active = false; };
+  }, []);
+
+  const claimKey = userId ? `casino_bonuses_${userId}` : null;
+
+  // Load per-user claim state.
+  useEffect(() => {
+    if (!claimKey) return;
+    try {
+      const s = localStorage.getItem(claimKey);
+      setClaim(s ? { ...defaultClaim, ...JSON.parse(s) } : { ...defaultClaim });
+    } catch {
+      setClaim({ ...defaultClaim });
+    }
+  }, [claimKey]);
+
+  // Persist per-user claim state.
+  useEffect(() => {
+    if (!claimKey) return;
+    localStorage.setItem(claimKey, JSON.stringify(claim));
+  }, [claimKey, claim]);
+
+  const cfg = (name) => {
+    const r = settings.find((s) => s.name === name);
+    if (!r) return DEFAULTS[name];
+    return {
+      amount: Number(r.amount ?? 0),
+      deposit_percent: Number(r.deposit_percent ?? 0),
+      active: r.active !== false,
+    };
+  };
+  const signupCfg = cfg('signup');
+  const dailyCfg = cfg('daily');
+  const weeklyCfg = cfg('weekly');
+  const monthlyCfg = cfg('monthly');
+  const depositCfg = cfg('deposit');
 
   const deposit = (amount) => {
     const n = Number(amount);
     if (!n || n <= 0) return;
-    setBalance(b => b + n);
-    setBonuses(prev => ({ ...prev, depositAvailable: true, depositAmount: n }));
+    setBalance((b) => b + n);
+    setClaim((prev) => ({ ...prev, depositAvailable: true, depositAmount: n }));
   };
 
   const withdraw = (amount) => {
     const n = Number(amount);
     if (!n || n <= 0 || n > balance) return false;
-    setBalance(b => b - n);
+    setBalance((b) => b - n);
     return true;
   };
 
   const claimSignup = () => {
-    if (bonuses.signupClaimed) return false;
-    setBalance(b => b + SIGNUP_BONUS);
-    setBonuses(prev => ({ ...prev, signupClaimed: true }));
+    if (!signupCfg.active || claim.signupClaimed) return false;
+    setBalance((b) => b + signupCfg.amount);
+    setClaim((prev) => ({ ...prev, signupClaimed: true }));
     return true;
   };
-
   const claimDaily = () => {
-    if (bonuses.dailyLast === todayStr()) return false;
-    setBalance(b => b + DAILY_BONUS);
-    setBonuses(prev => ({ ...prev, dailyLast: todayStr() }));
+    if (!dailyCfg.active || claim.dailyLast === todayStr()) return false;
+    setBalance((b) => b + dailyCfg.amount);
+    setClaim((prev) => ({ ...prev, dailyLast: todayStr() }));
     return true;
   };
-
+  const claimWeekly = () => {
+    if (!weeklyCfg.active || claim.weeklyLast === weekStr()) return false;
+    setBalance((b) => b + weeklyCfg.amount);
+    setClaim((prev) => ({ ...prev, weeklyLast: weekStr() }));
+    return true;
+  };
   const claimMonthly = () => {
-    if (bonuses.monthlyLast === monthStr()) return false;
-    setBalance(b => b + MONTHLY_BONUS);
-    setBonuses(prev => ({ ...prev, monthlyLast: monthStr() }));
+    if (!monthlyCfg.active || claim.monthlyLast === monthStr()) return false;
+    setBalance((b) => b + monthlyCfg.amount);
+    setClaim((prev) => ({ ...prev, monthlyLast: monthStr() }));
     return true;
   };
-
   const claimDeposit = () => {
-    if (!bonuses.depositAvailable) return false;
-    const bonus = Math.round(bonuses.depositAmount * DEPOSIT_BONUS_RATE * 100) / 100;
-    setBalance(b => b + bonus);
-    setBonuses(prev => ({ ...prev, depositAvailable: false }));
+    if (!depositCfg.active || !claim.depositAvailable) return false;
+    const bonus = Math.round(claim.depositAmount * (depositCfg.deposit_percent / 100) * 100) / 100;
+    setBalance((b) => b + bonus);
+    setClaim((prev) => ({ ...prev, depositAvailable: false }));
     return bonus;
   };
 
@@ -94,12 +158,17 @@ export function useCasinoAccount() {
     deposit,
     withdraw,
     bonuses: {
-      signup: { amount: SIGNUP_BONUS, claimed: bonuses.signupClaimed, claim: claimSignup },
-      daily: { amount: DAILY_BONUS, claimed: bonuses.dailyLast === todayStr(), claim: claimDaily },
-      monthly: { amount: MONTHLY_BONUS, claimed: bonuses.monthlyLast === monthStr(), claim: claimMonthly },
+      signup: { amount: signupCfg.amount, active: signupCfg.active, claimed: claim.signupClaimed, claim: claimSignup },
+      daily: { amount: dailyCfg.amount, active: dailyCfg.active, claimed: claim.dailyLast === todayStr(), claim: claimDaily },
+      weekly: { amount: weeklyCfg.amount, active: weeklyCfg.active, claimed: claim.weeklyLast === weekStr(), claim: claimWeekly },
+      monthly: { amount: monthlyCfg.amount, active: monthlyCfg.active, claimed: claim.monthlyLast === monthStr(), claim: claimMonthly },
       deposit: {
-        amount: bonuses.depositAmount ? Math.round(bonuses.depositAmount * DEPOSIT_BONUS_RATE * 100) / 100 : 0,
-        available: bonuses.depositAvailable,
+        amount: claim.depositAmount
+          ? Math.round(claim.depositAmount * (depositCfg.deposit_percent / 100) * 100) / 100
+          : 0,
+        percent: depositCfg.deposit_percent,
+        active: depositCfg.active,
+        available: claim.depositAvailable,
         claim: claimDeposit,
       },
     },

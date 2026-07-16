@@ -174,10 +174,11 @@ export default function Dashboard() {
 
         {tab === 'bonus' && (
           <div className="flex flex-col gap-3">
-            <BonusCard title="Signup Bonus" amount={acct.bonuses.signup.amount} desc="Claim once after sign-up" disabled={acct.bonuses.signup.claimed} disabledText="Claimed" onClaim={() => claim('Signup bonus', acct.bonuses.signup.claim)} />
-            <BonusCard title="Daily Bonus" amount={acct.bonuses.daily.amount} desc="Claim once every day" disabled={acct.bonuses.daily.claimed} disabledText="Claimed today" onClaim={() => claim('Daily bonus', acct.bonuses.daily.claim)} />
-            <BonusCard title="Monthly Bonus" amount={acct.bonuses.monthly.amount} desc="Claim once per month" disabled={acct.bonuses.monthly.claimed} disabledText="Claimed this month" onClaim={() => claim('Monthly bonus', acct.bonuses.monthly.claim)} />
-            <BonusCard title="Deposit Bonus" amount={acct.bonuses.deposit.amount} desc="50% of your last deposit · unlocks after each deposit" disabled={!acct.bonuses.deposit.available} disabledText="Deposit to unlock" onClaim={() => claim('Deposit bonus', acct.bonuses.deposit.claim)} />
+            <BonusCard title="Signup Bonus" amount={acct.bonuses.signup.amount} desc="Claim once after sign-up" disabled={!acct.bonuses.signup.active || acct.bonuses.signup.claimed} disabledText={!acct.bonuses.signup.active ? 'Inactive' : 'Claimed'} onClaim={() => claim('Signup bonus', acct.bonuses.signup.claim)} />
+            <BonusCard title="Daily Bonus" amount={acct.bonuses.daily.amount} desc="Claim once every day" disabled={!acct.bonuses.daily.active || acct.bonuses.daily.claimed} disabledText={!acct.bonuses.daily.active ? 'Inactive' : 'Claimed today'} onClaim={() => claim('Daily bonus', acct.bonuses.daily.claim)} />
+            <BonusCard title="Weekly Bonus" amount={acct.bonuses.weekly.amount} desc="Claim once every week" disabled={!acct.bonuses.weekly.active || acct.bonuses.weekly.claimed} disabledText={!acct.bonuses.weekly.active ? 'Inactive' : 'Claimed this week'} onClaim={() => claim('Weekly bonus', acct.bonuses.weekly.claim)} />
+            <BonusCard title="Monthly Bonus" amount={acct.bonuses.monthly.amount} desc="Claim once per month" disabled={!acct.bonuses.monthly.active || acct.bonuses.monthly.claimed} disabledText={!acct.bonuses.monthly.active ? 'Inactive' : 'Claimed this month'} onClaim={() => claim('Monthly bonus', acct.bonuses.monthly.claim)} />
+            <BonusCard title="Deposit Bonus" amount={acct.bonuses.deposit.amount} desc={`${acct.bonuses.deposit.percent || 0}% of your last deposit · unlocks after each deposit`} disabled={!acct.bonuses.deposit.active || !acct.bonuses.deposit.available} disabledText={!acct.bonuses.deposit.active ? 'Inactive' : 'Deposit to unlock'} onClaim={() => claim('Deposit bonus', acct.bonuses.deposit.claim)} />
           </div>
         )}
 
