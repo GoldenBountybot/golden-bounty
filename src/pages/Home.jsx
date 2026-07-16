@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CasinoGameCard from '@/components/CasinoGameCard';
-import { Gamepad2, LogIn, LayoutDashboard, Gift, Users, Play } from 'lucide-react';
+import { Gamepad2, LayoutDashboard, Gift, Users, Play } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const GAMES = [
@@ -41,9 +41,7 @@ export default function Home() {
               <p className="text-[11px] text-amber-100/70 tracking-wide">{playable} Games Live · Play & Win</p>
             </div>
           </div>
-          <Link to="/login" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 text-sm font-black italic shadow-lg hover:from-amber-300 hover:to-orange-400 transition-colors" style={{ fontFamily: 'Georgia, serif' }}>
-            <LogIn className="w-4 h-4" /> Sign In
-          </Link>
+
         </div>
       </header>
 
