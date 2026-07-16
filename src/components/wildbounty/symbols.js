@@ -19,11 +19,11 @@ export const SYMBOLS = {
   J:        { id: 'J',        label: 'J',      type: 'low',     pay: { 3: 1, 4: 2, 5: 3, 6: 5 } },
 };
 
-// Weighted pool — high symbols uncommon, low symbols common.
-// Wild & scatter never appear directly from a spin:
-//  - wild only via 4/5-of-a-kind conversion
-//  - scatter only via the forced free-spin trigger (0.01%)
+// Weighted pool — scatter rare, high symbols uncommon, low symbols common.
+// Wild never appears directly from a spin — only via the 4/5-of-a-kind conversion.
+// Scatter can land naturally (1–2); 3 together only via the forced 0.01% trigger.
 const POOL = [
+  'scatter',
   'bandit', 'bandit',
   'revolver', 'revolver', 'revolver',
   'whiskey', 'whiskey', 'whiskey',
