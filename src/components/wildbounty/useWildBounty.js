@@ -95,6 +95,25 @@ export function useWildBounty() {
       const newTotal = totalWin + stepWin;
       const newMult = Math.min(currentMultIndex + 1, MULTIPLIERS.length - 1);
 
+      // Wild conversion: a 4/5+ of-a-kind turns the matching symbol on the
+      // last matched reel into a wild (which persists through the cascade).
+      const convertSet = new Set();
+      wins.forEach(w => {
+        if (w.reels >= 4) {
+          const tr = w.reels - 1;
+          currentGrid[tr].forEach((s, row) => { if (s === w.symbol) convertSet.add(`${tr}-${row}`); });
+        }
+      });
+      let gridForCascade = currentGrid;
+      if (convertSet.size) {
+        gridForCascade = currentGrid.map(reel => [...reel]);
+        convertSet.forEach(pos => { const [r, row] = pos.split('-').map(Number); gridForCascade[r][row] = 'wild'; });
+        setGrid(gridForCascade);
+        setScatterGlow(prev => new Set([...prev, ...convertSet]));
+      }
+      // Converted wilds persist — shatter only the remaining winning positions
+      const shatterPos = new Set([...wpos].filter(p => !convertSet.has(p)));
+
       setWinningPositions(wpos);
       setBalance(b => b + stepWin);
       setLastWin(newTotal);
@@ -102,18 +121,18 @@ export function useWildBounty() {
       setMessage(justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`);
 
       // Shatter winning symbols after a brief highlight
-      const shatterT = setTimeout(() => { sfx.blast(); setShattering(new Set(wpos)); }, 400);
+      const shatterT = setTimeout(() => { sfx.blast(); setShattering(shatterPos); }, 400);
       timers.current.push(shatterT);
 
       // Cascade: drop new symbols, then re-evaluate
       const cascadeT = setTimeout(() => {
-        const newGrid = cascadeStep(currentGrid, wpos);
+        const newGrid = cascadeStep(gridForCascade, shatterPos);
         setShattering(new Set());
         setWinningPositions(new Set());
         setGoldFrames(new Set());
         setGrid(newGrid);
         setCascading(true);
-        setCascadePositions(wpos);
+        setCascadePositions(shatterPos);
 
         const evalT = setTimeout(() => {
           setCascading(false);

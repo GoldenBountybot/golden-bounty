@@ -50,7 +50,7 @@ export default function SymbolTile({ symbolId, highlighted, goldFramed, shatteri
       {/* Anticipation golden beam on landed wild & scatter */}
       {(symbolId === 'scatter' || symbolId === 'wild') && scatterBeam && (
         <span
-          className="absolute inset-x-0 pointer-events-none z-30 animate-pulse"
+          className="absolute inset-x-0 pointer-events-none z-30"
           style={{
             top: '-30%',
             bottom: '-30%',

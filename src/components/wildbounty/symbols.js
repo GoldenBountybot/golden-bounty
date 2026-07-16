@@ -20,8 +20,9 @@ export const SYMBOLS = {
 };
 
 // Weighted pool — wild & scatter rare, high symbols uncommon, low symbols common
+// Wild never appears directly from a spin — only via the 4/5-of-a-kind conversion.
 const POOL = [
-  'scatter', 'wild',
+  'scatter',
   'bandit', 'bandit',
   'revolver', 'revolver', 'revolver',
   'whiskey', 'whiskey', 'whiskey',
