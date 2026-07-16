@@ -4,6 +4,7 @@ import { ArrowLeft, RotateCw } from 'lucide-react';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import ShareButton from '@/components/ShareButton';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import { useGameSettings } from '@/lib/useGameSettings';
 
 const SEGMENTS = [
   { mult: 0, label: '0', color: '#3a2810' },
@@ -24,6 +25,7 @@ export default function LuckyWheel() {
   const [spinning, setSpinning] = useState(false);
   const [betIdx, setBetIdx] = useState(1);
   const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
+  const { rtp } = useGameSettings('lucky-wheel');
   const [message, setMessage] = useState('Spin the Wheel!');
   const [lastWin, setLastWin] = useState(0);
 
@@ -38,7 +40,10 @@ export default function LuckyWheel() {
     setSpinning(true);
     setMessage('Spinning...');
     setLastWin(0);
-    const idx = Math.floor(Math.random() * N);
+    const winIdxs = SEGMENTS.map((_, i) => i).filter(i => SEGMENTS[i].mult > 0);
+    const loseIdxs = SEGMENTS.map((_, i) => i).filter(i => SEGMENTS[i].mult === 0);
+    const pool = Math.random() < (rtp / 100) ? winIdxs : loseIdxs;
+    const idx = pool.length ? pool[Math.floor(Math.random() * pool.length)] : Math.floor(Math.random() * N);
     const turns = 5 * 360;
     const finalRot = rotation - (rotation % 360) + turns + (360 - (idx * SEG + SEG / 2));
     setRotation(finalRot);

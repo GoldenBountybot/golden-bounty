@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { REEL_ROWS, buildReel, evaluateWins, MULTIPLIERS, BETS, randomSymbol } from './symbols';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import { useGameSettings } from '@/lib/useGameSettings';
 
 export function useWildBounty() {
   const [grid, setGrid] = useState(() => REEL_ROWS.map(r => buildReel(r)));
@@ -22,6 +23,10 @@ export function useWildBounty() {
   const [cascadePositions, setCascadePositions] = useState(new Set());
   const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
+
+  const settings = useGameSettings('wild-bounty');
+  const rtpRef = useRef(50);
+  useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
 
   const timers = useRef([]);
   const bet = BETS[betIndex];
@@ -151,7 +156,26 @@ export function useWildBounty() {
     if (usingFree) setFreeSpins(f => f - 1);
     setMessage('Spinning...');
 
-    const finalGrid = REEL_ROWS.map(r => buildReel(r));
+    let finalGrid = REEL_ROWS.map(r => buildReel(r));
+    // RTP bias: decide win/loss for the spin before evaluation.
+    const wantWin = Math.random() < (rtpRef.current / 100);
+    if (wantWin) {
+      const X = 'A';
+      finalGrid = finalGrid.map((reel, ri) => {
+        if (ri < 3 && !reel.includes(X)) {
+          const copy = [...reel];
+          copy[Math.floor(Math.random() * copy.length)] = X;
+          return copy;
+        }
+        return reel;
+      });
+    } else {
+      let attempts = 0;
+      while (attempts < 6 && evaluateWins(finalGrid, bet).wins.length > 0) {
+        finalGrid = REEL_ROWS.map(r => buildReel(r));
+        attempts++;
+      }
+    }
     const frames = assignGoldFrames(finalGrid);
     const reelDur = turbo
       ? [300, 480, 660, 840, 1020, 1200]

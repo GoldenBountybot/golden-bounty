@@ -3,6 +3,7 @@ import { RotateCw } from 'lucide-react';
 import GameHeader from '@/components/GameHeader';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import { useGameSettings } from '@/lib/useGameSettings';
 
 const ROWS = 9;          // 9 bounces → 10 buckets
 const MULTS = [25, 5, 2, 1, 0.5, 0.5, 1, 2, 5, 25];
@@ -10,6 +11,7 @@ const BETS = [25, 50, 100, 250, 500];
 
 export default function Plinko() {
   const { balance, setBalance, reset } = useCasinoBalance();
+  const { rtp } = useGameSettings('plinko');
   const [betIdx, setBetIdx] = useState(1);
   const [dropping, setDropping] = useState(false);
   const [ballPos, setBallPos] = useState(null);
@@ -33,14 +35,18 @@ export default function Plinko() {
     setMessage('Dropping...');
     setBallPos(null);
 
-    // simulate random bounces
-    let col = 0;
+    // RTP-biased bucket selection (profitable vs losing buckets)
+    const profitIdx = MULTS.map((_, i) => i).filter(i => MULTS[i] >= 1);
+    const loseIdx = MULTS.map((_, i) => i).filter(i => MULTS[i] < 1);
+    let bucket;
+    if (Math.random() < (rtp / 100)) bucket = profitIdx[Math.floor(Math.random() * profitIdx.length)];
+    else bucket = (loseIdx.length ? loseIdx : profitIdx)[Math.floor(Math.random() * (loseIdx.length || profitIdx.length))];
+    // build a path that lands at that bucket (col = number of right bounces)
+    const steps = Array.from({ length: ROWS }, (_, i) => (i < bucket ? 1 : 0));
+    for (let i = steps.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [steps[i], steps[j]] = [steps[j], steps[i]]; }
     const path = [{ row: 0, col: 0 }];
-    for (let r = 1; r <= ROWS; r++) {
-      col += Math.random() < 0.5 ? 0 : 1;
-      path.push({ row: r, col });
-    }
-    const bucket = col;
+    let col = 0;
+    for (let r = 1; r <= ROWS; r++) { col += steps[r - 1]; path.push({ row: r, col }); }
 
     let step = 0;
     const animate = () => {

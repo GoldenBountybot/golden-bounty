@@ -3,6 +3,7 @@ import { Bomb, Gem } from 'lucide-react';
 import GameHeader from '@/components/GameHeader';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import { useGameSettings } from '@/lib/useGameSettings';
 
 const TOTAL = 25;
 const COLS = 5;
@@ -11,6 +12,7 @@ const BETS = [25, 50, 100, 250, 500];
 
 export default function Mines() {
   const { balance, setBalance, reset } = useCasinoBalance();
+  const { rtp } = useGameSettings('mines');
   const [betIdx, setBetIdx] = useState(1);
   const [mineIdx, setMineIdx] = useState(1);
   const mines = MINE_OPTS[mineIdx];
@@ -21,6 +23,7 @@ export default function Mines() {
   const [pot, setPot] = useState(1);
   const [message, setMessage] = useState('Set bet & mines, then start');
   const [lastWin, setLastWin] = useState(0);
+  const [forceFirstMine, setForceFirstMine] = useState(false);
   const bet = BETS[betIdx];
 
   const start = () => {
@@ -36,26 +39,42 @@ export default function Mines() {
     setRevealed(new Set());
     setPot(1);
     setLastWin(0);
+    setForceFirstMine(Math.random() >= (rtp / 100));
     setPhase('playing');
     setMessage(`Reveal ${safe} safe tiles · avoid ${mines} mines`);
   };
 
   const reveal = (idx) => {
     if (phase !== 'playing' || revealed.has(idx)) return;
-    if (mineSet.has(idx)) {
-      const newRev = new Set(revealed); newRev.add(idx);
-      setRevealed(newRev);
+    const effective = new Set(mineSet);
+    // First-reveal RTP bias: favor a safe first pick or force a mine.
+    if (revealed.size === 0) {
+      if (forceFirstMine) {
+        if (!effective.has(idx)) {
+          effective.add(idx);
+          const others = [...effective].filter(x => x !== idx);
+          if (others.length) effective.delete(others[Math.floor(Math.random() * others.length)]);
+        }
+      } else if (effective.has(idx)) {
+        effective.delete(idx);
+        const cands = [];
+        for (let i = 0; i < TOTAL; i++) if (i !== idx && !effective.has(i)) cands.push(i);
+        if (cands.length) effective.add(cands[Math.floor(Math.random() * cands.length)]);
+      }
+      setMineSet(effective);
+    }
+    const newRev = new Set(revealed); newRev.add(idx);
+    setRevealed(newRev);
+    if (effective.has(idx)) {
       setPhase('over');
       setPot(0);
       setMessage('BOOM! You hit a mine.');
       return;
     }
-    const newRev = new Set(revealed); newRev.add(idx);
     const k = newRev.size;
     const before = k - 1;
     const newPot = pot * (TOTAL - before) / (safe - before);
     setPot(newPot);
-    setRevealed(newRev);
     if (k === safe) {
       const win = bet * newPot;
       setBalance(b => b + win);

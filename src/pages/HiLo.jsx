@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowUp, ArrowDown, RotateCcw } from 'lucide-react';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import ShareButton from '@/components/ShareButton';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import { useGameSettings } from '@/lib/useGameSettings';
 
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -11,6 +12,20 @@ const BETS = [25, 50, 100, 250, 500];
 
 function drawCard() {
   return { rank: Math.floor(Math.random() * 13), suit: Math.floor(Math.random() * 4) };
+}
+
+// Bias the next card so the guess is correct with probability ~rtp.
+function pickCard(dir, curRank, wantCorrect) {
+  const ranks = RANKS.map((_, i) => i);
+  let cand;
+  if (wantCorrect) {
+    cand = dir === 'high' ? ranks.filter(r => r > curRank) : ranks.filter(r => r < curRank);
+    if (cand.length === 0) return drawCard();
+  } else {
+    cand = dir === 'high' ? ranks.filter(r => r < curRank) : ranks.filter(r => r > curRank);
+    if (cand.length === 0) cand = [curRank]; // force a tie (push counts as a loss)
+  }
+  return { rank: cand[Math.floor(Math.random() * cand.length)], suit: Math.floor(Math.random() * 4) };
 }
 
 function CardFace({ card, hidden }) {
@@ -45,6 +60,7 @@ function CardFace({ card, hidden }) {
 
 export default function HiLo() {
   const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
+  const { rtp } = useGameSettings('hi-lo');
   const [betIdx, setBetIdx] = useState(1);
   const [current, setCurrent] = useState(null);
   const [revealed, setRevealed] = useState(null);
@@ -70,7 +86,8 @@ export default function HiLo() {
 
   const guess = (dir) => {
     if (phase !== 'guessing') return;
-    const next = drawCard();
+    const wantCorrect = Math.random() < (rtp / 100);
+    const next = pickCard(dir, current.rank, wantCorrect);
     setRevealed(next);
     const same = next.rank === current.rank;
     const correct = dir === 'high' ? next.rank > current.rank : next.rank < current.rank;
