@@ -25,16 +25,23 @@ const CARD_STYLE = {
 export default function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam }) {
   const isCard = ['A', 'K', 'Q', 'J'].includes(symbolId);
   const img = IMG[symbolId];
+  const isSpecial = symbolId === 'scatter' || symbolId === 'wild';
 
   return (
     <div
-      className={`relative overflow-hidden transition-transform
+      className={`relative transition-transform
+        ${isSpecial ? 'overflow-visible' : 'overflow-hidden'}
         ${goldFramed ? 'ring-2 ring-yellow-300 shadow-[0_0_10px_rgba(255,215,0,0.7)]' : ''}
-        ${highlighted && !shattering ? 'z-10 scale-[1.04] ring-2 ring-yellow-300' : ''}`}
-      style={{ aspectRatio: '1 / 1', animation: shattering ? 'shatterWin 0.6s ease-out forwards' : undefined, zIndex: shattering ? 20 : (highlighted && !shattering ? 10 : undefined), filter: highlighted && !shattering ? 'brightness(1.6) saturate(1.3) drop-shadow(0 0 8px rgba(255,200,0,0.9))' : undefined }}
+        ${highlighted && !shattering ? 'z-10 scale-[1.18] ring-2 ring-yellow-300' : ''}`}
+      style={{ aspectRatio: '1 / 1', animation: shattering ? 'shatterWin 0.6s ease-out forwards' : undefined, zIndex: shattering ? 20 : (highlighted && !shattering ? 10 : undefined), filter: highlighted && !shattering ? 'brightness(1.8) sepia(0.4) saturate(1.8) hue-rotate(-5deg) drop-shadow(0 0 12px rgba(255,200,0,1))' : undefined }}
     >
       {img ? (
-        <img src={img} alt={symbolId} loading="lazy" className="w-full h-full object-cover" />
+        <img
+          src={img}
+          alt={symbolId}
+          loading="lazy"
+          className={`w-full h-full object-cover ${isSpecial ? 'scale-[1.6]' : ''}`}
+        />
       ) : isCard ? (
         <div className={`w-full h-full flex items-center justify-center bg-gradient-to-b ${CARD_STYLE[symbolId].bg}`}>
           <span className={`text-4xl font-black italic ${CARD_STYLE[symbolId].text} drop-shadow-[0_2px_3px_rgba(0,0,0,0.6)]`} style={{ fontFamily: 'Rye, Georgia, serif' }}>
@@ -52,12 +59,12 @@ export default function SymbolTile({ symbolId, highlighted, goldFramed, shatteri
         <span
           className="absolute inset-x-2 pointer-events-none z-30"
           style={{
-            top: '-12%',
-            bottom: '-12%',
+            top: '-18%',
+            bottom: '-18%',
             background:
-              'linear-gradient(to bottom, rgba(255,215,0,0) 0%, rgba(255,215,0,0.28) 35%, rgba(255,240,180,0.4) 50%, rgba(255,215,0,0.28) 65%, rgba(255,215,0,0) 100%)',
+              'linear-gradient(to bottom, rgba(255,215,0,0) 0%, rgba(255,215,0,0.4) 35%, rgba(255,240,180,0.55) 50%, rgba(255,215,0,0.4) 65%, rgba(255,215,0,0) 100%)',
             filter: 'blur(3px)',
-            boxShadow: '0 0 10px rgba(255,200,80,0.45)',
+            boxShadow: '0 0 14px rgba(255,200,80,0.7)',
           }}
         />
       )}
@@ -71,12 +78,12 @@ export default function SymbolTile({ symbolId, highlighted, goldFramed, shatteri
 
       {/* Golden glow tint before blast */}
       {highlighted && !shattering && (
-        <span className="absolute inset-0 bg-gradient-to-br from-yellow-300/50 via-amber-400/25 to-yellow-300/50 mix-blend-overlay pointer-events-none" />
+        <span className="absolute inset-0 bg-gradient-to-br from-yellow-300/60 via-amber-400/30 to-yellow-300/60 mix-blend-overlay pointer-events-none" />
       )}
 
       {/* Winning reticle highlight */}
       {highlighted && !shattering && (
-        <span className="absolute inset-0 rounded-md ring-4 ring-yellow-300 animate-pulse shadow-[0_0_16px_rgba(255,200,0,0.95)] pointer-events-none" />
+        <span className="absolute inset-0 rounded-md ring-4 ring-yellow-300 animate-pulse shadow-[0_0_20px_rgba(255,200,0,1)] pointer-events-none" />
       )}
     </div>
   );
