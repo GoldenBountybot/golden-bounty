@@ -1,6 +1,17 @@
 import React from 'react';
-import { Zap, Minus, Plus, Play, RotateCw } from 'lucide-react';
+import { Zap, Minus, Plus, RotateCw, Play } from 'lucide-react';
 import { BETS } from './symbols';
+
+// Western-styled circular control button (wood + gold trim).
+const woodBtn = (active) => ({
+  background: active
+    ? 'linear-gradient(145deg, #e0b34a, #7a4f17 60%, #c8932e)'
+    : 'linear-gradient(145deg, #3a2a1a, #1c140c 60%, #2e2114)',
+  border: '1px solid rgba(190,140,55,0.8)',
+  boxShadow: active
+    ? 'inset 0 1px 0 rgba(255,230,160,0.5), 0 0 10px rgba(255,200,80,0.5)'
+    : 'inset 0 1px 0 rgba(255,210,120,0.2), 0 2px 4px rgba(0,0,0,0.6)',
+});
 
 export default function ControlPanel({ betIndex, setBetIndex, spinning, spin, turbo, setTurbo, autoSpin, setAutoSpin }) {
   const changeBet = (dir) => {
@@ -9,58 +20,81 @@ export default function ControlPanel({ betIndex, setBetIndex, spinning, spin, tu
   };
 
   return (
-    <div className="bg-gradient-to-b from-emerald-950 to-emerald-950/80 border-t-2 border-amber-800/40 px-3 py-3">
-      <div className="flex items-center justify-between gap-2">
+    <div
+      className="px-3 py-3 border-t"
+      style={{
+        background: 'linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))',
+        borderTop: '1px solid rgba(190,140,55,0.5)',
+      }}
+    >
+      <div className="flex items-center justify-between gap-2" style={{ fontFamily: 'Georgia, serif' }}>
         {/* Turbo */}
         <button
           onClick={() => setTurbo(t => !t)}
-          className={`flex flex-col items-center gap-0.5 ${turbo ? 'text-yellow-400' : 'text-stone-400'}`}
+          className="flex flex-col items-center gap-0.5"
         >
-          <span className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${turbo ? 'border-yellow-400 bg-yellow-400/10' : 'border-stone-600 bg-stone-800/60'}`}>
-            <Zap className="w-5 h-5" fill={turbo ? 'currentColor' : 'none'} />
+          <span
+            className="w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95"
+            style={woodBtn(turbo)}
+          >
+            <Zap className={`w-5 h-5 ${turbo ? 'text-stone-900' : 'text-amber-300/80'}`} fill={turbo ? 'currentColor' : 'none'} strokeWidth={2.4} />
           </span>
-          <span className="text-[9px] font-bold tracking-wide">TURBO</span>
+          <span className={`text-[9px] font-bold italic tracking-wide ${turbo ? 'text-yellow-300' : 'text-amber-200/60'}`}>TURBO</span>
         </button>
 
         {/* Bet down */}
         <button
           onClick={() => changeBet(-1)}
           disabled={spinning}
-          className="w-9 h-9 rounded-full flex items-center justify-center bg-stone-800/70 border border-yellow-500/40 text-yellow-400 disabled:opacity-40"
+          className="w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95 disabled:opacity-40"
+          style={woodBtn(false)}
         >
-          <Minus className="w-4 h-4" />
+          <Minus className="w-4 h-4 text-amber-300" strokeWidth={2.6} />
         </button>
 
-        {/* Spin */}
+        {/* Spin — large gold medallion */}
         <button
           onClick={spin}
           disabled={spinning}
-          className="relative w-16 h-16 rounded-full bg-gradient-to-b from-amber-700 via-amber-900 to-stone-900 border-4 border-amber-600/60 shadow-[0_0_14px_rgba(255,180,0,0.4)] flex items-center justify-center disabled:opacity-80 active:scale-95 transition-transform"
+          className="relative flex flex-col items-center gap-0.5 disabled:opacity-80"
         >
-          <RotateCw className={`w-7 h-7 text-amber-200 ${spinning ? 'animate-spin' : ''}`} />
-          <span className="absolute -bottom-5 text-[9px] font-bold text-amber-200/80 tracking-widest">SPIN</span>
+          <span
+            className="w-16 h-16 rounded-full flex items-center justify-center transition-transform active:scale-95"
+            style={{
+              background: 'radial-gradient(circle at 35% 30%, #f3d77a, #c8932e 45%, #7a4f17 75%, #4a2f10)',
+              border: '2px solid rgba(46,30,12,0.8)',
+              boxShadow: 'inset 0 2px 3px rgba(255,240,180,0.6), inset 0 -3px 5px rgba(0,0,0,0.4), 0 0 16px rgba(255,190,40,0.5), 0 4px 10px rgba(0,0,0,0.7)',
+            }}
+          >
+            <RotateCw className={`w-8 h-8 text-stone-900 ${spinning ? 'animate-spin' : ''}`} strokeWidth={2.6} />
+          </span>
+          <span className="text-[9px] font-black italic text-yellow-300 tracking-[0.2em]">SPIN</span>
         </button>
 
         {/* Bet up */}
         <button
           onClick={() => changeBet(1)}
           disabled={spinning}
-          className="w-9 h-9 rounded-full flex items-center justify-center bg-stone-800/70 border border-yellow-500/40 text-yellow-400 disabled:opacity-40"
+          className="w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95 disabled:opacity-40"
+          style={woodBtn(false)}
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 text-amber-300" strokeWidth={2.6} />
         </button>
 
-        {/* Auto + menu */}
-        <div className="flex flex-col items-center gap-1">
-          <button
-            onClick={() => setAutoSpin(a => !a)}
-            disabled={spinning && !autoSpin}
-            className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${autoSpin ? 'border-yellow-400 bg-yellow-400/10 text-yellow-400' : 'border-stone-600 bg-stone-800/60 text-stone-400'}`}
+        {/* Auto */}
+        <button
+          onClick={() => setAutoSpin(a => !a)}
+          disabled={spinning && !autoSpin}
+          className="flex flex-col items-center gap-0.5 disabled:opacity-60"
+        >
+          <span
+            className="w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95"
+            style={woodBtn(autoSpin)}
           >
-            <Play className="w-4 h-4" fill={autoSpin ? 'currentColor' : 'none'} />
-          </button>
-          <span className="text-[9px] font-bold text-stone-400 tracking-wide">AUTO</span>
-        </div>
+            <Play className={`w-5 h-5 ${autoSpin ? 'text-stone-900' : 'text-amber-300/80'}`} fill={autoSpin ? 'currentColor' : 'none'} strokeWidth={2.4} />
+          </span>
+          <span className={`text-[9px] font-bold italic tracking-wide ${autoSpin ? 'text-yellow-300' : 'text-amber-200/60'}`}>AUTO</span>
+        </button>
       </div>
     </div>
   );

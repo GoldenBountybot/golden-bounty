@@ -8,18 +8,7 @@ import { Boxes, Coins, Trophy } from 'lucide-react';
 import FreeSpinStart from './FreeSpinStart';
 import WesternFrame from './WesternFrame';
 import PlaqueBanner from './PlaqueBanner';
-
-function StatBox({ icon: Icon, label, value }) {
-  return (
-    <WesternFrame className="flex-1 flex items-center gap-1.5 px-2 py-1.5">
-      <Icon className="w-3.5 h-3.5 text-yellow-400" />
-      <div className="flex flex-col leading-tight min-w-0">
-        <span className="text-[8px] text-amber-300/80 tracking-[0.15em] uppercase">{label}</span>
-        <span className="text-xs font-bold italic text-yellow-100 tabular-nums truncate">{value}</span>
-      </div>
-    </WesternFrame>
-  );
-}
+import WesternStatBanner from './WesternStatBanner';
 
 export default function WildBountyMachine() {
   const g = useWildBounty();
@@ -52,7 +41,7 @@ export default function WildBountyMachine() {
 
       {/* Reel board — bronze western frame (web asset) around symbols */}
       <div
-        className="relative px-5 py-3 mx-1 my-0 rounded-2xl"
+        className="relative px-6 py-2 mx-1 my-0 rounded-2xl"
         style={{
           backgroundImage:
             'linear-gradient(rgba(20,14,8,0.35), rgba(20,14,8,0.45)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a416f3da8_generated_image.png)',
@@ -70,7 +59,7 @@ export default function WildBountyMachine() {
 
 
         {/* Grid — 24 cells (3-4-5-5-4-3), centered diamond */}
-        <div className="grid grid-cols-6 gap-1.5 px-1 items-center mt-2 mb-1">
+        <div className="grid grid-cols-6 gap-1.5 px-1 items-center mt-1 mb-1">
           {g.grid.map((reel, ri) => (
             <Reel
               key={ri}
@@ -116,9 +105,9 @@ export default function WildBountyMachine() {
 
       {/* Stats bar */}
       <div className="flex gap-2 px-2">
-        <StatBox icon={Boxes} label="BALANCE" value={`$${g.balance.toFixed(2)}`} />
-        <StatBox icon={Coins} label="BET" value={`$${g.bet.toFixed(2)}`} />
-        <StatBox icon={Trophy} label="WIN" value={`$${g.lastWin.toFixed(2)}`} />
+        <WesternStatBanner icon={Boxes} label="BALANCE" value={`$${g.balance.toFixed(2)}`} />
+        <WesternStatBanner icon={Coins} label="BET" value={`$${g.bet.toFixed(2)}`} />
+        <WesternStatBanner icon={Trophy} label="WIN" value={`$${g.lastWin.toFixed(2)}`} />
       </div>
 
       {/* Controls */}
