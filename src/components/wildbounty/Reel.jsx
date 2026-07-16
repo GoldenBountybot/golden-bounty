@@ -4,7 +4,7 @@ import { randomSymbol } from './symbols';
 
 // A single reel column that smoothly scrolls downward while spinning,
 // then snaps to the final symbols when stopped.
-export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions, goldFrames, shatteringPositions, cascading, cascadePositions, scatterGlow }) {
+export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions, goldFrames, shatteringPositions, cascading, cascadePositions, scatterGlow, anticipationGlow }) {
   const [justStopped, setJustStopped] = useState(false);
   const prevSpinning = useRef(false);
 
@@ -25,6 +25,29 @@ export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, wi
 
   return (
     <div className="relative w-full overflow-hidden rounded-md" style={{ aspectRatio: '1 / ' + rowCount }}>
+      {/* Anticipation golden edge glow on both sides */}
+      {anticipationGlow && spinning && (
+        <>
+          <span
+            className="absolute top-0 bottom-0 left-0 w-1.5 z-40 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,225,120,0.7) 40%, rgba(255,250,200,0.95) 50%, rgba(255,225,120,0.7) 60%, rgba(255,215,0,0) 100%)',
+              filter: 'blur(1.5px)',
+              boxShadow: '0 0 12px rgba(255,200,80,0.6)',
+              mixBlendMode: 'screen',
+            }}
+          />
+          <span
+            className="absolute top-0 bottom-0 right-0 w-1.5 z-40 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,225,120,0.7) 40%, rgba(255,250,200,0.95) 50%, rgba(255,225,120,0.7) 60%, rgba(255,215,0,0) 100%)',
+              filter: 'blur(1.5px)',
+              boxShadow: '0 0 12px rgba(255,200,80,0.6)',
+              mixBlendMode: 'screen',
+            }}
+          />
+        </>
+      )}
       <div
         className="flex flex-col w-full"
         style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? 'reelLand 0.4s ease-out' : 'none' }}
