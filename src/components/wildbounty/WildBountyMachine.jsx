@@ -7,6 +7,7 @@ import ControlPanel from './ControlPanel';
 import { Boxes, Coins, Trophy } from 'lucide-react';
 import FreeSpinStart from './FreeSpinStart';
 import WesternFrame from './WesternFrame';
+import WaysPlaque from './WaysPlaque';
 
 function StatBox({ icon: Icon, label, value }) {
   return (
@@ -66,9 +67,8 @@ export default function WildBountyMachine() {
         <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
         <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
         <span className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
-        {/* 3600 WAYS side labels */}
-        <span className="absolute left-0.5 top-1/2 -translate-y-1/2 -rotate-90 text-[7px] font-bold text-amber-600/60 tracking-[0.2em] whitespace-nowrap">3600 WAYS</span>
-        <span className="absolute right-0.5 top-1/2 -translate-y-1/2 rotate-90 text-[7px] font-bold text-amber-600/60 tracking-[0.2em] whitespace-nowrap">3600 WAYS</span>
+        {/* Ways plaque — wooden board with "Win up to 3600 Ways" */}
+        <WaysPlaque className="absolute top-1.5 left-1/2 -translate-x-1/2 w-[82%] z-20" />
 
         {/* Grid — 24 cells (3-4-5-5-4-3), centered diamond */}
         <div className="grid grid-cols-6 gap-1 px-1 items-center mt-12 mb-1">
