@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 // Shared casino balance + bonus claim state, persisted in localStorage.
 const BAL_KEY = 'casino_balance';
-const START_BALANCE = 25000;
+const START_BALANCE = 0;
 const BONUS_KEY = 'casino_bonuses';
 
 const SIGNUP_BONUS = 500;
