@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { ArrowLeft, Gamepad2 } from "lucide-react";
 import WildBountyMachine from "@/components/wildbounty/WildBountyMachine";
 import WesternFrame from "@/components/wildbounty/WesternFrame";
@@ -10,10 +9,10 @@ export default function SlotGame() {
     <div className="min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/40 to-stone-950">
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-1.5 text-stone-300 hover:text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>
+          <button onClick={() => { window.location.href = '/'; }} className="flex items-center gap-1.5 text-stone-300 hover:text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm italic tracking-wide">Lobby</span>
-          </Link>
+          </button>
           <div className="flex-1 flex items-center justify-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
               <Gamepad2 className="w-4 h-4 text-stone-950" />

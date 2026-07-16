@@ -100,9 +100,9 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950 pb-10">
       <header className="sticky top-0 z-20 bg-emerald-950/90 backdrop-blur-xl border-b border-amber-600/30">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-1.5 text-stone-300 hover:text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>
+          <button onClick={() => { window.location.href = '/'; }} className="flex items-center gap-1.5 text-stone-300 hover:text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>
             <ArrowLeft className="w-4 h-4" /><span className="text-sm italic tracking-wide">Lobby</span>
-          </Link>
+          </button>
           <div className="flex-1 text-center">
             <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Dashboard</h1>
           </div>
