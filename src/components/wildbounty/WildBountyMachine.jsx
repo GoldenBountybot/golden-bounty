@@ -7,6 +7,7 @@ import ControlPanel from './ControlPanel';
 import { Boxes, Coins, Trophy } from 'lucide-react';
 import FreeSpinStart from './FreeSpinStart';
 import WesternFrame from './WesternFrame';
+import PlaqueBanner from './PlaqueBanner';
 
 function StatBox({ icon: Icon, label, value }) {
   return (
@@ -97,11 +98,11 @@ export default function WildBountyMachine() {
         </button>
 
         {/* Win / message banner */}
-        <WesternFrame glow className="mt-3 mx-1 py-1.5 text-center">
+        <PlaqueBanner glow className="mt-3 mx-1 py-1.5 text-center">
           <span className="font-black italic text-lg text-yellow-300 drop-shadow-[0_0_6px_rgba(255,200,0,0.7)]" style={{ fontFamily: 'Georgia, serif' }}>
             {g.message}
           </span>
-        </WesternFrame>
+        </PlaqueBanner>
       </div>
 
       {/* Free spins badge */}
