@@ -49,27 +49,24 @@ export default function WildBountyMachine() {
         <MultiplierBanner multIndex={g.multIndex} />
       </div>
 
-      {/* Decorative copper frame */}
+      {/* Reel board — metallic copper frame, symbols sit inside */}
       <div
-        className="relative mx-1 my-1 rounded-2xl p-2.5 shadow-2xl shadow-amber-900/50"
-        style={{
-          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e59ed50a1_Gemini_Generated_Image_xh3y3nxh3y3nxh3y.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      >
-      {/* Reel board — wooden shield */}
-      <div
-        className="relative px-3 py-3 rounded-xl border-2 border-amber-800/60 shadow-2xl shadow-amber-900/40"
+        className="relative px-3 py-3 mx-2 my-1 rounded-2xl border-2 border-amber-900/70"
         style={{
           backgroundImage:
             'linear-gradient(rgba(20,14,8,0.6), rgba(20,14,8,0.68)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a27239dfb_InShot_20260715_212512483.jpg)',
           backgroundSize: 'cover, 185%',
           backgroundPosition: 'center, center',
           backgroundRepeat: 'no-repeat, no-repeat',
+          boxShadow:
+            '0 0 0 5px #8b5a3e, 0 0 0 7px #3a2418, 0 0 0 9px rgba(200,140,90,0.4), 0 14px 40px rgba(0,0,0,0.7)',
         }}
       >
+        {/* Copper frame rivets */}
+        <span className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
+        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
+        <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
+        <span className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
         {/* 3600 WAYS side labels */}
         <span className="absolute left-0.5 top-1/2 -translate-y-1/2 -rotate-90 text-[7px] font-bold text-amber-600/60 tracking-[0.2em] whitespace-nowrap">3600 WAYS</span>
         <span className="absolute right-0.5 top-1/2 -translate-y-1/2 rotate-90 text-[7px] font-bold text-amber-600/60 tracking-[0.2em] whitespace-nowrap">3600 WAYS</span>
@@ -109,8 +106,6 @@ export default function WildBountyMachine() {
           </span>
         </WesternFrame>
       </div>
-      </div>
-      {/* /Decorative copper frame */}
 
       {/* Free spins badge */}
       {g.freeSpins > 0 && (
