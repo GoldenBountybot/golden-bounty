@@ -7,7 +7,7 @@ const IMG = {
   whiskey:  'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/525e250d8_generated_image.png',
   hat:      'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/703eaba87_generated_image.png',
   scatter:  'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/f5447a4d1_generated_image.png',
-  wild:     'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/24e9525e1_generated_image.png',
+  wild:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7cbc8e87c_Gemini_Generated_Image_hcsaunhcsaunhcsa.png',
   A: 'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/42eef6374_generated_image.png',
   K: 'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/a02ce2873_generated_image.png',
   Q: 'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/1c191cf13_generated_image.png',
@@ -47,8 +47,8 @@ export default function SymbolTile({ symbolId, highlighted, goldFramed, shatteri
         </div>
       )}
 
-      {/* Special label */}
-      {(symbolId === 'wild' || symbolId === 'scatter') && (
+      {/* Special label (WILD text is part of the wild badge image) */}
+      {symbolId === 'scatter' && (
         <span className="absolute bottom-0 inset-x-0 text-[7px] font-bold text-center text-amber-950 bg-amber-200/90 py-px tracking-wider">
           {SYMBOLS[symbolId].label}
         </span>
