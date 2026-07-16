@@ -41,7 +41,7 @@ export default function Admin() {
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-stone-950 text-center px-4">
         <Shield className="w-10 h-10 text-rose-400" />
         <p className="text-amber-100" style={{ fontFamily: 'Georgia, serif' }}>Admins only. Your account does not have admin access.</p>
-        <Link to="/" className="text-amber-300 italic">← Back to lobby</Link>
+        <button onClick={() => { window.location.href = '/'; }} className="text-amber-300 italic">← Back to lobby</button>
       </div>
     );
   }
