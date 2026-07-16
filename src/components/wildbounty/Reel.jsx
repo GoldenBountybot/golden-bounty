@@ -22,8 +22,14 @@ export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, wi
   }, [spinning]);
 
   const strip = useMemo(() => {
-    // During slow anticipation, hold the last symbols steady (no random scramble).
-    if (spinning && anticipationGlow) return symbols;
+    // During slow anticipation, scroll a consistent repeating sequence so the
+    // symbols cascade smoothly in slow motion instead of scrambling randomly.
+    if (spinning && anticipationGlow) {
+      const base = symbols.length ? symbols : Array.from({ length: rowCount }, () => randomSymbol());
+      const out = [];
+      for (let k = 0; k < 6; k++) out.push(...base);
+      return out;
+    }
     if (spinning) return Array.from({ length: rowCount * 6 }, () => randomSymbol());
     return symbols;
   }, [spinning, symbols, rowCount, anticipationGlow]);
@@ -55,7 +61,7 @@ export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, wi
       )}
       <div
         className="flex flex-col w-full"
-        style={{ animation: (spinning && !anticipationGlow) ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s ease-out' : 'reelLand 0.4s ease-out') : 'none' }}
+        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s ease-out' : 'reelLand 0.4s ease-out') : 'none' }}
       >
         {strip.map((sym, i) => {
           const isDropping = cascading && cascadePositions && cascadePositions.has(`${reelIndex}-${i}`);
