@@ -22,7 +22,7 @@ export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, wi
   }, [spinning]);
 
   const strip = useMemo(() => {
-    if (spinning) return Array.from({ length: rowCount * 4 }, () => randomSymbol());
+    if (spinning) return Array.from({ length: rowCount * 6 }, () => randomSymbol());
     return symbols;
   }, [spinning, symbols, rowCount]);
 
