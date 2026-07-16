@@ -24,6 +24,12 @@
       "type": "number",
       "default": 0,
       "description": "Casino wallet balance managed by the admin"
+    },
+    "rtp": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Per-player winning chance override (0-100). When set, overrides global/per-game RTP for this player across all games."
     }
   },
   "required": [

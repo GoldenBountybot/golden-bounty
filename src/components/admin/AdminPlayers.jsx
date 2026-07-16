@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import AdminPlayerDetail from '@/components/admin/AdminPlayerDetail';
+import { Search, Eye, Hash } from 'lucide-react';
 
 export default function AdminPlayers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ balance: 0, role: 'user', phone: '' });
+  const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState(null);
   const { toast } = useToast();
 
   const load = async () => {
@@ -17,6 +21,16 @@ export default function AdminPlayers() {
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter(u =>
+      (u.uid && u.uid.includes(q)) ||
+      (u.email && u.email.toLowerCase().includes(q)) ||
+      (u.username && u.username.toLowerCase().includes(q))
+    );
+  }, [users, query]);
 
   const startEdit = (u) => {
     setEditing(u.id);
@@ -31,35 +45,62 @@ export default function AdminPlayers() {
     } catch { toast({ title: 'Update failed' }); }
   };
 
+  if (selected) {
+    return <AdminPlayerDetail user={selected} onBack={() => { setSelected(null); load(); }} onSaved={load} />;
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <h2 className="font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Players ({users.length})</h2>
+
+      {/* UID / email / username search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400/60" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search by UID, email or username"
+          className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none focus:border-amber-500 text-sm"
+          style={{ fontFamily: 'Georgia, serif' }}
+        />
+      </div>
+
       {loading ? (
         <p className="text-amber-100/60">Loading...</p>
-      ) : users.map(u => (
+      ) : filtered.length === 0 ? (
+        <p className="text-amber-100/50 text-sm italic">No players match "{query}".</p>
+      ) : filtered.map(u => (
         <WesternFrame key={u.id} className="p-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1 min-w-0">
               <p className="font-bold text-amber-100 truncate">{u.email}</p>
+              <p className="text-xs text-amber-100/60 flex items-center gap-1"><Hash className="w-3 h-3 text-amber-400/60" />{u.uid || '—'}</p>
               <p className="text-xs text-amber-100/60">Role: {u.role} · Phone: {u.phone || '—'}</p>
-              <p className="text-sm text-yellow-200 font-bold">${(u.balance ?? 0).toFixed(2)}</p>
+              <p className="text-sm text-yellow-200 font-bold">${(u.balance ?? 0).toFixed(2)}{u.rtp != null ? ` · RTP ${u.rtp}%` : ''}</p>
             </div>
-            {editing === u.id ? (
-              <div className="flex flex-col gap-1.5 w-40">
-                <input type="number" value={form.balance} onChange={e => setForm(f => ({ ...f, balance: e.target.value }))} placeholder="Balance" className="px-2 py-1 rounded bg-black/40 border border-amber-700/40 text-amber-100 text-sm" />
-                <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} className="px-2 py-1 rounded bg-black/40 border border-amber-700/40 text-amber-100 text-sm">
-                  <option value="user">user</option>
-                  <option value="admin">admin</option>
-                </select>
-                <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="Phone" className="px-2 py-1 rounded bg-black/40 border border-amber-700/40 text-amber-100 text-sm" />
-                <div className="flex gap-1">
-                  <button onClick={() => save(u)} className="flex-1 px-2 py-1 rounded bg-amber-400 text-stone-900 text-xs font-bold">Save</button>
-                  <button onClick={() => setEditing(null)} className="px-2 py-1 rounded bg-black/40 border border-amber-700/40 text-amber-100 text-xs">Cancel</button>
+            <div className="flex flex-col gap-1.5 items-end">
+              {editing === u.id ? (
+                <div className="flex flex-col gap-1.5 w-40">
+                  <input type="number" value={form.balance} onChange={e => setForm(f => ({ ...f, balance: e.target.value }))} placeholder="Balance" className="px-2 py-1 rounded bg-black/40 border border-amber-700/40 text-amber-100 text-sm" />
+                  <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} className="px-2 py-1 rounded bg-black/40 border border-amber-700/40 text-amber-100 text-sm">
+                    <option value="user">user</option>
+                    <option value="admin">admin</option>
+                  </select>
+                  <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="Phone" className="px-2 py-1 rounded bg-black/40 border border-amber-700/40 text-amber-100 text-sm" />
+                  <div className="flex gap-1">
+                    <button onClick={() => save(u)} className="flex-1 px-2 py-1 rounded bg-amber-400 text-stone-900 text-xs font-bold">Save</button>
+                    <button onClick={() => setEditing(null)} className="px-2 py-1 rounded bg-black/40 border border-amber-700/40 text-amber-100 text-xs">Cancel</button>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <button onClick={() => startEdit(u)} className="px-3 py-1.5 rounded-lg bg-amber-400 text-stone-900 text-sm font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>Edit</button>
-            )}
+              ) : (
+                <div className="flex gap-1.5">
+                  <button onClick={() => setSelected(u)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-400 text-stone-900 text-xs font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>
+                    <Eye className="w-3.5 h-3.5" /> View
+                  </button>
+                  <button onClick={() => startEdit(u)} className="px-2.5 py-1.5 rounded-lg bg-black/40 border border-amber-700/40 text-amber-100 text-xs font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>Edit</button>
+                </div>
+              )}
+            </div>
           </div>
         </WesternFrame>
       ))}
