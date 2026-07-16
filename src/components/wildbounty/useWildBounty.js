@@ -160,7 +160,8 @@ export function useWildBounty() {
   const settle = (finalGrid, frames, wasFree) => {
     setGoldFrames(frames);
     setAnticipation(false);
-    evaluateAndCascade(finalGrid, 0, 0, multIndex, wasFree, false);
+    // Free spins always evaluate from 8x; normal spins from 1x.
+    evaluateAndCascade(finalGrid, 0, 0, wasFree ? 3 : 0, wasFree, false);
   };
 
   const spin = useCallback(() => {
@@ -185,6 +186,8 @@ export function useWildBounty() {
     setScatterGlow(new Set());
     if (!usingFree) setBalance(b => b - bet);
     if (usingFree) setFreeSpins(f => f - 1);
+    // Each free spin (re)starts at 8x; normal spins start at 1x.
+    setMultIndex(usingFree ? 3 : 0);
     setMessage('Spinning...');
 
     let finalGrid = REEL_ROWS.map(r => buildReel(r));
