@@ -27,7 +27,7 @@ export default function ShareButton({ className = '' }) {
       className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold italic border transition-colors whitespace-nowrap ${
         copied ? 'bg-amber-400 text-stone-900 border-amber-300' : 'bg-black/30 text-amber-100/80 border-amber-700/40 hover:bg-black/50'
       } ${className}`}
-      style={{ fontFamily: 'Georgia, serif' }}
+      style={{ fontFamily: 'Rye, Georgia, serif' }}
     >
       {copied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
       {copied ? 'Copied' : 'Share'}

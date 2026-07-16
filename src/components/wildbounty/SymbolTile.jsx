@@ -37,7 +37,7 @@ export default function SymbolTile({ symbolId, highlighted, goldFramed, shatteri
         <img src={img} alt={symbolId} loading="lazy" className="w-full h-full object-cover" />
       ) : isCard ? (
         <div className={`w-full h-full flex items-center justify-center bg-gradient-to-b ${CARD_STYLE[symbolId].bg}`}>
-          <span className={`text-4xl font-black italic ${CARD_STYLE[symbolId].text} drop-shadow-[0_2px_3px_rgba(0,0,0,0.6)]`} style={{ fontFamily: 'Georgia, serif' }}>
+          <span className={`text-4xl font-black italic ${CARD_STYLE[symbolId].text} drop-shadow-[0_2px_3px_rgba(0,0,0,0.6)]`} style={{ fontFamily: 'Rye, Georgia, serif' }}>
             {symbolId}
           </span>
         </div>

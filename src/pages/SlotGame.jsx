@@ -14,7 +14,7 @@ export default function SlotGame() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
               <Gamepad2 className="w-4 h-4 text-stone-950" />
             </div>
-            <h1 className="text-base font-bold text-amber-200 font-serif italic" style={{ fontFamily: 'Georgia, serif' }}>
+            <h1 className="text-base font-bold text-amber-200 font-serif italic" style={{ fontFamily: 'Rye, Georgia, serif' }}>
               Wild Bounty Showdown
             </h1>
           </div>

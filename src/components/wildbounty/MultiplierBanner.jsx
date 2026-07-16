@@ -27,7 +27,7 @@ export default function MultiplierBanner({ multIndex }) {
                 key={realIndex}
                 className={`font-serif font-black italic transition-all
                   ${isActive ? 'text-base sm:text-lg text-yellow-300 drop-shadow-[0_0_8px_rgba(255,215,0,0.9)] scale-125' : 'text-xs sm:text-sm text-amber-200/40'}`}
-                style={{ fontFamily: 'Georgia, serif' }}
+                style={{ fontFamily: 'Rye, Georgia, serif' }}
               >
                 x{m}
               </span>
@@ -37,7 +37,7 @@ export default function MultiplierBanner({ multIndex }) {
       </PlaqueBanner>
       {multIndex > 0 && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="font-serif font-black italic text-3xl sm:text-5xl text-yellow-300 drop-shadow-[0_0_12px_rgba(255,200,0,0.9)] animate-pulse" style={{ fontFamily: 'Georgia, serif' }}>
+          <span className="font-serif font-black italic text-3xl sm:text-5xl text-yellow-300 drop-shadow-[0_0_12px_rgba(255,200,0,0.9)] animate-pulse" style={{ fontFamily: 'Rye, Georgia, serif' }}>
             x{active}
           </span>
         </div>

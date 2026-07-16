@@ -80,7 +80,7 @@ export default function WildBountyMachine() {
         {/* FEATURE BUY — wooden plaque on the right */}
         <button
           className="absolute -right-2 top-1/2 -translate-y-1/2 rounded-md bg-gradient-to-b from-amber-700 to-amber-950 border border-amber-500/50 px-1.5 py-2 text-[8px] font-bold italic text-amber-100 tracking-wider shadow-md writing-mode-vertical"
-          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', fontFamily: 'Georgia, serif' }}
+          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', fontFamily: 'Rye, Georgia, serif' }}
           title="Feature Buy"
         >
           FEATURE BUY
@@ -88,7 +88,7 @@ export default function WildBountyMachine() {
 
         {/* Win / message banner */}
         <PlaqueBanner glow className="mt-3 mx-1 py-1.5 text-center">
-          <span className="font-black italic text-lg text-yellow-300 drop-shadow-[0_0_6px_rgba(255,200,0,0.7)]" style={{ fontFamily: 'Georgia, serif' }}>
+          <span className="font-black italic text-lg text-yellow-300 drop-shadow-[0_0_6px_rgba(255,200,0,0.7)]" style={{ fontFamily: 'Rye, Georgia, serif' }}>
             {g.message}
           </span>
         </PlaqueBanner>
@@ -97,7 +97,7 @@ export default function WildBountyMachine() {
       {/* Free spins badge */}
       {g.freeSpins > 0 && (
         <WesternFrame glow className="flex items-center justify-center gap-1.5 py-1 mx-2">
-          <span className="text-xs font-bold italic text-amber-200 tracking-[0.15em]" style={{ fontFamily: 'Georgia, serif' }}>
+          <span className="text-xs font-bold italic text-amber-200 tracking-[0.15em]" style={{ fontFamily: 'Rye, Georgia, serif' }}>
             ★ FREE SPINS: {g.freeSpins} ★
           </span>
         </WesternFrame>
@@ -125,7 +125,7 @@ export default function WildBountyMachine() {
       <button
         onClick={g.reset}
         className="text-[10px] italic text-amber-600/80 hover:text-amber-300 tracking-[0.2em] uppercase mx-auto mb-2"
-        style={{ fontFamily: 'Georgia, serif' }}
+        style={{ fontFamily: 'Rye, Georgia, serif' }}
       >
         Reset Balance
       </button>

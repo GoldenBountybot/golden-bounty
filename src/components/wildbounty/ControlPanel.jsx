@@ -27,7 +27,7 @@ export default function ControlPanel({ betIndex, setBetIndex, spinning, spin, tu
         borderTop: '1px solid rgba(190,140,55,0.5)',
       }}
     >
-      <div className="flex items-center justify-between gap-2" style={{ fontFamily: 'Georgia, serif' }}>
+      <div className="flex items-center justify-between gap-2" style={{ fontFamily: 'Rye, Georgia, serif' }}>
         {/* Turbo */}
         <button
           onClick={() => setTurbo(t => !t)}
