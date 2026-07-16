@@ -8,6 +8,7 @@ import WesternFrame from '@/components/wildbounty/WesternFrame';
 import BackButton from '@/components/BackButton';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
 const genUid = () => Math.floor(1000000000 + Math.random() * 9000000000).toString();
 const fmtDate = (d) => (d ? new Date(d).toLocaleString() : '');
@@ -38,6 +39,7 @@ const OUTCOME_META = {
 export default function Profile() {
   const { logout } = useAuth();
   const { toast } = useToast();
+  const { balance } = useCasinoBalance();
   const [profile, setProfile] = useState(null);
   const [username, setUsername] = useState('');
   const [phone, setPhone] = useState('');
@@ -100,7 +102,6 @@ export default function Profile() {
     }
   };
 
-  const balance = Number(profile?.balance ?? 0);
   const uid = profile?.uid || '';
 
   return (
