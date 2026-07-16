@@ -140,7 +140,6 @@ export function useWildBounty() {
   const settle = (finalGrid, frames, wasFree) => {
     setGoldFrames(frames);
     setAnticipation(false);
-    setScatterGlow(new Set());
     evaluateAndCascade(finalGrid, 0, 0, multIndex, wasFree, false);
   };
 
@@ -232,13 +231,14 @@ export function useWildBounty() {
         setStoppedReels(prev => new Set([...prev, i]));
         const scattersInReel = finalGrid[i].filter(s => s === 'scatter').length;
         stoppedScatter += scattersInReel;
+        // Light up any landed wild & scatter symbols with a golden beam
+        const glow = new Set();
+        for (let r = 0; r <= i; r++) {
+          finalGrid[r].forEach((s, row) => { if (s === 'scatter' || s === 'wild') glow.add(`${r}-${row}`); });
+        }
+        setScatterGlow(glow);
         if (stoppedScatter >= 2) {
-          // 2 scatters landed — light them up and slow the remaining reels
-          const glow = new Set();
-          for (let r = 0; r <= i; r++) {
-            finalGrid[r].forEach((s, row) => { if (s === 'scatter') glow.add(`${r}-${row}`); });
-          }
-          setScatterGlow(glow);
+          // 2 scatters landed — slow the remaining reels
           if (i < 5) {
             if (!slow) { setAnticipation(true); sfx.anticipation(); }
             stopReel(i + 1, true);
