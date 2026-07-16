@@ -2,7 +2,7 @@ import React from 'react';
 
 // Wooden curved plaque (web asset) used as a frame/background behind banners.
 const PLAQUE_URL =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/88b423add_InShot_20260715_212417291.jpg';
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8252d57aa_generated_image.png';
 
 export default function PlaqueBanner({ children, className = '', style = {}, glow = false }) {
   return (
