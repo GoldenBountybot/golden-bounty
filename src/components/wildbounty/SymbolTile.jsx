@@ -7,7 +7,7 @@ const IMG = {
   whiskey:  'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/525e250d8_generated_image.png',
   hat:      'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/703eaba87_generated_image.png',
   scatter:  'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/f5447a4d1_generated_image.png',
-  wild:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/af32f44fa_Gemini_Generated_Image_p356vip356vip356.png',
+  wild:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/abaafa9c8_24e9525e1_generated_image.png',
   A: 'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/42eef6374_generated_image.png',
   K: 'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/a02ce2873_generated_image.png',
   Q: 'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/1c191cf13_generated_image.png',
@@ -24,34 +24,17 @@ const CARD_STYLE = {
 
 export default function SymbolTile({ symbolId, highlighted, goldFramed, shattering }) {
   const isCard = ['A', 'K', 'Q', 'J'].includes(symbolId);
-  const isWild = symbolId === 'wild';
   const img = IMG[symbolId];
 
   return (
     <div
       className={`relative rounded-md overflow-hidden
-        ${goldFramed ? 'ring-2 ring-yellow-300 shadow-[0_0_10px_rgba(255,215,0,0.7)]' : (isWild ? '' : 'ring-1 ring-black/60')}
-        ${highlighted && !shattering ? 'z-10 scale-[1.04] ring-2 ring-yellow-300' : ''} transition-transform ${isWild ? 'bg-transparent' : 'bg-stone-900'}`}
+        ${goldFramed ? 'ring-2 ring-yellow-300 shadow-[0_0_10px_rgba(255,215,0,0.7)]' : 'ring-1 ring-black/60'}
+        ${highlighted && !shattering ? 'z-10 scale-[1.04] ring-2 ring-yellow-300' : ''} transition-transform bg-stone-900`}
       style={{ aspectRatio: '1 / 1', animation: shattering ? 'shatterWin 0.6s ease-out forwards' : undefined, zIndex: shattering ? 20 : (highlighted && !shattering ? 10 : undefined), filter: highlighted && !shattering ? 'brightness(1.6) saturate(1.3) drop-shadow(0 0 8px rgba(255,200,0,0.9))' : undefined }}
     >
       {img ? (
-        <img
-          src={img}
-          alt={symbolId}
-          loading="lazy"
-          className="w-full h-full object-cover"
-          style={isWild ? {
-            WebkitMaskImage: `url(${img})`,
-            WebkitMaskSize: '100% 100%',
-            WebkitMaskRepeat: 'no-repeat',
-            WebkitMaskMode: 'luminance',
-            maskImage: `url(${img})`,
-            maskSize: '100% 100%',
-            maskRepeat: 'no-repeat',
-            maskMode: 'luminance',
-            transform: 'scale(3.2)',
-          } : undefined}
-        />
+        <img src={img} alt={symbolId} loading="lazy" className="w-full h-full object-cover" />
       ) : isCard ? (
         <div className={`w-full h-full flex items-center justify-center bg-gradient-to-b ${CARD_STYLE[symbolId].bg}`}>
           <span className={`text-4xl font-black italic ${CARD_STYLE[symbolId].text} drop-shadow-[0_2px_3px_rgba(0,0,0,0.6)]`} style={{ fontFamily: 'Georgia, serif' }}>
