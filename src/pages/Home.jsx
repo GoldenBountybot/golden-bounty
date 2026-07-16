@@ -28,9 +28,9 @@ export default function Home() {
   const playable = GAMES.filter(g => !g.coming).length;
 
   return (
-    <div className="min-h-screen pb-20 bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950">
+    <div className="min-h-screen pb-20 bg-gradient-to-b from-amber-950 via-stone-900 to-stone-950">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-emerald-950/90 backdrop-blur-xl border-b border-amber-600/30">
+      <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/40">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-700/40">
@@ -56,20 +56,25 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero strip */}
+      {/* Hero shield plaque */}
       <div className="max-w-6xl mx-auto px-4 pt-6">
-        <div className="relative rounded-2xl overflow-hidden border border-amber-600/40 p-6 bg-gradient-to-r from-amber-900/60 via-stone-900/60 to-emerald-900/60">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,200,80,0.25),transparent_55%)]" />
-          <div className="relative">
-            <h2 className="text-2xl sm:text-3xl font-black italic text-amber-200 drop-shadow" style={{ fontFamily: 'Georgia, serif' }}>
-              Welcome to the Saloon
+        <div className="relative rounded-2xl overflow-hidden border-2 border-amber-600/60 shadow-2xl shadow-amber-900/50">
+          <img
+            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11bb10de3_InShot_20260715_212512483.jpg"
+            alt="Golden Bounty Saloon"
+            className="w-full h-72 sm:h-80 object-cover"
+          />
+          <div className="absolute inset-0 bg-black/15" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+            <h2 className="text-3xl sm:text-4xl font-black italic text-amber-200 drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)]" style={{ fontFamily: 'Georgia, serif' }}>
+              Golden Bounty Casino
             </h2>
-            <p className="text-sm text-amber-100/80 mt-1 max-w-md">
-              Spin the reels of Wild Bounty Showdown, test your luck on the wheel, or read the cards. New games added often!
+            <p className="text-sm sm:text-base text-amber-100/90 mt-2 max-w-sm italic" style={{ fontFamily: 'Georgia, serif' }}>
+              Welcome to the Saloon — spin, wager & win the bounty of the West.
             </p>
             <Link
               to="/games/wild-bounty"
-              className="inline-flex items-center gap-2 mt-3 px-5 py-2.5 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 text-sm font-black italic shadow-lg hover:from-amber-300 hover:to-orange-400 transition-colors"
+              className="inline-flex items-center gap-2 mt-4 px-6 py-2.5 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 text-sm font-black italic shadow-lg hover:from-amber-300 hover:to-orange-400 transition-colors"
               style={{ fontFamily: 'Georgia, serif' }}
             >
               <Gamepad2 className="w-4 h-4" /> Play Wild Bounty
@@ -110,7 +115,7 @@ export default function Home() {
       </footer>
 
       {/* Bottom quick actions — fixed at the very bottom */}
-      <div className="fixed bottom-0 inset-x-0 z-30 border-t border-amber-700/40 bg-emerald-950/95 backdrop-blur-xl">
+      <div className="fixed bottom-0 inset-x-0 z-30 border-t border-amber-700/40 bg-stone-950/95 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-4 py-2 grid grid-cols-5 gap-2">
           <Link to="/dashboard" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
             <LayoutDashboard className="w-5 h-5 text-amber-300" />
