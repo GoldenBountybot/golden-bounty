@@ -15,7 +15,7 @@ export default function WildBountyMachine() {
 
   return (
     <div
-      className="w-full max-w-4xl mx-auto rounded-2xl relative p-[3px]"
+      className="w-full max-w-5xl mx-auto rounded-2xl relative p-[3px]"
       style={{
         background: 'linear-gradient(145deg, #e0b34a, #7a4f17 38%, #c8932e 68%, #5e3d12)',
         boxShadow: '0 0 0 2px #2e1d0a, 0 0 0 4px rgba(200,150,60,0.4), 0 16px 48px rgba(0,0,0,0.75)',
@@ -41,7 +41,7 @@ export default function WildBountyMachine() {
 
       {/* Reel board — bronze western frame (web asset) around symbols */}
       <div
-        className="relative px-16 py-6 mx-0 my-0 rounded-2xl"
+        className="relative px-8 py-6 mx-0 my-0 rounded-2xl"
         style={{
           backgroundImage:
             'linear-gradient(rgba(20,14,8,0.3), rgba(20,14,8,0.4)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a416f3da8_generated_image.png)',
