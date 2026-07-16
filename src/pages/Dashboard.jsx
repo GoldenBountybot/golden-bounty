@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Wallet, Gift, Users, Copy, Check, ArrowDownToLine, ArrowUpFromLine, Shield } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
@@ -107,9 +107,9 @@ export default function Dashboard() {
             <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Dashboard</h1>
           </div>
           {user?.role === 'admin' && (
-            <Link to="/admin" className="flex items-center gap-1.5 text-amber-200 text-sm font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>
-              <Shield className="w-4 h-4" /> Admin
-            </Link>
+            <button onClick={() => { window.location.href = '/admin'; }} title="Admin Panel" className="flex items-center justify-center w-9 h-9 rounded-lg text-amber-200 hover:text-amber-100 hover:bg-black/40 transition-colors">
+              <Shield className="w-5 h-5" />
+            </button>
           )}
           </div>
       </header>
