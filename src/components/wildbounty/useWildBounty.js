@@ -240,7 +240,7 @@ export function useWildBounty() {
     }
 
     const frames = assignGoldFrames(finalGrid);
-    const baseGap = turbo ? 180 : 300;
+    const baseGap = turbo ? 130 : 230;
     const slowGap = turbo ? 900 : 1500; // slow-motion anticipation for remaining reels
 
     let stoppedScatter = 0;
