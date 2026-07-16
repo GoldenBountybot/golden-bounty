@@ -9,14 +9,14 @@ export const BETS = [0.05, 0.10, 0.25, 0.50, 1.00];
 export const SYMBOLS = {
   scatter:  { id: 'scatter',  label: 'SCATTER', type: 'scatter', pay: { 3: 2, 4: 5, 5: 10, 6: 25 } },
   wild:     { id: 'wild',     label: 'WILD',    type: 'wild',    pay: { 3: 5, 4: 10, 5: 25, 6: 50 } },
-  bandit:   { id: 'bandit',   label: 'BANDIT',  type: 'high',    pay: { 3: 2, 4: 5, 5: 15, 6: 30 } },
-  revolver: { id: 'revolver', label: 'GUN',     type: 'high',    pay: { 3: 1.5, 4: 4, 5: 10, 6: 20 } },
-  whiskey:  { id: 'whiskey',  label: 'WHISKEY', type: 'mid',     pay: { 3: 1, 4: 2.5, 5: 7, 6: 15 } },
-  hat:      { id: 'hat',      label: 'HAT',    type: 'mid',     pay: { 3: 0.8, 4: 2, 5: 5, 6: 12 } },
-  A:        { id: 'A',        label: 'A',      type: 'low',     pay: { 3: 0.4, 4: 1, 5: 3, 6: 6 } },
-  K:        { id: 'K',        label: 'K',      type: 'low',     pay: { 3: 0.4, 4: 1, 5: 3, 6: 6 } },
-  Q:        { id: 'Q',        label: 'Q',      type: 'low',     pay: { 3: 0.3, 4: 0.8, 5: 2.5, 6: 5 } },
-  J:        { id: 'J',        label: 'J',      type: 'low',     pay: { 3: 0.3, 4: 0.8, 5: 2.5, 6: 5 } },
+  bandit:   { id: 'bandit',   label: 'BANDIT',  type: 'high',    pay: { 3: 10, 4: 20, 5: 30, 6: 50 } },
+  revolver: { id: 'revolver', label: 'GUN',     type: 'high',    pay: { 3: 8, 4: 15, 5: 20, 6: 30 } },
+  whiskey:  { id: 'whiskey',  label: 'WHISKEY', type: 'mid',     pay: { 3: 5, 4: 10, 5: 15, 6: 20 } },
+  hat:      { id: 'hat',      label: 'HAT',    type: 'mid',     pay: { 3: 5, 4: 10, 5: 15, 6: 20 } },
+  A:        { id: 'A',        label: 'A',      type: 'low',     pay: { 3: 2, 4: 4, 5: 6, 6: 10 } },
+  K:        { id: 'K',        label: 'K',      type: 'low',     pay: { 3: 2, 4: 4, 5: 6, 6: 10 } },
+  Q:        { id: 'Q',        label: 'Q',      type: 'low',     pay: { 3: 1, 4: 2, 5: 3, 6: 5 } },
+  J:        { id: 'J',        label: 'J',      type: 'low',     pay: { 3: 1, 4: 2, 5: 3, 6: 5 } },
 };
 
 // Weighted pool — wild & scatter rare, high symbols uncommon, low symbols common
@@ -43,7 +43,8 @@ export function buildReel(rows) {
 // Ways-to-win evaluation. Wild substitutes for all base symbols.
 // grid: array of 6 arrays. bet: current stake (base unit = 100).
 export function evaluateWins(grid, bet) {
-  const betUnit = bet / MIN_BET;
+  // 20-coin ways structure: each way pays paytable × (bet / 20) × ways
+  const betUnit = bet / 20;
   const wins = [];
   const baseSymbols = Object.values(SYMBOLS).filter(s => s.type !== 'scatter' && s.type !== 'wild');
 
