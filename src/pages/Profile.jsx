@@ -129,6 +129,10 @@ export default function Profile() {
             <Hash className="w-3 h-3 text-amber-400/70" />
             <span className="text-[12px] font-mono tracking-wider text-amber-100/90 select-all">{uid || '—'}</span>
           </div>
+          <div className="flex items-center gap-1.5 mt-2 px-4 py-1.5 rounded-full bg-amber-400/15 border border-amber-500/40">
+            <Wallet className="w-3.5 h-3.5 text-amber-300" />
+            <span className="text-sm font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${balance.toFixed(2)}</span>
+          </div>
         </WesternFrame>
 
         {/* Edit profile */}
