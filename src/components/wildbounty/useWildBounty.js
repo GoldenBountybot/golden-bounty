@@ -226,32 +226,22 @@ export function useWildBounty() {
       }
     }
 
-    // 3 scatters landing together is capped at 0.01% per spin.
+    // Scatter distribution per spin: 1 = 10%, 2 = 5%, 3 = 0.003%, else 0.
     finalGrid = finalGrid.map(reel => [...reel]);
-    const SCATTER_TRIGGER_RATE = 0.00005;
-    const forceScatters = Math.random() < SCATTER_TRIGGER_RATE;
-    let scatterTotal = finalGrid.reduce((n, reel) => n + reel.filter(s => s === 'scatter').length, 0);
     const nonScatter = () => { let s = randomSymbol(); while (s === 'scatter') s = randomSymbol(); return s; };
-    if (forceScatters && scatterTotal < 3) {
-      const cells = [];
-      finalGrid.forEach((reel, ri) => reel.forEach((s, row) => { if (s !== 'scatter') cells.push([ri, row]); }));
-      let need = 3 - scatterTotal;
-      while (need > 0 && cells.length) {
-        const idx = Math.floor(Math.random() * cells.length);
-        const [ri, row] = cells.splice(idx, 1)[0];
-        finalGrid[ri][row] = 'scatter';
-        need--;
-      }
-    } else if (!forceScatters && scatterTotal >= 3) {
-      const cells = [];
-      finalGrid.forEach((reel, ri) => reel.forEach((s, row) => { if (s === 'scatter') cells.push([ri, row]); }));
-      let extra = scatterTotal - 2;
-      while (extra > 0 && cells.length) {
-        const idx = Math.floor(Math.random() * cells.length);
-        const [ri, row] = cells.splice(idx, 1)[0];
-        finalGrid[ri][row] = nonScatter();
-        extra--;
-      }
+    // Remove any natural scatters so we control the exact count.
+    finalGrid.forEach(reel => { for (let i = 0; i < reel.length; i++) if (reel[i] === 'scatter') reel[i] = nonScatter(); });
+    const roll = Math.random();
+    let targetScatters = 0;
+    if (roll < 0.00003) targetScatters = 3;            // 0.003%
+    else if (roll < 0.05003) targetScatters = 2;       // 5%
+    else if (roll < 0.15003) targetScatters = 1;       // 10%
+    const cells = [];
+    finalGrid.forEach((reel, ri) => reel.forEach((_, row) => cells.push([ri, row])));
+    for (let i = 0; i < targetScatters && cells.length; i++) {
+      const idx = Math.floor(Math.random() * cells.length);
+      const [ri, row] = cells.splice(idx, 1)[0];
+      finalGrid[ri][row] = 'scatter';
     }
 
     const frames = assignGoldFrames(finalGrid);
