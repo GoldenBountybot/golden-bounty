@@ -49,15 +49,11 @@ export default function WildBountyMachine() {
         <MultiplierBanner multIndex={g.multIndex} />
       </div>
 
-      {/* Reel board — metallic copper frame, symbols sit inside */}
+      {/* Reel board — metallic copper frame, per-cell symbol slots inside */}
       <div
-        className="relative px-3 py-3 mx-2 my-1 rounded-2xl border-2 border-amber-900/70"
+        className="relative px-3 py-3 mx-2 my-1 rounded-2xl border-2 border-[#5c3d2d]"
         style={{
-          backgroundImage:
-            'linear-gradient(rgba(20,14,8,0.6), rgba(20,14,8,0.68)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a27239dfb_InShot_20260715_212512483.jpg)',
-          backgroundSize: 'cover, 185%',
-          backgroundPosition: 'center, center',
-          backgroundRepeat: 'no-repeat, no-repeat',
+          background: 'linear-gradient(160deg, #2a1d14, #1a120c 60%, #0f0a07)',
           boxShadow:
             '0 0 0 5px #8b5a3e, 0 0 0 7px #3a2418, 0 0 0 9px rgba(200,140,90,0.4), 0 14px 40px rgba(0,0,0,0.7)',
         }}

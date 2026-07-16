@@ -29,9 +29,9 @@ export default function SymbolTile({ symbolId, highlighted, goldFramed, shatteri
   return (
     <div
       className={`relative rounded-md overflow-hidden
-        ${goldFramed ? 'ring-2 ring-yellow-300 shadow-[0_0_10px_rgba(255,215,0,0.7)]' : 'ring-1 ring-black/60'}
+        ${goldFramed ? 'ring-2 ring-yellow-300 shadow-[0_0_10px_rgba(255,215,0,0.7)]' : 'border border-[#5c3d2d] ring-1 ring-[#8b5a3e]'}
         ${highlighted && !shattering ? 'z-10 scale-[1.04] ring-2 ring-yellow-300' : ''} transition-transform bg-stone-900`}
-      style={{ aspectRatio: '1 / 1', animation: shattering ? 'shatterWin 0.6s ease-out forwards' : undefined, zIndex: shattering ? 20 : (highlighted && !shattering ? 10 : undefined), filter: highlighted && !shattering ? 'brightness(1.6) saturate(1.3) drop-shadow(0 0 8px rgba(255,200,0,0.9))' : undefined }}
+      style={{ aspectRatio: '1 / 1', animation: shattering ? 'shatterWin 0.6s ease-out forwards' : undefined, zIndex: shattering ? 20 : (highlighted && !shattering ? 10 : undefined), filter: highlighted && !shattering ? 'brightness(1.6) saturate(1.3) drop-shadow(0 0 8px rgba(255,200,0,0.9))' : undefined, boxShadow: goldFramed ? undefined : 'inset 0 0 0 1px rgba(200,140,90,0.3), 0 1px 3px rgba(0,0,0,0.6)' }}
     >
       {img ? (
         <img src={img} alt={symbolId} loading="lazy" className="w-full h-full object-cover" />
