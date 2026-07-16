@@ -38,21 +38,6 @@ export default function FlyingMultiplier({ value, onComplete }) {
         className="absolute left-1/2 flex items-center justify-center"
         style={{ animation: `multCenterFly ${(HOLD_END / 1000).toFixed(2)}s cubic-bezier(0.22,0.61,0.36,1) forwards` }}
       >
-        {/* golden radial burst at the centre */}
-        <span
-          className="absolute rounded-full"
-          style={{
-            width: '240px',
-            height: '240px',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%,-50%)',
-            background:
-              'radial-gradient(circle, rgba(255,225,120,0.95) 0%, rgba(255,200,60,0.55) 28%, rgba(255,180,40,0.18) 55%, rgba(255,180,40,0) 72%)',
-            filter: 'blur(2px)',
-            animation: `multBurst ${(HOLD_END / 1000).toFixed(2)}s ease-out forwards`,
-          }}
-        />
         <span
           className="relative font-black italic leading-none select-none"
           style={{
