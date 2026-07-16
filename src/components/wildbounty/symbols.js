@@ -3,7 +3,8 @@ export const REEL_ROWS = [3, 4, 5, 5, 4, 3];
 
 export const MULTIPLIERS = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
 
-export const BETS = [50, 100, 200, 500, 1000];
+export const MIN_BET = 0.05;
+export const BETS = [0.05, 0.10, 0.25, 0.50, 1.00];
 
 export const SYMBOLS = {
   scatter:  { id: 'scatter',  label: 'SCATTER', type: 'scatter', pay: { 3: 2, 4: 5, 5: 10, 6: 25 } },
@@ -42,7 +43,7 @@ export function buildReel(rows) {
 // Ways-to-win evaluation. Wild substitutes for all base symbols.
 // grid: array of 6 arrays. bet: current stake (base unit = 100).
 export function evaluateWins(grid, bet) {
-  const betUnit = bet / 100;
+  const betUnit = bet / MIN_BET;
   const wins = [];
   const baseSymbols = Object.values(SYMBOLS).filter(s => s.type !== 'scatter' && s.type !== 'wild');
 
