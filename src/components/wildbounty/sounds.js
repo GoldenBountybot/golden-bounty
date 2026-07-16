@@ -67,6 +67,11 @@ export const sfx = {
       tone({ freq: f, type: 'triangle', dur: 0.32, gain: VOL * 0.5, delay: i * 0.085 })
     );
   },
+  anticipation() {
+    // suspense drone when 2 scatters land and remaining reels slow down
+    tone({ freq: 150, sweepTo: 380, type: 'sawtooth', dur: 1.4, gain: VOL * 0.3 });
+    tone({ freq: 80, type: 'sine', dur: 1.4, gain: VOL * 0.25 });
+  },
   loss() {
     // descending dull buzz
     tone({ freq: 300, sweepTo: 110, type: 'sawtooth', dur: 0.55, gain: VOL * 0.4 });

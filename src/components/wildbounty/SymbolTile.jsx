@@ -22,7 +22,7 @@ const CARD_STYLE = {
   J: { bg: 'from-blue-600 to-blue-900', text: 'text-blue-50' },
 };
 
-export default function SymbolTile({ symbolId, highlighted, goldFramed, shattering }) {
+export default function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam }) {
   const isCard = ['A', 'K', 'Q', 'J'].includes(symbolId);
   const img = IMG[symbolId];
 
@@ -45,6 +45,21 @@ export default function SymbolTile({ symbolId, highlighted, goldFramed, shatteri
         <div className="w-full h-full flex items-center justify-center bg-stone-800">
           <span className="text-3xl">?</span>
         </div>
+      )}
+
+      {/* Anticipation golden beam on landed scatters */}
+      {symbolId === 'scatter' && scatterBeam && (
+        <span
+          className="absolute inset-x-0 pointer-events-none z-30 animate-pulse"
+          style={{
+            top: '-30%',
+            bottom: '-30%',
+            background:
+              'linear-gradient(to bottom, rgba(255,250,205,0) 0%, rgba(255,215,0,0.85) 22%, rgba(255,255,255,0.95) 50%, rgba(255,215,0,0.85) 78%, rgba(255,250,205,0) 100%)',
+            filter: 'blur(2px)',
+            boxShadow: '0 0 22px rgba(255,215,0,0.9), 0 0 40px rgba(255,215,0,0.6)',
+          }}
+        />
       )}
 
       {/* Special label (WILD text is part of the wild badge image) */}

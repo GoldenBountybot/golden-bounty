@@ -25,6 +25,8 @@ export function useWildBounty() {
   const [cascadePositions, setCascadePositions] = useState(new Set());
   const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
+  const [anticipation, setAnticipation] = useState(false);
+  const [scatterGlow, setScatterGlow] = useState(new Set());
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
@@ -137,6 +139,8 @@ export function useWildBounty() {
 
   const settle = (finalGrid, frames, wasFree) => {
     setGoldFrames(frames);
+    setAnticipation(false);
+    setScatterGlow(new Set());
     evaluateAndCascade(finalGrid, 0, 0, multIndex, wasFree, false);
   };
 
@@ -158,6 +162,8 @@ export function useWildBounty() {
     setShattering(new Set());
     setCascading(false);
     setLastWin(0);
+    setAnticipation(false);
+    setScatterGlow(new Set());
     if (!usingFree) setBalance(b => b - bet);
     if (usingFree) setFreeSpins(f => f - 1);
     setMessage('Spinning...');
@@ -212,12 +218,11 @@ export function useWildBounty() {
     }
 
     const frames = assignGoldFrames(finalGrid);
-    const reelDur = turbo
-      ? [300, 480, 660, 840, 1020, 1200]
-      : [450, 750, 1050, 1350, 1650, 1950];
+    const baseGap = turbo ? 180 : 300;
+    const slowGap = turbo ? 720 : 1150; // slow-motion anticipation for remaining reels
 
-    let done = 0;
-    reelDur.forEach((dur, i) => {
+    let stoppedScatter = 0;
+    const stopReel = (i, slow) => {
       const t = setTimeout(() => {
         setGrid(prev => {
           const next = [...prev];
@@ -225,11 +230,30 @@ export function useWildBounty() {
           return next;
         });
         setStoppedReels(prev => new Set([...prev, i]));
-        done++;
-        if (done === 6) settle(finalGrid, frames, usingFree);
-      }, dur);
+        const scattersInReel = finalGrid[i].filter(s => s === 'scatter').length;
+        stoppedScatter += scattersInReel;
+        if (stoppedScatter >= 2) {
+          // 2 scatters landed — light them up and slow the remaining reels
+          const glow = new Set();
+          for (let r = 0; r <= i; r++) {
+            finalGrid[r].forEach((s, row) => { if (s === 'scatter') glow.add(`${r}-${row}`); });
+          }
+          setScatterGlow(glow);
+          if (i < 5) {
+            if (!slow) { setAnticipation(true); sfx.anticipation(); }
+            stopReel(i + 1, true);
+            return;
+          }
+        }
+        if (i < 5) {
+          stopReel(i + 1, false);
+        } else {
+          settle(finalGrid, frames, usingFree);
+        }
+      }, slow ? slowGap : baseGap);
       timers.current.push(t);
-    });
+    };
+    stopReel(0, false);
   }, [spinning, balance, bet, freeSpins, turbo, multIndex]);
 
   // auto spin
@@ -276,6 +300,7 @@ export function useWildBounty() {
     lastWin, message, winningPositions, goldFrames, shattering, cascading, cascadePositions,
     freeSpins, scatterCount, turbo, autoSpin,
     showFreeSpinStart, freeSpinsActive, startFreeSpins,
+    anticipation, scatterGlow,
     spin, setBetIndex, setTurbo, setAutoSpin, reset,
   };
 }
