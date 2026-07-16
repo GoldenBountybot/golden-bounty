@@ -50,7 +50,15 @@ export default function WildBountyMachine() {
       </div>
 
       {/* Reel board — wooden shield */}
-      <div className="relative px-3 py-3 mx-2 rounded-2xl bg-gradient-to-b from-amber-950 via-stone-900 to-stone-950 border-2 border-amber-800/60 shadow-2xl shadow-amber-900/40">
+      <div
+        className="relative px-3 py-3 mx-2 rounded-2xl border-2 border-amber-800/60 shadow-2xl shadow-amber-900/40"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(20,14,8,0.6), rgba(20,14,8,0.68)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a27239dfb_InShot_20260715_212512483.jpg)',
+          backgroundSize: 'cover, cover',
+          backgroundPosition: 'center, center',
+        }}
+      >
         {/* 3600 WAYS side labels */}
         <span className="absolute left-0.5 top-1/2 -translate-y-1/2 -rotate-90 text-[7px] font-bold text-amber-600/60 tracking-[0.2em] whitespace-nowrap">3600 WAYS</span>
         <span className="absolute right-0.5 top-1/2 -translate-y-1/2 rotate-90 text-[7px] font-bold text-amber-600/60 tracking-[0.2em] whitespace-nowrap">3600 WAYS</span>
