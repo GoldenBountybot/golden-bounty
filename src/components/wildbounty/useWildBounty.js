@@ -253,6 +253,7 @@ export function useWildBounty() {
   const startFreeSpins = useCallback(() => {
     setShowFreeSpinStart(false);
     setFreeSpinsActive(true);
+    setMultIndex(3); // 8x — free spins start here
     spin();
   }, [spin]);
 
