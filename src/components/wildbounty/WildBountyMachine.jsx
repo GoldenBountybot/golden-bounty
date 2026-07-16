@@ -49,9 +49,19 @@ export default function WildBountyMachine() {
         <MultiplierBanner multIndex={g.multIndex} />
       </div>
 
+      {/* Decorative copper frame */}
+      <div
+        className="relative mx-1 my-1 rounded-2xl p-2.5 shadow-2xl shadow-amber-900/50"
+        style={{
+          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e59ed50a1_Gemini_Generated_Image_xh3y3nxh3y3nxh3y.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
       {/* Reel board — wooden shield */}
       <div
-        className="relative px-3 py-3 mx-2 rounded-2xl border-2 border-amber-800/60 shadow-2xl shadow-amber-900/40"
+        className="relative px-3 py-3 rounded-xl border-2 border-amber-800/60 shadow-2xl shadow-amber-900/40"
         style={{
           backgroundImage:
             'linear-gradient(rgba(20,14,8,0.6), rgba(20,14,8,0.68)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a27239dfb_InShot_20260715_212512483.jpg)',
@@ -99,6 +109,8 @@ export default function WildBountyMachine() {
           </span>
         </WesternFrame>
       </div>
+      </div>
+      {/* /Decorative copper frame */}
 
       {/* Free spins badge */}
       {g.freeSpins > 0 && (
