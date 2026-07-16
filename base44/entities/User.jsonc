@@ -11,6 +11,11 @@
     "phone": {
       "type": "string",
       "description": "Phone number of the user"
+    },
+    "balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Casino wallet balance managed by the admin"
     }
   },
   "required": [
