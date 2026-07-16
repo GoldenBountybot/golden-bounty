@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   User as UserIcon, Phone, Hash, LogOut, Loader2, Check,
-  Wallet, ArrowDownToLine, ArrowUpFromLine, Gift, Gamepad2,
+  Wallet, ArrowDownToLine, ArrowUpFromLine, Gift, Gamepad2, Copy,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
@@ -129,10 +129,15 @@ export default function Profile() {
           <div className="flex items-center gap-1.5 mt-1 px-3 py-1 rounded-full bg-black/40 border border-amber-700/40">
             <Hash className="w-3 h-3 text-amber-400/70" />
             <span className="text-[12px] font-mono tracking-wider text-amber-100/90 select-all">{uid || '—'}</span>
-          </div>
-          <div className="flex items-center gap-1.5 mt-2 px-4 py-1.5 rounded-full bg-amber-400/15 border border-amber-500/40">
-            <Wallet className="w-3.5 h-3.5 text-amber-300" />
-            <span className="text-sm font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${balance.toFixed(2)}</span>
+            <button
+              onClick={async () => {
+                try { await navigator.clipboard.writeText(uid); toast({ title: 'User ID copied' }); } catch { /* ignore */ }
+              }}
+              className="ml-0.5 text-amber-300/70 hover:text-amber-200 transition-colors"
+              title="Copy User ID"
+            >
+              <Copy className="w-3 h-3" />
+            </button>
           </div>
         </WesternFrame>
 
