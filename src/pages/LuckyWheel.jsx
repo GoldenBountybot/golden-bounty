@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ArrowLeft, RotateCw } from 'lucide-react';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import ShareButton from '@/components/ShareButton';
@@ -67,10 +66,9 @@ export default function LuckyWheel() {
     <div className="min-h-screen bg-gradient-to-b from-rose-950 via-stone-950 to-stone-950">
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-rose-600/30">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-1.5 text-stone-300 hover:text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm italic tracking-wide">Lobby</span>
-          </Link>
+          <button onClick={() => { window.location.href = '/'; }} title="Back" className="flex items-center justify-center w-9 h-9 rounded-lg text-stone-300 hover:text-amber-200 hover:bg-black/40 transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           <div className="flex-1 text-center">
             <h1 className="text-base font-black italic text-rose-200" style={{ fontFamily: 'Georgia, serif' }}>Lucky Wheel</h1>
           </div>
