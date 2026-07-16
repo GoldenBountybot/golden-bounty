@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Wallet, Gift, Users, Copy, Check, ArrowDownToLine, ArrowUpFromLine, LogIn } from 'lucide-react';
+import { ArrowLeft, Wallet, Gift, Users, Copy, Check, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useToast } from '@/components/ui/use-toast';
@@ -104,9 +104,7 @@ export default function Dashboard() {
           <div className="flex-1 text-center">
             <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Dashboard</h1>
           </div>
-          <Link to="/login" className="flex items-center gap-1.5 text-amber-200 text-sm font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>
-            <LogIn className="w-4 h-4" /> Sign In
-          </Link>
+
         </div>
       </header>
 
