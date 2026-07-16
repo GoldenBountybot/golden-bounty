@@ -23,11 +23,12 @@ export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, wi
 
   const strip = useMemo(() => {
     // During slow anticipation, scroll a consistent repeating sequence so the
-    // symbols cascade smoothly in slow motion instead of scrambling randomly.
+    // symbols cascade smoothly in slow motion. 4 copies make the -75% reelFall
+    // loop seamless (bottom copy == top copy), so no chaotic jump is visible.
     if (spinning && anticipationGlow) {
       const base = symbols.length ? symbols : Array.from({ length: rowCount }, () => randomSymbol());
       const out = [];
-      for (let k = 0; k < 6; k++) out.push(...base);
+      for (let k = 0; k < 4; k++) out.push(...base);
       return out;
     }
     if (spinning) return Array.from({ length: rowCount * 6 }, () => randomSymbol());
