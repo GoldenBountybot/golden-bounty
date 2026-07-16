@@ -32,6 +32,12 @@ function readBonuses() {
 
 export function useCasinoAccount() {
   const [balance, setBalance] = useState(() => {
+    // One-time reset to 0 for everyone: balance now comes only from bonuses + deposits.
+    if (!localStorage.getItem('casino_balance_v2')) {
+      localStorage.setItem('casino_balance_v2', '1');
+      localStorage.setItem(BAL_KEY, '0');
+      return 0;
+    }
     const s = localStorage.getItem(BAL_KEY);
     return s ? parseFloat(s) : START_BALANCE;
   });

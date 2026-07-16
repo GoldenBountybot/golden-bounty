@@ -6,6 +6,12 @@ const START_BALANCE = 0;
 
 export function useCasinoBalance() {
   const [balance, setBalance] = useState(() => {
+    // One-time reset to 0 for everyone: balance now comes only from bonuses + deposits.
+    if (!localStorage.getItem('casino_balance_v2')) {
+      localStorage.setItem('casino_balance_v2', '1');
+      localStorage.setItem(STORAGE_KEY, '0');
+      return 0;
+    }
     const s = localStorage.getItem(STORAGE_KEY);
     return s ? parseFloat(s) : START_BALANCE;
   });
