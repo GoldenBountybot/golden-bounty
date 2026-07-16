@@ -27,6 +27,7 @@ export function useWildBounty() {
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
   const [anticipation, setAnticipation] = useState(false);
   const [scatterGlow, setScatterGlow] = useState(new Set());
+  const [flyingMult, setFlyingMult] = useState(null);
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
@@ -119,6 +120,7 @@ export function useWildBounty() {
       setBalance(b => b + stepWin);
       setLastWin(newTotal);
       setMultIndex(newMult);
+      setFlyingMult({ value: MULTIPLIERS[newMult], key: Date.now() });
       setMessage(justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`);
 
       // Shatter winning symbols after a brief highlight
@@ -184,6 +186,7 @@ export function useWildBounty() {
     setLastWin(0);
     setAnticipation(false);
     setScatterGlow(new Set());
+    setFlyingMult(null);
     if (!usingFree) setBalance(b => b - bet);
     if (usingFree) setFreeSpins(f => f - 1);
     // Each free spin (re)starts at 8x; normal spins start at 1x.
@@ -300,6 +303,8 @@ export function useWildBounty() {
     }
   }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin]);
 
+  const clearFlyingMult = useCallback(() => setFlyingMult(null), []);
+
   const startFreeSpins = useCallback(() => {
     setShowFreeSpinStart(false);
     setFreeSpinsActive(true);
@@ -324,6 +329,7 @@ export function useWildBounty() {
     freeSpins, scatterCount, turbo, autoSpin,
     showFreeSpinStart, freeSpinsActive, startFreeSpins,
     anticipation, scatterGlow,
+    flyingMult, clearFlyingMult,
     spin, setBetIndex, setTurbo, setAutoSpin, reset,
   };
 }

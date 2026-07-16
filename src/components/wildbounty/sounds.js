@@ -76,4 +76,12 @@ export const sfx = {
     // descending dull buzz
     tone({ freq: 300, sweepTo: 110, type: 'sawtooth', dur: 0.55, gain: VOL * 0.4 });
   },
+  coins() {
+    // a pile of coins clinking together as the multiplier lands in the win banner
+    for (let i = 0; i < 16; i++) {
+      const f = 1400 + Math.random() * 1900;
+      tone({ freq: f, type: 'triangle', dur: 0.12, gain: VOL * (0.16 + Math.random() * 0.14), delay: i * 0.04 });
+      tone({ freq: f * 1.5, type: 'sine', dur: 0.1, gain: VOL * 0.09, delay: i * 0.04 + 0.012 });
+    }
+  },
 };

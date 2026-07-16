@@ -6,6 +6,7 @@ import MultiplierBanner from './MultiplierBanner';
 import ControlPanel from './ControlPanel';
 import { Boxes, Coins, Trophy } from 'lucide-react';
 import FreeSpinStart from './FreeSpinStart';
+import FlyingMultiplier from './FlyingMultiplier';
 import WesternFrame from './WesternFrame';
 import PlaqueBanner from './PlaqueBanner';
 import WesternStatBanner from './WesternStatBanner';
@@ -126,6 +127,14 @@ export default function WildBountyMachine() {
 
       {g.showFreeSpinStart && !g.spinning && (
         <FreeSpinStart count={g.freeSpins} onStart={g.startFreeSpins} />
+      )}
+
+      {g.flyingMult && (
+        <FlyingMultiplier
+          key={g.flyingMult.key}
+          value={g.flyingMult.value}
+          onComplete={g.clearFlyingMult}
+        />
       )}
       </div>
     </div>
