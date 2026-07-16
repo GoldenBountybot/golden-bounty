@@ -55,8 +55,9 @@ export default function WildBountyMachine() {
         style={{
           backgroundImage:
             'linear-gradient(rgba(20,14,8,0.6), rgba(20,14,8,0.68)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a27239dfb_InShot_20260715_212512483.jpg)',
-          backgroundSize: 'cover, cover',
+          backgroundSize: 'cover, 185%',
           backgroundPosition: 'center, center',
+          backgroundRepeat: 'no-repeat, no-repeat',
         }}
       >
         {/* 3600 WAYS side labels */}
