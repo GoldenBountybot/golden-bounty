@@ -208,12 +208,12 @@ export function useWildBounty() {
       }
     }
 
-    // 3+ scatters anywhere award 10 free spins. A small forced chance keeps
-    // the feature reachable; naturally-landed 3 scatters also trigger.
+    // 3 scatters landing together is capped at 0.01% per spin.
     finalGrid = finalGrid.map(reel => [...reel]);
-    const SCATTER_TRIGGER_RATE = 0.02;
+    const SCATTER_TRIGGER_RATE = 0.0001;
     const forceScatters = Math.random() < SCATTER_TRIGGER_RATE;
     let scatterTotal = finalGrid.reduce((n, reel) => n + reel.filter(s => s === 'scatter').length, 0);
+    const nonScatter = () => { let s = randomSymbol(); while (s === 'scatter') s = randomSymbol(); return s; };
     if (forceScatters && scatterTotal < 3) {
       const cells = [];
       finalGrid.forEach((reel, ri) => reel.forEach((s, row) => { if (s !== 'scatter') cells.push([ri, row]); }));
@@ -223,6 +223,16 @@ export function useWildBounty() {
         const [ri, row] = cells.splice(idx, 1)[0];
         finalGrid[ri][row] = 'scatter';
         need--;
+      }
+    } else if (!forceScatters && scatterTotal >= 3) {
+      const cells = [];
+      finalGrid.forEach((reel, ri) => reel.forEach((s, row) => { if (s === 'scatter') cells.push([ri, row]); }));
+      let extra = scatterTotal - 2;
+      while (extra > 0 && cells.length) {
+        const idx = Math.floor(Math.random() * cells.length);
+        const [ri, row] = cells.splice(idx, 1)[0];
+        finalGrid[ri][row] = nonScatter();
+        extra--;
       }
     }
 
