@@ -77,7 +77,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
             }} />
             <img src={BOMBER_IMG} alt="bomber" draggable={false}
               className="w-full h-full object-contain select-none"
-              style={{ mixBlendMode: 'lighten', filter: 'brightness(1.12) contrast(1.1)' }} />
+              style={{ mixBlendMode: 'lighten' }} />
           </span>
         </span>
       )}
