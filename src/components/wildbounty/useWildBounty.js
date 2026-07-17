@@ -95,7 +95,7 @@ export function useWildBounty() {
     }
 
     if (stepWin > 0) {
-      sfx.win();
+      sfx.winSeq();
       const newTotal = totalWin + stepWin;
       const newMult = Math.min(currentMultIndex + 1, MULTIPLIERS.length - 1);
 
@@ -162,6 +162,7 @@ export function useWildBounty() {
       timers.current.push(cascadeT);
     } else {
       // No more wins — end the chain
+      sfx.winSeqStop();
       if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
       if (!wasFree) setMultIndex(0);
       if (awarded) {
@@ -193,6 +194,7 @@ export function useWildBounty() {
     timers.current = [];
 
     setSpinning(true);
+    sfx.winSeqStop();
     sfx.spin();
     setStoppedReels(new Set());
     setWinningPositions(new Set());

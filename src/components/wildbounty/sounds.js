@@ -25,6 +25,29 @@ async function loadSpinBuffer() {
   }
 }
 
+// Uploaded win-sequence sound — plays from the moment symbols match,
+// through the shatter, until the multiplier animation finishes. Looped so
+// it covers the whole win/cascade chain.
+const WINSEQ_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/81f278d93_20260717094905_1.mp3';
+let winSeqBuffer = null;
+let winSeqLoading = false;
+let winSeqAudio = null;
+
+async function loadWinSeqBuffer() {
+  if (winSeqBuffer || winSeqLoading) return;
+  winSeqLoading = true;
+  try {
+    const res = await fetch(WINSEQ_URL);
+    const arr = await res.arrayBuffer();
+    const ac = getCtx();
+    if (ac) winSeqBuffer = await ac.decodeAudioData(arr);
+  } catch {
+    // ignore
+  } finally {
+    winSeqLoading = false;
+  }
+}
+
 function getCtx() {
   if (typeof window === 'undefined') return null;
   try {
@@ -58,6 +81,7 @@ export const sfx = {
     const ac = getCtx();
     if (!ac) return;
     loadSpinBuffer();
+    loadWinSeqBuffer();
   },
   spin() {
     // Play the uploaded spin sound looped through a clarity EQ chain while
@@ -145,10 +169,62 @@ export const sfx = {
     tone({ freq: 420, type: 'triangle', dur: 0.18, gain: VOL * 0.25, delay: 0.02 });
   },
   win() {
-    // ascending gold chime
+    // ascending gold chime (kept for non-sequence uses)
     [523, 659, 784, 1047].forEach((f, i) =>
       tone({ freq: f, type: 'triangle', dur: 0.32, gain: VOL * 0.5, delay: i * 0.085 })
     );
+  },
+  winSeq() {
+    // Start the uploaded win-sequence sound looped through a clarity EQ chain.
+    // Plays from symbol match through the shatter + multiplier animation.
+    // If already playing, leave it running so cascades stay seamless.
+    const ac = getCtx();
+    if (!ac || winSeqAudio) return;
+    loadWinSeqBuffer();
+    if (!winSeqBuffer) return;
+
+    const src = ac.createBufferSource();
+    src.buffer = winSeqBuffer;
+    src.loop = true;
+
+    const lowShelf = ac.createBiquadFilter();
+    lowShelf.type = 'lowshelf';
+    lowShelf.frequency.value = 120;
+    lowShelf.gain.value = -3;
+    const presence = ac.createBiquadFilter();
+    presence.type = 'peaking';
+    presence.frequency.value = 3000;
+    presence.Q.value = 0.8;
+    presence.gain.value = 4;
+    const highShelf = ac.createBiquadFilter();
+    highShelf.type = 'highshelf';
+    highShelf.frequency.value = 8000;
+    highShelf.gain.value = 5;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(VOL, ac.currentTime + 0.08);
+
+    src.connect(lowShelf);
+    lowShelf.connect(presence);
+    presence.connect(highShelf);
+    highShelf.connect(g);
+    g.connect(ac.destination);
+    src.start();
+    winSeqAudio = { source: src, gainNode: g };
+  },
+  winSeqStop() {
+    // Fade out and stop the win-sequence sound when the round ends.
+    const ac = getCtx();
+    if (!ac || !winSeqAudio) return;
+    try {
+      const g = winSeqAudio.gainNode;
+      const src = winSeqAudio.source;
+      g.gain.cancelScheduledValues(ac.currentTime);
+      g.gain.setValueAtTime(g.gain.value, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.18);
+      src.stop(ac.currentTime + 0.2);
+    } catch { /* noop */ }
+    winSeqAudio = null;
   },
   anticipation() {
     // suspense drone when 2 scatters land and remaining reels slow down
