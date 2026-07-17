@@ -2,7 +2,7 @@ import React from 'react';
 
 const GROWTH = 1.10;
 
-const BOMBER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a5182a85c_InShot_20260714_1253103591.jpg';
+const BOMBER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e876464fb_generated_image.png';
 const SAMPLES = 48;
 
 export default function CrashGraph({ phase, multiplier, countdown }) {
@@ -67,7 +67,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
           transform: `translate(-50%, -50%) rotate(${angle}deg)`,
           transition: 'left 0.12s linear, top 0.18s ease-out',
         }}>
-          <span className="relative flex items-center justify-center" style={{ width: '74px', height: '44px' }}>
+          <span className="relative flex items-center justify-center" style={{ width: '86px', height: '52px' }}>
             {/* exhaust / jet flame trail behind the bomber */}
             <span className="absolute" style={{
               right: '78%', top: '50%', width: '48px', height: '16px', transform: 'translateY(-50%)',
