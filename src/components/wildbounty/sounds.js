@@ -16,6 +16,7 @@ let winSeqBuffer = null;
 let winSeqLoading = false;
 let winSeqAudio = null;
 let winSeqPending = false;
+let winSeqPendingRate = 1;
 
 async function loadSpinBuffer() {
   if (spinBuffer || spinLoading) return;
@@ -47,17 +48,18 @@ async function loadWinSeqBuffer() {
     // If a win arrived while the buffer was still loading, start it now.
     if (winSeqPending && winSeqBuffer) {
       winSeqPending = false;
-      startWinSeq();
+      startWinSeq(winSeqPendingRate);
     }
   }
 }
 
-function startWinSeq() {
+function startWinSeq(rate = 1) {
   const ac = getCtx();
   if (!ac || !winSeqBuffer || winSeqAudio) return;
   const src = ac.createBufferSource();
   src.buffer = winSeqBuffer;
   src.loop = true;
+  src.playbackRate.value = rate;
 
   const lowShelf = ac.createBiquadFilter();
   lowShelf.type = 'lowshelf';
@@ -181,16 +183,19 @@ export const sfx = {
   stopSpin() {
     // No-op: the spin button only plays a one-shot click sound now.
   },
-  win() {
-    // Start the uploaded win-sequence sound (looped) so it plays through the
-    // whole matching → shatter → multiplier animation for the current spin.
-    // Already running (mid-cascade) → leave it for seamless continuation.
-    // Buffer not loaded yet → queue it; loadWinSeqBuffer starts it when ready.
+  win(step = 0) {
+    // Speed rises with each cascade step so the sound tracks the accelerating
+    // shatter/multiplier animation within the same spin.
+    const rate = Math.min(1 + step * 0.22, 2.4);
     const ac = getCtx();
-    if (!ac || winSeqAudio) return;
+    if (!ac) return;
+    if (winSeqAudio) {
+      try { winSeqAudio.source.playbackRate.setValueAtTime(rate, ac.currentTime); } catch { /* noop */ }
+      return;
+    }
     loadWinSeqBuffer();
-    if (!winSeqBuffer) { winSeqPending = true; return; }
-    startWinSeq();
+    if (!winSeqBuffer) { winSeqPending = true; winSeqPendingRate = rate; return; }
+    startWinSeq(rate);
   },
   winStop() {
     // Fade out and stop the win-sequence sound when the round ends.
