@@ -4,24 +4,29 @@ import React, { useEffect, useMemo } from 'react';
 // swells big at the centre of the reels, then turns into a shower of gold coins
 // that stream down and pile into the win banner — with coin-clink sounds.
 export default function FlyingMultiplier({ value, onComplete, slow = 1 }) {
-  const TOTAL = 2350 * slow;
-  const COIN_START = 1180 * slow;
-  const HOLD_END = 1880 * slow;
+  const TOTAL = 1450 * slow;       // completes as the next cascade round begins
+  const COIN_START = 820 * slow;   // coins begin after the swell
+  const HOLD_END = 1000 * slow;    // phase-1 (fly + swell + hold) ends
+  const COIN_COUNT = 10;
+  const COIN_STEP = 34;
 
   // Pre-build coin particles with spread offsets + staggered delays.
   const coins = useMemo(() => {
     const list = [];
-    for (let i = 0; i < 14; i++) {
-      const dx = (i - 6.5) * 14 + (Math.random() - 0.5) * 22;
+    const coinDur = TOTAL - COIN_START;
+    for (let i = 0; i < COIN_COUNT; i++) {
+      const dx = (i - (COIN_COUNT - 1) / 2) * 14 + (Math.random() - 0.5) * 22;
+      const offset = (i * COIN_STEP + Math.random() * 30) * slow;
       list.push({
         dx,
-        delay: COIN_START + (i * 46) + Math.random() * 50,
+        delay: COIN_START + offset,
+        dur: Math.max(120, coinDur - offset),
         rot: (Math.random() * 2 - 1) * 220,
         size: 16 + Math.random() * 10,
       });
     }
     return list;
-  }, []);
+  }, [slow, TOTAL, COIN_START]);
 
   useEffect(() => {
     const doneT = setTimeout(() => onComplete && onComplete(), TOTAL);
@@ -68,7 +73,7 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1 }) {
                 'radial-gradient(circle at 35% 30%, #fff5c0 0%, #ffd966 26%, #d4af37 52%, #9b6a1f 78%, #6e4a14 100%)',
               boxShadow: '0 0 6px rgba(255,200,60,0.85), inset 0 0 2px rgba(90,55,10,0.7)',
               border: '1.5px solid #7a4f17',
-              animation: `coinStream ${((TOTAL - COIN_START) / 1000).toFixed(2)}s cubic-bezier(0.4,0.0,0.7,1) forwards`,
+              animation: `coinStream ${(c.dur / 1000).toFixed(2)}s cubic-bezier(0.4,0.0,0.7,1) forwards`,
               animationDelay: `${c.delay - COIN_START}ms`,
             }}
           />
