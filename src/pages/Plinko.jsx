@@ -130,13 +130,13 @@ export default function Plinko() {
       {/* Board area */}
       <main className="relative z-10 max-w-md mx-auto w-full px-3 flex-1 flex flex-col">
         {/* Board */}
-        <div className="relative w-full mx-auto bg-gradient-to-b from-[#1a0f2e]/60 to-black/60 border border-white/5 p-2" style={{ maxWidth: 340, aspectRatio: '3 / 4.2', borderRadius: 2 }}>
+        <div className="relative w-full mx-auto" style={{ maxWidth: 260, aspectRatio: '1 / 1.15' }}>
           {Array.from({ length: ROWS + 1 }).map((_, r) =>
             Array.from({ length: r + 1 }).map((_, c) => (
               <span
                 key={`p-${r}-${c}`}
                 className="absolute rounded-full"
-                style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: 6, height: 6, background: 'radial-gradient(circle, #b58bf0, #6b3fa0)', boxShadow: '0 0 4px rgba(180,120,255,0.6)' }}
+                style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: 7, height: 7, background: 'radial-gradient(circle at 35% 30%, #e8e8ff, #c3c3e4 55%, #8a8ac0)', boxShadow: '0 1px 2px rgba(0,0,0,0.5), 0 0 4px rgba(195,195,228,0.4)' }}
               />
             ))
           )}
@@ -153,7 +153,7 @@ export default function Plinko() {
               return (
                 <div
                   key={i}
-                  className="flex-1 text-center py-1 text-[9px] font-black tabular-nums transition-all"
+                  className="flex-1 text-center py-1 text-[7px] font-black tabular-nums transition-all"
                   style={{
                     background: hit ? c.bg : `${c.bg}33`,
                     color: hit ? '#fff' : c.bg,
