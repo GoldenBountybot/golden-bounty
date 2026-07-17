@@ -140,7 +140,7 @@ export function useWildBounty() {
 
       // After the first cascade, run subsequent rounds in slow motion so the
       // shatter/drop animation lines up with the accelerating win sound.
-      const slow = cascadeCount >= 1 ? 1.55 : 1;
+      const slow = cascadeCount >= 1 ? 2 : 1;
       // Shatter winning symbols after a brief highlight
       const shatterT = setTimeout(() => { setShattering(shatterPos); }, 400 * slow);
       timers.current.push(shatterT);
