@@ -195,10 +195,9 @@ export const sfx = {
   stopSpin() {
     // No-op: the spin button only plays a one-shot click sound now.
   },
-  win(slow = 1) {
-    // Match the audio tempo to the round length: slow-motion rounds play the
-    // win sequence slower so the sound stays in time with the animation.
-    const rate = Math.min(Math.max(1 / slow, 0.7), 2.4);
+  win(step = 0) {
+    // Sound keeps its normal-to-slightly-faster speed; it never slows down.
+    const rate = Math.min(1 + Math.min(step, 1) * 0.22, 2.4);
     const ac = getCtx();
     if (!ac) return;
     if (winSeqAudio) {
