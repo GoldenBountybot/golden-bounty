@@ -14,7 +14,7 @@ const MINE_PRESETS = [1, 3, 5, 10, 24];
 
 const W = { fontFamily: 'Rye, Georgia, serif' };
 
-const GIFT_STRIPES = ['#ff5d7a', '#ffb02e', '#3fb6f3', '#7bd957'];
+const GIFT_STRIPES = ['#ffffff', '#e53935', '#1e88e5', '#fdd835', '#43a047'];
 
 
 
@@ -334,7 +334,7 @@ function StatBox({ label, value, gold }) {
 function GiftBox() {
   return (
     <div className="relative w-[72%] h-[62%] rounded-[3px] overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.45)' }}>
-      <div className="grid grid-cols-4 h-full w-full">
+      <div className="grid grid-cols-5 h-full w-full">
         {GIFT_STRIPES.map((c) => (
           <div key={c} style={{ background: c }} />
         ))}
