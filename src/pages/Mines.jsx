@@ -156,6 +156,38 @@ export default function Mines() {
           </div>
         </div>
 
+        {/* Grid */}
+        <div className="rounded-xl bg-[#151929] border border-slate-700/50 p-3">
+          <div className="grid grid-cols-5 gap-2">
+            {Array.from({ length: TOTAL }).map((_, i) => {
+              const isRev = revealed.has(i);
+              const isMine = mineSet.has(i);
+              const showMine = isRev && isMine;
+              const showSafe = isRev && !isMine;
+              const revealLost = isOver && isMine && !isRev;
+              return (
+                <button
+                  key={i}
+                  onClick={() => reveal(i)}
+                  disabled={phase !== 'playing' || isRev}
+                  className={`aspect-square rounded-lg flex items-center justify-center border transition-all duration-150 ${
+                    showMine ? 'bg-rose-600/90 border-rose-400 scale-105'
+                    : showSafe ? 'bg-[#1f2436] border-emerald-400/60 scale-105'
+                    : revealLost ? 'bg-rose-900/40 border-rose-600/40'
+                    : phase === 'playing' ? 'bg-[#1f2436] border-slate-600/50 hover:bg-[#262c42] hover:border-[#f7931e]/50 cursor-pointer'
+                    : 'bg-[#1f2436] border-slate-600/50'
+                  }`}
+                >
+                  {showMine ? <Bomb className="w-6 h-6 text-white" />
+                    : showSafe ? <Gem className="w-6 h-6 text-emerald-400" />
+                    : revealLost ? <Bomb className="w-5 h-5 text-rose-400/70" />
+                    : <span className="text-slate-600 text-lg font-bold">·</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Controls panel */}
         {phase === 'idle' && (
           <div className="rounded-xl bg-[#151929] border border-slate-700/50 p-4 flex flex-col gap-4">
@@ -230,38 +262,6 @@ export default function Mines() {
             </div>
           </div>
         )}
-
-        {/* Grid */}
-        <div className="rounded-xl bg-[#151929] border border-slate-700/50 p-3">
-          <div className="grid grid-cols-5 gap-2">
-            {Array.from({ length: TOTAL }).map((_, i) => {
-              const isRev = revealed.has(i);
-              const isMine = mineSet.has(i);
-              const showMine = isRev && isMine;
-              const showSafe = isRev && !isMine;
-              const revealLost = isOver && isMine && !isRev;
-              return (
-                <button
-                  key={i}
-                  onClick={() => reveal(i)}
-                  disabled={phase !== 'playing' || isRev}
-                  className={`aspect-square rounded-lg flex items-center justify-center border transition-all duration-150 ${
-                    showMine ? 'bg-rose-600/90 border-rose-400 scale-105'
-                    : showSafe ? 'bg-[#1f2436] border-emerald-400/60 scale-105'
-                    : revealLost ? 'bg-rose-900/40 border-rose-600/40'
-                    : phase === 'playing' ? 'bg-[#1f2436] border-slate-600/50 hover:bg-[#262c42] hover:border-[#f7931e]/50 cursor-pointer'
-                    : 'bg-[#1f2436] border-slate-600/50'
-                  }`}
-                >
-                  {showMine ? <Bomb className="w-6 h-6 text-white" />
-                    : showSafe ? <Gem className="w-6 h-6 text-emerald-400" />
-                    : revealLost ? <Bomb className="w-5 h-5 text-rose-400/70" />
-                    : <span className="text-slate-600 text-lg font-bold">·</span>}
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Status / multiplier ticker */}
         {phase === 'playing' && (
