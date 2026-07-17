@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { RotateCw, ChevronLeft, Gem, Plus, HelpCircle, Volume2, Pencil, Share2, Check } from 'lucide-react';
+import { RotateCw, ChevronLeft, Gem, Plus, Pencil, Share2, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -8,7 +8,6 @@ import { useLogActivity } from '@/lib/useLogActivity';
 const ROWS = 10;
 const MULTS = [10, 5, 3, 2, 1.5, 0, 1.5, 2, 3, 5, 10];
 const BETS = [0.1, 1, 5, 10];
-const NAMES = ['Anik', 'Rakib', 'Sumaiya', 'Tahsin', 'Nila', 'Mahir', 'Zara', 'Rifat', 'Opal', 'Jihan'];
 
 function colorFor(m) {
   if (m >= 10) return { bg: '#d53f8c', glow: 'rgba(213,63,140,0.6)' };
@@ -17,11 +16,6 @@ function colorFor(m) {
   if (m >= 2) return { bg: '#6b3fa0', glow: 'rgba(107,63,160,0.6)' };
   if (m >= 1.5) return { bg: '#4299e1', glow: 'rgba(66,153,225,0.6)' };
   return { bg: '#718096', glow: 'rgba(113,128,150,0.5)' };
-}
-
-function makeFeedItem() {
-  const pick = MULTS.filter((m) => m > 0);
-  return { name: NAMES[Math.floor(Math.random() * NAMES.length)], mult: pick[Math.floor(Math.random() * pick.length)] };
 }
 
 function Stat({ label, value, accent }) {
@@ -42,20 +36,12 @@ export default function Plinko() {
   const [resultBucket, setResultBucket] = useState(null);
   const [message, setMessage] = useState('Drop the ball');
   const [lastWin, setLastWin] = useState(0);
-  const [feed, setFeed] = useState(() => Array.from({ length: 10 }, () => makeFeedItem()));
   const [copied, setCopied] = useState(false);
   const timers = useRef([]);
   const bet = BETS[betIdx];
   const logActivity = useLogActivity();
 
   useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
-
-  useEffect(() => {
-    const iv = setInterval(() => {
-      setFeed((f) => [makeFeedItem(), ...f].slice(0, 12));
-    }, 2200);
-    return () => clearInterval(iv);
-  }, []);
 
   const share = () => {
     try { navigator.clipboard?.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 1400); } catch {}
@@ -101,7 +87,6 @@ export default function Plinko() {
           setMessage(mult > 0 ? `${mult}x · +$${win.toFixed(2)}` : `0x · No win`);
           logActivity('plinko', bet, win, win > 0 ? 'win' : 'loss');
           setDropping(false);
-          setFeed((f) => [{ name: 'You', mult, mine: true }, ...f].slice(0, 12));
         }, 200);
         timers.current.push(t);
       }
@@ -142,34 +127,8 @@ export default function Plinko() {
         </div>
       </header>
 
-      {/* Live feed */}
-      <div className="relative z-10 max-w-md mx-auto w-full mt-2">
-        <div className="flex gap-2 overflow-x-auto px-3 py-2 scrollbar-hide">
-          {feed.map((it, i) => {
-            const c = colorFor(it.mult);
-            return (
-              <div key={i} className="shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
-                <span className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold" style={{ background: c.bg, color: '#1a1a1a' }}>{it.name[0]}</span>
-                <span className="text-[10px] font-bold tabular-nums" style={{ color: c.bg }}>{it.mult}x</span>
-                <span className="text-[10px] text-white/40">{it.name === 'You' ? 'you' : it.name}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Board area */}
       <main className="relative z-10 max-w-md mx-auto w-full px-3 flex-1 flex flex-col">
-        <div className="flex items-center justify-between mb-2">
-          <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/60">
-            <span className="w-7 h-4 rounded-full bg-white/10 relative">
-              <span className="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white/40" />
-            </span>
-            Demo
-          </button>
-          <HelpCircle className="w-5 h-5 text-white/40" />
-        </div>
-
         {/* Board */}
         <div className="relative w-full mx-auto rounded-2xl bg-gradient-to-b from-[#1a0f2e]/60 to-black/60 border border-white/5 p-2" style={{ maxWidth: 340, aspectRatio: '3 / 4.2' }}>
           {Array.from({ length: ROWS + 1 }).map((_, r) =>
@@ -212,14 +171,6 @@ export default function Plinko() {
         {/* Message */}
         <div className="mt-3 text-center">
           <span className="text-sm font-black text-fuchsia-300">{message}</span>
-        </div>
-
-        {/* Bottom controls */}
-        <div className="mt-3 flex items-center justify-between">
-          <button className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-            <Volume2 className="w-4 h-4 text-white/50" />
-          </button>
-          <span className="text-[11px] text-white/40">Bet amount</span>
         </div>
 
         {/* Bet row */}
