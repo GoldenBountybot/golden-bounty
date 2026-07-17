@@ -36,11 +36,17 @@ function colorFor(m) {
   return { bg: '#718096', glow: 'rgba(113,128,150,0.5)' };
 }
 
+const STAT_BGS = {
+  Balance: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/675f2abaf_generated_image.png',
+  Bet: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0303a0164_generated_image.png',
+  'Last Win': 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3acccce01_generated_image.png',
+};
+
 function Stat({ label, value, accent }) {
   return (
-    <div className="py-2 text-center" style={{ ...woodFrame, fontFamily: FONT }}>
-      <p className="text-[9px] text-amber-100/60 tracking-widest uppercase">{label}</p>
-      <p className="text-xs font-bold tabular-nums" style={{ color: accent ? '#f5c542' : '#f3e2b3' }}>{value}</p>
+    <div className="py-2 text-center relative" style={{ background: `url('${STAT_BGS[label] || Object.values(STAT_BGS)[0]}') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))`, border: '1px solid rgba(190,140,55,0.75)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), 0 2px 6px rgba(0,0,0,0.55)', fontFamily: FONT }}>
+      <p className="text-[9px] text-amber-100/60 tracking-widest uppercase relative">{label}</p>
+      <p className="text-xs font-bold tabular-nums relative" style={{ color: accent ? '#f5c542' : '#f3e2b3', textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>{value}</p>
     </div>
   );
 }
@@ -128,9 +134,9 @@ export default function Plinko() {
           <Link to="/" className="w-9 h-9 flex items-center justify-center" style={{ ...woodBtn, color: '#f3e2b3' }}>
             <ChevronLeft className="w-5 h-5" />
           </Link>
-          <div className="flex items-center gap-1.5">
-            <DollarSign className="w-5 h-5" style={{ color: '#f5c542' }} />
-            <span className="text-sm font-black italic" style={{ color: '#f3e2b3' }}>Plinko Drop</span>
+          <div className="flex items-center gap-1.5 px-3 py-1" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/670fa1a3e_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))", border: '1px solid rgba(190,140,55,0.75)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), 0 2px 6px rgba(0,0,0,0.55)' }}>
+            <DollarSign className="w-5 h-5 relative" style={{ color: '#f5c542' }} />
+            <span className="text-sm font-black italic relative" style={{ color: '#f3e2b3', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>Plinko Drop</span>
           </div>
           <div className="flex-1" />
           <div className="flex items-center gap-1.5 px-2.5 py-1.5" style={{ ...woodBtn }}>
