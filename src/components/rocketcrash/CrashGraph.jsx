@@ -9,6 +9,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
   const elapsed = phase === 'waiting' ? 0 : Math.log(Math.max(multiplier, 1)) / Math.log(GROWTH);
   const WIN_T = 8; // seconds of flight visible across the x axis
   const maxM = Math.max(2, multiplier * 1.18);
+  const PLOT_TOP = 0.45; // reserve the top 45% so the bomber flies above the tip inside the graph
   const W = 100, H = 100;
   // scrolling window: pin the leading tip near the right so the curve scrolls
   // left under the bomber → reads as left-to-right travel.
@@ -20,7 +21,8 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
     if (t > elapsed + 0.0001) break;
     const m = Math.pow(GROWTH, t);
     const x = (i / SAMPLES) * W;
-    const y = H - ((m - 1) / (maxM - 1)) * H;
+    const f = (m - 1) / (maxM - 1);
+    const y = H * (1 - f * (1 - PLOT_TOP));
     pts.push([x, y]);
   }
   const path = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(2) + ' ' + p[1].toFixed(2)).join(' ');
@@ -36,7 +38,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
 
   return (
     <div className="relative w-full overflow-hidden rounded-xl bg-gradient-to-b from-slate-950 to-black border border-indigo-900/40"
-      style={{ aspectRatio: '16 / 9', boxShadow: 'inset 0 0 80px rgba(0,0,0,0.7)' }}>
+      style={{ aspectRatio: '16 / 10', boxShadow: 'inset 0 0 80px rgba(0,0,0,0.7)' }}>
       {/* faint grid */}
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
         {[20, 40, 60, 80].map(g => (
@@ -69,7 +71,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
       {running && (
         <span className="absolute z-20" style={{
           left: `${tip[0]}%`, top: `${tip[1]}%`,
-          transform: `translate(-100%, -20%) rotate(${angle}deg)`,
+          transform: `translate(-100%, -100%) rotate(${angle}deg)`,
           transformOrigin: 'center center',
           transition: 'left 0.14s linear, top 0.22s ease-out, transform 0.22s ease-out',
         }}>
