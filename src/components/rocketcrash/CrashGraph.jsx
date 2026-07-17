@@ -64,8 +64,9 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
       {running && (
         <span className="absolute z-20" style={{
           left: `${tip[0]}%`, top: `${tip[1]}%`,
-          transform: `translate(-50%, -50%) rotate(${angle}deg)`,
-          transition: 'left 0.12s linear, top 0.18s ease-out',
+          transform: `translate(-50%, -88%) rotate(${angle}deg)`,
+          transformOrigin: 'center center',
+          transition: 'left 0.14s linear, top 0.22s ease-out, transform 0.22s ease-out',
         }}>
           <span className="relative flex items-center justify-center" style={{ width: '86px', height: '52px' }}>
             {/* exhaust / jet flame trail behind the bomber */}
