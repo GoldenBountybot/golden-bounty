@@ -32,6 +32,7 @@ export function useWildBounty() {
   const [anticipation, setAnticipation] = useState(false);
   const [scatterGlow, setScatterGlow] = useState(new Set());
   const [flyingMult, setFlyingMult] = useState(null);
+  const [bulletHit, setBulletHit] = useState(new Set());
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
@@ -212,6 +213,7 @@ export function useWildBounty() {
     setAnticipation(false);
     setScatterGlow(new Set());
     setFlyingMult(null);
+    setBulletHit(new Set());
     if (!usingFree) setBalance(b => b - bet);
     if (usingFree) setFreeSpins(f => f - 1);
     // Each free spin (re)starts at 8x; normal spins start at 1x.
@@ -274,8 +276,22 @@ export function useWildBounty() {
         stoppedScatter += scattersInReel;
         // Play the scatter sting once for each scatter that landed on this reel.
         for (let s = 0; s < scattersInReel; s++) {
-          const st = setTimeout(() => sfx.scatter(), s * 160);
-          timers.current.push(st);
+          const sndT = setTimeout(() => sfx.scatter(), s * 160);
+          timers.current.push(sndT);
+          // Bullet-hole impact synced to the gunshot inside the scatter sting.
+          const hitT = setTimeout(() => {
+            setBulletHit(() => {
+              const all = new Set();
+              for (let ri = 0; ri < finalGrid.length; ri++) {
+                for (let row = 0; row < finalGrid[ri].length; row++) {
+                  const sym = finalGrid[ri][row];
+                  if (sym !== 'scatter' && sym !== 'wild') all.add(`${ri}-${row}`);
+                }
+              }
+              return all;
+            });
+          }, s * 160 + 250);
+          timers.current.push(hitT);
         }
         // Light up any landed wild & scatter symbols with a golden beam
         const glow = new Set();
@@ -350,6 +366,7 @@ export function useWildBounty() {
     showFreeSpinStart, freeSpinsActive, startFreeSpins,
     anticipation, scatterGlow,
     cascadeSlow,
+    bulletHit,
     flyingMult, clearFlyingMult,
     spin, setBetIndex, setTurbo, setAutoSpin, reset,
   };

@@ -76,6 +76,7 @@ export default function WildBountyMachine() {
               cascading={g.cascading}
               cascadePositions={g.cascadePositions}
               scatterGlow={g.scatterGlow}
+              bulletHit={g.bulletHit}
               slow={g.cascadeSlow}
             />
           ))}

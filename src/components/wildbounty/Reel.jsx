@@ -4,7 +4,7 @@ import { randomSymbol } from './symbols';
 
 // A single reel column that smoothly scrolls downward while spinning,
 // then snaps to the final symbols when stopped.
-export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions, goldFrames, shatteringPositions, cascading, cascadePositions, scatterGlow, anticipationGlow, slow = 1 }) {
+export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions, goldFrames, shatteringPositions, cascading, cascadePositions, scatterGlow, anticipationGlow, bulletHit, slow = 1 }) {
   const [justStopped, setJustStopped] = useState(false);
   const prevSpinning = useRef(false);
   const wasAnticipation = useRef(false);
@@ -74,6 +74,7 @@ export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, wi
                 goldFramed={!spinning && goldFrames.has(`${reelIndex}-${i}`)}
                 shattering={!spinning && shatteringPositions && shatteringPositions.has(`${reelIndex}-${i}`)}
                 scatterBeam={!spinning && scatterGlow && scatterGlow.has(`${reelIndex}-${i}`)}
+                bulletHit={!spinning && bulletHit && bulletHit.has(`${reelIndex}-${i}`)}
                 slow={slow}
               />
             </div>
