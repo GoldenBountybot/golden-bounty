@@ -205,8 +205,8 @@ export default function Mines() {
         {/* Balance bar */}
         <WesternFrame className="p-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="flex items-center justify-center w-9 h-9 rounded-lg" style={{ border: '1px solid rgba(190,140,55,0.7)', background: 'radial-gradient(circle, rgba(255,210,120,0.25), rgba(120,80,30,0.4))' }}>
-              <DollarSign className="w-5 h-5 text-amber-300" />
+            <span className="flex items-center justify-center w-9 h-9 rounded-lg relative" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/00dc49c08_generated_image.png') center / cover, radial-gradient(circle, rgba(255,210,120,0.25), rgba(120,80,30,0.4))", border: '1px solid rgba(190,140,55,0.7)' }}>
+              <DollarSign className="w-5 h-5 text-amber-300 relative" />
             </span>
             <div>
               <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>PURSE</p>
@@ -352,8 +352,8 @@ export default function Mines() {
 
         {/* Action buttons */}
         {phase === 'idle' && (
-          <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40" style={{ ...woodBtn(true), ...W }}>
-            <Pickaxe className="w-5 h-5" /> BET ${bet.toFixed(2)} · {mines} MINES
+          <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40 relative" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/67ff4e03b_generated_image.png') center / cover, linear-gradient(to bottom, #f5c542, #c8881e)", border: '1px solid rgba(245,210,120,0.9)', boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 3px 10px rgba(200,136,30,0.45)', color: '#2a1a06', ...W }}>
+            <Pickaxe className="w-5 h-5 relative" /> <span className="relative">BET ${bet.toFixed(2)} · {mines} MINES</span>
           </button>
         )}
         {phase === 'playing' && (
