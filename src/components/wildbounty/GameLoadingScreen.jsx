@@ -60,11 +60,20 @@ export default function GameLoadingScreen({ onDone }) {
     }
 
     // Stop the intro sound the instant loading ends so it never leaks into
-    // gameplay.
+    // gameplay. Guard against double-close (onEnded + unmount) and handle
+    // the close() promise so it never becomes an unhandled rejection.
+    let stopped = false;
     const stopIntro = () => {
+      if (stopped) return;
+      stopped = true;
       try { audio.pause(); } catch { /* noop */ }
       try { audio.currentTime = 0; } catch { /* noop */ }
-      try { if (ac) ac.close(); } catch { /* noop */ }
+      try {
+        if (ac) {
+          const p = ac.close();
+          if (p && p.catch) p.catch(() => { /* noop */ });
+        }
+      } catch { /* noop */ }
     };
 
     const onEnded = () => {
