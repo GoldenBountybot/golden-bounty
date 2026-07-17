@@ -9,11 +9,11 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
   const elapsed = phase === 'waiting' ? 0 : Math.log(Math.max(multiplier, 1)) / Math.log(GROWTH);
   const WIN_T = 8; // seconds of flight visible across the x axis
   const maxM = Math.max(2, multiplier * 1.18);
-  const PLOT_TOP = 0.45; // reserve the top 45% so the bomber flies above the tip inside the graph
+  const PLOT_TOP = 0.5; // reserve the top half so the bomber flies above the tip inside the graph
   const W = 100, H = 100;
   // scrolling window: pin the leading tip near the right so the curve scrolls
   // left under the bomber → reads as left-to-right travel.
-  const startT = Math.max(0, elapsed - WIN_T * 0.88);
+  const startT = Math.max(0, elapsed - WIN_T * 0.45);
 
   const pts = [];
   for (let i = 0; i <= SAMPLES; i++) {
@@ -71,14 +71,14 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
       {running && (
         <span className="absolute z-20" style={{
           left: `${tip[0]}%`, top: `${tip[1]}%`,
-          transform: `translate(-100%, -100%) rotate(${angle}deg)`,
+          transform: `translate(0%, -100%) rotate(${angle}deg)`,
           transformOrigin: 'center center',
           transition: 'left 0.14s linear, top 0.22s ease-out, transform 0.22s ease-out',
         }}>
           <span className="relative flex items-center justify-center" style={{ width: '155px', height: '94px' }}>
             {/* exhaust / jet flame trail behind the bomber */}
             <span className="absolute" style={{
-              right: '70%', top: '50%', width: '48px', height: '16px', transform: 'translateY(-50%)',
+              left: '-44px', top: '50%', width: '44px', height: '16px', transform: 'translateY(-50%)',
               background: 'linear-gradient(to left, rgba(255,180,60,0.95), rgba(255,120,40,0.6) 40%, rgba(255,80,20,0) 100%)',
               borderRadius: '50%', filter: 'blur(3px)', mixBlendMode: 'screen',
               animation: 'jetExhaust 0.18s ease-in-out infinite', boxShadow: '0 0 14px rgba(255,140,40,0.8)',
