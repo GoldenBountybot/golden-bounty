@@ -111,6 +111,7 @@ export default function Plinko() {
           setMessage(mult > 0 ? `${mult}x · +$${win.toFixed(2)}` : `0x · No win`);
           logActivity('plinko', bet, win, win > 0 ? 'win' : 'loss');
           setDropping(false);
+          setBallPos(null);
         }, 200);
         timers.current.push(t);
       }
