@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CasinoGameCard from '@/components/CasinoGameCard';
-import { Gamepad2, LayoutDashboard, Gift, Layers, Play, UserCircle, Wallet } from 'lucide-react';
+import BottomNav from '@/components/BottomNav';
+import { Gamepad2, Wallet } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
@@ -111,34 +112,8 @@ export default function Home() {
         </p>
       </footer>
 
-      {/* Bottom quick actions — fixed at the very bottom */}
-      <div className="fixed bottom-0 inset-x-0 z-30 border-t border-amber-700/40 bg-emerald-950/95 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-4 py-2 grid grid-cols-5 gap-2">
-          <Link to="/dashboard" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
-            <LayoutDashboard className="w-5 h-5 text-amber-300" />
-            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Dashboard</span>
-          </Link>
-          <Link to="/dashboard?tab=stack" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
-            <Layers className="w-5 h-5 text-amber-300" />
-            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Stack</span>
-          </Link>
-          <button
-            onClick={() => document.getElementById('games')?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-gradient-to-b from-amber-400 to-orange-600 border border-amber-300 hover:from-amber-300 hover:to-orange-500 transition-colors"
-          >
-            <Play className="w-5 h-5 text-stone-950" />
-            <span className="text-[11px] font-black italic text-stone-950" style={{ fontFamily: 'Georgia, serif' }}>Play Game</span>
-          </button>
-          <Link to="/dashboard?tab=bonus" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
-            <Gift className="w-5 h-5 text-amber-300" />
-            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Bonus</span>
-          </Link>
-          <Link to="/profile" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
-            <UserCircle className="w-5 h-5 text-amber-300" />
-            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Profile</span>
-          </Link>
-        </div>
-      </div>
+      {/* Bottom quick actions — premium western nav */}
+      <BottomNav />
     </div>
   );
 }
