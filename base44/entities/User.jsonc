@@ -30,6 +30,21 @@
       "minimum": 0,
       "maximum": 100,
       "description": "Per-player winning chance override (0-100). When set, overrides global/per-game RTP for this player across all games."
+    },
+    "staked_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Balance currently locked in the Stack (cannot be used or withdrawn until it unlocks)"
+    },
+    "staked_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when the current Stack lock started"
+    },
+    "last_profit_claim": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp of the last claimed Stack profit day"
     }
   },
   "required": [

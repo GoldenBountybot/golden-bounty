@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CasinoGameCard from '@/components/CasinoGameCard';
-import { Gamepad2, LayoutDashboard, Gift, Users, Play, UserCircle, Wallet } from 'lucide-react';
+import { Gamepad2, LayoutDashboard, Gift, Layers, Play, UserCircle, Wallet } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
@@ -118,9 +118,9 @@ export default function Home() {
             <LayoutDashboard className="w-5 h-5 text-amber-300" />
             <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Dashboard</span>
           </Link>
-          <Link to="/dashboard?tab=referral" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
-            <Users className="w-5 h-5 text-amber-300" />
-            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Referral</span>
+          <Link to="/dashboard?tab=stack" className="flex flex-col items-center gap-1 py-1.5 rounded-lg bg-black/30 border border-amber-700/40 hover:bg-black/50 transition-colors">
+            <Layers className="w-5 h-5 text-amber-300" />
+            <span className="text-[11px] font-bold italic text-amber-100/90" style={{ fontFamily: 'Georgia, serif' }}>Stack</span>
           </Link>
           <button
             onClick={() => document.getElementById('games')?.scrollIntoView({ behavior: 'smooth' })}
