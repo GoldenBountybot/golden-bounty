@@ -5,10 +5,16 @@ const VOL = 1.5;
 
 // Uploaded mechanical spin sound (looped while reels are spinning).
 const SPIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/42593c193_20260717094905_0_0.mp3';
+// Uploaded win-sequence sound — plays through the whole matching/shatter/
+// multiplier chain until the round ends.
+const WINSEQ_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/3d0b01f51_20260717094905_2.mp3';
 let spinBuffer = null;
 let spinLoading = false;
 let spinAudio = null;
 let spinFilterChain = null;
+let winSeqBuffer = null;
+let winSeqLoading = false;
+let winSeqAudio = null;
 
 async function loadSpinBuffer() {
   if (spinBuffer || spinLoading) return;
@@ -22,6 +28,21 @@ async function loadSpinBuffer() {
     // ignore — fallback synth path handles it
   } finally {
     spinLoading = false;
+  }
+}
+
+async function loadWinSeqBuffer() {
+  if (winSeqBuffer || winSeqLoading) return;
+  winSeqLoading = true;
+  try {
+    const res = await fetch(WINSEQ_URL);
+    const arr = await res.arrayBuffer();
+    const ac = getCtx();
+    if (ac) winSeqBuffer = await ac.decodeAudioData(arr);
+  } catch {
+    // ignore
+  } finally {
+    winSeqLoading = false;
   }
 }
 
@@ -58,6 +79,7 @@ export const sfx = {
     const ac = getCtx();
     if (!ac) return;
     loadSpinBuffer();
+    loadWinSeqBuffer();
   },
   spin() {
     // Play the uploaded spin sound looped through a clarity EQ chain while
@@ -119,36 +141,59 @@ export const sfx = {
   stopSpin() {
     // No-op: the spin button only plays a one-shot click sound now.
   },
-  blast() {
-    // shatter crack: noise burst + high metal clang
-    const ac = getCtx();
-    if (!ac) return;
-    const t0 = ac.currentTime;
-    const len = Math.floor(ac.sampleRate * 0.28);
-    const buffer = ac.createBuffer(1, len, ac.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < len; i++) {
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
-    }
-    const noise = ac.createBufferSource();
-    noise.buffer = buffer;
-    const g = ac.createGain();
-    g.gain.setValueAtTime(VOL, t0);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.28);
-    const filter = ac.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.value = 700;
-    noise.connect(filter).connect(g).connect(ac.destination);
-    noise.start(t0);
-    noise.stop(t0 + 0.3);
-    tone({ freq: 1100, type: 'square', dur: 0.2, gain: VOL * 0.3 });
-    tone({ freq: 420, type: 'triangle', dur: 0.18, gain: VOL * 0.25, delay: 0.02 });
-  },
   win() {
-    // ascending gold chime
-    [523, 659, 784, 1047].forEach((f, i) =>
-      tone({ freq: f, type: 'triangle', dur: 0.32, gain: VOL * 0.5, delay: i * 0.085 })
-    );
+    // Start the uploaded win-sequence sound looped through a clarity EQ chain.
+    // Plays from symbol match through the shatter + multiplier animation,
+    // covering the whole win/cascade chain. If already running, leave it so
+    // cascades stay seamless.
+    const ac = getCtx();
+    if (!ac || winSeqAudio) return;
+    loadWinSeqBuffer();
+    if (!winSeqBuffer) return;
+
+    const src = ac.createBufferSource();
+    src.buffer = winSeqBuffer;
+    src.loop = true;
+
+    const lowShelf = ac.createBiquadFilter();
+    lowShelf.type = 'lowshelf';
+    lowShelf.frequency.value = 120;
+    lowShelf.gain.value = -3;
+    const presence = ac.createBiquadFilter();
+    presence.type = 'peaking';
+    presence.frequency.value = 3000;
+    presence.Q.value = 0.8;
+    presence.gain.value = 4;
+    const highShelf = ac.createBiquadFilter();
+    highShelf.type = 'highshelf';
+    highShelf.frequency.value = 8000;
+    highShelf.gain.value = 5;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(VOL, ac.currentTime + 0.08);
+
+    src.connect(lowShelf);
+    lowShelf.connect(presence);
+    presence.connect(highShelf);
+    highShelf.connect(g);
+    g.connect(ac.destination);
+    src.start();
+    src.onended = () => { if (winSeqAudio && winSeqAudio.source === src) winSeqAudio = null; };
+    winSeqAudio = { source: src, gainNode: g };
+  },
+  winStop() {
+    // Fade out and stop the win-sequence sound when the round ends.
+    const ac = getCtx();
+    if (!ac || !winSeqAudio) return;
+    try {
+      const g = winSeqAudio.gainNode;
+      const src = winSeqAudio.source;
+      g.gain.cancelScheduledValues(ac.currentTime);
+      g.gain.setValueAtTime(g.gain.value, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.18);
+      src.stop(ac.currentTime + 0.2);
+    } catch { /* noop */ }
+    winSeqAudio = null;
   },
   anticipation() {
     // suspense drone when 2 scatters land and remaining reels slow down
@@ -158,13 +203,5 @@ export const sfx = {
   loss() {
     // descending dull buzz
     tone({ freq: 300, sweepTo: 110, type: 'sawtooth', dur: 0.55, gain: VOL * 0.4 });
-  },
-  coins() {
-    // a pile of coins clinking together as the multiplier lands in the win banner
-    for (let i = 0; i < 16; i++) {
-      const f = 1400 + Math.random() * 1900;
-      tone({ freq: f, type: 'triangle', dur: 0.12, gain: VOL * (0.16 + Math.random() * 0.14), delay: i * 0.04 });
-      tone({ freq: f * 1.5, type: 'sine', dur: 0.1, gain: VOL * 0.09, delay: i * 0.04 + 0.012 });
-    }
   },
 };

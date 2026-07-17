@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from 'react';
-import { sfx } from './sounds';
 
 // A multiplier value (X2, X4, ...) that flies from the tracker bar at the top,
 // swells big at the centre of the reels, then turns into a shower of gold coins
@@ -25,10 +24,8 @@ export default function FlyingMultiplier({ value, onComplete }) {
   }, []);
 
   useEffect(() => {
-    // first coin clink right as the X reaches the centre
-    const coinT = setTimeout(() => sfx.coins(), COIN_START - 40);
     const doneT = setTimeout(() => onComplete && onComplete(), TOTAL);
-    return () => { clearTimeout(coinT); clearTimeout(doneT); };
+    return () => { clearTimeout(doneT); };
   }, [onComplete]);
 
   return (

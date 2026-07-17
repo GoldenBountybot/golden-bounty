@@ -139,7 +139,7 @@ export function useWildBounty() {
       setMessage(justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`);
 
       // Shatter winning symbols after a brief highlight
-      const shatterT = setTimeout(() => { sfx.blast(); setShattering(shatterPos); }, 400);
+      const shatterT = setTimeout(() => { setShattering(shatterPos); }, 400);
       timers.current.push(shatterT);
 
       // Cascade: drop new symbols, then re-evaluate
@@ -162,6 +162,7 @@ export function useWildBounty() {
       timers.current.push(cascadeT);
     } else {
       // No more wins — end the chain
+      sfx.winStop();
       if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
       if (!wasFree) setMultIndex(0);
       if (awarded) {
@@ -193,6 +194,7 @@ export function useWildBounty() {
     timers.current = [];
 
     setSpinning(true);
+    sfx.winStop();
     sfx.spin();
     setStoppedReels(new Set());
     setWinningPositions(new Set());
