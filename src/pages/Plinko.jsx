@@ -96,7 +96,7 @@ export default function Plinko() {
 
   const pos = (row, col) => ({
     left: `${((col + 0.5) / (row + 1)) * 100}%`,
-    top: `${((row + 0.5) / (ROWS + 1)) * 80}%`,
+    top: `${((row + 0.5) / (ROWS + 1)) * 92}%`,
   });
 
   return (
