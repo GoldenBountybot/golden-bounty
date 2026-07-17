@@ -69,7 +69,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
       {running && (
         <span className="absolute z-20" style={{
           left: `${tip[0]}%`, top: `${tip[1]}%`,
-          transform: `translate(-50%, -88%) rotate(${angle}deg)`,
+          transform: `translate(-100%, -20%) rotate(${angle}deg)`,
           transformOrigin: 'center center',
           transition: 'left 0.14s linear, top 0.22s ease-out, transform 0.22s ease-out',
         }}>
