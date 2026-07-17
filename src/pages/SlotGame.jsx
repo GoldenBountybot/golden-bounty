@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Gamepad2 } from "lucide-react";
 import WildBountyMachine from "@/components/wildbounty/WildBountyMachine";
+import GameLoadingScreen from "@/components/wildbounty/GameLoadingScreen";
 import BackButton from "@/components/BackButton";
 import ShareButton from "@/components/ShareButton";
 
 export default function SlotGame() {
+  const [loaded, setLoaded] = useState(false);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/40 to-stone-950">
+      {!loaded && <GameLoadingScreen onDone={() => setLoaded(true)} />}
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <div className="max-w-4xl mx-auto px-2 py-1 flex items-center gap-3">
           <BackButton />
