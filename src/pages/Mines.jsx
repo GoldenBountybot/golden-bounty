@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bomb, Pickaxe, DollarSign, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bomb, Gift, Pickaxe, DollarSign, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import GameHeader from '@/components/GameHeader';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -13,6 +13,13 @@ const BETS = [0.1, 1, 10, 50, 100, 500];
 const MINE_PRESETS = [1, 3, 5, 10, 24];
 
 const W = { fontFamily: 'Rye, Georgia, serif' };
+
+const GIFT_PALETTE = [
+  { bg: '#ff8aa8', bg2: '#d6456f', border: '#b8335a', icon: 'text-rose-50' },
+  { bg: '#8ab4ff', bg2: '#456fd6', border: '#3358b8', icon: 'text-sky-50' },
+  { bg: '#7ce0a8', bg2: '#3aa86d', border: '#2a8a52', icon: 'text-emerald-50' },
+  { bg: '#c89bff', bg2: '#8b5fd6', border: '#6f45b8', icon: 'text-violet-50' },
+];
 
 // House-edge-adjusted multiplier for k revealed safe tiles given m mines.
 const EDGE = 0.03;
@@ -188,16 +195,16 @@ export default function Mines() {
                     : showSafe ? { background: 'linear-gradient(to bottom, rgba(40,28,14,0.95), rgba(20,14,7,0.95))', border: '1px solid rgba(190,140,55,0.8)' }
                     : revealLost ? { background: 'radial-gradient(circle, #3a0a0a, #1a0808)', border: '1px solid rgba(190,60,40,0.5)' }
                     : {
-                        background: 'linear-gradient(to bottom, #ffffff, #e2e2e2)',
-                        border: '1px solid rgba(180,180,180,0.9)',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -2px 4px rgba(150,150,150,0.4)',
+                        background: `linear-gradient(to bottom, ${GIFT_PALETTE[i % GIFT_PALETTE.length].bg}, ${GIFT_PALETTE[i % GIFT_PALETTE.length].bg2})`,
+                        border: `1px solid ${GIFT_PALETTE[i % GIFT_PALETTE.length].border}`,
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -2px 4px rgba(0,0,0,0.35)',
                       }
                   }
                 >
-                  {showMine ? <Bomb className="w-6 h-6 text-amber-100" />
+                  {showMine ? <Bomb className="w-7 h-7 text-stone-900" style={{ filter: 'drop-shadow(0 0 6px rgba(255,120,40,0.8))' }} />
                     : showSafe ? <GoldBar />
-                    : revealLost ? <Bomb className="w-5 h-5 text-rose-300/70" />
-                    : <span className="text-stone-400 text-lg font-bold">·</span>}
+                    : revealLost ? <Bomb className="w-6 h-6 text-rose-300/80" />
+                    : <Gift className={`w-7 h-7 ${GIFT_PALETTE[i % GIFT_PALETTE.length].icon}`} style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }} />}
                 </button>
               );
             })}
