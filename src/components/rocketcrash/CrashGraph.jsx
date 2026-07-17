@@ -29,11 +29,10 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
   const crashed = phase === 'crashed';
   const running = phase === 'running';
 
-  // bomber pitch along the tangent — damped so the nose leans forward (direction of travel),
-  // not steeply skyward, for a clear takeoff feel.
+  // bomber held at a fixed 30° nose-up takeoff attitude.
   const prev = pts.length > 1 ? pts[pts.length - 2] : tip;
-  const rawAngle = (Math.atan2(tip[1] - prev[1], tip[0] - prev[0]) * 180) / Math.PI;
-  const angle = Math.max(-28, Math.min(0, rawAngle * 0.5));
+  void prev;
+  const angle = -30;
 
   return (
     <div className="relative w-full overflow-hidden rounded-xl bg-gradient-to-b from-slate-950 to-black border border-indigo-900/40"
