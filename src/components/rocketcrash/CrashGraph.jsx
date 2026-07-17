@@ -1,7 +1,8 @@
 import React from 'react';
-import { Rocket } from 'lucide-react';
 
 const GROWTH = 1.18;
+
+const BOMBER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a5182a85c_InShot_20260714_1253103591.jpg';
 const SAMPLES = 48;
 
 export default function CrashGraph({ phase, multiplier, countdown }) {
@@ -59,22 +60,51 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
         )}
       </svg>
 
-      {/* rocket at the tip */}
+      {/* stealth bomber at the tip — takeoff feel with exhaust trail */}
       {running && (
         <span className="absolute z-20" style={{
           left: `${tip[0]}%`, top: `${tip[1]}%`,
-          transform: `translate(-50%, -50%) rotate(${angle - 45}deg)`,
+          transform: `translate(-50%, -50%) rotate(${angle}deg)`,
           transition: 'left 0.05s linear, top 0.05s linear',
         }}>
-          <span className="flex items-center justify-center w-9 h-9 rounded-full"
-            style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.9), rgba(99,102,241,0.3))', boxShadow: '0 0 18px rgba(129,140,248,0.9)' }}>
-            <Rocket className="w-5 h-5 text-white" />
+          <span className="relative flex items-center justify-center" style={{ width: '52px', height: '30px' }}>
+            {/* exhaust / jet flame trail behind the bomber */}
+            <span className="absolute" style={{
+              right: '78%', top: '50%', width: '34px', height: '12px', transform: 'translateY(-50%)',
+              background: 'linear-gradient(to left, rgba(255,180,60,0.95), rgba(255,120,40,0.6) 40%, rgba(255,80,20,0) 100%)',
+              borderRadius: '50%', filter: 'blur(3px)', mixBlendMode: 'screen',
+              animation: 'jetExhaust 0.18s ease-in-out infinite', boxShadow: '0 0 14px rgba(255,140,40,0.8)',
+            }} />
+            <img src={BOMBER_IMG} alt="bomber" draggable={false}
+              className="w-full h-full object-contain select-none"
+              style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 6px rgba(129,140,248,0.6))' }} />
           </span>
         </span>
       )}
       {crashed && (
-        <span className="absolute z-20" style={{ left: `${tip[0]}%`, top: `${tip[1]}%`, transform: 'translate(-50%, -50%)' }}>
-          <span className="text-3xl" style={{ filter: 'drop-shadow(0 0 8px rgba(244,63,94,0.9))' }}>💥</span>
+        <span className="absolute z-20 pointer-events-none" style={{ left: `${tip[0]}%`, top: `${tip[1]}%`, transform: 'translate(-50%, -50%)' }}>
+          {/* shockwave ring */}
+          <span className="absolute rounded-full border-2 border-amber-300/80"
+            style={{ width: '8px', height: '8px', left: '-4px', top: '-4px', animation: 'blastRing 0.7s ease-out forwards' }} />
+          <span className="absolute rounded-full border-2 border-rose-400/70"
+            style={{ width: '8px', height: '8px', left: '-4px', top: '-4px', animation: 'blastRing 0.7s ease-out 0.12s forwards' }} />
+          {/* flame core */}
+          <span className="absolute rounded-full"
+            style={{ width: '46px', height: '46px', left: '-23px', top: '-23px',
+              background: 'radial-gradient(circle, rgba(255,245,200,1) 0%, rgba(255,180,60,0.95) 22%, rgba(255,90,30,0.85) 45%, rgba(220,40,20,0.5) 70%, rgba(120,10,5,0) 100%)',
+              animation: 'blastCore 0.8s ease-out forwards', filter: 'blur(1px)' }} />
+          {/* ember debris */}
+          {[...Array(7)].map((_, i) => {
+            const a = (Math.PI * 2 * i) / 7 + 0.4;
+            const dist = 26 + (i % 3) * 12;
+            return (
+              <span key={i} className="absolute rounded-full"
+                style={{ width: '4px', height: '4px', left: '-2px', top: '-2px',
+                  background: i % 2 ? 'rgba(255,200,80,0.95)' : 'rgba(255,120,50,0.9)',
+                  ['--ex']: `${Math.cos(a) * dist}px`, ['--ey']: `${Math.sin(a) * dist}px`,
+                  animation: `blastEmber 0.8s ease-out ${0.05 * i}s forwards`, boxShadow: '0 0 6px rgba(255,160,60,0.9)' }} />
+            );
+          })}
         </span>
       )}
 
