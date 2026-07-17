@@ -20,7 +20,11 @@ export default function CasinoGameCard({ game }) {
 
   const inner = (
     <div className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-amber-700/40 shadow-lg shadow-black/40 transition-transform hover:-translate-y-1 hover:shadow-amber-900/40">
-      <div className={`absolute inset-0 bg-gradient-to-br ${game.accent}`} />
+      {game.image ? (
+        <img src={game.image} alt={game.title} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+      ) : (
+        <div className={`absolute inset-0 bg-gradient-to-br ${game.accent}`} />
+      )}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.18),transparent_60%)]" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
