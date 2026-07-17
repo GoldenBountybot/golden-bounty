@@ -42,7 +42,7 @@ export default function WildBountyMachine() {
 
       {/* Reel board — bronze western frame (web asset) around symbols */}
       <div
-        className="relative px-8 py-6 mx-0 my-0 rounded-2xl"
+        className="relative px-3 py-3 mx-0 my-0 rounded-2xl"
         style={{
           backgroundImage:
             'linear-gradient(rgba(20,14,8,0.3), rgba(20,14,8,0.4)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a416f3da8_generated_image.png)',
@@ -90,7 +90,7 @@ export default function WildBountyMachine() {
         </button>
 
         {/* Win / message banner */}
-        <PlaqueBanner glow className="mt-3 mx-1 py-1.5 text-center">
+        <PlaqueBanner glow className="mt-2 mx-1 py-1 text-center">
           <span className="font-black italic text-lg text-yellow-300 drop-shadow-[0_0_6px_rgba(255,200,0,0.7)]" style={{ fontFamily: 'Rye, Georgia, serif' }}>
             {g.message}
           </span>
