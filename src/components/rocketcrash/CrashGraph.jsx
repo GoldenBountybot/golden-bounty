@@ -67,17 +67,17 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
           transform: `translate(-50%, -50%) rotate(${angle}deg)`,
           transition: 'left 0.12s linear, top 0.18s ease-out',
         }}>
-          <span className="relative flex items-center justify-center" style={{ width: '52px', height: '30px' }}>
+          <span className="relative flex items-center justify-center" style={{ width: '74px', height: '44px' }}>
             {/* exhaust / jet flame trail behind the bomber */}
             <span className="absolute" style={{
-              right: '78%', top: '50%', width: '34px', height: '12px', transform: 'translateY(-50%)',
+              right: '78%', top: '50%', width: '48px', height: '16px', transform: 'translateY(-50%)',
               background: 'linear-gradient(to left, rgba(255,180,60,0.95), rgba(255,120,40,0.6) 40%, rgba(255,80,20,0) 100%)',
               borderRadius: '50%', filter: 'blur(3px)', mixBlendMode: 'screen',
               animation: 'jetExhaust 0.18s ease-in-out infinite', boxShadow: '0 0 14px rgba(255,140,40,0.8)',
             }} />
             <img src={BOMBER_IMG} alt="bomber" draggable={false}
               className="w-full h-full object-contain select-none"
-              style={{ mixBlendMode: 'screen', filter: 'brightness(1.05) contrast(1.08)' }} />
+              style={{ mixBlendMode: 'lighten', filter: 'brightness(1.12) contrast(1.1)' }} />
           </span>
         </span>
       )}
