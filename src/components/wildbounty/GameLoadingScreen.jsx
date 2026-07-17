@@ -59,7 +59,16 @@ export default function GameLoadingScreen({ onDone }) {
       // EQ unavailable — plain <audio> playback still works.
     }
 
+    // Stop the intro sound the instant loading ends so it never leaks into
+    // gameplay.
+    const stopIntro = () => {
+      try { audio.pause(); } catch { /* noop */ }
+      try { audio.currentTime = 0; } catch { /* noop */ }
+      try { if (ac) ac.close(); } catch { /* noop */ }
+    };
+
     const onEnded = () => {
+      stopIntro();
       setProgress(100);
       setTimeout(() => onDone && onDone(), 250);
     };
@@ -70,6 +79,7 @@ export default function GameLoadingScreen({ onDone }) {
     };
     const onError = () => {
       // If the sound fails to load, don't block the game forever.
+      stopIntro();
       setTimeout(() => onDone && onDone(), 1200);
     };
 
@@ -83,7 +93,7 @@ export default function GameLoadingScreen({ onDone }) {
     if (playPromise && playPromise.catch) {
       playPromise.catch(() => {
         // Autoplay blocked — fall back to a timed reveal.
-        const fallback = setTimeout(() => onDone && onDone(), 4000);
+        const fallback = setTimeout(() => { stopIntro(); onDone && onDone(); }, 4000);
         audio.addEventListener('ended', () => clearTimeout(fallback), { once: true });
       });
     }
@@ -92,8 +102,7 @@ export default function GameLoadingScreen({ onDone }) {
       audio.removeEventListener('ended', onEnded);
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('error', onError);
-      try { audio.pause(); } catch { /* noop */ }
-      try { if (ac) ac.close(); } catch { /* noop */ }
+      stopIntro();
     };
   }, [onDone]);
 
