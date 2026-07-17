@@ -33,35 +33,54 @@ function tone({ freq, type = 'sine', dur = 0.2, gain = VOL, delay = 0, sweepTo }
 
 export const sfx = {
   spin() {
-    // Mechanical reel spin: low motor rumble + mid whir + filtered hiss
-    // + a rapid metallic clickety-clack as the reel teeth pass.
+    // Premium mechanical reel spin: smooth wind-up → sustained rotation hum
+    // with gear ticking → brake/deceleration → solid stop thunk.
     const ac = getCtx();
     if (!ac) return;
     const t0 = ac.currentTime;
+    const total = 1.5; // total spin duration in seconds
 
-    // Low motor rumble (sawtooth, slight vibrato)
-    const rum = ac.createOscillator();
-    const rumg = ac.createGain();
+    // 1) Low mechanical motor hum (sawtooth) with slow vibrato
+    const hum = ac.createOscillator();
+    const humg = ac.createGain();
     const lfo = ac.createOscillator();
     const lfog = ac.createGain();
-    rum.type = 'sawtooth';
-    rum.frequency.setValueAtTime(90, t0);
-    rum.frequency.exponentialRampToValueAtTime(150, t0 + 0.5);
-    lfo.frequency.value = 11;
-    lfog.gain.value = 6;
-    lfo.connect(lfog).connect(rum.frequency);
-    rumg.gain.setValueAtTime(0.0001, t0);
-    rumg.gain.exponentialRampToValueAtTime(VOL * 0.28, t0 + 0.04);
-    rumg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.7);
-    rum.connect(rumg).connect(ac.destination);
-    rum.start(t0); rum.stop(t0 + 0.74);
-    lfo.start(t0); lfo.stop(t0 + 0.74);
+    hum.type = 'sawtooth';
+    hum.frequency.setValueAtTime(70, t0);
+    hum.frequency.exponentialRampToValueAtTime(120, t0 + 0.35); // wind-up
+    hum.frequency.setValueAtTime(120, t0 + 0.35);
+    hum.frequency.exponentialRampToValueAtTime(95, t0 + total - 0.25); // slight decay
+    hum.frequency.exponentialRampToValueAtTime(60, t0 + total - 0.02); // brake down
+    lfo.frequency.value = 8;
+    lfog.gain.value = 5;
+    lfo.connect(lfog).connect(hum.frequency);
+    humg.gain.setValueAtTime(0.0001, t0);
+    humg.gain.exponentialRampToValueAtTime(VOL * 0.32, t0 + 0.08); // ramp in
+    humg.gain.setValueAtTime(VOL * 0.32, t0 + total - 0.25); // hold
+    humg.gain.exponentialRampToValueAtTime(VOL * 0.16, t0 + total - 0.08); // soften at brake
+    humg.gain.exponentialRampToValueAtTime(0.0001, t0 + total);
+    hum.connect(humg).connect(ac.destination);
+    hum.start(t0); hum.stop(t0 + total + 0.05);
+    lfo.start(t0); lfo.stop(t0 + total + 0.05);
 
-    // Mid whir (triangle, rising) for the "wind-up"
-    tone({ freq: 240, sweepTo: 620, type: 'triangle', dur: 0.6, gain: VOL * 0.22 });
+    // 2) Mid whir (triangle) tracking the motor speed
+    const whir = ac.createOscillator();
+    const whirg = ac.createGain();
+    whir.type = 'triangle';
+    whir.frequency.setValueAtTime(220, t0);
+    whir.frequency.exponentialRampToValueAtTime(520, t0 + 0.35); // wind-up
+    whir.frequency.setValueAtTime(520, t0 + 0.35);
+    whir.frequency.exponentialRampToValueAtTime(420, t0 + total - 0.25);
+    whir.frequency.exponentialRampToValueAtTime(180, t0 + total - 0.02); // brake
+    whirg.gain.setValueAtTime(0.0001, t0);
+    whirg.gain.exponentialRampToValueAtTime(VOL * 0.2, t0 + 0.1);
+    whirg.gain.setValueAtTime(VOL * 0.2, t0 + total - 0.25);
+    whirg.gain.exponentialRampToValueAtTime(0.0001, t0 + total);
+    whir.connect(whirg).connect(ac.destination);
+    whir.start(t0); whir.stop(t0 + total + 0.05);
 
-    // Filtered noise hiss (air friction)
-    const len = Math.floor(ac.sampleRate * 0.65);
+    // 3) Filtered air-friction hiss that follows the speed
+    const len = Math.floor(ac.sampleRate * total);
     const buffer = ac.createBuffer(1, len, ac.sampleRate);
     const data = buffer.getChannelData(0);
     for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1);
@@ -70,21 +89,45 @@ export const sfx = {
     const ng = ac.createGain();
     const bp = ac.createBiquadFilter();
     bp.type = 'bandpass';
-    bp.frequency.setValueAtTime(1200, t0);
-    bp.frequency.exponentialRampToValueAtTime(2600, t0 + 0.5);
-    bp.Q.value = 1.2;
+    bp.frequency.setValueAtTime(900, t0);
+    bp.frequency.exponentialRampToValueAtTime(2400, t0 + 0.35); // rises with speed
+    bp.frequency.setValueAtTime(2400, t0 + total - 0.25);
+    bp.frequency.exponentialRampToValueAtTime(1000, t0 + total - 0.02); // falls at brake
+    bp.Q.value = 1.4;
     ng.gain.setValueAtTime(0.0001, t0);
-    ng.gain.exponentialRampToValueAtTime(VOL * 0.18, t0 + 0.05);
-    ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.65);
+    ng.gain.exponentialRampToValueAtTime(VOL * 0.16, t0 + 0.12);
+    ng.gain.setValueAtTime(VOL * 0.16, t0 + total - 0.25);
+    ng.gain.exponentialRampToValueAtTime(0.0001, t0 + total);
     noise.connect(bp).connect(ng).connect(ac.destination);
-    noise.start(t0); noise.stop(t0 + 0.66);
+    noise.start(t0); noise.stop(t0 + total + 0.02);
 
-    // Metallic clickety-clack: short high clicks every ~45ms
-    const clicks = 14;
-    for (let i = 0; i < clicks; i++) {
-      const d = 0.03 + i * 0.043;
-      tone({ freq: 2600 + Math.random() * 600, type: 'square', dur: 0.03, gain: VOL * 0.12, delay: d });
+    // 4) Gear ticking: clicks start slow during wind-up, get faster, then
+    //    slow again during braking (doppler-like mechanical feel).
+    const tickCount = 60;
+    for (let i = 0; i < tickCount; i++) {
+      // progress 0..1, with ease so ticks cluster mid-spin
+      const p = i / (tickCount - 1);
+      const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      const d = ease * (total - 0.05);
+      // tick pitch slightly rises mid-spin then falls
+      const f = 2400 + 900 * Math.sin(p * Math.PI) + Math.random() * 200;
+      tone({ freq: f, type: 'square', dur: 0.025, gain: VOL * 0.1, delay: d });
     }
+
+    // 5) Final stop thunk: solid metallic brake + low body thud
+    const thunk = ac.createOscillator();
+    const thunkg = ac.createGain();
+    thunk.type = 'square';
+    thunk.frequency.setValueAtTime(320, t0 + total - 0.02);
+    thunk.frequency.exponentialRampToValueAtTime(70, t0 + total + 0.12);
+    thunkg.gain.setValueAtTime(0.0001, t0 + total - 0.02);
+    thunkg.gain.exponentialRampToValueAtTime(VOL * 0.4, t0 + total - 0.01);
+    thunkg.gain.exponentialRampToValueAtTime(0.0001, t0 + total + 0.14);
+    thunk.connect(thunkg).connect(ac.destination);
+    thunk.start(t0 + total - 0.02); thunk.stop(t0 + total + 0.18);
+
+    tone({ freq: 160, type: 'sine', dur: 0.18, gain: VOL * 0.35, delay: total - 0.02 });
+    tone({ freq: 2600, type: 'square', dur: 0.04, gain: VOL * 0.18, delay: total - 0.02 });
   },
   blast() {
     // shatter crack: noise burst + high metal clang
