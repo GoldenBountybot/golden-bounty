@@ -15,6 +15,7 @@ let spinFilterChain = null;
 let winSeqBuffer = null;
 let winSeqLoading = false;
 let winSeqAudio = null;
+let winSeqPending = false;
 
 async function loadSpinBuffer() {
   if (spinBuffer || spinLoading) return;
@@ -43,7 +44,46 @@ async function loadWinSeqBuffer() {
     // ignore
   } finally {
     winSeqLoading = false;
+    // If a win arrived while the buffer was still loading, start it now.
+    if (winSeqPending && winSeqBuffer) {
+      winSeqPending = false;
+      startWinSeq();
+    }
   }
+}
+
+function startWinSeq() {
+  const ac = getCtx();
+  if (!ac || !winSeqBuffer || winSeqAudio) return;
+  const src = ac.createBufferSource();
+  src.buffer = winSeqBuffer;
+  src.loop = true;
+
+  const lowShelf = ac.createBiquadFilter();
+  lowShelf.type = 'lowshelf';
+  lowShelf.frequency.value = 120;
+  lowShelf.gain.value = -3;
+  const presence = ac.createBiquadFilter();
+  presence.type = 'peaking';
+  presence.frequency.value = 3000;
+  presence.Q.value = 0.8;
+  presence.gain.value = 4;
+  const highShelf = ac.createBiquadFilter();
+  highShelf.type = 'highshelf';
+  highShelf.frequency.value = 8000;
+  highShelf.gain.value = 5;
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0.0001, ac.currentTime);
+  g.gain.exponentialRampToValueAtTime(VOL, ac.currentTime + 0.08);
+
+  src.connect(lowShelf);
+  lowShelf.connect(presence);
+  presence.connect(highShelf);
+  highShelf.connect(g);
+  g.connect(ac.destination);
+  src.start();
+  src.onended = () => { if (winSeqAudio && winSeqAudio.source === src) winSeqAudio = null; };
+  winSeqAudio = { source: src, gainNode: g };
 }
 
 function getCtx() {
@@ -142,44 +182,15 @@ export const sfx = {
     // No-op: the spin button only plays a one-shot click sound now.
   },
   win() {
-    // Start the uploaded win-sequence sound looped through a clarity EQ chain.
-    // Plays from symbol match through the shatter + multiplier animation,
-    // covering the whole win/cascade chain. If already running, leave it so
-    // cascades stay seamless.
+    // Start the uploaded win-sequence sound (looped) so it plays through the
+    // whole matching → shatter → multiplier animation for the current spin.
+    // Already running (mid-cascade) → leave it for seamless continuation.
+    // Buffer not loaded yet → queue it; loadWinSeqBuffer starts it when ready.
     const ac = getCtx();
     if (!ac || winSeqAudio) return;
     loadWinSeqBuffer();
-    if (!winSeqBuffer) return;
-
-    const src = ac.createBufferSource();
-    src.buffer = winSeqBuffer;
-    src.loop = true;
-
-    const lowShelf = ac.createBiquadFilter();
-    lowShelf.type = 'lowshelf';
-    lowShelf.frequency.value = 120;
-    lowShelf.gain.value = -3;
-    const presence = ac.createBiquadFilter();
-    presence.type = 'peaking';
-    presence.frequency.value = 3000;
-    presence.Q.value = 0.8;
-    presence.gain.value = 4;
-    const highShelf = ac.createBiquadFilter();
-    highShelf.type = 'highshelf';
-    highShelf.frequency.value = 8000;
-    highShelf.gain.value = 5;
-    const g = ac.createGain();
-    g.gain.setValueAtTime(0.0001, ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(VOL, ac.currentTime + 0.08);
-
-    src.connect(lowShelf);
-    lowShelf.connect(presence);
-    presence.connect(highShelf);
-    highShelf.connect(g);
-    g.connect(ac.destination);
-    src.start();
-    src.onended = () => { if (winSeqAudio && winSeqAudio.source === src) winSeqAudio = null; };
-    winSeqAudio = { source: src, gainNode: g };
+    if (!winSeqBuffer) { winSeqPending = true; return; }
+    startWinSeq();
   },
   winStop() {
     // Fade out and stop the win-sequence sound when the round ends.
