@@ -2,7 +2,7 @@ import React from 'react';
 import { SYMBOLS } from './symbols';
 
 const IMG = {
-  bandit:   'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/0d5c8615e_generated_image.png',
+  bandit:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2a455767e_InShot_20260717_092730019.jpg',
   revolver: 'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/8aeeafd7a_generated_image.png',
   whiskey:  'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/525e250d8_generated_image.png',
   hat:      'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/703eaba87_generated_image.png',
