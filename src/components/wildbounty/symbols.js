@@ -24,14 +24,14 @@ export const SYMBOLS = {
 // Scatter can land naturally (1–2); 3 together only via the forced 0.01% trigger.
 const POOL = [
   'scatter',
-  'bandit', 'bandit',
-  'revolver', 'revolver', 'revolver',
-  'whiskey', 'whiskey', 'whiskey',
-  'hat', 'hat', 'hat',
-  'A', 'A', 'A', 'A',
-  'K', 'K', 'K', 'K',
-  'Q', 'Q', 'Q', 'Q', 'Q',
-  'J', 'J', 'J', 'J', 'J',
+  'bandit', 'bandit', 'bandit', 'bandit',
+  'revolver', 'revolver', 'revolver', 'revolver',
+  'hat', 'hat', 'hat', 'hat',
+  'whiskey', 'whiskey', 'whiskey', 'whiskey',
+  'A', 'A', 'A', 'A', 'A',
+  'K', 'K', 'K', 'K', 'K',
+  'Q', 'Q', 'Q', 'Q', 'Q', 'Q',
+  'J', 'J', 'J', 'J', 'J', 'J', 'J',
 ];
 
 export function randomSymbol() {
