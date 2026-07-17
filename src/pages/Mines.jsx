@@ -1,37 +1,55 @@
 import React, { useState } from 'react';
-import { Bomb, Gem } from 'lucide-react';
+import { Bomb, Gem, Pickaxe, DollarSign, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import GameHeader from '@/components/GameHeader';
-import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 
 const TOTAL = 25;
 const COLS = 5;
-const MINE_OPTS = [1, 3, 5];
-const BETS = [25, 50, 100, 250, 500];
+const BETS = [10, 25, 50, 100, 250, 500];
+const MINE_PRESETS = [1, 3, 5, 10, 24];
+
+// House-edge-adjusted Spribe-style multiplier for k revealed safe tiles
+// given m mines among N total. Factor (1 - edge) applied each step.
+const EDGE = 0.03;
+function multiplierFor(k, m) {
+  const safe = TOTAL - m;
+  if (k <= 0) return 1;
+  let r = 1;
+  for (let i = 0; i < k; i++) {
+    r *= (TOTAL - i) / (safe - i);
+  }
+  return r * (1 - EDGE);
+}
 
 export default function Mines() {
   const { balance, setBalance } = useCasinoBalance();
   const { rtp } = useGameSettings('mines');
   const [betIdx, setBetIdx] = useState(1);
-  const [mineIdx, setMineIdx] = useState(1);
-  const mines = MINE_OPTS[mineIdx];
+  const [customBet, setCustomBet] = useState('');
+  const bet = customBet ? Math.max(1, Number(customBet)) : BETS[betIdx];
+  const [mines, setMines] = useState(3);
   const safe = TOTAL - mines;
+
   const [phase, setPhase] = useState('idle'); // idle | playing | over
   const [mineSet, setMineSet] = useState(new Set());
   const [revealed, setRevealed] = useState(new Set());
+  const [revealedOrder, setRevealedOrder] = useState([]); // for animation sequence
   const [pot, setPot] = useState(1);
-  const [message, setMessage] = useState('Set bet & mines, then start');
   const [lastWin, setLastWin] = useState(0);
+  const [message, setMessage] = useState('Place your bet and pick the number of mines');
   const [forceFirstMine, setForceFirstMine] = useState(false);
-  const bet = BETS[betIdx];
   const logActivity = useLogActivity();
+
+  const currentMult = pot;
+  const nextMult = multiplierFor(revealedOrder.length + 1, mines);
 
   const start = () => {
     if (phase === 'playing') return;
-    if (balance < bet) { setMessage('Insufficient balance! Reset below.'); return; }
-    setBalance(b => b - bet);
+    if (!bet || bet <= 0) { setMessage('Enter a valid bet'); return; }
+    if (balance < bet) { setMessage('Insufficient balance'); return; }
+    setBalance((b) => b - bet);
     const positions = Array.from({ length: TOTAL }, (_, i) => i);
     for (let i = positions.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -39,22 +57,22 @@ export default function Mines() {
     }
     setMineSet(new Set(positions.slice(0, mines)));
     setRevealed(new Set());
+    setRevealedOrder([]);
     setPot(1);
     setLastWin(0);
     setForceFirstMine(Math.random() >= (rtp / 100));
     setPhase('playing');
-    setMessage(`Reveal ${safe} safe tiles · avoid ${mines} mines`);
+    setMessage(`Find ${safe} gems · avoid ${mines} mines`);
   };
 
   const reveal = (idx) => {
     if (phase !== 'playing' || revealed.has(idx)) return;
     const effective = new Set(mineSet);
-    // First-reveal RTP bias: favor a safe first pick or force a mine.
     if (revealed.size === 0) {
       if (forceFirstMine) {
         if (!effective.has(idx)) {
           effective.add(idx);
-          const others = [...effective].filter(x => x !== idx);
+          const others = [...effective].filter((x) => x !== idx);
           if (others.length) effective.delete(others[Math.floor(Math.random() * others.length)]);
         }
       } else if (effective.has(idx)) {
@@ -65,35 +83,38 @@ export default function Mines() {
       }
       setMineSet(effective);
     }
-    const newRev = new Set(revealed); newRev.add(idx);
+    const newRev = new Set(revealed);
+    newRev.add(idx);
+    const newOrder = [...revealedOrder, idx];
     setRevealed(newRev);
+    setRevealedOrder(newOrder);
+
     if (effective.has(idx)) {
       setPhase('over');
       setPot(0);
-      setMessage('BOOM! You hit a mine.');
+      setMessage('BOOM — you hit a mine');
       logActivity('mines', bet, 0, 'loss');
       return;
     }
     const k = newRev.size;
-    const before = k - 1;
-    const newPot = pot * (TOTAL - before) / (safe - before);
+    const newPot = multiplierFor(k, mines);
     setPot(newPot);
     if (k === safe) {
       const win = bet * newPot;
-      setBalance(b => b + win);
+      setBalance((b) => b + win);
       setLastWin(win);
-      setMessage(`Cleared! Won $${win.toFixed(2)} (${newPot.toFixed(2)}x)`);
+      setMessage(`Cleared! +$${win.toFixed(2)} (${newPot.toFixed(2)}x)`);
       logActivity('mines', bet, win, 'win');
       setPhase('over');
     } else {
-      setMessage(`Safe! Pot $${(bet * newPot).toFixed(2)} · cash out or continue`);
+      setMessage(`Safe! Pot $${(bet * newPot).toFixed(2)}`);
     }
   };
 
   const cashout = () => {
     if (phase !== 'playing' || revealed.size === 0) return;
     const win = bet * pot;
-    setBalance(b => b + win);
+    setBalance((b) => b + win);
     setLastWin(win);
     setMessage(`Cashed out $${win.toFixed(2)} (${pot.toFixed(2)}x)`);
     logActivity('mines', bet, win, 'win');
@@ -103,102 +124,176 @@ export default function Mines() {
   const newGame = () => {
     setPhase('idle');
     setRevealed(new Set());
+    setRevealedOrder([]);
     setMineSet(new Set());
     setPot(1);
-    setMessage('Set bet & mines, then start');
+    setMessage('Place your bet and pick the number of mines');
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-cyan-950 via-stone-950 to-stone-950">
-      <GameHeader title="Mines Gold" accent="text-cyan-200" border="border-cyan-600/30" />
+  const isOver = phase === 'over';
 
-      <main className="max-w-md mx-auto px-4 py-6 flex flex-col items-center gap-5">
-        <WesternFrame className="w-full p-4">
-          <div className="grid grid-cols-5 gap-1.5">
+  return (
+    <div className="min-h-screen bg-[#0b0e1a] text-slate-100 flex flex-col">
+      <GameHeader title="Mines" accent="text-slate-100" border="border-slate-700/40" />
+
+      <main className="max-w-md w-full mx-auto px-4 py-5 flex flex-col gap-4 flex-1">
+        {/* Balance + bet bar */}
+        <div className="rounded-xl bg-[#151929] border border-slate-700/50 p-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#f7931e]/15 border border-[#f7931e]/40">
+              <DollarSign className="w-5 h-5 text-[#f7931e]" />
+            </span>
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-slate-400">Balance</p>
+              <p className="text-lg font-bold tabular-nums text-slate-100">${balance.toFixed(2)}</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] uppercase tracking-widest text-slate-400">Profit</p>
+            <p className={`text-sm font-bold tabular-nums ${lastWin > 0 ? 'text-emerald-400' : 'text-slate-400'}`}>
+              {lastWin > 0 ? `+$${lastWin.toFixed(2)}` : '$0.00'}
+            </p>
+          </div>
+        </div>
+
+        {/* Controls panel */}
+        {phase === 'idle' && (
+          <div className="rounded-xl bg-[#151929] border border-slate-700/50 p-4 flex flex-col gap-4">
+            {/* Bet */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-slate-300">Bet Amount</span>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => setCustomBet(String(Math.max(1, Math.floor(bet / 2))))} className="w-7 h-7 rounded-md bg-[#1f2436] border border-slate-600/50 flex items-center justify-center hover:bg-[#262c42]"><ChevronDown className="w-4 h-4 text-slate-300" /></button>
+                  <input
+                    value={customBet || bet}
+                    onChange={(e) => setCustomBet(e.target.value.replace(/[^0-9.]/g, ''))}
+                    className="w-24 text-center bg-[#1f2436] border border-slate-600/50 rounded-md py-1 text-sm font-bold text-slate-100 outline-none focus:border-[#f7931e]"
+                  />
+                  <button onClick={() => setCustomBet(String(Math.floor(bet * 2)))} className="w-7 h-7 rounded-md bg-[#1f2436] border border-slate-600/50 flex items-center justify-center hover:bg-[#262c42]"><ChevronUp className="w-4 h-4 text-slate-300" /></button>
+                </div>
+              </div>
+              <div className="grid grid-cols-6 gap-1.5">
+                {BETS.map((b, i) => (
+                  <button
+                    key={b}
+                    onClick={() => { setBetIdx(i); setCustomBet(''); }}
+                    className={`py-1.5 rounded-md text-xs font-bold border transition-colors ${(!customBet && betIdx === i) ? 'bg-[#f7931e] text-[#0b0e1a] border-[#f7931e]' : 'bg-[#1f2436] text-slate-300 border-slate-600/50 hover:bg-[#262c42]'}`}
+                  >
+                    {b}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Mines */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-slate-300">Mines</span>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => setMines((m) => Math.max(1, m - 1))} className="w-7 h-7 rounded-md bg-[#1f2436] border border-slate-600/50 flex items-center justify-center hover:bg-[#262c42]"><ChevronDown className="w-4 h-4 text-slate-300" /></button>
+                  <input
+                    value={mines}
+                    onChange={(e) => { const n = Math.min(24, Math.max(1, parseInt(e.target.value.replace(/\D/g, '')) || 1)); setMines(n); }}
+                    className="w-12 text-center bg-[#1f2436] border border-slate-600/50 rounded-md py-1 text-sm font-bold text-slate-100 outline-none focus:border-[#f7931e]"
+                  />
+                  <button onClick={() => setMines((m) => Math.min(24, m + 1))} className="w-7 h-7 rounded-md bg-[#1f2436] border border-slate-600/50 flex items-center justify-center hover:bg-[#262c42]"><ChevronUp className="w-4 h-4 text-slate-300" /></button>
+                </div>
+              </div>
+              <div className="grid grid-cols-5 gap-1.5">
+                {MINE_PRESETS.map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setMines(m)}
+                    className={`py-1.5 rounded-md text-xs font-bold border transition-colors ${mines === m ? 'bg-rose-600 text-white border-rose-500' : 'bg-[#1f2436] text-slate-300 border-slate-600/50 hover:bg-[#262c42]'}`}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Stat: potential */}
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-lg bg-[#1f2436] border border-slate-600/40 py-2">
+                <p className="text-[9px] uppercase tracking-widest text-slate-400">Gems</p>
+                <p className="text-sm font-bold tabular-nums text-emerald-400">{safe}</p>
+              </div>
+              <div className="rounded-lg bg-[#1f2436] border border-slate-600/40 py-2">
+                <p className="text-[9px] uppercase tracking-widest text-slate-400">Max Win</p>
+                <p className="text-sm font-bold tabular-nums text-[#f7931e]">{multiplierFor(safe, mines).toFixed(2)}x</p>
+              </div>
+              <div className="rounded-lg bg-[#1f2436] border border-slate-600/40 py-2">
+                <p className="text-[9px] uppercase tracking-widest text-slate-400">Payout</p>
+                <p className="text-sm font-bold tabular-nums text-slate-100">${(bet * multiplierFor(safe, mines)).toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Grid */}
+        <div className="rounded-xl bg-[#151929] border border-slate-700/50 p-3">
+          <div className="grid grid-cols-5 gap-2">
             {Array.from({ length: TOTAL }).map((_, i) => {
               const isRev = revealed.has(i);
               const isMine = mineSet.has(i);
               const showMine = isRev && isMine;
               const showSafe = isRev && !isMine;
-              const revealLost = phase === 'over' && isMine && !isRev;
+              const revealLost = isOver && isMine && !isRev;
               return (
                 <button
                   key={i}
                   onClick={() => reveal(i)}
                   disabled={phase !== 'playing' || isRev}
-                  className={`aspect-square rounded-md flex items-center justify-center border transition-colors ${
-                    showMine ? 'bg-red-700 border-red-400'
-                    : showSafe ? 'bg-emerald-700 border-emerald-400'
-                    : revealLost ? 'bg-red-900/60 border-red-600/40'
-                    : 'bg-stone-800 border-amber-700/40 hover:bg-stone-700'
+                  className={`aspect-square rounded-lg flex items-center justify-center border transition-all duration-150 ${
+                    showMine ? 'bg-rose-600/90 border-rose-400 scale-105'
+                    : showSafe ? 'bg-[#1f2436] border-emerald-400/60 scale-105'
+                    : revealLost ? 'bg-rose-900/40 border-rose-600/40'
+                    : phase === 'playing' ? 'bg-[#1f2436] border-slate-600/50 hover:bg-[#262c42] hover:border-[#f7931e]/50 cursor-pointer'
+                    : 'bg-[#1f2436] border-slate-600/50'
                   }`}
-                  style={{ fontFamily: 'Georgia, serif' }}
                 >
-                  {showMine ? <Bomb className="w-5 h-5 text-red-100" />
-                    : showSafe ? <Gem className="w-5 h-5 text-emerald-200" />
-                    : revealLost ? <Bomb className="w-5 h-5 text-red-300/70" />
-                    : <span className="text-amber-500/40 text-lg italic">?</span>}
+                  {showMine ? <Bomb className="w-6 h-6 text-white" />
+                    : showSafe ? <Gem className="w-6 h-6 text-emerald-400" />
+                    : revealLost ? <Bomb className="w-5 h-5 text-rose-400/70" />
+                    : <span className="text-slate-600 text-lg font-bold">·</span>}
                 </button>
               );
             })}
           </div>
-        </WesternFrame>
-
-        <WesternFrame glow className="w-full text-center py-2">
-          <span className="font-black italic text-sm text-amber-300 px-2" style={{ fontFamily: 'Georgia, serif' }}>{message}</span>
-        </WesternFrame>
-
-        <div className="grid grid-cols-3 gap-2 w-full">
-          <WesternFrame className="flex flex-col items-center py-2">
-            <span className="text-[9px] text-amber-300/70 tracking-widest uppercase">Balance</span>
-            <span className="text-sm font-bold italic text-yellow-100 tabular-nums">${balance.toFixed(2)}</span>
-          </WesternFrame>
-          <WesternFrame className="flex flex-col items-center py-2">
-            <span className="text-[9px] text-amber-300/70 tracking-widest uppercase">Multiplier</span>
-            <span className="text-sm font-bold italic text-yellow-100 tabular-nums">{pot.toFixed(2)}x</span>
-          </WesternFrame>
-          <WesternFrame className="flex flex-col items-center py-2">
-            <span className="text-[9px] text-amber-300/70 tracking-widest uppercase">Pot</span>
-            <span className="text-sm font-bold italic text-yellow-100 tabular-nums">${(bet * pot).toFixed(2)}</span>
-          </WesternFrame>
         </div>
 
-        {phase === 'idle' && (
-          <>
-            <div className="flex gap-2 flex-wrap justify-center">
-              {BETS.map((b, i) => (
-                <button
-                  key={b}
-                  onClick={() => setBetIdx(i)}
-                  className={`px-3 py-1.5 rounded-md text-sm font-bold italic border transition-colors ${betIdx === i ? 'bg-amber-400 text-stone-900 border-amber-300' : 'bg-black/30 text-amber-100/80 border-amber-700/40 hover:bg-black/50'}`}
-                  style={{ fontFamily: 'Georgia, serif' }}
-                >
-                  ${b}
-                </button>
-              ))}
+        {/* Status / multiplier ticker */}
+        {phase === 'playing' && (
+          <div className="rounded-xl bg-[#151929] border border-slate-700/50 p-3 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-slate-400">Current</p>
+              <p className="text-xl font-black tabular-nums text-emerald-400">{currentMult.toFixed(2)}x</p>
             </div>
-            <div className="flex items-center gap-2 justify-center text-amber-100/80 text-xs italic" style={{ fontFamily: 'Georgia, serif' }}>
-              Mines:
-              {MINE_OPTS.map((m, i) => (
-                <button
-                  key={m}
-                  onClick={() => setMineIdx(i)}
-                  className={`px-3 py-1 rounded-md font-bold border transition-colors ${mineIdx === i ? 'bg-red-600 text-white border-red-400' : 'bg-black/30 border-amber-700/40 hover:bg-black/50'}`}
-                >
-                  {m}
-                </button>
-              ))}
+            <div className="text-center">
+              <p className="text-[10px] uppercase tracking-widest text-slate-400">Win</p>
+              <p className="text-base font-bold tabular-nums text-slate-100">${(bet * pot).toFixed(2)}</p>
             </div>
-          </>
+            <div className="text-right">
+              <p className="text-[10px] uppercase tracking-widest text-slate-400">Next</p>
+              <p className="text-base font-bold tabular-nums text-[#f7931e]">{nextMult.toFixed(2)}x</p>
+            </div>
+          </div>
         )}
 
+        {/* Message */}
+        <div className="rounded-lg bg-[#151929] border border-slate-700/50 py-2 text-center">
+          <span className="text-xs font-semibold text-slate-300">{message}</span>
+        </div>
+
+        {/* Action buttons */}
         {phase === 'idle' && (
           <button
             onClick={start}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-700 text-white text-lg font-black italic shadow-lg hover:from-cyan-400 hover:to-blue-600 transition-colors"
-            style={{ fontFamily: 'Georgia, serif' }}
+            disabled={balance < bet}
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-[#f7931e] to-[#ff6a00] text-[#0b0e1a] text-base font-black shadow-lg shadow-[#f7931e]/20 hover:brightness-110 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
           >
-            START · ${bet} · {mines} mines
+            <Pickaxe className="w-5 h-5" /> BET ${bet.toFixed(2)} · {mines} MINES
           </button>
         )}
 
@@ -206,23 +301,20 @@ export default function Mines() {
           <button
             onClick={cashout}
             disabled={revealed.size === 0}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-600 text-stone-950 text-lg font-black italic shadow-lg hover:from-yellow-300 hover:to-amber-500 disabled:opacity-50 transition-colors"
-            style={{ fontFamily: 'Georgia, serif' }}
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white text-base font-black shadow-lg hover:brightness-110 disabled:opacity-40 transition-all"
           >
             CASH OUT ${(bet * pot).toFixed(2)}
           </button>
         )}
 
-        {phase === 'over' && (
+        {isOver && (
           <button
             onClick={newGame}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-700 text-white text-lg font-black italic shadow-lg hover:from-cyan-400 hover:to-blue-600 transition-colors"
-            style={{ fontFamily: 'Georgia, serif' }}
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-[#f7931e] to-[#ff6a00] text-[#0b0e1a] text-base font-black shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2"
           >
-            NEW GAME
+            <RotateCcw className="w-5 h-5" /> NEW GAME
           </button>
         )}
-
       </main>
     </div>
   );
