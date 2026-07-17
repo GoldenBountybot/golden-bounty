@@ -38,9 +38,9 @@ export default function CasinoGameCard({ game }) {
         <button
           onClick={share}
           title="Share game link"
-          className="absolute top-2 right-2 z-10 flex items-center justify-center w-7 h-7 rounded-full bg-black/50 border border-amber-600/40 text-amber-200/90 hover:bg-black/70 transition-colors"
+          className="absolute top-1 right-1 z-10 flex items-center justify-center w-[14px] h-[14px] rounded-full bg-black/50 border border-amber-600/40 text-amber-200/90 hover:bg-black/70 transition-colors"
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Share2 className="w-3.5 h-3.5" />}
+          {copied ? <Check className="w-[7px] h-[7px] text-emerald-300" /> : <Share2 className="w-[7px] h-[7px]" />}
         </button>
       )}
 
