@@ -184,10 +184,8 @@ export const sfx = {
     // No-op: the spin button only plays a one-shot click sound now.
   },
   win(step = 0) {
-    // From the second cascade, slow the sound down to match the slight
-    // slow-motion animation (rate = 1 / slowFactor).
-    const slowFactor = step >= 1 ? 1.4 : 1;
-    const rate = 1 / slowFactor;
+    // Sound keeps its normal-to-slightly-faster speed; it never slows down.
+    const rate = Math.min(1 + Math.min(step, 1) * 0.22, 2.4);
     const ac = getCtx();
     if (!ac) return;
     if (winSeqAudio) {
