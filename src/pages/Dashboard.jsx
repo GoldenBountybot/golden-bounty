@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Wallet, Gift, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import { useStake, LOCK_DAYS, DAILY_RATE } from '@/lib/useStake';
+import StackMining from '@/components/StackMining';
 import BackButton from '@/components/BackButton';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useToast } from '@/components/ui/use-toast';
@@ -188,6 +189,9 @@ export default function Dashboard() {
                 <p className="text-sm text-amber-100/70 mt-1">Lock your balance to earn <span className="font-bold text-amber-200">{DAILY_RATE * 100}% daily profit</span>. Locked for {LOCK_DAYS} days — you cannot use or withdraw it until it unlocks.</p>
               </div>
             </WesternFrame>
+
+            {/* USDT mining animation */}
+            <StackMining staked={stake.staked} pendingProfit={stake.pendingProfit} daysLocked={stake.daysLocked} unlocked={stake.unlocked} />
 
             {/* Stack stats */}
             <div className="grid grid-cols-2 gap-2">
