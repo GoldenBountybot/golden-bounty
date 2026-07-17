@@ -9,7 +9,7 @@ const MULTS = [50, 25, 15, 10, 5, 3, 2, 1.5, 0, 1.5, 2, 3, 5, 10, 15, 25, 50];
 const ROWS = MULTS.length - 1;
 const BETS = [0.1, 1, 5, 10];
 
-const FONT = "'Rye, Georgia, serif'";
+const FONT = "Rye, Georgia, serif";
 const woodFrame = {
   border: '1px solid rgba(190,140,55,0.75)',
   background: 'linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))',
