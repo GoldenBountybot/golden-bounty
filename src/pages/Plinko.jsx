@@ -5,8 +5,8 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 
-const ROWS = 10;
-const MULTS = [10, 5, 3, 2, 1.5, 0, 1.5, 2, 3, 5, 10];
+const MULTS = [50, 25, 15, 10, 5, 3, 2, 1.5, 0, 1.5, 2, 3, 5, 10, 15, 25, 50];
+const ROWS = MULTS.length - 1;
 const BETS = [0.1, 1, 5, 10];
 
 function colorFor(m) {
@@ -75,7 +75,7 @@ export default function Plinko() {
     const animate = () => {
       setBallPos(path[step]);
       if (step < path.length - 1) {
-        const t = setTimeout(() => { step++; animate(); }, 110);
+        const t = setTimeout(() => { step++; animate(); }, 260);
         timers.current.push(t);
       } else {
         const t = setTimeout(() => {
@@ -143,7 +143,7 @@ export default function Plinko() {
           {ballPos && (
             <span
               className="absolute rounded-full z-10"
-              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 12, height: 12, background: 'radial-gradient(circle at 35% 30%, #fff, #c9a)', boxShadow: '0 0 10px rgba(255,255,255,0.9)', transition: 'left 0.1s linear, top 0.1s linear' }}
+              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 14, height: 14, background: 'radial-gradient(circle at 35% 30%, #fff7d6, #f5c518 45%, #b8860b)', boxShadow: '0 0 12px rgba(245,197,24,0.95), 0 0 20px rgba(245,197,24,0.5)', transition: 'left 0.26s linear, top 0.26s linear' }}
             />
           )}
           <div className="absolute inset-x-0 bottom-1 flex gap-0.5 px-1">
@@ -190,7 +190,7 @@ export default function Plinko() {
                   : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }
                 }
               >
-                <Gem className="w-3 h-3 text-fuchsia-300" /> {b}
+                ${b}
               </button>
             ))}
           </div>
@@ -206,7 +206,7 @@ export default function Plinko() {
           className="mt-4 w-full py-4 rounded-xl text-base font-black transition-all disabled:opacity-60 flex items-center justify-center gap-2"
           style={{ background: 'linear-gradient(to bottom, #8a2be2, #6b22b8)', boxShadow: '0 4px 16px rgba(138,43,226,0.45)' }}
         >
-          <Gem className="w-5 h-5" /> {dropping ? 'Dropping…' : `Drop · ${bet}`}
+          {dropping ? 'Dropping…' : `Drop · $${bet}`}
         </button>
 
         {/* Stats */}
