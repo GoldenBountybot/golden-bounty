@@ -118,10 +118,13 @@ export default function Plinko() {
     animate();
   };
 
-  const pos = (row, col) => ({
-    left: `${((col + 0.5) / (row + 1)) * 100}%`,
-    top: `${((row + 0.5) / (ROWS + 1)) * 92}%`,
-  });
+  const pos = (row, col) => {
+    const rowFrac = row / ROWS;
+    const spread = rowFrac * 88;
+    const left = 50 + ((col + 0.5) / (row + 1) - 0.5) * spread;
+    const top = 6 + rowFrac * 82;
+    return { left: `${left}%`, top: `${top}%` };
+  };
 
   return (
     <div className="min-h-screen text-white flex flex-col" style={{ background: 'radial-gradient(circle at 50% 0%, #1a0f2e 0%, #0a0a12 55%, #000 100%)', fontFamily: FONT }}>
@@ -155,7 +158,7 @@ export default function Plinko() {
       {/* Board area */}
       <main className="relative z-10 max-w-md mx-auto w-full px-3 flex-1 flex flex-col">
         {/* Board */}
-        <div className="relative w-full mx-auto" style={{ maxWidth: 300, aspectRatio: '1 / 1.15' }}>
+        <div className="relative w-full mx-auto" style={{ maxWidth: 300, aspectRatio: '1 / 1.15', clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)', background: 'radial-gradient(circle at 50% 100%, rgba(139,92,246,0.12), transparent 70%)' }}>
           {Array.from({ length: ROWS + 1 }).map((_, r) =>
             Array.from({ length: r + 1 }).map((_, c) => (
               <span
