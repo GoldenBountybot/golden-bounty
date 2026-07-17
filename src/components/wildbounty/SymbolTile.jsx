@@ -30,7 +30,6 @@ export default function SymbolTile({ symbolId, highlighted, goldFramed, shatteri
   return (
     <div
       className={`relative overflow-hidden transition-transform
-        ${goldFramed ? 'ring-2 ring-yellow-300 shadow-[0_0_10px_rgba(255,215,0,0.7)]' : ''}
         ${highlighted && !shattering ? 'z-10 scale-[1.18] ring-2 ring-yellow-300' : ''}`}
       style={{ aspectRatio: '1 / 1', animation: shattering ? 'shatterWin 0.6s ease-out forwards' : undefined, zIndex: shattering ? 20 : (highlighted && !shattering ? 10 : undefined), filter: highlighted && !shattering ? 'brightness(1.8) sepia(0.4) saturate(1.8) hue-rotate(-5deg) drop-shadow(0 0 12px rgba(255,200,0,1))' : undefined }}
     >
