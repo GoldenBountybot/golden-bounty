@@ -33,8 +33,58 @@ function tone({ freq, type = 'sine', dur = 0.2, gain = VOL, delay = 0, sweepTo }
 
 export const sfx = {
   spin() {
-    // rising whir as reels start
-    tone({ freq: 200, sweepTo: 560, type: 'sawtooth', dur: 0.55, gain: VOL * 0.45 });
+    // Mechanical reel spin: low motor rumble + mid whir + filtered hiss
+    // + a rapid metallic clickety-clack as the reel teeth pass.
+    const ac = getCtx();
+    if (!ac) return;
+    const t0 = ac.currentTime;
+
+    // Low motor rumble (sawtooth, slight vibrato)
+    const rum = ac.createOscillator();
+    const rumg = ac.createGain();
+    const lfo = ac.createOscillator();
+    const lfog = ac.createGain();
+    rum.type = 'sawtooth';
+    rum.frequency.setValueAtTime(90, t0);
+    rum.frequency.exponentialRampToValueAtTime(150, t0 + 0.5);
+    lfo.frequency.value = 11;
+    lfog.gain.value = 6;
+    lfo.connect(lfog).connect(rum.frequency);
+    rumg.gain.setValueAtTime(0.0001, t0);
+    rumg.gain.exponentialRampToValueAtTime(VOL * 0.28, t0 + 0.04);
+    rumg.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.7);
+    rum.connect(rumg).connect(ac.destination);
+    rum.start(t0); rum.stop(t0 + 0.74);
+    lfo.start(t0); lfo.stop(t0 + 0.74);
+
+    // Mid whir (triangle, rising) for the "wind-up"
+    tone({ freq: 240, sweepTo: 620, type: 'triangle', dur: 0.6, gain: VOL * 0.22 });
+
+    // Filtered noise hiss (air friction)
+    const len = Math.floor(ac.sampleRate * 0.65);
+    const buffer = ac.createBuffer(1, len, ac.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1);
+    const noise = ac.createBufferSource();
+    noise.buffer = buffer;
+    const ng = ac.createGain();
+    const bp = ac.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(1200, t0);
+    bp.frequency.exponentialRampToValueAtTime(2600, t0 + 0.5);
+    bp.Q.value = 1.2;
+    ng.gain.setValueAtTime(0.0001, t0);
+    ng.gain.exponentialRampToValueAtTime(VOL * 0.18, t0 + 0.05);
+    ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.65);
+    noise.connect(bp).connect(ng).connect(ac.destination);
+    noise.start(t0); noise.stop(t0 + 0.66);
+
+    // Metallic clickety-clack: short high clicks every ~45ms
+    const clicks = 14;
+    for (let i = 0; i < clicks; i++) {
+      const d = 0.03 + i * 0.043;
+      tone({ freq: 2600 + Math.random() * 600, type: 'square', dur: 0.03, gain: VOL * 0.12, delay: d });
+    }
   },
   blast() {
     // shatter crack: noise burst + high metal clang
