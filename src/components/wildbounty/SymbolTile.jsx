@@ -39,7 +39,7 @@ const CARD_STYLE = {
   J: { bg: 'from-blue-600 to-blue-900', text: 'text-blue-50' },
 };
 
-export default function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam, bulletHit, slow = 1 }) {
+function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam, bulletHit, slow = 1 }) {
   const isCard = ['A', 'K', 'Q', 'J'].includes(symbolId);
   const img = IMG[symbolId];
   const isSpecial = symbolId === 'scatter' || symbolId === 'wild';
@@ -138,3 +138,5 @@ export default function SymbolTile({ symbolId, highlighted, goldFramed, shatteri
     </div>
   );
 }
+
+export default React.memo(SymbolTile);

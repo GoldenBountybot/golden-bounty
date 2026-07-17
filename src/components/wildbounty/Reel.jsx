@@ -4,7 +4,7 @@ import { randomSymbol } from './symbols';
 
 // A single reel column that smoothly scrolls downward while spinning,
 // then snaps to the final symbols when stopped.
-export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions, goldFrames, shatteringPositions, cascading, cascadePositions, scatterGlow, anticipationGlow, bulletHit, slow = 1 }) {
+function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions, goldFrames, shatteringPositions, cascading, cascadePositions, scatterGlow, anticipationGlow, bulletHit, slow = 1 }) {
   const [justStopped, setJustStopped] = useState(false);
   const prevSpinning = useRef(false);
   const wasAnticipation = useRef(false);
@@ -34,7 +34,7 @@ export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, wi
       const b1 = block();
       return [...b1, ...block(), ...block(), ...b1];
     }
-    if (spinning) return Array.from({ length: rowCount * 6 }, () => randomSymbol());
+    if (spinning) return Array.from({ length: rowCount * 4 }, () => randomSymbol());
     return symbols;
   }, [spinning, symbols, rowCount, anticipationGlow]);
 
@@ -65,7 +65,7 @@ export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, wi
       )}
       <div
         className="flex flex-col w-full"
-        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s ease-out' : 'reelLand 0.4s ease-out') : 'none' }}
+        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s ease-out' : 'reelLand 0.4s ease-out') : 'none', willChange: spinning ? 'transform' : 'auto' }}
       >
         {strip.map((sym, i) => {
           const isDropping = cascading && cascadePositions && cascadePositions.has(`${reelIndex}-${i}`);
@@ -87,3 +87,5 @@ export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, wi
     </div>
   );
 }
+
+export default React.memo(Reel);
