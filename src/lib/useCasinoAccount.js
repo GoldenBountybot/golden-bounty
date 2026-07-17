@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
-// Shared casino balance (localStorage) + bonus claim state.
-// Bonus amounts/active flags come from the admin-configured BonusSetting entity.
-// Claim state is stored PER USER so a new user never inherits another player's claimed bonuses.
-const BAL_KEY = 'casino_balance';
-const START_BALANCE = 0;
-
-// Fallbacks only when the admin has not configured a BonusSetting row for a bonus.
+// Casino account: balance (shared, backend-backed) + admin-configured bonuses.
+// Deposit now creates a pending request — the balance is only added after an
+// admin approves it. Bonus claim state is stored PER USER.
 const DEFAULTS = {
   signup: { amount: 500, active: true },
   daily: { amount: 100, active: true },
@@ -38,33 +35,21 @@ const defaultClaim = {
 };
 
 export function useCasinoAccount() {
-  const [balance, setBalance] = useState(() => {
-    // One-time reset to 0 for everyone: balance now comes only from bonuses + deposits.
-    if (!localStorage.getItem('casino_balance_v2')) {
-      localStorage.setItem('casino_balance_v2', '1');
-      localStorage.setItem(BAL_KEY, '0');
-      return 0;
-    }
-    const s = localStorage.getItem(BAL_KEY);
-    return s ? parseFloat(s) : START_BALANCE;
-  });
+  const { balance, setBalance } = useCasinoBalance();
   const [userId, setUserId] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
   const [settings, setSettings] = useState([]);
   const [claim, setClaim] = useState(defaultClaim);
-
-  useEffect(() => { localStorage.setItem(BAL_KEY, String(balance)); }, [balance]);
 
   // Load current user + admin-configured bonus settings.
   useEffect(() => {
     let active = true;
     (async () => {
       try {
-        const [me, rows] = await Promise.all([
-          base44.auth.me().catch(() => null),
-          base44.entities.BonusSetting.list(),
-        ]);
+        const me = await base44.auth.me().catch(() => null);
+        const rows = await base44.entities.BonusSetting.list().catch(() => []);
         if (!active) return;
-        if (me) setUserId(me.id);
+        if (me) { setUserId(me.id); setUserEmail(me.email); }
         setSettings(rows);
       } catch {
         if (active) setSettings([]);
@@ -75,7 +60,6 @@ export function useCasinoAccount() {
 
   const claimKey = userId ? `casino_bonuses_${userId}` : null;
 
-  // Load per-user claim state.
   useEffect(() => {
     if (!claimKey) return;
     try {
@@ -86,10 +70,8 @@ export function useCasinoAccount() {
     }
   }, [claimKey]);
 
-  // Persist per-user claim state.
   useEffect(() => {
-    if (!claimKey) return;
-    localStorage.setItem(claimKey, JSON.stringify(claim));
+    if (claimKey) localStorage.setItem(claimKey, JSON.stringify(claim));
   }, [claimKey, claim]);
 
   const cfg = (name) => {
@@ -107,10 +89,16 @@ export function useCasinoAccount() {
   const monthlyCfg = cfg('monthly');
   const depositCfg = cfg('deposit');
 
-  const deposit = (amount) => {
+  // Deposit creates a pending request — no instant credit. Admin must approve.
+  const deposit = async (amount) => {
     const n = Number(amount);
-    if (!n || n <= 0) return;
-    setBalance((b) => b + n);
+    if (!n || n <= 0 || !userId) return;
+    try {
+      await base44.entities.Transaction.create({
+        user_id: userId, user_email: userEmail, type: 'deposit', amount: n,
+        status: 'pending', method: 'manual-request', note: 'Deposit request',
+      });
+    } catch { /* user will see no toast change */ }
     setClaim((prev) => ({ ...prev, depositAvailable: true, depositAmount: n }));
   };
 
@@ -154,9 +142,7 @@ export function useCasinoAccount() {
   };
 
   return {
-    balance,
-    deposit,
-    withdraw,
+    balance, deposit, withdraw,
     bonuses: {
       signup: { amount: signupCfg.amount, active: signupCfg.active, claimed: claim.signupClaimed, claim: claimSignup },
       daily: { amount: dailyCfg.amount, active: dailyCfg.active, claimed: claim.dailyLast === todayStr(), claim: claimDaily },

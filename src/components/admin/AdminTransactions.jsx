@@ -49,8 +49,14 @@ export default function AdminTransactions() {
 
   const setStatus = async (tx, status) => {
     try {
-      if (status === 'completed' && tx.type === 'withdraw') {
-        await base44.entities.User.update(tx.user_id, { balance: Math.max(0, userBal(tx.user_id) - tx.amount) });
+      if (status === 'completed') {
+        // re-read the live balance so admin credits/debits never overwrite gameplay
+        const u = await base44.entities.User.get(tx.user_id).catch(() => null);
+        const cur = Number(u?.balance ?? 0);
+        const credit = tx.type === 'deposit' || tx.type === 'bonus';
+        const amt = Number(tx.amount) || 0;
+        const next = credit ? cur + amt : Math.max(0, cur - amt);
+        await base44.entities.User.update(tx.user_id, { balance: next });
       }
       await base44.entities.Transaction.update(tx.id, { status });
       toast({ title: `Marked ${status}` });

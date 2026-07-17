@@ -66,11 +66,11 @@ export default function Dashboard() {
     else setParams({ tab: id }, { replace: true });
   };
 
-  const doDeposit = (amount) => {
+  const doDeposit = async (amount) => {
     const n = Number(amount);
     if (!n || n <= 0) { toast({ title: 'Enter a valid amount' }); return; }
-    acct.deposit(n);
-    toast({ title: 'Deposit successful', description: `$${n.toFixed(2)} added · 50% bonus ready to claim` });
+    await acct.deposit(n);
+    toast({ title: 'Deposit request submitted', description: 'Pending admin approval. Your balance will be updated once approved.' });
     setDepAmt('');
   };
 
