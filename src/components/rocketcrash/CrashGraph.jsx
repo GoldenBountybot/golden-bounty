@@ -1,6 +1,6 @@
 import React from 'react';
 
-const GROWTH = 1.18;
+const GROWTH = 1.10;
 
 const BOMBER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a5182a85c_InShot_20260714_1253103591.jpg';
 const SAMPLES = 48;
@@ -65,7 +65,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
         <span className="absolute z-20" style={{
           left: `${tip[0]}%`, top: `${tip[1]}%`,
           transform: `translate(-50%, -50%) rotate(${angle}deg)`,
-          transition: 'left 0.05s linear, top 0.05s linear',
+          transition: 'left 0.12s linear, top 0.18s ease-out',
         }}>
           <span className="relative flex items-center justify-center" style={{ width: '52px', height: '30px' }}>
             {/* exhaust / jet flame trail behind the bomber */}
@@ -77,7 +77,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
             }} />
             <img src={BOMBER_IMG} alt="bomber" draggable={false}
               className="w-full h-full object-contain select-none"
-              style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 6px rgba(129,140,248,0.6))' }} />
+              style={{ mixBlendMode: 'screen', filter: 'brightness(1.05) contrast(1.08)' }} />
           </span>
         </span>
       )}
@@ -114,7 +114,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
           <>
             <span className="text-sm tracking-[0.3em] text-indigo-300/70 font-bold uppercase">Waiting for next round</span>
             <span className="mt-2 text-5xl font-black tabular-nums text-indigo-200" style={{ textShadow: '0 0 18px rgba(99,102,241,0.7)' }}>
-              {(countdown / 1000).toFixed(1)}s
+              {Math.ceil(countdown / 1000)}s
             </span>
           </>
         )}

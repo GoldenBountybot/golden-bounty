@@ -5,7 +5,7 @@ import { useLogActivity } from '@/lib/useLogActivity';
 
 const WAIT_MS = 5000;        // betting window before each round
 const CRASH_HOLD_MS = 3500;  // show crash result before next round
-const GROWTH = 1.18;          // multiplier = GROWTH ^ elapsedSec  (doubles ~ every 4.3s)
+const GROWTH = 1.10;          // multiplier = GROWTH ^ elapsedSec  (gentle takeoff, doubles ~ every 7.3s)
 
 const NAMES = ['Crypto_Kid', 'xX_Rider', 'FlyHigh', 'AcePilot', 'Midnight', 'BlueFox',
   'GoldRush', 'NeonSam', 'QuickDraw', 'Vega', 'Lucky7', 'Storm', 'Maverick', 'Phoenix',
