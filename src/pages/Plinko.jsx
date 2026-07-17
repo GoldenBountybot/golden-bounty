@@ -161,7 +161,7 @@ export default function Plinko() {
               <span
                 key={`p-${r}-${c}`}
                 className="absolute rounded-full"
-                style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: 7, height: 7, background: 'radial-gradient(circle at 35% 30%, #e8e8ff, #c3c3e4 55%, #8a8ac0)', boxShadow: '0 1px 2px rgba(0,0,0,0.5), 0 0 4px rgba(195,195,228,0.4)' }}
+                style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: 9, height: 9, background: 'radial-gradient(circle at 35% 30%, #fff3d6, #e0b94e 55%, #9a6a1e)', boxShadow: '0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55)' }}
               />
             ))
           )}
