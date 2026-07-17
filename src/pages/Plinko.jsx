@@ -168,7 +168,7 @@ export default function Plinko() {
           {ballPos && (
             <span
               className="absolute rounded-full z-10"
-              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 15, height: 15, background: 'radial-gradient(circle at 35% 30%, #ffb3b3, #e53e3e 55%, #8b1a1a)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(229,62,62,0.7), inset 0 1px 0 rgba(255,180,180,0.4)', transition: 'left 0.26s linear, top 0.26s linear' }}
+              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 15, height: 15, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.26s linear, top 0.26s linear' }}
             />
           )}
           <div className="absolute inset-x-0 bottom-1 flex gap-0.5 px-1">
