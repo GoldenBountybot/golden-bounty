@@ -14,6 +14,52 @@ const MINE_PRESETS = [1, 3, 5, 10, 24];
 
 const W = { fontFamily: 'Rye, Georgia, serif' };
 
+let _actx = null;
+function actx() {
+  if (typeof window === 'undefined') return null;
+  if (!_actx) {
+    try { _actx = new (window.AudioContext || window.webkitAudioContext)(); } catch { _actx = null; }
+  }
+  return _actx;
+}
+function playDing(freq, t0, dur, type = 'triangle', gain = 0.18) {
+  const ac = actx(); if (!ac) return;
+  const o = ac.createOscillator();
+  const g = ac.createGain();
+  o.type = type; o.frequency.value = freq;
+  o.connect(g); g.connect(ac.destination);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain, t0 + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.start(t0); o.stop(t0 + dur + 0.02);
+}
+function playCorrect() {
+  const ac = actx(); if (!ac) return;
+  const t = ac.currentTime;
+  playDing(660, t, 0.14);
+  playDing(880, t + 0.08, 0.16);
+  playDing(1175, t + 0.18, 0.22);
+}
+function playBoom() {
+  const ac = actx(); if (!ac) return;
+  const t = ac.currentTime;
+  // noise burst
+  const buf = ac.createBuffer(1, ac.sampleRate * 0.5, ac.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
+  const src = ac.createBufferSource(); src.buffer = buf;
+  const ng = ac.createGain(); ng.gain.setValueAtTime(0.5, t); ng.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(1200, t); lp.frequency.exponentialRampToValueAtTime(120, t + 0.4);
+  src.connect(lp); lp.connect(ng); ng.connect(ac.destination);
+  src.start(t); src.stop(t + 0.5);
+  // low thud
+  const o = ac.createOscillator(); const og = ac.createGain();
+  o.type = 'sine'; o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.3);
+  og.gain.setValueAtTime(0.4, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+  o.connect(og); og.connect(ac.destination);
+  o.start(t); o.stop(t + 0.36);
+}
+
 const GIFT_STRIPES = ['#ffffff', '#e53935', '#1e88e5', '#fdd835', '#43a047'];
 
 
@@ -104,12 +150,14 @@ export default function Mines() {
     setRevealedOrder([...revealedOrder, idx]);
 
     if (effective.has(idx)) {
+      playBoom();
       setPhase('over');
       setPot(0);
       setMessage('BOOM! Yer gold went up in smoke');
       logActivity('mines', bet, 0, 'loss');
       return;
     }
+    playCorrect();
     const k = newRev.size;
     const newPot = multiplierFor(k, mines);
     setPot(newPot);
