@@ -3,6 +3,27 @@
 let ctx = null;
 const VOL = 1.5;
 
+// Uploaded mechanical spin sound (looped while reels are spinning)
+const SPIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/3040ede29_20260717094905.mp3';
+let spinBuffer = null;
+let spinLoading = false;
+let spinAudio = null;
+
+async function loadSpinBuffer() {
+  if (spinBuffer || spinLoading) return;
+  spinLoading = true;
+  try {
+    const res = await fetch(SPIN_URL);
+    const arr = await res.arrayBuffer();
+    const ac = getCtx();
+    if (ac) spinBuffer = await ac.decodeAudioData(arr);
+  } catch {
+    // ignore — fallback synth path handles it
+  } finally {
+    spinLoading = false;
+  }
+}
+
 function getCtx() {
   if (typeof window === 'undefined') return null;
   try {
@@ -32,102 +53,61 @@ function tone({ freq, type = 'sine', dur = 0.2, gain = VOL, delay = 0, sweepTo }
 }
 
 export const sfx = {
-  spin() {
-    // Premium mechanical reel spin: smooth wind-up → sustained rotation hum
-    // with gear ticking → brake/deceleration → solid stop thunk.
+  preload() {
     const ac = getCtx();
     if (!ac) return;
-    const t0 = ac.currentTime;
-    const total = 1.5; // total spin duration in seconds
+    loadSpinBuffer();
+  },
+  spin() {
+    // Play the uploaded mechanical spin sound, looping while reels run and
+    // stopping with a quick fade when the spin ends. Falls back to a short
+    // synthesized wind-up if the file isn't decoded yet (e.g. first load).
+    const ac = getCtx();
+    if (!ac) return;
 
-    // 1) Low mechanical motor hum (sawtooth) with slow vibrato
-    const hum = ac.createOscillator();
-    const humg = ac.createGain();
-    const lfo = ac.createOscillator();
-    const lfog = ac.createGain();
-    hum.type = 'sawtooth';
-    hum.frequency.setValueAtTime(70, t0);
-    hum.frequency.exponentialRampToValueAtTime(120, t0 + 0.35); // wind-up
-    hum.frequency.setValueAtTime(120, t0 + 0.35);
-    hum.frequency.exponentialRampToValueAtTime(95, t0 + total - 0.25); // slight decay
-    hum.frequency.exponentialRampToValueAtTime(60, t0 + total - 0.02); // brake down
-    lfo.frequency.value = 8;
-    lfog.gain.value = 5;
-    lfo.connect(lfog).connect(hum.frequency);
-    humg.gain.setValueAtTime(0.0001, t0);
-    humg.gain.exponentialRampToValueAtTime(VOL * 0.32, t0 + 0.08); // ramp in
-    humg.gain.setValueAtTime(VOL * 0.32, t0 + total - 0.25); // hold
-    humg.gain.exponentialRampToValueAtTime(VOL * 0.16, t0 + total - 0.08); // soften at brake
-    humg.gain.exponentialRampToValueAtTime(0.0001, t0 + total);
-    hum.connect(humg).connect(ac.destination);
-    hum.start(t0); hum.stop(t0 + total + 0.05);
-    lfo.start(t0); lfo.stop(t0 + total + 0.05);
-
-    // 2) Mid whir (triangle) tracking the motor speed
-    const whir = ac.createOscillator();
-    const whirg = ac.createGain();
-    whir.type = 'triangle';
-    whir.frequency.setValueAtTime(220, t0);
-    whir.frequency.exponentialRampToValueAtTime(520, t0 + 0.35); // wind-up
-    whir.frequency.setValueAtTime(520, t0 + 0.35);
-    whir.frequency.exponentialRampToValueAtTime(420, t0 + total - 0.25);
-    whir.frequency.exponentialRampToValueAtTime(180, t0 + total - 0.02); // brake
-    whirg.gain.setValueAtTime(0.0001, t0);
-    whirg.gain.exponentialRampToValueAtTime(VOL * 0.2, t0 + 0.1);
-    whirg.gain.setValueAtTime(VOL * 0.2, t0 + total - 0.25);
-    whirg.gain.exponentialRampToValueAtTime(0.0001, t0 + total);
-    whir.connect(whirg).connect(ac.destination);
-    whir.start(t0); whir.stop(t0 + total + 0.05);
-
-    // 3) Filtered air-friction hiss that follows the speed
-    const len = Math.floor(ac.sampleRate * total);
-    const buffer = ac.createBuffer(1, len, ac.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1);
-    const noise = ac.createBufferSource();
-    noise.buffer = buffer;
-    const ng = ac.createGain();
-    const bp = ac.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.setValueAtTime(900, t0);
-    bp.frequency.exponentialRampToValueAtTime(2400, t0 + 0.35); // rises with speed
-    bp.frequency.setValueAtTime(2400, t0 + total - 0.25);
-    bp.frequency.exponentialRampToValueAtTime(1000, t0 + total - 0.02); // falls at brake
-    bp.Q.value = 1.4;
-    ng.gain.setValueAtTime(0.0001, t0);
-    ng.gain.exponentialRampToValueAtTime(VOL * 0.16, t0 + 0.12);
-    ng.gain.setValueAtTime(VOL * 0.16, t0 + total - 0.25);
-    ng.gain.exponentialRampToValueAtTime(0.0001, t0 + total);
-    noise.connect(bp).connect(ng).connect(ac.destination);
-    noise.start(t0); noise.stop(t0 + total + 0.02);
-
-    // 4) Gear ticking: clicks start slow during wind-up, get faster, then
-    //    slow again during braking (doppler-like mechanical feel).
-    const tickCount = 60;
-    for (let i = 0; i < tickCount; i++) {
-      // progress 0..1, with ease so ticks cluster mid-spin
-      const p = i / (tickCount - 1);
-      const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
-      const d = ease * (total - 0.05);
-      // tick pitch slightly rises mid-spin then falls
-      const f = 2400 + 900 * Math.sin(p * Math.PI) + Math.random() * 200;
-      tone({ freq: f, type: 'square', dur: 0.025, gain: VOL * 0.1, delay: d });
+    // Stop any spin sound already playing
+    if (spinAudio) {
+      try {
+        const g = spinAudio.gainNode;
+        const src = spinAudio.source;
+        g.gain.cancelScheduledValues(ac.currentTime);
+        g.gain.setValueAtTime(g.gain.value, ac.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.12);
+        src.stop(ac.currentTime + 0.14);
+      } catch { /* noop */ }
+      spinAudio = null;
     }
 
-    // 5) Final stop thunk: solid metallic brake + low body thud
-    const thunk = ac.createOscillator();
-    const thunkg = ac.createGain();
-    thunk.type = 'square';
-    thunk.frequency.setValueAtTime(320, t0 + total - 0.02);
-    thunk.frequency.exponentialRampToValueAtTime(70, t0 + total + 0.12);
-    thunkg.gain.setValueAtTime(0.0001, t0 + total - 0.02);
-    thunkg.gain.exponentialRampToValueAtTime(VOL * 0.4, t0 + total - 0.01);
-    thunkg.gain.exponentialRampToValueAtTime(0.0001, t0 + total + 0.14);
-    thunk.connect(thunkg).connect(ac.destination);
-    thunk.start(t0 + total - 0.02); thunk.stop(t0 + total + 0.18);
+    if (spinBuffer) {
+      const src = ac.createBufferSource();
+      src.buffer = spinBuffer;
+      src.loop = true;
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0.0001, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(VOL, ac.currentTime + 0.06);
+      src.connect(g).connect(ac.destination);
+      src.start();
+      spinAudio = { source: src, gainNode: g };
+      return;
+    }
 
-    tone({ freq: 160, type: 'sine', dur: 0.18, gain: VOL * 0.35, delay: total - 0.02 });
-    tone({ freq: 2600, type: 'square', dur: 0.04, gain: VOL * 0.18, delay: total - 0.02 });
+    // Fallback while the uploaded file is still loading
+    loadSpinBuffer();
+    tone({ freq: 180, sweepTo: 480, type: 'triangle', dur: 0.5, gain: VOL * 0.25 });
+  },
+  stopSpin() {
+    // Fade out and stop the looping spin sound when the reels land.
+    const ac = getCtx();
+    if (!ac || !spinAudio) return;
+    try {
+      const g = spinAudio.gainNode;
+      const src = spinAudio.source;
+      g.gain.cancelScheduledValues(ac.currentTime);
+      g.gain.setValueAtTime(g.gain.value, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.1);
+      src.stop(ac.currentTime + 0.12);
+    } catch { /* noop */ }
+    spinAudio = null;
   },
   blast() {
     // shatter crack: noise burst + high metal clang

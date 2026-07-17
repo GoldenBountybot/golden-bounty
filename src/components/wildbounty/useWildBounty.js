@@ -5,6 +5,9 @@ import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { sfx } from './sounds';
 
+// Preload the uploaded spin sound so it's ready on first spin.
+sfx.preload && sfx.preload();
+
 export function useWildBounty() {
   const [grid, setGrid] = useState(() => REEL_ROWS.map(r => buildReel(r)));
   const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
@@ -174,6 +177,7 @@ export function useWildBounty() {
   const settle = (finalGrid, frames, wasFree) => {
     setGoldFrames(frames);
     setAnticipation(false);
+    sfx.stopSpin();
     // Free spins always evaluate from 8x; normal spins from 1x.
     evaluateAndCascade(finalGrid, 0, 0, wasFree ? 3 : 0, wasFree, false);
   };
