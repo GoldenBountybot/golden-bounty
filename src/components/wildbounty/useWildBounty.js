@@ -96,7 +96,9 @@ export function useWildBounty() {
     }
 
     if (stepWin > 0) {
-      sfx.win(cascadeCount);
+      const slow = cascadeCount >= 1 ? 1.4 : 1;
+      setCascadeSlow(slow);
+      sfx.win(slow);
       const newTotal = totalWin + stepWin;
       const newMult = Math.min(currentMultIndex + 1, MULTIPLIERS.length - 1);
 
@@ -141,8 +143,6 @@ export function useWildBounty() {
 
       // From the second cascade, run everything in a slight slow motion so the
       // shatter/drop animation lines up with the (also slowed) win sound.
-      const slow = cascadeCount >= 1 ? 1.4 : 1;
-      setCascadeSlow(slow);
       // Shatter winning symbols after a brief highlight
       const shatterT = setTimeout(() => { setShattering(shatterPos); }, 400 * slow);
       timers.current.push(shatterT);
