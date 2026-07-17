@@ -26,10 +26,13 @@ export default function Reel({ reelIndex, rowCount, symbols, spinning, speed, wi
     // symbols cascade smoothly in slow motion. 4 copies make the -75% reelFall
     // loop seamless (bottom copy == top copy), so no chaotic jump is visible.
     if (spinning && anticipationGlow) {
-      const base = symbols.length ? symbols : Array.from({ length: rowCount }, () => randomSymbol());
-      const out = [];
-      for (let k = 0; k < 4; k++) out.push(...base);
-      return out;
+      // 4 blocks where the last matches the first → seamless -75%→0% loop,
+      // but the middle two blocks are random so the slow scroll is VISIBLE
+      // (4 identical copies made the reel look frozen, not slow-motion).
+      const rc = rowCount;
+      const block = () => Array.from({ length: rc }, () => randomSymbol());
+      const b1 = block();
+      return [...b1, ...block(), ...block(), ...b1];
     }
     if (spinning) return Array.from({ length: rowCount * 6 }, () => randomSymbol());
     return symbols;
