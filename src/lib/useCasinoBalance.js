@@ -9,8 +9,10 @@ import { base44 } from '@/api/base44Client';
 // everywhere.
 const CACHE_KEY = 'casino_balance_cache';
 
-let balance = 0;
-let committedBalance = 0;   // last backend-confirmed balance
+// Initialise synchronously from cache so the balance is available the instant a
+// game mounts (no 0 flash, no false "insufficient balance" before me() resolves).
+let balance = (() => { try { return parseFloat(localStorage.getItem(CACHE_KEY)) || 0; } catch { return 0; } })();
+let committedBalance = balance;   // last backend-confirmed balance
 let uncommittedDelta = 0;   // local gameplay delta not yet pushed to backend
 let userId = null;
 let loaded = false;
