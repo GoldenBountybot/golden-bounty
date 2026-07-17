@@ -209,7 +209,7 @@ export default function Mines() {
               <DollarSign className="w-5 h-5 text-amber-300 relative" />
             </span>
             <div>
-              <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>PURSE</p>
+              <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>BALANCE</p>
               <p className="text-lg text-amber-200 tabular-nums" style={W}>${balance.toFixed(2)}</p>
             </div>
           </div>
@@ -353,7 +353,7 @@ export default function Mines() {
         {/* Action buttons */}
         {phase === 'idle' && (
           <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40 relative" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/67ff4e03b_generated_image.png') center / cover, linear-gradient(to bottom, #f5c542, #c8881e)", border: '1px solid rgba(245,210,120,0.9)', boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 3px 10px rgba(200,136,30,0.45)', color: '#2a1a06', ...W }}>
-            <Pickaxe className="w-5 h-5 relative" /> <span className="relative">BET ${bet.toFixed(2)} · {mines} MINES</span>
+            <Pickaxe className="w-5 h-5 relative" /> <span className="relative" style={{ color: '#f5c542', textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>BET ${bet.toFixed(2)} · {mines} MINES</span>
           </button>
         )}
         {phase === 'playing' && (
