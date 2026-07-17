@@ -272,6 +272,11 @@ export function useWildBounty() {
         setStoppedReels(prev => new Set([...prev, i]));
         const scattersInReel = finalGrid[i].filter(s => s === 'scatter').length;
         stoppedScatter += scattersInReel;
+        // Play the scatter sting once for each scatter that landed on this reel.
+        for (let s = 0; s < scattersInReel; s++) {
+          const st = setTimeout(() => sfx.scatter(), s * 160);
+          timers.current.push(st);
+        }
         // Light up any landed wild & scatter symbols with a golden beam
         const glow = new Set();
         for (let r = 0; r <= i; r++) {

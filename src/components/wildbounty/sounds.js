@@ -8,6 +8,8 @@ const SPIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776
 // Uploaded win-sequence sound — plays through the whole matching/shatter/
 // multiplier chain until the round ends.
 const WINSEQ_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/3d0b01f51_20260717094905_2.mp3';
+// Uploaded scatter-land sting — plays once per scatter that lands.
+const SCATTER_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/892d9d772_20260717094905_3.mp3';
 let spinBuffer = null;
 let spinLoading = false;
 let spinAudio = null;
@@ -17,6 +19,8 @@ let winSeqLoading = false;
 let winSeqAudio = null;
 let winSeqPending = false;
 let winSeqPendingRate = 1;
+let scatterBuffer = null;
+let scatterLoading = false;
 
 async function loadSpinBuffer() {
   if (spinBuffer || spinLoading) return;
@@ -51,6 +55,17 @@ async function loadWinSeqBuffer() {
       startWinSeq(winSeqPendingRate);
     }
   }
+}
+
+async function loadScatterBuffer() {
+  if (scatterBuffer || scatterLoading) return;
+  scatterLoading = true;
+  try {
+    const res = await fetch(SCATTER_URL);
+    const arr = await res.arrayBuffer();
+    const ac = getCtx();
+    if (ac) scatterBuffer = await ac.decodeAudioData(arr);
+  } catch { /* ignore */ } finally { scatterLoading = false; }
 }
 
 function startWinSeq(rate = 1) {
@@ -128,6 +143,7 @@ export const sfx = {
     if (!ac) return;
     loadSpinBuffer();
     loadWinSeqBuffer();
+    loadScatterBuffer();
   },
   spin() {
     // Play the uploaded spin sound looped through a clarity EQ chain while
@@ -226,6 +242,33 @@ export const sfx = {
     // suspense drone when 2 scatters land and remaining reels slow down
     tone({ freq: 150, sweepTo: 380, type: 'sawtooth', dur: 1.4, gain: VOL * 0.3 });
     tone({ freq: 80, type: 'sine', dur: 1.4, gain: VOL * 0.25 });
+  },
+  scatter() {
+    // Bright one-shot sting when a scatter symbol lands (clarity EQ chain).
+    const ac = getCtx();
+    if (!ac) return;
+    if (scatterBuffer) {
+      const src = ac.createBufferSource();
+      src.buffer = scatterBuffer;
+      src.loop = false;
+      const lowShelf = ac.createBiquadFilter();
+      lowShelf.type = 'lowshelf'; lowShelf.frequency.value = 100; lowShelf.gain.value = -5;
+      const lowMid = ac.createBiquadFilter();
+      lowMid.type = 'peaking'; lowMid.frequency.value = 320; lowMid.Q.value = 1; lowMid.gain.value = -3.5;
+      const presence = ac.createBiquadFilter();
+      presence.type = 'peaking'; presence.frequency.value = 3500; presence.Q.value = 0.9; presence.gain.value = 5;
+      const highShelf = ac.createBiquadFilter();
+      highShelf.type = 'highshelf'; highShelf.frequency.value = 6500; highShelf.gain.value = 7;
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0.0001, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(VOL, ac.currentTime + 0.04);
+      src.connect(lowShelf); lowShelf.connect(lowMid); lowMid.connect(presence);
+      presence.connect(highShelf); highShelf.connect(g); g.connect(ac.destination);
+      src.start();
+      return;
+    }
+    loadScatterBuffer();
+    tone({ freq: 880, sweepTo: 1320, type: 'triangle', dur: 0.3, gain: VOL * 0.35 });
   },
   loss() {
     // descending dull buzz
