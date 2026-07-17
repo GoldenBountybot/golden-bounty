@@ -77,7 +77,19 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
             }} />
             <img src={BOMBER_IMG} alt="bomber" draggable={false}
               className="w-full h-full object-contain select-none"
-              style={{ mixBlendMode: 'lighten' }} />
+              style={{
+                filter: 'brightness(1.6) contrast(1.25)',
+                WebkitMaskImage: `url(${BOMBER_IMG})`,
+                WebkitMaskMode: 'luminance',
+                WebkitMaskSize: 'contain',
+                WebkitMaskRepeat: 'no-repeat',
+                WebkitMaskPosition: 'center',
+                maskImage: `url(${BOMBER_IMG})`,
+                maskMode: 'luminance',
+                maskSize: 'contain',
+                maskRepeat: 'no-repeat',
+                maskPosition: 'center',
+              }} />
           </span>
         </span>
       )}
