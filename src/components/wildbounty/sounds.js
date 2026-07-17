@@ -184,9 +184,9 @@ export const sfx = {
     // No-op: the spin button only plays a one-shot click sound now.
   },
   win(step = 0) {
-    // Speed rises with each cascade step so the sound tracks the accelerating
-    // shatter/multiplier animation within the same spin.
-    const rate = Math.min(1 + step * 0.22, 2.4);
+    // Speed rises for the first two cascades, then holds steady from the third
+    // round so it stays in sync with the slow-motion animation.
+    const rate = Math.min(1 + Math.min(step, 1) * 0.22, 2.4);
     const ac = getCtx();
     if (!ac) return;
     if (winSeqAudio) {
