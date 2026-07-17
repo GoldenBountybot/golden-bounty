@@ -1,44 +1,55 @@
 import React, { useState } from 'react';
-import { Bomb, Gem, Pickaxe, DollarSign, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bomb, Pickaxe, DollarSign, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import GameHeader from '@/components/GameHeader';
+import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 
 const TOTAL = 25;
 const COLS = 5;
-const BETS = [10, 25, 50, 100, 250, 500];
+const MIN_BET = 0.05;
+const BETS = [0.1, 1, 10, 50, 100, 500];
 const MINE_PRESETS = [1, 3, 5, 10, 24];
 
-// House-edge-adjusted Spribe-style multiplier for k revealed safe tiles
-// given m mines among N total. Factor (1 - edge) applied each step.
+const W = { fontFamily: 'Rye, Georgia, serif' };
+
+// House-edge-adjusted multiplier for k revealed safe tiles given m mines.
 const EDGE = 0.03;
 function multiplierFor(k, m) {
   const safe = TOTAL - m;
   if (k <= 0) return 1;
   let r = 1;
-  for (let i = 0; i < k; i++) {
-    r *= (TOTAL - i) / (safe - i);
-  }
+  for (let i = 0; i < k; i++) r *= (TOTAL - i) / (safe - i);
   return r * (1 - EDGE);
 }
+
+// Wooden-framed button style (gold-trim dark wood)
+const woodBtn = (active, color = 'amber') => ({
+  border: '1px solid rgba(190,140,55,0.85)',
+  background: active
+    ? `linear-gradient(to bottom, rgba(255,210,120,0.95), rgba(200,150,60,0.95))`
+    : `linear-gradient(to bottom, rgba(58,40,18,0.95), rgba(26,18,9,0.95))`,
+  boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), inset 0 0 0 1px rgba(46,30,12,0.6), 0 2px 5px rgba(0,0,0,0.55)',
+  color: active ? '#1a1206' : 'rgba(255,220,150,0.92)',
+});
 
 export default function Mines() {
   const { balance, setBalance } = useCasinoBalance();
   const { rtp } = useGameSettings('mines');
-  const [betIdx, setBetIdx] = useState(1);
+  const [betIdx, setBetIdx] = useState(0);
   const [customBet, setCustomBet] = useState('');
-  const bet = customBet ? Math.max(1, Number(customBet)) : BETS[betIdx];
+  const bet = customBet ? Math.max(MIN_BET, Number(customBet)) : BETS[betIdx];
   const [mines, setMines] = useState(3);
   const safe = TOTAL - mines;
 
   const [phase, setPhase] = useState('idle'); // idle | playing | over
   const [mineSet, setMineSet] = useState(new Set());
   const [revealed, setRevealed] = useState(new Set());
-  const [revealedOrder, setRevealedOrder] = useState([]); // for animation sequence
+  const [revealedOrder, setRevealedOrder] = useState([]);
   const [pot, setPot] = useState(1);
   const [lastWin, setLastWin] = useState(0);
-  const [message, setMessage] = useState('Place your bet and pick the number of mines');
+  const [message, setMessage] = useState('Place yer bet an\' pick the mines');
   const [forceFirstMine, setForceFirstMine] = useState(false);
   const logActivity = useLogActivity();
 
@@ -47,8 +58,8 @@ export default function Mines() {
 
   const start = () => {
     if (phase === 'playing') return;
-    if (!bet || bet <= 0) { setMessage('Enter a valid bet'); return; }
-    if (balance < bet) { setMessage('Insufficient balance'); return; }
+    if (!bet || bet < MIN_BET) { setMessage('Min bet is $0.05'); return; }
+    if (balance < bet) { setMessage('Not enough gold, partner'); return; }
     setBalance((b) => b - bet);
     const positions = Array.from({ length: TOTAL }, (_, i) => i);
     for (let i = positions.length - 1; i > 0; i--) {
@@ -62,7 +73,7 @@ export default function Mines() {
     setLastWin(0);
     setForceFirstMine(Math.random() >= (rtp / 100));
     setPhase('playing');
-    setMessage(`Find ${safe} gems · avoid ${mines} mines`);
+    setMessage(`Find ${safe} gold bars · dodge ${mines} TNT`);
   };
 
   const reveal = (idx) => {
@@ -85,14 +96,13 @@ export default function Mines() {
     }
     const newRev = new Set(revealed);
     newRev.add(idx);
-    const newOrder = [...revealedOrder, idx];
     setRevealed(newRev);
-    setRevealedOrder(newOrder);
+    setRevealedOrder([...revealedOrder, idx]);
 
     if (effective.has(idx)) {
       setPhase('over');
       setPot(0);
-      setMessage('BOOM — you hit a mine');
+      setMessage('BOOM! Yer gold went up in smoke');
       logActivity('mines', bet, 0, 'loss');
       return;
     }
@@ -103,11 +113,11 @@ export default function Mines() {
       const win = bet * newPot;
       setBalance((b) => b + win);
       setLastWin(win);
-      setMessage(`Cleared! +$${win.toFixed(2)} (${newPot.toFixed(2)}x)`);
+      setMessage(`Strike it rich! +$${win.toFixed(2)} (${newPot.toFixed(2)}x)`);
       logActivity('mines', bet, win, 'win');
       setPhase('over');
     } else {
-      setMessage(`Safe! Pot $${(bet * newPot).toFixed(2)}`);
+      setMessage(`Gold! Pot be $${(bet * newPot).toFixed(2)}`);
     }
   };
 
@@ -127,37 +137,39 @@ export default function Mines() {
     setRevealedOrder([]);
     setMineSet(new Set());
     setPot(1);
-    setMessage('Place your bet and pick the number of mines');
+    setMessage('Place yer bet an\' pick the mines');
   };
 
   const isOver = phase === 'over';
+  const halfBet = () => +(Math.max(MIN_BET, bet / 2)).toFixed(2);
+  const doubleBet = () => +(bet * 2).toFixed(2);
 
   return (
-    <div className="min-h-screen bg-[#0b0e1a] text-slate-100 flex flex-col">
-      <GameHeader title="Mines" accent="text-slate-100" border="border-slate-700/40" />
+    <div className="min-h-screen text-amber-100 flex flex-col" style={{ background: 'linear-gradient(to bottom, #1a1108, #0d0905)', ...W }}>
+      <GameHeader title="Mines" accent="text-amber-200" border="border-amber-600/40" />
 
       <main className="max-w-md w-full mx-auto px-4 py-5 flex flex-col gap-4 flex-1">
-        {/* Balance + bet bar */}
-        <div className="rounded-xl bg-[#151929] border border-slate-700/50 p-3 flex items-center justify-between">
+        {/* Balance bar */}
+        <WesternFrame className="p-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#f7931e]/15 border border-[#f7931e]/40">
-              <DollarSign className="w-5 h-5 text-[#f7931e]" />
+            <span className="flex items-center justify-center w-9 h-9 rounded-lg" style={{ border: '1px solid rgba(190,140,55,0.7)', background: 'radial-gradient(circle, rgba(255,210,120,0.25), rgba(120,80,30,0.4))' }}>
+              <DollarSign className="w-5 h-5 text-amber-300" />
             </span>
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-slate-400">Balance</p>
-              <p className="text-lg font-bold tabular-nums text-slate-100">${balance.toFixed(2)}</p>
+              <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>PURSE</p>
+              <p className="text-lg text-amber-200 tabular-nums" style={W}>${balance.toFixed(2)}</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-widest text-slate-400">Profit</p>
-            <p className={`text-sm font-bold tabular-nums ${lastWin > 0 ? 'text-emerald-400' : 'text-slate-400'}`}>
+            <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>PROFIT</p>
+            <p className={`text-sm tabular-nums ${lastWin > 0 ? 'text-amber-300' : 'text-amber-100/50'}`} style={W}>
               {lastWin > 0 ? `+$${lastWin.toFixed(2)}` : '$0.00'}
             </p>
           </div>
-        </div>
+        </WesternFrame>
 
         {/* Grid */}
-        <div className="rounded-xl bg-[#151929] border border-slate-700/50 p-3">
+        <WesternFrame className="p-3">
           <div className="grid grid-cols-5 gap-2">
             {Array.from({ length: TOTAL }).map((_, i) => {
               const isRev = revealed.has(i);
@@ -170,39 +182,44 @@ export default function Mines() {
                   key={i}
                   onClick={() => reveal(i)}
                   disabled={phase !== 'playing' || isRev}
-                  className={`aspect-square rounded-lg flex items-center justify-center border transition-all duration-150 ${
-                    showMine ? 'bg-rose-600/90 border-rose-400 scale-105'
-                    : showSafe ? 'bg-[#1f2436] border-emerald-400/60 scale-105'
-                    : revealLost ? 'bg-rose-900/40 border-rose-600/40'
-                    : phase === 'playing' ? 'bg-[#1f2436] border-slate-600/50 hover:bg-[#262c42] hover:border-[#f7931e]/50 cursor-pointer'
-                    : 'bg-[#1f2436] border-slate-600/50'
-                  }`}
+                  className="aspect-square rounded-md flex items-center justify-center transition-all duration-150"
+                  style={
+                    showMine ? { background: 'radial-gradient(circle, #8b1a1a, #4a0a0a)', border: '1px solid #e0742b', boxShadow: '0 0 12px rgba(255,120,40,0.6)' }
+                    : showSafe ? { background: 'linear-gradient(to bottom, rgba(255,224,150,0.95), rgba(180,130,50,0.95))', border: '1px solid rgba(255,240,180,0.9)', boxShadow: '0 0 10px rgba(255,210,120,0.5)' }
+                    : revealLost ? { background: 'radial-gradient(circle, #3a0a0a, #1a0808)', border: '1px solid rgba(190,60,40,0.5)' }
+                    : {
+                        background: 'linear-gradient(to bottom, rgba(255,215,110,0.92), rgba(150,100,30,0.92))',
+                        border: '1px solid rgba(255,240,180,0.55)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,220,0.5), inset 0 -2px 4px rgba(90,55,10,0.6)',
+                      }
+                  }
                 >
-                  {showMine ? <Bomb className="w-6 h-6 text-white" />
-                    : showSafe ? <Gem className="w-6 h-6 text-emerald-400" />
-                    : revealLost ? <Bomb className="w-5 h-5 text-rose-400/70" />
-                    : <span className="text-slate-600 text-lg font-bold">·</span>}
+                  {showMine ? <Bomb className="w-6 h-6 text-amber-100" />
+                    : showSafe ? <GoldBar />
+                    : revealLost ? <Bomb className="w-5 h-5 text-rose-300/70" />
+                    : <GoldBar dim />}
                 </button>
               );
             })}
           </div>
-        </div>
+        </WesternFrame>
 
         {/* Controls panel */}
         {phase === 'idle' && (
-          <div className="rounded-xl bg-[#151929] border border-slate-700/50 p-4 flex flex-col gap-4">
+          <WesternFrame className="p-4 flex flex-col gap-4">
             {/* Bet */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-slate-300">Bet Amount</span>
+                <span className="text-xs text-amber-200" style={W}>BET AMOUNT</span>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => setCustomBet(String(Math.max(1, Math.floor(bet / 2))))} className="w-7 h-7 rounded-md bg-[#1f2436] border border-slate-600/50 flex items-center justify-center hover:bg-[#262c42]"><ChevronDown className="w-4 h-4 text-slate-300" /></button>
+                  <button onClick={() => setCustomBet(String(halfBet()))} className="w-7 h-7 rounded-md flex items-center justify-center" style={woodBtn(false)}><ChevronDown className="w-4 h-4" /></button>
                   <input
                     value={customBet || bet}
                     onChange={(e) => setCustomBet(e.target.value.replace(/[^0-9.]/g, ''))}
-                    className="w-24 text-center bg-[#1f2436] border border-slate-600/50 rounded-md py-1 text-sm font-bold text-slate-100 outline-none focus:border-[#f7931e]"
+                    className="w-24 text-center rounded-md py-1 text-sm tabular-nums outline-none"
+                    style={{ border: '1px solid rgba(190,140,55,0.6)', background: 'rgba(20,13,6,0.9)', color: '#ffe6a8', ...W }}
                   />
-                  <button onClick={() => setCustomBet(String(Math.floor(bet * 2)))} className="w-7 h-7 rounded-md bg-[#1f2436] border border-slate-600/50 flex items-center justify-center hover:bg-[#262c42]"><ChevronUp className="w-4 h-4 text-slate-300" /></button>
+                  <button onClick={() => setCustomBet(String(doubleBet()))} className="w-7 h-7 rounded-md flex items-center justify-center" style={woodBtn(false)}><ChevronUp className="w-4 h-4" /></button>
                 </div>
               </div>
               <div className="grid grid-cols-6 gap-1.5">
@@ -210,7 +227,8 @@ export default function Mines() {
                   <button
                     key={b}
                     onClick={() => { setBetIdx(i); setCustomBet(''); }}
-                    className={`py-1.5 rounded-md text-xs font-bold border transition-colors ${(!customBet && betIdx === i) ? 'bg-[#f7931e] text-[#0b0e1a] border-[#f7931e]' : 'bg-[#1f2436] text-slate-300 border-slate-600/50 hover:bg-[#262c42]'}`}
+                    className="py-1.5 rounded-md text-xs transition-colors"
+                    style={{ ...woodBtn(!customBet && betIdx === i), ...W }}
                   >
                     {b}
                   </button>
@@ -221,15 +239,16 @@ export default function Mines() {
             {/* Mines */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-slate-300">Mines</span>
+                <span className="text-xs text-amber-200" style={W}>MINES</span>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => setMines((m) => Math.max(1, m - 1))} className="w-7 h-7 rounded-md bg-[#1f2436] border border-slate-600/50 flex items-center justify-center hover:bg-[#262c42]"><ChevronDown className="w-4 h-4 text-slate-300" /></button>
+                  <button onClick={() => setMines((m) => Math.max(1, m - 1))} className="w-7 h-7 rounded-md flex items-center justify-center" style={woodBtn(false)}><ChevronDown className="w-4 h-4" /></button>
                   <input
                     value={mines}
                     onChange={(e) => { const n = Math.min(24, Math.max(1, parseInt(e.target.value.replace(/\D/g, '')) || 1)); setMines(n); }}
-                    className="w-12 text-center bg-[#1f2436] border border-slate-600/50 rounded-md py-1 text-sm font-bold text-slate-100 outline-none focus:border-[#f7931e]"
+                    className="w-12 text-center rounded-md py-1 text-sm outline-none"
+                    style={{ border: '1px solid rgba(190,140,55,0.6)', background: 'rgba(20,13,6,0.9)', color: '#ffe6a8', ...W }}
                   />
-                  <button onClick={() => setMines((m) => Math.min(24, m + 1))} className="w-7 h-7 rounded-md bg-[#1f2436] border border-slate-600/50 flex items-center justify-center hover:bg-[#262c42]"><ChevronUp className="w-4 h-4 text-slate-300" /></button>
+                  <button onClick={() => setMines((m) => Math.min(24, m + 1))} className="w-7 h-7 rounded-md flex items-center justify-center" style={woodBtn(false)}><ChevronUp className="w-4 h-4" /></button>
                 </div>
               </div>
               <div className="grid grid-cols-5 gap-1.5">
@@ -237,7 +256,8 @@ export default function Mines() {
                   <button
                     key={m}
                     onClick={() => setMines(m)}
-                    className={`py-1.5 rounded-md text-xs font-bold border transition-colors ${mines === m ? 'bg-rose-600 text-white border-rose-500' : 'bg-[#1f2436] text-slate-300 border-slate-600/50 hover:bg-[#262c42]'}`}
+                    className="py-1.5 rounded-md text-xs transition-colors"
+                    style={{ ...woodBtn(mines === m, 'rose'), ...W }}
                   >
                     {m}
                   </button>
@@ -245,77 +265,79 @@ export default function Mines() {
               </div>
             </div>
 
-            {/* Stat: potential */}
+            {/* Stats */}
             <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-lg bg-[#1f2436] border border-slate-600/40 py-2">
-                <p className="text-[9px] uppercase tracking-widest text-slate-400">Gems</p>
-                <p className="text-sm font-bold tabular-nums text-emerald-400">{safe}</p>
-              </div>
-              <div className="rounded-lg bg-[#1f2436] border border-slate-600/40 py-2">
-                <p className="text-[9px] uppercase tracking-widest text-slate-400">Max Win</p>
-                <p className="text-sm font-bold tabular-nums text-[#f7931e]">{multiplierFor(safe, mines).toFixed(2)}x</p>
-              </div>
-              <div className="rounded-lg bg-[#1f2436] border border-slate-600/40 py-2">
-                <p className="text-[9px] uppercase tracking-widest text-slate-400">Payout</p>
-                <p className="text-sm font-bold tabular-nums text-slate-100">${(bet * multiplierFor(safe, mines)).toFixed(2)}</p>
-              </div>
+              <StatBox label="GOLD" value={safe} />
+              <StatBox label="MAX WIN" value={`${multiplierFor(safe, mines).toFixed(2)}x`} gold />
+              <StatBox label="PAYOUT" value={`$${(bet * multiplierFor(safe, mines)).toFixed(2)}`} />
             </div>
-          </div>
+          </WesternFrame>
         )}
 
-        {/* Status / multiplier ticker */}
+        {/* Ticker while playing */}
         {phase === 'playing' && (
-          <div className="rounded-xl bg-[#151929] border border-slate-700/50 p-3 flex items-center justify-between">
+          <WesternFrame className="p-3 flex items-center justify-between">
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-slate-400">Current</p>
-              <p className="text-xl font-black tabular-nums text-emerald-400">{currentMult.toFixed(2)}x</p>
+              <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>CURRENT</p>
+              <p className="text-xl text-amber-300 tabular-nums" style={W}>{currentMult.toFixed(2)}x</p>
             </div>
             <div className="text-center">
-              <p className="text-[10px] uppercase tracking-widest text-slate-400">Win</p>
-              <p className="text-base font-bold tabular-nums text-slate-100">${(bet * pot).toFixed(2)}</p>
+              <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>WIN</p>
+              <p className="text-base text-amber-100 tabular-nums" style={W}>${(bet * pot).toFixed(2)}</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] uppercase tracking-widest text-slate-400">Next</p>
-              <p className="text-base font-bold tabular-nums text-[#f7931e]">{nextMult.toFixed(2)}x</p>
+              <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>NEXT</p>
+              <p className="text-base text-amber-300 tabular-nums" style={W}>{nextMult.toFixed(2)}x</p>
             </div>
-          </div>
+          </WesternFrame>
         )}
 
         {/* Message */}
-        <div className="rounded-lg bg-[#151929] border border-slate-700/50 py-2 text-center">
-          <span className="text-xs font-semibold text-slate-300">{message}</span>
-        </div>
+        <WesternFrame className="py-2 text-center">
+          <span className="text-xs text-amber-200" style={W}>{message}</span>
+        </WesternFrame>
 
         {/* Action buttons */}
         {phase === 'idle' && (
-          <button
-            onClick={start}
-            disabled={balance < bet}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-[#f7931e] to-[#ff6a00] text-[#0b0e1a] text-base font-black shadow-lg shadow-[#f7931e]/20 hover:brightness-110 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
-          >
+          <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40" style={{ ...woodBtn(true), ...W }}>
             <Pickaxe className="w-5 h-5" /> BET ${bet.toFixed(2)} · {mines} MINES
           </button>
         )}
-
         {phase === 'playing' && (
-          <button
-            onClick={cashout}
-            disabled={revealed.size === 0}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white text-base font-black shadow-lg hover:brightness-110 disabled:opacity-40 transition-all"
-          >
+          <button onClick={cashout} disabled={revealed.size === 0} className="w-full py-4 rounded-xl text-base font-black transition-all disabled:opacity-40" style={{ ...woodBtn(true), ...W }}>
             CASH OUT ${(bet * pot).toFixed(2)}
           </button>
         )}
-
         {isOver && (
-          <button
-            onClick={newGame}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-[#f7931e] to-[#ff6a00] text-[#0b0e1a] text-base font-black shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2"
-          >
+          <button onClick={newGame} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2" style={{ ...woodBtn(true), ...W }}>
             <RotateCcw className="w-5 h-5" /> NEW GAME
           </button>
         )}
       </main>
     </div>
+  );
+}
+
+function StatBox({ label, value, gold }) {
+  return (
+    <div className="rounded-lg py-2" style={{ border: '1px solid rgba(190,140,55,0.5)', background: 'rgba(20,13,6,0.85)' }}>
+      <p className="text-[9px] tracking-widest text-amber-300/70" style={W}>{label}</p>
+      <p className={`text-sm tabular-nums ${gold ? 'text-amber-300' : 'text-amber-100'}`} style={W}>{value}</p>
+    </div>
+  );
+}
+
+function GoldBar({ dim }) {
+  return (
+    <div
+      className="w-[62%] h-[40%] rounded-[2px]"
+      style={{
+        background: dim
+          ? 'linear-gradient(to bottom, rgba(180,140,60,0.7), rgba(110,75,25,0.85))'
+          : 'linear-gradient(to bottom, #fff3c4, #f0c850 45%, #b8801e)',
+        boxShadow: dim ? 'inset 0 1px 0 rgba(255,240,180,0.3)' : 'inset 0 1px 0 rgba(255,255,240,0.7), 0 0 6px rgba(255,210,120,0.45)',
+        border: '1px solid rgba(90,60,15,0.5)',
+      }}
+    />
   );
 }
