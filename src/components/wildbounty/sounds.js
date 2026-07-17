@@ -3,27 +3,6 @@
 let ctx = null;
 const VOL = 1.5;
 
-// Uploaded mechanical spin sound (looped while reels are spinning)
-const SPIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/3040ede29_20260717094905.mp3';
-let spinBuffer = null;
-let spinLoading = false;
-let spinAudio = null;
-
-async function loadSpinBuffer() {
-  if (spinBuffer || spinLoading) return;
-  spinLoading = true;
-  try {
-    const res = await fetch(SPIN_URL);
-    const arr = await res.arrayBuffer();
-    const ac = getCtx();
-    if (ac) spinBuffer = await ac.decodeAudioData(arr);
-  } catch {
-    // ignore — fallback synth path handles it
-  } finally {
-    spinLoading = false;
-  }
-}
-
 function getCtx() {
   if (typeof window === 'undefined') return null;
   try {
@@ -53,62 +32,9 @@ function tone({ freq, type = 'sine', dur = 0.2, gain = VOL, delay = 0, sweepTo }
 }
 
 export const sfx = {
-  preload() {
-    const ac = getCtx();
-    if (!ac) return;
-    loadSpinBuffer();
-  },
-  spin() {
-    // Play the uploaded mechanical spin sound, looping while reels run and
-    // stopping with a quick fade when the spin ends. Falls back to a short
-    // synthesized wind-up if the file isn't decoded yet (e.g. first load).
-    const ac = getCtx();
-    if (!ac) return;
-
-    // Stop any spin sound already playing
-    if (spinAudio) {
-      try {
-        const g = spinAudio.gainNode;
-        const src = spinAudio.source;
-        g.gain.cancelScheduledValues(ac.currentTime);
-        g.gain.setValueAtTime(g.gain.value, ac.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.12);
-        src.stop(ac.currentTime + 0.14);
-      } catch { /* noop */ }
-      spinAudio = null;
-    }
-
-    if (spinBuffer) {
-      const src = ac.createBufferSource();
-      src.buffer = spinBuffer;
-      src.loop = true;
-      const g = ac.createGain();
-      g.gain.setValueAtTime(0.0001, ac.currentTime);
-      g.gain.exponentialRampToValueAtTime(VOL, ac.currentTime + 0.06);
-      src.connect(g).connect(ac.destination);
-      src.start();
-      spinAudio = { source: src, gainNode: g };
-      return;
-    }
-
-    // Fallback while the uploaded file is still loading
-    loadSpinBuffer();
-    tone({ freq: 180, sweepTo: 480, type: 'triangle', dur: 0.5, gain: VOL * 0.25 });
-  },
-  stopSpin() {
-    // Fade out and stop the looping spin sound when the reels land.
-    const ac = getCtx();
-    if (!ac || !spinAudio) return;
-    try {
-      const g = spinAudio.gainNode;
-      const src = spinAudio.source;
-      g.gain.cancelScheduledValues(ac.currentTime);
-      g.gain.setValueAtTime(g.gain.value, ac.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.1);
-      src.stop(ac.currentTime + 0.12);
-    } catch { /* noop */ }
-    spinAudio = null;
-  },
+  preload() {},
+  spin() {},
+  stopSpin() {},
   blast() {
     // shatter crack: noise burst + high metal clang
     const ac = getCtx();
