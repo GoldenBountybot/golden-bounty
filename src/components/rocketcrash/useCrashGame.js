@@ -197,7 +197,8 @@ export function useCrashGame() {
   };
 
   const setAmount = (i, amt) => {
-    const v = Math.max(0.10, Math.min(500, +(amt || 0).toFixed(2)));
+    const n = +(amt || 0);
+    const v = Math.max(0.10, Math.min(500, +(isFinite(n) ? n : 0).toFixed(2)));
     setBets(prev => prev.map((b, idx) => idx === i ? { ...b, amount: v } : b));
   };
   const toggleAutoBet = (i) => setBets(prev => prev.map((b, idx) => idx === i ? { ...b, autoBet: !b.autoBet } : b));
