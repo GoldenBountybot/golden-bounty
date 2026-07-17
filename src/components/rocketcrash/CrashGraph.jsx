@@ -2,7 +2,7 @@ import React from 'react';
 
 const GROWTH = 1.10;
 
-const BOMBER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e876464fb_generated_image.png';
+const BOMBER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/15e34753b_generated_image.png';
 const SAMPLES = 48;
 
 export default function CrashGraph({ phase, multiplier, countdown }) {
@@ -84,7 +84,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
             <img src={BOMBER_IMG} alt="bomber" draggable={false}
               className="w-full h-full object-contain select-none"
               style={{
-                filter: 'brightness(1.6) contrast(1.25)',
+                filter: 'brightness(2.2) contrast(1.3)',
                 WebkitMaskImage: `url(${BOMBER_IMG})`,
                 WebkitMaskMode: 'luminance',
                 WebkitMaskSize: 'contain',
