@@ -7,15 +7,19 @@ const SAMPLES = 48;
 
 export default function CrashGraph({ phase, multiplier, countdown }) {
   const elapsed = phase === 'waiting' ? 0 : Math.log(Math.max(multiplier, 1)) / Math.log(GROWTH);
-  const maxT = Math.max(6, elapsed * 1.15);
+  const WIN_T = 8; // seconds of flight visible across the x axis
   const maxM = Math.max(2, multiplier * 1.18);
   const W = 100, H = 100;
+  // scrolling window: pin the leading tip near the right so the curve scrolls
+  // left under the bomber → reads as left-to-right travel.
+  const startT = Math.max(0, elapsed - WIN_T * 0.88);
 
   const pts = [];
   for (let i = 0; i <= SAMPLES; i++) {
-    const t = (elapsed * i) / SAMPLES;
+    const t = startT + (WIN_T * i) / SAMPLES;
+    if (t > elapsed + 0.0001) break;
     const m = Math.pow(GROWTH, t);
-    const x = (t / maxT) * W;
+    const x = (i / SAMPLES) * W;
     const y = H - ((m - 1) / (maxM - 1)) * H;
     pts.push([x, y]);
   }
