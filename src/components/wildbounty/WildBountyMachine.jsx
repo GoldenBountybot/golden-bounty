@@ -133,6 +133,7 @@ export default function WildBountyMachine() {
         <FlyingMultiplier
           key={g.flyingMult.key}
           value={g.flyingMult.value}
+          slow={g.flyingMult.slow}
           onComplete={g.clearFlyingMult}
         />
       )}

@@ -3,10 +3,10 @@ import React, { useEffect, useMemo } from 'react';
 // A multiplier value (X2, X4, ...) that flies from the tracker bar at the top,
 // swells big at the centre of the reels, then turns into a shower of gold coins
 // that stream down and pile into the win banner — with coin-clink sounds.
-export default function FlyingMultiplier({ value, onComplete }) {
-  const TOTAL = 2350;
-  const COIN_START = 1180;
-  const HOLD_END = 1880;
+export default function FlyingMultiplier({ value, onComplete, slow = 1 }) {
+  const TOTAL = 2350 * slow;
+  const COIN_START = 1180 * slow;
+  const HOLD_END = 1880 * slow;
 
   // Pre-build coin particles with spread offsets + staggered delays.
   const coins = useMemo(() => {

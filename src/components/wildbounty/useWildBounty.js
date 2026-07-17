@@ -135,7 +135,7 @@ export function useWildBounty() {
       setBalance(b => b + stepWin);
       setLastWin(newTotal);
       setMultIndex(newMult);
-      setFlyingMult({ value: MULTIPLIERS[newMult], key: Date.now() });
+      setFlyingMult({ value: MULTIPLIERS[newMult], key: Date.now(), slow: cascadeCount >= 1 ? 1.5 : 1 });
       setMessage(justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`);
 
       // After the first cascade, run subsequent rounds in slow motion so the
