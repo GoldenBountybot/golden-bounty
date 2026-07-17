@@ -130,7 +130,7 @@ export default function Plinko() {
       {/* Board area */}
       <main className="relative z-10 max-w-md mx-auto w-full px-3 flex-1 flex flex-col">
         {/* Board */}
-        <div className="relative w-full mx-auto" style={{ maxWidth: 260, aspectRatio: '1 / 1.15' }}>
+        <div className="relative w-full mx-auto" style={{ maxWidth: 300, aspectRatio: '1 / 1.15' }}>
           {Array.from({ length: ROWS + 1 }).map((_, r) =>
             Array.from({ length: r + 1 }).map((_, c) => (
               <span
