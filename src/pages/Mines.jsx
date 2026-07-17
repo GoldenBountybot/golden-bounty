@@ -185,19 +185,19 @@ export default function Mines() {
                   className="aspect-square rounded-md flex items-center justify-center transition-all duration-150"
                   style={
                     showMine ? { background: 'radial-gradient(circle, #8b1a1a, #4a0a0a)', border: '1px solid #e0742b', boxShadow: '0 0 12px rgba(255,120,40,0.6)' }
-                    : showSafe ? { background: 'linear-gradient(to bottom, rgba(255,224,150,0.95), rgba(180,130,50,0.95))', border: '1px solid rgba(255,240,180,0.9)', boxShadow: '0 0 10px rgba(255,210,120,0.5)' }
+                    : showSafe ? { background: 'linear-gradient(to bottom, rgba(40,28,14,0.95), rgba(20,14,7,0.95))', border: '1px solid rgba(190,140,55,0.8)' }
                     : revealLost ? { background: 'radial-gradient(circle, #3a0a0a, #1a0808)', border: '1px solid rgba(190,60,40,0.5)' }
                     : {
-                        background: 'linear-gradient(to bottom, rgba(255,215,110,0.92), rgba(150,100,30,0.92))',
-                        border: '1px solid rgba(255,240,180,0.55)',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,220,0.5), inset 0 -2px 4px rgba(90,55,10,0.6)',
+                        background: 'linear-gradient(to bottom, #ffffff, #e2e2e2)',
+                        border: '1px solid rgba(180,180,180,0.9)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -2px 4px rgba(150,150,150,0.4)',
                       }
                   }
                 >
                   {showMine ? <Bomb className="w-6 h-6 text-amber-100" />
                     : showSafe ? <GoldBar />
                     : revealLost ? <Bomb className="w-5 h-5 text-rose-300/70" />
-                    : <GoldBar dim />}
+                    : <span className="text-stone-400 text-lg font-bold">·</span>}
                 </button>
               );
             })}
@@ -327,17 +327,17 @@ function StatBox({ label, value, gold }) {
   );
 }
 
-function GoldBar({ dim }) {
+function GoldBar() {
   return (
     <div
-      className="w-[62%] h-[40%] rounded-[2px]"
+      className="w-[72%] h-[52%] rounded-[3px] flex items-center justify-center"
       style={{
-        background: dim
-          ? 'linear-gradient(to bottom, rgba(180,140,60,0.7), rgba(110,75,25,0.85))'
-          : 'linear-gradient(to bottom, #fff3c4, #f0c850 45%, #b8801e)',
-        boxShadow: dim ? 'inset 0 1px 0 rgba(255,240,180,0.3)' : 'inset 0 1px 0 rgba(255,255,240,0.7), 0 0 6px rgba(255,210,120,0.45)',
-        border: '1px solid rgba(90,60,15,0.5)',
+        background: 'linear-gradient(to bottom, #fff3c4, #f0c850 45%, #b8801e)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,240,0.8), 0 0 8px rgba(255,210,120,0.55)',
+        border: '1px solid rgba(90,60,15,0.55)',
       }}
-    />
+    >
+      <span className="text-[9px] tracking-widest text-[#5a3a0a]" style={{ fontFamily: 'Rye, Georgia, serif' }}>GOLD</span>
+    </div>
   );
 }
