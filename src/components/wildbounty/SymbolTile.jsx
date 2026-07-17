@@ -39,7 +39,7 @@ const CARD_STYLE = {
   J: { bg: 'from-blue-600 to-blue-900', text: 'text-blue-50' },
 };
 
-export default function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam }) {
+export default function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam, slow = 1 }) {
   const isCard = ['A', 'K', 'Q', 'J'].includes(symbolId);
   const img = IMG[symbolId];
   const isSpecial = symbolId === 'scatter' || symbolId === 'wild';
@@ -50,7 +50,7 @@ export default function SymbolTile({ symbolId, highlighted, goldFramed, shatteri
     <div
       className={`relative overflow-hidden transition-transform
         ${highlighted && !shattering ? 'z-10 scale-[1.18] ring-2 ring-yellow-300' : ''}`}
-      style={{ aspectRatio: '1 / 1', animation: shattering ? 'shatterWin 0.6s ease-out forwards' : undefined, zIndex: shattering ? 20 : (highlighted && !shattering ? 10 : undefined), filter: highlighted && !shattering ? 'brightness(1.8) sepia(0.4) saturate(1.8) hue-rotate(-5deg) drop-shadow(0 0 12px rgba(255,200,0,1))' : undefined }}
+      style={{ aspectRatio: '1 / 1', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s ease-out forwards` : undefined, zIndex: shattering ? 20 : (highlighted && !shattering ? 10 : undefined), filter: highlighted && !shattering ? 'brightness(1.8) sepia(0.4) saturate(1.8) hue-rotate(-5deg) drop-shadow(0 0 12px rgba(255,200,0,1))' : undefined }}
     >
       {img ? (
         <img

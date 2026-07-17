@@ -26,6 +26,7 @@ export function useWildBounty() {
   const [shattering, setShattering] = useState(new Set());
   const [cascading, setCascading] = useState(false);
   const [cascadePositions, setCascadePositions] = useState(new Set());
+  const [cascadeSlow, setCascadeSlow] = useState(1);
   const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
   const [anticipation, setAnticipation] = useState(false);
@@ -141,6 +142,7 @@ export function useWildBounty() {
       // From the second cascade, run everything in a slight slow motion so the
       // shatter/drop animation lines up with the (also slowed) win sound.
       const slow = cascadeCount >= 1 ? 1.4 : 1;
+      setCascadeSlow(slow);
       // Shatter winning symbols after a brief highlight
       const shatterT = setTimeout(() => { setShattering(shatterPos); }, 400 * slow);
       timers.current.push(shatterT);
@@ -166,6 +168,7 @@ export function useWildBounty() {
     } else {
       // No more wins — end the chain
       sfx.winStop();
+      setCascadeSlow(1);
       if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
       if (!wasFree) setMultIndex(0);
       if (awarded) {
@@ -205,6 +208,7 @@ export function useWildBounty() {
     setShattering(new Set());
     setCascading(false);
     setLastWin(0);
+    setCascadeSlow(1);
     setAnticipation(false);
     setScatterGlow(new Set());
     setFlyingMult(null);
@@ -340,6 +344,7 @@ export function useWildBounty() {
     freeSpins, scatterCount, turbo, autoSpin,
     showFreeSpinStart, freeSpinsActive, startFreeSpins,
     anticipation, scatterGlow,
+    cascadeSlow,
     flyingMult, clearFlyingMult,
     spin, setBetIndex, setTurbo, setAutoSpin, reset,
   };
