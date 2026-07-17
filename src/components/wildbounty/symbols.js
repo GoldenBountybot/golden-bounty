@@ -24,7 +24,7 @@ export const SYMBOLS = {
 // Scatter can land naturally (1–2); 3 together only via the forced 0.01% trigger.
 const POOL = [
   'scatter', 'scatter',
-  'wild', 'wild', 'wild',
+  'wild', 'wild', 'wild', 'wild', 'wild', 'wild', 'wild', 'wild', 'wild', 'wild',
   'bandit', 'bandit',
   'revolver', 'revolver', 'revolver', 'revolver', 'revolver', 'revolver', 'revolver', 'revolver', 'revolver', 'revolver',
   'hat', 'hat', 'hat', 'hat', 'hat', 'hat', 'hat', 'hat', 'hat', 'hat',
@@ -32,7 +32,7 @@ const POOL = [
   'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A',
   'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K',
   'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q',
-  'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J',
+  'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J',
 ];
 
 export function randomSymbol() {
