@@ -188,8 +188,8 @@ export default function Plinko() {
         </div>
 
         {/* Message — wooden plaque */}
-        <div className="mt-3 mx-auto px-4 py-1.5" style={{ ...woodFrame, fontFamily: FONT }}>
-          <span className="text-sm font-black italic" style={{ color: '#f5c542' }}>{message}</span>
+        <div className="mt-3 mx-auto px-6 py-1.5 relative" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bed350a7c_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))", border: '1px solid rgba(190,140,55,0.75)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), 0 2px 6px rgba(0,0,0,0.55)' }}>
+          <span className="relative text-sm font-black italic" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>{message}</span>
         </div>
 
         {/* Bet row — wooden frame */}
@@ -222,10 +222,10 @@ export default function Plinko() {
         <button
           onClick={drop}
           disabled={dropping}
-          className="mt-4 w-full py-4 text-base font-black italic transition-all disabled:opacity-60 flex items-center justify-center gap-2"
-          style={{ ...goldBtn, fontFamily: FONT }}
+          className="mt-4 w-full py-4 text-base font-black italic transition-all disabled:opacity-60 flex items-center justify-center gap-2 relative overflow-hidden"
+          style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/584e9a6ed_generated_image.png') center / cover, linear-gradient(to bottom, #f5c542, #c8881e)", border: '1px solid rgba(245,210,120,0.9)', boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 3px 10px rgba(200,136,30,0.45)', color: '#2a1a06', fontFamily: FONT, textShadow: '0 1px 1px rgba(255,240,200,0.4)' }}
         >
-          <DollarSign className="w-5 h-5" /> {dropping ? 'Dropping…' : `Drop · $${bet}`}
+          <DollarSign className="w-5 h-5 relative" /> <span className="relative">{dropping ? 'Dropping…' : `Drop · $${bet}`}</span>
         </button>
 
         {/* Stats — wooden tiles */}
