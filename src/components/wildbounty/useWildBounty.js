@@ -135,12 +135,12 @@ export function useWildBounty() {
       setBalance(b => b + stepWin);
       setLastWin(newTotal);
       setMultIndex(newMult);
-      setFlyingMult({ value: MULTIPLIERS[newMult], key: Date.now(), slow: cascadeCount >= 1 ? 1.5 : 1 });
+      setFlyingMult({ value: MULTIPLIERS[newMult], key: Date.now(), slow: cascadeCount >= 1 ? 1.4 : 1 });
       setMessage(justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`);
 
-      // After the first cascade, run subsequent rounds in slow motion so the
-      // shatter/drop animation lines up with the accelerating win sound.
-      const slow = cascadeCount >= 1 ? 2 : 1;
+      // From the second cascade, run everything in a slight slow motion so the
+      // shatter/drop animation lines up with the (also slowed) win sound.
+      const slow = cascadeCount >= 1 ? 1.4 : 1;
       // Shatter winning symbols after a brief highlight
       const shatterT = setTimeout(() => { setShattering(shatterPos); }, 400 * slow);
       timers.current.push(shatterT);
