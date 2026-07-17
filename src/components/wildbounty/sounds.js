@@ -9,7 +9,7 @@ const SPIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776
 // multiplier chain until the round ends.
 const WINSEQ_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/3d0b01f51_20260717094905_2.mp3';
 // Uploaded scatter-land sting — plays once per scatter that lands.
-const SCATTER_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/892d9d772_20260717094905_3.mp3';
+const SCATTER_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/eb6fefbfe_20260717094905_3_0.mp3';
 let spinBuffer = null;
 let spinLoading = false;
 let spinAudio = null;
