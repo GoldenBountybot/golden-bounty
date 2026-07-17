@@ -130,7 +130,7 @@ export default function Plinko() {
       {/* Board area */}
       <main className="relative z-10 max-w-md mx-auto w-full px-3 flex-1 flex flex-col">
         {/* Board */}
-        <div className="relative w-full mx-auto rounded-2xl bg-gradient-to-b from-[#1a0f2e]/60 to-black/60 border border-white/5 p-2" style={{ maxWidth: 340, aspectRatio: '3 / 4.2' }}>
+        <div className="relative w-full mx-auto bg-gradient-to-b from-[#1a0f2e]/60 to-black/60 border border-white/5 p-2" style={{ maxWidth: 340, aspectRatio: '3 / 4.2', borderRadius: 2 }}>
           {Array.from({ length: ROWS + 1 }).map((_, r) =>
             Array.from({ length: r + 1 }).map((_, c) => (
               <span
@@ -153,7 +153,7 @@ export default function Plinko() {
               return (
                 <div
                   key={i}
-                  className="flex-1 text-center rounded-md py-1 text-[9px] font-black tabular-nums transition-all"
+                  className="flex-1 text-center py-1 text-[9px] font-black tabular-nums transition-all"
                   style={{
                     background: hit ? c.bg : `${c.bg}33`,
                     color: hit ? '#fff' : c.bg,
