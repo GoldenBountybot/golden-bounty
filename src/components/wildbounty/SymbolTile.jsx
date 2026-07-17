@@ -4,7 +4,7 @@ import { SYMBOLS } from './symbols';
 const IMG = {
   bandit:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2a455767e_InShot_20260717_092730019.jpg',
   revolver: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3917d133d_InShot_20260717_093241860.jpg',
-  whiskey:  'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/525e250d8_generated_image.png',
+  whiskey:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/63b66e73a_InShot_20260717_093625593.jpg',
   hat:      'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/703eaba87_generated_image.png',
   scatter:  'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/f5447a4d1_generated_image.png',
   wild:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/abaafa9c8_24e9525e1_generated_image.png',
