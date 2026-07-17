@@ -81,7 +81,7 @@ export const sfx = {
     if (spinBuffer) {
       const src = ac.createBufferSource();
       src.buffer = spinBuffer;
-      src.loop = true;
+      src.loop = false;
 
       // Clarity EQ: trim muddy lows, lift presence + airy treble
       const lowShelf = ac.createBiquadFilter();
@@ -107,8 +107,8 @@ export const sfx = {
       highShelf.connect(g);
       g.connect(ac.destination);
       src.start();
+      src.onended = () => { if (spinAudio && spinAudio.source === src) spinAudio = null; };
       spinAudio = { source: src, gainNode: g };
-      spinFilterChain = { lowShelf, presence, highShelf };
       return;
     }
 
@@ -117,18 +117,7 @@ export const sfx = {
     tone({ freq: 180, sweepTo: 480, type: 'triangle', dur: 0.5, gain: VOL * 0.25 });
   },
   stopSpin() {
-    // Fade out and stop the looping spin sound when the reels land.
-    const ac = getCtx();
-    if (!ac || !spinAudio) return;
-    try {
-      const g = spinAudio.gainNode;
-      const src = spinAudio.source;
-      g.gain.cancelScheduledValues(ac.currentTime);
-      g.gain.setValueAtTime(g.gain.value, ac.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.1);
-      src.stop(ac.currentTime + 0.12);
-    } catch { /* noop */ }
-    spinAudio = null;
+    // No-op: the spin button only plays a one-shot click sound now.
   },
   blast() {
     // shatter crack: noise burst + high metal clang
