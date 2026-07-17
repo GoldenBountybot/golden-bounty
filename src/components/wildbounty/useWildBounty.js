@@ -138,8 +138,11 @@ export function useWildBounty() {
       setFlyingMult({ value: MULTIPLIERS[newMult], key: Date.now() });
       setMessage(justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`);
 
+      // After the first cascade, run subsequent rounds in slow motion so the
+      // shatter/drop animation lines up with the accelerating win sound.
+      const slow = cascadeCount >= 1 ? 1.55 : 1;
       // Shatter winning symbols after a brief highlight
-      const shatterT = setTimeout(() => { setShattering(shatterPos); }, 400);
+      const shatterT = setTimeout(() => { setShattering(shatterPos); }, 400 * slow);
       timers.current.push(shatterT);
 
       // Cascade: drop new symbols, then re-evaluate
@@ -156,9 +159,9 @@ export function useWildBounty() {
           setCascading(false);
           setCascadePositions(new Set());
           evaluateAndCascade(newGrid, cascadeCount + 1, newTotal, newMult, wasFree, awarded);
-        }, 450);
+        }, 450 * slow);
         timers.current.push(evalT);
-      }, 1000);
+      }, 1000 * slow);
       timers.current.push(cascadeT);
     } else {
       // No more wins — end the chain
