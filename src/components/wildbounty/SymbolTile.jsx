@@ -11,7 +11,7 @@ const IMG = {
   A: 'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/42eef6374_generated_image.png',
   K: 'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/a02ce2873_generated_image.png',
   Q: 'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/1c191cf13_generated_image.png',
-  J: 'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/fef0aca4e_generated_image.png',
+  J: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f0565805f_fef0aca4e_generated_image1.png',
 };
 
 // Card letters styled like worn wooden tiles
