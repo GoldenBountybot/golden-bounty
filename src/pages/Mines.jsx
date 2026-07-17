@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bomb, Gift, Pickaxe, DollarSign, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bomb, Pickaxe, DollarSign, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import GameHeader from '@/components/GameHeader';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -14,12 +14,9 @@ const MINE_PRESETS = [1, 3, 5, 10, 24];
 
 const W = { fontFamily: 'Rye, Georgia, serif' };
 
-const GIFT_PALETTE = [
-  { bg: '#ff8aa8', bg2: '#d6456f', border: '#b8335a', icon: 'text-rose-50' },
-  { bg: '#8ab4ff', bg2: '#456fd6', border: '#3358b8', icon: 'text-sky-50' },
-  { bg: '#7ce0a8', bg2: '#3aa86d', border: '#2a8a52', icon: 'text-emerald-50' },
-  { bg: '#c89bff', bg2: '#8b5fd6', border: '#6f45b8', icon: 'text-violet-50' },
-];
+const GIFT_STRIPES = ['#ff5d7a', '#ffb02e', '#3fb6f3', '#7bd957'];
+
+
 
 // House-edge-adjusted multiplier for k revealed safe tiles given m mines.
 const EDGE = 0.03;
@@ -195,16 +192,16 @@ export default function Mines() {
                     : showSafe ? { background: 'linear-gradient(to bottom, rgba(40,28,14,0.95), rgba(20,14,7,0.95))', border: '1px solid rgba(190,140,55,0.8)' }
                     : revealLost ? { background: 'radial-gradient(circle, #3a0a0a, #1a0808)', border: '1px solid rgba(190,60,40,0.5)' }
                     : {
-                        background: `linear-gradient(to bottom, ${GIFT_PALETTE[i % GIFT_PALETTE.length].bg}, ${GIFT_PALETTE[i % GIFT_PALETTE.length].bg2})`,
-                        border: `1px solid ${GIFT_PALETTE[i % GIFT_PALETTE.length].border}`,
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -2px 4px rgba(0,0,0,0.35)',
+                        background: 'linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.94))',
+                        border: '1px solid rgba(190,140,55,0.6)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.25), inset 0 -2px 4px rgba(0,0,0,0.4)',
                       }
                   }
                 >
                   {showMine ? <Bomb className="w-7 h-7 text-stone-900" style={{ filter: 'drop-shadow(0 0 6px rgba(255,120,40,0.8))' }} />
                     : showSafe ? <GoldBar />
                     : revealLost ? <Bomb className="w-6 h-6 text-rose-300/80" />
-                    : <Gift className={`w-7 h-7 ${GIFT_PALETTE[i % GIFT_PALETTE.length].icon}`} style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }} />}
+                    : <GiftBox />}
                 </button>
               );
             })}
@@ -330,6 +327,24 @@ function StatBox({ label, value, gold }) {
     <div className="rounded-lg py-2" style={{ border: '1px solid rgba(190,140,55,0.5)', background: 'rgba(20,13,6,0.85)' }}>
       <p className="text-[9px] tracking-widest text-amber-300/70" style={W}>{label}</p>
       <p className={`text-sm tabular-nums ${gold ? 'text-amber-300' : 'text-amber-100'}`} style={W}>{value}</p>
+    </div>
+  );
+}
+
+function GiftBox() {
+  return (
+    <div className="relative w-[72%] h-[62%] rounded-[3px] overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.45)' }}>
+      <div className="grid grid-cols-4 h-full w-full">
+        {GIFT_STRIPES.map((c) => (
+          <div key={c} style={{ background: c }} />
+        ))}
+      </div>
+      {/* vertical ribbon */}
+      <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[22%]" style={{ background: 'linear-gradient(to bottom, #fff7d6, #ffd75a)', boxShadow: 'inset 0 0 0 1px rgba(120,80,10,0.4)' }} />
+      {/* horizontal ribbon */}
+      <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[22%]" style={{ background: 'linear-gradient(to right, #fff7d6, #ffd75a)', boxShadow: 'inset 0 0 0 1px rgba(120,80,10,0.4)' }} />
+      {/* bow knot */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[26%] h-[26%] rounded-full" style={{ background: 'radial-gradient(circle, #ffe98a, #d6a21e)', boxShadow: '0 0 4px rgba(0,0,0,0.4)' }} />
     </div>
   );
 }
