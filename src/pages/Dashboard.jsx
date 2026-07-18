@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Wallet, Gift, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History } from 'lucide-react';
+import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
-import { useStake, LOCK_DAYS, DAILY_RATE } from '@/lib/useStake';
+import { useStake, LOCK_DAYS } from '@/lib/useStake';
 import StackMining from '@/components/StackMining';
+import VipLevels from '@/components/VipLevels';
 import BackButton from '@/components/BackButton';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useToast } from '@/components/ui/use-toast';
@@ -12,29 +13,9 @@ import { base44 } from '@/api/base44Client';
 
 const TABS = [
   { id: 'wallet', label: 'Wallet', icon: Wallet },
-  { id: 'bonus', label: 'Bonuses', icon: Gift },
+  { id: 'vip', label: 'VIP', icon: Crown },
   { id: 'stack', label: 'Stack', icon: Layers },
 ];
-
-function BonusCard({ title, amount, desc, disabled, disabledText, onClaim }) {
-  return (
-    <WesternFrame className="p-4 flex items-center justify-between gap-3">
-      <div className="flex-1">
-        <h3 className="font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>{title}</h3>
-        <p className="text-xs text-amber-100/60 mt-0.5">{desc}</p>
-        <p className="text-sm font-bold italic text-yellow-100 mt-1">${amount.toFixed(2)}</p>
-      </div>
-      <button
-        onClick={onClaim}
-        disabled={disabled}
-        className={`px-4 py-2 rounded-lg text-sm font-bold italic border whitespace-nowrap ${disabled ? 'bg-black/30 text-amber-100/40 border-amber-700/30 cursor-not-allowed' : 'bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 border-amber-300 hover:from-amber-300'}`}
-        style={{ fontFamily: 'Georgia, serif' }}
-      >
-        {disabled ? disabledText : 'Claim'}
-      </button>
-    </WesternFrame>
-  );
-}
 
 export default function Dashboard() {
   const [params, setParams] = useSearchParams();
@@ -99,7 +80,7 @@ export default function Dashboard() {
     const n = Number(amount);
     if (!n || n <= 0) { toast({ title: 'Enter a valid amount' }); return; }
     const ok = await stake.stake(n);
-    if (ok) { toast({ title: 'Stacked!', description: `$${n.toFixed(2)} locked · earning ${(DAILY_RATE * 100)}% daily` }); setStkAmt(''); }
+    if (ok) { toast({ title: 'Stacked!', description: `$${n.toFixed(2)} locked · earning ${(stake.rate * 100).toFixed(2)}% daily` }); setStkAmt(''); }
     else toast({ title: 'Insufficient balance' });
   };
 
@@ -222,14 +203,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {tab === 'bonus' && (
-          <div className="flex flex-col gap-3">
-            <BonusCard title="Signup Bonus" amount={acct.bonuses.signup.amount} desc="Claim once after sign-up" disabled={!acct.bonuses.signup.active || acct.bonuses.signup.claimed} disabledText={!acct.bonuses.signup.active ? 'Inactive' : 'Claimed'} onClaim={() => claim('Signup bonus', acct.bonuses.signup.claim)} />
-            <BonusCard title="Daily Bonus" amount={acct.bonuses.daily.amount} desc="Claim once every day" disabled={!acct.bonuses.daily.active || acct.bonuses.daily.claimed} disabledText={!acct.bonuses.daily.active ? 'Inactive' : 'Claimed today'} onClaim={() => claim('Daily bonus', acct.bonuses.daily.claim)} />
-            <BonusCard title="Weekly Bonus" amount={acct.bonuses.weekly.amount} desc="Claim once every week" disabled={!acct.bonuses.weekly.active || acct.bonuses.weekly.claimed} disabledText={!acct.bonuses.weekly.active ? 'Inactive' : 'Claimed this week'} onClaim={() => claim('Weekly bonus', acct.bonuses.weekly.claim)} />
-            <BonusCard title="Monthly Bonus" amount={acct.bonuses.monthly.amount} desc="Claim once per month" disabled={!acct.bonuses.monthly.active || acct.bonuses.monthly.claimed} disabledText={!acct.bonuses.monthly.active ? 'Inactive' : 'Claimed this month'} onClaim={() => claim('Monthly bonus', acct.bonuses.monthly.claim)} />
-            <BonusCard title="Deposit Bonus" amount={acct.bonuses.deposit.amount} desc={`${acct.bonuses.deposit.percent || 0}% of your last deposit · unlocks after each deposit`} disabled={!acct.bonuses.deposit.active || !acct.bonuses.deposit.available} disabledText={!acct.bonuses.deposit.active ? 'Inactive' : 'Deposit to unlock'} onClaim={() => claim('Deposit bonus', acct.bonuses.deposit.claim)} />
-          </div>
+        {tab === 'vip' && (
+          <VipLevels totalDeposits={stake.totalDeposits} />
         )}
 
         {tab === 'stack' && (
@@ -237,13 +212,13 @@ export default function Dashboard() {
             <div className="rounded-2xl overflow-hidden border border-amber-700/40 shadow-lg">
               <img
                 src={stackBanner}
-                alt="Stack Balance — Lock your balance to earn 2.5% daily profit for 15 days"
+                alt={`Stack Balance — Lock your balance to earn ${(stake.rate * 100).toFixed(2)}% daily profit for ${LOCK_DAYS} days`}
                 className="w-full h-auto block"
               />
             </div>
 
             {/* USDT mining animation */}
-            <StackMining staked={stake.staked} pendingProfit={stake.pendingProfit} daysLocked={stake.daysLocked} unlocked={stake.unlocked} />
+            <StackMining staked={stake.staked} pendingProfit={stake.pendingProfit} daysLocked={stake.daysLocked} unlocked={stake.unlocked} rate={stake.rate} />
 
             {/* Stack stats */}
             <div className="grid grid-cols-2 gap-1.5">

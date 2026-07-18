@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutDashboard, Layers, Play, Gift, UserCircle } from 'lucide-react';
+import { LayoutDashboard, Layers, Play, Crown, UserCircle } from 'lucide-react';
 
 // Premium western bottom navigation: gold-trimmed dark-wood tiles with a
 // sheriff-badge style center Play button. Sits in the home lobby footer.
@@ -56,7 +56,7 @@ export default function BottomNav() {
           <span className="text-[10px] font-black italic tracking-wide text-amber-200" style={{ fontFamily: 'Rye, Georgia, serif' }}>Play</span>
         </button>
 
-        <Tile to="/dashboard?tab=bonus" icon={Gift} label="Bonus" />
+        <Tile to="/dashboard?tab=vip" icon={Crown} label="VIP" />
         <Tile to="/profile" icon={UserCircle} label="Profile" />
       </div>
     </div>

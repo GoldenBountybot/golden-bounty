@@ -5,10 +5,10 @@ import { LOCK_DAYS, DAILY_RATE } from '@/lib/useStake';
 // Animated USDT mining scene for the Stack tab: coins get mined out of the
 // vein and float up, a pickaxe swings, and a profit curve rises with the lock
 // progress. Purely decorative — the real numbers come from useStake.
-export default function StackMining({ staked, pendingProfit, daysLocked, unlocked }) {
+export default function StackMining({ staked, pendingProfit, daysLocked, unlocked, rate = DAILY_RATE }) {
   const progress = Math.min(daysLocked / LOCK_DAYS, 1);
-  const totalPct = DAILY_RATE * 100 * LOCK_DAYS; // 45% over the lock
-  const curPct = DAILY_RATE * 100 * daysLocked;
+  const totalPct = rate * 100 * LOCK_DAYS; // total % over the lock
+  const curPct = rate * 100 * daysLocked;
 
   // profit curve points (cumulative % per day)
   const W = 100, H = 100, SEG = 16;
@@ -16,7 +16,7 @@ export default function StackMining({ staked, pendingProfit, daysLocked, unlocke
   for (let i = 0; i <= SEG; i++) {
     const x = (i / SEG) * W;
     const d = (i / SEG) * LOCK_DAYS;
-    const pct = DAILY_RATE * 100 * d;
+    const pct = rate * 100 * d;
     const y = H - (pct / totalPct) * (H * 0.86) - 6;
     pts.push([x, y]);
   }
@@ -91,7 +91,7 @@ export default function StackMining({ staked, pendingProfit, daysLocked, unlocke
       {/* live numbers */}
       <div className="absolute top-2 right-3 z-30 text-right">
         <p className="text-[9px] tracking-widest uppercase text-emerald-300/70">Profit Rate</p>
-        <p className="text-xs font-black italic text-emerald-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>+{(DAILY_RATE * 100)}% / day</p>
+        <p className="text-xs font-black italic text-emerald-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>+{(rate * 100).toFixed(2)}% / day</p>
       </div>
 
       <div className="absolute bottom-2 right-3 z-30 text-right">
