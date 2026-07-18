@@ -7,6 +7,7 @@ import { useLogActivity } from '@/lib/useLogActivity';
 import CardTile from '@/components/superace/CardTile';
 import MultiplierBar from '@/components/superace/MultiplierBar';
 import WinOverlay from '@/components/superace/WinOverlay';
+import FreeSpinStart from '@/components/superace/FreeSpinStart';
 import {
   COLS, ROWS, TOTAL, BASE_MULTS, FREE_MULTS, FREE_SPINS_AWARD, RETRIGGER_AWARD,
   BUY_BONUS_MULT, MAX_WIN_CAP, makeGrid, makeCell, evaluate, cascade, nudgeForWin,
@@ -53,6 +54,7 @@ export default function SuperAceMachine() {
   const [showPay, setShowPay] = useState(false);
   const [spinning, setSpinning] = useState(false);
   const [newCells, setNewCells] = useState(new Set()); // cells that just dropped (for anim)
+  const [showFreeStart, setShowFreeStart] = useState(false);
 
   // refs for async orchestration
   const betRef = useRef(BETS[betIdx]);
@@ -63,6 +65,7 @@ export default function SuperAceMachine() {
   const busyRef = useRef(false);
   const scatterAwardRef = useRef(0);
   const freeTriggerRef = useRef(false);
+  const freeStartResolverRef = useRef(null);
   const turboRef = useRef(false);
   const autoRef = useRef(false);
   const doSpinRef = useRef(null);
@@ -136,13 +139,19 @@ export default function SuperAceMachine() {
         const nl = freeSpinsLeftRef.current + RETRIGGER_AWARD;
         freeSpinsLeftRef.current = nl; setFreeSpinsLeft(nl);
         setMessage(`+${RETRIGGER_AWARD} Free Spins!`);
+        playScatter(); playBigWin();
+        await sleep(800);
       } else {
         inFreeRef.current = true; setInFree(true);
         freeSpinsLeftRef.current = FREE_SPINS_AWARD; setFreeSpinsLeft(FREE_SPINS_AWARD);
         setMessage(`${FREE_SPINS_AWARD} Free Spins Awarded!`);
+        playScatter(); playBigWin();
+        // Pause on the Western "Start Free Spin" interstitial until the player taps start.
+        await new Promise((resolve) => { freeStartResolverRef.current = resolve; setShowFreeStart(true); });
+        setShowFreeStart(false);
+        freeStartResolverRef.current = null;
+        await sleep(200);
       }
-      playScatter(); playBigWin();
-      await sleep(800);
     }
 
     await settle();
@@ -410,6 +419,13 @@ export default function SuperAceMachine() {
           </div>
         )}
       </main>
+
+      {showFreeStart && (
+        <FreeSpinStart
+          spins={FREE_SPINS_AWARD}
+          onStart={() => { playClick(); freeStartResolverRef.current && freeStartResolverRef.current(); }}
+        />
+      )}
     </div>
   );
 }
