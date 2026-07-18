@@ -1,9 +1,14 @@
 import React from 'react';
 import PlayingCardFace from './PlayingCardFace';
 import WesternBadge from './WesternBadge';
+import { COLS } from '@/lib/superaceEngine';
 
-export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild }) {
+export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild, tease, teaseStart }) {
   const { sym, golden, id } = cell;
+  const col = idx % COLS;
+  const dropAnim = tease
+    ? `saReelDrop 1.2s ease-out ${0.3 + (col - (teaseStart ?? col)) * 0.25}s both`
+    : `saReelDrop ${0.45 + col * 0.05}s ease-out both`;
   const isFace = ['A', 'K', 'Q', 'J'].includes(sym);
   const isSuit = ['S', 'H', 'D', 'C'].includes(sym);
   const isWild = sym === 'W';
@@ -55,7 +60,7 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
           backgroundPosition: 'center',
           border: '1px solid #c9c4ba',
           boxShadow: '0 0 10px rgba(245,197,66,0.5)',
-          animation: spinning ? `saReelDrop ${0.45 + (idx % 5) * 0.05}s ease-out both` : 'none',
+          animation: spinning ? dropAnim : 'none',
         }}
       />
     );
@@ -87,7 +92,7 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
       style={{
         ...style,
         animation: spinning
-          ? `saReelDrop ${0.45 + (idx % 5) * 0.05}s ease-out both`
+          ? dropAnim
           : shatter
             ? 'saShatter 0.36s ease-in forwards'
             : isNew

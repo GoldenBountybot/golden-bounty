@@ -59,6 +59,8 @@ export default function SuperAceMachine() {
   const [shatterCells, setShatterCells] = useState(new Set());
   const [flipCells, setFlipCells] = useState(new Set());
   const [flyingWilds, setFlyingWilds] = useState([]);
+  const [teaseCols, setTeaseCols] = useState(new Set());
+  const [teaseStart, setTeaseStart] = useState(-1);
 
   // refs for async orchestration
   const betRef = useRef(BETS[betIdx]);
@@ -139,9 +141,27 @@ export default function SuperAceMachine() {
       goldenWildIdxRef.current = goldenCfg.sourceIdx;
       goldenTargetsRef.current = goldenCfg.targets;
     }
+    // Anticipation: 2 early scatters → remaining columns slow-mo under a golden beam.
+    const scatterColList = [];
+    for (let c = 0; c < COLS; c++) {
+      let has = false;
+      for (let r = 0; r < ROWS; r++) { if (g[r * COLS + c].sym === 'SC') { has = true; break; } }
+      if (has) scatterColList.push(c);
+    }
+    let teaseStart = -1;
+    const teaseSet = new Set();
+    if (scatterColList.length >= 2) {
+      teaseStart = scatterColList[1] + 1;
+      for (let c = teaseStart; c < COLS; c++) teaseSet.add(c);
+    }
+    setTeaseStart(teaseStart);
+    setTeaseCols(teaseSet);
     setGrid(g.map((c) => ({ ...c })));
-    await sleep(turboRef.current ? 320 : 620);
+    const baseSpin = turboRef.current ? 320 : 620;
+    const spinDur = teaseSet.size > 0 ? baseSpin + (turboRef.current ? 1100 : 2200) : baseSpin;
+    await sleep(spinDur);
     setSpinning(false);
+    setTeaseCols(new Set());
     playReelLand();
     await sleep(150);
 
@@ -359,10 +379,27 @@ export default function SuperAceMachine() {
           }}
         >
           <div className="relative">
-            <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }}>
+            {spinning && teaseCols.size > 0 && (
+              <div className="absolute inset-0 pointer-events-none z-0">
+                {[...teaseCols].map((c) => (
+                  <div
+                    key={'beam-' + c}
+                    className="absolute top-0 bottom-0"
+                    style={{
+                      left: `${(c / COLS) * 100}%`,
+                      width: `${100 / COLS}%`,
+                      background: 'linear-gradient(to bottom, rgba(255,220,120,0) 0%, rgba(255,235,160,0.18) 15%, rgba(255,235,160,0.42) 50%, rgba(255,220,120,0.18) 85%, rgba(255,220,120,0) 100%)',
+                      boxShadow: 'inset 0 0 22px rgba(255,210,120,0.55)',
+                      animation: 'saBeamPulse 0.9s ease-in-out infinite',
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+            <div className="grid gap-1.5 relative z-10" style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }}>
               {grid.map((cell, idx) => (
                 <div key={cell.id + '-' + idx} className="aspect-[3/4]">
-                  <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} flip={flipCells.has(idx)} goldenWild={!!cell.goldenWild} spinning={spinning} isNew={newCells.has(idx)} />
+                  <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} flip={flipCells.has(idx)} goldenWild={!!cell.goldenWild} spinning={spinning} isNew={newCells.has(idx)} tease={teaseCols.has(idx % COLS)} teaseStart={teaseStart} />
                 </div>
               ))}
             </div>
