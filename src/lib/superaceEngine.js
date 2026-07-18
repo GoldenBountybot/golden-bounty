@@ -70,7 +70,7 @@ export function makeGrid() {
     const j = Math.floor(Math.random() * (i + 1));
     [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
   }
-  const n = Math.min(candidates.length, 1 + Math.floor(Math.random() * 4));
+  const n = Math.min(candidates.length, 1);
   for (let i = 0; i < n; i++) g[candidates[i]].golden = true;
   return g;
 }
@@ -126,15 +126,12 @@ export function cascade(g, winCells, goldenToWild) {
       else if (!winCells.has(idx)) keepers.push(cell);
     }
     const offset = ROWS - keepers.length;
-    const goldenCol = GOLDEN_COLS.includes(c);
     for (let r = 0; r < ROWS; r++) {
       const idx = r * COLS + c;
       if (r >= offset) {
         res[idx] = keepers[r - offset];
       } else {
-        const nc = makeCell();
-        if (goldenCol && PAY_SYMBOLS.includes(nc.sym) && Math.random() < GOLDEN_CHANCE) nc.golden = true;
-        res[idx] = nc;
+        res[idx] = makeCell();
       }
     }
   }
