@@ -182,13 +182,13 @@ export default function Dashboard() {
 
         {tab === 'stack' && (
           <div className="flex flex-col gap-4">
-            <WesternFrame glow className="p-5 flex flex-col items-center gap-3 text-center">
-              <Layers className="w-10 h-10 text-amber-400" />
-              <div>
-                <h2 className="font-black italic text-amber-200 text-lg" style={{ fontFamily: 'Georgia, serif' }}>Stack Balance</h2>
-                <p className="text-sm text-amber-100/70 mt-1">Lock your balance to earn <span className="font-bold text-amber-200">{DAILY_RATE * 100}% daily profit</span>. Locked for {LOCK_DAYS} days — you cannot use or withdraw it until it unlocks.</p>
-              </div>
-            </WesternFrame>
+            <div className="rounded-2xl overflow-hidden border border-amber-700/40 shadow-lg">
+              <img
+                src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ce2101293_InShot_20260718_173817740.jpg"
+                alt="Stack Balance — Lock your balance to earn 3% daily profit for 15 days"
+                className="w-full h-auto block"
+              />
+            </div>
 
             {/* USDT mining animation */}
             <StackMining staked={stake.staked} pendingProfit={stake.pendingProfit} daysLocked={stake.daysLocked} unlocked={stake.unlocked} />
