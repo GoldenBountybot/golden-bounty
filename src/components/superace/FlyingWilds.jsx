@@ -37,9 +37,10 @@ export default function FlyingWilds({ items }) {
               '--tx': t.left,
               '--ty': t.top,
               transform: 'translate(-50%,-50%)',
-              animation: `saWildFly 0.72s ease-in forwards`,
+              willChange: 'transform, left, top, opacity',
+              animation: `saWildFly 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards`,
               animationDelay: `${i * 0.08}s`,
-              filter: 'drop-shadow(0 0 8px rgba(245,197,66,0.9))',
+              filter: 'drop-shadow(0 0 10px rgba(245,197,66,0.95))',
             }}
           />
         );

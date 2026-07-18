@@ -205,10 +205,11 @@
   100% { transform: translateY(0%); opacity: 1; }
 }
 @keyframes saWildFly {
-  0%   { left: var(--sx); top: var(--sy); opacity: 0; }
-  12%  { opacity: 1; }
-  88%  { opacity: 1; }
-  100% { left: var(--tx); top: var(--ty); opacity: 0; }
+  0%   { left: var(--sx); top: var(--sy); opacity: 0; transform: translate(-50%,-50%) scale(0.55) rotate(-12deg); }
+  14%  { opacity: 1; transform: translate(-50%,-50%) scale(1.06) rotate(0deg); }
+  50%  { transform: translate(-50%,-50%) scale(1.12) rotate(7deg); }
+  84%  { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(-3deg); }
+  100% { left: var(--tx); top: var(--ty); opacity: 0; transform: translate(-50%,-50%) scale(0.78) rotate(0deg); }
 }
 @keyframes saFlip {
   0%   { transform: rotateY(0deg); }
