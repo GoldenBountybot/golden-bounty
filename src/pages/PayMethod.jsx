@@ -247,7 +247,8 @@ export default function PayMethod() {
               >
                 <Send className="w-4 h-4" /> {submitting ? 'Submitting...' : 'Submit for Approval'}
               </button>
-              <p className="text-[10px] text-amber-100/40 italic">Your balance updates after admin approves the deposit.</p>
+              <p className="text-[11px] text-amber-200/80 italic text-center">Find the Order ID from your Transaction History</p>
+              <p className="text-[10px] text-amber-100/40 italic text-center">Your balance updates after admin approves the deposit.</p>
             </WesternFrame>
           </div>
         )}
