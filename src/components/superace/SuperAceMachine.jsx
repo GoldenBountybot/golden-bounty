@@ -75,6 +75,7 @@ export default function SuperAceMachine() {
   const doSpinRef = useRef(null);
   const goldenWildIdxRef = useRef(null);
   const goldenTargetsRef = useRef([]);
+  const normalWildSpawnedRef = useRef(false);
 
   useEffect(() => { betRef.current = BETS[betIdx]; }, [betIdx]);
   useEffect(() => { rtpRef.current = rtp; }, [rtp]);
@@ -117,6 +118,7 @@ export default function SuperAceMachine() {
     setFlyingWilds([]);
     goldenWildIdxRef.current = null;
     goldenTargetsRef.current = [];
+    normalWildSpawnedRef.current = false;
     if (!inFreeRef.current) {
       setBalance((x) => x - b);
       setMessage(`Spinning…`);
@@ -218,7 +220,16 @@ export default function SuperAceMachine() {
 
       // When a Golden Wild is active this spin, normal wilds never appear:
       // golden cards just shatter like ordinary winners.
-      const gw = goldenWildIdxRef.current != null ? new Set() : ev.goldenToWild;
+      let gw = goldenWildIdxRef.current != null ? new Set() : ev.goldenToWild;
+      // Only 1 normal wild per round — keep the first golden card; the rest shatter.
+      if (goldenWildIdxRef.current == null && gw.size > 0) {
+        if (normalWildSpawnedRef.current) {
+          gw = new Set();
+        } else {
+          gw = new Set([gw.values().next().value]);
+          normalWildSpawnedRef.current = true;
+        }
+      }
       if (gw.size > 0) {
         setFlipCells(new Set(gw));
         await sleep(turboRef.current ? 520 : 680);

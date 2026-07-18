@@ -70,7 +70,7 @@ export function makeGrid() {
     const j = Math.floor(Math.random() * (i + 1));
     [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
   }
-  const n = Math.min(candidates.length, 1);
+  const n = Math.min(candidates.length, 3 + Math.floor(Math.random() * 3));
   for (let i = 0; i < n; i++) g[candidates[i]].golden = true;
   return g;
 }
