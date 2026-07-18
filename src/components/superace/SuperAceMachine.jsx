@@ -176,11 +176,11 @@ export default function SuperAceMachine() {
       setWinningCells(new Set(ev.winCells));
       setFloatWin({ value: win, key: comboCount + '-' + Date.now() + Math.random() });
       playComboWin(comboCount);
-      await sleep(turboRef.current ? 600 : 900);
+      await sleep(turboRef.current ? 380 : 560);
 
       // winning cards blast/shatter then vanish
       setShatterCells(new Set(ev.winCells));
-      await sleep(turboRef.current ? 300 : 380);
+      await sleep(turboRef.current ? 280 : 340);
 
       const dropped = new Set(ev.winCells);
       g = cascade(g, ev.winCells, ev.goldenToWild);
