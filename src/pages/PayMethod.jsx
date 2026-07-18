@@ -3,23 +3,34 @@ import BackButton from '@/components/BackButton';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
-import { Bitcoin, Coins, Wallet, Copy, Check, ArrowLeft, Send } from 'lucide-react';
+import { Bitcoin, Wallet, Copy, Check, ArrowLeft, Send } from 'lucide-react';
 
 const METHODS = [
   { id: 'binance', label: 'Pay with Binance', badge: 'B', badgeClass: 'bg-amber-400 text-stone-950 ring-amber-200', hint: 'Binance Pay wallet' },
   { id: 'usdt', label: 'Pay USDT in Crypto', badge: '₮', badgeClass: 'bg-emerald-500 text-white ring-emerald-300', hint: 'Tether (USDT) transfer' },
-  { id: 'crypto', label: 'Pay Crypto', badge: null, icon: Bitcoin, iconClass: 'text-amber-300', hint: 'BTC / ETH / other coins' },
+  { id: 'crypto', label: 'Pay Crypto', badge: null, icon: Bitcoin, iconClass: 'text-amber-300', hint: 'BTC / ETH / BNB & other coins' },
 ];
 
 const USDT_NETWORKS = [
-  { name: 'USDT TRX Network', address: 'TMxeqrx8Fx1bUfuLaGQHZ6tct9rEiYo2tM' },
-  { name: 'USDT BEP 20', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
-  { name: 'USDT ETH Network', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
-  { name: 'USDT POL Polygon Pos', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
-  { name: 'USDT SOL Solana Network', address: '7UTV9h1VHq2gxjEoCLyJSPhoiz1NAaEHAL8qwTzy4sAy' },
-  { name: 'USDT TON Network', address: 'UQCTtNPN9ZzlXWsiE-VHApcouD8tFHgBIcC3hD-GcQdDrgKN' },
-  { name: 'USDT AVAX-C Chain', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
-  { name: 'USDT APT Aptos Network', address: '0x6c0ab824258561892ea86cb25537a3fa2f98dac3807274857eceacde0f0cba40' },
+  { name: 'USDT TRX Network', symbol: '₮', color: '#26a17b', address: 'TMxeqrx8Fx1bUfuLaGQHZ6tct9rEiYo2tM' },
+  { name: 'USDT BEP 20', symbol: '₮', color: '#f0b90b', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
+  { name: 'USDT ETH Network', symbol: '₮', color: '#627eea', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
+  { name: 'USDT POL Polygon Pos', symbol: '₮', color: '#8247e5', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
+  { name: 'USDT SOL Solana Network', symbol: '₮', color: '#14f195', address: '7UTV9h1VHq2gxjEoCLyJSPhoiz1NAaEHAL8qwTzy4sAy' },
+  { name: 'USDT TON Network', symbol: '₮', color: '#0098ea', address: 'UQCTtNPN9ZzlXWsiE-VHApcouD8tFHgBIcC3hD-GcQdDrgKN' },
+  { name: 'USDT AVAX-C Chain', symbol: '₮', color: '#e84142', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
+  { name: 'USDT APT Aptos Network', symbol: '₮', color: '#06f7c7', address: '0x6c0ab824258561892ea86cb25537a3fa2f98dac3807274857eceacde0f0cba40' },
+];
+
+const CRYPTO_NETWORKS = [
+  { name: 'Bitcoin BTC Network', symbol: '₿', color: '#f7931a', address: '143jQV14W9RZWWnvZzU4jC6L9tzLRpxc7F' },
+  { name: 'ETH ERC 20', symbol: 'Ξ', color: '#627eea', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
+  { name: 'BNB BNB Network', symbol: 'B', color: '#f0b90b', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
+  { name: 'TRX Trc 20', symbol: 'T', color: '#ef0027', address: 'TMxeqrx8Fx1bUfuLaGQHZ6tct9rEiYo2tM' },
+  { name: 'LTC Litcoin Network', symbol: 'Ł', color: '#345d9d', address: 'LeHorMXaYm2XbuXijJNfFZkoH44tVgGqRw' },
+  { name: 'Doge Dogecoin Network', symbol: 'Ð', color: '#c2a634', address: 'DSZgcwAFzzU7B1aJWDdELm1EDVyUStdaQs' },
+  { name: 'Dot Polkadot Network', symbol: '●', color: '#e6007a', address: '12fvsuVa2wyjkVVJ3jF8KfEEbbby1tp85iTwXuJSM8iRgYjJ' },
+  { name: 'APT Aptos Network', symbol: 'A', color: '#06f7c7', address: '0x6c0ab824258561892ea86cb25537a3fa2f98dac3807274857eceacde0f0cba40' },
 ];
 
 function CopyAddr({ addr }) {
@@ -43,19 +54,30 @@ function CopyAddr({ addr }) {
   );
 }
 
+function CoinLogo({ symbol, color }) {
+  return (
+    <div className="flex items-center justify-center w-9 h-9 rounded-full shrink-0" style={{ background: color, boxShadow: `0 0 0 2px rgba(255,255,255,0.15), 0 1px 4px rgba(0,0,0,0.4)` }}>
+      <span className="text-lg font-black text-white" style={{ fontFamily: 'Georgia, serif' }}>{symbol}</span>
+    </div>
+  );
+}
+
 export default function PayMethod() {
   const params = new URLSearchParams(window.location.search);
   const amount = Number(params.get('amount') || 0);
   const { toast } = useToast();
-  const [view, setView] = useState('choose'); // 'choose' | 'usdt'
+  const [view, setView] = useState('choose'); // 'choose' | 'usdt' | 'crypto'
   const [selectedNet, setSelectedNet] = useState(null);
   const [txid, setTxid] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const choose = (m) => {
-    if (m.id === 'usdt') { setView('usdt'); return; }
+    if (m.id === 'usdt' || m.id === 'crypto') { setView(m.id); return; }
     toast({ title: `${m.label} selected`, description: 'Payment processing coming soon.' });
   };
+
+  const networks = view === 'usdt' ? USDT_NETWORKS : view === 'crypto' ? CRYPTO_NETWORKS : [];
+  const methodLabel = view === 'usdt' ? 'USDT Deposit' : 'Crypto Deposit';
 
   const submitTxid = async () => {
     if (!selectedNet) { toast({ title: 'Select a network first' }); return; }
@@ -71,7 +93,7 @@ export default function PayMethod() {
         type: 'deposit',
         amount,
         status: 'pending',
-        method: 'usdt',
+        method: view === 'usdt' ? 'usdt' : 'crypto',
         reference: txid.trim(),
         note: `${selectedNet.name} · ${selectedNet.address.slice(0, 10)}...`,
       });
@@ -89,7 +111,7 @@ export default function PayMethod() {
     <div className="min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950 pb-10">
       <header className="sticky top-0 z-20 bg-emerald-950/90 backdrop-blur-xl border-b border-amber-600/30">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
-          {view === 'usdt' ? (
+          {view !== 'choose' ? (
             <button onClick={() => { setView('choose'); setSelectedNet(null); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md italic font-bold border border-amber-600/80 text-amber-200 bg-black/40 active:scale-95" style={{ fontFamily: 'Rye, Georgia, serif' }}>
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
@@ -97,7 +119,7 @@ export default function PayMethod() {
             <BackButton href="/dashboard" />
           )}
           <div className="flex-1 text-center">
-            <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>{view === 'usdt' ? 'USDT Deposit' : 'Choose Payment'}</h1>
+            <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>{view === 'choose' ? 'Choose Payment' : methodLabel}</h1>
           </div>
         </div>
       </header>
@@ -133,15 +155,18 @@ export default function PayMethod() {
           </div>
         )}
 
-        {view === 'usdt' && (
+        {view !== 'choose' && (
           <div className="flex flex-col gap-3">
-            <p className="text-xs text-amber-100/70 italic">Send USDT to one of the addresses below, then submit your transaction ID for admin approval.</p>
-            {USDT_NETWORKS.map((n, i) => {
+            <p className="text-xs text-amber-100/70 italic">Send to one of the addresses below, then submit your transaction ID for admin approval.</p>
+            {networks.map((n, i) => {
               const active = selectedNet?.name === n.name;
               return (
                 <WesternFrame key={i} className={`p-3 flex flex-col gap-2 ${active ? 'ring-2 ring-amber-300' : ''}`}>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>{n.name}</p>
+                  <div className="flex items-center gap-2">
+                    <CoinLogo symbol={n.symbol} color={n.color} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>{n.name}</p>
+                    </div>
                     <CopyAddr addr={n.address} />
                   </div>
                   <p className="text-[11px] text-amber-100/80 break-all font-mono">{n.address}</p>
@@ -163,7 +188,7 @@ export default function PayMethod() {
                 type="text"
                 value={txid}
                 onChange={e => setTxid(e.target.value)}
-                placeholder="Paste your USDT transaction ID / hash"
+                placeholder="Paste your transaction ID / hash"
                 className="px-3 py-2 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
               />
               <button
