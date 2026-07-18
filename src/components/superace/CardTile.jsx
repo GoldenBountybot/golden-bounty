@@ -17,9 +17,9 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew }) {
   };
   // Golden card — thick glowing gold border (signifies golden → wild)
   const goldStyle = {
-    background: 'radial-gradient(circle at 50% 45%, #fffdf2 0%, #fff3c4 55%, #f0d68a 100%)',
-    border: '3px solid #f5c542',
-    boxShadow: '0 0 10px rgba(245,197,66,0.85), inset 0 0 0 1px rgba(180,120,20,0.4), 0 1px 3px rgba(0,0,0,0.4)',
+    background: 'linear-gradient(135deg, #ffe98a 0%, #f5c542 35%, #d39a1e 70%, #b8860b 100%)',
+    border: '3px solid #ffe98a',
+    boxShadow: '0 0 16px rgba(245,197,66,1), 0 0 30px rgba(245,197,66,0.55), inset 0 0 0 1px rgba(120,80,10,0.55), inset 0 1px 6px rgba(255,255,255,0.6), 0 1px 4px rgba(0,0,0,0.4)',
   };
   const wildStyle = {
     background: 'radial-gradient(circle at 50% 45%, #3a2a10 0%, #2a1a06 70%, #160d03 100%)',

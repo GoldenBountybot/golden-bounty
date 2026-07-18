@@ -56,7 +56,7 @@ export default function PlayingCardFace({ sym, golden }) {
   const indexColor = isFace ? FACE_ACCENT[sym] : SUIT_COLOR[sym];
   const indexPip = isFace ? FACE_CORNER_PIP[sym] : null;
 
-  const sepia = golden ? 'sepia(0.45) saturate(1.7) brightness(1.06) hue-rotate(-4deg)' : 'none';
+  const sepia = golden ? 'sepia(0.8) saturate(2.2) brightness(1.12) hue-rotate(-6deg) contrast(1.05)' : 'none';
 
   return (
     <div className="absolute inset-0">
@@ -89,6 +89,11 @@ export default function PlayingCardFace({ sym, golden }) {
 
       {/* subtle inner frame line like real cards */}
       <div className="absolute inset-[3px] rounded-[3px] pointer-events-none" style={{ border: '0.5px solid rgba(0,0,0,0.18)' }} />
+
+      {/* golden tint overlay for golden cards */}
+      {golden && (
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,233,138,0.42) 0%, rgba(245,197,66,0.18) 55%, rgba(160,100,8,0.34) 100%)', mixBlendMode: 'overlay' }} />
+      )}
 
       {/* corner indices */}
       <CornerIndex letter={indexLetter} pip={indexPip} color={indexColor} />

@@ -53,17 +53,10 @@ function weightedSym() {
 export function makeGrid() {
   const g = [];
   for (let i = 0; i < TOTAL; i++) g.push(makeCell());
-  // Every card (faces + suits) can be golden. Spawn 1–4 golden cards per spin.
-  const payIdx = [];
+  // Every card (faces + suits) can be golden. 20% chance per card.
   for (let i = 0; i < TOTAL; i++) {
-    if (PAY_SYMBOLS.includes(g[i].sym)) payIdx.push(i);
+    if (PAY_SYMBOLS.includes(g[i].sym) && Math.random() < 0.20) g[i].golden = true;
   }
-  const count = Math.min(1 + Math.floor(Math.random() * 4), payIdx.length); // 1..4
-  for (let i = payIdx.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [payIdx[i], payIdx[j]] = [payIdx[j], payIdx[i]];
-  }
-  for (let i = 0; i < count; i++) g[payIdx[i]].golden = true;
   return g;
 }
 
@@ -97,6 +90,13 @@ export function evaluate(g, bet) {
         }
       }
     }
+  }
+  // Only ONE golden card transforms into WILD per cascade (not all).
+  if (goldenToWild.size > 1) {
+    const arr = [...goldenToWild];
+    const chosen = arr[Math.floor(Math.random() * arr.length)];
+    goldenToWild.clear();
+    goldenToWild.add(chosen);
   }
   const scatterCount = g.filter((c) => c.sym === 'SC').length;
   let scatterPay = 0;
