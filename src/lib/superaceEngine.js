@@ -26,19 +26,18 @@ export const PAYS = {
 };
 export const SCATTER_PAY = { 3: 2, 4: 10, 5: 50 };
 
-// Reel-strip weights. Suits common, faces mid, A rarer, WILD/SCATTER rare.
+// Reel-strip weights. Suits common, faces mid, A rarer, SCATTER rare.
+// WILD never spawns directly — it only appears via golden-card transformation.
 const WEIGHTS = {
   A: 7, K: 8, Q: 9, J: 10,
   S: 16, H: 16, D: 16, C: 16,
-  W: 4, SC: 3,
+  SC: 3,
 };
 
 let _uid = 0;
 export function makeCell(forceSym) {
   const sym = forceSym || weightedSym();
-  const golden =
-    (sym === 'A' || sym === 'K' || sym === 'Q' || sym === 'J') && Math.random() < 0.12;
-  return { sym, golden, id: ++_uid };
+  return { sym, golden: false, id: ++_uid };
 }
 
 function weightedSym() {
@@ -54,6 +53,17 @@ function weightedSym() {
 export function makeGrid() {
   const g = [];
   for (let i = 0; i < TOTAL; i++) g.push(makeCell());
+  // Every card (faces + suits) can be golden. Spawn 1–4 golden cards per spin.
+  const payIdx = [];
+  for (let i = 0; i < TOTAL; i++) {
+    if (PAY_SYMBOLS.includes(g[i].sym)) payIdx.push(i);
+  }
+  const count = Math.min(1 + Math.floor(Math.random() * 4), payIdx.length); // 1..4
+  for (let i = payIdx.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [payIdx[i], payIdx[j]] = [payIdx[j], payIdx[i]];
+  }
+  for (let i = 0; i < count; i++) g[payIdx[i]].golden = true;
   return g;
 }
 
