@@ -10,16 +10,19 @@ const DAY = 24 * 60 * 60 * 1000;
 export const LOCK_DAYS = 15;
 export const DAILY_RATE = 0.03;
 
-// Profit accrued since the last claim, capped at LOCK_DAYS total.
+// Profit accrues continuously per second at DAILY_RATE per 24h.
+// Total earning window is capped at LOCK_DAYS; after that it stops growing.
 export function computeProfit(staked, stakedAt, lastClaim) {
   if (!staked || !stakedAt) return 0;
   const start = new Date(stakedAt).getTime();
   if (isNaN(start)) return 0;
   const lc = lastClaim ? new Date(lastClaim).getTime() : start;
-  const elapsedDays = Math.min(Math.floor((Date.now() - start) / DAY), LOCK_DAYS);
-  const claimedDays = Math.max(0, Math.floor((lc - start) / DAY));
-  const pendingDays = Math.max(0, elapsedDays - claimedDays);
-  return Math.round(staked * DAILY_RATE * pendingDays * 100) / 100;
+  const capMs = LOCK_DAYS * DAY;
+  const elapsedMs = Math.min(Math.max(0, Date.now() - start), capMs);
+  const claimedMs = Math.min(Math.max(0, lc - start), capMs);
+  const pendingMs = Math.max(0, elapsedMs - claimedMs);
+  const profit = staked * DAILY_RATE * (pendingMs / DAY);
+  return Math.floor(profit * 100) / 100;
 }
 
 export function useStake() {
@@ -28,6 +31,12 @@ export function useStake() {
   const [stakedAt, setStakedAt] = useState(null);
   const [lastClaim, setLastClaim] = useState(null);
   const [loaded, setLoaded] = useState(false);
+  // Re-render every second so the live, per-second profit ticks visibly.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -77,12 +86,10 @@ export function useStake() {
     const p = computeProfit(staked, stakedAt, lastClaim);
     if (p <= 0) return 0;
     setBalance((b) => b + p);
-    const start = new Date(stakedAt).getTime();
-    const elapsedDays = Math.min(Math.floor((Date.now() - start) / DAY), LOCK_DAYS);
-    const newClaim = new Date(start + elapsedDays * DAY).toISOString();
-    setLastClaim(newClaim);
+    const now = new Date().toISOString();
+    setLastClaim(now);
     try {
-      await base44.auth.updateMe({ last_profit_claim: newClaim });
+      await base44.auth.updateMe({ last_profit_claim: now });
     } catch { /* persisted on next retry */ }
     return p;
   }, [staked, stakedAt, lastClaim, setBalance]);
