@@ -30,10 +30,10 @@ export default function AdminStackBanner() {
   const uploadImage = async (file) => {
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setImageUrl(file_url);
+      const res = await base44.integrations.Core.UploadFile({ file });
+      setImageUrl(res.file_url);
       toast({ title: 'Image uploaded' });
-    } catch { toast({ title: 'Upload failed' }); }
+    } catch (e) { toast({ title: 'Upload failed', description: e?.message || 'Unknown error' }); }
     setUploading(false);
   };
 
@@ -41,13 +41,13 @@ export default function AdminStackBanner() {
     setSaving(true);
     try {
       if (rec?.id) {
-        await base44.entities.SiteSetting.update(rec.id, { image_url: imageUrl, active: true });
+        await base44.entities.SiteSetting.update(rec.id, { image_url: imageUrl });
       } else {
         await base44.entities.SiteSetting.create({ name: SETTING_KEY, image_url: imageUrl, active: true });
       }
       toast({ title: 'Stack banner updated' });
       load();
-    } catch { toast({ title: 'Failed to save' }); }
+    } catch (e) { toast({ title: 'Failed to save', description: e?.message || 'Unknown error' }); }
     setSaving(false);
   };
 
