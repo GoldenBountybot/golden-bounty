@@ -204,6 +204,11 @@
   70%  { transform: translateY(6%); opacity: 1; }
   100% { transform: translateY(0%); opacity: 1; }
 }
+@keyframes saShatter {
+  0%   { transform: scale(1.13); opacity: 1; filter: brightness(1.6) drop-shadow(0 0 12px rgba(255,210,120,1)); }
+  40%  { transform: scale(1.5) rotate(4deg); opacity: 1; filter: brightness(2.3) drop-shadow(0 0 18px rgba(255,220,140,1)); }
+  100% { transform: scale(2.1) rotate(9deg); opacity: 0; filter: blur(6px) brightness(2.5) drop-shadow(0 0 22px rgba(255,200,40,0.9)); }
+}
 @keyframes saWinPop {
   0%   { transform: scale(0.3); opacity: 0; }
   30%  { transform: scale(1.18); opacity: 1; }

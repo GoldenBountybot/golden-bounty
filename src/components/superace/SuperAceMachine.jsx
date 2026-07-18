@@ -55,6 +55,7 @@ export default function SuperAceMachine() {
   const [spinning, setSpinning] = useState(false);
   const [newCells, setNewCells] = useState(new Set()); // cells that just dropped (for anim)
   const [showFreeStart, setShowFreeStart] = useState(false);
+  const [shatterCells, setShatterCells] = useState(new Set());
 
   // refs for async orchestration
   const betRef = useRef(BETS[betIdx]);
@@ -175,12 +176,17 @@ export default function SuperAceMachine() {
       setWinningCells(new Set(ev.winCells));
       setFloatWin({ value: win, key: comboCount + '-' + Date.now() + Math.random() });
       playComboWin(comboCount);
-      await sleep(turboRef.current ? 750 : 1150);
+      await sleep(turboRef.current ? 600 : 900);
+
+      // winning cards blast/shatter then vanish
+      setShatterCells(new Set(ev.winCells));
+      await sleep(turboRef.current ? 300 : 380);
 
       const dropped = new Set(ev.winCells);
       g = cascade(g, ev.winCells, ev.goldenToWild);
       setGrid(g.map((c) => ({ ...c })));
       setWinningCells(new Set());
+      setShatterCells(new Set());
       setFloatWin(null);
       setNewCells(dropped);
       playCascade();
@@ -296,7 +302,7 @@ export default function SuperAceMachine() {
           <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }}>
             {grid.map((cell, idx) => (
               <div key={cell.id + '-' + idx} className="aspect-[3/4]">
-                <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} spinning={spinning} isNew={newCells.has(idx)} />
+                <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} spinning={spinning} isNew={newCells.has(idx)} />
               </div>
             ))}
           </div>

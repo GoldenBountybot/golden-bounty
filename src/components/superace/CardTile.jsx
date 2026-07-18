@@ -2,7 +2,7 @@ import React from 'react';
 import PlayingCardFace from './PlayingCardFace';
 import WesternBadge from './WesternBadge';
 
-export default function CardTile({ cell, idx, isWin, spinning, isNew }) {
+export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter }) {
   const { sym, golden, id } = cell;
   const isFace = ['A', 'K', 'Q', 'J'].includes(sym);
   const isSuit = ['S', 'H', 'D', 'C'].includes(sym);
@@ -52,11 +52,13 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew }) {
         ...style,
         animation: spinning
           ? `saReelDrop ${0.45 + (idx % 5) * 0.05}s ease-out both`
-          : isNew
-            ? 'saReelDrop 0.4s ease-out both'
-            : isWin
-              ? 'saGlowPulse 0.7s ease-in-out infinite'
-              : 'none',
+          : shatter
+            ? 'saShatter 0.36s ease-in forwards'
+            : isNew
+              ? 'saReelDrop 0.4s ease-out both'
+              : isWin
+                ? 'saGlowPulse 0.7s ease-in-out infinite'
+                : 'none',
         transition: 'transform 0.15s',
       }}
     >
