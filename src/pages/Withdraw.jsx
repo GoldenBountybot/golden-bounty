@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '@/components/BackButton';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import WesternBackdrop from '@/components/WesternBackdrop';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import { Wallet, ArrowLeft, Send } from 'lucide-react';
@@ -85,7 +86,8 @@ export default function Withdraw() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950 pb-10">
+    <div className="relative min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950 pb-10">
+      <WesternBackdrop />
       <header className="sticky top-0 z-20 bg-emerald-950/90 backdrop-blur-xl border-b border-amber-600/30">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
           {view !== 'choose' ? (
@@ -101,7 +103,7 @@ export default function Withdraw() {
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 py-5 flex flex-col gap-4">
+      <main className="relative z-10 max-w-md mx-auto px-4 py-5 flex flex-col gap-4">
         <WesternFrame glow className="p-4 flex items-center justify-between">
           <div>
             <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Withdrawing</p>

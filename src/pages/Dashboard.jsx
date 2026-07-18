@@ -7,6 +7,7 @@ import StackMining from '@/components/StackMining';
 import VipLevels from '@/components/VipLevels';
 import BackButton from '@/components/BackButton';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import WesternBackdrop from '@/components/WesternBackdrop';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/lib/AuthContext';
 import { base44 } from '@/api/base44Client';
@@ -97,7 +98,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950 pb-10">
+    <div className="relative min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950 pb-10">
+      <WesternBackdrop />
       <header className="sticky top-0 z-20 bg-emerald-950/90 backdrop-blur-xl border-b border-amber-600/30">
         <div className="max-w-md mx-auto px-4 py-2 flex items-center gap-2">
           <BackButton />
@@ -112,7 +114,7 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 py-3 flex flex-col gap-3">
+      <main className="relative z-10 max-w-md mx-auto px-4 py-3 flex flex-col gap-3">
         {/* Balance */}
         <WesternFrame glow className="p-2.5 flex items-center justify-between">
           <div>

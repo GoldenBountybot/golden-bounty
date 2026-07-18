@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import WesternBackdrop from '@/components/WesternBackdrop';
 import BackButton from '@/components/BackButton';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -122,7 +123,8 @@ export default function Profile() {
   const vipProgress = next ? Math.min(100, (totalDeposits / next.minDeposit) * 100) : 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/40 to-stone-950 pb-8">
+    <div className="relative min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/40 to-stone-950 pb-8">
+      <WesternBackdrop />
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <div className="max-w-md mx-auto px-4 py-2 flex items-center gap-2">
           <BackButton />
@@ -133,7 +135,7 @@ export default function Profile() {
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 py-4 flex flex-col gap-3">
+      <main className="relative z-10 max-w-md mx-auto px-4 py-4 flex flex-col gap-3">
         {/* Identity + uid + VIP */}
         <WesternFrame glow className="p-3 flex flex-col items-center gap-1.5">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-md">
