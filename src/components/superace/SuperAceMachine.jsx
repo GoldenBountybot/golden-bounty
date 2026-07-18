@@ -213,7 +213,7 @@ export default function SuperAceMachine() {
 
       // Golden Wild (0.01%): a transformed wild spreads to near-win positions,
       // flying there in animation, while staying at its original spot.
-      if (ev.goldenToWild.size > 0 && goldenWildIdxRef.current == null && Math.random() < 0.0001) {
+      if (ev.goldenToWild.size > 0 && goldenWildIdxRef.current == null && Math.random() < 0.5) {
         const sourceIdx = [...ev.goldenToWild][0];
         const targets = findWildTargets(g, sourceIdx).slice(0, 2);
         if (targets.length > 0) {
