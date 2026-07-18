@@ -133,7 +133,7 @@ export default function SuperAceMachine() {
       const col = [1, 2, 3][Math.floor(Math.random() * 3)];
       const row = Math.floor(Math.random() * ROWS);
       const idx = row * COLS + col;
-      g[idx] = { sym: 'W', golden: false, goldenWild: true, id: makeCell().id };
+      g[idx] = { sym: 'W', golden: false, goldenWild: true, pending: true, id: makeCell().id };
       goldenWildIdxRef.current = idx;
     }
     setGrid(g.map((c) => ({ ...c })));
@@ -142,12 +142,17 @@ export default function SuperAceMachine() {
     playReelLand();
     await sleep(150);
 
-    // Golden Wild spread: fly copies to near-win positions; source stays in place.
+    // Golden Wild: flip to reveal, then fly copies to near-win positions.
     if (goldenWildIdxRef.current != null) {
       const sourceIdx = goldenWildIdxRef.current;
+      g = g.map((c) => ({ ...c, pending: false }));
+      setGrid(g.map((c) => ({ ...c })));
+      setFlipCells(new Set([sourceIdx]));
+      playScatter();
+      await sleep(turboRef.current ? 520 : 680);
+      setFlipCells(new Set());
       const targets = findWildTargets(g, sourceIdx).slice(0, 2);
       if (targets.length > 0) {
-        playScatter();
         setFlyingWilds(targets.map((t) => ({ sourceIdx, targetIdx: t })));
         await sleep(820);
         const ng = g.map((c) => ({ ...c }));

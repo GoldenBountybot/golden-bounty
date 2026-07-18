@@ -44,6 +44,23 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
     };
   }
 
+  if (cell.pending && !flip) {
+    return (
+      <div
+        key={id}
+        className="relative rounded-md overflow-hidden w-full h-full"
+        style={{
+          backgroundImage: `url('${CARD_BACK}')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          border: '1px solid #c9c4ba',
+          boxShadow: '0 0 10px rgba(245,197,66,0.5)',
+          animation: spinning ? `saReelDrop ${0.45 + (idx % 5) * 0.05}s ease-out both` : 'none',
+        }}
+      />
+    );
+  }
+
   if (flip) {
     return (
       <div className="relative rounded-md overflow-hidden w-full h-full" style={{ perspective: '700px' }}>
@@ -52,7 +69,11 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
           <div className="absolute inset-0 rounded-md" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', backgroundImage: `url('${CARD_BACK}')`, backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid #c9c4ba' }} />
           {/* back: wild */}
           <div className="absolute inset-0 rounded-md" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)', background: 'radial-gradient(circle at 50% 45%, #3a2a10 0%, #2a1a06 70%, #160d03 100%)', border: '1.5px solid #f5c542', boxShadow: '0 0 12px rgba(245,197,66,0.85), inset 0 0 0 1px rgba(255,235,150,0.45)' }}>
-            <div className="absolute inset-0 p-0.5"><WesternBadge variant="wild" /></div>
+            {goldenWild ? (
+              <div className="absolute inset-0 rounded-md" style={{ backgroundImage: `url('${GOLDEN_WILD_IMG}')`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+            ) : (
+              <div className="absolute inset-0 p-0.5"><WesternBadge variant="wild" /></div>
+            )}
           </div>
         </div>
       </div>
