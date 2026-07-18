@@ -72,16 +72,16 @@ export default function PayMethod() {
   const [submitting, setSubmitting] = useState(false);
 
   const choose = (m) => {
-    if (m.id === 'usdt' || m.id === 'crypto') { setView(m.id); return; }
+    if (m.id === 'usdt' || m.id === 'crypto' || m.id === 'binance') { setView(m.id); return; }
     toast({ title: `${m.label} selected`, description: 'Payment processing coming soon.' });
   };
 
   const networks = view === 'usdt' ? USDT_NETWORKS : view === 'crypto' ? CRYPTO_NETWORKS : [];
-  const methodLabel = view === 'usdt' ? 'USDT Deposit' : 'Crypto Deposit';
+  const methodLabel = view === 'usdt' ? 'USDT Deposit' : view === 'crypto' ? 'Crypto Deposit' : 'Binance Pay Deposit';
 
   const submitTxid = async () => {
-    if (!selectedNet) { toast({ title: 'Select a network first' }); return; }
-    if (!txid.trim()) { toast({ title: 'Enter your transaction ID' }); return; }
+    if (view !== 'binance' && !selectedNet) { toast({ title: 'Select a network first' }); return; }
+    if (!txid.trim()) { toast({ title: 'Enter your Order / Transaction ID' }); return; }
     setSubmitting(true);
     try {
       let user = null;
@@ -93,11 +93,11 @@ export default function PayMethod() {
         type: 'deposit',
         amount,
         status: 'pending',
-        method: view === 'usdt' ? 'usdt' : 'crypto',
+        method: view === 'usdt' ? 'usdt' : view === 'binance' ? 'binance' : 'crypto',
         reference: txid.trim(),
-        note: `${selectedNet.name} · ${selectedNet.address.slice(0, 10)}...`,
+        note: view === 'binance' ? 'Binance Pay' : `${selectedNet.name} · ${selectedNet.address.slice(0, 10)}...`,
       });
-      toast({ title: 'Transaction submitted', description: 'Pending admin approval.' });
+      toast({ title: 'Order submitted', description: 'Pending admin approval.' });
       setTxid('');
       setSelectedNet(null);
       setTimeout(() => { window.location.href = '/dashboard'; }, 900);
@@ -155,7 +155,7 @@ export default function PayMethod() {
           </div>
         )}
 
-        {view !== 'choose' && (
+        {view !== 'choose' && view !== 'binance' && (
           <div className="flex flex-col gap-3">
             <p className="text-xs text-amber-100/70 italic">Send to one of the addresses below, then submit your transaction ID for admin approval.</p>
             {networks.map((n, i) => {
@@ -189,6 +189,37 @@ export default function PayMethod() {
                 value={txid}
                 onChange={e => setTxid(e.target.value)}
                 placeholder="Paste your transaction ID / hash"
+                className="px-3 py-2 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
+              />
+              <button
+                onClick={submitTxid}
+                disabled={submitting}
+                className="w-full py-2.5 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
+                style={{ fontFamily: 'Georgia, serif' }}
+              >
+                <Send className="w-4 h-4" /> {submitting ? 'Submitting...' : 'Submit for Approval'}
+              </button>
+              <p className="text-[10px] text-amber-100/40 italic">Your balance updates after admin approves the deposit.</p>
+            </WesternFrame>
+          </div>
+        )}
+
+        {view === 'binance' && (
+          <div className="flex flex-col gap-4 items-center">
+            <WesternFrame glow className="p-5 flex flex-col items-center gap-3 w-full">
+              <div className="w-56 h-56 rounded-lg overflow-hidden bg-white p-3 flex items-center justify-center" style={{ boxShadow: '0 0 0 1px rgba(190,140,55,0.5), 0 4px 12px rgba(0,0,0,0.5)' }}>
+                <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2a51a6e74_InShot_20260718_2329057661.jpg" alt="Binance Pay QR" className="w-full h-full object-contain" />
+              </div>
+              <p className="text-xs text-amber-100/70 italic text-center">Scan the QR with your Binance app to pay <span className="font-bold text-amber-200">${amount.toFixed(2)}</span></p>
+            </WesternFrame>
+
+            <WesternFrame className="p-4 flex flex-col gap-3 w-full">
+              <h2 className="font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Submit Order ID</h2>
+              <input
+                type="text"
+                value={txid}
+                onChange={e => setTxid(e.target.value)}
+                placeholder="Enter your Binance Pay Order ID"
                 className="px-3 py-2 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
               />
               <button
