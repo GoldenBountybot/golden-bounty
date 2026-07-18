@@ -171,3 +171,28 @@ export function findWildTargets(g, sourceIdx) {
   }
   return targets;
 }
+
+// Golden Wild trigger: only spawns when placing it (+ flying copies) yields a big win.
+export const BIG_WIN_MULT = 50;
+
+export function findGoldenWildConfig(g, bet) {
+  const threshold = BIG_WIN_MULT * bet;
+  let best = null;
+  for (const c of GOLDEN_COLS) {
+    for (let r = 0; r < ROWS; r++) {
+      const idx = r * COLS + c;
+      const cell = g[idx];
+      if (cell.sym === 'W' || cell.sym === 'SC') continue;
+      const test = g.slice();
+      test[idx] = { ...cell, sym: 'W' };
+      const targets = findWildTargets(test, idx).slice(0, 2);
+      const test2 = test.slice();
+      targets.forEach((t) => { test2[t] = { ...test2[t], sym: 'W' }; });
+      const ev = evaluate(test2, bet);
+      if (ev.pay >= threshold && (!best || ev.pay > best.win)) {
+        best = { sourceIdx: idx, targets, win: ev.pay };
+      }
+    }
+  }
+  return best;
+}

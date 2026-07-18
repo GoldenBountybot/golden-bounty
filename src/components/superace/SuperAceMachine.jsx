@@ -12,7 +12,7 @@ import FreeSpinStart from '@/components/superace/FreeSpinStart';
 import {
   COLS, ROWS, TOTAL, BASE_MULTS, FREE_MULTS, FREE_SPINS_AWARD, RETRIGGER_AWARD,
   BUY_BONUS_MULT, MAX_WIN_CAP, makeGrid, makeCell, evaluate, cascade, nudgeForWin,
-  multiplierFor, PAYS, SCATTER_PAY, findWildTargets,
+  multiplierFor, PAYS, SCATTER_PAY, findWildTargets, findGoldenWildConfig,
 } from '@/lib/superaceEngine';
 import {
   playSpinStart, playReelLand, playComboWin, playCascade, playScatter,
@@ -74,6 +74,7 @@ export default function SuperAceMachine() {
   const autoRef = useRef(false);
   const doSpinRef = useRef(null);
   const goldenWildIdxRef = useRef(null);
+  const goldenTargetsRef = useRef([]);
 
   useEffect(() => { betRef.current = BETS[betIdx]; }, [betIdx]);
   useEffect(() => { rtpRef.current = rtp; }, [rtp]);
@@ -115,6 +116,7 @@ export default function SuperAceMachine() {
     setFlipCells(new Set());
     setFlyingWilds([]);
     goldenWildIdxRef.current = null;
+    goldenTargetsRef.current = [];
     if (!inFreeRef.current) {
       setBalance((x) => x - b);
       setMessage(`Spinning…`);
@@ -128,11 +130,39 @@ export default function SuperAceMachine() {
     if (ev0.pay === 0 && ev0.scatterCount < 3 && Math.random() < (rtpRef.current / 100)) {
       g = nudgeForWin(g);
     }
+    // Golden Wild: drops only when it (+ flying copies) achieves a big win.
+    const goldenCfg = findGoldenWildConfig(g, b);
+    if (goldenCfg) {
+      g[goldenCfg.sourceIdx] = { sym: 'W', golden: false, goldenWild: true, pending: true, id: makeCell().id };
+      goldenWildIdxRef.current = goldenCfg.sourceIdx;
+      goldenTargetsRef.current = goldenCfg.targets;
+    }
     setGrid(g.map((c) => ({ ...c })));
     await sleep(turboRef.current ? 320 : 620);
     setSpinning(false);
     playReelLand();
     await sleep(150);
+
+    // Golden Wild: flip to reveal, then fly copies to win-line positions.
+    if (goldenWildIdxRef.current != null) {
+      const sourceIdx = goldenWildIdxRef.current;
+      g = g.map((c) => ({ ...c, pending: false }));
+      setGrid(g.map((c) => ({ ...c })));
+      setFlipCells(new Set([sourceIdx]));
+      playScatter();
+      await sleep(turboRef.current ? 520 : 680);
+      setFlipCells(new Set());
+      const targets = goldenTargetsRef.current || [];
+      if (targets.length > 0) {
+        setFlyingWilds(targets.map((t) => ({ sourceIdx, targetIdx: t })));
+        await sleep(820);
+        const ng = g.map((c) => ({ ...c }));
+        targets.forEach((t) => { ng[t] = { sym: 'W', golden: false, goldenWild: true, id: makeCell().id }; });
+        g = ng;
+        setGrid(g.map((c) => ({ ...c })));
+        setFlyingWilds([]);
+      }
+    }
 
     const finalGrid = await resolveCascades(g);
 
