@@ -37,73 +37,20 @@ function StarPath({ cx = 50, cy = 50, r = 46, ri = 19 }) {
   return d + 'Z';
 }
 
-// ---------- WILD emblem (Jester/Joker) ----------
+// ---------- WILD emblem (image) ----------
+const WILD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/93a12d6af_wild.png';
+
 function WildEmblem() {
   return (
-    <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <GoldGrad id="wg" />
-        <linearGradient id="jestG" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#00e676" />
-          <stop offset="100%" stopColor="#00a838" />
-        </linearGradient>
-        <linearGradient id="jestB" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#3b82f6" />
-          <stop offset="100%" stopColor="#1d4ed8" />
-        </linearGradient>
-        <linearGradient id="cardG" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fde68a" />
-          <stop offset="50%" stopColor="#f4c430" />
-          <stop offset="100%" stopColor="#d4a017" />
-        </linearGradient>
-      </defs>
-      {/* gold card with beveled border */}
-      <rect x="4" y="4" width="92" height="92" rx="9" fill="#7a5405" />
-      <rect x="7" y="7" width="86" height="86" rx="7" fill={`url(#${'cardG'})`} stroke="#b8901e" strokeWidth="1.2" />
-      <rect x="11" y="11" width="78" height="78" rx="5" fill="none" stroke="#8a5d08" strokeWidth="0.7" />
-      {/* corner gems */}
-      {[[16,16],[84,16],[16,84],[84,84]].map(([x,y],i) => (
-        <g key={i}>
-          <polygon points={`${x},${y-3} ${x+3},${y} ${x},${y+3} ${x-3},${y}`} fill="#2962ff" stroke="#0d1b6b" strokeWidth="0.5" />
-          <polygon points={`${x},${y-3} ${x-1.2},${y-0.5} ${x-3},${y}`} fill="#9fc0ff" />
-        </g>
-      ))}
-
-      {/* jester hat */}
-      <g transform="translate(50 48)">
-        {/* three points: left (green), center (blue), right (green) */}
-        <path d="M-22 14 Q-20 -6 -8 -10 Q-10 0 -6 14 Z" fill={`url(#${'jestG'})`} stroke="#0d3a14" strokeWidth="1" />
-        <path d="M0 16 Q-4 -4 0 -14 Q4 -4 0 16 Z" fill={`url(#${'jestB'})`} stroke="#0d1b6b" strokeWidth="1" />
-        <path d="M22 14 Q20 -6 8 -10 Q10 0 6 14 Z" fill={`url(#${'jestG'})`} stroke="#0d3a14" strokeWidth="1" />
-        {/* brim */}
-        <rect x="-26" y="12" width="52" height="6" rx="2" fill={`url(#${'wg'})`} stroke="#7a5405" strokeWidth="0.8" />
-        {/* orbs on tips */}
-        {[[-15,-9,1,'#fff'],[0,-14,1.2,'#fff'],[15,-9,1,'#fff']].map(([x,y,r,c],i) => (
-          <g key={i}>
-            <circle cx={x} cy={y} r={r} fill={c} stroke="#b8901e" strokeWidth="0.4" />
-            <circle cx={x - 0.4} cy={y - 0.4} r="0.45" fill="#eaf6ff" />
-          </g>
-        ))}
-      </g>
-
-      {/* big WILD */}
-      <rect x="20" y="66" width="60" height="20" rx="4" fill="#0d1b6b" />
-      <text
-        x="50"
-        y="82"
-        textAnchor="middle"
-        fontSize="17"
-        fontWeight="800"
-        fill="#f4c430"
-        stroke="#0d1b6b"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-        paintOrder="stroke"
-        style={{ fontFamily: 'Arial Black, Impact, sans-serif', letterSpacing: '1px' }}
-      >
-        WILD
-      </text>
-    </svg>
+    <div
+      className="absolute inset-0"
+      style={{
+        backgroundImage: `url('${WILD_IMG}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+      aria-label="Wild"
+    />
   );
 }
 
