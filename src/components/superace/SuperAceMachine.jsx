@@ -15,7 +15,7 @@ import WesternStatBanner from '@/components/wildbounty/WesternStatBanner';
 import {
   COLS, ROWS, TOTAL, BASE_MULTS, FREE_MULTS, FREE_SPINS_AWARD, RETRIGGER_AWARD,
   BUY_BONUS_MULT, MAX_WIN_CAP, makeGrid, makeCell, evaluate, cascade, nudgeForWin,
-  multiplierFor, PAYS, SCATTER_PAY, findWildTargets, findGoldenWildConfig,
+  multiplierFor, PAYS, SCATTER_PAY, findWildTargets, findGoldenWildConfig, PAY_SYMBOLS,
 } from '@/lib/superaceEngine';
 import {
   playSpinStart, playReelLand, playComboWin, playCascade, playScatter,
@@ -156,15 +156,33 @@ export default function SuperAceMachine() {
     }
     playSpinStart();
 
-    // The RTP gate controls whether this spin wins at ALL — natural wins are
-    // allowed only when the roll succeeds; otherwise the board is re-rolled to
-    // a clean losing grid (no pay, <3 scatters). So win chance ≈ RTP%.
+    // 3-scatter free-spin trigger is an independent 0.1% roll, separate from the
+    // 10% line-win gate. The win gate controls line wins; scatters are gated here.
     const forceWin = Math.random() < (rtpRef.current / 100);
+    const scatterHit = Math.random() < 0.001; // 0.1%
     let g = makeGrid();
     let ev0 = evaluate(g, b);
-    if (forceWin) {
+    if (scatterHit) {
+      // Force exactly 3 scatters on random pay-symbol cells → free spins.
+      const payIdxs = g.map((c, i) => (PAY_SYMBOLS.includes(c.sym) ? i : -1)).filter((i) => i >= 0);
+      for (let i = payIdxs.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [payIdxs[i], payIdxs[j]] = [payIdxs[j], payIdxs[i]];
+      }
+      for (let k = 0; k < Math.min(3, payIdxs.length); k++) {
+        g[payIdxs[k]].sym = 'SC';
+        g[payIdxs[k]].golden = false;
+      }
+    } else if (forceWin) {
       if (ev0.pay === 0 && ev0.scatterCount < 3) {
         g = nudgeForWin(g);
+      } else if (ev0.scatterCount >= 3) {
+        // strip extras so only the 0.1% roll triggers free spins
+        const scIdxs = g.map((c, i) => (c.sym === 'SC' ? i : -1)).filter((i) => i >= 0);
+        for (let k = 2; k < scIdxs.length; k++) {
+          g[scIdxs[k]].sym = makeCell().sym;
+          g[scIdxs[k]].golden = false;
+        }
       }
     } else {
       let guard = 0;
@@ -175,7 +193,7 @@ export default function SuperAceMachine() {
       }
     }
     // Golden Wild: drops only when the spin is a forced win AND it (+ flying copies) achieves a big win.
-    const goldenCfg = forceWin ? findGoldenWildConfig(g, b) : null;
+    const goldenCfg = forceWin && !scatterHit ? findGoldenWildConfig(g, b) : null;
     if (goldenCfg) {
       g[goldenCfg.sourceIdx] = { sym: 'W', golden: false, goldenWild: true, pending: true, id: makeCell().id };
       goldenWildIdxRef.current = goldenCfg.sourceIdx;
