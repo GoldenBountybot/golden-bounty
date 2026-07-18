@@ -1,6 +1,6 @@
 import React from 'react';
-import { Crown, DollarSign, Star } from 'lucide-react';
 import PlayingCardFace from './PlayingCardFace';
+import WesternBadge from './WesternBadge';
 
 export default function CardTile({ cell, idx, isWin, spinning, isNew }) {
   const { sym, golden, id } = cell;
@@ -22,14 +22,14 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew }) {
     boxShadow: '0 0 10px rgba(245,197,66,0.85), inset 0 0 0 1px rgba(180,120,20,0.4), 0 1px 3px rgba(0,0,0,0.4)',
   };
   const wildStyle = {
-    background: 'linear-gradient(135deg, #1e3a8a 0%, #0f766e 50%, #b8860b 100%)',
+    background: 'radial-gradient(circle at 50% 45%, #3a2a10 0%, #2a1a06 70%, #160d03 100%)',
     border: '1.5px solid #f5c542',
-    boxShadow: '0 0 12px rgba(245,197,66,0.85), inset 0 0 0 1px rgba(255,235,150,0.5)',
+    boxShadow: '0 0 12px rgba(245,197,66,0.85), inset 0 0 0 1px rgba(255,235,150,0.45)',
   };
   const scatterStyle = {
-    background: 'radial-gradient(circle at 50% 45%, #fff3c4, #f0c850 45%, #b8801e)',
+    background: 'radial-gradient(circle at 50% 45%, #3a2a10 0%, #2a1a06 70%, #160d03 100%)',
     border: '1.5px solid #f5c542',
-    boxShadow: '0 0 12px rgba(245,197,66,0.85), inset 0 1px 0 rgba(255,255,240,0.7)',
+    boxShadow: '0 0 12px rgba(245,197,66,0.85), inset 0 0 0 1px rgba(255,235,150,0.45)',
   };
 
   let style = baseStyle;
@@ -62,16 +62,13 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew }) {
       }}
     >
       {isWild && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-          <Crown className="w-6 h-6 relative" style={{ color: '#fde68a', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))' }} />
-          <span className="text-[9px] font-black tracking-widest relative" style={{ color: '#7dd3fc', textShadow: '0 1px 2px rgba(0,0,0,0.7)', fontFamily: 'Georgia, serif' }}>WILD</span>
-          <Star className="w-3 h-3 relative" style={{ color: '#fde68a' }} />
+        <div className="absolute inset-0 p-0.5">
+          <WesternBadge variant="wild" />
         </div>
       )}
       {isScatter && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-          <DollarSign className="w-7 h-7 relative" style={{ color: '#7a4a08', filter: 'drop-shadow(0 1px 1px rgba(255,255,255,0.6))' }} />
-          <span className="text-[6.5px] font-black tracking-wider relative mt-0.5 px-1 rounded-sm" style={{ background: '#c0392b', color: '#fff', textShadow: '0 1px 1px rgba(0,0,0,0.6)' }}>SCATTER</span>
+        <div className="absolute inset-0 p-0.5">
+          <WesternBadge variant="scatter" />
         </div>
       )}
       {(isFace || isSuit) && <PlayingCardFace sym={sym} golden={golden} />}
