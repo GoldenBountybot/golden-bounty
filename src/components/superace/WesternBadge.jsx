@@ -54,28 +54,20 @@ function WildEmblem() {
   );
 }
 
-// ---------- SCATTER emblem (star badge + $) ----------
+// ---------- SCATTER emblem (image) ----------
+const SCATTER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c725b5a50_wild-ace-02.png';
+
 function ScatterEmblem() {
   return (
-    <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <GoldGrad id="sg" />
-      </defs>
-      <circle cx="50" cy="50" r="47" fill={`url(#${'sgl'})`} stroke="#7a5405" strokeWidth="1.4" />
-      <circle cx="50" cy="50" r="42" fill="#1c1306" stroke="#caa233" strokeWidth="0.8" />
-      {[0, 72, 144, 216, 288].map((a) => {
-        const r = 44;
-        const x = 50 + r * Math.cos((a - 90) * Math.PI / 180);
-        const y = 50 + r * Math.sin((a - 90) * Math.PI / 180);
-        return <circle key={a} cx={x} cy={y} r="1.7" fill="#f5e0a0" stroke="#7a5405" strokeWidth="0.5" />;
-      })}
-      <path d={StarPath({ r: 37, ri: 15 })} fill={`url(#${'sg'})`} stroke="#7a5405" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d={StarPath({ r: 30, ri: 12 })} fill="none" stroke="rgba(255,245,200,0.5)" strokeWidth="1" strokeLinejoin="round" />
-      <circle cx="50" cy="50" r="15" fill="#241605" stroke="#caa233" strokeWidth="1.2" />
-      <text x="50" y="57" textAnchor="middle" fontSize="18" fontWeight="700" fill={`url(#${'sgl'})`} stroke="#7a5405" strokeWidth="0.3" style={{ fontFamily: 'Rye, Georgia, serif' }}>$</text>
-      <path d="M30 78 L70 78 L74 84 L66 88 L50 86 L34 88 L26 84 Z" fill="#2a1a05" stroke="#caa233" strokeWidth="0.9" />
-      <text x="50" y="84.5" textAnchor="middle" fontSize="6.5" fontWeight="700" fill="#f5e0a0" style={{ fontFamily: 'Rye, Georgia, serif', letterSpacing: '0.5px' }}>SCATTER</text>
-    </svg>
+    <div
+      className="absolute inset-0"
+      style={{
+        backgroundImage: `url('${SCATTER_IMG}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+      aria-label="Scatter"
+    />
   );
 }
 
