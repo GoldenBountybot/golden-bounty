@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BackButton from '@/components/BackButton';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useToast } from '@/components/ui/use-toast';
@@ -66,17 +66,34 @@ export default function PayMethod() {
   const params = new URLSearchParams(window.location.search);
   const amount = Number(params.get('amount') || 0);
   const { toast } = useToast();
-  const [view, setView] = useState('choose'); // 'choose' | 'usdt' | 'crypto'
+  const [view, setView] = useState('choose'); // 'choose' | 'usdt' | 'crypto' | 'binance'
   const [selectedNet, setSelectedNet] = useState(null);
   const [txid, setTxid] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [payData, setPayData] = useState({ binance: null, usdt: USDT_NETWORKS, crypto: CRYPTO_NETWORKS });
+
+  useEffect(() => {
+    base44.entities.PaymentAddress.filter({ active: true }, 'order', 100)
+      .then(list => {
+        const map = (r) => ({ name: r.label, symbol: r.symbol || '', color: r.color || '#f7931a', address: r.address || '', qr_image_url: r.qr_image_url || '', network: r.network, raw: r });
+        const bin = list.find(r => r.method === 'binance');
+        const usdt = list.filter(r => r.method === 'usdt').map(map);
+        const crypto = list.filter(r => r.method === 'crypto').map(map);
+        setPayData({
+          binance: bin ? map(bin) : null,
+          usdt: usdt.length ? usdt : USDT_NETWORKS,
+          crypto: crypto.length ? crypto : CRYPTO_NETWORKS,
+        });
+      })
+      .catch(() => {});
+  }, []);
 
   const choose = (m) => {
     if (m.id === 'usdt' || m.id === 'crypto' || m.id === 'binance') { setView(m.id); return; }
     toast({ title: `${m.label} selected`, description: 'Payment processing coming soon.' });
   };
 
-  const networks = view === 'usdt' ? USDT_NETWORKS : view === 'crypto' ? CRYPTO_NETWORKS : [];
+  const networks = view === 'usdt' ? payData.usdt : view === 'crypto' ? payData.crypto : [];
   const methodLabel = view === 'usdt' ? 'USDT Deposit' : view === 'crypto' ? 'Crypto Deposit' : 'Binance Pay Deposit';
 
   const submitTxid = async () => {
@@ -208,7 +225,7 @@ export default function PayMethod() {
           <div className="flex flex-col gap-4 items-center">
             <WesternFrame glow className="p-5 flex flex-col items-center gap-3 w-full">
               <div className="w-56 h-56 rounded-lg overflow-hidden bg-white p-3 flex items-center justify-center" style={{ boxShadow: '0 0 0 1px rgba(190,140,55,0.5), 0 4px 12px rgba(0,0,0,0.5)' }}>
-                <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2a51a6e74_InShot_20260718_2329057661.jpg" alt="Binance Pay QR" className="w-full h-full object-contain" />
+                <img src={payData.binance?.qr_image_url || 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2a51a6e74_InShot_20260718_2329057661.jpg'} alt="Binance Pay QR" className="w-full h-full object-contain" />
               </div>
               <p className="text-xs text-amber-100/70 italic text-center">Scan the QR with your Binance app to pay <span className="font-bold text-amber-200">${amount.toFixed(2)}</span></p>
             </WesternFrame>

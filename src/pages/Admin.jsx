@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Users, Receipt, SlidersHorizontal, Gift } from 'lucide-react';
+import { Shield, Users, Receipt, SlidersHorizontal, Gift, Wallet } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import BackButton from '@/components/BackButton';
 import AdminPlayers from '@/components/admin/AdminPlayers';
@@ -8,6 +8,7 @@ import AdminTransactions from '@/components/admin/AdminTransactions';
 import AdminGameSettings from '@/components/admin/AdminGameSettings';
 import AdminBonuses from '@/components/admin/AdminBonuses';
 import AdminBanners from '@/components/admin/AdminBanners';
+import AdminPaymentAddresses from '@/components/admin/AdminPaymentAddresses';
 import { Image } from 'lucide-react';
 
 const TABS = [
@@ -16,6 +17,7 @@ const TABS = [
   { id: 'games', label: 'Game RTP', icon: SlidersHorizontal, comp: AdminGameSettings },
   { id: 'bonuses', label: 'Bonuses', icon: Gift, comp: AdminBonuses },
   { id: 'banners', label: 'Banners', icon: Image, comp: AdminBanners },
+  { id: 'pay', label: 'Pay Addr', icon: Wallet, comp: AdminPaymentAddresses },
 ];
 
 export default function Admin() {
@@ -64,7 +66,7 @@ export default function Admin() {
         </div>
       </header>
       <main className="max-w-md mx-auto px-4 py-5 flex flex-col gap-4">
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-6 gap-2">
           {TABS.map(t => {
             const Icon = t.icon;
             const active = tab === t.id;
