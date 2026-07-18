@@ -13,18 +13,23 @@ export const BUY_BONUS_MULT = 60;
 export const MAX_WIN_CAP = 1500; // times bet, hard cap per spin
 
 export const PAY_SYMBOLS = ['A', 'K', 'Q', 'J', 'S', 'H', 'D', 'C'];
-// PAYS[s][run] = multiplier of bet PER WAY. win = PAYS[s][run] * ways * bet
+// PAYS[s][run] = multiplier of bet PER WAY (1024-ways convention).
+// Values mirror the JILI Super Ace / Full House paytable (× total bet per way).
 export const PAYS = {
-  A: { 3: 0.10, 4: 0.30, 5: 0.75 },
-  K: { 3: 0.08, 4: 0.22, 5: 0.60 },
-  Q: { 3: 0.06, 4: 0.18, 5: 0.48 },
-  J: { 3: 0.05, 4: 0.14, 5: 0.38 },
-  S: { 3: 0.035, 4: 0.10, 5: 0.26 },
-  H: { 3: 0.035, 4: 0.10, 5: 0.26 },
-  D: { 3: 0.035, 4: 0.10, 5: 0.26 },
-  C: { 3: 0.035, 4: 0.10, 5: 0.26 },
+  A: { 3: 0.5,  4: 1.5,  5: 2.5  },
+  K: { 3: 0.4,  4: 1.2,  5: 2.0  },
+  Q: { 3: 0.3,  4: 0.9,  5: 1.5  },
+  J: { 3: 0.2,  4: 0.6,  5: 1.0  },
+  S: { 3: 0.1,  4: 0.3,  5: 0.5  },
+  H: { 3: 0.1,  4: 0.3,  5: 0.5  },
+  D: { 3: 0.05, 4: 0.15, 5: 0.25 },
+  C: { 3: 0.05, 4: 0.15, 5: 0.25 },
 };
 export const SCATTER_PAY = { 3: 2, 4: 10, 5: 50 };
+
+// Golden Cards only appear on reels 2–4 (columns 1,2,3). 20% chance per card.
+export const GOLDEN_COLS = [1, 2, 3];
+export const GOLDEN_CHANCE = 0.20;
 
 // Reel-strip weights. Suits common, faces mid, A rarer, SCATTER rare.
 // WILD never spawns directly — it only appears via golden-card transformation.
@@ -53,9 +58,12 @@ function weightedSym() {
 export function makeGrid() {
   const g = [];
   for (let i = 0; i < TOTAL; i++) g.push(makeCell());
-  // Every card (faces + suits) can be golden. 20% chance per card.
-  for (let i = 0; i < TOTAL; i++) {
-    if (PAY_SYMBOLS.includes(g[i].sym) && Math.random() < 0.20) g[i].golden = true;
+  // Golden cards only on reels 2–4 (cols 1,2,3). 20% chance per pay-symbol cell.
+  for (const c of GOLDEN_COLS) {
+    for (let r = 0; r < ROWS; r++) {
+      const idx = r * COLS + c;
+      if (PAY_SYMBOLS.includes(g[idx].sym) && Math.random() < GOLDEN_CHANCE) g[idx].golden = true;
+    }
   }
   return g;
 }
@@ -91,13 +99,8 @@ export function evaluate(g, bet) {
       }
     }
   }
-  // Only ONE golden card transforms into WILD per cascade (not all).
-  if (goldenToWild.size > 1) {
-    const arr = [...goldenToWild];
-    const chosen = arr[Math.floor(Math.random() * arr.length)];
-    goldenToWild.clear();
-    goldenToWild.add(chosen);
-  }
+  // Every golden card that is part of a winning combo flips into a WILD (Joker)
+  // for the next cascade — the signature Super Ace mechanic.
   const scatterCount = g.filter((c) => c.sym === 'SC').length;
   let scatterPay = 0;
   if (scatterCount >= 3) scatterPay = (SCATTER_PAY[scatterCount] || SCATTER_PAY[5]) * bet;
@@ -116,9 +119,16 @@ export function cascade(g, winCells, goldenToWild) {
       else if (!winCells.has(idx)) keepers.push(cell);
     }
     const offset = ROWS - keepers.length;
+    const goldenCol = GOLDEN_COLS.includes(c);
     for (let r = 0; r < ROWS; r++) {
       const idx = r * COLS + c;
-      res[idx] = r >= offset ? keepers[r - offset] : makeCell();
+      if (r >= offset) {
+        res[idx] = keepers[r - offset];
+      } else {
+        const nc = makeCell();
+        if (goldenCol && PAY_SYMBOLS.includes(nc.sym) && Math.random() < GOLDEN_CHANCE) nc.golden = true;
+        res[idx] = nc;
+      }
     }
   }
   return res;
