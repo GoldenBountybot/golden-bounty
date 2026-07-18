@@ -2,13 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
-// Stack Balance: lock part of your balance to earn 3% daily profit.
+// Stack Balance: lock part of your balance to earn 2.5% daily profit.
 // The staked amount is locked for 15 days (cannot be used or withdrawn).
 // After 15 days it auto-unlocks and returns to your balance. Profit can be
 // claimed any time. All stack state is persisted on the user's record.
 const DAY = 24 * 60 * 60 * 1000;
 export const LOCK_DAYS = 15;
-export const DAILY_RATE = 0.03;
+export const DAILY_RATE = 0.025;
 
 // Profit accrues continuously per second at DAILY_RATE per 24h.
 // Total earning window is capped at LOCK_DAYS; after that it stops growing.

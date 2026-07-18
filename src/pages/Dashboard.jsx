@@ -232,7 +232,7 @@ export default function Dashboard() {
             <div className="rounded-2xl overflow-hidden border border-amber-700/40 shadow-lg">
               <img
                 src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ce2101293_InShot_20260718_173817740.jpg"
-                alt="Stack Balance — Lock your balance to earn 3% daily profit for 15 days"
+                alt="Stack Balance — Lock your balance to earn 2.5% daily profit for 15 days"
                 className="w-full h-auto block"
               />
             </div>
