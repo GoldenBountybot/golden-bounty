@@ -1,0 +1,56 @@
+{
+  "name": "Banner",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Main headline text shown on the banner"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional sub-text / announcement"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Optional uploaded banner image; if empty a gradient + text banner is shown"
+    },
+    "link": {
+      "type": "string",
+      "description": "Internal route (e.g. /games/wild-bounty) or external URL (https://...). Not shown to users; banner click navigates here."
+    },
+    "link_label": {
+      "type": "string",
+      "description": "Optional button label, e.g. Play Now"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Lower numbers show first"
+    }
+  },
+  "required": [
+    "title"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": true,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
