@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Wallet, Gift, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles } from 'lucide-react';
+import { Wallet, Gift, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import { useStake, LOCK_DAYS, DAILY_RATE } from '@/lib/useStake';
 import StackMining from '@/components/StackMining';
@@ -8,6 +8,7 @@ import BackButton from '@/components/BackButton';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/lib/AuthContext';
+import { base44 } from '@/api/base44Client';
 
 const TABS = [
   { id: 'wallet', label: 'Wallet', icon: Wallet },
@@ -45,6 +46,20 @@ export default function Dashboard() {
   const [depAmt, setDepAmt] = useState('');
   const [wdAmt, setWdAmt] = useState('');
   const [stkAmt, setStkAmt] = useState('');
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const me = await base44.auth.me().catch(() => null);
+        if (!me || !active) return;
+        const rows = await base44.entities.Transaction.filter({ user_id: me.id }, '-created_date', 50);
+        if (active) setHistory(rows.filter(t => t.type === 'deposit' || t.type === 'withdraw'));
+      } catch { /* ignore */ }
+    })();
+    return () => { active = false; };
+  }, [tab]);
 
   const goTab = (id) => {
     setTab(id);
@@ -63,9 +78,9 @@ export default function Dashboard() {
   const doWithdraw = () => {
     const n = Number(wdAmt);
     if (!n || n <= 0) { toast({ title: 'Enter a valid amount' }); return; }
-    const ok = acct.withdraw(n);
-    if (ok) { toast({ title: 'Withdrawal requested', description: `$${n.toFixed(2)} deducted` }); setWdAmt(''); }
-    else toast({ title: 'Insufficient balance' });
+    if (n > acct.balance) { toast({ title: 'Insufficient balance' }); return; }
+    window.location.href = `/withdraw?amount=${encodeURIComponent(n)}`;
+    setWdAmt('');
   };
 
   const claim = (name, fn) => {
@@ -166,7 +181,34 @@ export default function Dashboard() {
                 <input type="number" value={wdAmt} onChange={e => setWdAmt(e.target.value)} placeholder="Amount to withdraw" className="flex-1 px-3 py-2 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none" />
                 <button onClick={doWithdraw} className="px-4 py-2 rounded-md bg-gradient-to-r from-rose-500 to-red-700 text-white font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>Withdraw</button>
               </div>
+              <p className="text-[10px] text-amber-100/40 italic">Withdraw creates a request — funds are sent after admin approval.</p>
             </WesternFrame>
+
+            {/* Deposit & Withdraw history */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-amber-200 px-1">
+                <History className="w-4 h-4" />
+                <h2 className="text-sm font-black italic" style={{ fontFamily: 'Georgia, serif' }}>Deposit & Withdraw History</h2>
+              </div>
+              {history.length === 0 ? (
+                <p className="text-amber-100/50 text-xs italic px-1">No transactions yet.</p>
+              ) : history.map(t => {
+                const credit = t.type === 'deposit';
+                const statusColor = t.status === 'completed' ? 'text-emerald-300' : t.status === 'pending' ? 'text-amber-300' : 'text-rose-400';
+                return (
+                  <WesternFrame key={t.id} className="p-2.5 flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold italic text-amber-100" style={{ fontFamily: 'Georgia, serif' }}>
+                        {credit ? 'Deposit' : 'Withdraw'} · <span className={credit ? 'text-emerald-300' : 'text-rose-300'}>{credit ? '+' : '−'}${Number(t.amount).toFixed(2)}</span>
+                      </p>
+                      <p className="text-[10px] text-amber-100/50 italic">{t.method} · {t.reference ? `${t.reference.slice(0, 16)}` : '—'}</p>
+                      {t.note && <p className="text-[9px] text-amber-100/35 italic truncate">{t.note}</p>}
+                    </div>
+                    <span className={`text-[10px] font-bold italic capitalize ${statusColor}`} style={{ fontFamily: 'Georgia, serif' }}>{t.status}</span>
+                  </WesternFrame>
+                );
+              })}
+            </div>
           </div>
         )}
 

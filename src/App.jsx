@@ -20,6 +20,7 @@ import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
 import PayMethod from './pages/PayMethod';
+import Withdraw from './pages/Withdraw';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 const AuthenticatedApp = () => {
@@ -62,6 +63,7 @@ const AuthenticatedApp = () => {
         <Route path="/games/rocket-crash" element={<RocketCrash />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/pay" element={<PayMethod />} />
+        <Route path="/withdraw" element={<Withdraw />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<Admin />} />
       </Route>
