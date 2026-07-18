@@ -119,13 +119,6 @@ export default function SuperAceMachine() {
     if (ev0.pay === 0 && ev0.scatterCount < 3 && Math.random() < (rtpRef.current / 100)) {
       g = nudgeForWin(g);
     }
-    // scatter on initial grid
-    const sc0 = g.filter((c) => c.sym === 'SC').length;
-    if (sc0 >= 3) {
-      scatterAwardRef.current = (SCATTER_PAY_LOOKUP(sc0)) * b;
-      freeTriggerRef.current = true;
-    }
-
     setGrid(g.map((c) => ({ ...c })));
     await sleep(turboRef.current ? 320 : 620);
     setSpinning(false);
@@ -133,6 +126,14 @@ export default function SuperAceMachine() {
     await sleep(150);
 
     await resolveCascades(g);
+
+    // 3+ scatters collected at any point during the round (initial or via cascades)
+    // trigger free spins once the round ends. Scatters persist across cascades.
+    const finalSc = g.filter((c) => c.sym === 'SC').length;
+    if (finalSc >= 3) {
+      scatterAwardRef.current = SCATTER_PAY_LOOKUP(finalSc) * b;
+      freeTriggerRef.current = true;
+    }
 
     if (freeTriggerRef.current) {
       if (inFreeRef.current) {

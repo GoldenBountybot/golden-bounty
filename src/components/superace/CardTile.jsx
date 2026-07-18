@@ -41,7 +41,6 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew }) {
     style = {
       ...style,
       boxShadow: '0 0 16px rgba(255,235,150,1), inset 0 0 0 2px rgba(255,245,180,1)',
-      transform: 'scale(1.05)',
     };
   }
 

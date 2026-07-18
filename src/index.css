@@ -222,8 +222,8 @@
   100% { transform: translate(-50%, 0) scale(1) rotate(-3deg); opacity: 1; }
 }
 @keyframes saGlowPulse {
-  0%, 100% { box-shadow: 0 0 10px rgba(255,210,120,0.7), inset 0 0 0 2px rgba(255,235,150,0.9); }
-  50%      { box-shadow: 0 0 20px rgba(255,220,140,1), inset 0 0 0 2px rgba(255,245,180,1); }
+  0%, 100% { transform: scale(1.07); box-shadow: 0 0 10px rgba(255,210,120,0.7), inset 0 0 0 2px rgba(255,235,150,0.9); }
+  50%      { transform: scale(1.13); box-shadow: 0 0 22px rgba(255,220,140,1), inset 0 0 0 2px rgba(255,245,180,1); }
 }
 @keyframes saCoinFloat {
   0%   { transform: translateY(0) scale(0.4); opacity: 0; }
