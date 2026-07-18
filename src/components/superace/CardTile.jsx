@@ -76,6 +76,30 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter })
       {golden && (isFace || isSuit) && (
         <span className="absolute top-[3px] right-[3px] z-20 text-[8px] font-black" style={{ color: '#b8860b', textShadow: '0 0 4px rgba(255,235,150,0.9)' }}>★</span>
       )}
+      {shatter && (
+        <div className="absolute inset-0 z-30 pointer-events-none">
+          {STAR_DIRS.map((d, i) => (
+            <span
+              key={i}
+              className="absolute top-1/2 left-1/2 text-[10px]"
+              style={{
+                '--sx': `${d.x}px`,
+                '--sy': `${d.y}px`,
+                color: '#ffe98a',
+                textShadow: '0 0 5px rgba(245,197,66,0.9)',
+                animation: `saStarBurst ${0.3 + (i % 3) * 0.06}s ease-out forwards`,
+              }}
+            >
+              ★
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+
+const STAR_DIRS = [
+  { x: -18, y: -16 }, { x: 16, y: -18 }, { x: -22, y: 6 }, { x: 20, y: 8 },
+  { x: -6, y: -22 }, { x: 8, y: 20 }, { x: -20, y: 18 }, { x: 22, y: -6 },
+];
