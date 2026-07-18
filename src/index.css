@@ -204,6 +204,10 @@
   70%  { transform: translateY(6%); opacity: 1; }
   100% { transform: translateY(0%); opacity: 1; }
 }
+@keyframes saFlip {
+  0%   { transform: rotateY(0deg); }
+  100% { transform: rotateY(180deg); }
+}
 @keyframes saStarBurst {
   0%   { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
   100% { transform: translate(calc(-50% + var(--sx)), calc(-50% + var(--sy))) scale(0.15) rotate(180deg); opacity: 0; }

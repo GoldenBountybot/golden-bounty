@@ -2,7 +2,7 @@ import React from 'react';
 import PlayingCardFace from './PlayingCardFace';
 import WesternBadge from './WesternBadge';
 
-export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter }) {
+export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip }) {
   const { sym, golden, id } = cell;
   const isFace = ['A', 'K', 'Q', 'J'].includes(sym);
   const isSuit = ['S', 'H', 'D', 'C'].includes(sym);
@@ -42,6 +42,21 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter })
       ...style,
       boxShadow: '0 0 16px rgba(255,235,150,1), inset 0 0 0 2px rgba(255,245,180,1)',
     };
+  }
+
+  if (flip) {
+    return (
+      <div className="relative rounded-md overflow-hidden w-full h-full" style={{ perspective: '700px' }}>
+        <div className="relative w-full h-full" style={{ transformStyle: 'preserve-3d', animation: 'saFlip 0.62s ease-in-out forwards' }}>
+          {/* front: ornate card back */}
+          <div className="absolute inset-0 rounded-md" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', backgroundImage: `url('${CARD_BACK}')`, backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid #c9c4ba' }} />
+          {/* back: wild */}
+          <div className="absolute inset-0 rounded-md" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)', background: 'radial-gradient(circle at 50% 45%, #3a2a10 0%, #2a1a06 70%, #160d03 100%)', border: '1.5px solid #f5c542', boxShadow: '0 0 12px rgba(245,197,66,0.85), inset 0 0 0 1px rgba(255,235,150,0.45)' }}>
+            <div className="absolute inset-0 p-0.5"><WesternBadge variant="wild" /></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -103,3 +118,5 @@ const STAR_DIRS = [
   { x: -18, y: -16 }, { x: 16, y: -18 }, { x: -22, y: 6 }, { x: 20, y: 8 },
   { x: -6, y: -22 }, { x: 8, y: 20 }, { x: -20, y: 18 }, { x: 22, y: -6 },
 ];
+
+const CARD_BACK = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fcd98f4f5_InShot_20260718_152559101.jpg';

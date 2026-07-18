@@ -56,6 +56,7 @@ export default function SuperAceMachine() {
   const [newCells, setNewCells] = useState(new Set()); // cells that just dropped (for anim)
   const [showFreeStart, setShowFreeStart] = useState(false);
   const [shatterCells, setShatterCells] = useState(new Set());
+  const [flipCells, setFlipCells] = useState(new Set());
 
   // refs for async orchestration
   const betRef = useRef(BETS[betIdx]);
@@ -178,15 +179,23 @@ export default function SuperAceMachine() {
       playComboWin(comboCount);
       await sleep(turboRef.current ? 380 : 560);
 
-      // winning cards blast/shatter then vanish
-      setShatterCells(new Set(ev.winCells));
+      // golden winners: glow -> card-back -> flip -> wild (stay in place, no drop)
+      if (ev.goldenToWild.size > 0) {
+        setFlipCells(new Set(ev.goldenToWild));
+        await sleep(turboRef.current ? 520 : 680);
+      }
+
+      // remaining winning cards blast/shatter then vanish
+      const shatterSet = new Set([...ev.winCells].filter((i) => !ev.goldenToWild.has(i)));
+      setShatterCells(shatterSet);
       await sleep(turboRef.current ? 280 : 340);
 
-      const dropped = new Set(ev.winCells);
+      const dropped = new Set([...ev.winCells].filter((i) => !ev.goldenToWild.has(i)));
       g = cascade(g, ev.winCells, ev.goldenToWild);
       setGrid(g.map((c) => ({ ...c })));
       setWinningCells(new Set());
       setShatterCells(new Set());
+      setFlipCells(new Set());
       setFloatWin(null);
       setNewCells(dropped);
       playCascade();
@@ -302,7 +311,7 @@ export default function SuperAceMachine() {
           <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }}>
             {grid.map((cell, idx) => (
               <div key={cell.id + '-' + idx} className="aspect-[3/4]">
-                <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} spinning={spinning} isNew={newCells.has(idx)} />
+                <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} flip={flipCells.has(idx)} spinning={spinning} isNew={newCells.has(idx)} />
               </div>
             ))}
           </div>
