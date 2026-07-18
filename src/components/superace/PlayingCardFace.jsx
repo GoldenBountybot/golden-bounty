@@ -14,34 +14,13 @@ const COURT_IMG = {
   K: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/aab4c596e_generated_image.png',
   Q: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/44b48b316_generated_image.png',
   J: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/78c7b77e2_generated_image.png',
+  A: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/196f878d8_generated_image.png',
 };
 
 const SUIT_GLYPH = { S: '♠', H: '♥', D: '♦', C: '♣' };
 const SUIT_COLOR = { S: DARK, H: RED_BRIGHT, D: '#e64a19', C: BLUE };
 const FACE_ACCENT = { A: DARK, K: BLUE, Q: RED, J: BLUE };
 const FACE_CORNER_PIP = { A: '♠', K: '♠', Q: '♥', J: '♣' };
-
-// Ace: ornate big A with crown + flourishes (SVG)
-function AceArt({ color }) {
-  return (
-    <svg viewBox="0 0 64 92" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-      {/* crown */}
-      <g>
-        <path d="M23 12 L23 4 L29 9 L32 2 L35 9 L41 4 L41 12 Z" fill={GOLD} stroke="#a87f12" strokeWidth="0.8" strokeLinejoin="round" />
-        <circle cx="23" cy="4" r="1.5" fill="#fff" />
-        <circle cx="32" cy="2.5" r="1.7" fill={RED_BRIGHT} />
-        <circle cx="41" cy="4" r="1.5" fill="#fff" />
-      </g>
-      {/* ornate A */}
-      <path d="M32 20 L16 74 L24 74 L28 62 L36 62 L40 74 L48 74 Z" fill={color} stroke="#a87f12" strokeWidth="0.8" strokeLinejoin="round" />
-      <path d="M29 54 L35 54" stroke={GOLD} strokeWidth="2.6" />
-      {/* flourishes */}
-      <path d="M14 70 Q20 66 14 62" fill="none" stroke={color} strokeWidth="1" opacity="0.6" />
-      <path d="M50 70 Q44 66 50 62" fill="none" stroke={color} strokeWidth="1" opacity="0.6" />
-      <circle cx="32" cy="34" r="2.2" fill={GOLD} stroke="#a87f12" strokeWidth="0.4" />
-    </svg>
-  );
-}
 
 // Suit: big centered pip with side flourishes
 function SuitArt({ sym }) {
@@ -71,6 +50,7 @@ export default function PlayingCardFace({ sym, golden }) {
   const isFace = ['A', 'K', 'Q', 'J'].includes(sym);
   const isSuit = ['S', 'H', 'D', 'C'].includes(sym);
   const isCourt = ['K', 'Q', 'J'].includes(sym);
+  const isAce = sym === 'A';
 
   const indexLetter = isFace ? sym : SUIT_GLYPH[sym];
   const indexColor = isFace ? FACE_ACCENT[sym] : SUIT_COLOR[sym];
@@ -92,8 +72,19 @@ export default function PlayingCardFace({ sym, golden }) {
           }}
         />
       )}
-      {/* Ace / suit vector art */}
-      {sym === 'A' && <div className="absolute inset-0" style={{ filter: sepia }}><AceArt color={FACE_ACCENT.A} /></div>}
+      {/* Ace realistic image */}
+      {isAce && (
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url('${COURT_IMG.A}')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: sepia,
+          }}
+        />
+      )}
+      {/* suit vector art */}
       {isSuit && <div className="absolute inset-0" style={{ filter: sepia }}><SuitArt sym={sym} /></div>}
 
       {/* subtle inner frame line like real cards */}
