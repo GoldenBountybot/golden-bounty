@@ -125,11 +125,11 @@ export default function SuperAceMachine() {
     playReelLand();
     await sleep(150);
 
-    await resolveCascades(g);
+    const finalGrid = await resolveCascades(g);
 
     // 3+ scatters collected at any point during the round (initial or via cascades)
     // trigger free spins once the round ends. Scatters persist across cascades.
-    const finalSc = g.filter((c) => c.sym === 'SC').length;
+    const finalSc = finalGrid.filter((c) => c.sym === 'SC').length;
     if (finalSc >= 3) {
       scatterAwardRef.current = SCATTER_PAY_LOOKUP(finalSc) * b;
       freeTriggerRef.current = true;
@@ -187,6 +187,7 @@ export default function SuperAceMachine() {
       await sleep(turboRef.current ? 220 : 400);
       setNewCells(new Set());
     }
+    return g;
   };
 
   const settle = async () => {
