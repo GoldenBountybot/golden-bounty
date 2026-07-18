@@ -48,7 +48,7 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew }) {
   return (
     <div
       key={id}
-      className="relative rounded-md overflow-hidden"
+      className="relative rounded-md overflow-hidden w-full h-full"
       style={{
         ...style,
         animation: spinning
