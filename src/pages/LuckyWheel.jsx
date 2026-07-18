@@ -5,6 +5,7 @@ import ShareButton from '@/components/ShareButton';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
+import CartoonWheelGirl from '@/components/luckywheel/CartoonWheelGirl';
 
 const SCENE_BASE = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6bbfbdffe_generated_image.png';
 const SCENE_BLINK = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/05bff5f4b_generated_image.png';
@@ -110,6 +111,11 @@ export default function LuckyWheel() {
       </header>
 
       <main className="max-w-md mx-auto px-4 py-6 flex flex-col items-center gap-5">
+        {/* Cartoon animation banner — girl spinning the wheel */}
+        <div className="w-full">
+          <CartoonWheelGirl />
+        </div>
+
         {/* Wheel + anime girl */}
         <div className="relative w-72 h-72 mx-auto">
           {/* Red pointer at top */}
