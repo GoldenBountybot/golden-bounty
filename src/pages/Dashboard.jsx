@@ -55,8 +55,8 @@ export default function Dashboard() {
   const doDeposit = async (amount) => {
     const n = Number(amount);
     if (!n || n <= 0) { toast({ title: 'Enter a valid amount' }); return; }
-    await acct.deposit(n);
-    toast({ title: 'Deposit request submitted', description: 'Pending admin approval. Your balance will be updated once approved.' });
+    if (n < 1) { toast({ title: 'Minimum deposit is $1.00' }); return; }
+    window.location.href = `/pay?amount=${encodeURIComponent(n)}`;
     setDepAmt('');
   };
 
