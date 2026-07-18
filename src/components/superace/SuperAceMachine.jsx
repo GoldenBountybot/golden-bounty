@@ -428,27 +428,25 @@ export default function SuperAceMachine() {
         </div>
 
         {/* Control bar */}
-        <div className="flex items-center justify-between gap-2 px-1 py-2 rounded-xl" style={{ background: 'linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))', border: '1px solid rgba(190,140,55,0.6)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.25), 0 2px 6px rgba(0,0,0,0.5)' }}>
-          {/* settings */}
-          <button onClick={() => { playClick(); setShowPay((s) => !s); }} className="w-10 h-10 rounded-full flex items-center justify-center" style={{ ...woodBtn(false) }}>
-            <Settings className="w-5 h-5" style={{ color: '#d9b97a' }} />
-          </button>
-
-          {/* bet down */}
-          <button onClick={() => changeBet(-1)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ ...woodBtn(false) }}>
-            <Minus className="w-4 h-4" style={{ color: '#d9b97a' }} />
-          </button>
-
-          <div className="flex flex-col items-center min-w-[64px]">
-            <span className="text-[8px] tracking-widest" style={{ color: '#f5c542', ...W }}>BET</span>
-            <span className="text-sm font-black tabular-nums" style={{ color: '#fde68a', fontFamily: 'Georgia, serif' }}>${bet.toFixed(2)}</span>
+        <div className="flex items-center justify-between gap-2 px-2 py-2 rounded-xl" style={{ background: 'linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))', border: '1px solid rgba(190,140,55,0.6)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.25), 0 2px 6px rgba(0,0,0,0.5)' }}>
+          {/* Left group: settings + bet */}
+          <div className="flex items-center gap-1.5">
+            <button onClick={() => { playClick(); setShowPay((s) => !s); }} className="w-10 h-10 rounded-full flex items-center justify-center" style={{ ...woodBtn(false) }}>
+              <Settings className="w-5 h-5" style={{ color: '#d9b97a' }} />
+            </button>
+            <button onClick={() => changeBet(-1)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ ...woodBtn(false) }}>
+              <Minus className="w-4 h-4" style={{ color: '#d9b97a' }} />
+            </button>
+            <div className="flex flex-col items-center min-w-[54px]">
+              <span className="text-[8px] tracking-widest" style={{ color: '#f5c542', ...W }}>BET</span>
+              <span className="text-sm font-black tabular-nums" style={{ color: '#fde68a', fontFamily: 'Georgia, serif' }}>${bet.toFixed(2)}</span>
+            </div>
+            <button onClick={() => changeBet(1)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ ...woodBtn(false) }}>
+              <Plus className="w-4 h-4" style={{ color: '#d9b97a' }} />
+            </button>
           </div>
 
-          <button onClick={() => changeBet(1)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ ...woodBtn(false) }}>
-            <Plus className="w-4 h-4" style={{ color: '#d9b97a' }} />
-          </button>
-
-          {/* SPIN */}
+          {/* SPIN — centered */}
           <button
             onClick={() => { if (!busyRef.current) { playClick(); doSpin(); } }}
             disabled={busyRef.current}
@@ -463,16 +461,16 @@ export default function SuperAceMachine() {
             <span className="text-[11px] font-black italic relative" style={{ color: '#5a1010', fontFamily: 'Rye, Georgia, serif' }}>SPIN</span>
           </button>
 
-          {/* auto */}
-          <button onClick={toggleAuto} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ ...woodBtn(autoSpin) }}>
-            <Repeat className="w-4 h-4" style={{ color: autoSpin ? '#1a1206' : '#d9b97a' }} />
-          </button>
-
-          {/* turbo */}
-          <button onClick={toggleTurbo} className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ ...woodBtn(turbo) }}>
-            <Zap className="w-5 h-5" style={{ color: turbo ? '#1a1206' : '#d9b97a', filter: turbo ? 'drop-shadow(0 0 4px rgba(245,197,66,0.8))' : 'none' }} />
-            <span className="absolute -bottom-3.5 text-[7px] font-black" style={{ color: turbo ? '#f5c542' : 'rgba(255,220,150,0.5)', ...W }}>TURBO</span>
-          </button>
+          {/* Right group: auto + turbo */}
+          <div className="flex items-center gap-1.5">
+            <button onClick={toggleAuto} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ ...woodBtn(autoSpin) }}>
+              <Repeat className="w-4 h-4" style={{ color: autoSpin ? '#1a1206' : '#d9b97a' }} />
+            </button>
+            <button onClick={toggleTurbo} className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ ...woodBtn(turbo) }}>
+              <Zap className="w-5 h-5" style={{ color: turbo ? '#1a1206' : '#d9b97a', filter: turbo ? 'drop-shadow(0 0 4px rgba(245,197,66,0.8))' : 'none' }} />
+              <span className="absolute -bottom-3.5 text-[7px] font-black" style={{ color: turbo ? '#f5c542' : 'rgba(255,220,150,0.5)', ...W }}>TURBO</span>
+            </button>
+          </div>
         </div>
 
         {/* Balance + Buy Bonus mini */}
