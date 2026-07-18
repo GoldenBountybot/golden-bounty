@@ -105,8 +105,20 @@ export default function AdminPaymentAddresses() {
                 </label>
                 <button onClick={() => remove(it.id)} className="p-1.5 rounded-md border border-rose-600/50 bg-black/40 text-rose-400 hover:bg-rose-900/40"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
-              {it.method === 'binance' && it.qr_image_url && (
-                <img src={it.qr_image_url} alt="QR" className="w-24 h-24 object-contain rounded bg-white p-1 self-start" />
+              {it.method === 'binance' && (
+                <div className="flex items-center gap-3 mt-1">
+                  <div className="w-24 h-24 rounded-lg overflow-hidden bg-white p-1.5 shrink-0" style={{ boxShadow: '0 0 0 1px rgba(190,140,55,0.4)' }}>
+                    {it.qr_image_url ? (
+                      <img src={it.qr_image_url} alt="Binance QR" className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-stone-400 text-[10px] italic text-center">No image</div>
+                    )}
+                  </div>
+                  <label className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic cursor-pointer hover:brightness-110 active:scale-95 text-xs" style={{ fontFamily: 'Georgia, serif' }} title="Upload new Binance Pay QR image">
+                    <Upload className="w-3.5 h-3.5" /> Upload New Image
+                    <input type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && uploadImage(it.id, e.target.files[0])} />
+                  </label>
+                </div>
               )}
               <input value={it.address || ''} onChange={e => update(it.id, 'address', e.target.value)} placeholder="Wallet address" className="px-2 py-1.5 rounded bg-black/40 border border-amber-700/40 text-amber-100 text-xs font-mono" />
               <label className="flex items-center gap-2 text-xs text-amber-100/70">
