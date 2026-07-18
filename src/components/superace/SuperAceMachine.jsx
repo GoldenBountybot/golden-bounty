@@ -58,7 +58,6 @@ export default function SuperAceMachine() {
   const [showFreeStart, setShowFreeStart] = useState(false);
   const [shatterCells, setShatterCells] = useState(new Set());
   const [flipCells, setFlipCells] = useState(new Set());
-  const [goldenWildIdx, setGoldenWildIdx] = useState(null);
   const [flyingWilds, setFlyingWilds] = useState([]);
 
   // refs for async orchestration
@@ -116,7 +115,6 @@ export default function SuperAceMachine() {
     setFlipCells(new Set());
     setFlyingWilds([]);
     goldenWildIdxRef.current = null;
-    setGoldenWildIdx(null);
     if (!inFreeRef.current) {
       setBalance((x) => x - b);
       setMessage(`Spinning…`);
@@ -218,21 +216,16 @@ export default function SuperAceMachine() {
         const targets = findWildTargets(g, sourceIdx).slice(0, 2);
         if (targets.length > 0) {
           goldenWildIdxRef.current = sourceIdx;
-          setGoldenWildIdx(sourceIdx);
           playScatter();
           setFlyingWilds(targets.map((t) => ({ sourceIdx, targetIdx: t })));
           await sleep(760);
           const ng = g.map((c) => ({ ...c }));
-          targets.forEach((t) => { ng[t] = { sym: 'W', golden: false, id: makeCell().id }; });
+          ng[sourceIdx] = { ...ng[sourceIdx], goldenWild: true };
+          targets.forEach((t) => { ng[t] = { sym: 'W', golden: false, goldenWild: true, id: makeCell().id }; });
           g = ng;
           setGrid(g.map((c) => ({ ...c })));
           setFlyingWilds([]);
         }
-      }
-      // clear the golden-wild visual if its source cell got removed
-      if (goldenWildIdxRef.current != null && g[goldenWildIdxRef.current].sym !== 'W') {
-        goldenWildIdxRef.current = null;
-        setGoldenWildIdx(null);
       }
     }
     return g;
@@ -345,7 +338,7 @@ export default function SuperAceMachine() {
             <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }}>
               {grid.map((cell, idx) => (
                 <div key={cell.id + '-' + idx} className="aspect-[3/4]">
-                  <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} flip={flipCells.has(idx)} goldenWild={goldenWildIdx === idx} spinning={spinning} isNew={newCells.has(idx)} />
+                  <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} flip={flipCells.has(idx)} goldenWild={!!cell.goldenWild} spinning={spinning} isNew={newCells.has(idx)} />
                 </div>
               ))}
             </div>
