@@ -10,6 +10,70 @@ const ROWS = MULTS.length - 1;
 const BETS = [0.1, 1, 5, 10];
 
 const FONT = "Rye, Georgia, serif";
+
+let _actx = null;
+function actx() {
+  if (typeof window === 'undefined') return null;
+  if (!_actx) {
+    try { _actx = new (window.AudioContext || window.webkitAudioContext)(); } catch { _actx = null; }
+  }
+  return _actx;
+}
+function playPeg() {
+  const ac = actx(); if (!ac) return;
+  const t = ac.currentTime;
+  const o = ac.createOscillator();
+  const g = ac.createGain();
+  o.type = 'triangle';
+  o.frequency.setValueAtTime(880 + Math.random() * 220, t);
+  o.frequency.exponentialRampToValueAtTime(620, t + 0.08);
+  o.connect(g); g.connect(ac.destination);
+  g.gain.setValueAtTime(0.12, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+  o.start(t); o.stop(t + 0.12);
+}
+function playDropStart() {
+  const ac = actx(); if (!ac) return;
+  const t = ac.currentTime;
+  const o = ac.createOscillator();
+  const g = ac.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(220, t);
+  o.frequency.exponentialRampToValueAtTime(440, t + 0.15);
+  o.connect(g); g.connect(ac.destination);
+  g.gain.setValueAtTime(0.08, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+  o.start(t); o.stop(t + 0.22);
+}
+function playWin() {
+  const ac = actx(); if (!ac) return;
+  const t = ac.currentTime;
+  [660, 880, 1175, 1568].forEach((f, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'triangle'; o.frequency.value = f;
+    o.connect(g); g.connect(ac.destination);
+    const s = t + i * 0.09;
+    g.gain.setValueAtTime(0.0001, s);
+    g.gain.exponentialRampToValueAtTime(0.15, s + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.001, s + 0.22);
+    o.start(s); o.stop(s + 0.24);
+  });
+}
+function playLose() {
+  const ac = actx(); if (!ac) return;
+  const t = ac.currentTime;
+  const o = ac.createOscillator();
+  const g = ac.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(300, t);
+  o.frequency.exponentialRampToValueAtTime(80, t + 0.4);
+  o.connect(g); g.connect(ac.destination);
+  g.gain.setValueAtTime(0.12, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+  o.start(t); o.stop(t + 0.47);
+}
+
 const woodFrame = {
   border: '1px solid rgba(190,140,55,0.75)',
   background: 'linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))',
@@ -82,6 +146,7 @@ export default function Plinko() {
     setLastWin(0);
     setMessage('Dropping…');
     setBallPos(null);
+    playDropStart();
 
     const profitIdx = MULTS.map((_, i) => i).filter((i) => MULTS[i] >= 1);
     const loseIdx = MULTS.map((_, i) => i).filter((i) => MULTS[i] < 1);
@@ -98,6 +163,7 @@ export default function Plinko() {
     let step = 0;
     const animate = () => {
       setBallPos(path[step]);
+      if (step > 0) playPeg();
       if (step < path.length - 1) {
         const t = setTimeout(() => { step++; animate(); }, 260);
         timers.current.push(t);
@@ -105,7 +171,7 @@ export default function Plinko() {
         const t = setTimeout(() => {
           const mult = MULTS[bucket];
           const win = bet * mult;
-          if (win > 0) setBalance((b) => b + win);
+          if (win > 0) { setBalance((b) => b + win); playWin(); } else playLose();
           setLastWin(win);
           setResultBucket(bucket);
           setMessage(mult > 0 ? `${mult}x · +$${win.toFixed(2)}` : `0x · No win`);
