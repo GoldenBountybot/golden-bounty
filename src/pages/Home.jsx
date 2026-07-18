@@ -8,7 +8,6 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
 const GAMES = [
   { id: 'wild-bounty', title: 'Wild Bounty Showdown', category: 'Slots', desc: '3600 Ways · Cascade Wins', accent: 'from-amber-500 to-orange-700', tag: 'HOT', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/af2b94fcd_InShot_20260717_194156078.jpg' },
-  { id: 'lucky-wheel', title: 'Lucky Wheel', category: 'Wheel', desc: 'Spin for Multipliers', accent: 'from-rose-500 to-red-700', tag: 'NEW' },
   { id: 'hi-lo', title: 'High or Low', category: 'Cards', desc: 'Guess the Next Card', accent: 'from-emerald-500 to-green-700' },
   { id: 'roulette', title: 'Golden Roulette', category: 'Table', desc: 'Place Your Bets', accent: 'from-yellow-500 to-amber-700', coming: true },
   { id: 'blackjack', title: 'Blackjack 21', category: 'Cards', desc: 'Beat the Dealer', accent: 'from-slate-500 to-slate-800', coming: true },
@@ -20,7 +19,7 @@ const GAMES = [
   { id: 'sic-bo', title: 'Sic Bo', category: 'Table', desc: 'Dice of Fortune', accent: 'from-teal-500 to-emerald-800', coming: true },
 ];
 
-const CATEGORIES = ['All', 'Slots', 'Wheel', 'Cards', 'Table', 'Arcade'];
+const CATEGORIES = ['All', 'Slots', 'Cards', 'Table', 'Arcade'];
 
 export default function Home() {
   const [cat, setCat] = useState('All');

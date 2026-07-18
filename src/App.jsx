@@ -9,7 +9,6 @@ import ScrollToTop from './components/ScrollToTop';
 // Add page imports here
 import Home from './pages/Home';
 import SlotGame from './pages/SlotGame';
-import LuckyWheel from './pages/LuckyWheel';
 import HiLo from './pages/HiLo';
 import Plinko from './pages/Plinko';
 import Mines from './pages/Mines';
@@ -55,7 +54,6 @@ const AuthenticatedApp = () => {
       {/* Authenticated casino — login required to play */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/games/wild-bounty" element={<SlotGame />} />
-        <Route path="/games/lucky-wheel" element={<LuckyWheel />} />
         <Route path="/games/hi-lo" element={<HiLo />} />
         <Route path="/games/plinko" element={<Plinko />} />
         <Route path="/games/mines" element={<Mines />} />
