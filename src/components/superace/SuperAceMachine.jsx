@@ -215,19 +215,21 @@ export default function SuperAceMachine() {
       playComboWin(comboCount);
       await sleep(turboRef.current ? 380 : 560);
 
-      // golden winners: glow -> card-back -> flip -> wild (stay in place, no drop)
-      if (ev.goldenToWild.size > 0) {
-        setFlipCells(new Set(ev.goldenToWild));
+      // When a Golden Wild is active this spin, normal wilds never appear:
+      // golden cards just shatter like ordinary winners.
+      const gw = goldenWildIdxRef.current != null ? new Set() : ev.goldenToWild;
+      if (gw.size > 0) {
+        setFlipCells(new Set(gw));
         await sleep(turboRef.current ? 520 : 680);
       }
 
       // remaining winning cards blast/shatter then vanish
-      const shatterSet = new Set([...ev.winCells].filter((i) => !ev.goldenToWild.has(i)));
+      const shatterSet = new Set([...ev.winCells].filter((i) => !gw.has(i)));
       setShatterCells(shatterSet);
       await sleep(turboRef.current ? 280 : 340);
 
-      const dropped = new Set([...ev.winCells].filter((i) => !ev.goldenToWild.has(i)));
-      g = cascade(g, ev.winCells, ev.goldenToWild);
+      const dropped = new Set([...ev.winCells].filter((i) => !gw.has(i)));
+      g = cascade(g, ev.winCells, gw);
       setGrid(g.map((c) => ({ ...c })));
       setWinningCells(new Set());
       setShatterCells(new Set());
