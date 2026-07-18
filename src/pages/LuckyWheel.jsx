@@ -6,7 +6,8 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 
-const GIRL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9791997c8_generated_image.png';
+const GIRL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e2a9bd0cd_generated_image.png';
+const LOBBY_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/401b15609_generated_image.png';
 
 // 14 segments — gold / dark blue / green / red, with multipliers + USDT "T".
 const SEGMENTS = [
@@ -46,7 +47,6 @@ function Tether({ size = 11 }) {
 export default function LuckyWheel() {
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
-  const [girlSpin, setGirlSpin] = useState(false);
   const [betIdx, setBetIdx] = useState(1);
   const { balance, setBalance } = useCasinoBalance();
   const { rtp } = useGameSettings('lucky-wheel');
@@ -66,10 +66,6 @@ export default function LuckyWheel() {
     setJackpot(false);
     setMessage('Spinning...');
     setLastWin(0);
-
-    // Anime girl performs a one-handed spin impulse.
-    setGirlSpin(true);
-    setTimeout(() => setGirlSpin(false), 720);
 
     const winIdxs = SEGMENTS.map((_, i) => i).filter((i) => SEGMENTS[i].mult > 0);
     const loseIdxs = SEGMENTS.map((_, i) => i).filter((i) => SEGMENTS[i].mult === 0);
@@ -95,12 +91,7 @@ export default function LuckyWheel() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ background: 'radial-gradient(circle at 50% 0%, #122a5c 0%, #0a1a3a 45%, #060d22 100%)' }}>
-      {/* faint gold brush accents + script watermark */}
-      <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(2px 2px at 15% 20%, #D4AF37, transparent), radial-gradient(2px 2px at 80% 30%, #D4AF37, transparent), radial-gradient(1px 1px at 40% 70%, #f0e6c0, transparent)' }} />
-      <div className="pointer-events-none absolute top-2 left-0 right-0 text-center" style={{ opacity: 0.12 }}>
-        <span className="text-5xl italic" style={{ fontFamily: 'Rye, Georgia, serif', color: '#D4AF37' }}>Lucky Wheel</span>
-      </div>
+    <div className="min-h-screen relative overflow-hidden" style={{ background: `linear-gradient(to bottom, rgba(6,13,34,0.5), rgba(6,13,34,0.8)), url('${LOBBY_BG}') center / cover no-repeat` }}>
 
       <header className="sticky top-0 z-30 bg-stone-950/70 backdrop-blur-xl border-b border-amber-600/30">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
@@ -201,16 +192,20 @@ export default function LuckyWheel() {
             alt=""
             className="absolute pointer-events-none select-none"
             style={{
-              right: -56,
-              bottom: -18,
-              width: 150,
+              left: -74,
+              bottom: -20,
+              width: 172,
               height: 'auto',
-              zIndex: 25,
-              filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.6))',
-              animation: girlSpin ? 'lwGirlSpin 0.72s ease-out' : 'none',
+              zIndex: 26,
+              transformOrigin: '40% 30%',
+              filter: 'drop-shadow(0 8px 12px rgba(0,0,0,0.65))',
+              animation: spinning ? 'lwGirlPush 0.85s ease-in-out infinite' : 'none',
             }}
           />
         </div>
+
+        {/* Wheel stand */}
+        <div className="mx-auto -mt-2 w-28 h-9" style={{ background: 'linear-gradient(to bottom,#8a7a4a,#3a2a14)', clipPath: 'polygon(18% 0,82% 0,100% 100%,0 100%)', boxShadow: '0 10px 18px rgba(0,0,0,0.6)' }} />
 
         {/* Message */}
         <div className="w-full text-center py-2 rounded-md" style={{ background: 'linear-gradient(to bottom, rgba(58,40,18,0.9), rgba(26,18,9,0.92))', border: '1px solid rgba(190,140,55,0.75)' }}>
