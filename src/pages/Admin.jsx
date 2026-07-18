@@ -9,7 +9,8 @@ import AdminGameSettings from '@/components/admin/AdminGameSettings';
 import AdminBonuses from '@/components/admin/AdminBonuses';
 import AdminBanners from '@/components/admin/AdminBanners';
 import AdminPaymentAddresses from '@/components/admin/AdminPaymentAddresses';
-import { Image } from 'lucide-react';
+import AdminStackBanner from '@/components/admin/AdminStackBanner';
+import { Image, Layers } from 'lucide-react';
 
 const TABS = [
   { id: 'players', label: 'Players', icon: Users, comp: AdminPlayers },
@@ -18,6 +19,7 @@ const TABS = [
   { id: 'bonuses', label: 'Bonuses', icon: Gift, comp: AdminBonuses },
   { id: 'banners', label: 'Banners', icon: Image, comp: AdminBanners },
   { id: 'pay', label: 'Pay Addr', icon: Wallet, comp: AdminPaymentAddresses },
+  { id: 'stack', label: 'Stack', icon: Layers, comp: AdminStackBanner },
 ];
 
 export default function Admin() {
@@ -66,7 +68,7 @@ export default function Admin() {
         </div>
       </header>
       <main className="max-w-md mx-auto px-4 py-5 flex flex-col gap-4">
-        <div className="grid grid-cols-6 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {TABS.map(t => {
             const Icon = t.icon;
             const active = tab === t.id;

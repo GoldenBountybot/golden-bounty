@@ -47,6 +47,7 @@ export default function Dashboard() {
   const [wdAmt, setWdAmt] = useState('');
   const [stkAmt, setStkAmt] = useState('');
   const [history, setHistory] = useState([]);
+  const [stackBanner, setStackBanner] = useState('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ce2101293_InShot_20260718_173817740.jpg');
 
   useEffect(() => {
     let active = true;
@@ -56,6 +57,10 @@ export default function Dashboard() {
         if (!me || !active) return;
         const rows = await base44.entities.Transaction.filter({ user_id: me.id }, '-created_date', 50);
         if (active) setHistory(rows.filter(t => t.type === 'deposit' || t.type === 'withdraw'));
+      } catch { /* ignore */ }
+      try {
+        const list = await base44.entities.SiteSetting.filter({ name: 'stack_banner', active: true });
+        if (active && list[0]?.image_url) setStackBanner(list[0].image_url);
       } catch { /* ignore */ }
     })();
     return () => { active = false; };
@@ -231,7 +236,7 @@ export default function Dashboard() {
           <div className="flex flex-col gap-3">
             <div className="rounded-2xl overflow-hidden border border-amber-700/40 shadow-lg">
               <img
-                src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ce2101293_InShot_20260718_173817740.jpg"
+                src={stackBanner}
                 alt="Stack Balance — Lock your balance to earn 2.5% daily profit for 15 days"
                 className="w-full h-auto block"
               />

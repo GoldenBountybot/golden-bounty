@@ -1,0 +1,39 @@
+{
+  "name": "SiteSetting",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Unique key identifying the setting, e.g. stack_banner"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Uploaded image URL for this setting"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": true,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
