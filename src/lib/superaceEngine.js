@@ -58,13 +58,20 @@ function weightedSym() {
 export function makeGrid() {
   const g = [];
   for (let i = 0; i < TOTAL; i++) g.push(makeCell());
-  // Golden cards only on reels 2–4 (cols 1,2,3). 20% chance per pay-symbol cell.
+  // Golden cards: 1–4 random, on middle reels (2–4) over pay-symbol cells.
+  const candidates = [];
   for (const c of GOLDEN_COLS) {
     for (let r = 0; r < ROWS; r++) {
       const idx = r * COLS + c;
-      if (PAY_SYMBOLS.includes(g[idx].sym) && Math.random() < GOLDEN_CHANCE) g[idx].golden = true;
+      if (PAY_SYMBOLS.includes(g[idx].sym)) candidates.push(idx);
     }
   }
+  for (let i = candidates.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+  }
+  const n = Math.min(candidates.length, 1 + Math.floor(Math.random() * 4));
+  for (let i = 0; i < n; i++) g[candidates[i]].golden = true;
   return g;
 }
 

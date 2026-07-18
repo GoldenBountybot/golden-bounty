@@ -128,40 +128,11 @@ export default function SuperAceMachine() {
     if (ev0.pay === 0 && ev0.scatterCount < 3 && Math.random() < (rtpRef.current / 100)) {
       g = nudgeForWin(g);
     }
-    // Golden Wild (rare): spawns directly on the grid — not from a normal wild.
-    if (Math.random() < 0.5) {
-      const col = [1, 2, 3][Math.floor(Math.random() * 3)];
-      const row = Math.floor(Math.random() * ROWS);
-      const idx = row * COLS + col;
-      g[idx] = { sym: 'W', golden: false, goldenWild: true, pending: true, id: makeCell().id };
-      goldenWildIdxRef.current = idx;
-    }
     setGrid(g.map((c) => ({ ...c })));
     await sleep(turboRef.current ? 320 : 620);
     setSpinning(false);
     playReelLand();
     await sleep(150);
-
-    // Golden Wild: flip to reveal, then fly copies to near-win positions.
-    if (goldenWildIdxRef.current != null) {
-      const sourceIdx = goldenWildIdxRef.current;
-      g = g.map((c) => ({ ...c, pending: false }));
-      setGrid(g.map((c) => ({ ...c })));
-      setFlipCells(new Set([sourceIdx]));
-      playScatter();
-      await sleep(turboRef.current ? 520 : 680);
-      setFlipCells(new Set());
-      const targets = findWildTargets(g, sourceIdx).slice(0, 2);
-      if (targets.length > 0) {
-        setFlyingWilds(targets.map((t) => ({ sourceIdx, targetIdx: t })));
-        await sleep(820);
-        const ng = g.map((c) => ({ ...c }));
-        targets.forEach((t) => { ng[t] = { sym: 'W', golden: false, goldenWild: true, id: makeCell().id }; });
-        g = ng;
-        setGrid(g.map((c) => ({ ...c })));
-        setFlyingWilds([]);
-      }
-    }
 
     const finalGrid = await resolveCascades(g);
 
