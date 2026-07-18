@@ -158,6 +158,9 @@ export default function Plinko() {
   const { balance, setBalance } = useCasinoBalance();
   const { rtp } = useGameSettings('plinko');
   const [betIdx, setBetIdx] = useState(1);
+  const [customBet, setCustomBet] = useState(null);
+  const [showCustom, setShowCustom] = useState(false);
+  const [customInput, setCustomInput] = useState('');
   const [dropping, setDropping] = useState(false);
   const [ballPos, setBallPos] = useState(null);
   const [resultBucket, setResultBucket] = useState(null);
@@ -165,7 +168,17 @@ export default function Plinko() {
   const [lastWin, setLastWin] = useState(0);
   const [copied, setCopied] = useState(false);
   const timers = useRef([]);
-  const bet = BETS[betIdx];
+  const bet = customBet != null ? customBet : BETS[betIdx];
+
+  const applyCustomBet = () => {
+    const v = parseFloat(customInput);
+    if (isNaN(v) || v <= 0) { setMessage('Enter a valid amount'); return; }
+    setCustomBet(v);
+    setBetIdx(-1);
+    setShowCustom(false);
+    setCustomInput('');
+    setMessage(`Bet set · $${v.toFixed(2)}`);
+  };
   const logActivity = useLogActivity();
 
   useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
@@ -309,7 +322,7 @@ export default function Plinko() {
 
         {/* Bet row — wooden frame */}
         <div className="mt-3 p-2 flex items-center gap-2" style={{ ...woodFrame }}>
-          <button className="w-10 h-10 flex items-center justify-center" style={{ ...woodBtn, color: '#d9b97a' }}>
+          <button onClick={() => setShowCustom(s => !s)} className={`w-10 h-10 flex items-center justify-center ${showCustom ? 'ring-2 ring-amber-300' : ''}`} style={{ ...woodBtn, color: customBet != null ? '#f5c542' : '#d9b97a' }} title="Custom bet">
             <Pencil className="w-4 h-4" />
           </button>
           <div className="flex-1 grid grid-cols-4 gap-2">
@@ -317,9 +330,9 @@ export default function Plinko() {
               <button
                 key={b}
                 disabled={dropping}
-                onClick={() => setBetIdx(i)}
+                onClick={() => { setBetIdx(i); setCustomBet(null); }}
                 className="flex items-center justify-center gap-0.5 py-2 text-xs font-bold italic transition-colors disabled:opacity-50"
-                style={betIdx === i
+                style={betIdx === i && customBet == null
                   ? { ...goldBtn, fontFamily: FONT }
                   : { ...woodBtn, color: '#d9b97a', fontFamily: FONT }
                 }
@@ -328,10 +341,30 @@ export default function Plinko() {
               </button>
             ))}
           </div>
-          <button onClick={() => setBetIdx((i) => Math.max(0, i - 1))} className="w-10 h-10 flex items-center justify-center" style={{ ...woodBtn, color: '#d9b97a' }}>
+          <button onClick={() => { setCustomBet(null); setBetIdx((i) => Math.max(0, i - 1)); }} className="w-10 h-10 flex items-center justify-center" style={{ ...woodBtn, color: '#d9b97a' }} title="Cycle bets">
             <RotateCw className="w-4 h-4" />
           </button>
         </div>
+
+        {showCustom && (
+          <div className="mt-2 p-2 flex items-center gap-2" style={{ ...woodFrame }}>
+            <DollarSign className="w-4 h-4" style={{ color: '#f5c542' }} />
+            <input
+              type="number"
+              min="0"
+              step="0.1"
+              value={customInput}
+              onChange={e => setCustomInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') applyCustomBet(); }}
+              placeholder="Custom bet amount"
+              className="flex-1 px-2 py-1.5 rounded bg-black/40 border border-amber-700/40 text-amber-100 outline-none text-sm font-bold"
+              style={{ fontFamily: FONT }}
+            />
+            <button onClick={applyCustomBet} className="px-3 py-1.5 rounded font-bold italic text-xs" style={{ ...goldBtn, fontFamily: FONT }}>
+              Set
+            </button>
+          </div>
+        )}
 
         {/* Drop button — gold western */}
         <button
