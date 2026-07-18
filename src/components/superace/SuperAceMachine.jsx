@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, DollarSign, Share2, Check, Settings, Zap, Repeat, Minus, Plus, Sparkles } from 'lucide-react';
+import { ChevronLeft, Share2, Check, Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, Sparkles, Gamepad2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -9,6 +9,9 @@ import FlyingWilds from '@/components/superace/FlyingWilds';
 import MultiplierBar from '@/components/superace/MultiplierBar';
 import WinOverlay from '@/components/superace/WinOverlay';
 import FreeSpinStart from '@/components/superace/FreeSpinStart';
+import WesternFrame from '@/components/wildbounty/WesternFrame';
+import PlaqueBanner from '@/components/wildbounty/PlaqueBanner';
+import WesternStatBanner from '@/components/wildbounty/WesternStatBanner';
 import {
   COLS, ROWS, TOTAL, BASE_MULTS, FREE_MULTS, FREE_SPINS_AWARD, RETRIGGER_AWARD,
   BUY_BONUS_MULT, MAX_WIN_CAP, makeGrid, makeCell, evaluate, cascade, nudgeForWin,
@@ -23,13 +26,37 @@ const W = { fontFamily: 'Rye, Georgia, serif' };
 const BETS = [0.1, 1, 5, 10];
 
 const woodBtn = (active) => ({
-  border: '1px solid rgba(190,140,55,0.85)',
   background: active
-    ? 'linear-gradient(to bottom, rgba(255,210,120,0.95), rgba(200,150,60,0.95))'
-    : 'linear-gradient(to bottom, rgba(58,40,18,0.95), rgba(26,18,9,0.95))',
-  boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), inset 0 0 0 1px rgba(46,30,12,0.6), 0 2px 5px rgba(0,0,0,0.55)',
-  color: active ? '#1a1206' : 'rgba(255,220,150,0.92)',
+    ? 'linear-gradient(145deg, #f3d77a, #c8932e 45%, #7a4f17 78%, #4a2f10)'
+    : 'linear-gradient(145deg, #3a2a1a, #1c140c 60%, #2e2114)',
+  border: '1px solid rgba(190,140,55,0.8)',
+  color: active ? '#1a1206' : '#f3e2b3',
+  boxShadow: active
+    ? 'inset 0 1px 0 rgba(255,240,180,0.6), inset 0 -2px 3px rgba(0,0,0,0.4), 0 0 12px rgba(255,200,80,0.55)'
+    : 'inset 0 1px 0 rgba(255,210,120,0.2), 0 0 0 1px rgba(46,30,12,0.6), 0 2px 4px rgba(0,0,0,0.65)',
 });
+
+const emboss = (onGold) => ({
+  filter: onGold
+    ? 'drop-shadow(0 1px 0 rgba(255,240,180,0.55)) drop-shadow(0 -1px 0 rgba(0,0,0,0.45))'
+    : 'drop-shadow(0 1px 0 rgba(0,0,0,0.65)) drop-shadow(0 -1px 0 rgba(255,220,140,0.25))',
+});
+
+const Stud = ({ pos }) => (
+  <span className={`absolute ${pos} w-1 h-1 rounded-full bg-amber-200 shadow-[0_0_3px_rgba(255,210,120,0.9)]`} />
+);
+
+function Medallion({ size, active, children }) {
+  return (
+    <span className={`relative ${size} rounded-full flex items-center justify-center transition-transform active:scale-95`} style={woodBtn(active)}>
+      <Stud pos="top-0.5 left-0.5" />
+      <Stud pos="top-0.5 right-0.5" />
+      <Stud pos="bottom-0.5 left-0.5" />
+      <Stud pos="bottom-0.5 right-0.5" />
+      {children}
+    </span>
+  );
+}
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -342,191 +369,211 @@ export default function SuperAceMachine() {
   };
 
   return (
-    <div className="min-h-screen text-amber-100 flex flex-col relative" style={{ background: 'radial-gradient(circle at 50% 0%, #0e2a2a 0%, #07191a 55%, #04090a 100%)', ...W }}>
-      {/* damask-ish overlay */}
-      <div className="fixed inset-0 pointer-events-none opacity-30" style={{ backgroundImage: "radial-gradient(circle at 30% 20%, rgba(120,80,30,0.18), transparent 45%), radial-gradient(circle at 75% 70%, rgba(120,80,30,0.14), transparent 45%)" }} />
-
+    <div className="min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/40 to-stone-950" style={W}>
       {/* Header */}
-      <header className="sticky top-0 z-30" style={{ borderBottom: '1px solid rgba(190,140,55,0.55)', background: 'linear-gradient(to bottom, rgba(74,28,16,0.96), rgba(38,16,10,0.97))' }}>
-        <div className="max-w-md mx-auto px-3 py-2.5 flex items-center gap-2.5">
-          <Link to="/" className="w-9 h-9 flex items-center justify-center rounded-md" style={{ ...woodBtn(false) }}>
-            <ChevronLeft className="w-5 h-5" style={{ color: '#f3e2b3' }} />
+      <header className="sticky top-0 z-30 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
+        <div className="max-w-md mx-auto px-2 py-1.5 flex items-center gap-2">
+          <Link to="/" className="shrink-0">
+            <Medallion size="w-9 h-9" active={false}>
+              <ChevronLeft className="w-5 h-5 text-amber-300" strokeWidth={2.6} style={emboss(false)} />
+            </Medallion>
           </Link>
-          <div className="flex-1 text-center">
-            <span className="text-xl font-black italic" style={{ color: '#f5c542', fontFamily: 'Rye, Georgia, serif', textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(245,197,66,0.4)' }}>SuperAce</span>
+          <div className="flex-1 flex items-center justify-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0">
+              <Gamepad2 className="w-4 h-4 text-stone-950" />
+            </div>
+            <h1 className="text-base font-bold text-amber-200 italic truncate" style={{ fontFamily: 'Rye, Georgia, serif' }}>JILI Super ACE</h1>
           </div>
-          <button onClick={buyBonus} disabled={busyRef.current || inFreeRef.current} className="px-2.5 py-1.5 rounded-full text-[10px] font-black italic disabled:opacity-50" style={{ background: 'radial-gradient(circle at 50% 35%, #ef4444, #991b1b)', border: '1.5px solid #f5c542', color: '#fde68a', boxShadow: '0 0 8px rgba(239,68,68,0.6), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}>
+          <button onClick={buyBonus} disabled={busyRef.current || inFreeRef.current} className="shrink-0 px-2 py-1 rounded-md text-[9px] font-black italic disabled:opacity-50" style={{ background: 'linear-gradient(to bottom, #ef4444, #991b1b)', border: '1px solid rgba(245,197,66,0.8)', color: '#fde68a', boxShadow: '0 0 8px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}>
             BUY<br />BONUS
           </button>
-          <button onClick={share} className="w-9 h-9 flex items-center justify-center rounded-md" style={{ ...woodBtn(false) }}>
-            {copied ? <Check className="w-[14px] h-[14px]" style={{ color: '#f5c542' }} /> : <Share2 className="w-[14px] h-[14px]" style={{ color: '#f3e2b3' }} />}
+          <button onClick={share} className="shrink-0">
+            <Medallion size="w-9 h-9" active={copied}>
+              {copied ? <Check className="w-4 h-4 text-yellow-300" style={emboss(true)} /> : <Share2 className="w-4 h-4 text-amber-300/85" style={emboss(false)} />}
+            </Medallion>
           </button>
         </div>
       </header>
 
-      <main className="max-w-md w-full mx-auto px-3 pt-3 pb-6 flex flex-col gap-3 flex-1 relative z-10">
-        {/* Multiplier + hint */}
-        <div className="flex flex-col items-center gap-1.5">
-          <MultiplierBar mults={mults} combo={combo} inFree={inFree} freeSpinsLeft={freeSpinsLeft} />
-          <p className="text-[10px] text-amber-200/70" style={W}>
-            {inFree ? 'Up to 10× puzzle multiplier in Free Game' : 'Get a Golden Card → turns Wild · 3 SCATTER = 10 Free Games'}
-          </p>
-        </div>
+      <main className="max-w-md mx-auto px-2 py-2">
+        {/* Machine card — Western gold frame */}
+        <div className="w-full rounded-2xl relative p-[3px]" style={{ background: 'linear-gradient(145deg, #e0b34a, #7a4f17 38%, #c8932e 68%, #5e3d12)', boxShadow: '0 0 0 2px #2e1d0a, 0 0 0 4px rgba(200,150,60,0.4), 0 16px 48px rgba(0,0,0,0.75)' }}>
+          <span className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
+          <span className="absolute bottom-1.5 left-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
+          <span className="absolute bottom-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
+          <div className="flex flex-col gap-2 rounded-[13px] overflow-hidden relative" style={{ backgroundImage: 'linear-gradient(rgba(30,20,12,0.92), rgba(20,14,8,0.95)), url(https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&q=80)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+            {/* Multiplier + hint */}
+            <div className="pt-1.5 px-2 flex flex-col items-center gap-1">
+              <MultiplierBar mults={mults} combo={combo} inFree={inFree} freeSpinsLeft={freeSpinsLeft} />
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] text-amber-200/70" style={W}>
+                  {inFree ? 'Up to 10× multiplier in Free Game' : 'Golden Card → Wild · 3 SCATTER = 10 Free Games'}
+                </p>
+                <button onClick={() => { playClick(); setShowPay((s) => !s); }} className="text-amber-300/80 hover:text-yellow-300" title="Payout Table">
+                  <Settings className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
 
-        {/* Grid */}
-        <div
-          className="relative rounded-xl p-2.5"
-          style={{
-            background: 'linear-gradient(to bottom, rgba(10,40,40,0.92), rgba(6,20,22,0.95))',
-            border: '1.5px solid rgba(190,140,55,0.6)',
-            boxShadow: 'inset 0 0 0 1px rgba(46,30,12,0.5), inset 0 0 18px rgba(0,0,0,0.6), 0 4px 14px rgba(0,0,0,0.55)',
-          }}
-        >
-          <div className="relative">
-            {spinning && teaseCols.size > 0 && (
-              <div className="absolute inset-0 pointer-events-none z-0">
-                {[...teaseCols].map((c) => (
-                  <div
-                    key={'beam-' + c}
-                    className="absolute top-0 bottom-0"
-                    style={{
-                      left: `${(c / COLS) * 100}%`,
-                      width: `${100 / COLS}%`,
-                      background: 'linear-gradient(to right, rgba(255,245,180,0.95) 0%, rgba(255,235,160,0) 14%, rgba(255,235,160,0) 86%, rgba(255,245,180,0.95) 100%), linear-gradient(to bottom, rgba(255,220,120,0) 0%, rgba(255,235,160,0.4) 50%, rgba(255,220,120,0) 100%)',
-                      boxShadow: '0 0 26px rgba(255,210,120,0.65), 0 0 12px rgba(255,245,180,0.85), inset 0 0 18px rgba(255,235,160,0.5)',
-                      animation: 'saBeamPulse 0.9s ease-in-out infinite',
-                    }}
-                  />
-                ))}
+            {/* Reel board — bronze western frame */}
+            <div className="relative px-3 py-3 mx-1 rounded-2xl" style={{ backgroundImage: 'linear-gradient(rgba(20,14,8,0.3), rgba(20,14,8,0.4)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a416f3da8_generated_image.png)', backgroundSize: 'cover, cover', backgroundPosition: 'center, center', boxShadow: '0 0 0 7px rgba(74,48,18,0.9), 0 0 0 11px rgba(200,150,60,0.6), 0 0 0 14px rgba(46,30,12,0.85), 0 0 0 16px rgba(120,80,30,0.5), 0 18px 52px rgba(0,0,0,0.85)' }}>
+              <span className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
+              <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
+              <span className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
+
+              <div className="relative">
+                {spinning && teaseCols.size > 0 && (
+                  <div className="absolute inset-0 pointer-events-none z-0">
+                    {[...teaseCols].map((c) => (
+                      <div
+                        key={'beam-' + c}
+                        className="absolute top-0 bottom-0"
+                        style={{
+                          left: `${(c / COLS) * 100}%`,
+                          width: `${100 / COLS}%`,
+                          background: 'linear-gradient(to right, rgba(255,245,180,0.95) 0%, rgba(255,235,160,0) 14%, rgba(255,235,160,0) 86%, rgba(255,245,180,0.95) 100%), linear-gradient(to bottom, rgba(255,220,120,0) 0%, rgba(255,235,160,0.4) 50%, rgba(255,220,120,0) 100%)',
+                          boxShadow: '0 0 26px rgba(255,210,120,0.65), 0 0 12px rgba(255,245,180,0.85), inset 0 0 18px rgba(255,235,160,0.5)',
+                          animation: 'saBeamPulse 0.9s ease-in-out infinite',
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+                <div className="grid gap-1.5 relative z-10" style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }}>
+                  {grid.map((cell, idx) => (
+                    <div key={cell.id + '-' + idx} className="aspect-[3/4]">
+                      <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} flip={flipCells.has(idx)} goldenWild={!!cell.goldenWild} spinning={spinning} isNew={newCells.has(idx)} tease={teaseCols.has(idx % COLS)} teaseStart={teaseStart} />
+                    </div>
+                  ))}
+                </div>
+                <FlyingWilds items={flyingWilds} />
+              </div>
+
+              <WinOverlay floatWin={floatWin} combo={combo} />
+
+              {/* WIN display */}
+              <div className="mt-2 text-center">
+                <span className="text-[10px] tracking-widest" style={{ color: '#f5c542', ...W }}>WIN</span>{' '}
+                <span className="text-lg font-black tabular-nums" style={{ color: winThisSpin > 0 ? '#fde68a' : 'rgba(255,235,180,0.5)', fontFamily: 'Rye, Georgia, serif', textShadow: winThisSpin > 0 ? '0 0 10px rgba(245,197,66,0.6)' : 'none' }}>
+                  ${winThisSpin.toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            {/* Message */}
+            <PlaqueBanner glow className="mx-2 py-1 text-center rounded-md">
+              <span className="font-black italic text-base text-yellow-300 drop-shadow-[0_0_6px_rgba(255,200,0,0.7)]" style={{ fontFamily: 'Rye, Georgia, serif' }}>{message}</span>
+            </PlaqueBanner>
+
+            {/* Free spins badge */}
+            {inFree && (
+              <WesternFrame glow className="flex items-center justify-center gap-1.5 py-1 mx-2 rounded-md">
+                <span className="text-xs font-bold italic text-amber-200 tracking-[0.15em]" style={W}>★ FREE SPINS: {freeSpinsLeft} ★</span>
+              </WesternFrame>
+            )}
+
+            {/* Stats bar */}
+            <div className="flex gap-2 px-2">
+              <WesternStatBanner icon={Wallet} label="BALANCE" value={`$${balance.toFixed(2)}`} />
+              <WesternStatBanner icon={Coins} label="BET" value={`$${bet.toFixed(2)}`} />
+              <WesternStatBanner icon={Trophy} label="WIN" value={`$${lastWin.toFixed(2)}`} />
+            </div>
+
+            {/* Control panel — western medallions */}
+            <div className="px-2 py-2 border-t" style={{ background: 'linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))', borderTop: '1px solid rgba(190,140,55,0.5)' }}>
+              <div className="flex items-center justify-between gap-1" style={W}>
+                {/* Turbo */}
+                <button onClick={toggleTurbo} className="flex flex-col items-center gap-0.5">
+                  <Medallion size="w-11 h-11" active={turbo}>
+                    <Zap className={`w-5 h-5 ${turbo ? 'text-stone-900' : 'text-amber-300/85'}`} fill={turbo ? 'currentColor' : 'none'} strokeWidth={2.4} style={emboss(turbo)} />
+                  </Medallion>
+                  <span className={`text-[9px] font-bold italic tracking-wide ${turbo ? 'text-yellow-300' : 'text-amber-200/60'}`}>TURBO</span>
+                </button>
+
+                {/* Bet down */}
+                <button onClick={() => changeBet(-1)} disabled={busyRef.current} className="disabled:opacity-40">
+                  <Medallion size="w-10 h-10" active={false}>
+                    <Minus className="w-4 h-4 text-amber-300" strokeWidth={2.6} style={emboss(false)} />
+                  </Medallion>
+                </button>
+
+                {/* SPIN — gold medallion centered */}
+                <button onClick={() => { if (!busyRef.current) { playClick(); doSpin(); } }} disabled={busyRef.current} className="relative flex flex-col items-center gap-0.5 disabled:opacity-80">
+                  <span className="relative w-16 h-16 rounded-full flex items-center justify-center transition-transform active:scale-95" style={{ background: 'radial-gradient(circle at 35% 30%, #f3d77a, #c8932e 45%, #7a4f17 75%, #4a2f10)', border: '2px solid rgba(46,30,12,0.85)', boxShadow: 'inset 0 2px 3px rgba(255,240,180,0.65), inset 0 -3px 5px rgba(0,0,0,0.45), 0 0 18px rgba(255,190,40,0.55), 0 4px 12px rgba(0,0,0,0.75)' }}>
+                    <span className="absolute inset-1 rounded-full opacity-25" style={{ background: 'repeating-conic-gradient(from 0deg, #fff4d0 0deg 8deg, transparent 8deg 16deg)' }} />
+                    <Stud pos="top-0.5 left-0.5" />
+                    <Stud pos="top-0.5 right-0.5" />
+                    <Stud pos="bottom-0.5 left-0.5" />
+                    <Stud pos="bottom-0.5 right-0.5" />
+                    <RotateCw className={`relative w-8 h-8 text-stone-900 ${busyRef.current ? 'animate-spin' : ''}`} strokeWidth={2.6} style={emboss(true)} />
+                  </span>
+                  <span className="text-[9px] font-black italic text-yellow-300 tracking-[0.2em]">SPIN</span>
+                </button>
+
+                {/* Bet up */}
+                <button onClick={() => changeBet(1)} disabled={busyRef.current} className="disabled:opacity-40">
+                  <Medallion size="w-10 h-10" active={false}>
+                    <Plus className="w-4 h-4 text-amber-300" strokeWidth={2.6} style={emboss(false)} />
+                  </Medallion>
+                </button>
+
+                {/* Auto */}
+                <button onClick={toggleAuto} disabled={busyRef.current && !autoSpin} className="flex flex-col items-center gap-0.5 disabled:opacity-60">
+                  <Medallion size="w-11 h-11" active={autoSpin}>
+                    <Play className={`w-5 h-5 ${autoSpin ? 'text-stone-900' : 'text-amber-300/85'}`} fill={autoSpin ? 'currentColor' : 'none'} strokeWidth={2.4} style={emboss(autoSpin)} />
+                  </Medallion>
+                  <span className={`text-[9px] font-bold italic tracking-wide ${autoSpin ? 'text-yellow-300' : 'text-amber-200/60'}`}>AUTO</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Bet chips */}
+            <div className="px-2 grid grid-cols-4 gap-1.5">
+              {BETS.map((b, i) => (
+                <button
+                  key={b}
+                  onClick={() => { if (!busyRef.current) { playClick(); setBetIdx(i); } }}
+                  className="py-2 rounded-md text-xs font-bold italic"
+                  style={{ ...woodBtn(betIdx === i), ...W }}
+                >
+                  ${b}
+                </button>
+              ))}
+            </div>
+
+            {/* Buy Bonus */}
+            <div className="px-2">
+              <button
+                onClick={buyBonus}
+                disabled={busyRef.current || inFreeRef.current || balance < BUY_BONUS_MULT * bet}
+                className="w-full py-2.5 rounded-xl text-sm font-black italic disabled:opacity-40 flex items-center justify-center gap-2"
+                style={{ background: 'linear-gradient(to bottom, #ef4444, #991b1b)', border: '1.5px solid rgba(245,197,66,0.8)', color: '#fde68a', boxShadow: '0 0 10px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}
+              >
+                <Sparkles className="w-4 h-4" /> BUY BONUS · ${(BUY_BONUS_MULT * bet).toFixed(2)} → 10 Free Spins
+              </button>
+            </div>
+
+            {/* Payout panel (toggle) */}
+            {showPay && (
+              <div className="mx-2 mb-2 rounded-xl p-3" style={{ ...woodBtn(false) }}>
+                <p className="text-[10px] tracking-widest text-center mb-2" style={{ color: '#f5c542', ...W }}>PAYOUT TABLE · per way × bet</p>
+                <div className="grid grid-cols-4 gap-1 text-center text-[9px]" style={{ color: '#f3e2b3', fontFamily: 'Georgia, serif' }}>
+                  {['A', 'K', 'Q', 'J', 'S', 'H', 'D', 'C'].map((s) => (
+                    <div key={s} className="rounded py-1" style={{ border: '1px solid rgba(190,140,55,0.4)' }}>
+                      <p className="font-black" style={{ color: '#fde68a' }}>{s}</p>
+                      <p>3:{PAYS_SHOW(s, 3)}</p>
+                      <p>4:{PAYS_SHOW(s, 4)}</p>
+                      <p>5:{PAYS_SHOW(s, 5)}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[9px] text-center mt-2" style={{ color: '#f3e2b3', fontFamily: 'Georgia, serif' }}>3 SCATTER = 10 Free Spins + 2× bet · 4 = 10× · 5 = 50×</p>
               </div>
             )}
-            <div className="grid gap-1.5 relative z-10" style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }}>
-              {grid.map((cell, idx) => (
-                <div key={cell.id + '-' + idx} className="aspect-[3/4]">
-                  <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} flip={flipCells.has(idx)} goldenWild={!!cell.goldenWild} spinning={spinning} isNew={newCells.has(idx)} tease={teaseCols.has(idx % COLS)} teaseStart={teaseStart} />
-                </div>
-              ))}
-            </div>
-            <FlyingWilds items={flyingWilds} />
-          </div>
-
-          {/* Overlays */}
-          <WinOverlay floatWin={floatWin} combo={combo} />
-
-          {/* WIN display */}
-          <div className="mt-2 text-center">
-            <span className="text-[10px] tracking-widest" style={{ color: '#f5c542', ...W }}>WIN</span>{' '}
-            <span className="text-lg font-black tabular-nums" style={{ color: winThisSpin > 0 ? '#fde68a' : 'rgba(255,235,180,0.5)', fontFamily: 'Georgia, serif', textShadow: winThisSpin > 0 ? '0 0 10px rgba(245,197,66,0.6)' : 'none' }}>
-              ${winThisSpin.toFixed(2)}
-            </span>
           </div>
         </div>
-
-        {/* Message */}
-        <div className="text-center py-1">
-          <span className="text-xs italic" style={{ color: '#f3e2b3', ...W }}>{message}</span>
-        </div>
-
-        {/* Control bar */}
-        <div className="flex items-center justify-between gap-2 px-2 py-2 rounded-xl" style={{ background: 'linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))', border: '1px solid rgba(190,140,55,0.6)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.25), 0 2px 6px rgba(0,0,0,0.5)' }}>
-          {/* Left group: settings + bet */}
-          <div className="flex items-center gap-1.5">
-            <button onClick={() => { playClick(); setShowPay((s) => !s); }} className="w-10 h-10 rounded-full flex items-center justify-center" style={{ ...woodBtn(false) }}>
-              <Settings className="w-5 h-5" style={{ color: '#d9b97a' }} />
-            </button>
-            <button onClick={() => changeBet(-1)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ ...woodBtn(false) }}>
-              <Minus className="w-4 h-4" style={{ color: '#d9b97a' }} />
-            </button>
-            <div className="flex flex-col items-center min-w-[54px]">
-              <span className="text-[8px] tracking-widest" style={{ color: '#f5c542', ...W }}>BET</span>
-              <span className="text-sm font-black tabular-nums" style={{ color: '#fde68a', fontFamily: 'Georgia, serif' }}>${bet.toFixed(2)}</span>
-            </div>
-            <button onClick={() => changeBet(1)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ ...woodBtn(false) }}>
-              <Plus className="w-4 h-4" style={{ color: '#d9b97a' }} />
-            </button>
-          </div>
-
-          {/* SPIN — centered */}
-          <button
-            onClick={() => { if (!busyRef.current) { playClick(); doSpin(); } }}
-            disabled={busyRef.current}
-            className="relative w-16 h-16 rounded-full flex items-center justify-center disabled:opacity-70"
-            style={{
-              background: 'radial-gradient(circle at 50% 40%, #fff3c4, #f5c542 45%, #c8881e 85%)',
-              border: '3px solid #fde68a',
-              boxShadow: '0 0 14px rgba(245,197,66,0.8), inset 0 2px 4px rgba(255,255,255,0.5), inset 0 -3px 6px rgba(120,70,10,0.5)',
-            }}
-          >
-            <span className="absolute inset-1 rounded-full" style={{ border: '1.5px dashed rgba(90,40,10,0.45)', animation: busyRef.current ? 'saSpinRotate 0.8s linear infinite' : 'none' }} />
-            <span className="text-[11px] font-black italic relative" style={{ color: '#5a1010', fontFamily: 'Rye, Georgia, serif' }}>SPIN</span>
-          </button>
-
-          {/* Right group: auto + turbo */}
-          <div className="flex items-center gap-1.5">
-            <button onClick={toggleAuto} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ ...woodBtn(autoSpin) }}>
-              <Repeat className="w-4 h-4" style={{ color: autoSpin ? '#1a1206' : '#d9b97a' }} />
-            </button>
-            <button onClick={toggleTurbo} className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ ...woodBtn(turbo) }}>
-              <Zap className="w-5 h-5" style={{ color: turbo ? '#1a1206' : '#d9b97a', filter: turbo ? 'drop-shadow(0 0 4px rgba(245,197,66,0.8))' : 'none' }} />
-              <span className="absolute -bottom-3.5 text-[7px] font-black" style={{ color: turbo ? '#f5c542' : 'rgba(255,220,150,0.5)', ...W }}>TURBO</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Balance + Buy Bonus mini */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ ...woodBtn(false) }}>
-            <DollarSign className="w-4 h-4" style={{ color: '#f5c542' }} />
-            <span className="text-[10px] tracking-widest" style={{ color: '#f5c542', ...W }}>BALANCE</span>
-            <span className="text-sm font-black tabular-nums" style={{ color: '#fde68a', fontFamily: 'Georgia, serif' }}>${balance.toFixed(2)}</span>
-          </div>
-          <div className="text-right">
-            <span className="text-[9px] tracking-widest block" style={{ color: '#f5c542', ...W }}>LAST WIN</span>
-            <span className="text-sm font-black tabular-nums" style={{ color: lastWin > 0 ? '#fde68a' : 'rgba(255,235,180,0.4)', fontFamily: 'Georgia, serif' }}>${lastWin.toFixed(2)}</span>
-          </div>
-        </div>
-
-        {/* Bet chips */}
-        <div className="grid grid-cols-4 gap-1.5">
-          {BETS.map((b, i) => (
-            <button
-              key={b}
-              onClick={() => { if (!busyRef.current) { playClick(); setBetIdx(i); } }}
-              className="py-2 rounded-md text-xs font-bold italic"
-              style={{ ...woodBtn(betIdx === i), ...W }}
-            >
-              ${b}
-            </button>
-          ))}
-        </div>
-
-        {/* Buy Bonus button (full) */}
-        <button
-          onClick={buyBonus}
-          disabled={busyRef.current || inFreeRef.current || balance < BUY_BONUS_MULT * bet}
-          className="w-full py-3 rounded-xl text-sm font-black italic disabled:opacity-40 flex items-center justify-center gap-2"
-          style={{ background: 'linear-gradient(to bottom, #ef4444, #991b1b)', border: '1.5px solid #f5c542', color: '#fde68a', boxShadow: '0 0 10px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}
-        >
-          <Sparkles className="w-4 h-4" /> BUY BONUS · ${(BUY_BONUS_MULT * bet).toFixed(2)} → 10 Free Spins
-        </button>
-
-        {/* Payout panel (toggle) */}
-        {showPay && (
-          <div className="rounded-xl p-3" style={{ ...woodBtn(false) }}>
-            <p className="text-[10px] tracking-widest text-center mb-2" style={{ color: '#f5c542', ...W }}>PAYOUT TABLE · per way × bet</p>
-            <div className="grid grid-cols-4 gap-1 text-center text-[9px]" style={{ color: '#f3e2b3', fontFamily: 'Georgia, serif' }}>
-              {['A', 'K', 'Q', 'J', 'S', 'H', 'D', 'C'].map((s) => (
-                <div key={s} className="rounded py-1" style={{ border: '1px solid rgba(190,140,55,0.4)' }}>
-                  <p className="font-black" style={{ color: '#fde68a' }}>{s}</p>
-                  <p>3:{PAYS_SHOW(s, 3)}</p>
-                  <p>4:{PAYS_SHOW(s, 4)}</p>
-                  <p>5:{PAYS_SHOW(s, 5)}</p>
-                </div>
-              ))}
-            </div>
-            <p className="text-[9px] text-center mt-2" style={{ color: '#f3e2b3', fontFamily: 'Georgia, serif' }}>3 SCATTER = 10 Free Spins + 2× bet · 4 = 10× · 5 = 50×</p>
-          </div>
-        )}
       </main>
 
       {showFreeStart && (
