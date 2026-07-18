@@ -30,7 +30,6 @@ export default function ShareButton({ className = '' }) {
       style={{ fontFamily: 'Rye, Georgia, serif' }}
     >
       {copied ? <Check className="w-[5px] h-[5px]" /> : <Share2 className="w-[5px] h-[5px]" />}
-      {copied ? 'Copied' : 'Share'}
     </button>
   );
 }

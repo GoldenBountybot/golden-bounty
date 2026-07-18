@@ -419,8 +419,8 @@ export default function SuperAceMachine() {
             BUY<br />BONUS
           </button>
           <button onClick={share} className="shrink-0">
-            <Medallion size="w-9 h-9" active={copied}>
-              {copied ? <Check className="w-4 h-4 text-yellow-300" style={emboss(true)} /> : <Share2 className="w-4 h-4 text-amber-300/85" style={emboss(false)} />}
+            <Medallion size="w-5 h-5" active={copied}>
+              {copied ? <Check className="w-[5px] h-[5px] text-yellow-300" style={emboss(true)} /> : <Share2 className="w-[5px] h-[5px] text-amber-300/85" style={emboss(false)} />}
             </Medallion>
           </button>
         </div>
