@@ -202,6 +202,11 @@ export default function Dashboard() {
                         {credit ? 'Deposit' : 'Withdraw'} · <span className={credit ? 'text-emerald-300' : 'text-rose-300'}>{credit ? '+' : '−'}${Number(t.amount).toFixed(2)}</span>
                       </p>
                       <p className="text-[10px] text-amber-100/50 italic">{t.method} · {t.reference ? `${t.reference.slice(0, 16)}` : '—'}</p>
+                      {t.created_date && (
+                        <p className="text-[10px] text-amber-100/45 italic">
+                          {new Date(t.created_date).toLocaleString(undefined, { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      )}
                       {t.note && <p className="text-[9px] text-amber-100/35 italic truncate">{t.note}</p>}
                     </div>
                     <span className={`text-[10px] font-bold italic capitalize ${statusColor}`} style={{ fontFamily: 'Georgia, serif' }}>{t.status}</span>
