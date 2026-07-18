@@ -19,59 +19,98 @@ function actx() {
   }
   return _actx;
 }
+
+// Metallic bell chime — rich harmonics, pleasant ping
 function playPeg() {
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
-  const o = ac.createOscillator();
-  const g = ac.createGain();
-  o.type = 'triangle';
-  o.frequency.setValueAtTime(880 + Math.random() * 220, t);
-  o.frequency.exponentialRampToValueAtTime(620, t + 0.08);
-  o.connect(g); g.connect(ac.destination);
-  g.gain.setValueAtTime(0.12, t);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
-  o.start(t); o.stop(t + 0.12);
+  const freqs = [1568, 2349, 3136];
+  const gains = [0.14, 0.08, 0.05];
+  freqs.forEach((f, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine'; o.frequency.value = f * (0.98 + Math.random() * 0.04);
+    o.connect(g); g.connect(ac.destination);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gains[i], t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+    o.start(t); o.stop(t + 0.38);
+  });
 }
+
+// Soft whoosh for drop start
 function playDropStart() {
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
+  // noise sweep
+  const buf = ac.createBuffer(1, ac.sampleRate * 0.3, ac.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+  const src = ac.createBufferSource(); src.buffer = buf;
+  const bp = ac.createBiquadFilter(); bp.type = 'bandpass';
+  bp.frequency.setValueAtTime(400, t);
+  bp.frequency.exponentialRampToValueAtTime(1200, t + 0.25);
+  bp.Q.value = 1.2;
+  const ng = ac.createGain(); ng.gain.setValueAtTime(0.06, t);
+  ng.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+  src.connect(bp); bp.connect(ng); ng.connect(ac.destination);
+  src.start(t); src.stop(t + 0.3);
+  // shimmer chime
   const o = ac.createOscillator();
   const g = ac.createGain();
-  o.type = 'sawtooth';
-  o.frequency.setValueAtTime(220, t);
-  o.frequency.exponentialRampToValueAtTime(440, t + 0.15);
+  o.type = 'triangle'; o.frequency.setValueAtTime(1318, t);
+  o.frequency.exponentialRampToValueAtTime(1760, t + 0.2);
   o.connect(g); g.connect(ac.destination);
-  g.gain.setValueAtTime(0.08, t);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-  o.start(t); o.stop(t + 0.22);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.08, t + 0.03);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+  o.start(t); o.stop(t + 0.27);
 }
+
+// Major chord arpeggio with shimmer — triumphant win
 function playWin() {
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
-  [660, 880, 1175, 1568].forEach((f, i) => {
+  const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+  notes.forEach((f, i) => {
+    const s = t + i * 0.08;
+    // fundamental
     const o = ac.createOscillator();
     const g = ac.createGain();
     o.type = 'triangle'; o.frequency.value = f;
     o.connect(g); g.connect(ac.destination);
-    const s = t + i * 0.09;
     g.gain.setValueAtTime(0.0001, s);
-    g.gain.exponentialRampToValueAtTime(0.15, s + 0.015);
-    g.gain.exponentialRampToValueAtTime(0.001, s + 0.22);
-    o.start(s); o.stop(s + 0.24);
+    g.gain.exponentialRampToValueAtTime(0.12, s + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, s + 0.4);
+    o.start(s); o.stop(s + 0.42);
+    // shimmer harmonic
+    const o2 = ac.createOscillator();
+    const g2 = ac.createGain();
+    o2.type = 'sine'; o2.frequency.value = f * 2;
+    o2.connect(g2); g2.connect(ac.destination);
+    g2.gain.setValueAtTime(0.0001, s);
+    g2.gain.exponentialRampToValueAtTime(0.05, s + 0.02);
+    g2.gain.exponentialRampToValueAtTime(0.0001, s + 0.3);
+    o2.start(s); o2.stop(s + 0.32);
   });
 }
+
+// Gentle descending soft tone — calm, non-harsh loss
 function playLose() {
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
-  const o = ac.createOscillator();
-  const g = ac.createGain();
-  o.type = 'sawtooth';
-  o.frequency.setValueAtTime(300, t);
-  o.frequency.exponentialRampToValueAtTime(80, t + 0.4);
-  o.connect(g); g.connect(ac.destination);
-  g.gain.setValueAtTime(0.12, t);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
-  o.start(t); o.stop(t + 0.47);
+  const notes = [440, 369.99, 293.66];
+  notes.forEach((f, i) => {
+    const s = t + i * 0.12;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine'; o.frequency.value = f;
+    o.connect(g); g.connect(ac.destination);
+    g.gain.setValueAtTime(0.0001, s);
+    g.gain.exponentialRampToValueAtTime(0.09, s + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, s + 0.3);
+    o.start(s); o.stop(s + 0.32);
+  });
 }
 
 const woodFrame = {
