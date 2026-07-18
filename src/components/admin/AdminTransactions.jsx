@@ -104,6 +104,7 @@ export default function AdminTransactions() {
             <p className="font-bold text-amber-100 truncate">{t.user_email || t.user_id}</p>
             <p className="text-xs text-amber-100/60 capitalize">{t.type} · ${t.amount} · {t.status} · {t.method}</p>
             {t.note && <p className="text-xs text-amber-100/40 italic">{t.note}</p>}
+            {t.reference && <p className="text-[10px] text-amber-100/50 font-mono break-all">TXID: {t.reference}</p>}
           </div>
           {t.status === 'pending' && (
             <div className="flex gap-1">
