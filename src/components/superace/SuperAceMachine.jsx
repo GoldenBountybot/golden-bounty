@@ -158,7 +158,11 @@ export default function SuperAceMachine() {
     setTeaseCols(teaseSet);
     setGrid(g.map((c) => ({ ...c })));
     const baseSpin = turboRef.current ? 320 : 620;
-    const spinDur = teaseSet.size > 0 ? baseSpin + (turboRef.current ? 1100 : 2200) : baseSpin;
+    let spinDur = baseSpin;
+    if (teaseSet.size > 0) {
+      const landMs = (0.3 + (COLS - 1 - teaseStart) * 0.4 + 2.4) * 1000;
+      spinDur = turboRef.current ? Math.max(baseSpin, landMs * 0.5) : Math.max(baseSpin, landMs + 200);
+    }
     await sleep(spinDur);
     setSpinning(false);
     setTeaseCols(new Set());
@@ -388,8 +392,8 @@ export default function SuperAceMachine() {
                     style={{
                       left: `${(c / COLS) * 100}%`,
                       width: `${100 / COLS}%`,
-                      background: 'linear-gradient(to bottom, rgba(255,220,120,0) 0%, rgba(255,235,160,0.18) 15%, rgba(255,235,160,0.42) 50%, rgba(255,220,120,0.18) 85%, rgba(255,220,120,0) 100%)',
-                      boxShadow: 'inset 0 0 22px rgba(255,210,120,0.55)',
+                      background: 'linear-gradient(to right, rgba(255,245,180,0.95) 0%, rgba(255,235,160,0) 14%, rgba(255,235,160,0) 86%, rgba(255,245,180,0.95) 100%), linear-gradient(to bottom, rgba(255,220,120,0) 0%, rgba(255,235,160,0.4) 50%, rgba(255,220,120,0) 100%)',
+                      boxShadow: '0 0 26px rgba(255,210,120,0.65), 0 0 12px rgba(255,245,180,0.85), inset 0 0 18px rgba(255,235,160,0.5)',
                       animation: 'saBeamPulse 0.9s ease-in-out infinite',
                     }}
                   />
