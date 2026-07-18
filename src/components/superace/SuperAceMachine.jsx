@@ -156,13 +156,26 @@ export default function SuperAceMachine() {
     }
     playSpinStart();
 
+    // The RTP gate controls whether this spin wins at ALL — natural wins are
+    // allowed only when the roll succeeds; otherwise the board is re-rolled to
+    // a clean losing grid (no pay, <3 scatters). So win chance ≈ RTP%.
+    const forceWin = Math.random() < (rtpRef.current / 100);
     let g = makeGrid();
-    const ev0 = evaluate(g, b);
-    if (ev0.pay === 0 && ev0.scatterCount < 3 && Math.random() < (rtpRef.current / 100)) {
-      g = nudgeForWin(g);
+    let ev0 = evaluate(g, b);
+    if (forceWin) {
+      if (ev0.pay === 0 && ev0.scatterCount < 3) {
+        g = nudgeForWin(g);
+      }
+    } else {
+      let guard = 0;
+      while ((ev0.pay > 0 || ev0.scatterCount >= 3) && guard < 40) {
+        g = makeGrid();
+        ev0 = evaluate(g, b);
+        guard++;
+      }
     }
-    // Golden Wild: drops only when it (+ flying copies) achieves a big win.
-    const goldenCfg = findGoldenWildConfig(g, b);
+    // Golden Wild: drops only when the spin is a forced win AND it (+ flying copies) achieves a big win.
+    const goldenCfg = forceWin ? findGoldenWildConfig(g, b) : null;
     if (goldenCfg) {
       g[goldenCfg.sourceIdx] = { sym: 'W', golden: false, goldenWild: true, pending: true, id: makeCell().id };
       goldenWildIdxRef.current = goldenCfg.sourceIdx;
