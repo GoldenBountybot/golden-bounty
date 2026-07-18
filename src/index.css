@@ -262,3 +262,15 @@
   0%, 100% { opacity: 0.55; }
   50%      { opacity: 1; }
 }
+
+/* Lucky Wheel */
+@keyframes lwLedPulse {
+  0%, 100% { opacity: 0.75; box-shadow: 0 0 12px #f0f8ff, inset 0 0 7px #f0f8ff; }
+  50%      { opacity: 1;    box-shadow: 0 0 20px #f0f8ff, inset 0 0 13px #f0f8ff; }
+}
+@keyframes lwGirlSpin {
+  0%   { transform: translateX(0) rotate(0deg); }
+  28%  { transform: translateX(-12px) rotate(-8deg); }
+  58%  { transform: translateX(-5px) rotate(-2deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
