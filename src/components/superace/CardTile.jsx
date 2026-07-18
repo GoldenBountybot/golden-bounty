@@ -27,7 +27,7 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew }) {
     boxShadow: '0 0 12px rgba(245,197,66,0.85), inset 0 0 0 1px rgba(255,235,150,0.45)',
   };
   const scatterStyle = {
-    background: 'radial-gradient(circle at 50% 45%, #3a2a10 0%, #2a1a06 70%, #160d03 100%)',
+    background: '#ffffff',
     border: '1.5px solid #f5c542',
     boxShadow: '0 0 12px rgba(245,197,66,0.85), inset 0 0 0 1px rgba(255,235,150,0.45)',
   };
