@@ -6,8 +6,9 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 
-const GIRL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e2a9bd0cd_generated_image.png';
-const LOBBY_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/401b15609_generated_image.png';
+const SCENE_BASE = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6bbfbdffe_generated_image.png';
+const SCENE_BLINK = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/05bff5f4b_generated_image.png';
+const SCENE_PUSH = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1cf33722c_generated_image.png';
 
 // 14 segments — gold / dark blue / green / red, with multipliers + USDT "T".
 const SEGMENTS = [
@@ -91,7 +92,12 @@ export default function LuckyWheel() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ background: `linear-gradient(to bottom, rgba(6,13,34,0.5), rgba(6,13,34,0.8)), url('${LOBBY_BG}') center / cover no-repeat` }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundImage: `url('${SCENE_BASE}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <div className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(6,13,34,0.12) 0%, rgba(6,13,34,0.22) 55%, rgba(6,13,34,0.6) 100%)' }} />
+      {/* Natural eye-blink overlay (same scene, eyes closed) */}
+      <div className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${SCENE_BLINK}')`, animation: 'lwBlink 5s ease-in-out infinite' }} />
+      {/* Push overlay — crossfades while spinning so she appears to push the wheel */}
+      <div className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${SCENE_PUSH}')`, opacity: 0, animation: spinning ? 'lwPushFade 0.9s ease-in-out infinite' : 'none' }} />
 
       <header className="sticky top-0 z-30 bg-stone-950/70 backdrop-blur-xl border-b border-amber-600/30">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
@@ -187,21 +193,6 @@ export default function LuckyWheel() {
           </div>
 
           {/* Anime girl — reaches in and spins with one hand */}
-          <img
-            src={GIRL_IMG}
-            alt=""
-            className="absolute pointer-events-none select-none"
-            style={{
-              left: -74,
-              bottom: -20,
-              width: 172,
-              height: 'auto',
-              zIndex: 26,
-              transformOrigin: '40% 30%',
-              filter: 'drop-shadow(0 8px 12px rgba(0,0,0,0.65))',
-              animation: spinning ? 'lwGirlPush 0.85s ease-in-out infinite' : 'none',
-            }}
-          />
         </div>
 
         {/* Wheel stand */}

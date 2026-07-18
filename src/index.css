@@ -280,3 +280,12 @@
   70%  { transform: translateX(3px) rotate(2deg); }
   100% { transform: translateX(0) rotate(0deg); }
 }
+@keyframes lwBlink {
+  0%, 91%, 100% { opacity: 0; }
+  94%, 97%      { opacity: 1; }
+}
+@keyframes lwPushFade {
+  0%   { opacity: 0; }
+  40%  { opacity: 1; }
+  100% { opacity: 0; }
+}
