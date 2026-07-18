@@ -2,7 +2,7 @@ import React from 'react';
 import PlayingCardFace from './PlayingCardFace';
 import WesternBadge from './WesternBadge';
 
-export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip }) {
+export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild }) {
   const { sym, golden, id } = cell;
   const isFace = ['A', 'K', 'Q', 'J'].includes(sym);
   const isSuit = ['S', 'H', 'D', 'C'].includes(sym);
@@ -79,7 +79,11 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
     >
       {isWild && (
         <div className="absolute inset-0 p-0.5">
-          <WesternBadge variant="wild" />
+          {goldenWild ? (
+            <div className="absolute inset-0 rounded-md" style={{ backgroundImage: `url('${GOLDEN_WILD_IMG}')`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+          ) : (
+            <WesternBadge variant="wild" />
+          )}
         </div>
       )}
       {isScatter && (
@@ -120,3 +124,4 @@ const STAR_DIRS = [
 ];
 
 const CARD_BACK = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fcd98f4f5_InShot_20260718_152559101.jpg';
+const GOLDEN_WILD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6060a2364_wild-ace-01.png';

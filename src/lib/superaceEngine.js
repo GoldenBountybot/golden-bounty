@@ -147,3 +147,20 @@ export function multiplierFor(combo, inFree) {
   const arr = inFree ? FREE_MULTS : BASE_MULTS;
   return arr[Math.min(combo, arr.length - 1)];
 }
+
+// Golden Wild spread: find grid positions where dropping a WILD would create
+// a new/extended winning line (i.e., increases winning cells).
+export function findWildTargets(g, sourceIdx) {
+  const baseWin = evaluate(g, 1).winCells;
+  const targets = [];
+  for (let i = 0; i < TOTAL; i++) {
+    if (i === sourceIdx || baseWin.has(i)) continue;
+    const cell = g[i];
+    if (cell.sym === 'W' || cell.sym === 'SC') continue;
+    const test = g.slice();
+    test[i] = { ...cell, sym: 'W' };
+    const afterWin = evaluate(test, 1).winCells;
+    if (afterWin.size > baseWin.size) targets.push(i);
+  }
+  return targets;
+}

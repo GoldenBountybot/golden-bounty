@@ -5,13 +5,14 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import CardTile from '@/components/superace/CardTile';
+import FlyingWilds from '@/components/superace/FlyingWilds';
 import MultiplierBar from '@/components/superace/MultiplierBar';
 import WinOverlay from '@/components/superace/WinOverlay';
 import FreeSpinStart from '@/components/superace/FreeSpinStart';
 import {
   COLS, ROWS, TOTAL, BASE_MULTS, FREE_MULTS, FREE_SPINS_AWARD, RETRIGGER_AWARD,
   BUY_BONUS_MULT, MAX_WIN_CAP, makeGrid, makeCell, evaluate, cascade, nudgeForWin,
-  multiplierFor, PAYS, SCATTER_PAY,
+  multiplierFor, PAYS, SCATTER_PAY, findWildTargets,
 } from '@/lib/superaceEngine';
 import {
   playSpinStart, playReelLand, playComboWin, playCascade, playScatter,
@@ -57,6 +58,8 @@ export default function SuperAceMachine() {
   const [showFreeStart, setShowFreeStart] = useState(false);
   const [shatterCells, setShatterCells] = useState(new Set());
   const [flipCells, setFlipCells] = useState(new Set());
+  const [goldenWildIdx, setGoldenWildIdx] = useState(null);
+  const [flyingWilds, setFlyingWilds] = useState([]);
 
   // refs for async orchestration
   const betRef = useRef(BETS[betIdx]);
@@ -71,6 +74,7 @@ export default function SuperAceMachine() {
   const turboRef = useRef(false);
   const autoRef = useRef(false);
   const doSpinRef = useRef(null);
+  const goldenWildIdxRef = useRef(null);
 
   useEffect(() => { betRef.current = BETS[betIdx]; }, [betIdx]);
   useEffect(() => { rtpRef.current = rtp; }, [rtp]);
@@ -108,6 +112,11 @@ export default function SuperAceMachine() {
     setWinningCells(new Set());
     scatterAwardRef.current = 0;
     freeTriggerRef.current = false;
+    setShatterCells(new Set());
+    setFlipCells(new Set());
+    setFlyingWilds([]);
+    goldenWildIdxRef.current = null;
+    setGoldenWildIdx(null);
     if (!inFreeRef.current) {
       setBalance((x) => x - b);
       setMessage(`Spinning…`);
@@ -201,6 +210,30 @@ export default function SuperAceMachine() {
       playCascade();
       await sleep(turboRef.current ? 220 : 400);
       setNewCells(new Set());
+
+      // Golden Wild (0.01%): a transformed wild spreads to near-win positions,
+      // flying there in animation, while staying at its original spot.
+      if (ev.goldenToWild.size > 0 && goldenWildIdxRef.current == null && Math.random() < 0.0001) {
+        const sourceIdx = [...ev.goldenToWild][0];
+        const targets = findWildTargets(g, sourceIdx).slice(0, 2);
+        if (targets.length > 0) {
+          goldenWildIdxRef.current = sourceIdx;
+          setGoldenWildIdx(sourceIdx);
+          playScatter();
+          setFlyingWilds(targets.map((t) => ({ sourceIdx, targetIdx: t })));
+          await sleep(760);
+          const ng = g.map((c) => ({ ...c }));
+          targets.forEach((t) => { ng[t] = { sym: 'W', golden: false, id: makeCell().id }; });
+          g = ng;
+          setGrid(g.map((c) => ({ ...c })));
+          setFlyingWilds([]);
+        }
+      }
+      // clear the golden-wild visual if its source cell got removed
+      if (goldenWildIdxRef.current != null && g[goldenWildIdxRef.current].sym !== 'W') {
+        goldenWildIdxRef.current = null;
+        setGoldenWildIdx(null);
+      }
     }
     return g;
   };
@@ -308,12 +341,15 @@ export default function SuperAceMachine() {
             boxShadow: 'inset 0 0 0 1px rgba(46,30,12,0.5), inset 0 0 18px rgba(0,0,0,0.6), 0 4px 14px rgba(0,0,0,0.55)',
           }}
         >
-          <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }}>
-            {grid.map((cell, idx) => (
-              <div key={cell.id + '-' + idx} className="aspect-[3/4]">
-                <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} flip={flipCells.has(idx)} spinning={spinning} isNew={newCells.has(idx)} />
-              </div>
-            ))}
+          <div className="relative">
+            <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }}>
+              {grid.map((cell, idx) => (
+                <div key={cell.id + '-' + idx} className="aspect-[3/4]">
+                  <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} flip={flipCells.has(idx)} goldenWild={goldenWildIdx === idx} spinning={spinning} isNew={newCells.has(idx)} />
+                </div>
+              ))}
+            </div>
+            <FlyingWilds items={flyingWilds} />
           </div>
 
           {/* Overlays */}
