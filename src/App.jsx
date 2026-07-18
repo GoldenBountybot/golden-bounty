@@ -13,6 +13,7 @@ import LuckyWheel from './pages/LuckyWheel';
 import HiLo from './pages/HiLo';
 import Plinko from './pages/Plinko';
 import Mines from './pages/Mines';
+import FullHouse from './pages/FullHouse';
 import RocketCrash from './pages/RocketCrash';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -58,6 +59,7 @@ const AuthenticatedApp = () => {
         <Route path="/games/hi-lo" element={<HiLo />} />
         <Route path="/games/plinko" element={<Plinko />} />
         <Route path="/games/mines" element={<Mines />} />
+        <Route path="/games/fullhouse" element={<FullHouse />} />
         <Route path="/games/rocket-crash" element={<RocketCrash />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
