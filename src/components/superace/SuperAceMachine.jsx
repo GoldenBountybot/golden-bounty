@@ -128,11 +128,35 @@ export default function SuperAceMachine() {
     if (ev0.pay === 0 && ev0.scatterCount < 3 && Math.random() < (rtpRef.current / 100)) {
       g = nudgeForWin(g);
     }
+    // Golden Wild (rare): spawns directly on the grid — not from a normal wild.
+    if (Math.random() < 0.5) {
+      const col = [1, 2, 3][Math.floor(Math.random() * 3)];
+      const row = Math.floor(Math.random() * ROWS);
+      const idx = row * COLS + col;
+      g[idx] = { sym: 'W', golden: false, goldenWild: true, id: makeCell().id };
+      goldenWildIdxRef.current = idx;
+    }
     setGrid(g.map((c) => ({ ...c })));
     await sleep(turboRef.current ? 320 : 620);
     setSpinning(false);
     playReelLand();
     await sleep(150);
+
+    // Golden Wild spread: fly copies to near-win positions; source stays in place.
+    if (goldenWildIdxRef.current != null) {
+      const sourceIdx = goldenWildIdxRef.current;
+      const targets = findWildTargets(g, sourceIdx).slice(0, 2);
+      if (targets.length > 0) {
+        playScatter();
+        setFlyingWilds(targets.map((t) => ({ sourceIdx, targetIdx: t })));
+        await sleep(820);
+        const ng = g.map((c) => ({ ...c }));
+        targets.forEach((t) => { ng[t] = { sym: 'W', golden: false, goldenWild: true, id: makeCell().id }; });
+        g = ng;
+        setGrid(g.map((c) => ({ ...c })));
+        setFlyingWilds([]);
+      }
+    }
 
     const finalGrid = await resolveCascades(g);
 
@@ -208,25 +232,6 @@ export default function SuperAceMachine() {
       playCascade();
       await sleep(turboRef.current ? 220 : 400);
       setNewCells(new Set());
-
-      // Golden Wild (0.01%): a transformed wild spreads to near-win positions,
-      // flying there in animation, while staying at its original spot.
-      if (ev.goldenToWild.size > 0 && goldenWildIdxRef.current == null && Math.random() < 0.5) {
-        const sourceIdx = [...ev.goldenToWild][0];
-        const targets = findWildTargets(g, sourceIdx).slice(0, 2);
-        if (targets.length > 0) {
-          goldenWildIdxRef.current = sourceIdx;
-          playScatter();
-          setFlyingWilds(targets.map((t) => ({ sourceIdx, targetIdx: t })));
-          await sleep(760);
-          const ng = g.map((c) => ({ ...c }));
-          ng[sourceIdx] = { ...ng[sourceIdx], goldenWild: true };
-          targets.forEach((t) => { ng[t] = { sym: 'W', golden: false, goldenWild: true, id: makeCell().id }; });
-          g = ng;
-          setGrid(g.map((c) => ({ ...c })));
-          setFlyingWilds([]);
-        }
-      }
     }
     return g;
   };
