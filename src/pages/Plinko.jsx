@@ -252,24 +252,29 @@ export default function Plinko() {
 
       {/* Header — western wooden bar */}
       <header className="sticky top-0 z-30" style={{ ...woodFrame, borderBottomWidth: 1, fontFamily: FONT, borderRadius: 0, background: 'linear-gradient(to bottom, rgba(58,40,18,0.96), rgba(26,18,9,0.98))' }}>
-        <div className="max-w-md mx-auto px-3 py-3 flex items-center gap-2.5">
-          <Link to="/" className="w-9 h-9 flex items-center justify-center" style={{ ...woodBtn, color: '#f3e2b3' }}>
-            <ChevronLeft className="w-5 h-5" />
-          </Link>
-          <div className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/670fa1a3e_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))", border: '1px solid rgba(190,140,55,0.75)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), 0 2px 6px rgba(0,0,0,0.55)' }}>
+        <div className="max-w-md mx-auto px-3 py-3 relative">
+          {/* Full-width title frame, text centered */}
+          <div className="w-full flex items-center justify-center gap-1.5 py-1.5" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/670fa1a3e_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))", border: '1px solid rgba(190,140,55,0.75)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), 0 2px 6px rgba(0,0,0,0.55)' }}>
             <DollarSign className="w-5 h-5 relative" style={{ color: '#f5c542' }} />
             <span className="text-sm font-black italic relative tracking-wide" style={{ color: '#f3e2b3', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>Plinko Drop</span>
           </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5" style={{ ...woodBtn }}>
-            <Wallet className="w-4 h-4" style={{ color: '#f5c542' }} />
-            <span className="text-xs font-bold tabular-nums" style={{ color: '#f3e2b3', fontFamily: FONT }}>${Number(balance).toFixed(2)}</span>
-          </div>
-          <Link to="/dashboard" className="w-8 h-8 flex items-center justify-center" style={{ ...goldBtn }}>
-            <Plus className="w-4 h-4" />
+          {/* Back — left edge */}
+          <Link to="/" className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center" style={{ ...woodBtn, color: '#f3e2b3' }}>
+            <ChevronLeft className="w-5 h-5" />
           </Link>
-          <button onClick={share} className="w-5 h-5 flex items-center justify-center" style={{ ...woodBtn, color: '#f3e2b3' }}>
-            {copied ? <Check className="w-[5px] h-[5px]" style={{ color: '#f5c542' }} /> : <Share2 className="w-[5px] h-[5px]" />}
-          </button>
+          {/* Wallet + add + share — right edge */}
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5" style={{ ...woodBtn }}>
+              <Wallet className="w-4 h-4" style={{ color: '#f5c542' }} />
+              <span className="text-xs font-bold tabular-nums" style={{ color: '#f3e2b3', fontFamily: FONT }}>${Number(balance).toFixed(2)}</span>
+            </div>
+            <Link to="/dashboard" className="w-8 h-8 flex items-center justify-center" style={{ ...goldBtn }}>
+              <Plus className="w-4 h-4" />
+            </Link>
+            <button onClick={share} className="w-5 h-5 flex items-center justify-center" style={{ ...woodBtn, color: '#f3e2b3' }}>
+              {copied ? <Check className="w-[5px] h-[5px]" style={{ color: '#f5c542' }} /> : <Share2 className="w-[5px] h-[5px]" />}
+            </button>
+          </div>
         </div>
       </header>
 
