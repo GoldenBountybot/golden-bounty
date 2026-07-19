@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { getRateForDeposits, getVipLevel, BASE_RATE } from '@/lib/vipLevels';
@@ -36,8 +36,13 @@ export function useStake() {
   const [loaded, setLoaded] = useState(false);
   // Re-render every second so the live, per-second profit ticks visibly.
   const [, setTick] = useState(0);
+  const autoUnlockRef = useRef(null);
   useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    const id = setInterval(() => {
+      setTick((t) => t + 1);
+      // Auto-unlock the staked balance the moment the 15-day lock ends.
+      autoUnlockRef.current?.();
+    }, 1000);
     return () => clearInterval(id);
   }, []);
 
@@ -111,19 +116,20 @@ export function useStake() {
     return p;
   }, [staked, stakedAt, lastClaim, rate, setBalance]);
 
-  // manual unlock once the 15 days have passed
-  const unlockNow = useCallback(async () => {
-    if (!staked || !stakedAt) return false;
+  // Auto-unlock once the 15 days have passed: staked + remaining profit
+  // return to the playable balance so the user can withdraw or re-stack.
+  const autoUnlock = useCallback(async () => {
+    if (!staked || !stakedAt) return;
     const elapsed = (Date.now() - new Date(stakedAt).getTime()) / DAY;
-    if (elapsed < LOCK_DAYS) return false;
+    if (elapsed < LOCK_DAYS) return;
     const p = computeProfit(staked, stakedAt, lastClaim, rate);
     setBalance((b) => b + staked + p);
     setStaked(0); setStakedAt(null); setLastClaim(null);
     try {
       await base44.auth.updateMe({ staked_amount: 0, staked_at: null, last_profit_claim: null });
     } catch { /* persisted on next retry */ }
-    return true;
   }, [staked, stakedAt, lastClaim, rate, setBalance]);
+  autoUnlockRef.current = autoUnlock;
 
   const elapsedDays = stakedAt ? (Date.now() - new Date(stakedAt).getTime()) / DAY : 0;
   const daysLocked = Math.floor(elapsedDays);
@@ -133,7 +139,7 @@ export function useStake() {
 
   return {
     balance, staked, pendingProfit, daysLocked, daysRemaining,
-    unlocked, loaded, stake, claimProfit, unlockNow,
+    unlocked, loaded, stake, claimProfit,
     rate, vipLevel, totalDeposits,
   };
 }

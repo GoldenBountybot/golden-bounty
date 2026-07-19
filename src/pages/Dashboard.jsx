@@ -91,12 +91,6 @@ export default function Dashboard() {
     else toast({ title: 'No profit to claim yet' });
   };
 
-  const doUnlock = async () => {
-    const ok = await stake.unlockNow();
-    if (ok) toast({ title: 'Unlocked!', description: 'Staked balance returned to your wallet' });
-    else toast({ title: 'Not unlocked yet', description: `${LOCK_DAYS} days lock not over` });
-  };
-
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950 pb-10">
       <WesternBackdrop />
@@ -257,24 +251,6 @@ export default function Dashboard() {
             >
               <Coins className="w-4 h-4" /> CLAIM PROFIT ${stake.pendingProfit.toFixed(2)}
             </button>
-
-            {/* Unlock (after 15 days) */}
-            {stake.unlocked && (
-              <button
-                onClick={doUnlock}
-                className="w-auto mx-auto px-3 py-1.5 rounded-md text-xs font-black italic shadow-lg transition-all flex items-center justify-center gap-1.5"
-                style={{
-                  border: '1px solid rgba(190,140,55,0.85)',
-                  background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 3px 8px rgba(200,136,30,0.45)',
-                  color: '#2a1a06',
-                  fontFamily: 'Rye, Georgia, serif',
-                  textShadow: '0 1px 1px rgba(255,240,200,0.4)',
-                }}
-              >
-                <Lock className="w-4 h-4" /> UNLOCK · RETURN ${stake.staked.toFixed(2)}
-              </button>
-            )}
 
             {/* Stake form */}
             <WesternFrame className="p-2 flex flex-col gap-2">
