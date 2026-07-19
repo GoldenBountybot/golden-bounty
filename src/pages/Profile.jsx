@@ -196,18 +196,18 @@ export default function Profile() {
         </WesternFrame>
 
         {/* Edit profile */}
-        <WesternFrame className="p-2.5 flex flex-col gap-2">
-          <div className="space-y-1">
+        <WesternFrame className="p-2 flex flex-col gap-1.5">
+          <div className="space-y-0.5">
             <label className="text-[8px] tracking-widest uppercase text-amber-300/70" style={{ fontFamily: 'Rye, Georgia, serif' }}>Username</label>
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Set a username"
-              className="w-full px-2.5 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
+              className="w-full px-2.5 py-1 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
               style={{ fontFamily: 'Georgia, serif' }}
             />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <label className="text-[8px] tracking-widest uppercase text-amber-300/70" style={{ fontFamily: 'Rye, Georgia, serif' }}>Mobile Number</label>
             <div className="relative">
               <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-amber-400/60" />
@@ -215,7 +215,7 @@ export default function Profile() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+1 555 000 0000"
-                className="w-full pl-7 pr-2.5 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
+                className="w-full pl-7 pr-2.5 py-1 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
                 style={{ fontFamily: 'Georgia, serif' }}
               />
             </div>
@@ -223,7 +223,7 @@ export default function Profile() {
           <button
             onClick={save}
             disabled={saving}
-            className="w-full py-1.5 rounded-md text-xs font-black italic shadow-md disabled:opacity-60 transition-all flex items-center justify-center gap-1.5"
+            className="w-full py-1 rounded-md text-xs font-black italic shadow-md disabled:opacity-60 transition-all flex items-center justify-center gap-1.5"
             style={{
               border: '1px solid rgba(245,210,120,0.9)',
               background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
