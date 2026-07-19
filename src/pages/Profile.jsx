@@ -203,7 +203,7 @@ export default function Profile() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Set a username"
-              className="w-full px-2.5 py-0.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
+              className="w-full px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
               style={{ fontFamily: 'Georgia, serif' }}
             />
           </div>
@@ -215,7 +215,7 @@ export default function Profile() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+1 555 000 0000"
-                className="w-full pl-7 pr-2.5 py-0.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
+                className="w-full pl-7 pr-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
                 style={{ fontFamily: 'Georgia, serif' }}
               />
             </div>
@@ -223,7 +223,7 @@ export default function Profile() {
           <button
             onClick={save}
             disabled={saving}
-            className="w-full py-1 rounded-md text-xs font-black italic shadow-md disabled:opacity-60 transition-all flex items-center justify-center gap-1.5"
+            className="w-full px-3 py-1.5 rounded-md text-xs font-black italic shadow-md disabled:opacity-60 transition-all flex items-center justify-center gap-1.5"
             style={{
               border: '1px solid rgba(245,210,120,0.9)',
               background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
@@ -233,7 +233,7 @@ export default function Profile() {
               textShadow: '0 1px 1px rgba(255,240,200,0.4)',
             }}
           >
-            {saving ? <><Loader2 className="w-3 h-3 animate-spin" /> Saving...</> : <><Check className="w-3 h-3" /> Save</>}
+            {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Check className="w-4 h-4" /> Save</>}
           </button>
         </WesternFrame>
 
@@ -246,10 +246,10 @@ export default function Profile() {
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`flex items-center justify-center gap-1 py-1.5 rounded-md border transition-colors ${active ? 'bg-amber-400 text-stone-900 border-amber-300' : 'bg-black/30 text-amber-100/80 border-amber-700/40 hover:bg-black/50'}`}
+                className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md border transition-colors ${active ? 'bg-amber-400 text-stone-900 border-amber-300' : 'bg-black/30 text-amber-100/80 border-amber-700/40 hover:bg-black/50'}`}
                 style={{ fontFamily: 'Rye, Georgia, serif' }}
               >
-                <Icon className="w-3 h-3" /><span className="text-[10px] font-bold italic">{t.label}</span>
+                <Icon className="w-4 h-4" /><span className="text-[10px] font-bold italic">{t.label}</span>
               </button>
             );
           })}
@@ -329,7 +329,7 @@ export default function Profile() {
 
         <button
           onClick={() => logout()}
-          className="w-full py-1.5 rounded-md border text-amber-100/80 text-[11px] font-bold italic hover:bg-rose-900/40 hover:text-rose-200 transition-colors flex items-center justify-center gap-1.5"
+          className="w-full px-3 py-1.5 rounded-md border text-amber-100/80 text-[11px] font-bold italic hover:bg-rose-900/40 hover:text-rose-200 transition-colors flex items-center justify-center gap-1.5"
           style={{
             fontFamily: 'Rye, Georgia, serif',
             borderColor: 'rgba(190,140,55,0.6)',
@@ -337,7 +337,7 @@ export default function Profile() {
             boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.2), 0 1px 3px rgba(0,0,0,0.4)',
           }}
         >
-          <LogOut className="w-3 h-3" /> Log Out
+          <LogOut className="w-4 h-4" /> Log Out
         </button>
       </main>
     </div>
