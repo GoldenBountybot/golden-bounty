@@ -10,6 +10,7 @@ import MultiplierBar from '@/components/superace/MultiplierBar';
 import WinOverlay from '@/components/superace/WinOverlay';
 import FreeSpinStart from '@/components/superace/FreeSpinStart';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import GameTitleBar from '@/components/GameTitleBar';
 import PlaqueBanner from '@/components/wildbounty/PlaqueBanner';
 import WesternStatBanner from '@/components/wildbounty/WesternStatBanner';
 import {
@@ -403,27 +404,23 @@ export default function SuperAceMachine() {
     <div className="min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/40 to-stone-950" style={W}>
       {/* Header */}
       <header className="sticky top-0 z-30 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
-        <div className="max-w-md mx-auto px-2 py-1.5 flex items-center gap-2">
-          <Link to="/" className="shrink-0">
-            <Medallion size="w-9 h-9" active={false}>
-              <ChevronLeft className="w-5 h-5 text-amber-300" strokeWidth={2.6} style={emboss(false)} />
-            </Medallion>
-          </Link>
-          <div className="flex-1 flex items-center justify-center gap-2 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0">
-              <Gamepad2 className="w-4 h-4 text-stone-950" />
-            </div>
-            <h1 className="text-base font-bold text-amber-200 italic truncate" style={{ fontFamily: 'Rye, Georgia, serif' }}>JILI Super ACE</h1>
-          </div>
-          <button onClick={buyBonus} disabled={busyRef.current || inFreeRef.current} className="shrink-0 px-2 py-1 rounded-md text-[9px] font-black italic disabled:opacity-50" style={{ background: 'linear-gradient(to bottom, #ef4444, #991b1b)', border: '1px solid rgba(245,197,66,0.8)', color: '#fde68a', boxShadow: '0 0 8px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}>
-            BUY<br />BONUS
-          </button>
-          <button onClick={share} className="shrink-0">
-            <Medallion size="w-5 h-5" active={copied}>
-              {copied ? <Check className="w-[5px] h-[5px] text-yellow-300" style={emboss(true)} /> : <Share2 className="w-[5px] h-[5px] text-amber-300/85" style={emboss(false)} />}
-            </Medallion>
-          </button>
-        </div>
+        <GameTitleBar
+          title="JILI Super ACE"
+          icon={<div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0"><Gamepad2 className="w-4 h-4 text-stone-950" /></div>}
+          left={<Link to="/" className="shrink-0"><Medallion size="w-9 h-9" active={false}><ChevronLeft className="w-5 h-5 text-amber-300" strokeWidth={2.6} style={emboss(false)} /></Medallion></Link>}
+          right={
+            <>
+              <button onClick={buyBonus} disabled={busyRef.current || inFreeRef.current} className="shrink-0 px-2 py-1 rounded-md text-[9px] font-black italic disabled:opacity-50" style={{ background: 'linear-gradient(to bottom, #ef4444, #991b1b)', border: '1px solid rgba(245,197,66,0.8)', color: '#fde68a', boxShadow: '0 0 8px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}>
+                BUY<br />BONUS
+              </button>
+              <button onClick={share} className="shrink-0">
+                <Medallion size="w-5 h-5" active={copied}>
+                  {copied ? <Check className="w-[5px] h-[5px] text-yellow-300" style={emboss(true)} /> : <Share2 className="w-[5px] h-[5px] text-amber-300/85" style={emboss(false)} />}
+                </Medallion>
+              </button>
+            </>
+          }
+        />
       </header>
 
       <main className="max-w-md mx-auto px-2 py-2">
