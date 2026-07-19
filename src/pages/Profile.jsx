@@ -223,7 +223,7 @@ export default function Profile() {
           <button
             onClick={save}
             disabled={saving}
-            className="w-full px-3 py-1.5 rounded-md text-xs font-black italic shadow-md disabled:opacity-60 transition-all flex items-center justify-center gap-1.5"
+            className="w-auto mx-auto px-3 py-1.5 rounded-md text-xs font-black italic shadow-md disabled:opacity-60 transition-all flex items-center justify-center gap-1.5"
             style={{
               border: '1px solid rgba(245,210,120,0.9)',
               background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
@@ -329,7 +329,7 @@ export default function Profile() {
 
         <button
           onClick={() => logout()}
-          className="w-full px-3 py-1.5 rounded-md border text-amber-100/80 text-[11px] font-bold italic hover:bg-rose-900/40 hover:text-rose-200 transition-colors flex items-center justify-center gap-1.5"
+          className="w-auto mx-auto px-3 py-1.5 rounded-md border text-amber-100/80 text-[11px] font-bold italic hover:bg-rose-900/40 hover:text-rose-200 transition-colors flex items-center justify-center gap-1.5"
           style={{
             fontFamily: 'Rye, Georgia, serif',
             borderColor: 'rgba(190,140,55,0.6)',
