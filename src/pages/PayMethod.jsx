@@ -191,7 +191,7 @@ export default function PayMethod() {
                   <p className="text-[11px] text-amber-100/80 break-all font-mono">{n.address}</p>
                   <button
                     onClick={() => setSelectedNet(n)}
-                    className={`self-start px-3 py-1 rounded-md text-xs font-bold italic border ${active ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`}
+                    className={`self-start px-3 py-0.5 rounded-md text-xs font-bold italic border ${active ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`}
                     style={{ fontFamily: 'Georgia, serif' }}
                   >
                     {active ? '✓ Selected' : 'Select this network'}
@@ -208,12 +208,12 @@ export default function PayMethod() {
                 value={txid}
                 onChange={e => setTxid(e.target.value)}
                 placeholder="Paste your transaction ID / hash"
-                className="px-3 py-2 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
+                className="px-3 py-1 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
               />
               <button
                 onClick={submitTxid}
                 disabled={submitting}
-                className="w-full py-2.5 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
+                className="w-full py-1 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
                 style={{ fontFamily: 'Georgia, serif' }}
               >
                 <Send className="w-4 h-4" /> {submitting ? 'Submitting...' : 'Submit for Approval'}
@@ -239,12 +239,12 @@ export default function PayMethod() {
                 value={txid}
                 onChange={e => setTxid(e.target.value)}
                 placeholder="Enter your Binance Pay Order ID"
-                className="px-3 py-2 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
+                className="px-3 py-1 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
               />
               <button
                 onClick={submitTxid}
                 disabled={submitting}
-                className="w-full py-2.5 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
+                className="w-full py-1 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
                 style={{ fontFamily: 'Georgia, serif' }}
               >
                 <Send className="w-4 h-4" /> {submitting ? 'Submitting...' : 'Submit for Approval'}
