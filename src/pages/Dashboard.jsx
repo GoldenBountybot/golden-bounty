@@ -154,8 +154,8 @@ export default function Dashboard() {
                   <button key={a} onClick={() => doDeposit(a)} className="px-3 py-1.5 rounded-md text-[11px] font-bold italic border bg-black/30 text-amber-100/80 border-amber-700/40 hover:bg-black/50" style={{ fontFamily: 'Georgia, serif' }}>${a}</button>
                 ))}
               </div>
-              <div className="flex gap-1.5">
-                <input type="number" value={depAmt} onChange={e => setDepAmt(e.target.value)} placeholder="Custom amount" className="flex-1 px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none" />
+              <div className="flex gap-1.5 justify-center">
+                <input type="number" value={depAmt} onChange={e => setDepAmt(e.target.value)} placeholder="Custom amount" className="w-32 px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none" />
                 <button onClick={() => doDeposit(depAmt)} className="px-3 py-1.5 rounded-md text-xs font-bold italic" style={{ border: '1px solid rgba(245,210,120,0.9)', background: 'linear-gradient(to bottom, #f5c542, #c8881e)', color: '#2a1a06', fontFamily: 'Rye, Georgia, serif' }}>Deposit</button>
               </div>
             </WesternFrame>
@@ -165,8 +165,8 @@ export default function Dashboard() {
                 <ArrowUpFromLine className="w-3.5 h-3.5" />
                 <h2 className="text-[11px] font-black italic" style={{ fontFamily: 'Rye, Georgia, serif' }}>Withdraw</h2>
               </div>
-              <div className="flex gap-1.5">
-                <input type="number" value={wdAmt} onChange={e => setWdAmt(e.target.value)} placeholder="Amount to withdraw" className="flex-1 px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none" />
+              <div className="flex gap-1.5 justify-center">
+                <input type="number" value={wdAmt} onChange={e => setWdAmt(e.target.value)} placeholder="Amount to withdraw" className="w-32 px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none" />
                 <button onClick={doWithdraw} className="px-3 py-1.5 rounded-md text-xs font-bold italic" style={{ border: '1px solid rgba(245,210,120,0.9)', background: 'linear-gradient(to bottom, #e0556a, #a02338)', color: '#fff', fontFamily: 'Rye, Georgia, serif' }}>Withdraw</button>
               </div>
               <p className="text-[9px] text-amber-100/40 italic">Withdraw creates a request — funds sent after admin approval.</p>
@@ -245,7 +245,7 @@ export default function Dashboard() {
             <button
               onClick={doClaimProfit}
               disabled={stake.pendingProfit <= 0}
-              className="w-full px-3 py-1.5 rounded-md text-xs font-black italic shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-1.5"
+              className="w-auto mx-auto px-3 py-1.5 rounded-md text-xs font-black italic shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-1.5"
               style={{
                 border: '1px solid rgba(245,210,120,0.9)',
                 background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
@@ -262,7 +262,7 @@ export default function Dashboard() {
             {stake.unlocked && (
               <button
                 onClick={doUnlock}
-                className="w-full px-3 py-1.5 rounded-md text-xs font-black italic shadow-lg transition-all flex items-center justify-center gap-1.5"
+                className="w-auto mx-auto px-3 py-1.5 rounded-md text-xs font-black italic shadow-lg transition-all flex items-center justify-center gap-1.5"
                 style={{
                   border: '1px solid rgba(190,140,55,0.85)',
                   background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
@@ -300,8 +300,8 @@ export default function Dashboard() {
                   >${a}</button>
                 ))}
               </div>
-              <div className="flex gap-1.5">
-                <input type="number" value={stkAmt} onChange={e => setStkAmt(e.target.value)} placeholder="Amount to stack" className="flex-1 px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-xs" />
+              <div className="flex gap-1.5 justify-center">
+                <input type="number" value={stkAmt} onChange={e => setStkAmt(e.target.value)} placeholder="Amount to stack" className="w-32 px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-xs" />
                 <button
                   onClick={() => doStake(stkAmt)}
                   className="px-3 py-1.5 rounded-md text-xs font-bold italic"

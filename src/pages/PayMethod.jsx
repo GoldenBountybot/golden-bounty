@@ -208,12 +208,12 @@ export default function PayMethod() {
                 value={txid}
                 onChange={e => setTxid(e.target.value)}
                 placeholder="Paste your transaction ID / hash"
-                className="px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
+                className="w-60 mx-auto px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
               />
               <button
                 onClick={submitTxid}
                 disabled={submitting}
-                className="w-full px-3 py-1.5 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.98]"
+                className="w-auto mx-auto px-3 py-1.5 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.98]"
                 style={{ fontFamily: 'Georgia, serif' }}
               >
                 <Send className="w-4 h-4" /> {submitting ? 'Submitting...' : 'Submit for Approval'}
@@ -239,12 +239,12 @@ export default function PayMethod() {
                 value={txid}
                 onChange={e => setTxid(e.target.value)}
                 placeholder="Enter your Binance Pay Order ID"
-                className="px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
+                className="w-60 mx-auto px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
               />
               <button
                 onClick={submitTxid}
                 disabled={submitting}
-                className="w-full px-3 py-1.5 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.98]"
+                className="w-auto mx-auto px-3 py-1.5 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.98]"
                 style={{ fontFamily: 'Georgia, serif' }}
               >
                 <Send className="w-4 h-4" /> {submitting ? 'Submitting...' : 'Submit for Approval'}

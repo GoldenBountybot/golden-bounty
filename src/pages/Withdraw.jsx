@@ -143,13 +143,13 @@ export default function Withdraw() {
               value={binanceUid}
               onChange={e => setBinanceUid(e.target.value)}
               placeholder="e.g. 384920173"
-              className="px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
+              className="w-60 mx-auto px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
               style={{ fontFamily: FONT }}
             />
             <button
               onClick={submit}
               disabled={submitting}
-              className="w-full px-3 py-1.5 rounded-md font-bold italic flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.98]"
+              className="w-auto mx-auto px-3 py-1.5 rounded-md font-bold italic flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.98]"
               style={{ ...GOLD_BTN, fontFamily: FONT }}
             >
               <Send className="w-4 h-4" /> {submitting ? 'Submitting...' : 'Submit Withdrawal'}
@@ -188,13 +188,13 @@ export default function Withdraw() {
                   value={walletAddr}
                   onChange={e => setWalletAddr(e.target.value)}
                   placeholder="Paste your USDT wallet address"
-                  className="px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
+                  className="w-60 mx-auto px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
                   style={{ fontFamily: 'monospace' }}
                 />
                 <button
                   onClick={submit}
                   disabled={submitting}
-                  className="w-full px-3 py-1.5 rounded-md font-bold italic flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.98]"
+                  className="w-auto mx-auto px-3 py-1.5 rounded-md font-bold italic flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.98]"
                   style={{ ...GOLD_BTN, fontFamily: FONT }}
                 >
                   <Send className="w-4 h-4" /> {submitting ? 'Submitting...' : 'Submit Withdrawal'}

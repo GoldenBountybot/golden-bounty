@@ -203,7 +203,7 @@ export default function Profile() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Set a username"
-              className="w-full px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
+              className="w-60 mx-auto px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
               style={{ fontFamily: 'Georgia, serif' }}
             />
           </div>
@@ -215,7 +215,7 @@ export default function Profile() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+1 555 000 0000"
-                className="w-full pl-7 pr-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
+                className="w-60 mx-auto pl-7 pr-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
                 style={{ fontFamily: 'Georgia, serif' }}
               />
             </div>
