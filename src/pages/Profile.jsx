@@ -223,7 +223,7 @@ export default function Profile() {
           <button
             onClick={save}
             disabled={saving}
-            className="w-full py-0.5 rounded-md text-xs font-black italic shadow-md disabled:opacity-60 transition-all flex items-center justify-center gap-1.5"
+            className="w-full py-1.5 rounded-md text-xs font-black italic shadow-md disabled:opacity-60 transition-all flex items-center justify-center gap-1.5"
             style={{
               border: '1px solid rgba(245,210,120,0.9)',
               background: 'linear-gradient(to bottom, #f5c542, #c8881e)',

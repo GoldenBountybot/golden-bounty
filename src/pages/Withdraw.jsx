@@ -149,7 +149,7 @@ export default function Withdraw() {
             <button
               onClick={submit}
               disabled={submitting}
-              className="w-full py-1 rounded-md font-bold italic flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
+              className="w-full py-1.5 rounded-md font-bold italic flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
               style={{ ...GOLD_BTN, fontFamily: FONT }}
             >
               <Send className="w-4 h-4" /> {submitting ? 'Submitting...' : 'Submit Withdrawal'}
@@ -194,7 +194,7 @@ export default function Withdraw() {
                 <button
                   onClick={submit}
                   disabled={submitting}
-                  className="w-full py-1 rounded-md font-bold italic flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
+                  className="w-full py-1.5 rounded-md font-bold italic flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
                   style={{ ...GOLD_BTN, fontFamily: FONT }}
                 >
                   <Send className="w-4 h-4" /> {submitting ? 'Submitting...' : 'Submit Withdrawal'}
