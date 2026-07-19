@@ -170,14 +170,14 @@ export default function Profile() {
             <div className="flex items-center gap-1.5 min-w-0">
               <Crown className="w-3.5 h-3.5 shrink-0" style={{ color: vip?.color || '#8a7a5a' }} />
               <div className="min-w-0">
-                <p className="text-[8px] tracking-widest uppercase text-amber-300/70 leading-none" style={{ fontFamily: 'Rye, Georgia, serif' }}>VIP Level</p>
+                <p className="text-[8px] tracking-widest uppercase text-amber-300 font-bold leading-none" style={{ fontFamily: 'Rye, Georgia, serif' }}>VIP Level</p>
                 <p className="text-[11px] font-black italic leading-tight" style={{ fontFamily: 'Georgia, serif', color: vip?.color || '#d9b97a' }}>
                   {vip ? `${vip.name} · L${vip.level}` : 'None'}
                 </p>
               </div>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-[8px] tracking-widest uppercase text-amber-300/70 leading-none" style={{ fontFamily: 'Rye, Georgia, serif' }}>Stack Rate</p>
+              <p className="text-[8px] tracking-widest uppercase text-amber-300 font-bold leading-none" style={{ fontFamily: 'Rye, Georgia, serif' }}>Stack Rate</p>
               <p className="text-[11px] font-black italic tabular-nums text-emerald-300 leading-tight" style={{ fontFamily: 'Georgia, serif' }}>{(vipRate * 100).toFixed(2)}%</p>
             </div>
           </div>
@@ -198,7 +198,7 @@ export default function Profile() {
         {/* Edit profile */}
         <WesternFrame className="p-2 flex flex-col gap-1.5">
           <div className="space-y-0.5">
-            <label className="text-[8px] tracking-widest uppercase text-amber-300/70" style={{ fontFamily: 'Rye, Georgia, serif' }}>Username</label>
+            <label className="text-[8px] tracking-widest uppercase text-amber-300 font-bold" style={{ fontFamily: 'Rye, Georgia, serif' }}>Username</label>
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -208,7 +208,7 @@ export default function Profile() {
             />
           </div>
           <div className="space-y-0.5">
-            <label className="text-[8px] tracking-widest uppercase text-amber-300/70" style={{ fontFamily: 'Rye, Georgia, serif' }}>Mobile Number</label>
+            <label className="text-[8px] tracking-widest uppercase text-amber-300 font-bold" style={{ fontFamily: 'Rye, Georgia, serif' }}>Mobile Number</label>
             <div className="relative">
               <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-amber-400/60" />
               <input
@@ -262,7 +262,7 @@ export default function Profile() {
                 <Wallet className="w-3.5 h-3.5 text-amber-300" />
               </div>
               <div className="flex-1">
-                <p className="text-[8px] tracking-widest uppercase text-amber-300/70" style={{ fontFamily: 'Rye, Georgia, serif' }}>Wallet Balance</p>
+                <p className="text-[8px] tracking-widest uppercase text-amber-300 font-bold" style={{ fontFamily: 'Rye, Georgia, serif' }}>Wallet Balance</p>
                 <p className="text-base font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${balance.toFixed(2)}</p>
               </div>
               <Coins className="w-3.5 h-3.5 text-amber-400/50" />
