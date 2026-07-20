@@ -4,45 +4,71 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { useToast } from '@/components/ui/use-toast';
-import { SYMBOLS, PAYLINES, spinGrid, evaluateGrid, runBonus, symbolByKey } from '@/lib/crownCoinsEngine';
-import WesternFrame from '@/components/wildbounty/WesternFrame';
-import { Coins, RotateCcw, Zap, X, Crown } from 'lucide-react';
+import { SYMBOLS, PAYLINES, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey } from '@/lib/crownCoinsEngine';
+import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
 const REEL_MS = 520;
 
-function SymbolCell({ symKey, dim, win, spinning }) {
+const DiamondBG = (
+  <div
+    className="absolute inset-0 -z-10"
+    style={{
+      background:
+        'radial-gradient(ellipse at center, #a01828 0%, #7a0e1c 45%, #4a0008 100%)',
+    }}
+  >
+    <div
+      className="absolute inset-0 opacity-30"
+      style={{
+        backgroundImage:
+          'repeating-linear-gradient(45deg, rgba(0,0,0,0.25) 0, rgba(0,0,0,0.25) 1px, transparent 1px, transparent 18px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.25) 0, rgba(0,0,0,0.25) 1px, transparent 1px, transparent 18px)',
+      }}
+    />
+  </div>
+);
+
+function JackpotBadge({ tier, amount, color }) {
+  return (
+    <div
+      className="flex flex-col items-center justify-center rounded-lg px-2 py-1"
+      style={{
+        border: '2px solid #d4af37',
+        background: `linear-gradient(to bottom, ${color}, rgba(0,0,0,0.5))`,
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), 0 1px 3px rgba(0,0,0,0.6)',
+      }}
+    >
+      <span className="text-[9px] font-black tracking-wider text-yellow-300" style={{ fontFamily: 'Georgia, serif' }}>{tier}</span>
+      <span className="text-[11px] font-black text-white tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${amount.toFixed(2)}</span>
+    </div>
+  );
+}
+
+function SymbolCell({ symKey, win, dim, spinning }) {
   const s = symbolByKey(symKey) || SYMBOLS[0];
   return (
     <div
-      className="relative flex items-center justify-center rounded-md overflow-hidden"
+      className="relative flex items-center justify-center overflow-hidden"
       style={{
-        border: `1px solid ${win ? '#ffd24a' : 'rgba(190,140,55,0.45)'}`,
-        background: s.bg,
+        background: 'linear-gradient(to bottom, #eaeaea, #cfcfcf)',
+        border: win ? '2px solid #ffd24a' : 'none',
         boxShadow: win
-          ? '0 0 14px rgba(255,210,80,0.85), inset 0 0 0 2px rgba(255,235,150,0.9)'
-          : 'inset 0 1px 0 rgba(255,210,120,0.18), 0 1px 3px rgba(0,0,0,0.5)',
-        transition: 'box-shadow .2s',
-        opacity: dim ? 0.45 : 1,
+          ? '0 0 12px rgba(255,210,80,0.9), inset 0 0 0 2px rgba(255,235,150,0.9)'
+          : 'inset 0 0 0 1px rgba(255,255,255,0.6), 0 1px 2px rgba(0,0,0,0.4)',
+        opacity: dim ? 0.5 : 1,
+        transition: 'opacity .2s',
       }}
     >
-      <span
-        className="select-none"
-        style={{
-          fontSize: '1.7rem',
-          lineHeight: 1,
-          filter: spinning ? 'blur(2px)' : 'none',
-          color: s.text,
-          fontFamily: s.key === 'bar' ? 'Rye, Georgia, serif' : 'inherit',
-          fontWeight: s.key === 'bar' ? 800 : 400,
-          textShadow: '0 1px 2px rgba(0,0,0,0.6)',
-        }}
-      >
-        {s.emoji}
-      </span>
+      <img
+        src={s.image}
+        alt={s.name}
+        className="w-full h-full object-cover"
+        draggable={false}
+        style={{ filter: spinning ? 'blur(3px) brightness(1.2)' : 'none', transition: 'filter .1s' }}
+      />
       {win && (
         <span
-          className="absolute inset-0 rounded-md pointer-events-none"
-          style={{ boxShadow: 'inset 0 0 10px rgba(255,220,120,0.7)' }}
+          className="absolute inset-0 pointer-events-none"
+          style={{ boxShadow: 'inset 0 0 12px rgba(255,220,120,0.8)', background: 'radial-gradient(circle at center, rgba(255,235,150,0.25), transparent 70%)' }}
         />
       )}
     </div>
@@ -55,32 +81,35 @@ export default function CrownCoinsMachine() {
   const logActivity = useLogActivity();
   const { toast } = useToast();
 
-  const [grid, setGrid] = useState(() => ['lemon', 'cherry', 'orange', 'bell', 'bar', 'plum', 'wild', 'coin', 'cherry']);
+  const [grid, setGrid] = useState(() => ['lemon','cherry','orange','bell','bar','plum','seven','coin','cherry']);
   const [spinning, setSpinning] = useState(false);
-  const [winLines, setWinLines] = useState([]); // indices of cells on winning lines
+  const [winCells, setWinCells] = useState([]);
   const [lastWin, setLastWin] = useState(0);
   const [bet, setBet] = useState(1);
-  const [bonus, setBonus] = useState(null); // { cells, total, royal }
+  const [bonus, setBonus] = useState(null);
   const [revealStep, setRevealStep] = useState(0);
+  const [showInfo, setShowInfo] = useState(false);
+  const [autoSpin, setAutoSpin] = useState(false);
+  const [turbo, setTurbo] = useState(false);
   const scrambleRef = useRef(null);
+  const autoRef = useRef(false);
 
-  const winSet = new Set(winLines);
+  const winSet = new Set(winCells);
 
   const doSpin = useCallback(async () => {
     if (spinning) return;
     if (bet <= 0) { toast({ title: 'Set a bet amount' }); return; }
-    if (balance < bet) { toast({ title: 'Insufficient balance' }); return; }
+    if (balance < bet) { toast({ title: 'Insufficient balance' }); autoRef.current = false; setAutoSpin(false); return; }
     setSpinning(true);
-    setWinLines([]);
+    setWinCells([]);
     setLastWin(0);
-    // deduct bet
     setBalance(b => Math.max(0, b - bet));
 
-    // scramble animation
+    const ms = turbo ? 280 : REEL_MS;
     let ticks = 0;
     clearInterval(scrambleRef.current);
     scrambleRef.current = setInterval(() => {
-      setGrid(() => Array.from({ length: 9 }, () => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)].key));
+      setGrid(() => Array.from({ length: 9 }, () => SYMBOLS[Math.floor(Math.random() * (SYMBOLS.length))].key));
       ticks++;
     }, 70);
 
@@ -89,15 +118,13 @@ export default function CrownCoinsMachine() {
       const result = spinGrid(rtp);
       setGrid(result);
 
-      const { lines, totalMul, coins } = evaluateGrid(result);
-      let win = totalMul * (bet / 5);
+      const { lines, totalMul, coins, scatterMul } = evaluateGrid(result);
+      let win = totalMul * (bet / 5) + scatterMul * bet;
 
-      // highlight winning cells
       const cells = [];
       lines.forEach(l => l.idxs.forEach(i => cells.push(i)));
-      setWinLines(cells);
+      setWinCells(cells);
 
-      // bonus trigger
       let bonusResult = null;
       if (coins >= 3) {
         bonusResult = runBonus(bet, rtp);
@@ -107,141 +134,212 @@ export default function CrownCoinsMachine() {
       if (win > 0) setBalance(b => b + win);
       setLastWin(win);
       setSpinning(false);
-      if (bonusResult) {
-        setBonus(bonusResult);
-        setRevealStep(0);
-      }
+      if (bonusResult) { setBonus(bonusResult); setRevealStep(0); autoRef.current = false; setAutoSpin(false); }
       logActivity('crown-coins', bet, win, win > 0 ? 'win' : 'loss');
-      // analytics best-effort
       try { base44.analytics.track({ eventName: 'crown_coins_spin', properties: { bet, win: Math.round(win * 100) / 100, coins } }); } catch {}
-    }, REEL_MS);
-  }, [spinning, bet, balance, rtp, setBalance, logActivity, toast]);
+
+      if (autoRef.current && !bonusResult) {
+        setTimeout(() => { if (autoRef.current) doSpin(); }, 600);
+      }
+    }, ms);
+  }, [spinning, bet, balance, rtp, turbo, setBalance, logActivity, toast]);
+
+  const toggleAuto = () => {
+    const next = !autoSpin;
+    setAutoSpin(next);
+    autoRef.current = next;
+    if (next && !spinning) doSpin();
+  };
 
   const closeBonus = () => { setBonus(null); setRevealStep(0); };
-
   const revealAll = () => setRevealStep(9);
 
   const decBet = () => setBet(b => Math.max(minBet || 1, +(b - 1).toFixed(2)));
   const incBet = () => setBet(b => Math.min(maxBet || 500, +(b + 1).toFixed(2)));
 
   return (
-    <div className="flex flex-col items-center gap-3 px-2 pb-4">
-      {/* Balance + last win banner */}
-      <WesternFrame variant="glass" className="w-full max-w-md p-2 flex items-center justify-between">
-        <div className="flex flex-col">
-          <span className="text-[10px] text-amber-200/70 italic" style={{ fontFamily: 'Georgia, serif' }}>Balance</span>
-          <span className="text-lg font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${balance.toFixed(2)}</span>
-        </div>
-        <div className="flex flex-col items-end">
-          <span className="text-[10px] text-amber-200/70 italic" style={{ fontFamily: 'Georgia, serif' }}>Last Win</span>
-          <span className={`text-lg font-black italic tabular-nums ${lastWin > 0 ? 'text-emerald-300' : 'text-amber-100/50'}`} style={{ fontFamily: 'Georgia, serif' }}>+${lastWin.toFixed(2)}</span>
-        </div>
-      </WesternFrame>
+    <div className="relative min-h-screen overflow-hidden text-white">
+      {DiamondBG}
 
-      {/* Reel grid */}
-      <WesternFrame glow className="w-full max-w-md p-3">
-        <div className="grid grid-cols-3 gap-1.5">
-          {grid.map((key, i) => (
-            <SymbolCell key={i} symKey={key} spinning={spinning} win={winSet.has(i)} dim={winSet.size > 0 && !winSet.has(i)} />
-          ))}
-        </div>
-        <p className="mt-2 text-center text-[10px] text-amber-200/60 italic" style={{ fontFamily: 'Georgia, serif' }}>
-          3×3 · 5 Paylines · Wild 👑 substitutes · 3+ 🪙 triggers Royal Treasury
-        </p>
-      </WesternFrame>
-
-      {/* Controls */}
-      <WesternFrame variant="glass" className="w-full max-w-md p-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <button onClick={decBet} disabled={spinning} className="w-8 h-8 rounded-md bg-black/40 border border-amber-700/50 text-amber-100 text-lg font-black disabled:opacity-40">−</button>
-          <div className="flex flex-col items-center min-w-[64px]">
-            <span className="text-[9px] text-amber-200/70 italic" style={{ fontFamily: 'Georgia, serif' }}>BET</span>
-            <span className="text-base font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${bet.toFixed(2)}</span>
-          </div>
-          <button onClick={incBet} disabled={spinning} className="w-8 h-8 rounded-md bg-black/40 border border-amber-700/50 text-amber-100 text-lg font-black disabled:opacity-40">+</button>
+      <div className="max-w-md mx-auto px-3 pt-2 pb-4 flex flex-col gap-2">
+        {/* Info icon */}
+        <div className="flex items-center justify-between">
+          <button onClick={() => setShowInfo(true)} className="w-7 h-7 rounded-full border border-white/70 flex items-center justify-center text-white/90 bg-black/20">
+            <Info className="w-4 h-4" />
+          </button>
+          <span className="text-[11px] font-bold tracking-widest text-yellow-300/80" style={{ fontFamily: 'Georgia, serif' }}>CROWN COINS</span>
+          <span className="w-7" />
         </div>
 
-        <button
-          onClick={doSpin}
-          disabled={spinning || sLoading}
-          className="flex items-center gap-1.5 px-6 py-2.5 rounded-lg text-stone-950 font-black italic text-lg disabled:opacity-50"
-          style={{ fontFamily: 'Georgia, serif', background: 'linear-gradient(to bottom,#f5d590,#e8a93a)', boxShadow: '0 2px 8px rgba(255,200,80,0.5)' }}
-        >
-          {spinning ? <RotateCcw className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
-          {spinning ? 'Spinning' : 'SPIN'}
-        </button>
-      </WesternFrame>
-
-      {/* Paytable */}
-      <WesternFrame variant="glass" className="w-full max-w-md p-3">
-        <p className="text-[11px] font-black italic text-amber-200 mb-1.5" style={{ fontFamily: 'Georgia, serif' }}>Paytable (× bet/line)</p>
+        {/* Jackpots */}
         <div className="grid grid-cols-4 gap-1.5">
-          {SYMBOLS.map(s => (
-            <div key={s.key} className="flex flex-col items-center gap-0.5 rounded-md px-1 py-1.5" style={{ background: s.bg, border: `1px solid ${s.ring}55` }}>
-              <span className="text-xl" style={{ color: s.text, fontFamily: s.key === 'bar' ? 'Rye, Georgia, serif' : 'inherit', fontWeight: s.key === 'bar' ? 800 : 400 }}>{s.emoji}</span>
-              <span className="text-[9px] font-bold italic text-amber-100/80" style={{ fontFamily: 'Georgia, serif' }}>
-                {s.bonus ? 'BONUS' : `${s.pay}×`}
-              </span>
-            </div>
-          ))}
+          {JACKPOTS.map(j => <JackpotBadge key={j.tier} {...j} />)}
         </div>
-      </WesternFrame>
+
+        {/* Title */}
+        <div className="relative flex items-center justify-center py-1">
+          <Crown className="w-5 h-5 text-yellow-400 absolute -top-1 left-1/2 -translate-x-1/2" />
+          <h1
+            className="text-3xl font-black tracking-wide italic"
+            style={{
+              fontFamily: 'Rye, Georgia, serif',
+              color: '#ffd24a',
+              textShadow: '0 2px 0 #8a5a00, 0 3px 6px rgba(0,0,0,0.7), 0 0 14px rgba(255,200,80,0.5)',
+              WebkitTextStroke: '1px #b8860b',
+            }}
+          >
+            CROWN COINS
+          </h1>
+        </div>
+
+        {/* Reel grid */}
+        <div
+          className="rounded-xl p-2"
+          style={{
+            border: '4px solid #d4af37',
+            boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 2px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)',
+            background: 'linear-gradient(to bottom, #b8860b, #6b4a08)',
+          }}
+        >
+          <div className="grid grid-cols-3 gap-1 rounded-md overflow-hidden" style={{ background: '#cfcfcf' }}>
+            {grid.map((key, i) => (
+              <SymbolCell key={i} symKey={key} spinning={spinning} win={winSet.has(i)} dim={winSet.size > 0 && !winSet.has(i)} />
+            ))}
+          </div>
+        </div>
+
+        {/* Status row */}
+        <div className="grid grid-cols-3 gap-1.5 text-center">
+          <div className="rounded-md bg-black/50 border border-yellow-700/40 py-1">
+            <div className="text-[8px] text-yellow-300/70 font-bold tracking-wider">BET</div>
+            <div className="text-xs font-black text-white tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${bet.toFixed(2)}</div>
+          </div>
+          <div className="rounded-md bg-black/50 border border-yellow-700/40 py-1">
+            <div className="text-[8px] text-yellow-300/70 font-bold tracking-wider">LAST WIN</div>
+            <div className={`text-xs font-black tabular-nums ${lastWin > 0 ? 'text-emerald-300' : 'text-white/60'}`} style={{ fontFamily: 'Georgia, serif' }}>${lastWin.toFixed(2)}</div>
+          </div>
+          <div className="rounded-md bg-black/50 border border-yellow-700/40 py-1">
+            <div className="text-[8px] text-yellow-300/70 font-bold tracking-wider">FIXED LINES</div>
+            <div className="text-xs font-black text-white tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>5</div>
+          </div>
+        </div>
+
+        {/* Control bar */}
+        <div className="flex items-center justify-between gap-2 py-1">
+          <button onClick={() => setTurbo(t => !t)} className={`w-9 h-9 rounded-full flex items-center justify-center border ${turbo ? 'border-yellow-400 text-yellow-300 bg-yellow-500/20' : 'border-white/40 text-white/80 bg-black/30'}`}>
+            <Zap className="w-5 h-5" />
+          </button>
+          <button onClick={decBet} disabled={spinning} className="w-10 h-10 rounded-full flex items-center justify-center border border-yellow-600/60 text-yellow-200 bg-black/40 disabled:opacity-40">
+            <Minus className="w-6 h-6" />
+          </button>
+
+          <button
+            onClick={doSpin}
+            disabled={spinning || sLoading}
+            className="relative w-16 h-16 rounded-full flex items-center justify-center disabled:opacity-60"
+            style={{
+              background: 'radial-gradient(circle at center, #fff2c0 0%, #e8a93a 55%, #b8860b 100%)',
+              boxShadow: '0 0 18px rgba(255,210,80,0.8), inset 0 2px 4px rgba(255,255,255,0.6), inset 0 0 0 2px #8a5a00',
+            }}
+          >
+            {spinning ? <RotateCw className="w-7 h-7 text-stone-900 animate-spin" /> : <Play className="w-7 h-7 text-stone-900 ml-1" />}
+          </button>
+
+          <button onClick={incBet} disabled={spinning} className="w-10 h-10 rounded-full flex items-center justify-center border border-yellow-600/60 text-yellow-200 bg-black/40 disabled:opacity-40">
+            <Plus className="w-6 h-6" />
+          </button>
+          <button onClick={toggleAuto} className={`w-9 h-9 rounded-full flex items-center justify-center border ${autoSpin ? 'border-yellow-400 text-yellow-300 bg-yellow-500/20' : 'border-white/40 text-white/80 bg-black/30'}`}>
+            <RotateCw className="w-5 h-5" />
+          </button>
+        </div>
+        <p className="text-center text-[10px] font-bold tracking-widest text-yellow-200/80">{spinning ? 'GOOD LUCK!' : 'PLACE YOUR BET'}</p>
+
+        {/* Bottom utility row */}
+        <div className="flex items-center justify-between px-1">
+          <button className="w-8 h-8 flex items-center justify-center text-white/80"><Menu className="w-5 h-5" /></button>
+          <div className="flex flex-col items-center">
+            <span className="text-[8px] text-yellow-300/70 font-bold tracking-wider">BALANCE</span>
+            <span className="text-sm font-black text-yellow-200 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${balance.toFixed(2)}</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-[8px] text-yellow-300/70 font-bold tracking-wider">CURRENCY</span>
+            <span className="text-xs font-black text-white" style={{ fontFamily: 'Georgia, serif' }}>USD</span>
+          </div>
+          <button className="w-8 h-8 rounded-full flex items-center justify-center border border-yellow-600/50 text-yellow-200 bg-black/40">
+            <DollarSign className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Info modal */}
+      {showInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-xl p-4" style={{ border: '3px solid #d4af37', background: 'linear-gradient(to bottom, #2a0608, #140204)' }}>
+            <button onClick={() => setShowInfo(false)} className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/50 border border-yellow-700/50 flex items-center justify-center text-yellow-100"><X className="w-4 h-4" /></button>
+            <h3 className="text-lg font-black text-yellow-300 mb-2" style={{ fontFamily: 'Rye, Georgia, serif' }}>Paytable</h3>
+            <div className="grid grid-cols-2 gap-1.5">
+              {SYMBOLS.map(s => (
+                <div key={s.key} className="flex items-center gap-2 rounded-md p-1.5" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(212,175,55,0.3)' }}>
+                  <img src={s.image} alt={s.name} className="w-9 h-9 object-cover rounded" />
+                  <div className="flex flex-col">
+                    <span className="text-[11px] font-bold text-yellow-100" style={{ fontFamily: 'Georgia, serif' }}>{s.name}</span>
+                    <span className="text-[10px] text-yellow-300/80" style={{ fontFamily: 'Georgia, serif' }}>{s.bonus ? '3+ → Royal Treasury' : `${s.pay}× line`}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-[10px] text-yellow-200/70 italic text-center">5 fixed lines · 3-of-a-kind pays · 3+ Crown Coins trigger the Royal Treasury bonus</p>
+          </div>
+        </div>
+      )}
 
       {/* Bonus modal */}
       {bonus && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <WesternFrame glow className="w-full max-w-md p-4 relative">
-            <button onClick={closeBonus} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 border border-amber-700/50 flex items-center justify-center text-amber-100">
-              <X className="w-4 h-4" />
-            </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-xl p-4 relative" style={{ border: '3px solid #d4af37', background: 'linear-gradient(to bottom, #2a0608, #140204)' }}>
+            <button onClick={closeBonus} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 border border-yellow-700/50 flex items-center justify-center text-yellow-100"><X className="w-4 h-4" /></button>
             <div className="flex items-center justify-center gap-2 mb-2">
               <Crown className="w-5 h-5 text-amber-300" />
-              <h3 className="text-lg font-black italic text-amber-200" style={{ fontFamily: 'Rye, Georgia, serif' }}>Royal Treasury</h3>
+              <h3 className="text-lg font-black text-yellow-300" style={{ fontFamily: 'Rye, Georgia, serif' }}>Royal Treasury</h3>
               <Crown className="w-5 h-5 text-amber-300" />
             </div>
-            <p className="text-center text-[10px] text-amber-200/70 italic mb-3" style={{ fontFamily: 'Georgia, serif' }}>
-              {bonus.royal ? 'Royal Coin ×1.5 boost active!' : 'Collect coins to claim the treasury'}
-            </p>
+            <p className="text-center text-[10px] text-yellow-200/70 italic mb-3">{bonus.royal ? 'Royal Coin ×1.5 boost active!' : 'Tap coins to reveal the treasury'}</p>
             <div className="grid grid-cols-3 gap-1.5">
               {bonus.cells.map((v, i) => {
                 const revealed = revealStep > i;
-                const isReel2 = i >= 6;
+                const isRoyal = i >= 6;
                 return (
                   <div
                     key={i}
                     onClick={() => setRevealStep(s => Math.max(s, i + 1))}
                     className="aspect-square flex items-center justify-center rounded-md cursor-pointer"
                     style={{
-                      border: `1px solid ${revealed && v ? (isReel2 ? '#ffd24a' : '#e8c873') : 'rgba(190,140,55,0.35)'}`,
-                      background: revealed && v ? (isReel2 ? 'linear-gradient(135deg,#7a5210,#2a1a06)' : 'linear-gradient(135deg,#4a3416,#211608)') : 'rgba(0,0,0,0.4)',
+                      border: `2px solid ${revealed && v ? (isRoyal ? '#ffd24a' : '#e8c873') : 'rgba(190,140,55,0.35)'}`,
+                      background: revealed && v ? (isRoyal ? 'linear-gradient(135deg,#7a5210,#2a1a06)' : 'linear-gradient(135deg,#4a3416,#211608)') : 'rgba(0,0,0,0.4)',
                       boxShadow: revealed && v ? '0 0 10px rgba(255,210,80,0.6)' : 'none',
                     }}
                   >
                     {revealed && v ? (
                       <div className="flex flex-col items-center">
-                        <span className="text-2xl">🪙</span>
-                        <span className="text-[11px] font-black italic text-yellow-100" style={{ fontFamily: 'Georgia, serif' }}>{v}×</span>
+                        <img src={symbolByKey('coin').image} alt="coin" className="w-7 h-7 object-cover rounded-full" />
+                        <span className="text-[11px] font-black text-yellow-100" style={{ fontFamily: 'Georgia, serif' }}>{v}×</span>
                       </div>
                     ) : (
-                      <Coins className="w-5 h-5 text-amber-700/50" />
+                      <img src={symbolByKey('coin').image} alt="?" className="w-7 h-7 object-cover rounded-full opacity-30" />
                     )}
                   </div>
                 );
               })}
             </div>
             <div className="mt-3 flex items-center justify-between gap-2">
-              <button onClick={revealAll} className="px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/50 text-amber-100 text-xs font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>Reveal All</button>
+              <button onClick={revealAll} className="px-3 py-1.5 rounded-md border border-yellow-700/50 text-yellow-100 text-xs font-bold italic" style={{ fontFamily: 'Georgia, serif', background: 'rgba(0,0,0,0.4)' }}>Reveal All</button>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-amber-200/70 italic" style={{ fontFamily: 'Georgia, serif' }}>Total</span>
-                <span className="text-xl font-black italic text-emerald-300 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
-                  ${(bonus.total * bet).toFixed(2)}
-                </span>
+                <span className="text-[10px] text-yellow-200/70 italic" style={{ fontFamily: 'Georgia, serif' }}>Total</span>
+                <span className="text-xl font-black text-emerald-300 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${(bonus.total * bet).toFixed(2)}</span>
               </div>
             </div>
-            <button onClick={closeBonus} className="mt-3 w-full py-2 rounded-lg text-stone-950 font-black italic" style={{ fontFamily: 'Georgia, serif', background: 'linear-gradient(to bottom,#f5d590,#e8a93a)' }}>
-              Collect
-            </button>
-          </WesternFrame>
+            <button onClick={closeBonus} className="mt-3 w-full py-2 rounded-lg text-stone-950 font-black italic" style={{ fontFamily: 'Georgia, serif', background: 'linear-gradient(to bottom,#f5d590,#e8a93a)' }}>Collect</button>
+          </div>
         </div>
       )}
     </div>

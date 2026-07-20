@@ -1,150 +1,118 @@
-// Crown Coins — Endorphina-inspired 3x3 slot engine.
-// 3 reels x 3 rows, 5 fixed paylines, 8 symbols, RTP-biased spin generation,
-// and a simplified Royal Treasury hold-and-win bonus.
+// Crown Coins slot engine — 3x3 grid, 5 fixed paylines, 10 glossy 3D symbols.
+// Crown Coin (scatter/bonus) triggers the Royal Treasury hold-and-win round.
+
+const IMG = {
+  cherry: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/385620fcf_generated_image.png',
+  seven: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a521e45ad_generated_image.png',
+  lemon: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f325764b6_generated_image.png',
+  plum: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e7a71f6c6_generated_image.png',
+  watermelon: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/318de057b_generated_image.png',
+  orange: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9f2d1a373_generated_image.png',
+  bell: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2b0f3d600_generated_image.png',
+  bar: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/54eb8919d_generated_image.png',
+  grape: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bc6b40d49_generated_image.png',
+  coin: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/cba1b604c_generated_image.png',
+};
 
 export const SYMBOLS = [
-  { key: 'wild',   emoji: '👑', label: 'Wild Crown',  pay: 50, wild: true,  bonus: false, ring: '#f5d590', bg: 'linear-gradient(135deg,#6b4310,#2a1606)', text: '#fbe6a8' },
-  { key: 'bar',    emoji: 'BAR', label: 'Golden Bars', pay: 30, wild: false, bonus: false, ring: '#e8c873', bg: 'linear-gradient(135deg,#4a3416,#211608)', text: '#f5d590' },
-  { key: 'bell',   emoji: '🔔', label: 'Golden Bell',  pay: 20, wild: false, bonus: false, ring: '#f0c040', bg: 'linear-gradient(135deg,#3a2a12,#1a1208)', text: '#ffe9a0' },
-  { key: 'cherry', emoji: '🍒', label: 'Cherry',       pay: 10, wild: false, bonus: false, ring: '#d83a3a', bg: 'linear-gradient(135deg,#3a1212,#180808)', text: '#ffc0c0' },
-  { key: 'plum',   emoji: '🍇', label: 'Plum',          pay: 8,  wild: false, bonus: false, ring: '#9a5fd0', bg: 'linear-gradient(135deg,#241038,#120820)', text: '#e6c0f5' },
-  { key: 'orange', emoji: '🍊', label: 'Orange',       pay: 5,  wild: false, bonus: false, ring: '#f5923a', bg: 'linear-gradient(135deg,#3a200c,#1a1006)', text: '#ffd9a0' },
-  { key: 'lemon',  emoji: '🍋', label: 'Lemon',        pay: 3,  wild: false, bonus: false, ring: '#f5d83a', bg: 'linear-gradient(135deg,#3a3412,#1a1608)', text: '#fff3a0' },
-  { key: 'coin',   emoji: '🪙', label: 'Royal Coin',   pay: 0,  wild: false, bonus: true,  ring: '#ffd24a', bg: 'linear-gradient(135deg,#7a5210,#2a1a06)', text: '#ffe9a0' },
+  { key: 'cherry',     image: IMG.cherry,     pay: 4,  name: 'Cherries' },
+  { key: 'lemon',      image: IMG.lemon,      pay: 6,  name: 'Lemons' },
+  { key: 'orange',     image: IMG.orange,     pay: 8,  name: 'Oranges' },
+  { key: 'plum',       image: IMG.plum,       pay: 10, name: 'Plums' },
+  { key: 'watermelon', image: IMG.watermelon, pay: 15, name: 'Watermelon' },
+  { key: 'grape',      image: IMG.grape,      pay: 20, name: 'Grapes' },
+  { key: 'bell',       image: IMG.bell,       pay: 30, name: 'Bell' },
+  { key: 'bar',        image: IMG.bar,        pay: 40, name: 'BAR' },
+  { key: 'seven',      image: IMG.seven,      pay: 50, name: 'Lucky 7' },
+  { key: 'coin',       image: IMG.coin,       pay: 0,  bonus: true, scatter: 2, name: 'Crown Coin' },
 ];
 
-const BY_KEY = Object.fromEntries(SYMBOLS.map(s => [s.key, s]));
+const SYMBOL_MAP = Object.fromEntries(SYMBOLS.map(s => [s.key, s]));
+export const symbolByKey = (k) => SYMBOL_MAP[k];
 
-// Grid layout: index = reel * 3 + row  (reel 0..2, row 0..2 top->bottom)
-// 5 fixed paylines (arrays of 3 grid indices)
+// 5 fixed paylines over a 3x3 grid (indices 0..8, row-major).
 export const PAYLINES = [
-  [0, 3, 6], // top row
-  [1, 4, 7], // middle row
-  [2, 5, 8], // bottom row
-  [0, 4, 8], // diagonal top-left -> bottom-right
-  [2, 4, 6], // diagonal bottom-left -> top-right
+  { name: 'Line 1', idxs: [0, 4, 8] }, // top-left -> center -> bottom-right
+  { name: 'Line 2', idxs: [2, 4, 6] }, // top-right -> center -> bottom-left
+  { name: 'Line 3', idxs: [0, 1, 2] }, // top row
+  { name: 'Line 4', idxs: [3, 4, 5] }, // middle row
+  { name: 'Line 5', idxs: [6, 7, 8] }, // bottom row
 ];
 
-const PAYING = SYMBOLS.filter(s => !s.bonus && s.key !== 'coin' && !s.wild).map(s => s.key);
-const ALL_KEYS = SYMBOLS.map(s => s.key);
+// Build a biased 3x3 grid for the given RTP (0-100). Higher-value symbols
+// appear less often; the RTP gates wins so losing spins are common.
+export function spinGrid(rtp = 50) {
+  // weighted reel strips — low symbols land more often
+  const strip = ['cherry','cherry','lemon','lemon','orange','orange','plum','watermelon','grape','bell','bar','seven','coin','cherry','lemon','orange','plum','watermelon','grape','bell','coin'];
+  const pick = () => strip[Math.floor(Math.random() * strip.length)];
+  const grid = Array.from({ length: 9 }, () => pick());
 
-function rand(n) { return Math.floor(Math.random() * n); }
-function pick(arr) { return arr[rand(arr.length)]; }
-function weightedPick(weights) {
-  const total = weights.reduce((a, b) => a + b, 0);
-  let r = Math.random() * total;
-  for (let i = 0; i < weights.length; i++) { r -= weights[i]; if (r < 0) return i; }
-  return weights.length - 1;
-}
-
-function randomSymbolKey() {
-  // Higher pays rarer; coin moderate; lower pays common.
-  const keys = ['lemon', 'orange', 'plum', 'cherry', 'bell', 'bar', 'wild', 'coin'];
-  const w = [22, 18, 16, 14, 10, 8, 5, 7];
-  return keys[weightedPick(w)];
-}
-
-function randomGrid() {
-  const g = [];
-  for (let i = 0; i < 9; i++) g.push(randomSymbolKey());
-  return g;
-}
-
-// Evaluate a single payline given 3 symbol keys.
-function linePayout(keys) {
-  const nonWild = keys.filter(k => k !== 'wild');
-  if (nonWild.length === 0) return BY_KEY['wild'].pay; // 3 wilds
-  const first = nonWild[0];
-  if (!nonWild.every(k => k === first)) return 0;
-  if (first === 'coin') return 0; // coin is bonus-only, no line pay
-  return BY_KEY[first].pay || 0;
-}
-
-// Evaluate all winning lines for a grid. Returns { lines: [{line, keys, pay, mul}], totalMul, coins }
-export function evaluateGrid(grid) {
-  const lines = [];
-  let totalMul = 0;
-  for (let i = 0; i < PAYLINES.length; i++) {
-    const idxs = PAYLINES[i];
-    const keys = idxs.map(idx => grid[idx]);
-    const mul = linePayout(keys);
-    if (mul > 0) {
-      lines.push({ line: i, idxs, keys, mul });
-      totalMul += mul;
-    }
-  }
-  const coins = grid.filter(k => k === 'coin').length;
-  return { lines, totalMul, coins };
-}
-
-// Generate an RTP-biased grid. `rtp` is 0..100 winning chance.
-export function spinGrid(rtp) {
-  const roll = Math.random() * 100;
-  const wantWin = roll < rtp;
-  const grid = randomGrid();
-
-  if (wantWin) {
-    // Force at least one winning line.
-    const lineIdx = rand(PAYLINES.length);
-    const idxs = PAYLINES[lineIdx];
-    // Weighted paying symbol (lower pays more likely to keep payouts sane).
-    const symKeys = ['lemon', 'orange', 'plum', 'cherry', 'bell', 'bar', 'wild'];
-    const symW = [30, 24, 18, 14, 9, 4, 1];
-    const sym = symKeys[weightedPick(symW)];
-    idxs.forEach(idx => { grid[idx] = sym; });
-    // Occasionally break extra accidental big wins on other lines is fine; keep simple.
-  } else {
-    // Ensure no winning line: perturb any winning line.
-    let guard = 0;
-    while (guard++ < 20) {
+  // RTP gate: with probability (1 - rtp/100) force a losing board by
+  // making sure no line completes 3-of-a-kind.
+  const forceLoss = Math.random() * 100 > rtp;
+  if (forceLoss) {
+    // nudge one symbol on each winning line so it no longer matches
+    for (let iter = 0; iter < 4; iter++) {
       const { lines } = evaluateGrid(grid);
-      if (lines.length === 0) break;
+      if (!lines.length) break;
       for (const ln of lines) {
-        // change the middle cell of the line to a different symbol
-        const idx = ln.idxs[1];
-        let nk;
-        do { nk = randomSymbolKey(); } while (nk === grid[idx]);
-        grid[idx] = nk;
+        // replace the last cell of the line with a different low symbol
+        const last = ln.idxs[ln.idxs.length - 1];
+        const alt = ['cherry','lemon','orange'][Math.floor(Math.random() * 3)];
+        if (grid[last] !== alt) grid[last] = alt;
       }
     }
   }
   return grid;
 }
 
-// Bonus (Royal Treasury): 3x3 grid of coin values (in totalBet units) + empties.
-// A coin on reel 2 (indices 6,7,8) is a Royal Coin that boosts the total.
-export function runBonus(totalBet, rtp) {
-  const scale = Math.max(0.4, (rtp || 50) / 96); // dampen payouts when rtp low
-  const cells = Array(9).fill(null); // null = empty, number = coin value (x totalBet)
-  let coinCount = 0;
-  let royal = false;
-
-  // guarantee at least 3 coins (the trigger)
-  const positions = [0,1,2,3,4,5,6,7,8].sort(() => Math.random() - 0.5);
-  const minCoins = 3 + rand(3); // 3..5 coins
-  for (let i = 0; i < positions.length; i++) {
-    const pos = positions[i];
-    const isReel2 = pos >= 6;
-    if (i < minCoins || Math.random() < 0.35) {
-      let v;
-      const r = Math.random();
-      if (r < 0.55) v = 2 + rand(4);            // 2..5x
-      else if (r < 0.80) v = 6 + rand(5);       // 6..10x
-      else if (r < 0.90) v = 12 + rand(9);      // 12..20x
-      else if (r < 0.965) v = 50;               // MIN jackpot
-      else if (r < 0.992) v = 150;              // MID jackpot
-      else if (r < 0.998) v = 500;               // MAX jackpot
-      else v = 1000;                             // ULTRA jackpot
-      cells[pos] = v;
-      coinCount++;
-      if (isReel2) royal = true;
+export function evaluateGrid(grid) {
+  const betPerLine = 1; // caller scales by bet/5
+  const lines = [];
+  let totalMul = 0;
+  for (const ln of PAYLINES) {
+    const keys = ln.idxs.map(i => grid[i]);
+    if (keys[0] === keys[1] && keys[1] === keys[2] && keys[0] !== 'coin') {
+      const sym = symbolByKey(keys[0]);
+      if (sym && sym.pay) {
+        lines.push({ ...ln, symbol: keys[0], mul: sym.pay });
+        totalMul += sym.pay;
+      }
     }
   }
-
-  let total = cells.reduce((a, b) => a + (b || 0), 0);
-  if (royal) total = Math.round(total * 1.5);
-  total = Math.round(total * scale);
-  return { cells, total, royal, coinCount };
+  // scatter coins
+  const coins = grid.filter(k => k === 'coin').length;
+  let scatterMul = 0;
+  if (coins >= 3) scatterMul = symbolByKey('coin').scatter; // 2x total bet
+  return { lines, totalMul, coins, scatterMul };
 }
 
-export function symbolByKey(key) { return BY_KEY[key]; }
+// Royal Treasury hold-and-win: 9 cells, tap to reveal coin values. Reel-3
+// (last 3 cells) has the royal jackpot coins. Royal = all reels filled.
+export function runBonus(bet, rtp = 50) {
+  const lowVals = [0.5, 1, 1.5, 2, 2.5, 3];
+  const midVals = [3, 4, 5, 6, 7];
+  const royalVals = [7.5, 12, 20, 50]; // includes ULTRA jackpot
+  const r = () => Math.random();
+  const cells = [];
+  for (let i = 0; i < 9; i++) {
+    if (i < 6) cells.push(lowVals[Math.floor(r() * lowVals.length)] * (rtp / 50));
+    else cells.push(midVals[Math.floor(r() * midVals.length)] * (rtp / 50));
+  }
+  // randomly upgrade one cell to a royal jackpot
+  if (r() < 0.35 + rtp / 250) {
+    cells[6 + Math.floor(r() * 3)] = royalVals[Math.floor(r() * royalVals.length)];
+  }
+  // guarantee at least a small payout floor
+  cells[0] = Math.max(cells[0], 0.5);
+  const total = cells.reduce((a, b) => a + b, 0);
+  const royal = cells.slice(6).some(v => v >= 7.5);
+  return { cells, total: +total.toFixed(2), royal };
+}
+
+export const JACKPOTS = [
+  { tier: 'MIN', amount: 1.25, color: '#1a8a25' },
+  { tier: 'MID', amount: 2.5, color: '#1d579b' },
+  { tier: 'MAX', amount: 7.5, color: '#9528aa' },
+  { tier: 'ULTRA', amount: 50.0, color: '#a11f26' },
+];
