@@ -240,8 +240,8 @@ export default function CrownCoinsMachine() {
   const closeBonus = () => { setBonus(null); setRevealStep(0); };
   const revealAll = () => setRevealStep(9);
 
-  const decBet = () => setBet(b => Math.max(minBet || 1, +(b - 1).toFixed(2)));
-  const incBet = () => setBet(b => Math.min(maxBet || 500, +(b + 1).toFixed(2)));
+  const decBet = () => setBet(b => Math.max(0.05, +(b - 0.05).toFixed(2)));
+  const incBet = () => setBet(b => Math.min(maxBet || 500, +(b + 0.05).toFixed(2)));
 
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
