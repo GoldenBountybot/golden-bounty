@@ -108,7 +108,7 @@ export function evaluateGrid(grid) {
 // First 6 cells = value coins (multipliers of the current bet, so displayed
 // dollar values scale with the bet). Last 3 cells (royal reels) may upgrade
 // to a fixed MIN/MID/MAX/ULTRA jackpot coin. Royal = a jackpot landed.
-const VALUE_MULTS = [1, 2, 5, 7, 10, 15];
+const VALUE_MULTS = [1, 3, 5, 7, 10, 15, 20];
 const ROYAL_MULT = 20;
 const JACKPOT_TIERS = ['MIN', 'MID', 'MAX', 'ULTRA'];
 
