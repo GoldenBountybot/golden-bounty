@@ -231,13 +231,12 @@ export default function CrownCoinsMachine() {
     if (isFree) {
       const r = spinFreeAccum(stuckRef.current);
       setStuckView(stuckRef.current);
-      // Stuck cells (anchor) show regular symbols behind the overlay. Value
-      // coins that land in spinning cells are rendered as an overlay on a blank
-      // cell — no symbol falls there, only the coin is visible before it flies.
-      const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
+      // Stuck cells (anchor + crown) render blank in the reel so no symbol
+      // shows through the coin overlay. Value coins that land in spinning
+      // cells are also blank — only the coin is visible before it flies.
       const landed = [];
       resultGrid = r.grid.map((k, i) => {
-        if (stuckRef.current[i]) return REG[Math.floor(Math.random() * REG.length)];
+        if (stuckRef.current[i]) return 'blank';
         if (isValueCoin(k)) { landed.push({ idx: i, key: k }); return 'blank'; }
         return k;
       });
