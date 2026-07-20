@@ -87,11 +87,11 @@ function Tile({ symKey, win, dim, bet, amount }) {
         {isVC ? (
           <div className="relative w-full h-full flex items-center justify-center">
             <img src={VALUE_COIN_IMG} alt="coin" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen' }} />
-            <span className="absolute font-black text-yellow-100" style={{ fontSize: '10px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${vcVal.toFixed(2)}</span>
           </div>
         ) : isJP ? (
           <div className="relative w-full h-full flex items-center justify-center">
             <img src={JACKPOT_COINS[jpTier]} alt={jpTier} className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 6px rgba(255,210,80,0.7))' }} />
+            <span className="absolute font-black text-yellow-200" style={{ fontSize: 'clamp(8px, 2.2vw, 11px)', letterSpacing: '0.04em', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Rye, Georgia, serif' }}>{jpTier}</span>
           </div>
         ) : (
           <img
