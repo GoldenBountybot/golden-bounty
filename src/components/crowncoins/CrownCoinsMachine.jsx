@@ -240,8 +240,21 @@ export default function CrownCoinsMachine() {
   const closeBonus = () => { setBonus(null); setRevealStep(0); };
   const revealAll = () => setRevealStep(9);
 
-  const decBet = () => setBet(b => Math.max(0.05, +(b - 0.05).toFixed(2)));
-  const incBet = () => setBet(b => Math.min(maxBet || 500, +(b + 0.05).toFixed(2)));
+  const BET_LADDER = [0.05, 0.10, 0.20, 0.30, 0.50, 0.80, 1.00, 1.50, 2.00, 3.00, 5.00, 10.00, 20.00, 50.00, 100.00, 200.00, 500.00];
+  const stepTo = (dir) => setBet(b => {
+    const cap = maxBet || 500;
+    let idx = BET_LADDER.findIndex(v => Math.abs(v - b) < 0.001);
+    if (idx < 0) {
+      // snap to nearest ladder value not exceeding current
+      idx = BET_LADDER.reduce((best, v, i) => (v <= b + 0.001 ? i : best), 0);
+    }
+    const next = Math.max(0, Math.min(BET_LADDER.length - 1, idx + dir));
+    let val = BET_LADDER[next];
+    if (val > cap) val = BET_LADDER.filter(v => v <= cap).pop() || 0.05;
+    return val;
+  });
+  const decBet = () => stepTo(-1);
+  const incBet = () => stepTo(1);
 
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
