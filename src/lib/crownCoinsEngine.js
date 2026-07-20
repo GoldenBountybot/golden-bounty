@@ -71,8 +71,15 @@ export function spinGrid(rtp = 50) {
   const pick = () => strip[Math.floor(Math.random() * strip.length)];
   const grid = Array.from({ length: 9 }, () => pick());
 
-  // Crown Coin always lands in the center cell (middle row, middle column).
+  // Crown Coins only fall in the center column (indices 1, 4, 7); the
+  // center cell is always a Crown Coin, and any coin that landed in a
+  // side column is replaced with a regular symbol.
   grid[4] = 'coin';
+  [0, 2, 3, 5, 6, 8].forEach(i => {
+    if (grid[i] === 'coin') {
+      grid[i] = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'][Math.floor(Math.random() * 9)];
+    }
+  });
 
   // RTP gate: with probability (1 - rtp/100) force a losing board by
   // making sure no line completes 3-of-a-kind.
