@@ -38,7 +38,7 @@ function JackpotBadge({ tier, amount, color }) {
   );
 }
 
-function Tile({ symKey, win, dim, blurred }) {
+function Tile({ symKey, win, dim }) {
   const s = symbolByKey(symKey) || SYMBOLS[0];
   return (
     <div
@@ -58,7 +58,6 @@ function Tile({ symKey, win, dim, blurred }) {
         alt={s.name}
         className="w-full h-full object-cover"
         draggable={false}
-        style={{ filter: blurred ? 'blur(3px) brightness(1.15)' : 'none' }}
       />
       {win && (
         <span
@@ -70,37 +69,38 @@ function Tile({ symKey, win, dim, blurred }) {
   );
 }
 
-// A single reel column — spins (continuous downward fall) then lands its result.
-function ReelColumn({ result, phase, winMask }) {
+// A single reel column — wild-bounty style: continuous downward reelFall loop
+// while spinning (seamless because last block == first block, so no blur needed),
+// then a reelLand bounce when it stops.
+function ReelColumn({ result, phase, winMask, speed }) {
   // result: 3 keys (top, mid, bottom). phase: 'idle' | 'spin' | 'land'
   const [spinStrip, setSpinStrip] = useState(() => [...result]);
 
   useEffect(() => {
     if (phase === 'spin') {
-      // duplicated 6-row strip so the -50%→0 loop is seamless
-      const a = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)].key;
-      const b = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)].key;
-      const c = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)].key;
-      setSpinStrip([a, b, c, a, b, c]);
+      const r = () => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)].key;
+      const b0 = [r(), r(), r()];
+      // 4 blocks of 3; last block == first block → seamless -75%→0 loop
+      setSpinStrip([...b0, r(), r(), r(), r(), r(), r(), ...b0]);
     }
   }, [phase]);
 
   const showResult = phase !== 'spin';
   const strip = showResult ? [...result] : spinStrip;
 
-  const animStyle =
+  const anim =
     phase === 'spin'
-      ? { animation: 'ccReelSpin 0.4s linear infinite', height: '200%' }
+      ? `reelFall ${speed}s linear infinite`
       : phase === 'land'
-      ? { animation: 'ccReelLand 0.45s cubic-bezier(0.2,0.8,0.3,1) 1', height: '100%' }
-      : { height: '100%' };
+      ? 'reelLand 0.4s ease-out'
+      : 'none';
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ background: '#cfcfcf' }}>
-      <div className="flex flex-col w-full" style={animStyle}>
+    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3', background: '#cfcfcf' }}>
+      <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto' }}>
         {strip.map((k, i) => (
-          <div key={i} className="flex-1 min-h-0">
-            <Tile symKey={k} blurred={phase === 'spin'} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i]} />
+          <div key={i} style={{ width: '100%', aspectRatio: '1 / 1' }}>
+            <Tile symKey={k} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i]} />
           </div>
         ))}
       </div>
@@ -264,9 +264,9 @@ export default function CrownCoinsMachine() {
             background: 'linear-gradient(to bottom, #b8860b, #6b4a08)',
           }}
         >
-          <div className="flex gap-1 rounded-md overflow-hidden" style={{ background: '#cfcfcf', aspectRatio: '3 / 3' }}>
+          <div className="flex gap-1 rounded-md overflow-hidden" style={{ background: '#cfcfcf' }}>
             {reels.map((col, i) => (
-              <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} />
+              <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} />
             ))}
           </div>
         </div>
