@@ -92,7 +92,7 @@ export default function Home() {
 
       <footer className="max-w-6xl mx-auto px-4 py-8 text-center">
         <p className="text-[11px] text-amber-100/40 italic" style={{ fontFamily: 'Georgia, serif' }}>
-          Golden Bounty Casino · Play responsibly · For entertainment only
+          Golden Bounty ·Play Games try your Luck·Stack and Eran Money
         </p>
       </footer>
 
