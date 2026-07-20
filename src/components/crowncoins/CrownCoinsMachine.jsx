@@ -249,12 +249,26 @@ export default function CrownCoinsMachine() {
           <span className="w-7" />
         </div>
 
-        <img
-          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fcc1fda8a_InShot_20260720_170655063.jpg"
-          alt="Crown Coins"
-          className="w-full rounded-lg"
-          style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
-        />
+        <div className="flex items-stretch gap-2">
+          <div className="flex flex-col gap-1 justify-center w-[24%]">
+            <JackpotBadge {...JACKPOTS[0]} />
+            <JackpotBadge {...JACKPOTS[1]} />
+          </div>
+
+          <div className="flex-1 flex items-center justify-center">
+            <img
+              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4e48b74e4_generated_image.png"
+              alt="Crown Coins"
+              className="w-[78%]"
+              style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1 justify-center w-[24%]">
+            <JackpotBadge {...JACKPOTS[2]} />
+            <JackpotBadge {...JACKPOTS[3]} />
+          </div>
+        </div>
 
         <div
           className="rounded-xl p-2"
