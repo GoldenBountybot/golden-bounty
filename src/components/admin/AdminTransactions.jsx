@@ -8,6 +8,7 @@ export default function AdminTransactions() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
   const [form, setForm] = useState({ user_id: '', amount: '', type: 'deposit', note: '' });
   const { toast } = useToast();
 
@@ -64,7 +65,12 @@ export default function AdminTransactions() {
     } catch { toast({ title: 'Failed' }); }
   };
 
-  const shown = filter === 'all' ? txs : txs.filter(t => t.status === filter);
+  const q = search.trim().toLowerCase();
+  const shown = txs.filter(t => {
+    if (filter !== 'all' && t.status !== filter) return false;
+    if (!q) return true;
+    return (t.user_id && t.user_id.toLowerCase().includes(q)) || (t.user_email && t.user_email.toLowerCase().includes(q));
+  });
 
   return (
     <div className="flex flex-col gap-4">
@@ -87,10 +93,17 @@ export default function AdminTransactions() {
         <button onClick={addTx} className="px-4 py-2 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>Apply</button>
       </WesternFrame>
 
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 flex-wrap items-center">
         {['all', 'pending', 'completed', 'rejected'].map(f => (
           <button key={f} onClick={() => setFilter(f)} className={`px-3 py-1.5 rounded-full text-xs font-bold italic border capitalize ${filter === f ? 'bg-amber-400 text-stone-900 border-amber-300' : 'bg-black/30 text-amber-100/80 border-amber-700/40'}`}>{f}</button>
         ))}
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search by user id / email"
+          className="flex-1 min-w-[140px] px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-sm placeholder-amber-100/40 outline-none"
+        />
       </div>
 
       <h2 className="font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>History</h2>
