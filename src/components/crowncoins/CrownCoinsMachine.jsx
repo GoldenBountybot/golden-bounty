@@ -8,6 +8,11 @@ import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellV
 import { playCoinSound } from '@/lib/crownCoinsSound';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
+// Falling-money backdrop used inside each reel strip so screen-blended symbols
+// have a real backdrop to blend against even while the strip's transform
+// animation isolates its stacking context during a spin.
+const MONEY_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f28be6c98_.jpg';
+
 const DiamondBG = (
   <div
     className="absolute inset-0 -z-10"
@@ -126,9 +131,16 @@ function ReelColumn({ result, phase, winMask, speed, bet }) {
 
   return (
     <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3.4', background: 'transparent' }}>
-      <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto' }}>
+      <div className="relative flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto' }}>
+        <img
+          src={MONEY_BG}
+          alt=""
+          draggable={false}
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          style={{ zIndex: 0 }}
+        />
         {strip.map((k, i) => (
-          <div key={i} style={{ width: '100%', aspectRatio: '1 / 1' }}>
+          <div key={i} style={{ width: '100%', aspectRatio: '1 / 1', position: 'relative', zIndex: 1 }}>
             <Tile symKey={k} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i]} bet={bet} />
           </div>
         ))}
@@ -484,7 +496,7 @@ export default function CrownCoinsMachine() {
       )}
 
       {flyCoins.map(c => (
-        <div key={c.id} className="fixed z-[60] pointer-events-none" style={{ left: c.fx, top: c.fy, animation: 'ccCoinFly 0.9s ease-in forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}>
+        <div key={c.id} className="absolute pointer-events-none" style={{ left: c.fx, top: c.fy, animation: 'ccCoinFly 0.9s ease-in forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}>
           <div className="relative w-9 h-9 flex items-center justify-center">
             <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" style={{ mixBlendMode: 'screen' }} />
             <span className="absolute font-black text-yellow-100" style={{ fontSize: '8px', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}>${(c.mult * bet).toFixed(2)}</span>
