@@ -249,42 +249,12 @@ export default function CrownCoinsMachine() {
           <span className="w-7" />
         </div>
 
-        <div className="flex items-stretch gap-2">
-          <div className="flex flex-col gap-1 justify-center w-[26%]">
-            <JackpotBadge {...JACKPOTS[1]} />
-            <JackpotBadge {...JACKPOTS[0]} />
-          </div>
-
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="relative" style={{ width: 160, height: 110 }}>
-              <CoinPile />
-              <Crown
-                className="absolute left-1/2 -translate-x-1/2"
-                style={{ bottom: 62, width: 16, height: 16, color: '#c20000', zIndex: 22, filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.6))' }}
-              />
-              <span
-                className="absolute left-1/2 -translate-x-1/2 italic font-black leading-none"
-                style={{
-                  bottom: 36,
-                  zIndex: 21,
-                  fontFamily: 'Rye, Georgia, serif',
-                  fontSize: 18,
-                  color: '#ffd24a',
-                  textShadow: '0 2px 0 #7a0000, 0 0 6px rgba(0,0,0,0.85), 0 0 10px rgba(255,200,80,0.5)',
-                  WebkitTextStroke: '1.2px #a30000',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                CROWN COINS
-              </span>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1 justify-center w-[26%]">
-            <JackpotBadge {...JACKPOTS[3]} />
-            <JackpotBadge {...JACKPOTS[2]} />
-          </div>
-        </div>
+        <img
+          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fcc1fda8a_InShot_20260720_170655063.jpg"
+          alt="Crown Coins"
+          className="w-full rounded-lg"
+          style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
+        />
 
         <div
           className="rounded-xl p-2"
