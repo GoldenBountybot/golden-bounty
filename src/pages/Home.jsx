@@ -83,7 +83,7 @@ export default function Home() {
 
       {/* Game grid */}
       <main id="games" className="max-w-6xl mx-auto px-4 py-6 scroll-mt-20">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
           {filtered.map(g => (
             <CasinoGameCard key={g.id} game={g} />
           ))}
