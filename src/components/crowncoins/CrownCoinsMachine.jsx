@@ -55,30 +55,35 @@ function Tile({ symKey, win, dim }) {
   const isCoin = symKey === 'coin';
   return (
     <div
-      className="relative flex items-center justify-center overflow-hidden"
+      className="relative flex items-center justify-center overflow-hidden p-[3px]"
       style={{
-        background: '#000',
-        border: win ? '2px solid #ffd24a' : 'none',
+        background: 'radial-gradient(ellipse at center, #3a0a10 0%, #1a0408 70%, #0a0204 100%)',
+        border: win ? '2px solid #ffd24a' : '1px solid rgba(212,175,55,0.55)',
         boxShadow: win
           ? '0 0 12px rgba(255,210,80,0.9), inset 0 0 0 2px rgba(255,235,150,0.9)'
-          : 'inset 0 0 0 1px rgba(255,255,255,0.15), 0 1px 2px rgba(0,0,0,0.4)',
+          : 'inset 0 1px 0 rgba(255,235,150,0.25), inset 0 0 0 1px rgba(120,80,20,0.5), 0 1px 2px rgba(0,0,0,0.5)',
         opacity: dim ? 0.5 : 1,
         transition: 'opacity .2s',
       }}
     >
-      <img
-        src={s.image}
-        alt={s.name}
-        className="w-full h-full object-cover"
-        draggable={false}
-        style={isCoin ? { mixBlendMode: 'screen' } : undefined}
-      />
-      {win && (
-        <span
-          className="absolute inset-0 pointer-events-none"
-          style={{ boxShadow: 'inset 0 0 12px rgba(255,220,120,0.8)', background: 'radial-gradient(circle at center, rgba(255,235,150,0.25), transparent 70%)' }}
+      <div
+        className="relative w-full h-full flex items-center justify-center overflow-hidden rounded-[2px]"
+        style={{ background: '#000', boxShadow: 'inset 0 0 0 1px rgba(212,175,55,0.4)' }}
+      >
+        <img
+          src={s.image}
+          alt={s.name}
+          className="w-full h-full object-cover"
+          draggable={false}
+          style={isCoin ? { mixBlendMode: 'screen' } : undefined}
         />
-      )}
+        {win && (
+          <span
+            className="absolute inset-0 pointer-events-none"
+            style={{ boxShadow: 'inset 0 0 12px rgba(255,220,120,0.8)', background: 'radial-gradient(circle at center, rgba(255,235,150,0.25), transparent 70%)' }}
+          />
+        )}
+      </div>
     </div>
   );
 }
