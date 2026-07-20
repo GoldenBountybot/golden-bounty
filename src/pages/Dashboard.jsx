@@ -98,7 +98,7 @@ export default function Dashboard() {
         <div className="max-w-md mx-auto px-4 py-2 flex items-center gap-2">
           <BackButton />
           <div className="flex-1 text-center">
-            <h1 className="text-sm font-black italic text-amber-200" style={{ fontFamily: 'Rye, Georgia, serif' }}>Dashboard</h1>
+            <h1 className="text-sm font-black italic text-amber-200" style={{ fontFamily: 'Rye, Georgia, serif' }}>{tab === 'stack' ? 'Stack' : tab === 'vip' ? 'VIP' : 'Dashboard'}</h1>
           </div>
           {user?.role === 'admin' && (
             <button onClick={() => { window.location.href = '/admin'; }} title="Admin Panel" className="flex items-center justify-center w-9 h-9 rounded-lg text-amber-200 hover:text-amber-100 hover:bg-black/40 transition-colors">
