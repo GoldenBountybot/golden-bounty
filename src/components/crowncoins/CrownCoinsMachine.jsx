@@ -57,7 +57,7 @@ function CoinPile() {
   );
 }
 
-function Tile({ symKey, win, dim, bet }) {
+function Tile({ symKey, win, dim, bet, amount }) {
   const isCoin = symKey === 'coin';
   const isVC = isValueCoin(symKey);
   const s = isVC ? null : (symbolByKey(symKey) || SYMBOLS[0]);
@@ -99,6 +99,23 @@ function Tile({ symKey, win, dim, bet }) {
             style={{ boxShadow: 'inset 0 0 12px rgba(255,220,120,0.8)', background: 'radial-gradient(circle at center, rgba(255,235,150,0.25), transparent 70%)' }}
           />
         )}
+        {amount != null && (
+          <span
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            style={{
+              fontFamily: 'Rye, Georgia, serif',
+              fontWeight: 400,
+              fontSize: 'clamp(11px, 3.4vw, 16px)',
+              color: '#ff1a1a',
+              textShadow: '0 0 3px #fff, 0 0 6px rgba(255,255,255,0.9), 0 1px 2px #000',
+              animation: 'saWinPop 0.35s ease-out',
+              letterSpacing: '0.5px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            ${Number(amount).toFixed(2)}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -107,7 +124,7 @@ function Tile({ symKey, win, dim, bet }) {
 // A single reel column — wild-bounty style: continuous downward reelFall loop
 // while spinning (seamless because last block == first block, so no blur needed),
 // then a reelLand bounce when it stops.
-function ReelColumn({ result, phase, winMask, speed, bet }) {
+function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell }) {
   // result: 3 keys (top, mid, bottom). phase: 'idle' | 'spin' | 'land'
   const [spinStrip, setSpinStrip] = useState(() => [...result]);
 
@@ -135,7 +152,7 @@ function ReelColumn({ result, phase, winMask, speed, bet }) {
       <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto', backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {strip.map((k, i) => (
           <div key={i} style={{ width: '100%', aspectRatio: '1 / 1' }}>
-            <Tile symKey={k} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i]} bet={bet} />
+            <Tile symKey={k} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i]} bet={bet} amount={amountCell && amountCell.col === colIndex && amountCell.row === i ? amountCell.amount : null} />
           </div>
         ))}
       </div>
@@ -159,6 +176,7 @@ export default function CrownCoinsMachine() {
   const [spinning, setSpinning] = useState(false);
   const [winMask, setWinMask] = useState(() => [[false, false, false], [false, false, false], [false, false, false]]);
   const [lastWin, setLastWin] = useState(0);
+  const [amountCell, setAmountCell] = useState(null);
   const [bet, setBet] = useState(1);
   const [bonus, setBonus] = useState(null);
   const [revealStep, setRevealStep] = useState(0);
@@ -192,6 +210,7 @@ export default function CrownCoinsMachine() {
     setSpinning(true);
     setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
     setLastWin(0);
+    setAmountCell(null);
     if (!isFree) setBalance(b => Math.max(0, b - bet));
     if (isFree) { freeSpinsRef.current -= 1; setFreeSpins(freeSpinsRef.current); }
     clearTimers();
@@ -306,6 +325,18 @@ export default function CrownCoinsMachine() {
       if (win > 0) setBalance(b => b + win);
       setLastWin(win);
       setSpinning(false);
+
+      // Show the win amount on the first winning symbol (red stylized font).
+      // Skip during free-spin triggers (coins stick) and bonus-only wins.
+      if (win > 0 && !triggered && lines.length > 0) {
+        let first = null;
+        for (let c = 0; c < 3 && !first; c++) {
+          for (let r = 0; r < 3 && !first; r++) {
+            if (mask[c][r]) first = { col: c, row: r };
+          }
+        }
+        if (first) setAmountCell({ ...first, amount: win });
+      }
 
       // Value coins fly to the Crown Coins banner — visual + sound only, no balance change.
       // Skip on a trigger spin: the trigger coins stick instead of flying away.
@@ -437,7 +468,7 @@ export default function CrownCoinsMachine() {
           />
           <div ref={reelsRef} className="relative flex gap-0.5 rounded-md overflow-hidden" style={{ background: 'transparent' }}>
             {reels.map((col, i) => (
-              <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} />
+              <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} colIndex={i} amountCell={amountCell} />
             ))}
             {stuckView.some(k => !!k) && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-20" style={{ gap: '2px' }}>
