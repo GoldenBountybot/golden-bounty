@@ -125,7 +125,7 @@ function ReelColumn({ result, phase, winMask, speed, bet }) {
       : 'none';
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3.4', background: '#000' }}>
+    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3.4', background: 'transparent' }}>
       <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto' }}>
         {strip.map((k, i) => (
           <div key={i} style={{ width: '100%', aspectRatio: '1 / 1' }}>
