@@ -311,9 +311,10 @@ export default function CrownCoinsMachine() {
         freeSpinsRef.current = 10;
         setFreeSpins(10);
         const stuck = new Array(9).fill(null);
-        stuck[4] = 'coin';
-        [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) stuck[i] = resultGrid[i]; });
-        [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) stuck[i] = resultGrid[i]; });
+        let placed = false;
+        [0, 3, 6].forEach(i => { if (!placed && isValueCoin(resultGrid[i])) { stuck[i] = resultGrid[i]; placed = true; } });
+        if (!placed) [2, 5, 8].forEach(i => { if (!placed && isValueCoin(resultGrid[i])) { stuck[i] = resultGrid[i]; placed = true; } });
+        if (!placed) stuck[4] = 'vc1';
         stuckRef.current = stuck;
         setStuckView(stuck);
         const tIdxs = [4];
@@ -486,10 +487,8 @@ export default function CrownCoinsMachine() {
                   <div key={i} className="flex items-center justify-center">
                     {k && (
                       <div className="relative w-full h-full flex items-center justify-center" style={{ animation: 'ccReelLand 0.45s ease-out' }}>
-                        <img src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' }} />
-                        {k !== 'coin' && (
-                          <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
-                        )}
+                        <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' }} />
+                        <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
                       </div>
                     )}
                   </div>
