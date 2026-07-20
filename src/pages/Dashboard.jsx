@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History } from 'lucide-react';
+import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History, Menu } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import { useStake, LOCK_DAYS } from '@/lib/useStake';
 import StackMining from '@/components/StackMining';
@@ -29,6 +29,7 @@ export default function Dashboard() {
   const [wdAmt, setWdAmt] = useState('');
   const [stkAmt, setStkAmt] = useState('');
   const [history, setHistory] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [stackBanner, setStackBanner] = useState('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ce2101293_InShot_20260718_173817740.jpg');
 
   useEffect(() => {
@@ -100,12 +101,43 @@ export default function Dashboard() {
           <div className="flex-1 text-center">
             <h1 className="text-sm font-black italic text-amber-200" style={{ fontFamily: 'Rye, Georgia, serif' }}>{tab === 'stack' ? 'Stack' : tab === 'vip' ? 'VIP' : 'Dashboard'}</h1>
           </div>
-          {user?.role === 'admin' && (
-            <button onClick={() => { window.location.href = '/admin'; }} title="Admin Panel" className="flex items-center justify-center w-9 h-9 rounded-lg text-amber-200 hover:text-amber-100 hover:bg-black/40 transition-colors">
-              <Shield className="w-5 h-5" />
-            </button>
-          )}
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            title="Menu"
+            className="flex items-center justify-center w-9 h-9 rounded-lg text-amber-200 hover:text-amber-100 hover:bg-black/40 transition-colors"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
         </div>
+        {menuOpen && (
+          <div className="max-w-md mx-auto px-4 pb-2 flex items-center gap-1.5">
+            {TABS.map(t => {
+              const Icon = t.icon;
+              const active = tab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => { goTab(t.id); setMenuOpen(false); }}
+                  title={t.label}
+                  className={`flex items-center justify-center w-9 h-9 rounded-md border transition-colors ${active ? 'bg-amber-400 text-stone-900 border-amber-300' : 'bg-black/30 text-amber-100/80 border-amber-700/40 hover:bg-black/50'}`}
+                  style={{ fontFamily: 'Rye, Georgia, serif' }}
+                >
+                  <Icon className="w-4 h-4" />
+                </button>
+              );
+            })}
+            {user?.role === 'admin' && (
+              <button
+                onClick={() => { window.location.href = '/admin'; }}
+                title="Admin Panel"
+                className="flex items-center justify-center w-9 h-9 rounded-md border bg-black/30 text-amber-200 border-amber-700/40 hover:bg-black/50 transition-colors"
+                style={{ fontFamily: 'Rye, Georgia, serif' }}
+              >
+                <Shield className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )}
       </header>
 
       <main className="relative z-10 max-w-md mx-auto px-4 py-3 flex flex-col gap-3">
@@ -117,24 +149,6 @@ export default function Dashboard() {
           </div>
           <Wallet className="w-5 h-5 text-amber-400/60" />
         </WesternFrame>
-
-        {/* Tabs */}
-        <div className="grid grid-cols-3 gap-1.5">
-          {TABS.map(t => {
-            const Icon = t.icon;
-            const active = tab === t.id;
-            return (
-              <button
-                key={t.id}
-                onClick={() => goTab(t.id)}
-                className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md border transition-colors ${active ? 'bg-amber-400 text-stone-900 border-amber-300' : 'bg-black/30 text-amber-100/80 border-amber-700/40 hover:bg-black/50'}`}
-                style={{ fontFamily: 'Rye, Georgia, serif' }}
-              >
-                <Icon className="w-4 h-4" /><span className="text-[10px] font-bold italic">{t.label}</span>
-              </button>
-            );
-          })}
-        </div>
 
         {tab === 'wallet' && (
           <div className="flex flex-col gap-2.5">
