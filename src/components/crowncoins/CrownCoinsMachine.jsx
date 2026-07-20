@@ -71,7 +71,7 @@ function Tile({ symKey, win, dim, bet }) {
     >
       <div
         className="relative w-full h-full flex items-center justify-center overflow-hidden rounded-[2px]"
-        style={{ background: '#000', boxShadow: 'inset 0 0 0 1px rgba(212,175,55,0.4)' }}
+        style={{ background: 'rgba(0,0,0,0.5)', boxShadow: 'inset 0 0 0 1px rgba(212,175,55,0.4)' }}
       >
         {isVC ? (
           <div className="relative w-full h-full flex items-center justify-center">
@@ -84,7 +84,7 @@ function Tile({ symKey, win, dim, bet }) {
             alt={s.name}
             className="w-full h-full object-cover"
             draggable={false}
-            style={isCoin ? { mixBlendMode: 'screen' } : undefined}
+            style={{ mixBlendMode: 'screen' }}
           />
         )}
         {win && (
@@ -337,9 +337,9 @@ export default function CrownCoinsMachine() {
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f28be6c98_.jpg"
             alt=""
             className="absolute inset-0 w-full h-full object-cover rounded-md pointer-events-none"
-            style={{ opacity: 0.85, mixBlendMode: 'luminosity' }}
+            style={{ opacity: 1 }}
           />
-          <div ref={reelsRef} className="relative flex gap-0.5 rounded-md overflow-hidden" style={{ background: '#000' }}>
+          <div ref={reelsRef} className="relative flex gap-0.5 rounded-md overflow-hidden" style={{ background: 'transparent' }}>
             {reels.map((col, i) => (
               <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} />
             ))}
