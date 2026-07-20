@@ -143,7 +143,7 @@ export function isFreeSpinTrigger(grid) {
 // cells keep spinning regular symbols. `stuck` is a 9-array (null or value-coin
 // key). Each column has a chance per spin to drop one new value coin in an
 // empty cell of that column. Returns { grid, stuck }.
-const FREE_COIN_CHANCE = 0.18; // per column per spin (value coins drop rarely in free spins)
+const FREE_COIN_CHANCE = 0.20; // per column per spin — 20% chance a value coin drops
 export function spinFreeAccum(stuck) {
   const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
   const rReg = () => REG[Math.floor(Math.random() * REG.length)];
