@@ -423,13 +423,13 @@ export default function CrownCoinsMachine() {
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d353befdc_generated_image.png"
             alt="Crown Coins"
-            className="w-[60%]"
+            className="w-full"
             style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
           />
         </div>
 
         <div
-          className="relative rounded-lg p-1 overflow-hidden"
+          className="relative rounded-lg p-1 overflow-hidden -mt-1"
           style={{
             border: '2px solid #d4af37',
             boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 1px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)',
