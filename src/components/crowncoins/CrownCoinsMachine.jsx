@@ -5,7 +5,7 @@ import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
-import { playCoinSound, playCoinShowerSound } from '@/lib/crownCoinsSound';
+
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
@@ -355,9 +355,6 @@ export default function CrownCoinsMachine() {
         });
         if (coins.length) {
           setFlyCoins(coins);
-          // Coins flip mid-air, become light, then land on the banner in a shower.
-          const tShower = setTimeout(() => playCoinShowerSound(), 830);
-          timers.current.push(tShower);
           const tClear = setTimeout(() => setFlyCoins([]), 1100);
           timers.current.push(tClear);
         }
