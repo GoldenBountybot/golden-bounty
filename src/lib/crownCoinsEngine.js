@@ -95,6 +95,16 @@ export function spinGrid(rtp = 50) {
     }
   });
 
+  // Free Spin trigger: temporarily 50% chance — Crown Coin in center + a value
+  // coin in each side column.
+  if (Math.random() < 0.50) {
+    grid[4] = 'coin';
+    [0, 3, 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
+    [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
+    grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
+    grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
+  }
+
   // RTP gate: with probability (1 - rtp/100) force a losing board, otherwise
   // guarantee at least one winning line so the win rate equals rtp/100.
   const forceLoss = Math.random() * 100 > rtp;
