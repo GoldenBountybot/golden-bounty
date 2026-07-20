@@ -69,7 +69,7 @@ export default function AdminTransactions() {
   const shown = txs.filter(t => {
     if (filter !== 'all' && t.status !== filter) return false;
     if (!q) return true;
-    return (t.user_id && t.user_id.toLowerCase().includes(q)) || (t.user_email && t.user_email.toLowerCase().includes(q));
+    return t.user_id && t.user_id.toLowerCase().includes(q);
   });
 
   return (
@@ -101,7 +101,7 @@ export default function AdminTransactions() {
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Search by user id / email"
+          placeholder="Search by user id"
           className="flex-1 min-w-[140px] px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-sm placeholder-amber-100/40 outline-none"
         />
       </div>
