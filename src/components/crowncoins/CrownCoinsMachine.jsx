@@ -110,7 +110,7 @@ function ReelColumn({ result, phase, winMask, speed }) {
       : 'none';
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3', background: '#cfcfcf' }}>
+    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3.4', background: '#000' }}>
       <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto' }}>
         {strip.map((k, i) => (
           <div key={i} style={{ width: '100%', aspectRatio: '1 / 1' }}>
@@ -273,14 +273,14 @@ export default function CrownCoinsMachine() {
         </div>
 
         <div
-          className="rounded-xl p-2"
+          className="rounded-lg p-1.5"
           style={{
-            border: '4px solid #d4af37',
+            border: '3px solid #d4af37',
             boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 2px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)',
             background: 'linear-gradient(to bottom, #b8860b, #6b4a08)',
           }}
         >
-          <div className="flex gap-1 rounded-md overflow-hidden" style={{ background: '#cfcfcf' }}>
+          <div className="flex gap-0.5 rounded-md overflow-hidden" style={{ background: '#000' }}>
             {reels.map((col, i) => (
               <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} />
             ))}

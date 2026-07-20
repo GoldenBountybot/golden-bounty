@@ -2,16 +2,16 @@
 // Crown Coin (scatter/bonus) triggers the Royal Treasury hold-and-win round.
 
 const IMG = {
-  cherry: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/385620fcf_generated_image.png',
-  seven: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a521e45ad_generated_image.png',
-  lemon: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f325764b6_generated_image.png',
-  plum: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e7a71f6c6_generated_image.png',
-  watermelon: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/318de057b_generated_image.png',
-  orange: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9f2d1a373_generated_image.png',
-  bell: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2b0f3d600_generated_image.png',
-  bar: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/54eb8919d_generated_image.png',
-  grape: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bc6b40d49_generated_image.png',
-  coin: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ea21d79a2_generated_image.png',
+  cherry: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e193ac3ef_generated_image.png',
+  seven: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9190b625b_generated_image.png',
+  lemon: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7e3526539_generated_image.png',
+  plum: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b17d8bc3d_generated_image.png',
+  watermelon: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/17ef1f16b_generated_image.png',
+  orange: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/27343416c_generated_image.png',
+  bell: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/32ed52293_generated_image.png',
+  bar: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3a13fd6fd_generated_image.png',
+  grape: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/593005698_generated_image.png',
+  coin: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7b32fae4a_generated_image.png',
 };
 
 export const SYMBOLS = [
