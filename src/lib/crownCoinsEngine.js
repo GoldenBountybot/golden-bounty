@@ -10,6 +10,11 @@ export const VALUE_COIN_MULTS = [1, 3, 5, 7, 10, 15, 20];
 export const VALUE_COIN_KEYS = VALUE_COIN_MULTS.map(m => 'vc' + m);
 export function isValueCoin(key) { return typeof key === 'string' && key.startsWith('vc'); }
 export function valueCoinMult(key) { return Number(String(key).slice(2)) || 0; }
+// True for a Royal Treasury bonus cell that upgraded to a fixed jackpot coin.
+// Accepts a bonus cell object ({ type: 'jackpot', tier }) — kept for legacy imports.
+export function isJackpotCoin(cell) {
+  return !!cell && cell.type === 'jackpot';
+}
 export const JACKPOT_COINS = {
   MIN: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f672115c5_generated_image.png',
   MID: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/462282802_generated_image.png',
