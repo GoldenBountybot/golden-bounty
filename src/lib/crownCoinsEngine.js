@@ -82,6 +82,17 @@ export function spinGrid(rtp = 50) {
   }
   [0, 1, 2, 3, 5, 6, 7, 8].forEach(i => { if (grid[i] === 'coin') grid[i] = rReg(); });
 
+  // Value Coins: 20% chance per column, at most one per column (never
+  // overriding a Crown Coin cell).
+  [0, 1, 2].forEach(col => {
+    const rows = [col, col + 3, col + 6];
+    rows.forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
+    const avail = rows.filter(i => grid[i] !== 'coin');
+    if (Math.random() < 0.20 && avail.length) {
+      grid[avail[Math.floor(Math.random() * avail.length)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
+    }
+  });
+
   // RTP gate: with probability (1 - rtp/100) force a losing board by
   // making sure no line completes 3-of-a-kind.
   const forceLoss = Math.random() * 100 > rtp;
