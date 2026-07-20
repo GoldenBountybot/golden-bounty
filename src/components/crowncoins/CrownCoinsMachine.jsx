@@ -586,6 +586,20 @@ export default function CrownCoinsMachine() {
                 </div>
               ))}
             </div>
+            <div className="mt-3">
+              <div className="text-[11px] font-black text-yellow-300 mb-1.5 tracking-wider" style={{ fontFamily: 'Rye, Georgia, serif' }}>JACKPOT COINS</div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {[{tier:'MIN',mult:25},{tier:'MID',mult:50},{tier:'MAX',mult:150},{tier:'ULTRA',mult:1000}].map(j => (
+                  <div key={j.tier} className="flex items-center gap-2 rounded-md p-1.5" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(212,175,55,0.3)' }}>
+                    <img src={JACKPOT_COINS[j.tier]} alt={j.tier} className="w-9 h-9 object-contain" style={{ mixBlendMode: 'screen' }} />
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-bold text-yellow-100" style={{ fontFamily: 'Georgia, serif' }}>{j.tier}</span>
+                      <span className="text-[10px] text-yellow-300/80" style={{ fontFamily: 'Georgia, serif' }}>{j.mult}× bet</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
             <p className="mt-3 text-[10px] text-yellow-200/70 italic text-center">5 fixed lines · 3-of-a-kind pays · 3+ Crown Coins trigger the Royal Treasury bonus</p>
           </div>
         </div>

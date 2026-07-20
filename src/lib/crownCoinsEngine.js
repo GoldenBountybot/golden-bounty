@@ -119,7 +119,7 @@ export function spinGrid(rtp = 50) {
   [0, 1, 2, 3, 4, 5, 6, 7, 8].forEach(i => { if (isJackpotCoin(grid[i])) grid[i] = rReg(); });
   {
     const jr = Math.random();
-    const tier = jr < 0.004 ? 'ULTRA' : jr < 0.012 ? 'MAX' : jr < 0.03 ? 'MID' : jr < 0.06 ? 'MIN' : null;
+    const tier = jr < 0.006 ? 'ULTRA' : jr < 0.02 ? 'MAX' : jr < 0.05 ? 'MID' : jr < 0.12 ? 'MIN' : null;
     if (tier) {
       const empty = [0, 1, 2, 3, 4, 5, 6, 7, 8].filter(i => grid[i] !== 'coin' && !isValueCoin(grid[i]));
       if (empty.length) grid[empty[Math.floor(Math.random() * empty.length)]] = 'jp' + tier;
