@@ -38,39 +38,50 @@ function JackpotBadge({ tier, amount, color }) {
   );
 }
 
-// A small pile of stacked golden crown-coins for the header centerpiece.
+// A dense, layered pile of golden crown-coins. Renders as absolutely
+// positioned coins — the parent container must be `relative` & sized.
 function CoinPile() {
   const coin = symbolByKey('coin').image;
-  const stack = [
-    { l: '6%',  b: '0%',  z: 1, r: -4 },
-    { l: '40%', b: '0%',  z: 1, r: 5 },
-    { l: '23%', b: '22%', z: 2, r: -2 },
-    { l: '4%',  b: '44%', z: 3, r: 3 },
-    { l: '44%', b: '44%', z: 3, r: -5 },
-    { l: '24%', b: '66%', z: 4, r: 2 },
+  const S = 34;
+  const W = 160;
+  const rows = [
+    { n: 6, bottom: 0,  z: 1 },
+    { n: 5, bottom: 13, z: 2 },
+    { n: 4, bottom: 26, z: 3 },
+    { n: 3, bottom: 39, z: 4 },
+    { n: 2, bottom: 52, z: 5 },
+    { n: 1, bottom: 65, z: 6 },
   ];
+  const coins = [];
+  rows.forEach((row, ri) => {
+    for (let i = 0; i < row.n; i++) {
+      const left = row.n === 1 ? (W - S) / 2 : (i * (W - S)) / (row.n - 1);
+      const rot = ((i % 2) ? 1 : -1) * (3 + (ri % 3));
+      coins.push({ left, bottom: row.bottom, z: row.z, r: rot });
+    }
+  });
   return (
-    <div className="relative" style={{ width: 78, height: 86 }}>
-      {stack.map((c, i) => (
+    <>
+      {coins.map((c, i) => (
         <img
           key={i}
           src={coin}
           alt="crown coin"
           className="absolute"
           style={{
-            left: c.l,
-            bottom: c.b,
+            left: c.left,
+            bottom: c.bottom,
             zIndex: c.z,
-            width: 30,
-            height: 30,
+            width: S,
+            height: S,
             borderRadius: '50%',
             transform: `rotate(${c.r}deg)`,
-            boxShadow: '0 2px 3px rgba(0,0,0,0.55), inset 0 1px 1px rgba(255,255,255,0.4)',
-            filter: 'drop-shadow(0 0 4px rgba(255,200,80,0.5))',
+            boxShadow: '0 2px 3px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.4)',
+            filter: 'drop-shadow(0 0 3px rgba(255,200,80,0.5))',
           }}
         />
       ))}
-    </div>
+    </>
   );
 }
 
@@ -275,28 +286,38 @@ export default function CrownCoinsMachine() {
 
         <div className="flex items-stretch gap-2">
           <div className="flex flex-col gap-1 justify-center w-[26%]">
-            <JackpotBadge {...JACKPOTS[0]} />
             <JackpotBadge {...JACKPOTS[1]} />
+            <JackpotBadge {...JACKPOTS[0]} />
           </div>
 
           <div className="flex-1 flex flex-col items-center justify-center">
-            <CoinPile />
-            <h1
-              className="text-xl font-black tracking-wide italic leading-none mt-1"
-              style={{
-                fontFamily: 'Rye, Georgia, serif',
-                color: '#ffd24a',
-                textShadow: '0 2px 0 #8a5a00, 0 3px 6px rgba(0,0,0,0.7), 0 0 14px rgba(255,200,80,0.5)',
-                WebkitTextStroke: '1px #b8860b',
-              }}
-            >
-              CROWN COINS
-            </h1>
+            <div className="relative" style={{ width: 160, height: 110 }}>
+              <CoinPile />
+              <Crown
+                className="absolute left-1/2 -translate-x-1/2"
+                style={{ bottom: 62, width: 16, height: 16, color: '#c20000', zIndex: 22, filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.6))' }}
+              />
+              <span
+                className="absolute left-1/2 -translate-x-1/2 italic font-black leading-none"
+                style={{
+                  bottom: 36,
+                  zIndex: 21,
+                  fontFamily: 'Rye, Georgia, serif',
+                  fontSize: 18,
+                  color: '#ffd24a',
+                  textShadow: '0 2px 0 #7a0000, 0 0 6px rgba(0,0,0,0.85), 0 0 10px rgba(255,200,80,0.5)',
+                  WebkitTextStroke: '1.2px #a30000',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                CROWN COINS
+              </span>
+            </div>
           </div>
 
           <div className="flex flex-col gap-1 justify-center w-[26%]">
-            <JackpotBadge {...JACKPOTS[2]} />
             <JackpotBadge {...JACKPOTS[3]} />
+            <JackpotBadge {...JACKPOTS[2]} />
           </div>
         </div>
 
