@@ -3,6 +3,13 @@
 
 // Bonus coin assets — blank value coin (text overlaid dynamically) + 4 jackpot coins.
 export const VALUE_COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/09f3a23e1_generated_image.png';
+
+// Value coins — reel symbols that fly to the Crown Coins banner with a sound.
+// Purely visual; do NOT add to balance. Dollar value = mult × bet.
+export const VALUE_COIN_MULTS = [1, 3, 5, 7, 10, 15, 20];
+export const VALUE_COIN_KEYS = VALUE_COIN_MULTS.map(m => 'vc' + m);
+export function isValueCoin(key) { return typeof key === 'string' && key.startsWith('vc'); }
+export function valueCoinMult(key) { return Number(String(key).slice(2)) || 0; }
 export const JACKPOT_COINS = {
   MIN: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f672115c5_generated_image.png',
   MID: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/462282802_generated_image.png',
@@ -60,7 +67,7 @@ export const PAYLINES = [
 // appear less often; the RTP gates wins so losing spins are common.
 export function spinGrid(rtp = 50) {
   // weighted reel strips — low symbols land more often
-  const strip = ['cherry','cherry','lemon','lemon','orange','orange','plum','watermelon','grape','bell','bar','seven','coin','cherry','lemon','orange','plum','watermelon','grape','bell','coin'];
+  const strip = ['cherry','cherry','lemon','lemon','orange','orange','plum','watermelon','grape','bell','bar','seven','coin','cherry','lemon','orange','plum','watermelon','grape','bell','coin','vc1','vc5','vc20','vc3','vc15'];
   const pick = () => strip[Math.floor(Math.random() * strip.length)];
   const grid = Array.from({ length: 9 }, () => pick());
 
@@ -89,7 +96,7 @@ export function evaluateGrid(grid) {
   let totalMul = 0;
   for (const ln of PAYLINES) {
     const keys = ln.idxs.map(i => grid[i]);
-    if (keys[0] === keys[1] && keys[1] === keys[2] && keys[0] !== 'coin') {
+    if (keys[0] === keys[1] && keys[1] === keys[2] && keys[0] !== 'coin' && !isValueCoin(keys[0])) {
       const sym = symbolByKey(keys[0]);
       if (sym && sym.pay) {
         lines.push({ ...ln, symbol: keys[0], mul: sym.pay });

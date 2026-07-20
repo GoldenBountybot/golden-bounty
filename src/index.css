@@ -319,3 +319,11 @@
   78%  { transform: translateY(-3%); }
   100% { transform: translateY(0%); }
 }
+
+/* Crown Coins — value coin flying to the Crown Coins banner */
+@keyframes ccCoinFly {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  15%  { transform: translate(calc(var(--dx) * 0.12), calc(var(--dy) * 0.12 - 14px)) scale(1.15); opacity: 1; }
+  70%  { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.32); opacity: 0; }
+}
