@@ -173,6 +173,7 @@ export default function CrownCoinsMachine() {
   const reelsRef = useRef(null);
   const bannerRef = useRef(null);
   const [flyCoins, setFlyCoins] = useState([]);
+  const [triggerGlow, setTriggerGlow] = useState([]);
 
   const clearTimers = () => { timers.current.forEach(t => clearTimeout(t)); timers.current = []; };
 
@@ -282,6 +283,12 @@ export default function CrownCoinsMachine() {
         setFreeSpins(10);
         stuckRef.current = new Array(9).fill(null);
         setStuckView(new Array(9).fill(null));
+        const tIdxs = [4];
+        [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) tIdxs.push(i); });
+        [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) tIdxs.push(i); });
+        setTriggerGlow(tIdxs);
+        const tGlow = setTimeout(() => setTriggerGlow([]), 1300);
+        timers.current.push(tGlow);
         toast({ title: 'Crown Coin Bonus!', description: '10 Free Spins — Value Coins stick!' });
       }
       setWinMask(mask);
@@ -422,6 +429,17 @@ export default function CrownCoinsMachine() {
                         <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' }} />
                         <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
                       </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {triggerGlow.length > 0 && (
+              <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-30" style={{ gap: '2px' }}>
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <div key={i} className="flex items-center justify-center">
+                    {triggerGlow.includes(i) && (
+                      <div className="w-full h-full rounded-[2px]" style={{ animation: 'ccTriggerGlow 1.3s ease-out' }} />
                     )}
                   </div>
                 ))}
