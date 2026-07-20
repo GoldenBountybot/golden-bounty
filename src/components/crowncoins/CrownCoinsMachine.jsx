@@ -419,17 +419,8 @@ export default function CrownCoinsMachine() {
           <span className="w-7" />
         </div>
 
-        <div ref={bannerRef} className="flex items-center justify-center">
-          <img
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d353befdc_generated_image.png"
-            alt="Crown Coins"
-            className="w-[60%]"
-            style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
-          />
-        </div>
-
         <div
-          className="relative rounded-lg p-1 overflow-hidden"
+          className="relative rounded-lg overflow-hidden"
           style={{
             border: '2px solid #d4af37',
             boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 1px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)',
@@ -439,10 +430,18 @@ export default function CrownCoinsMachine() {
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f28be6c98_.jpg"
             alt=""
-            className="absolute inset-0 w-full h-full object-cover rounded-md pointer-events-none"
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
             style={{ opacity: 1 }}
           />
-          <div ref={reelsRef} className="relative flex gap-0.5 rounded-md overflow-hidden" style={{ background: 'transparent' }}>
+          <div ref={bannerRef} className="relative flex items-center justify-center py-1">
+            <img
+              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d353befdc_generated_image.png"
+              alt="Crown Coins"
+              className="w-[40%]"
+              style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
+            />
+          </div>
+          <div ref={reelsRef} className="relative flex gap-0.5 rounded-md overflow-hidden mx-1 mb-1" style={{ background: 'transparent' }}>
             {reels.map((col, i) => (
               <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} colIndex={i} amountCell={amountCell} />
             ))}
