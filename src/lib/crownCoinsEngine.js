@@ -88,7 +88,9 @@ export function spinGrid(rtp = 50) {
     const rows = [col, col + 3, col + 6];
     rows.forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     const avail = rows.filter(i => grid[i] !== 'coin');
-    if (Math.random() < 0.20 && avail.length) {
+    // Center column: when the Crown Coin is present, value coin chance drops to 0.05%.
+    const chance = (col === 1 && grid[4] === 'coin') ? 0.0005 : 0.20;
+    if (Math.random() < chance && avail.length) {
       grid[avail[Math.floor(Math.random() * avail.length)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
     }
   });
