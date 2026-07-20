@@ -60,18 +60,18 @@ function Tile({ symKey, win, dim, bet }) {
     <div
       className="relative flex items-center justify-center overflow-hidden p-[3px]"
       style={{
-        background: 'radial-gradient(ellipse at center, #3a0a10 0%, #1a0408 70%, #0a0204 100%)',
-        border: win ? '2px solid #ffd24a' : '1px solid rgba(212,175,55,0.55)',
+        background: 'transparent',
+        border: win ? '2px solid #ffd24a' : '1px solid rgba(212,175,55,0.35)',
         boxShadow: win
           ? '0 0 12px rgba(255,210,80,0.9), inset 0 0 0 2px rgba(255,235,150,0.9)'
-          : 'inset 0 1px 0 rgba(255,235,150,0.25), inset 0 0 0 1px rgba(120,80,20,0.5), 0 1px 2px rgba(0,0,0,0.5)',
+          : 'none',
         opacity: dim ? 0.5 : 1,
         transition: 'opacity .2s',
       }}
     >
       <div
         className="relative w-full h-full flex items-center justify-center overflow-hidden rounded-[2px]"
-        style={{ background: 'rgba(0,0,0,0.5)', boxShadow: 'inset 0 0 0 1px rgba(212,175,55,0.4)' }}
+        style={{ background: 'transparent' }}
       >
         {isVC ? (
           <div className="relative w-full h-full flex items-center justify-center">
