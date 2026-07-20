@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { useToast } from '@/components/ui/use-toast';
-import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
+import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeAccum } from '@/lib/crownCoinsEngine';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
@@ -195,6 +195,11 @@ export default function CrownCoinsMachine() {
   const [triggerGlow, setTriggerGlow] = useState([]);
   const [showRoyalBanner, setShowRoyalBanner] = useState(false);
   const [royalWin, setRoyalWin] = useState(null);
+  const anchorIdxRef = useRef(null);
+  const anchorTotalRef = useRef(0);
+  const [anchorIdx, setAnchorIdx] = useState(null);
+  const [anchorTotal, setAnchorTotal] = useState(0);
+  const [anchorPulse, setAnchorPulse] = useState(0);
 
   const clearTimers = () => { timers.current.forEach(t => clearTimeout(t)); timers.current = []; };
 
@@ -219,11 +224,11 @@ export default function CrownCoinsMachine() {
     let resultGrid;
     if (isFree) {
       const r = spinFreeAccum(stuckRef.current);
-      stuckRef.current = r.stuck;
-      setStuckView(r.stuck);
-      // Reels show regular symbols behind; stuck coins render via the overlay.
+      setStuckView(stuckRef.current);
+      // Stuck cells (anchor + crown) show regular symbols behind the overlay;
+      // value coins that land in spinning cells stay visible so they can fly.
       const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
-      resultGrid = r.grid.map((k, i) => (r.stuck[i] ? REG[Math.floor(Math.random() * REG.length)] : k));
+      resultGrid = r.grid.map((k, i) => (stuckRef.current[i] ? REG[Math.floor(Math.random() * REG.length)] : k));
     } else {
       resultGrid = spinGrid(rtp);
     }
@@ -254,25 +259,53 @@ export default function CrownCoinsMachine() {
     const tEnd = setTimeout(async () => {
       setPhases(['idle', 'idle', 'idle']);
 
-      // Free spins: coins accumulate and stick; no line wins, no flying coins.
+      // Free spins: value coins that land fly to the anchor and add to its total.
       if (isFree) {
-        const runningTotal = freeTotal(stuckRef.current, bet);
+        const newCoins = [];
+        resultGrid.forEach((k, i) => { if (isValueCoin(k) && !stuckRef.current[i]) newCoins.push(i); });
+        let flew = false;
+        if (newCoins.length && reelsRef.current) {
+          const rc = reelsRef.current.getBoundingClientRect();
+          const cellW = rc.width / 3, cellH = rc.height / 3;
+          const aCol = anchorIdxRef.current % 3, aRow = Math.floor(anchorIdxRef.current / 3);
+          const ax = rc.left + (aCol + 0.5) * cellW;
+          const ay = rc.top + (aRow + 0.5) * cellH;
+          const coins = newCoins.map(i => {
+            const col = i % 3, row = Math.floor(i / 3);
+            const fx = rc.left + (col + 0.5) * cellW;
+            const fy = rc.top + (row + 0.5) * cellH;
+            return { id: i + '-' + Date.now(), fx, fy, dx: ax - fx, dy: ay - fy, mult: valueCoinMult(resultGrid[i]) };
+          });
+          setFlyCoins(coins);
+          flew = true;
+          let add = 0;
+          newCoins.forEach(i => { add += valueCoinMult(resultGrid[i]) * bet; });
+          anchorTotalRef.current = +(anchorTotalRef.current + add).toFixed(2);
+          const tUpd = setTimeout(() => { setAnchorTotal(anchorTotalRef.current); setAnchorPulse(p => p + 1); }, 950);
+          timers.current.push(tUpd);
+          const tClear = setTimeout(() => setFlyCoins([]), 1250);
+          timers.current.push(tClear);
+        }
         setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
-        setLastWin(runningTotal);
+        setLastWin(anchorTotalRef.current);
         setSpinning(false);
         logActivity('crown-coins', 0, 0, 'push');
-        try { base44.analytics.track({ eventName: 'crown_coins_free_spin', properties: { bet, stuck: runningTotal, remaining: freeSpinsRef.current } }); } catch {}
+        try { base44.analytics.track({ eventName: 'crown_coins_free_spin', properties: { bet, total: anchorTotalRef.current, remaining: freeSpinsRef.current } }); } catch {}
 
         if (freeSpinsRef.current > 0) {
-          const tNext = setTimeout(() => doSpin(), 700);
+          const tNext = setTimeout(() => doSpin(), flew ? 1400 : 700);
           timers.current.push(tNext);
         } else {
           // free spins ended — pay out accumulated total
-          const total = +runningTotal.toFixed(2);
+          const total = +anchorTotalRef.current.toFixed(2);
           if (total > 0) setBalance(b => b + total);
           setLastWin(total);
           stuckRef.current = new Array(9).fill(null);
           setStuckView(new Array(9).fill(null));
+          anchorIdxRef.current = null;
+          setAnchorIdx(null);
+          anchorTotalRef.current = 0;
+          setAnchorTotal(0);
           setRoyalWin(total);
           setShowRoyalBanner(true);
         }
@@ -298,18 +331,25 @@ export default function CrownCoinsMachine() {
         mask[1][1] = true; // center Crown Coin glows
         [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) mask[0][Math.floor(i / 3)] = true; });
         [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) mask[2][Math.floor(i / 3)] = true; });
-        freeSpinsRef.current = 10;
-        setFreeSpins(10);
+        // First value coin (col0) becomes the sticky anchor; the other trigger
+        // coin (col2) is counted into the anchor's running total immediately.
+        const col0Coin = [0, 3, 6].find(i => isValueCoin(resultGrid[i]));
+        const col2Coin = [2, 5, 8].find(i => isValueCoin(resultGrid[i]));
+        const aIdx = col0Coin;
+        const aKey = resultGrid[aIdx];
         const stuck = new Array(9).fill(null);
         stuck[4] = 'coin';
-        [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) stuck[i] = resultGrid[i]; });
-        [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) stuck[i] = resultGrid[i]; });
+        stuck[aIdx] = aKey;
         stuckRef.current = stuck;
         setStuckView(stuck);
-        const tIdxs = [4];
-        [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) tIdxs.push(i); });
-        [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) tIdxs.push(i); });
-        setTriggerGlow(tIdxs);
+        anchorIdxRef.current = aIdx;
+        setAnchorIdx(aIdx);
+        const startTotal = valueCoinMult(aKey) * bet + valueCoinMult(resultGrid[col2Coin]) * bet;
+        anchorTotalRef.current = +startTotal.toFixed(2);
+        setAnchorTotal(+startTotal.toFixed(2));
+        freeSpinsRef.current = 10;
+        setFreeSpins(10);
+        setTriggerGlow([4, aIdx, col2Coin]);
         const tGlow = setTimeout(() => setTriggerGlow([]), 1300);
         timers.current.push(tGlow);
         setShowRoyalBanner(true);
@@ -471,18 +511,21 @@ export default function CrownCoinsMachine() {
             ))}
             {stuckView.some(k => !!k) && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-20" style={{ gap: '2px' }}>
-                {stuckView.map((k, i) => (
+                {stuckView.map((k, i) => {
+                  const isAnchor = i === anchorIdx;
+                  return (
                   <div key={i} className="flex items-center justify-center">
                     {k && (
                       <div className="relative w-full h-full flex items-center justify-center" style={{ animation: 'ccReelLand 0.45s ease-out' }}>
-                        <img src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' }} />
-                        {k !== 'coin' && (
-                          <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
+                        <img key={isAnchor ? 'a' + anchorPulse : 's' + i} src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))', animation: isAnchor ? 'ccAnchorPulse 0.5s ease-out' : undefined }} />
+                        {isAnchor && (
+                          <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${anchorTotal.toFixed(2)}</span>
                         )}
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
             {triggerGlow.length > 0 && (
