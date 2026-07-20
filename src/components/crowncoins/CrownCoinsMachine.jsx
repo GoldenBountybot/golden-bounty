@@ -176,6 +176,7 @@ export default function CrownCoinsMachine() {
   const [flyCoins, setFlyCoins] = useState([]);
   const [triggerGlow, setTriggerGlow] = useState([]);
   const [showRoyalBanner, setShowRoyalBanner] = useState(false);
+  const [royalWin, setRoyalWin] = useState(null);
 
   const clearTimers = () => { timers.current.forEach(t => clearTimeout(t)); timers.current = []; };
 
@@ -251,13 +252,10 @@ export default function CrownCoinsMachine() {
           const total = +runningTotal.toFixed(2);
           if (total > 0) setBalance(b => b + total);
           setLastWin(total);
-          toast({ title: 'Free Spins Complete!', description: `Collected $${total.toFixed(2)}` });
           stuckRef.current = new Array(9).fill(null);
           setStuckView(new Array(9).fill(null));
-          if (autoRef.current) {
-            const tAuto = setTimeout(() => { if (autoRef.current) doSpin(); }, 900);
-            timers.current.push(tAuto);
-          }
+          setRoyalWin(total);
+          setShowRoyalBanner(true);
         }
         return;
       }
@@ -360,7 +358,18 @@ export default function CrownCoinsMachine() {
 
   const closeBonus = () => { setBonus(null); setRevealStep(0); };
   const revealAll = () => setRevealStep(9);
-  const continueRoyalBanner = () => { setShowRoyalBanner(false); doSpin(); };
+  const continueRoyalBanner = () => {
+    setShowRoyalBanner(false);
+    if (royalWin != null) {
+      setRoyalWin(null);
+      if (autoRef.current) {
+        const tAuto = setTimeout(() => { if (autoRef.current) doSpin(); }, 400);
+        timers.current.push(tAuto);
+      }
+    } else {
+      doSpin();
+    }
+  };
 
   const BET_LADDER = [0.05, 0.10, 0.20, 0.30, 0.50, 0.80, 1.00, 1.50, 2.00, 3.00, 5.00, 10.00, 20.00, 50.00, 100.00, 200.00, 500.00];
   const stepTo = (dir) => setBet(b => {
@@ -597,7 +606,7 @@ export default function CrownCoinsMachine() {
         </div>
       )}
 
-      {showRoyalBanner && <RoyalTreasuryBanner onContinue={continueRoyalBanner} />}
+      {showRoyalBanner && <RoyalTreasuryBanner onContinue={continueRoyalBanner} winAmount={royalWin} />}
 
       {flyCoins.map(c => (
         <div key={c.id} className="absolute pointer-events-none" style={{ left: c.fx, top: c.fy, animation: 'ccCoinFly 0.9s ease-in forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}>

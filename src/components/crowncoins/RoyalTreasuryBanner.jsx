@@ -5,7 +5,7 @@ import React from 'react';
 // organic gradient, centered geometric sans-serif headline + instruction.
 const FROST_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4f6fbac54_generated_image.png';
 
-export default function RoyalTreasuryBanner({ onContinue }) {
+export default function RoyalTreasuryBanner({ onContinue, winAmount }) {
   return (
     <div
       onClick={onContinue}
@@ -33,17 +33,47 @@ export default function RoyalTreasuryBanner({ onContinue }) {
           }}
         >
           {/* Headline */}
-          <span
-            className="block leading-tight tracking-wide"
-            style={{
-              fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-              fontWeight: 600,
-              fontSize: 'clamp(18px, 5.4vw, 26px)',
-              color: '#000000',
-            }}
-          >
-            YOU WON THE ROYAL TREASURY BONUS GAME!
-          </span>
+          {winAmount != null ? (
+            <span
+              className="block leading-tight tracking-wide"
+              style={{
+                fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+                fontWeight: 600,
+                fontSize: 'clamp(16px, 4.8vw, 22px)',
+                color: '#000000',
+              }}
+            >
+              BONUS GAME WINNINGS
+            </span>
+          ) : (
+            <span
+              className="block leading-tight tracking-wide"
+              style={{
+                fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+                fontWeight: 600,
+                fontSize: 'clamp(18px, 5.4vw, 26px)',
+                color: '#000000',
+              }}
+            >
+              YOU WON THE ROYAL TREASURY BONUS GAME!
+            </span>
+          )}
+
+          {/* Win amount */}
+          {winAmount != null && (
+            <span
+              className="block tabular-nums"
+              style={{
+                fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+                fontWeight: 700,
+                fontSize: 'clamp(34px, 10vw, 52px)',
+                color: '#1f7a3a',
+                marginTop: '8px',
+              }}
+            >
+              ${Number(winAmount).toFixed(2)}
+            </span>
+          )}
 
           {/* Noticeable gap */}
           <div style={{ height: '28px' }} />
