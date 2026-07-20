@@ -130,7 +130,7 @@ function ReelColumn({ result, phase, winMask, speed, bet }) {
       : 'none';
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3.4', background: 'transparent' }}>
+    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3', background: 'transparent' }}>
       <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto', backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {strip.map((k, i) => (
           <div key={i} style={{ width: '100%', aspectRatio: '1 / 1' }}>
@@ -331,10 +331,10 @@ export default function CrownCoinsMachine() {
         </div>
 
         <div
-          className="relative rounded-lg p-1.5 overflow-hidden"
+          className="relative rounded-lg p-1 overflow-hidden"
           style={{
-            border: '3px solid #d4af37',
-            boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 2px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)',
+            border: '2px solid #d4af37',
+            boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 1px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)',
             background: 'linear-gradient(to bottom, #b8860b, #6b4a08)',
           }}
         >
