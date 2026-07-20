@@ -317,7 +317,7 @@ export default function CrownCoinsMachine() {
       setWinMask(mask);
 
       let bonusResult = null;
-      if (coins >= 3) {
+      if (coins >= 3 && !triggered) {
         bonusResult = runBonus(bet, rtp);
         win += bonusResult.total;
       }

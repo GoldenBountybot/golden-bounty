@@ -71,16 +71,12 @@ export function spinGrid(rtp = 50) {
   const pick = () => strip[Math.floor(Math.random() * strip.length)];
   const grid = Array.from({ length: 9 }, () => pick());
 
-  // Crown Coin falls with 20% chance, only in the center cell (single coin).
-  // Any coin that landed elsewhere is replaced with a regular symbol.
+  // Crown Coins are scatters — each cell has a chance to hold one, so 3+
+  // anywhere on the grid can trigger the Royal Treasury bonus (jackpot coins).
   const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
   const rReg = () => REG[Math.floor(Math.random() * REG.length)];
-  if (Math.random() < 0.05) {
-    grid[4] = 'coin';
-  } else {
-    grid[4] = rReg();
-  }
-  [0, 1, 2, 3, 5, 6, 7, 8].forEach(i => { if (grid[i] === 'coin') grid[i] = rReg(); });
+  [0, 1, 2, 3, 4, 5, 6, 7, 8].forEach(i => { if (grid[i] === 'coin') grid[i] = rReg(); });
+  [0, 1, 2, 3, 4, 5, 6, 7, 8].forEach(i => { if (Math.random() < 0.09) grid[i] = 'coin'; });
 
   // Value Coins: 20% chance per column, at most one per column (never
   // overriding a Crown Coin cell).
