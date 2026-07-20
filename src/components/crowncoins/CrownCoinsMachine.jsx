@@ -6,6 +6,7 @@ import { useLogActivity } from '@/lib/useLogActivity';
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
 import { playCoinSound } from '@/lib/crownCoinsSound';
+import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
 // Falling-money backdrop used inside each reel strip so screen-blended symbols
@@ -174,6 +175,7 @@ export default function CrownCoinsMachine() {
   const bannerRef = useRef(null);
   const [flyCoins, setFlyCoins] = useState([]);
   const [triggerGlow, setTriggerGlow] = useState([]);
+  const [showRoyalBanner, setShowRoyalBanner] = useState(false);
 
   const clearTimers = () => { timers.current.forEach(t => clearTimeout(t)); timers.current = []; };
 
@@ -293,7 +295,7 @@ export default function CrownCoinsMachine() {
         setTriggerGlow(tIdxs);
         const tGlow = setTimeout(() => setTriggerGlow([]), 1300);
         timers.current.push(tGlow);
-        toast({ title: 'Crown Coin Bonus!', description: '10 Free Spins — Value Coins stick!' });
+        setShowRoyalBanner(true);
       }
       setWinMask(mask);
 
@@ -335,9 +337,11 @@ export default function CrownCoinsMachine() {
 
       if (bonusResult) {
         // bonus modal open — pause
+      } else if (triggered) {
+        // free-spin round announced by the Royal Treasury banner —
+        // wait for the player to click it before spinning starts.
       } else if (freeSpinsRef.current > 0) {
-        const delay = triggered ? 1200 : 700;
-        const tNext = setTimeout(() => doSpin(), delay);
+        const tNext = setTimeout(() => doSpin(), 700);
         timers.current.push(tNext);
       } else if (autoRef.current) {
         const tAuto = setTimeout(() => { if (autoRef.current) doSpin(); }, 500);
@@ -356,6 +360,7 @@ export default function CrownCoinsMachine() {
 
   const closeBonus = () => { setBonus(null); setRevealStep(0); };
   const revealAll = () => setRevealStep(9);
+  const continueRoyalBanner = () => { setShowRoyalBanner(false); doSpin(); };
 
   const BET_LADDER = [0.05, 0.10, 0.20, 0.30, 0.50, 0.80, 1.00, 1.50, 2.00, 3.00, 5.00, 10.00, 20.00, 50.00, 100.00, 200.00, 500.00];
   const stepTo = (dir) => setBet(b => {
@@ -591,6 +596,8 @@ export default function CrownCoinsMachine() {
           </div>
         </div>
       )}
+
+      {showRoyalBanner && <RoyalTreasuryBanner onContinue={continueRoyalBanner} />}
 
       {flyCoins.map(c => (
         <div key={c.id} className="absolute pointer-events-none" style={{ left: c.fx, top: c.fy, animation: 'ccCoinFly 0.9s ease-in forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}>
