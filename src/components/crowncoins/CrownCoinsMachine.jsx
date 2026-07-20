@@ -1,21 +1,16 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { useToast } from '@/components/ui/use-toast';
-import { SYMBOLS, PAYLINES, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey } from '@/lib/crownCoinsEngine';
+import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey } from '@/lib/crownCoinsEngine';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
-
-const REEL_MS = 520;
 
 const DiamondBG = (
   <div
     className="absolute inset-0 -z-10"
-    style={{
-      background:
-        'radial-gradient(ellipse at center, #a01828 0%, #7a0e1c 45%, #4a0008 100%)',
-    }}
+    style={{ background: 'radial-gradient(ellipse at center, #a01828 0%, #7a0e1c 45%, #4a0008 100%)' }}
   >
     <div
       className="absolute inset-0 opacity-30"
@@ -43,7 +38,7 @@ function JackpotBadge({ tier, amount, color }) {
   );
 }
 
-function SymbolCell({ symKey, win, dim, spinning }) {
+function Tile({ symKey, win, dim, blurred }) {
   const s = symbolByKey(symKey) || SYMBOLS[0];
   return (
     <div
@@ -63,7 +58,7 @@ function SymbolCell({ symKey, win, dim, spinning }) {
         alt={s.name}
         className="w-full h-full object-cover"
         draggable={false}
-        style={{ filter: spinning ? 'blur(3px) brightness(1.2)' : 'none', transition: 'filter .1s' }}
+        style={{ filter: blurred ? 'blur(3px) brightness(1.15)' : 'none' }}
       />
       {win && (
         <span
@@ -75,15 +70,59 @@ function SymbolCell({ symKey, win, dim, spinning }) {
   );
 }
 
+// A single reel column — spins (continuous downward fall) then lands its result.
+function ReelColumn({ result, phase, winMask }) {
+  // result: 3 keys (top, mid, bottom). phase: 'idle' | 'spin' | 'land'
+  const [spinStrip, setSpinStrip] = useState(() => [...result]);
+
+  useEffect(() => {
+    if (phase === 'spin') {
+      // duplicated 6-row strip so the -50%→0 loop is seamless
+      const a = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)].key;
+      const b = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)].key;
+      const c = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)].key;
+      setSpinStrip([a, b, c, a, b, c]);
+    }
+  }, [phase]);
+
+  const showResult = phase !== 'spin';
+  const strip = showResult ? [...result] : spinStrip;
+
+  const animStyle =
+    phase === 'spin'
+      ? { animation: 'ccReelSpin 0.4s linear infinite', height: '200%' }
+      : phase === 'land'
+      ? { animation: 'ccReelLand 0.45s cubic-bezier(0.2,0.8,0.3,1) 1', height: '100%' }
+      : { height: '100%' };
+
+  return (
+    <div className="relative flex-1 overflow-hidden" style={{ background: '#cfcfcf' }}>
+      <div className="flex flex-col w-full" style={animStyle}>
+        {strip.map((k, i) => (
+          <div key={i} className="flex-1 min-h-0">
+            <Tile symKey={k} blurred={phase === 'spin'} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i]} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function CrownCoinsMachine() {
   const { balance, setBalance } = useCasinoBalance();
   const { rtp, loading: sLoading, minBet, maxBet } = useGameSettings('crown-coins');
   const logActivity = useLogActivity();
   const { toast } = useToast();
 
-  const [grid, setGrid] = useState(() => ['lemon','cherry','orange','bell','bar','plum','seven','coin','cherry']);
+  // grid stored as 9 keys row-major; reels = 3 columns each 3 rows
+  const [reels, setReels] = useState(() => [
+    ['lemon', 'bell', 'plum'],
+    ['watermelon', 'bar', 'cherry'],
+    ['seven', 'plum', 'orange'],
+  ]);
+  const [phases, setPhases] = useState(['idle', 'idle', 'idle']);
   const [spinning, setSpinning] = useState(false);
-  const [winCells, setWinCells] = useState([]);
+  const [winMask, setWinMask] = useState(() => [[false, false, false], [false, false, false], [false, false, false]]);
   const [lastWin, setLastWin] = useState(0);
   const [bet, setBet] = useState(1);
   const [bonus, setBonus] = useState(null);
@@ -91,39 +130,65 @@ export default function CrownCoinsMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [autoSpin, setAutoSpin] = useState(false);
   const [turbo, setTurbo] = useState(false);
-  const scrambleRef = useRef(null);
+  const timers = useRef([]);
   const autoRef = useRef(false);
 
-  const winSet = new Set(winCells);
+  const clearTimers = () => { timers.current.forEach(t => clearTimeout(t)); timers.current = []; };
+
+  useEffect(() => () => clearTimers(), []);
 
   const doSpin = useCallback(async () => {
     if (spinning) return;
     if (bet <= 0) { toast({ title: 'Set a bet amount' }); return; }
     if (balance < bet) { toast({ title: 'Insufficient balance' }); autoRef.current = false; setAutoSpin(false); return; }
     setSpinning(true);
-    setWinCells([]);
+    setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
     setLastWin(0);
     setBalance(b => Math.max(0, b - bet));
+    clearTimers();
 
-    const ms = turbo ? 280 : REEL_MS;
-    let ticks = 0;
-    clearInterval(scrambleRef.current);
-    scrambleRef.current = setInterval(() => {
-      setGrid(() => Array.from({ length: 9 }, () => SYMBOLS[Math.floor(Math.random() * (SYMBOLS.length))].key));
-      ticks++;
-    }, 70);
+    // compute final result
+    const resultGrid = spinGrid(rtp); // 9 keys row-major
+    const cols = [
+      [resultGrid[0], resultGrid[3], resultGrid[6]],
+      [resultGrid[1], resultGrid[4], resultGrid[7]],
+      [resultGrid[2], resultGrid[5], resultGrid[8]],
+    ];
 
-    setTimeout(async () => {
-      clearInterval(scrambleRef.current);
-      const result = spinGrid(rtp);
-      setGrid(result);
+    // start all reels spinning
+    setReels(cols);
+    setPhases(['spin', 'spin', 'spin']);
 
-      const { lines, totalMul, coins, scatterMul } = evaluateGrid(result);
+    const base = turbo ? 420 : 720;
+    const step = turbo ? 160 : 260;
+    const landMs = 460;
+
+    // staggered land per reel
+    cols.forEach((col, i) => {
+      const t1 = setTimeout(() => {
+        setPhases(prev => prev.map((p, idx) => (idx === i ? 'land' : p)));
+      }, base + i * step);
+      timers.current.push(t1);
+    });
+
+    // after the last reel lands, settle + evaluate
+    const settleAt = base + 2 * step + landMs;
+    const tEnd = setTimeout(async () => {
+      setPhases(['idle', 'idle', 'idle']);
+
+      const { lines, totalMul, coins, scatterMul } = evaluateGrid(resultGrid);
       let win = totalMul * (bet / 5) + scatterMul * bet;
 
-      const cells = [];
-      lines.forEach(l => l.idxs.forEach(i => cells.push(i)));
-      setWinCells(cells);
+      // build win mask per reel (which rows are part of a winning line)
+      const mask = cols.map(() => [false, false, false]);
+      lines.forEach(ln => {
+        ln.idxs.forEach(idx => {
+          const col = idx % 3;
+          const row = Math.floor(idx / 3);
+          mask[col][row] = true;
+        });
+      });
+      setWinMask(mask);
 
       let bonusResult = null;
       if (coins >= 3) {
@@ -139,9 +204,11 @@ export default function CrownCoinsMachine() {
       try { base44.analytics.track({ eventName: 'crown_coins_spin', properties: { bet, win: Math.round(win * 100) / 100, coins } }); } catch {}
 
       if (autoRef.current && !bonusResult) {
-        setTimeout(() => { if (autoRef.current) doSpin(); }, 600);
+        const tAuto = setTimeout(() => { if (autoRef.current) doSpin(); }, 500);
+        timers.current.push(tAuto);
       }
-    }, ms);
+    }, settleAt);
+    timers.current.push(tEnd);
   }, [spinning, bet, balance, rtp, turbo, setBalance, logActivity, toast]);
 
   const toggleAuto = () => {
@@ -162,7 +229,6 @@ export default function CrownCoinsMachine() {
       {DiamondBG}
 
       <div className="max-w-md mx-auto px-3 pt-2 pb-4 flex flex-col gap-2">
-        {/* Info icon */}
         <div className="flex items-center justify-between">
           <button onClick={() => setShowInfo(true)} className="w-7 h-7 rounded-full border border-white/70 flex items-center justify-center text-white/90 bg-black/20">
             <Info className="w-4 h-4" />
@@ -171,12 +237,10 @@ export default function CrownCoinsMachine() {
           <span className="w-7" />
         </div>
 
-        {/* Jackpots */}
         <div className="grid grid-cols-4 gap-1.5">
           {JACKPOTS.map(j => <JackpotBadge key={j.tier} {...j} />)}
         </div>
 
-        {/* Title */}
         <div className="relative flex items-center justify-center py-1">
           <Crown className="w-5 h-5 text-yellow-400 absolute -top-1 left-1/2 -translate-x-1/2" />
           <h1
@@ -192,7 +256,6 @@ export default function CrownCoinsMachine() {
           </h1>
         </div>
 
-        {/* Reel grid */}
         <div
           className="rounded-xl p-2"
           style={{
@@ -201,14 +264,13 @@ export default function CrownCoinsMachine() {
             background: 'linear-gradient(to bottom, #b8860b, #6b4a08)',
           }}
         >
-          <div className="grid grid-cols-3 gap-1 rounded-md overflow-hidden" style={{ background: '#cfcfcf' }}>
-            {grid.map((key, i) => (
-              <SymbolCell key={i} symKey={key} spinning={spinning} win={winSet.has(i)} dim={winSet.size > 0 && !winSet.has(i)} />
+          <div className="flex gap-1 rounded-md overflow-hidden" style={{ background: '#cfcfcf', aspectRatio: '3 / 3' }}>
+            {reels.map((col, i) => (
+              <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} />
             ))}
           </div>
         </div>
 
-        {/* Status row */}
         <div className="grid grid-cols-3 gap-1.5 text-center">
           <div className="rounded-md bg-black/50 border border-yellow-700/40 py-1">
             <div className="text-[8px] text-yellow-300/70 font-bold tracking-wider">BET</div>
@@ -224,7 +286,6 @@ export default function CrownCoinsMachine() {
           </div>
         </div>
 
-        {/* Control bar */}
         <div className="flex items-center justify-between gap-2 py-1">
           <button onClick={() => setTurbo(t => !t)} className={`w-9 h-9 rounded-full flex items-center justify-center border ${turbo ? 'border-yellow-400 text-yellow-300 bg-yellow-500/20' : 'border-white/40 text-white/80 bg-black/30'}`}>
             <Zap className="w-5 h-5" />
@@ -254,7 +315,6 @@ export default function CrownCoinsMachine() {
         </div>
         <p className="text-center text-[10px] font-bold tracking-widest text-yellow-200/80">{spinning ? 'GOOD LUCK!' : 'PLACE YOUR BET'}</p>
 
-        {/* Bottom utility row */}
         <div className="flex items-center justify-between px-1">
           <button className="w-8 h-8 flex items-center justify-center text-white/80"><Menu className="w-5 h-5" /></button>
           <div className="flex flex-col items-center">
@@ -271,10 +331,9 @@ export default function CrownCoinsMachine() {
         </div>
       </div>
 
-      {/* Info modal */}
       {showInfo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="w-full max-w-sm rounded-xl p-4" style={{ border: '3px solid #d4af37', background: 'linear-gradient(to bottom, #2a0608, #140204)' }}>
+          <div className="w-full max-w-sm rounded-xl p-4 relative" style={{ border: '3px solid #d4af37', background: 'linear-gradient(to bottom, #2a0608, #140204)' }}>
             <button onClick={() => setShowInfo(false)} className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/50 border border-yellow-700/50 flex items-center justify-center text-yellow-100"><X className="w-4 h-4" /></button>
             <h3 className="text-lg font-black text-yellow-300 mb-2" style={{ fontFamily: 'Rye, Georgia, serif' }}>Paytable</h3>
             <div className="grid grid-cols-2 gap-1.5">
@@ -293,7 +352,6 @@ export default function CrownCoinsMachine() {
         </div>
       )}
 
-      {/* Bonus modal */}
       {bonus && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-xl p-4 relative" style={{ border: '3px solid #d4af37', background: 'linear-gradient(to bottom, #2a0608, #140204)' }}>

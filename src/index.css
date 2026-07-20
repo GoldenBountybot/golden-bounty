@@ -307,3 +307,15 @@
   0%, 100% { transform: rotate(0deg); }
   50%      { transform: rotate(1.5deg); }
 }
+
+/* Crown Coins reel animations */
+@keyframes ccReelSpin {
+  from { transform: translateY(-50%); }
+  to   { transform: translateY(0%); }
+}
+@keyframes ccReelLand {
+  0%   { transform: translateY(-100%); }
+  58%  { transform: translateY(6%); }
+  78%  { transform: translateY(-3%); }
+  100% { transform: translateY(0%); }
+}
