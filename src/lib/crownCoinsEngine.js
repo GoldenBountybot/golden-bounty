@@ -95,20 +95,27 @@ export function spinGrid(rtp = 50) {
     }
   });
 
-  // RTP gate: with probability (1 - rtp/100) force a losing board by
-  // making sure no line completes 3-of-a-kind.
+  // RTP gate: with probability (1 - rtp/100) force a losing board, otherwise
+  // guarantee at least one winning line so the win rate equals rtp/100.
   const forceLoss = Math.random() * 100 > rtp;
   if (forceLoss) {
-    // nudge one symbol on each winning line so it no longer matches
     for (let iter = 0; iter < 4; iter++) {
       const { lines } = evaluateGrid(grid);
       if (!lines.length) break;
       for (const ln of lines) {
-        // replace the last cell of the line with a different low symbol
         const last = ln.idxs[ln.idxs.length - 1];
         const alt = ['cherry','lemon','orange'][Math.floor(Math.random() * 3)];
         if (grid[last] !== alt) grid[last] = alt;
       }
+    }
+  } else {
+    const { lines } = evaluateGrid(grid);
+    if (!lines.length) {
+      // build a winning line of a regular symbol, avoiding Crown Coin / value coin cells
+      const candLines = PAYLINES.filter(ln => ln.idxs.every(i => grid[i] !== 'coin' && !isValueCoin(grid[i])));
+      const ln = candLines.length ? candLines[Math.floor(Math.random() * candLines.length)] : PAYLINES[Math.floor(Math.random() * PAYLINES.length)];
+      const sym = REG[Math.floor(Math.random() * REG.length)];
+      ln.idxs.forEach(i => { grid[i] = sym; });
     }
   }
   return grid;
