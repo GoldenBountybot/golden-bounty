@@ -322,11 +322,11 @@
 
 /* Crown Coins — value coin flying to the Crown Coins banner */
 @keyframes ccCoinFly {
-  0%   { transform: perspective(800px) translate(0, 0) scale(1) rotateY(0deg) rotate(0deg);     opacity: 1;    filter: brightness(1)   drop-shadow(0 0 0 rgba(255,200,80,0)); }
-  25%  { transform: perspective(800px) translate(calc(var(--dx) * 0.10), calc(var(--dy) * 0.10 - 40px)) scale(1.18) rotateY(270deg) rotate(14deg); opacity: 1;    filter: brightness(1.45) drop-shadow(0 0 16px rgba(255,205,95,1)); }
-  50%  { transform: perspective(800px) translate(calc(var(--dx) * 0.26), calc(var(--dy) * 0.26 - 26px)) scale(1.08) rotateY(540deg) rotate(22deg); opacity: 1;    filter: brightness(2.1)  drop-shadow(0 0 22px rgba(255,220,130,1)); }
-  72%  { transform: perspective(800px) translate(calc(var(--dx) * 0.52), calc(var(--dy) * 0.52 - 8px)) scale(0.78) rotateY(810deg) rotate(16deg);  opacity: 0.9;  filter: brightness(2.9)  drop-shadow(0 0 28px rgba(255,235,160,1)); }
-  100% { transform: perspective(800px) translate(var(--dx), var(--dy)) scale(0.2) rotateY(1080deg) rotate(0deg);  opacity: 0;    filter: brightness(4.3)  drop-shadow(0 0 36px rgba(255,245,200,1)); }
+  0%   { transform: perspective(900px) translate(0, 0) scale(1) rotateY(0deg) rotate(0deg);       opacity: 1;    filter: brightness(1)   drop-shadow(0 0 0 rgba(255,200,80,0)); }
+  18%  { transform: perspective(900px) translate(calc(var(--dx) * 0.07), calc(var(--dy) * 0.07 - 52px)) scale(1.12) rotateY(180deg) rotate(9deg);  opacity: 1;    filter: brightness(1.35) drop-shadow(0 0 14px rgba(255,205,95,0.9)); }
+  42%  { transform: perspective(900px) translate(calc(var(--dx) * 0.22), calc(var(--dy) * 0.22 - 38px)) scale(1.05) rotateY(360deg) rotate(15deg); opacity: 1;    filter: brightness(1.75) drop-shadow(0 0 18px rgba(255,220,130,1)); }
+  70%  { transform: perspective(900px) translate(calc(var(--dx) * 0.55), calc(var(--dy) * 0.55 - 14px)) scale(0.84) rotateY(540deg) rotate(12deg);  opacity: 0.95; filter: brightness(2.35) drop-shadow(0 0 24px rgba(255,235,160,1)); }
+  100% { transform: perspective(900px) translate(var(--dx), var(--dy)) scale(0.22) rotateY(720deg) rotate(0deg);  opacity: 0;    filter: brightness(3.5)  drop-shadow(0 0 32px rgba(255,245,200,1)); }
 }
 
 @keyframes ccSparkle {

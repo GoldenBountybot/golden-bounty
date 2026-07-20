@@ -274,16 +274,16 @@ export default function CrownCoinsMachine() {
             const col = i % 3, row = Math.floor(i / 3);
             const fx = rc.left + (col + 0.5) * cellW;
             const fy = rc.top + (row + 0.5) * cellH;
-            return { id: i + '-' + Date.now(), fx, fy, dx: ax - fx, dy: ay - fy, mult: valueCoinMult(resultGrid[i]) };
+            return { id: i + '-' + Date.now(), fx, fy, dx: ax - fx, dy: ay - fy, mult: valueCoinMult(resultGrid[i]), dur: 2.0 };
           });
           setFlyCoins(coins);
           flew = true;
           let add = 0;
           newCoins.forEach(i => { add += valueCoinMult(resultGrid[i]) * bet; });
           anchorTotalRef.current = +(anchorTotalRef.current + add).toFixed(2);
-          const tUpd = setTimeout(() => { setAnchorTotal(anchorTotalRef.current); setAnchorPulse(p => p + 1); }, 950);
+          const tUpd = setTimeout(() => { setAnchorTotal(anchorTotalRef.current); setAnchorPulse(p => p + 1); }, 1800);
           timers.current.push(tUpd);
-          const tClear = setTimeout(() => setFlyCoins([]), 1250);
+          const tClear = setTimeout(() => setFlyCoins([]), 2100);
           timers.current.push(tClear);
         }
         setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
@@ -293,7 +293,7 @@ export default function CrownCoinsMachine() {
         try { base44.analytics.track({ eventName: 'crown_coins_free_spin', properties: { bet, total: anchorTotalRef.current, remaining: freeSpinsRef.current } }); } catch {}
 
         if (freeSpinsRef.current > 0) {
-          const tNext = setTimeout(() => doSpin(), flew ? 1400 : 700);
+          const tNext = setTimeout(() => doSpin(), flew ? 2300 : 700);
           timers.current.push(tNext);
         } else {
           // free spins ended — pay out accumulated total
@@ -338,7 +338,6 @@ export default function CrownCoinsMachine() {
         const aIdx = col0Coin;
         const aKey = resultGrid[aIdx];
         const stuck = new Array(9).fill(null);
-        stuck[4] = 'coin';
         stuck[aIdx] = aKey;
         stuckRef.current = stuck;
         setStuckView(stuck);
@@ -349,7 +348,7 @@ export default function CrownCoinsMachine() {
         setAnchorTotal(+startTotal.toFixed(2));
         freeSpinsRef.current = 10;
         setFreeSpins(10);
-        setTriggerGlow([4, aIdx, col2Coin]);
+        setTriggerGlow([aIdx, col2Coin]);
         const tGlow = setTimeout(() => setTriggerGlow([]), 1300);
         timers.current.push(tGlow);
         setShowRoyalBanner(true);
@@ -517,7 +516,7 @@ export default function CrownCoinsMachine() {
                   <div key={i} className="flex items-center justify-center">
                     {k && (
                       <div className="relative w-full h-full flex items-center justify-center" style={{ animation: 'ccReelLand 0.45s ease-out' }}>
-                        <img key={isAnchor ? 'a' + anchorPulse : 's' + i} src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))', animation: isAnchor ? 'ccAnchorPulse 0.5s ease-out' : undefined }} />
+                        <img key={isAnchor ? 'a' + anchorPulse : 's' + i} src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))', animation: isAnchor ? 'ccAnchorPulse 0.5s ease-out' : undefined }} />
                         {isAnchor && (
                           <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${anchorTotal.toFixed(2)}</span>
                         )}
@@ -682,7 +681,7 @@ export default function CrownCoinsMachine() {
       {showRoyalBanner && <RoyalTreasuryBanner onContinue={continueRoyalBanner} winAmount={royalWin} />}
 
       {flyCoins.map(c => (
-        <div key={c.id} className="absolute pointer-events-none" style={{ left: c.fx, top: c.fy, animation: 'ccCoinFly 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}>
+        <div key={c.id} className="absolute pointer-events-none" style={{ left: c.fx, top: c.fy, animation: `ccCoinFly ${c.dur || 1.2}s cubic-bezier(0.25, 0.1, 0.25, 1) forwards`, '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}>
           <div className="relative w-9 h-9 flex items-center justify-center">
             <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" style={{ WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain' }} />
             <span className="absolute font-black text-yellow-100" style={{ fontSize: '8px', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}>${(c.mult * bet).toFixed(2)}</span>
