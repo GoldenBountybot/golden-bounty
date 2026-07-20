@@ -4,88 +4,166 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { useToast } from '@/components/ui/use-toast';
-import {
-  SYMBOLS, LINE_SYMBOLS, symbolByKey, spinGrid, evaluateGrid, isBonusTrigger, collectCoins, JACKPOTS,
-  GOLD_COIN_IMG, JACKPOT_COINS, isCoinCell, isLineKey,
-} from '@/lib/crownCoinsEngine';
+import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeAccum, freeTotal, isJackpotCoin, jackpotMult, jackpotTier, jackpotPayout } from '@/lib/crownCoinsEngine';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
-import GambleGame from './GambleGame';
-import { playCoinSound } from '@/lib/crownCoinsSound';
-import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Spade } from 'lucide-react';
+import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
+// Falling-money backdrop used inside each reel strip so screen-blended symbols
+// have a real backdrop to blend against even while the strip's transform
+// animation isolates its stacking context during a spin.
 const MONEY_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f28be6c98_.jpg';
-const CROWN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d353befdc_generated_image.png';
-const FREE_SPINS = 10;
 
 const DiamondBG = (
-  <div className="absolute inset-0 -z-10" style={{ background: 'radial-gradient(ellipse at center, #a01828 0%, #7a0e1c 45%, #4a0008 100%)' }}>
-    <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(0,0,0,0.25) 0, rgba(0,0,0,0.25) 1px, transparent 1px, transparent 18px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.25) 0, rgba(0,0,0,0.25) 1px, transparent 1px, transparent 18px)' }} />
+  <div
+    className="absolute inset-0 -z-10"
+    style={{ background: 'radial-gradient(ellipse at center, #a01828 0%, #7a0e1c 45%, #4a0008 100%)' }}
+  >
+    <div
+      className="absolute inset-0 opacity-30"
+      style={{
+        backgroundImage:
+          'repeating-linear-gradient(45deg, rgba(0,0,0,0.25) 0, rgba(0,0,0,0.25) 1px, transparent 1px, transparent 18px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.25) 0, rgba(0,0,0,0.25) 1px, transparent 1px, transparent 18px)',
+      }}
+    />
   </div>
 );
 
-function JackpotBadge({ tier, mult, color, bet }) {
+function JackpotBadge({ tier, amount, color }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg px-2 py-1 w-full" style={{ border: '2px solid #d4af37', background: `linear-gradient(to bottom, ${color}, rgba(0,0,0,0.5))`, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), 0 1px 3px rgba(0,0,0,0.6)' }}>
+    <div
+      className="flex flex-col items-center justify-center rounded-lg px-2 py-1 w-full"
+      style={{
+        border: '2px solid #d4af37',
+        background: `linear-gradient(to bottom, ${color}, rgba(0,0,0,0.5))`,
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), 0 1px 3px rgba(0,0,0,0.6)',
+      }}
+    >
       <span className="text-[9px] font-black tracking-wider text-yellow-300" style={{ fontFamily: 'Georgia, serif' }}>{tier}</span>
-      <span className="text-[11px] font-black text-white tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${(mult * bet).toFixed(2)}</span>
+      <span className="text-[11px] font-black text-white tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${amount.toFixed(2)}</span>
     </div>
   );
 }
 
-function CellTile({ cell, win, dim, amount, bet }) {
-  // Line symbol or crown coin (string key)
-  if (!isCoinCell(cell)) {
-    const s = symbolByKey(cell) || SYMBOLS[0];
-    const isWild = cell === 'wild';
-    const isCoin = cell === 'coin';
-    return (
-      <div className="relative w-full h-full flex items-center justify-center overflow-hidden" style={{ border: win ? '2px solid #ffd24a' : '1px solid rgba(212,175,55,0.35)', boxShadow: win ? '0 0 12px rgba(255,210,80,0.9), inset 0 0 0 2px rgba(255,235,150,0.9)' : 'none', opacity: dim ? 0.5 : 1, transition: 'opacity .2s' }}>
-        <img src={s.image} alt={s.name} className="w-full h-full object-cover" draggable={false} style={{ mixBlendMode: 'screen', filter: isWild ? 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' : isCoin ? 'drop-shadow(0 0 10px rgba(255,200,80,0.9))' : 'none' }} />
-        {win && <span className="absolute inset-0 pointer-events-none" style={{ boxShadow: 'inset 0 0 12px rgba(255,220,120,0.8)', background: 'radial-gradient(circle at center, rgba(255,235,150,0.25), transparent 70%)' }} />}
-        {amount != null && (
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ fontFamily: 'Rye, Georgia, serif', fontSize: 'clamp(11px, 3.4vw, 16px)', color: '#ff1a1a', textShadow: '0 0 3px #fff, 0 0 6px rgba(255,255,255,0.9), 0 1px 2px #000', animation: 'saWinPop 0.35s ease-out', whiteSpace: 'nowrap' }}>${Number(amount).toFixed(2)}</span>
+// Dense 3D golden coin pile (transparent PNG) for the header centerpiece.
+function CoinPile() {
+  return (
+    <img
+      src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e53104d39_generated_image.png"
+      alt="gold coin pile"
+      className="absolute inset-0 w-full h-full object-contain"
+      style={{ filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.5)) drop-shadow(0 0 8px rgba(255,200,80,0.45))' }}
+    />
+  );
+}
+
+function Tile({ symKey, win, dim, bet, amount }) {
+  const isCoin = symKey === 'coin';
+  const isVC = isValueCoin(symKey);
+  const isJP = isJackpotCoin(symKey);
+  const jpTier = isJP ? jackpotTier(symKey) : null;
+  const jpVal = isJP ? jackpotMult(symKey) * bet : 0;
+  const s = (isVC || isJP) ? null : (symbolByKey(symKey) || SYMBOLS[0]);
+  const vcVal = isVC ? valueCoinMult(symKey) * bet : 0;
+  const winShow = win || isJP;
+  const showAmount = isJP ? jpVal : amount;
+  return (
+    <div
+      className="relative flex items-center justify-center overflow-hidden p-[3px]"
+      style={{
+        background: 'transparent',
+        border: winShow ? '2px solid #ffd24a' : '1px solid rgba(212,175,55,0.35)',
+        boxShadow: winShow
+          ? '0 0 12px rgba(255,210,80,0.9), inset 0 0 0 2px rgba(255,235,150,0.9)'
+          : 'none',
+        opacity: dim ? 0.5 : 1,
+        transition: 'opacity .2s',
+      }}
+    >
+      <div
+        className="relative w-full h-full flex items-center justify-center overflow-hidden rounded-[2px]"
+        style={{ background: 'transparent' }}
+      >
+        {isVC ? (
+          <div className="relative w-full h-full flex items-center justify-center">
+            <img src={VALUE_COIN_IMG} alt="coin" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen' }} />
+            <span className="absolute font-black text-yellow-100" style={{ fontSize: '10px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${vcVal.toFixed(2)}</span>
+          </div>
+        ) : isJP ? (
+          <div className="relative w-full h-full flex items-center justify-center">
+            <img src={JACKPOT_COINS[jpTier]} alt={jpTier} className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 6px rgba(255,210,80,0.7))' }} />
+          </div>
+        ) : (
+          <img
+            src={s.image}
+            alt={s.name}
+            className="w-full h-full object-cover"
+            draggable={false}
+            style={{ mixBlendMode: 'screen' }}
+          />
+        )}
+        {winShow && (
+          <span
+            className="absolute inset-0 pointer-events-none"
+            style={{ boxShadow: 'inset 0 0 12px rgba(255,220,120,0.8)', background: 'radial-gradient(circle at center, rgba(255,235,150,0.25), transparent 70%)' }}
+          />
+        )}
+        {showAmount != null && (
+          <span
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            style={{
+              fontFamily: 'Rye, Georgia, serif',
+              fontWeight: 400,
+              fontSize: 'clamp(11px, 3.4vw, 16px)',
+              color: '#ff1a1a',
+              textShadow: '0 0 3px #fff, 0 0 6px rgba(255,255,255,0.9), 0 1px 2px #000',
+              animation: 'saWinPop 0.35s ease-out',
+              letterSpacing: '0.5px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            ${Number(showAmount).toFixed(2)}
+          </span>
         )}
       </div>
-    );
-  }
-  // Value or Jackpot coin cell
-  const isJackpot = cell.type === 'jackpot';
-  const img = isJackpot ? JACKPOT_COINS[cell.tier] : GOLD_COIN_IMG;
-  return (
-    <div className="relative w-full h-full flex items-center justify-center overflow-hidden rounded-[2px]" style={{ border: '2px solid #d4af37', boxShadow: '0 0 10px rgba(255,210,80,0.7)', background: 'transparent' }}>
-      <img src={img} alt={isJackpot ? cell.tier : 'value'} className="w-full h-full object-cover" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 6px rgba(255,210,80,0.85))' }} />
-      <span className="absolute font-black" style={{ bottom: '2px', right: '3px', fontSize: 'clamp(8px, 2.4vw, 11px)', color: isJackpot ? '#ffd24a' : '#fff7d0', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.9)', fontFamily: 'Georgia, serif', whiteSpace: 'nowrap' }}>{(cell.mult * bet).toFixed(0)}</span>
     </div>
   );
 }
 
-function ReelColumn({ col, gridIndexBase, phase, winMask, speed, colIndex, amountCell, registerCell, bet }) {
-  const [spinStrip, setSpinStrip] = useState(() => [...col]);
+// A single reel column — wild-bounty style: continuous downward reelFall loop
+// while spinning (seamless because last block == first block, so no blur needed),
+// then a reelLand bounce when it stops.
+function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell }) {
+  // result: 3 keys (top, mid, bottom). phase: 'idle' | 'spin' | 'land'
+  const [spinStrip, setSpinStrip] = useState(() => [...result]);
+
   useEffect(() => {
     if (phase === 'spin') {
-      const keys = LINE_SYMBOLS.map(s => s.key);
-      const r = () => keys[Math.floor(Math.random() * keys.length)];
+      const r = () => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)].key;
       const b0 = [r(), r(), r()];
+      // 4 blocks of 3; last block == first block → seamless -75%→0 loop
       setSpinStrip([...b0, r(), r(), r(), r(), r(), r(), ...b0]);
     }
   }, [phase]);
 
   const showResult = phase !== 'spin';
-  const strip = showResult ? [...col] : spinStrip;
-  const anim = phase === 'spin' ? `reelFall ${speed}s linear infinite` : phase === 'land' ? 'reelLand 0.4s ease-out' : 'none';
+  const strip = showResult ? [...result] : spinStrip;
+
+  const anim =
+    phase === 'spin'
+      ? `reelFall ${speed}s linear infinite`
+      : phase === 'land'
+      ? 'reelLand 0.4s ease-out'
+      : 'none';
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3', backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-      <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto' }}>
-        {strip.map((cell, i) => {
-          const gIdx = gridIndexBase + i * 3; // row-major: col + row*3
-          return (
-            <div key={i} ref={el => registerCell(gIdx, el)} data-cc-cell={gIdx} style={{ width: '100%', aspectRatio: '1 / 1' }}>
-              <CellTile cell={showResult ? cell : (typeof cell === 'string' ? cell : 'cherry')} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i]} amount={amountCell && amountCell.col === colIndex && amountCell.row === i ? amountCell.amount : null} bet={bet} />
-            </div>
-          );
-        })}
+    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3', background: 'transparent' }}>
+      <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto', backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        {strip.map((k, i) => (
+          <div key={i} style={{ width: '100%', aspectRatio: '1 / 1' }}>
+            <Tile symKey={k} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i] && !isJackpotCoin(k)} bet={bet} amount={amountCell && amountCell.col === colIndex && amountCell.row === i ? amountCell.amount : null} />
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -93,12 +171,13 @@ function ReelColumn({ col, gridIndexBase, phase, winMask, speed, colIndex, amoun
 
 export default function CrownCoinsMachine() {
   const { balance, setBalance } = useCasinoBalance();
-  const { rtp, loading: sLoading, maxBet } = useGameSettings('crown-coins');
+  const { rtp, loading: sLoading, minBet, maxBet } = useGameSettings('crown-coins');
   const logActivity = useLogActivity();
   const { toast } = useToast();
 
+  // grid stored as 9 keys row-major; reels = 3 columns each 3 rows
   const [reels, setReels] = useState(() => [
-    ['cherry', 'bell', 'plum'],
+    ['lemon', 'bell', 'plum'],
     ['watermelon', 'bar', 'cherry'],
     ['seven', 'plum', 'orange'],
   ]);
@@ -106,329 +185,324 @@ export default function CrownCoinsMachine() {
   const [spinning, setSpinning] = useState(false);
   const [winMask, setWinMask] = useState(() => [[false, false, false], [false, false, false], [false, false, false]]);
   const [lastWin, setLastWin] = useState(0);
-  const [pendingWin, setPendingWin] = useState(0);
   const [amountCell, setAmountCell] = useState(null);
   const [bet, setBet] = useState(1);
+  const [bonus, setBonus] = useState(null);
+  const [revealStep, setRevealStep] = useState(0);
   const [showInfo, setShowInfo] = useState(false);
   const [autoSpin, setAutoSpin] = useState(false);
   const [turbo, setTurbo] = useState(false);
-
-  // Free spins / Royal Treasury
-  const [freeMode, setFreeMode] = useState(false);
-  const [freeLeft, setFreeLeft] = useState(0);
-  const [freeTotal, setFreeTotal] = useState(0);
-  const [showBanner, setShowBanner] = useState(false);
-  const [bannerWin, setBannerWin] = useState(null);
-  const [triggerGlow, setTriggerGlow] = useState(false);
-
-  // Gamble
-  const [gambleOpen, setGambleOpen] = useState(false);
-  const [gambleStake, setGambleStake] = useState(0);
-
-  // Flying coins
-  const [flies, setFlies] = useState([]);
-  const flyId = useRef(0);
-
-  const machineRef = useRef(null);
-  const crownRef = useRef(null);
-  const gridRef = useRef(null);
-  const cellEls = useRef({});
-  const registerCell = useCallback((idx, el) => { cellEls.current[idx] = el; }, []);
+  const [freeSpins, setFreeSpins] = useState(0);
+  const freeSpinsRef = useRef(0);
+  const stuckRef = useRef(new Array(9).fill(null));
+  const [stuckView, setStuckView] = useState(new Array(9).fill(null));
   const timers = useRef([]);
   const autoRef = useRef(false);
-  const freeModeRef = useRef(false);
-  const freeLeftRef = useRef(0);
-  const freeTotalRef = useRef(0);
-  const busyRef = useRef(false);
+  const reelsRef = useRef(null);
+  const bannerRef = useRef(null);
+  const [flyCoins, setFlyCoins] = useState([]);
+  const [triggerGlow, setTriggerGlow] = useState([]);
+  const [showRoyalBanner, setShowRoyalBanner] = useState(false);
+  const [royalWin, setRoyalWin] = useState(null);
 
   const clearTimers = () => { timers.current.forEach(t => clearTimeout(t)); timers.current = []; };
+
   useEffect(() => () => clearTimers(), []);
 
-  // Spawn flying coins from each landed coin cell to the crown banner.
-  const spawnFlies = useCallback((coins) => {
-    const root = machineRef.current;
-    const crown = crownRef.current;
-    if (!root || !crown || !coins.length) return;
-    const rootRect = root.getBoundingClientRect();
-    const crownRect = crown.getBoundingClientRect();
-    const targetX = crownRect.left + crownRect.width / 2 - rootRect.left;
-    const targetY = crownRect.top + crownRect.height / 2 - rootRect.top;
-    const newFlies = [];
-    coins.forEach((c, i) => {
-      const el = cellEls.current[c.cell];
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      const sx = r.left + r.width / 2 - rootRect.left;
-      const sy = r.top + r.height / 2 - rootRect.top;
-      newFlies.push({
-        id: ++flyId.current,
-        x: sx, y: sy,
-        dx: targetX - sx, dy: targetY - sy,
-        img: c.type === 'jackpot' ? JACKPOT_COINS[c.tier] : GOLD_COIN_IMG,
-        delay: i * 90,
-      });
-    });
-    if (newFlies.length) {
-      setFlies(f => [...f, ...newFlies]);
-      playCoinSound();
-      const t = setTimeout(() => {
-        setFlies(f => f.filter(fl => !newFlies.includes(fl)));
-      }, 1400 + newFlies.length * 90);
-      timers.current.push(t);
-    }
-  }, []);
-
-  const settle = useCallback((grid, { freeSpin }) => {
-    const cols = [
-      [grid[0], grid[3], grid[6]],
-      [grid[1], grid[4], grid[7]],
-      [grid[2], grid[5], grid[8]],
-    ];
-    setReels(cols);
-
-    const { lines, totalMul } = evaluateGrid(grid);
-    const lineWin = +(totalMul * (bet / 5)).toFixed(2);
-    const { coinWin, coins } = collectCoins(grid, bet);
-    const totalWin = +(lineWin + coinWin).toFixed(2);
-
-    const mask = cols.map(() => [false, false, false]);
-    lines.forEach(ln => ln.idxs.forEach(idx => {
-      const col = idx % 3, row = Math.floor(idx / 3);
-      mask[col][row] = true;
-    }));
-    setWinMask(mask);
-
-    // Credit wins
-    if (totalWin > 0) setBalance(b => +(b + totalWin).toFixed(2));
-    setLastWin(totalWin);
-
-    if (lineWin > 0 && lines.length) {
-      let first = null;
-      for (let c = 0; c < 3 && !first; c++) for (let r = 0; r < 3 && !first; r++) if (mask[c][r]) first = { col: c, row: r };
-      if (first) setAmountCell({ ...first, amount: lineWin });
-    }
-
-    // Fly value/jackpot coins to the banner (slight delay so the coin is visible first)
-    if (coins.length) {
-      const t = setTimeout(() => spawnFlies(coins), 260);
-      timers.current.push(t);
-    }
-
-    if (freeSpin) {
-      freeTotalRef.current = +(freeTotalRef.current + totalWin).toFixed(2);
-      setFreeTotal(freeTotalRef.current);
-      freeLeftRef.current -= 1;
-      setFreeLeft(freeLeftRef.current);
-      logActivity('crown-coins', 0, totalWin, totalWin > 0 ? 'win' : 'loss');
-      try { base44.analytics.track({ eventName: 'crown_coins_freespin', properties: { win: totalWin } }); } catch {}
-
-      if (freeLeftRef.current > 0) {
-        const t = setTimeout(() => runSpin(true), turbo ? 900 : 1300);
-        timers.current.push(t);
-      } else {
-        const t = setTimeout(() => {
-          setBannerWin(freeTotalRef.current);
-          setShowBanner(true);
-        }, 1500);
-        timers.current.push(t);
-      }
-      return;
-    }
-
-    // Normal spin
-    setPendingWin(lineWin); // only line wins are gambler-eligible
-    logActivity('crown-coins', bet, totalWin, totalWin > 0 ? 'win' : 'loss');
-    try { base44.analytics.track({ eventName: 'crown_coins_spin', properties: { bet, win: totalWin } }); } catch {}
-
-    if (autoRef.current) {
-      const delay = totalWin > 0 ? 1200 : 500;
-      const t = setTimeout(() => { if (autoRef.current) runSpin(false); }, delay);
-      timers.current.push(t);
-    }
-  }, [bet, rtp, turbo, setBalance, logActivity, spawnFlies]);
-
-  const runSpin = useCallback((freeSpin) => {
-    if (busyRef.current) return;
-    busyRef.current = true;
-    if (!freeSpin) {
-      if (bet <= 0) { toast({ title: 'Set a bet amount' }); busyRef.current = false; return; }
-      if (balance < bet) { toast({ title: 'Insufficient balance' }); autoRef.current = false; setAutoSpin(false); busyRef.current = false; return; }
-      setBalance(b => Math.max(0, b - bet));
+  const doSpin = useCallback(async () => {
+    if (spinning) return;
+    const isFree = freeSpinsRef.current > 0;
+    if (!isFree) {
+      if (bet <= 0) { toast({ title: 'Set a bet amount' }); return; }
+      if (balance < bet) { toast({ title: 'Insufficient balance' }); autoRef.current = false; setAutoSpin(false); return; }
     }
     setSpinning(true);
-    setWinMask([[false, false, false], [false, false, false], [false, false, false]]);
+    setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
     setLastWin(0);
     setAmountCell(null);
-    setTriggerGlow(false);
+    if (!isFree) setBalance(b => Math.max(0, b - bet));
+    if (isFree) { freeSpinsRef.current -= 1; setFreeSpins(freeSpinsRef.current); }
     clearTimers();
 
-    const grid = spinGrid(rtp, freeSpin);
+    // compute final result
+    let resultGrid;
+    if (isFree) {
+      const r = spinFreeAccum(stuckRef.current);
+      stuckRef.current = r.stuck;
+      setStuckView(r.stuck);
+      // Reels show regular symbols behind; stuck coins render via the overlay.
+      const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
+      resultGrid = r.grid.map((k, i) => (r.stuck[i] ? REG[Math.floor(Math.random() * REG.length)] : k));
+    } else {
+      resultGrid = spinGrid(rtp);
+    }
+    const cols = [
+      [resultGrid[0], resultGrid[3], resultGrid[6]],
+      [resultGrid[1], resultGrid[4], resultGrid[7]],
+      [resultGrid[2], resultGrid[5], resultGrid[8]],
+    ];
+
+    // start all reels spinning
+    setReels(cols);
+    setPhases(['spin', 'spin', 'spin']);
+
     const base = turbo ? 420 : 720;
     const step = turbo ? 160 : 260;
     const landMs = 460;
 
-    setPhases(['spin', 'spin', 'spin']);
-    [0, 1, 2].forEach((_, i) => {
-      const t = setTimeout(() => setPhases(prev => prev.map((p, idx) => (idx === i ? 'land' : p))), base + i * step);
-      timers.current.push(t);
+    // staggered land per reel
+    cols.forEach((col, i) => {
+      const t1 = setTimeout(() => {
+        setPhases(prev => prev.map((p, idx) => (idx === i ? 'land' : p)));
+      }, base + i * step);
+      timers.current.push(t1);
     });
 
+    // after the last reel lands, settle + evaluate
     const settleAt = base + 2 * step + landMs;
-    const tEnd = setTimeout(() => {
+    const tEnd = setTimeout(async () => {
       setPhases(['idle', 'idle', 'idle']);
-      busyRef.current = false;
 
-      // Bonus trigger only in base game (re-trigger inside free spins just adds spins)
-      if (!freeSpin && isBonusTrigger(grid)) {
-        const mask = [[false, false, false], [false, false, false], [false, false, false]];
-        mask[1][0] = mask[1][1] = mask[1][2] = true;
-        setWinMask(mask);
-        setTriggerGlow(true);
-        const tG = setTimeout(() => setTriggerGlow(false), 1300);
-        timers.current.push(tG);
-        // Enter Royal Treasury free spins
-        freeModeRef.current = true;
-        setFreeMode(true);
-        freeLeftRef.current = FREE_SPINS;
-        setFreeLeft(FREE_SPINS);
-        freeTotalRef.current = 0;
-        setFreeTotal(0);
-        setBannerWin(null);
-        setShowBanner(true);
+      // Free spins: coins accumulate and stick; no line wins, no flying coins.
+      if (isFree) {
+        const runningTotal = freeTotal(stuckRef.current, bet);
+        setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
+        setLastWin(runningTotal);
         setSpinning(false);
-        logActivity('crown-coins', bet, 0, 'push');
-        try { base44.analytics.track({ eventName: 'crown_coins_freespin_trigger', properties: { bet } }); } catch {}
+        logActivity('crown-coins', 0, 0, 'push');
+        try { base44.analytics.track({ eventName: 'crown_coins_free_spin', properties: { bet, stuck: runningTotal, remaining: freeSpinsRef.current } }); } catch {}
+
+        if (freeSpinsRef.current > 0) {
+          const tNext = setTimeout(() => doSpin(), 700);
+          timers.current.push(tNext);
+        } else {
+          // free spins ended — pay out accumulated total
+          const total = +runningTotal.toFixed(2);
+          if (total > 0) setBalance(b => b + total);
+          setLastWin(total);
+          stuckRef.current = new Array(9).fill(null);
+          setStuckView(new Array(9).fill(null));
+          setRoyalWin(total);
+          setShowRoyalBanner(true);
+        }
         return;
       }
 
-      // Free-spin re-trigger: award extra spins
-      if (freeSpin && isBonusTrigger(grid)) {
-        freeLeftRef.current += FREE_SPINS;
-        setFreeLeft(freeLeftRef.current);
+      const { lines, totalMul, coins, scatterMul } = evaluateGrid(resultGrid);
+      const jpPay = jackpotPayout(resultGrid, bet);
+      let win = totalMul * (bet / 5) + scatterMul * bet + jpPay;
+
+      // build win mask per reel (which rows are part of a winning line)
+      const mask = cols.map(() => [false, false, false]);
+      lines.forEach(ln => {
+        ln.idxs.forEach(idx => {
+          const col = idx % 3;
+          const row = Math.floor(idx / 3);
+          mask[col][row] = true;
+        });
+      });
+      // Free spin trigger: Crown Coin in center + value coins in both side columns.
+      let triggered = false;
+      if (!isFree && isFreeSpinTrigger(resultGrid)) {
+        triggered = true;
+        mask[1][1] = true; // center Crown Coin glows
+        [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) mask[0][Math.floor(i / 3)] = true; });
+        [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) mask[2][Math.floor(i / 3)] = true; });
+        freeSpinsRef.current = 10;
+        setFreeSpins(10);
+        const stuck = new Array(9).fill(null);
+        stuck[4] = 'coin';
+        [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) stuck[i] = resultGrid[i]; });
+        [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) stuck[i] = resultGrid[i]; });
+        stuckRef.current = stuck;
+        setStuckView(stuck);
+        const tIdxs = [4];
+        [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) tIdxs.push(i); });
+        [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) tIdxs.push(i); });
+        setTriggerGlow(tIdxs);
+        const tGlow = setTimeout(() => setTriggerGlow([]), 1300);
+        timers.current.push(tGlow);
+        setShowRoyalBanner(true);
+      }
+      setWinMask(mask);
+
+      let bonusResult = null;
+      if (coins >= 3 && !triggered) {
+        bonusResult = runBonus(bet, rtp);
+        win += bonusResult.total;
       }
 
-      settle(grid, { freeSpin });
+      if (win > 0) setBalance(b => b + win);
+      setLastWin(win);
       setSpinning(false);
+
+      // Show the win amount on the first winning symbol (red stylized font).
+      // Skip during free-spin triggers (coins stick) and bonus-only wins.
+      if (win > 0 && !triggered && lines.length > 0) {
+        let first = null;
+        for (let c = 0; c < 3 && !first; c++) {
+          for (let r = 0; r < 3 && !first; r++) {
+            if (mask[c][r]) first = { col: c, row: r };
+          }
+        }
+        if (first) setAmountCell({ ...first, amount: win });
+      }
+
+      // Value coins fly to the Crown Coins banner — visual + sound only, no balance change.
+      // Skip on a trigger spin: the trigger coins stick instead of flying away.
+      if (!triggered && reelsRef.current && bannerRef.current) {
+        const rc = reelsRef.current.getBoundingClientRect();
+        const bc = bannerRef.current.getBoundingClientRect();
+        const cellW = rc.width / 3, cellH = rc.height / 3;
+        const coins = [];
+        resultGrid.forEach((k, i) => {
+          const jp = isJackpotCoin(k);
+          if (isValueCoin(k) || jp) {
+            const col = i % 3, row = Math.floor(i / 3);
+            const fx = rc.left + (col + 0.5) * cellW;
+            const fy = rc.top + (row + 0.5) * cellH;
+            coins.push({ id: i + '-' + Date.now(), fx, fy, dx: bc.left + bc.width / 2 - fx, dy: bc.top + bc.height / 2 - fy, mult: jp ? jackpotMult(k) : valueCoinMult(k), jp: jp ? jackpotTier(k) : null });
+          }
+        });
+        if (coins.length) {
+          setFlyCoins(coins);
+          const tClear = setTimeout(() => setFlyCoins([]), 1250);
+          timers.current.push(tClear);
+        }
+      }
+      if (bonusResult) { setBonus(bonusResult); setRevealStep(0); autoRef.current = false; setAutoSpin(false); }
+      logActivity('crown-coins', bet, win, win > 0 ? 'win' : 'loss');
+      try { base44.analytics.track({ eventName: 'crown_coins_spin', properties: { bet, win: Math.round(win * 100) / 100, coins, free: isFree } }); } catch {}
+
+      if (bonusResult) {
+        // bonus modal open — pause
+      } else if (triggered) {
+        // free-spin round announced by the Royal Treasury banner —
+        // wait for the player to click it before spinning starts.
+      } else if (freeSpinsRef.current > 0) {
+        const tNext = setTimeout(() => doSpin(), 700);
+        timers.current.push(tNext);
+      } else if (autoRef.current) {
+        const tAuto = setTimeout(() => { if (autoRef.current) doSpin(); }, 500);
+        timers.current.push(tAuto);
+      }
     }, settleAt);
     timers.current.push(tEnd);
-  }, [spinning, bet, balance, rtp, turbo, setBalance, logActivity, toast, settle]);
+  }, [spinning, bet, balance, rtp, turbo, setBalance, logActivity, toast]);
 
   const toggleAuto = () => {
     const next = !autoSpin;
     setAutoSpin(next);
     autoRef.current = next;
-    if (next && !spinning && !freeMode) runSpin(false);
+    if (next && !spinning) doSpin();
   };
 
-  const continueBanner = () => {
-    if (bannerWin != null) {
-      // outro — collect, end free spins
-      setBannerWin(null);
-      setShowBanner(false);
-      freeModeRef.current = false;
-      setFreeMode(false);
-      setFreeLeft(0);
-      setFreeTotal(0);
+  const closeBonus = () => { setBonus(null); setRevealStep(0); };
+  const revealAll = () => setRevealStep(9);
+  const continueRoyalBanner = () => {
+    setShowRoyalBanner(false);
+    if (royalWin != null) {
+      setRoyalWin(null);
       if (autoRef.current) {
-        const t = setTimeout(() => { if (autoRef.current) runSpin(false); }, 400);
-        timers.current.push(t);
+        const tAuto = setTimeout(() => { if (autoRef.current) doSpin(); }, 400);
+        timers.current.push(tAuto);
       }
     } else {
-      // intro — begin free spins
-      setShowBanner(false);
-      runSpin(true);
+      doSpin();
     }
   };
 
-  const openGamble = () => {
-    if (pendingWin <= 0) return;
-    const stake = pendingWin;
-    setBalance(b => +Math.max(0, b - stake).toFixed(2));
-    setGambleStake(stake);
-    setPendingWin(0);
-    setGambleOpen(true);
-  };
-  const onGambleCollect = (amount) => { setGambleOpen(false); if (amount > 0) setBalance(b => +(b + amount).toFixed(2)); setGambleStake(0); };
-  const closeGamble = () => { setGambleOpen(false); setGambleStake(0); };
-
-  const BET_LADDER = [0.05, 0.10, 0.20, 0.30, 0.50, 0.80, 1.00, 1.50, 2.00, 3.00, 5.00, 10.00, 20.00, 50.00, 80.00, 100.00, 200.00, 500.00];
+  const BET_LADDER = [0.05, 0.10, 0.20, 0.30, 0.50, 0.80, 1.00, 1.50, 2.00, 3.00, 5.00, 10.00, 20.00, 50.00, 100.00, 200.00, 500.00];
   const stepTo = (dir) => setBet(b => {
     const cap = maxBet || 500;
     let idx = BET_LADDER.findIndex(v => Math.abs(v - b) < 0.001);
-    if (idx < 0) idx = BET_LADDER.reduce((best, v, i) => (v <= b + 0.001 ? i : best), 0);
+    if (idx < 0) {
+      // snap to nearest ladder value not exceeding current
+      idx = BET_LADDER.reduce((best, v, i) => (v <= b + 0.001 ? i : best), 0);
+    }
     const next = Math.max(0, Math.min(BET_LADDER.length - 1, idx + dir));
     let val = BET_LADDER[next];
     if (val > cap) val = BET_LADDER.filter(v => v <= cap).pop() || 0.05;
     return val;
   });
+  const decBet = () => stepTo(-1);
+  const incBet = () => stepTo(1);
 
   return (
-    <div ref={machineRef} className="relative min-h-screen overflow-hidden text-white">
+    <div className="relative min-h-screen overflow-hidden text-white">
       {DiamondBG}
-
-      {/* Flying coins layer */}
-      <div className="absolute inset-0 pointer-events-none z-40">
-        {flies.map(fl => (
-          <img
-            key={fl.id}
-            src={fl.img}
-            alt=""
-            className="absolute"
-            style={{
-              left: fl.x, top: fl.y,
-              width: '12vw', maxWidth: 48, height: '12vw', maxHeight: 48,
-              marginLeft: '-6vw', marginTop: '-6vw',
-              mixBlendMode: 'screen',
-              filter: 'drop-shadow(0 0 6px rgba(255,210,80,0.9))',
-              WebkitMaskImage: 'radial-gradient(circle at center, #000 47%, transparent 53%)',
-              maskImage: 'radial-gradient(circle at center, #000 47%, transparent 53%)',
-              ['--dx']: `${fl.dx}px`, ['--dy']: `${fl.dy}px`,
-              animation: `ccCoinFly 1.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) ${fl.delay}ms forwards`,
-            }}
-          />
-        ))}
-      </div>
 
       <div className="max-w-lg mx-auto px-3 pt-2 pb-4 flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <button onClick={() => setShowInfo(true)} className="w-7 h-7 rounded-full border border-white/70 flex items-center justify-center text-white/90 bg-black/20"><Info className="w-4 h-4" /></button>
+          <button onClick={() => setShowInfo(true)} className="w-7 h-7 rounded-full border border-white/70 flex items-center justify-center text-white/90 bg-black/20">
+            <Info className="w-4 h-4" />
+          </button>
           <span className="text-[11px] font-bold tracking-widest text-yellow-300/80" style={{ fontFamily: 'Georgia, serif' }}>CROWN COINS</span>
           <span className="w-7" />
         </div>
 
         <div className="flex items-stretch gap-2">
           <div className="flex flex-col gap-1 justify-center w-[20%]">
-            <JackpotBadge {...JACKPOTS[0]} bet={bet} />
-            <JackpotBadge {...JACKPOTS[1]} bet={bet} />
+            <JackpotBadge {...JACKPOTS[0]} />
+            <JackpotBadge {...JACKPOTS[1]} />
           </div>
-          <div className="flex-1 flex items-center justify-center">
-            <img ref={crownRef} src={CROWN_IMG} alt="Crown Coins" className="w-[78%]" style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }} />
+
+          <div ref={bannerRef} className="flex-1 flex items-center justify-center">
+            <img
+              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d353befdc_generated_image.png"
+              alt="Crown Coins"
+              className="w-[78%]"
+              style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
+            />
           </div>
+
           <div className="flex flex-col gap-1 justify-center w-[20%]">
-            <JackpotBadge {...JACKPOTS[2]} bet={bet} />
-            <JackpotBadge {...JACKPOTS[3]} bet={bet} />
+            <JackpotBadge {...JACKPOTS[2]} />
+            <JackpotBadge {...JACKPOTS[3]} />
           </div>
         </div>
 
-        {freeMode && (
-          <div className="flex items-center justify-between rounded-md px-3 py-1" style={{ border: '2px solid #d4af37', background: 'linear-gradient(to right, #2a0608, #4a0a12, #2a0608)' }}>
-            <span className="text-[11px] font-black text-yellow-300 tracking-wider" style={{ fontFamily: 'Rye, Georgia, serif' }}>ROYAL TREASURY</span>
-            <span className="text-[10px] text-yellow-100">Free Spins <b className="text-yellow-300 tabular-nums">{freeLeft}</b></span>
-            <span className="text-sm font-black text-emerald-300 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${freeTotal.toFixed(2)}</span>
-          </div>
-        )}
-
-        <div className="relative rounded-lg p-1 overflow-hidden" style={{ border: '2px solid #d4af37', boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 1px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)', background: 'linear-gradient(to bottom, #b8860b, #6b4a08)' }}>
-          <img src={MONEY_BG} alt="" className="absolute inset-0 w-full h-full object-cover rounded-md pointer-events-none" />
-          <div ref={gridRef} className="relative flex gap-0.5 rounded-md overflow-hidden">
+        <div
+          className="relative rounded-lg p-1 overflow-hidden"
+          style={{
+            border: '2px solid #d4af37',
+            boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 1px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)',
+            background: 'linear-gradient(to bottom, #b8860b, #6b4a08)',
+          }}
+        >
+          <img
+            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f28be6c98_.jpg"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover rounded-md pointer-events-none"
+            style={{ opacity: 1 }}
+          />
+          <div ref={reelsRef} className="relative flex gap-0.5 rounded-md overflow-hidden" style={{ background: 'transparent' }}>
             {reels.map((col, i) => (
-              <ReelColumn key={i} col={col} gridIndexBase={i} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} colIndex={i} amountCell={amountCell} registerCell={registerCell} bet={bet} />
+              <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} colIndex={i} amountCell={amountCell} />
             ))}
-            {triggerGlow && (
+            {stuckView.some(k => !!k) && (
+              <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-20" style={{ gap: '2px' }}>
+                {stuckView.map((k, i) => (
+                  <div key={i} className="flex items-center justify-center">
+                    {k && (
+                      <div className="relative w-full h-full flex items-center justify-center" style={{ animation: 'ccReelLand 0.45s ease-out' }}>
+                        <img src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' }} />
+                        {k !== 'coin' && (
+                          <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {triggerGlow.length > 0 && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-30" style={{ gap: '2px' }}>
                 {Array.from({ length: 9 }).map((_, i) => (
                   <div key={i} className="flex items-center justify-center">
-                    {(i === 1 || i === 4 || i === 7) && <div className="w-full h-full rounded-[2px]" style={{ animation: 'ccTriggerGlow 1.3s ease-out' }} />}
+                    {triggerGlow.includes(i) && (
+                      <div className="w-full h-full rounded-[2px]" style={{ animation: 'ccTriggerGlow 1.3s ease-out' }} />
+                    )}
                   </div>
                 ))}
               </div>
@@ -437,32 +511,62 @@ export default function CrownCoinsMachine() {
         </div>
 
         <div className="grid grid-cols-3 gap-1.5 text-center">
-          <div className="rounded-md bg-black/50 border border-yellow-700/40 py-1"><div className="text-[8px] text-yellow-300/70 font-bold tracking-wider">BET</div><div className="text-xs font-black text-white tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${bet.toFixed(2)}</div></div>
-          <div className="rounded-md bg-black/50 border border-yellow-700/40 py-1"><div className="text-[8px] text-yellow-300/70 font-bold tracking-wider">LAST WIN</div><div className={`text-xs font-black tabular-nums ${lastWin > 0 ? 'text-emerald-300' : 'text-white/60'}`} style={{ fontFamily: 'Georgia, serif' }}>${lastWin.toFixed(2)}</div></div>
-          <div className="rounded-md bg-black/50 border border-yellow-700/40 py-1"><div className="text-[8px] text-yellow-300/70 font-bold tracking-wider">FIXED LINES</div><div className="text-xs font-black text-white tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>5</div></div>
+          <div className="rounded-md bg-black/50 border border-yellow-700/40 py-1">
+            <div className="text-[8px] text-yellow-300/70 font-bold tracking-wider">BET</div>
+            <div className="text-xs font-black text-white tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${bet.toFixed(2)}</div>
+          </div>
+          <div className="rounded-md bg-black/50 border border-yellow-700/40 py-1">
+            <div className="text-[8px] text-yellow-300/70 font-bold tracking-wider">LAST WIN</div>
+            <div className={`text-xs font-black tabular-nums ${lastWin > 0 ? 'text-emerald-300' : 'text-white/60'}`} style={{ fontFamily: 'Georgia, serif' }}>${lastWin.toFixed(2)}</div>
+          </div>
+          <div className="rounded-md bg-black/50 border border-yellow-700/40 py-1">
+            <div className="text-[8px] text-yellow-300/70 font-bold tracking-wider">FIXED LINES</div>
+            <div className="text-xs font-black text-white tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>5</div>
+          </div>
         </div>
 
         <div className="flex items-center justify-between gap-2 py-1">
-          <button onClick={() => setTurbo(t => !t)} className={`w-9 h-9 rounded-full flex items-center justify-center border ${turbo ? 'border-yellow-400 text-yellow-300 bg-yellow-500/20' : 'border-white/40 text-white/80 bg-black/30'}`}><Zap className="w-5 h-5" /></button>
-          <button onClick={() => stepTo(-1)} disabled={spinning || freeMode} className="w-10 h-10 rounded-full flex items-center justify-center border border-yellow-600/60 text-yellow-200 bg-black/40 disabled:opacity-40"><Minus className="w-6 h-6" /></button>
-          <button onClick={() => runSpin(false)} disabled={spinning || sLoading || freeMode} className="relative w-16 h-16 rounded-full flex items-center justify-center disabled:opacity-60" style={{ background: 'radial-gradient(circle at center, #fff2c0 0%, #e8a93a 55%, #b8860b 100%)', boxShadow: '0 0 18px rgba(255,210,80,0.8), inset 0 2px 4px rgba(255,255,255,0.6), inset 0 0 0 2px #8a5a00' }}>
+          <button onClick={() => setTurbo(t => !t)} className={`w-9 h-9 rounded-full flex items-center justify-center border ${turbo ? 'border-yellow-400 text-yellow-300 bg-yellow-500/20' : 'border-white/40 text-white/80 bg-black/30'}`}>
+            <Zap className="w-5 h-5" />
+          </button>
+          <button onClick={decBet} disabled={spinning} className="w-10 h-10 rounded-full flex items-center justify-center border border-yellow-600/60 text-yellow-200 bg-black/40 disabled:opacity-40">
+            <Minus className="w-6 h-6" />
+          </button>
+
+          <button
+            onClick={doSpin}
+            disabled={spinning || sLoading || freeSpins > 0}
+            className="relative w-16 h-16 rounded-full flex items-center justify-center disabled:opacity-60"
+            style={{
+              background: 'radial-gradient(circle at center, #fff2c0 0%, #e8a93a 55%, #b8860b 100%)',
+              boxShadow: '0 0 18px rgba(255,210,80,0.8), inset 0 2px 4px rgba(255,255,255,0.6), inset 0 0 0 2px #8a5a00',
+            }}
+          >
             {spinning ? <RotateCw className="w-7 h-7 text-stone-900 animate-spin" /> : <Play className="w-7 h-7 text-stone-900 ml-1" />}
           </button>
-          <button onClick={() => stepTo(1)} disabled={spinning || freeMode} className="w-10 h-10 rounded-full flex items-center justify-center border border-yellow-600/60 text-yellow-200 bg-black/40 disabled:opacity-40"><Plus className="w-6 h-6" /></button>
-          <button onClick={toggleAuto} disabled={freeMode} className={`w-9 h-9 rounded-full flex items-center justify-center border disabled:opacity-40 ${autoSpin ? 'border-yellow-400 text-yellow-300 bg-yellow-500/20' : 'border-white/40 text-white/80 bg-black/30'}`}><RotateCw className="w-5 h-5" /></button>
-        </div>
 
-        <div className="flex items-center justify-between px-1">
-          <button onClick={openGamble} disabled={spinning || pendingWin <= 0 || freeMode} className="px-3 py-1.5 rounded-md border border-yellow-600/60 text-yellow-100 text-xs font-bold italic disabled:opacity-40 flex items-center gap-1" style={{ fontFamily: 'Georgia, serif', background: 'rgba(0,0,0,0.4)' }}><Spade className="w-3.5 h-3.5" /> Risk ${pendingWin.toFixed(2)}</button>
-          <p className="text-center text-[10px] font-bold tracking-widest text-yellow-200/80">{freeMode ? 'FREE SPINS' : spinning ? 'GOOD LUCK!' : (pendingWin > 0 ? 'WIN — RISK OR SPIN' : 'PLACE YOUR BET')}</p>
-          <span className="w-[88px]" />
+          <button onClick={incBet} disabled={spinning} className="w-10 h-10 rounded-full flex items-center justify-center border border-yellow-600/60 text-yellow-200 bg-black/40 disabled:opacity-40">
+            <Plus className="w-6 h-6" />
+          </button>
+          <button onClick={toggleAuto} className={`w-9 h-9 rounded-full flex items-center justify-center border ${autoSpin ? 'border-yellow-400 text-yellow-300 bg-yellow-500/20' : 'border-white/40 text-white/80 bg-black/30'}`}>
+            <RotateCw className="w-5 h-5" />
+          </button>
         </div>
+        <p className="text-center text-[10px] font-bold tracking-widest text-yellow-200/80">{freeSpins > 0 ? `FREE SPINS: ${freeSpins}` : (spinning ? 'GOOD LUCK!' : 'PLACE YOUR BET')}</p>
 
         <div className="flex items-center justify-between px-1">
           <button className="w-8 h-8 flex items-center justify-center text-white/80"><Menu className="w-5 h-5" /></button>
-          <div className="flex flex-col items-center"><span className="text-[8px] text-yellow-300/70 font-bold tracking-wider">BALANCE</span><span className="text-sm font-black text-yellow-200 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${balance.toFixed(2)}</span></div>
-          <div className="flex flex-col items-center"><span className="text-[8px] text-yellow-300/70 font-bold tracking-wider">CURRENCY</span><span className="text-xs font-black text-white" style={{ fontFamily: 'Georgia, serif' }}>USD</span></div>
-          <button className="w-8 h-8 rounded-full flex items-center justify-center border border-yellow-600/50 text-yellow-200 bg-black/40"><DollarSign className="w-4 h-4" /></button>
+          <div className="flex flex-col items-center">
+            <span className="text-[8px] text-yellow-300/70 font-bold tracking-wider">BALANCE</span>
+            <span className="text-sm font-black text-yellow-200 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${balance.toFixed(2)}</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-[8px] text-yellow-300/70 font-bold tracking-wider">CURRENCY</span>
+            <span className="text-xs font-black text-white" style={{ fontFamily: 'Georgia, serif' }}>USD</span>
+          </div>
+          <button className="w-8 h-8 rounded-full flex items-center justify-center border border-yellow-600/50 text-yellow-200 bg-black/40">
+            <DollarSign className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
@@ -475,28 +579,98 @@ export default function CrownCoinsMachine() {
               {SYMBOLS.map(s => (
                 <div key={s.key} className="flex items-center gap-2 rounded-md p-1.5" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(212,175,55,0.3)' }}>
                   <img src={s.image} alt={s.name} className="w-9 h-9 object-cover rounded" />
-                  <div className="flex flex-col"><span className="text-[11px] font-bold text-yellow-100" style={{ fontFamily: 'Georgia, serif' }}>{s.name}</span><span className="text-[10px] text-yellow-300/80" style={{ fontFamily: 'Georgia, serif' }}>{s.special ? '3 on reel 2 → 10 free spins' : s.wild ? `${s.pay}× bet · Wild` : `${s.pay}× line`}</span></div>
+                  <div className="flex flex-col">
+                    <span className="text-[11px] font-bold text-yellow-100" style={{ fontFamily: 'Georgia, serif' }}>{s.name}</span>
+                    <span className="text-[10px] text-yellow-300/80" style={{ fontFamily: 'Georgia, serif' }}>{s.bonus ? '3+ → Royal Treasury' : `${s.pay}× line`}</span>
+                  </div>
                 </div>
               ))}
             </div>
             <div className="mt-3">
-              <div className="text-[11px] font-black text-yellow-300 mb-1.5 tracking-wider" style={{ fontFamily: 'Rye, Georgia, serif' }}>JACKPOT COINS (reels 1 & 3)</div>
+              <div className="text-[11px] font-black text-yellow-300 mb-1.5 tracking-wider" style={{ fontFamily: 'Rye, Georgia, serif' }}>JACKPOT COINS</div>
               <div className="grid grid-cols-2 gap-1.5">
-                {JACKPOTS.map(j => (
+                {[{tier:'MIN',mult:25},{tier:'MID',mult:50},{tier:'MAX',mult:150},{tier:'ULTRA',mult:1000}].map(j => (
                   <div key={j.tier} className="flex items-center gap-2 rounded-md p-1.5" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(212,175,55,0.3)' }}>
-                    <span className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-black text-white" style={{ background: j.color }}>{j.tier[0]}</span>
-                    <span className="text-[11px] font-black text-yellow-100" style={{ fontFamily: 'Georgia, serif' }}>{j.tier} · {j.mult}× bet</span>
+                    <img src={JACKPOT_COINS[j.tier]} alt={j.tier} className="w-9 h-9 object-contain" style={{ mixBlendMode: 'screen' }} />
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-bold text-yellow-100" style={{ fontFamily: 'Georgia, serif' }}>{j.tier}</span>
+                      <span className="text-[10px] text-yellow-300/80" style={{ fontFamily: 'Georgia, serif' }}>{j.mult}× bet</span>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
-            <p className="mt-3 text-[10px] text-yellow-200/70 italic text-center">Value Coins fly to the Crown & pay · 3 Crown Coins on reel 2 trigger Royal Treasury (10 free spins) · Risk game doubles line wins up to 10×</p>
+            <p className="mt-3 text-[10px] text-yellow-200/70 italic text-center">5 fixed lines · 3-of-a-kind pays · 3+ Crown Coins trigger the Royal Treasury bonus</p>
           </div>
         </div>
       )}
 
-      {showBanner && <RoyalTreasuryBanner onContinue={continueBanner} winAmount={bannerWin} />}
-      {gambleOpen && <GambleGame stake={gambleStake} onCollect={onGambleCollect} onClose={closeGamble} />}
+      {bonus && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-xl p-4 relative" style={{ border: '3px solid #d4af37', background: 'linear-gradient(to bottom, #2a0608, #140204)' }}>
+            <button onClick={closeBonus} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 border border-yellow-700/50 flex items-center justify-center text-yellow-100"><X className="w-4 h-4" /></button>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Crown className="w-5 h-5 text-amber-300" />
+              <h3 className="text-lg font-black text-yellow-300" style={{ fontFamily: 'Rye, Georgia, serif' }}>Royal Treasury</h3>
+              <Crown className="w-5 h-5 text-amber-300" />
+            </div>
+            <p className="text-center text-[10px] text-yellow-200/70 italic mb-3">{bonus.royal ? 'Royal Coin ×1.5 boost active!' : 'Tap coins to reveal the treasury'}</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {bonus.cells.map((cell, i) => {
+                const revealed = revealStep > i;
+                const isJackpot = cell.type === 'jackpot';
+                const isRoyal = i >= 6;
+                const coinImg = isJackpot ? JACKPOT_COINS[cell.tier] : VALUE_COIN_IMG;
+                const val = cellValue(cell, bet);
+                return (
+                  <div
+                    key={i}
+                    onClick={() => setRevealStep(s => Math.max(s, i + 1))}
+                    className="aspect-square flex items-center justify-center rounded-md cursor-pointer relative overflow-hidden"
+                    style={{
+                      border: `2px solid ${revealed ? (isJackpot ? '#ffd24a' : isRoyal ? '#e8c873' : '#d4af37') : 'rgba(190,140,55,0.35)'}`,
+                      background: revealed ? (isJackpot ? 'linear-gradient(135deg,#7a0e1c,#2a0408)' : isRoyal ? 'linear-gradient(135deg,#7a5210,#2a1a06)' : 'linear-gradient(135deg,#4a3416,#211608)') : 'rgba(0,0,0,0.4)',
+                      boxShadow: revealed && (isJackpot || isRoyal) ? '0 0 12px rgba(255,210,80,0.75)' : revealed ? '0 0 8px rgba(255,210,80,0.5)' : 'none',
+                    }}
+                  >
+                    {revealed ? (
+                      <div className="relative flex flex-col items-center justify-center w-full h-full">
+                        <img src={coinImg} alt={isJackpot ? cell.tier : 'coin'} className="w-12 h-12 object-contain" style={{ mixBlendMode: 'screen' }} />
+                        {isJackpot ? (
+                          <span className="text-[10px] font-black text-yellow-300 mt-0.5" style={{ fontFamily: 'Rye, Georgia, serif' }}>{cell.tier}</span>
+                        ) : (
+                          <span className="text-[11px] font-black text-yellow-100 -mt-1" style={{ fontFamily: 'Georgia, serif' }}>${val.toFixed(2)}</span>
+                        )}
+                      </div>
+                    ) : (
+                      <img src={VALUE_COIN_IMG} alt="?" className="w-12 h-12 object-contain opacity-30" style={{ mixBlendMode: 'screen' }} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-3 flex items-center justify-between gap-2">
+              <button onClick={revealAll} className="px-3 py-1.5 rounded-md border border-yellow-700/50 text-yellow-100 text-xs font-bold italic" style={{ fontFamily: 'Georgia, serif', background: 'rgba(0,0,0,0.4)' }}>Reveal All</button>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-yellow-200/70 italic" style={{ fontFamily: 'Georgia, serif' }}>Total</span>
+                <span className="text-xl font-black text-emerald-300 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${bonus.total.toFixed(2)}</span>
+              </div>
+            </div>
+            <button onClick={closeBonus} className="mt-3 w-full py-2 rounded-lg text-stone-950 font-black italic" style={{ fontFamily: 'Georgia, serif', background: 'linear-gradient(to bottom,#f5d590,#e8a93a)' }}>Collect</button>
+          </div>
+        </div>
+      )}
+
+      {showRoyalBanner && <RoyalTreasuryBanner onContinue={continueRoyalBanner} winAmount={royalWin} />}
+
+      {flyCoins.map(c => (
+        <div key={c.id} className="absolute pointer-events-none" style={{ left: c.fx, top: c.fy, animation: 'ccCoinFly 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}>
+          <div className="relative w-9 h-9 flex items-center justify-center">
+            <img src={c.jp ? JACKPOT_COINS[c.jp] : VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" style={c.jp ? { mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.9))' } : { WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain' }} />
+            <span className="absolute font-black text-yellow-100" style={{ fontSize: '8px', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}>${(c.mult * bet).toFixed(2)}</span>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
