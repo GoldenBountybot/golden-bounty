@@ -137,7 +137,7 @@ export default function Profile() {
 
       <main className="relative z-10 max-w-md mx-auto px-4 py-4 flex flex-col gap-3">
         {/* Identity + uid + VIP */}
-        <WesternFrame glow className="p-3 flex flex-col items-center gap-1.5">
+        <WesternFrame glow variant="glass" className="p-3 flex flex-col items-center gap-1.5">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-md">
             <UserIcon className="w-5 h-5 text-stone-950" />
           </div>
@@ -163,8 +163,8 @@ export default function Profile() {
           <div
             className="w-full mt-1.5 px-2.5 py-1.5 rounded-md flex items-center justify-between gap-2"
             style={{
-              border: '1px solid rgba(245,210,120,0.7)',
-              background: 'linear-gradient(to bottom, rgba(58,40,18,0.6), rgba(26,18,9,0.7))',
+              border: '1px solid rgba(245,210,120,0.5)',
+              background: 'rgba(20,14,8,0.25)',
             }}
           >
             <div className="flex items-center gap-1.5 min-w-0">
@@ -196,7 +196,7 @@ export default function Profile() {
         </WesternFrame>
 
         {/* Edit profile */}
-        <WesternFrame className="p-2 flex flex-col gap-1.5">
+        <WesternFrame variant="glass" className="p-2 flex flex-col gap-1.5">
           <div className="space-y-0.5">
             <label className="text-[8px] tracking-widest uppercase text-amber-300 font-bold" style={{ fontFamily: 'Rye, Georgia, serif' }}>Username</label>
             <input
@@ -257,7 +257,7 @@ export default function Profile() {
 
         {tab === 'wallet' && (
           <div className="flex flex-col gap-2.5">
-            <WesternFrame className="p-2.5 flex items-center gap-2">
+            <WesternFrame variant="glass" className="p-2.5 flex items-center gap-2">
               <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: 'rgba(245,197,66,0.18)' }}>
                 <Wallet className="w-3.5 h-3.5 text-amber-300" />
               </div>
@@ -281,7 +281,7 @@ export default function Profile() {
                 const m = TX_META[t.type] || TX_META.adjustment;
                 const Icon = m.icon;
                 return (
-                  <WesternFrame key={t.id} className="p-2 flex items-center gap-2">
+                  <WesternFrame key={t.id} variant="glass" className="p-2 flex items-center gap-2">
                     <div className="w-6 h-6 rounded-md bg-black/40 flex items-center justify-center shrink-0">
                       <Icon className={`w-3 h-3 ${m.color}`} />
                     </div>
@@ -309,7 +309,7 @@ export default function Profile() {
               <p className="text-amber-100/50 text-[11px] italic">No games played yet.</p>
             ) : (
               activity.map((a) => (
-                <WesternFrame key={a.id} className="p-2 flex items-center gap-2">
+                <WesternFrame key={a.id} variant="glass" className="p-2 flex items-center gap-2">
                   <div className="w-6 h-6 rounded-md bg-black/40 flex items-center justify-center shrink-0">
                     <Gamepad2 className="w-3 h-3 text-amber-300" />
                   </div>
