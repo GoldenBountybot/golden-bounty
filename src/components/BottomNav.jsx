@@ -23,12 +23,7 @@ export default function BottomNav() {
   );
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-30"
-      style={{
-        background: 'linear-gradient(to bottom, rgba(38,26,12,0.97), rgba(18,12,6,0.98))',
-        borderTop: '2px solid rgba(190,140,55,0.8)',
-        boxShadow: '0 -6px 18px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,210,120,0.25)',
-      }}>
+    <div className="fixed bottom-0 inset-x-0 z-30">
       <div className="max-w-6xl mx-auto px-3 py-2.5 grid grid-cols-5 gap-2 items-center">
         <Tile to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
         <Tile to="/dashboard?tab=stack" icon={Layers} label="Stack" />
