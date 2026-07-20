@@ -131,16 +131,9 @@ function ReelColumn({ result, phase, winMask, speed, bet }) {
 
   return (
     <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3.4', background: 'transparent' }}>
-      <div className="relative flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto' }}>
-        <img
-          src={MONEY_BG}
-          alt=""
-          draggable={false}
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{ zIndex: 0 }}
-        />
+      <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto', backgroundImage: `url(${MONEY_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {strip.map((k, i) => (
-          <div key={i} style={{ width: '100%', aspectRatio: '1 / 1', position: 'relative', zIndex: 1 }}>
+          <div key={i} style={{ width: '100%', aspectRatio: '1 / 1' }}>
             <Tile symKey={k} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i]} bet={bet} />
           </div>
         ))}
