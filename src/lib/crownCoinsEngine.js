@@ -15,6 +15,11 @@ export function valueCoinMult(key) { return Number(String(key).slice(2)) || 0; }
 export function isJackpotCoin(cell) {
   return !!cell && cell.type === 'jackpot';
 }
+// Fixed dollar amount for a jackpot tier — kept for legacy imports.
+export function jackpotMult(tier) {
+  const j = JACKPOTS.find(x => x.tier === tier);
+  return j ? j.amount : 0;
+}
 export const JACKPOT_COINS = {
   MIN: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f672115c5_generated_image.png',
   MID: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/462282802_generated_image.png',
