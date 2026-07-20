@@ -242,7 +242,7 @@ export default function CrownCoinsMachine() {
     <div className="relative min-h-screen overflow-hidden text-white">
       {DiamondBG}
 
-      <div className="max-w-md mx-auto px-3 pt-2 pb-4 flex flex-col gap-2">
+      <div className="max-w-lg mx-auto px-3 pt-2 pb-4 flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <button onClick={() => setShowInfo(true)} className="w-7 h-7 rounded-full border border-white/70 flex items-center justify-center text-white/90 bg-black/20">
             <Info className="w-4 h-4" />
@@ -252,7 +252,7 @@ export default function CrownCoinsMachine() {
         </div>
 
         <div className="flex items-stretch gap-2">
-          <div className="flex flex-col gap-1 justify-center w-[24%]">
+          <div className="flex flex-col gap-1 justify-center w-[20%]">
             <JackpotBadge {...JACKPOTS[0]} />
             <JackpotBadge {...JACKPOTS[1]} />
           </div>
@@ -266,7 +266,7 @@ export default function CrownCoinsMachine() {
             />
           </div>
 
-          <div className="flex flex-col gap-1 justify-center w-[24%]">
+          <div className="flex flex-col gap-1 justify-center w-[20%]">
             <JackpotBadge {...JACKPOTS[2]} />
             <JackpotBadge {...JACKPOTS[3]} />
           </div>
