@@ -71,6 +71,16 @@ export function spinGrid(rtp = 50) {
   const pick = () => strip[Math.floor(Math.random() * strip.length)];
   const grid = Array.from({ length: 9 }, () => pick());
 
+  // Crown Coin always lands in the center cell (middle row, middle column).
+  grid[4] = 'coin';
+  // Value Coins only fall on the two side columns (0 and 2); clear any
+  // value coin that landed in the center column (indices 1 and 7).
+  [1, 7].forEach(i => {
+    if (isValueCoin(grid[i])) {
+      grid[i] = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'][Math.floor(Math.random() * 9)];
+    }
+  });
+
   // RTP gate: with probability (1 - rtp/100) force a losing board by
   // making sure no line completes 3-of-a-kind.
   const forceLoss = Math.random() * 100 > rtp;
