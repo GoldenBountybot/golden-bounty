@@ -1,95 +1,166 @@
 import React from 'react';
+import { Crown } from 'lucide-react';
 
-// Royal Treasury stage banner shown before the free-spin round starts.
-// Organic Glass Frost design: frosted-glass container over a soft mint/cream
-// organic gradient, centered geometric sans-serif headline + instruction.
-const FROST_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4f6fbac54_generated_image.png';
+// Royal Treasury stage banner — premium western design.
+// Dark wood plank backdrop with gold trim, embossed gilt headline,
+// and a studded leather frame. Shown both before the free-spin round
+// (no amount) and after it ends (with the won amount).
+const PLANK_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f28be6c98_.jpg';
 
 export default function RoyalTreasuryBanner({ onContinue, winAmount }) {
+  const isWin = winAmount != null;
   return (
     <div
       onClick={onContinue}
       className="fixed inset-0 z-[60] flex items-center justify-center cursor-pointer"
-      style={{ background: 'rgba(20, 24, 20, 0.45)', backdropFilter: 'blur(6px)' }}
+      style={{ background: 'rgba(8,4,2,0.78)', backdropFilter: 'blur(4px)' }}
     >
       <div
-        className="relative w-full max-w-lg mx-5 overflow-hidden"
+        className="relative w-full max-w-md mx-5 overflow-hidden"
         style={{
-          borderRadius: '28px',
-          background: `url(${FROST_BG}) center / cover no-repeat`,
-          boxShadow: '0 18px 48px rgba(20,40,30,0.28)',
+          borderRadius: '14px',
+          border: '3px solid #d4af37',
+          boxShadow:
+            '0 0 0 2px #6b4a08, 0 18px 44px rgba(0,0,0,0.7), inset 0 0 0 6px rgba(0,0,0,0.45), inset 0 2px 10px rgba(255,220,120,0.22)',
+          background: `linear-gradient(rgba(40,22,6,0.82), rgba(20,10,2,0.92)), url(${PLANK_BG}) center / cover`,
         }}
       >
-        {/* Frosted glass overlay */}
+        {/* Stud corner rivets */}
+        {[
+          { top: 8, left: 8 },
+          { top: 8, right: 8 },
+          { bottom: 8, left: 8 },
+          { bottom: 8, right: 8 },
+        ].map((p, i) => (
+          <span
+            key={i}
+            className="absolute w-3 h-3 rounded-full"
+            style={{
+              ...p,
+              background: 'radial-gradient(circle at 35% 30%, #ffe9a8, #b8860b 60%, #5a3a06)',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.6), inset 0 0 0 1px #3a2400',
+            }}
+          />
+        ))}
+
+        {/* Inner gilt frame line */}
         <div
-          className="relative px-10 py-16 flex flex-col items-center justify-center text-center"
-          style={{
-            background: 'rgba(245, 250, 240, 0.28)',
-            backdropFilter: 'blur(14px)',
-            WebkitBackdropFilter: 'blur(14px)',
-            borderRadius: '28px',
-            border: '1px solid rgba(255,255,255,0.55)',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)',
-          }}
-        >
+          className="absolute inset-2 pointer-events-none"
+          style={{ border: '1px solid rgba(212,175,55,0.55)', borderRadius: '8px' }}
+        />
+
+        <div className="relative px-8 py-10 flex flex-col items-center justify-center text-center">
+          {/* Crown crest */}
+          <div
+            className="flex items-center justify-center w-14 h-14 rounded-full mb-3"
+            style={{
+              border: '2px solid #d4af37',
+              background: 'radial-gradient(circle at 40% 30%, #2a0608, #140204)',
+              boxShadow: '0 0 16px rgba(255,200,80,0.55), inset 0 0 8px rgba(255,200,80,0.35)',
+            }}
+          >
+            <Crown className="w-7 h-7 text-amber-300" style={{ filter: 'drop-shadow(0 0 4px rgba(255,200,80,0.7))' }} />
+          </div>
+
           {/* Headline */}
-          {winAmount != null ? (
+          {isWin ? (
             <span
-              className="block leading-tight tracking-wide"
+              className="block leading-tight tracking-[0.18em]"
               style={{
-                fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-                fontWeight: 600,
-                fontSize: 'clamp(16px, 4.8vw, 22px)',
-                color: '#000000',
+                fontFamily: 'Rye, Georgia, serif',
+                fontSize: 'clamp(15px, 4.4vw, 20px)',
+                color: '#f5d590',
+                textShadow: '0 1px 0 #6b4a08, 0 2px 3px rgba(0,0,0,0.85), 0 0 10px rgba(255,200,80,0.4)',
               }}
             >
-              BONUS GAME WINNINGS
+              ROYAL TREASURY
             </span>
           ) : (
             <span
-              className="block leading-tight tracking-wide"
+              className="block leading-tight tracking-[0.16em]"
               style={{
-                fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-                fontWeight: 600,
-                fontSize: 'clamp(18px, 5.4vw, 26px)',
-                color: '#000000',
+                fontFamily: 'Rye, Georgia, serif',
+                fontSize: 'clamp(20px, 6vw, 30px)',
+                color: '#f5d590',
+                textShadow: '0 1px 0 #6b4a08, 0 2px 4px rgba(0,0,0,0.9), 0 0 14px rgba(255,200,80,0.45)',
               }}
             >
-              YOU WON THE ROYAL TREASURY BONUS GAME!
+              ROYAL TREASURY
             </span>
           )}
 
-          {/* Win amount */}
-          {winAmount != null && (
+          {/* Subline */}
+          {isWin ? (
             <span
-              className="block tabular-nums"
+              className="block mt-1"
               style={{
-                fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-                fontWeight: 700,
-                fontSize: 'clamp(34px, 10vw, 52px)',
-                color: '#1f7a3a',
-                marginTop: '8px',
+                fontFamily: 'Smokum, Rye, Georgia, serif',
+                fontSize: 'clamp(16px, 5vw, 22px)',
+                color: '#ffe9a8',
+                letterSpacing: '0.05em',
+                textShadow: '0 1px 2px rgba(0,0,0,0.8)',
               }}
             >
-              ${Number(winAmount).toFixed(2)}
+              Your Bounty
+            </span>
+          ) : (
+            <span
+              className="block mt-1 max-w-[18rem]"
+              style={{
+                fontFamily: 'Smokum, Rye, Georgia, serif',
+                fontSize: 'clamp(13px, 3.6vw, 16px)',
+                color: '#e8c873',
+                letterSpacing: '0.04em',
+                textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+              }}
+            >
+              10 free spins await — claim the crown's hoard
             </span>
           )}
 
-          {/* Noticeable gap */}
-          <div style={{ height: '28px' }} />
+          {/* Win amount plaque */}
+          {isWin && (
+            <div
+              className="mt-4 px-8 py-3 rounded-md"
+              style={{
+                border: '2px solid #d4af37',
+                background: 'linear-gradient(to bottom, #2a0608, #140204)',
+                boxShadow: 'inset 0 2px 6px rgba(255,220,120,0.25), 0 4px 12px rgba(0,0,0,0.5)',
+              }}
+            >
+              <span
+                className="block tabular-nums"
+                style={{
+                  fontFamily: 'Rye, Georgia, serif',
+                  fontSize: 'clamp(34px, 11vw, 54px)',
+                  color: '#ffd24a',
+                  textShadow: '0 1px 0 #6b4a08, 0 2px 4px rgba(0,0,0,0.9), 0 0 16px rgba(255,200,80,0.6)',
+                }}
+              >
+                ${Number(winAmount).toFixed(2)}
+              </span>
+            </div>
+          )}
+
+          {/* Decorative bullet divider */}
+          <div className="flex items-center gap-2 my-5 w-full max-w-[16rem]">
+            <span className="flex-1 h-px" style={{ background: 'linear-gradient(to right, transparent, #d4af37, transparent)' }} />
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#d4af37' }} />
+            <span className="flex-1 h-px" style={{ background: 'linear-gradient(to right, transparent, #d4af37, transparent)' }} />
+          </div>
 
           {/* Instruction */}
           <span
-            className="inline-block tracking-wide"
+            className="inline-block tracking-[0.2em]"
             style={{
-              fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-              fontWeight: 600,
+              fontFamily: 'Smokum, Rye, Georgia, serif',
               fontSize: 'clamp(12px, 3.4vw, 15px)',
-              color: '#000000',
+              color: '#f5d590',
               animation: 'ccPulse 1.6s ease-in-out infinite',
+              textShadow: '0 1px 2px rgba(0,0,0,0.8)',
             }}
           >
-            PRESS ANYWHERE TO CONTINUE
+            {isWin ? 'TAP TO COLLECT' : 'TAP TO BEGIN'}
           </span>
         </div>
       </div>
