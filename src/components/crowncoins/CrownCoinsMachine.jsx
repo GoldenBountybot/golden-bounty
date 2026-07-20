@@ -25,7 +25,7 @@ const DiamondBG = (
 function JackpotBadge({ tier, amount, color }) {
   return (
     <div
-      className="flex flex-col items-center justify-center rounded-lg px-2 py-1"
+      className="flex flex-col items-center justify-center rounded-lg px-2 py-1 w-full"
       style={{
         border: '2px solid #d4af37',
         background: `linear-gradient(to bottom, ${color}, rgba(0,0,0,0.5))`,
@@ -34,6 +34,42 @@ function JackpotBadge({ tier, amount, color }) {
     >
       <span className="text-[9px] font-black tracking-wider text-yellow-300" style={{ fontFamily: 'Georgia, serif' }}>{tier}</span>
       <span className="text-[11px] font-black text-white tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${amount.toFixed(2)}</span>
+    </div>
+  );
+}
+
+// A small pile of stacked golden crown-coins for the header centerpiece.
+function CoinPile() {
+  const coin = symbolByKey('coin').image;
+  const stack = [
+    { l: '6%',  b: '0%',  z: 1, r: -4 },
+    { l: '40%', b: '0%',  z: 1, r: 5 },
+    { l: '23%', b: '22%', z: 2, r: -2 },
+    { l: '4%',  b: '44%', z: 3, r: 3 },
+    { l: '44%', b: '44%', z: 3, r: -5 },
+    { l: '24%', b: '66%', z: 4, r: 2 },
+  ];
+  return (
+    <div className="relative" style={{ width: 78, height: 86 }}>
+      {stack.map((c, i) => (
+        <img
+          key={i}
+          src={coin}
+          alt="crown coin"
+          className="absolute"
+          style={{
+            left: c.l,
+            bottom: c.b,
+            zIndex: c.z,
+            width: 30,
+            height: 30,
+            borderRadius: '50%',
+            transform: `rotate(${c.r}deg)`,
+            boxShadow: '0 2px 3px rgba(0,0,0,0.55), inset 0 1px 1px rgba(255,255,255,0.4)',
+            filter: 'drop-shadow(0 0 4px rgba(255,200,80,0.5))',
+          }}
+        />
+      ))}
     </div>
   );
 }
@@ -237,23 +273,31 @@ export default function CrownCoinsMachine() {
           <span className="w-7" />
         </div>
 
-        <div className="grid grid-cols-4 gap-1.5">
-          {JACKPOTS.map(j => <JackpotBadge key={j.tier} {...j} />)}
-        </div>
+        <div className="flex items-stretch gap-2">
+          <div className="flex flex-col gap-1 justify-center w-[26%]">
+            <JackpotBadge {...JACKPOTS[0]} />
+            <JackpotBadge {...JACKPOTS[1]} />
+          </div>
 
-        <div className="relative flex items-center justify-center py-1">
-          <Crown className="w-5 h-5 text-yellow-400 absolute -top-1 left-1/2 -translate-x-1/2" />
-          <h1
-            className="text-3xl font-black tracking-wide italic"
-            style={{
-              fontFamily: 'Rye, Georgia, serif',
-              color: '#ffd24a',
-              textShadow: '0 2px 0 #8a5a00, 0 3px 6px rgba(0,0,0,0.7), 0 0 14px rgba(255,200,80,0.5)',
-              WebkitTextStroke: '1px #b8860b',
-            }}
-          >
-            CROWN COINS
-          </h1>
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <CoinPile />
+            <h1
+              className="text-xl font-black tracking-wide italic leading-none mt-1"
+              style={{
+                fontFamily: 'Rye, Georgia, serif',
+                color: '#ffd24a',
+                textShadow: '0 2px 0 #8a5a00, 0 3px 6px rgba(0,0,0,0.7), 0 0 14px rgba(255,200,80,0.5)',
+                WebkitTextStroke: '1px #b8860b',
+              }}
+            >
+              CROWN COINS
+            </h1>
+          </div>
+
+          <div className="flex flex-col gap-1 justify-center w-[26%]">
+            <JackpotBadge {...JACKPOTS[2]} />
+            <JackpotBadge {...JACKPOTS[3]} />
+          </div>
         </div>
 
         <div
