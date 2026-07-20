@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { useToast } from '@/components/ui/use-toast';
-import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeGrid } from '@/lib/crownCoinsEngine';
+import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
 import { playCoinSound } from '@/lib/crownCoinsSound';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
@@ -166,6 +166,8 @@ export default function CrownCoinsMachine() {
   const [turbo, setTurbo] = useState(false);
   const [freeSpins, setFreeSpins] = useState(0);
   const freeSpinsRef = useRef(0);
+  const stuckRef = useRef(new Array(9).fill(null));
+  const [stuckView, setStuckView] = useState(new Array(9).fill(null));
   const timers = useRef([]);
   const autoRef = useRef(false);
   const reelsRef = useRef(null);
@@ -191,7 +193,17 @@ export default function CrownCoinsMachine() {
     clearTimers();
 
     // compute final result
-    const resultGrid = isFree ? spinFreeGrid() : spinGrid(rtp); // 9 keys row-major
+    let resultGrid;
+    if (isFree) {
+      const r = spinFreeAccum(stuckRef.current);
+      stuckRef.current = r.stuck;
+      setStuckView(r.stuck);
+      // Reels show regular symbols behind; stuck coins render via the overlay.
+      const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
+      resultGrid = r.grid.map((k, i) => (r.stuck[i] ? REG[Math.floor(Math.random() * REG.length)] : k));
+    } else {
+      resultGrid = spinGrid(rtp);
+    }
     const cols = [
       [resultGrid[0], resultGrid[3], resultGrid[6]],
       [resultGrid[1], resultGrid[4], resultGrid[7]],
@@ -219,6 +231,34 @@ export default function CrownCoinsMachine() {
     const tEnd = setTimeout(async () => {
       setPhases(['idle', 'idle', 'idle']);
 
+      // Free spins: coins accumulate and stick; no line wins, no flying coins.
+      if (isFree) {
+        const runningTotal = freeTotal(stuckRef.current, bet);
+        setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
+        setLastWin(runningTotal);
+        setSpinning(false);
+        logActivity('crown-coins', 0, 0, 'push');
+        try { base44.analytics.track({ eventName: 'crown_coins_free_spin', properties: { bet, stuck: runningTotal, remaining: freeSpinsRef.current } }); } catch {}
+
+        if (freeSpinsRef.current > 0) {
+          const tNext = setTimeout(() => doSpin(), 700);
+          timers.current.push(tNext);
+        } else {
+          // free spins ended — pay out accumulated total
+          const total = +runningTotal.toFixed(2);
+          if (total > 0) setBalance(b => b + total);
+          setLastWin(total);
+          toast({ title: 'Free Spins Complete!', description: `Collected $${total.toFixed(2)}` });
+          stuckRef.current = new Array(9).fill(null);
+          setStuckView(new Array(9).fill(null));
+          if (autoRef.current) {
+            const tAuto = setTimeout(() => { if (autoRef.current) doSpin(); }, 900);
+            timers.current.push(tAuto);
+          }
+        }
+        return;
+      }
+
       const { lines, totalMul, coins, scatterMul } = evaluateGrid(resultGrid);
       let win = totalMul * (bet / 5) + scatterMul * bet;
 
@@ -240,7 +280,9 @@ export default function CrownCoinsMachine() {
         [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) mask[2][Math.floor(i / 3)] = true; });
         freeSpinsRef.current = 10;
         setFreeSpins(10);
-        toast({ title: 'Crown Coin Bonus!', description: '10 Free Spins — only Value Coins!' });
+        stuckRef.current = new Array(9).fill(null);
+        setStuckView(new Array(9).fill(null));
+        toast({ title: 'Crown Coin Bonus!', description: '10 Free Spins — Value Coins stick!' });
       }
       setWinMask(mask);
 
@@ -371,6 +413,20 @@ export default function CrownCoinsMachine() {
             {reels.map((col, i) => (
               <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} />
             ))}
+            {stuckView.some(k => !!k) && (
+              <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-20" style={{ gap: '2px' }}>
+                {stuckView.map((k, i) => (
+                  <div key={i} className="flex items-center justify-center">
+                    {k && (
+                      <div className="relative w-full h-full flex items-center justify-center" style={{ animation: 'ccReelLand 0.45s ease-out' }}>
+                        <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' }} />
+                        <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
