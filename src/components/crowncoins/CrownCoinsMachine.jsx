@@ -52,15 +52,16 @@ function CoinPile() {
 
 function Tile({ symKey, win, dim }) {
   const s = symbolByKey(symKey) || SYMBOLS[0];
+  const isCoin = symKey === 'coin';
   return (
     <div
       className="relative flex items-center justify-center overflow-hidden"
       style={{
-        background: 'linear-gradient(to bottom, #eaeaea, #cfcfcf)',
+        background: '#000',
         border: win ? '2px solid #ffd24a' : 'none',
         boxShadow: win
           ? '0 0 12px rgba(255,210,80,0.9), inset 0 0 0 2px rgba(255,235,150,0.9)'
-          : 'inset 0 0 0 1px rgba(255,255,255,0.6), 0 1px 2px rgba(0,0,0,0.4)',
+          : 'inset 0 0 0 1px rgba(255,255,255,0.15), 0 1px 2px rgba(0,0,0,0.4)',
         opacity: dim ? 0.5 : 1,
         transition: 'opacity .2s',
       }}
@@ -70,6 +71,7 @@ function Tile({ symKey, win, dim }) {
         alt={s.name}
         className="w-full h-full object-cover"
         draggable={false}
+        style={isCoin ? { mixBlendMode: 'screen' } : undefined}
       />
       {win && (
         <span
