@@ -491,7 +491,7 @@ export default function CrownCoinsMachine() {
       {flyCoins.map(c => (
         <div key={c.id} className="absolute pointer-events-none" style={{ left: c.fx, top: c.fy, animation: 'ccCoinFly 0.9s ease-in forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}>
           <div className="relative w-9 h-9 flex items-center justify-center">
-            <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" style={{ mixBlendMode: 'screen' }} />
+            <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" style={{ WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain' }} />
             <span className="absolute font-black text-yellow-100" style={{ fontSize: '8px', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}>${(c.mult * bet).toFixed(2)}</span>
           </div>
         </div>
