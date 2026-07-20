@@ -11,7 +11,7 @@ const IMG = {
   bell: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2b0f3d600_generated_image.png',
   bar: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/54eb8919d_generated_image.png',
   grape: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bc6b40d49_generated_image.png',
-  coin: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/cba1b604c_generated_image.png',
+  coin: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9abc913fd_generated_image.png',
 };
 
 export const SYMBOLS = [
