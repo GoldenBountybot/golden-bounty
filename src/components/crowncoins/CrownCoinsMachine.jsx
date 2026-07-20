@@ -45,18 +45,6 @@ function JackpotBadge({ tier, amount, color }) {
   );
 }
 
-// Dense 3D golden coin pile (transparent PNG) for the header centerpiece.
-function CoinPile() {
-  return (
-    <img
-      src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e53104d39_generated_image.png"
-      alt="gold coin pile"
-      className="absolute inset-0 w-full h-full object-contain"
-      style={{ filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.5)) drop-shadow(0 0 8px rgba(255,200,80,0.45))' }}
-    />
-  );
-}
-
 function Tile({ symKey, win, dim, bet, amount }) {
   const isCoin = symKey === 'coin';
   const isVC = isValueCoin(symKey);
