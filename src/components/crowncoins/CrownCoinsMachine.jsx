@@ -281,8 +281,12 @@ export default function CrownCoinsMachine() {
         [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) mask[2][Math.floor(i / 3)] = true; });
         freeSpinsRef.current = 10;
         setFreeSpins(10);
-        stuckRef.current = new Array(9).fill(null);
-        setStuckView(new Array(9).fill(null));
+        const stuck = new Array(9).fill(null);
+        stuck[4] = 'coin';
+        [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) stuck[i] = resultGrid[i]; });
+        [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) stuck[i] = resultGrid[i]; });
+        stuckRef.current = stuck;
+        setStuckView(stuck);
         const tIdxs = [4];
         [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) tIdxs.push(i); });
         [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) tIdxs.push(i); });
@@ -304,7 +308,8 @@ export default function CrownCoinsMachine() {
       setSpinning(false);
 
       // Value coins fly to the Crown Coins banner — visual + sound only, no balance change.
-      if (reelsRef.current && bannerRef.current) {
+      // Skip on a trigger spin: the trigger coins stick instead of flying away.
+      if (!triggered && reelsRef.current && bannerRef.current) {
         const rc = reelsRef.current.getBoundingClientRect();
         const bc = bannerRef.current.getBoundingClientRect();
         const cellW = rc.width / 3, cellH = rc.height / 3;
@@ -426,8 +431,10 @@ export default function CrownCoinsMachine() {
                   <div key={i} className="flex items-center justify-center">
                     {k && (
                       <div className="relative w-full h-full flex items-center justify-center" style={{ animation: 'ccReelLand 0.45s ease-out' }}>
-                        <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' }} />
-                        <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
+                        <img src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' }} />
+                        {k !== 'coin' && (
+                          <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
+                        )}
                       </div>
                     )}
                   </div>
