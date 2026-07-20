@@ -75,7 +75,7 @@ export function spinGrid(rtp = 50) {
   // Any coin that landed elsewhere is replaced with a regular symbol.
   const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
   const rReg = () => REG[Math.floor(Math.random() * REG.length)];
-  if (Math.random() < 0.20) {
+  if (Math.random() < 0.10) {
     grid[4] = 'coin';
   } else {
     grid[4] = rReg();
