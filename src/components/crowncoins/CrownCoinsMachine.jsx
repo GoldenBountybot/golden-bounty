@@ -231,9 +231,9 @@ export default function CrownCoinsMachine() {
     if (isFree) {
       const r = spinFreeAccum(stuckRef.current);
       setStuckView(stuckRef.current);
-      // Stuck cells (anchor + crown) render blank in the reel so no symbol
-      // shows through the coin overlay. Value coins that land in spinning
-      // cells are also blank — only the coin is visible before it flies.
+      // Locked value-coin cells render blank in the reel so no symbol shows
+      // through the coin overlay. Value coins that land in spinning cells are
+      // also blank — they appear via the stuck overlay and then lock in place.
       const landed = [];
       resultGrid = r.grid.map((k, i) => {
         if (stuckRef.current[i]) return 'blank';
@@ -273,29 +273,19 @@ export default function CrownCoinsMachine() {
 
       // Free spins: value coins that land fly to the anchor and add to its total.
       if (isFree) {
+        // Lock any value coins that landed this spin in their cells; only
+        // empty cells spin on subsequent free spins. Coins never fly.
         const newCoins = landedRef.current;
-        let flew = false;
-        if (newCoins.length && reelsRef.current) {
-          const rc = reelsRef.current.getBoundingClientRect();
-          const cellW = rc.width / 3, cellH = rc.height / 3;
-          const aCol = anchorIdxRef.current % 3, aRow = Math.floor(anchorIdxRef.current / 3);
-          const ax = rc.left + (aCol + 0.5) * cellW;
-          const ay = rc.top + (aRow + 0.5) * cellH;
-          const coins = newCoins.map(c => {
-            const col = c.idx % 3, row = Math.floor(c.idx / 3);
-            const fx = rc.left + (col + 0.5) * cellW;
-            const fy = rc.top + (row + 0.5) * cellH;
-            return { id: c.idx + '-' + Date.now(), fx, fy, dx: ax - fx, dy: ay - fy, mult: valueCoinMult(c.key), dur: 2.0, delay: 0.4 };
-          });
-          setFlyCoins(coins);
-          flew = true;
+        let locked = false;
+        if (newCoins.length) {
+          newCoins.forEach(c => { stuckRef.current[c.idx] = c.key; });
+          setStuckView([...stuckRef.current]);
           let add = 0;
           newCoins.forEach(c => { add += valueCoinMult(c.key) * bet; });
           anchorTotalRef.current = +(anchorTotalRef.current + add).toFixed(2);
-          const tUpd = setTimeout(() => { setAnchorTotal(anchorTotalRef.current); setAnchorPulse(p => p + 1); }, 2400);
-          timers.current.push(tUpd);
-          const tClear = setTimeout(() => setFlyCoins([]), 2500);
-          timers.current.push(tClear);
+          setAnchorTotal(anchorTotalRef.current);
+          setAnchorPulse(p => p + 1);
+          locked = true;
         }
         setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
         setLastWin(anchorTotalRef.current);
@@ -303,11 +293,12 @@ export default function CrownCoinsMachine() {
         logActivity('crown-coins', 0, 0, 'push');
         try { base44.analytics.track({ eventName: 'crown_coins_free_spin', properties: { bet, total: anchorTotalRef.current, remaining: freeSpinsRef.current } }); } catch {}
 
-        if (freeSpinsRef.current > 0) {
-          const tNext = setTimeout(() => doSpin(), flew ? 2700 : 700);
+        const boardFull = stuckRef.current.every(k => !!k);
+        if (freeSpinsRef.current > 0 && !boardFull) {
+          const tNext = setTimeout(() => doSpin(), locked ? 900 : 700);
           timers.current.push(tNext);
         } else {
-          // free spins ended — pay out accumulated total
+          // free spins ended (or board full) — pay out accumulated total
           const total = +anchorTotalRef.current.toFixed(2);
           if (total > 0) setBalance(b => b + total);
           setLastWin(total);
@@ -342,24 +333,21 @@ export default function CrownCoinsMachine() {
         mask[1][1] = true; // center Crown Coin glows
         [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) mask[0][Math.floor(i / 3)] = true; });
         [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) mask[2][Math.floor(i / 3)] = true; });
-        // First value coin (col0) becomes the sticky anchor; the other trigger
-        // coin (col2) is counted into the anchor's running total immediately.
+        // Both trigger value coins lock in place for the hold-and-win round;
+        // only empty cells spin in subsequent free spins.
         const col0Coin = [0, 3, 6].find(i => isValueCoin(resultGrid[i]));
         const col2Coin = [2, 5, 8].find(i => isValueCoin(resultGrid[i]));
-        const aIdx = col0Coin;
-        const aKey = resultGrid[aIdx];
         const stuck = new Array(9).fill(null);
-        stuck[aIdx] = aKey;
+        stuck[col0Coin] = resultGrid[col0Coin];
+        stuck[col2Coin] = resultGrid[col2Coin];
         stuckRef.current = stuck;
         setStuckView(stuck);
-        anchorIdxRef.current = aIdx;
-        setAnchorIdx(aIdx);
-        const startTotal = valueCoinMult(aKey) * bet + valueCoinMult(resultGrid[col2Coin]) * bet;
+        const startTotal = valueCoinMult(resultGrid[col0Coin]) * bet + valueCoinMult(resultGrid[col2Coin]) * bet;
         anchorTotalRef.current = +startTotal.toFixed(2);
         setAnchorTotal(+startTotal.toFixed(2));
         freeSpinsRef.current = 10;
         setFreeSpins(10);
-        setTriggerGlow([aIdx, col2Coin]);
+        setTriggerGlow([col0Coin, col2Coin]);
         const tGlow = setTimeout(() => setTriggerGlow([]), 1300);
         timers.current.push(tGlow);
         setShowRoyalBanner(true);
@@ -522,15 +510,12 @@ export default function CrownCoinsMachine() {
             {stuckView.some(k => !!k) && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-20" style={{ gap: '2px' }}>
                 {stuckView.map((k, i) => {
-                  const isAnchor = i === anchorIdx;
                   return (
                   <div key={i} className="flex items-center justify-center">
                     {k && (
                       <div className="relative w-full h-full flex items-center justify-center" style={{ animation: 'ccReelLand 0.45s ease-out' }}>
-                        <img key={isAnchor ? 'a' + anchorPulse : 's' + i} src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))', animation: isAnchor ? 'ccAnchorPulse 0.5s ease-out' : undefined }} />
-                        {isAnchor && (
-                          <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${anchorTotal.toFixed(2)}</span>
-                        )}
+                        <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' }} />
+                        <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
                       </div>
                     )}
                   </div>
