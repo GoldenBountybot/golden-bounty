@@ -257,10 +257,10 @@ export default function CrownCoinsMachine() {
 
           <div className="flex-1 flex items-center justify-center">
             <img
-              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8389365ec_4e48b74e4_generated_image.png"
+              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b7d9c66e0_generated_image.png"
               alt="Crown Coins"
               className="w-[78%]"
-              style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
+              style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
             />
           </div>
 
