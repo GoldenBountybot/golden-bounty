@@ -326,14 +326,20 @@ export default function CrownCoinsMachine() {
         </div>
 
         <div
-          className="rounded-lg p-1.5"
+          className="relative rounded-lg p-1.5 overflow-hidden"
           style={{
             border: '3px solid #d4af37',
             boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 2px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)',
             background: 'linear-gradient(to bottom, #b8860b, #6b4a08)',
           }}
         >
-          <div ref={reelsRef} className="flex gap-0.5 rounded-md overflow-hidden" style={{ background: '#000' }}>
+          <img
+            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f28be6c98_.jpg"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover rounded-md pointer-events-none"
+            style={{ opacity: 0.85, mixBlendMode: 'luminosity' }}
+          />
+          <div ref={reelsRef} className="relative flex gap-0.5 rounded-md overflow-hidden" style={{ background: '#000' }}>
             {reels.map((col, i) => (
               <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} />
             ))}
