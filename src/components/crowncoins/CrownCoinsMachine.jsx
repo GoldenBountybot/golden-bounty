@@ -257,7 +257,7 @@ export default function CrownCoinsMachine() {
 
           <div className="flex-1 flex items-center justify-center">
             <img
-              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4e48b74e4_generated_image.png"
+              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/53b4e4348_generated_image.png"
               alt="Crown Coins"
               className="w-[78%]"
               style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
