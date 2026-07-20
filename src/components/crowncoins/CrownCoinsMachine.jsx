@@ -38,50 +38,15 @@ function JackpotBadge({ tier, amount, color }) {
   );
 }
 
-// A dense, layered pile of golden crown-coins. Renders as absolutely
-// positioned coins — the parent container must be `relative` & sized.
+// Dense 3D golden coin pile (transparent PNG) for the header centerpiece.
 function CoinPile() {
-  const coin = symbolByKey('coin').image;
-  const S = 34;
-  const W = 160;
-  const rows = [
-    { n: 6, bottom: 0,  z: 1 },
-    { n: 5, bottom: 13, z: 2 },
-    { n: 4, bottom: 26, z: 3 },
-    { n: 3, bottom: 39, z: 4 },
-    { n: 2, bottom: 52, z: 5 },
-    { n: 1, bottom: 65, z: 6 },
-  ];
-  const coins = [];
-  rows.forEach((row, ri) => {
-    for (let i = 0; i < row.n; i++) {
-      const left = row.n === 1 ? (W - S) / 2 : (i * (W - S)) / (row.n - 1);
-      const rot = ((i % 2) ? 1 : -1) * (3 + (ri % 3));
-      coins.push({ left, bottom: row.bottom, z: row.z, r: rot });
-    }
-  });
   return (
-    <>
-      {coins.map((c, i) => (
-        <img
-          key={i}
-          src={coin}
-          alt="crown coin"
-          className="absolute"
-          style={{
-            left: c.left,
-            bottom: c.bottom,
-            zIndex: c.z,
-            width: S,
-            height: S,
-            borderRadius: '50%',
-            transform: `rotate(${c.r}deg)`,
-            boxShadow: '0 2px 3px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.4)',
-            filter: 'drop-shadow(0 0 3px rgba(255,200,80,0.5))',
-          }}
-        />
-      ))}
-    </>
+    <img
+      src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/21f59381b_generated_image.png"
+      alt="gold coin pile"
+      className="absolute inset-0 w-full h-full object-contain"
+      style={{ filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.5)) drop-shadow(0 0 8px rgba(255,200,80,0.45))' }}
+    />
   );
 }
 
