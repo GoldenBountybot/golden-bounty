@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { useToast } from '@/components/ui/use-toast';
-import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey } from '@/lib/crownCoinsEngine';
+import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS } from '@/lib/crownCoinsEngine';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
 const DiamondBG = (
@@ -212,7 +212,7 @@ export default function CrownCoinsMachine() {
       let bonusResult = null;
       if (coins >= 3) {
         bonusResult = runBonus(bet, rtp);
-        win += bonusResult.total * bet;
+        win += bonusResult.total;
       }
 
       if (win > 0) setBalance(b => b + win);
@@ -397,27 +397,34 @@ export default function CrownCoinsMachine() {
             </div>
             <p className="text-center text-[10px] text-yellow-200/70 italic mb-3">{bonus.royal ? 'Royal Coin ×1.5 boost active!' : 'Tap coins to reveal the treasury'}</p>
             <div className="grid grid-cols-3 gap-1.5">
-              {bonus.cells.map((v, i) => {
+              {bonus.cells.map((cell, i) => {
                 const revealed = revealStep > i;
+                const isJackpot = cell.type === 'jackpot';
                 const isRoyal = i >= 6;
+                const coinImg = isJackpot ? JACKPOT_COINS[cell.tier] : VALUE_COIN_IMG;
+                const val = cellValue(cell, bet);
                 return (
                   <div
                     key={i}
                     onClick={() => setRevealStep(s => Math.max(s, i + 1))}
-                    className="aspect-square flex items-center justify-center rounded-md cursor-pointer"
+                    className="aspect-square flex items-center justify-center rounded-md cursor-pointer relative overflow-hidden"
                     style={{
-                      border: `2px solid ${revealed && v ? (isRoyal ? '#ffd24a' : '#e8c873') : 'rgba(190,140,55,0.35)'}`,
-                      background: revealed && v ? (isRoyal ? 'linear-gradient(135deg,#7a5210,#2a1a06)' : 'linear-gradient(135deg,#4a3416,#211608)') : 'rgba(0,0,0,0.4)',
-                      boxShadow: revealed && v ? '0 0 10px rgba(255,210,80,0.6)' : 'none',
+                      border: `2px solid ${revealed ? (isJackpot ? '#ffd24a' : isRoyal ? '#e8c873' : '#d4af37') : 'rgba(190,140,55,0.35)'}`,
+                      background: revealed ? (isJackpot ? 'linear-gradient(135deg,#7a0e1c,#2a0408)' : isRoyal ? 'linear-gradient(135deg,#7a5210,#2a1a06)' : 'linear-gradient(135deg,#4a3416,#211608)') : 'rgba(0,0,0,0.4)',
+                      boxShadow: revealed && (isJackpot || isRoyal) ? '0 0 12px rgba(255,210,80,0.75)' : revealed ? '0 0 8px rgba(255,210,80,0.5)' : 'none',
                     }}
                   >
-                    {revealed && v ? (
-                      <div className="flex flex-col items-center">
-                        <img src={symbolByKey('coin').image} alt="coin" className="w-7 h-7 object-cover rounded-full" />
-                        <span className="text-[11px] font-black text-yellow-100" style={{ fontFamily: 'Georgia, serif' }}>{v}×</span>
+                    {revealed ? (
+                      <div className="relative flex flex-col items-center justify-center w-full h-full">
+                        <img src={coinImg} alt={isJackpot ? cell.tier : 'coin'} className="w-12 h-12 object-contain" style={{ mixBlendMode: 'screen' }} />
+                        {isJackpot ? (
+                          <span className="text-[10px] font-black text-yellow-300 mt-0.5" style={{ fontFamily: 'Rye, Georgia, serif' }}>{cell.tier}</span>
+                        ) : (
+                          <span className="text-[11px] font-black text-yellow-100 -mt-1" style={{ fontFamily: 'Georgia, serif' }}>${val.toFixed(2)}</span>
+                        )}
                       </div>
                     ) : (
-                      <img src={symbolByKey('coin').image} alt="?" className="w-7 h-7 object-cover rounded-full opacity-30" />
+                      <img src={VALUE_COIN_IMG} alt="?" className="w-12 h-12 object-contain opacity-30" style={{ mixBlendMode: 'screen' }} />
                     )}
                   </div>
                 );
@@ -427,7 +434,7 @@ export default function CrownCoinsMachine() {
               <button onClick={revealAll} className="px-3 py-1.5 rounded-md border border-yellow-700/50 text-yellow-100 text-xs font-bold italic" style={{ fontFamily: 'Georgia, serif', background: 'rgba(0,0,0,0.4)' }}>Reveal All</button>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-yellow-200/70 italic" style={{ fontFamily: 'Georgia, serif' }}>Total</span>
-                <span className="text-xl font-black text-emerald-300 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${(bonus.total * bet).toFixed(2)}</span>
+                <span className="text-xl font-black text-emerald-300 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${bonus.total.toFixed(2)}</span>
               </div>
             </div>
             <button onClick={closeBonus} className="mt-3 w-full py-2 rounded-lg text-stone-950 font-black italic" style={{ fontFamily: 'Georgia, serif', background: 'linear-gradient(to bottom,#f5d590,#e8a93a)' }}>Collect</button>

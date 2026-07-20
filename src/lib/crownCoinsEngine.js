@@ -1,6 +1,23 @@
 // Crown Coins slot engine — 3x3 grid, 5 fixed paylines, 10 glossy 3D symbols.
 // Crown Coin (scatter/bonus) triggers the Royal Treasury hold-and-win round.
 
+// Bonus coin assets — blank value coin (text overlaid dynamically) + 4 jackpot coins.
+export const VALUE_COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/09f3a23e1_generated_image.png';
+export const JACKPOT_COINS = {
+  MIN: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f672115c5_generated_image.png',
+  MID: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/462282802_generated_image.png',
+  MAX: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d95929e49_generated_image.png',
+  ULTRA: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/681750740_generated_image.png',
+};
+// Display value for a bonus cell in dollars. (JACKPOTS defined below.)
+export function cellValue(cell, bet) {
+  if (cell.type === 'jackpot') {
+    const j = JACKPOTS.find(x => x.tier === cell.tier);
+    return j ? j.amount : 0;
+  }
+  return cell.mult * bet;
+}
+
 const IMG = {
   cherry: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e193ac3ef_generated_image.png',
   seven: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9190b625b_generated_image.png',
@@ -87,26 +104,33 @@ export function evaluateGrid(grid) {
   return { lines, totalMul, coins, scatterMul };
 }
 
-// Royal Treasury hold-and-win: 9 cells, tap to reveal coin values. Reel-3
-// (last 3 cells) has the royal jackpot coins. Royal = all reels filled.
+// Royal Treasury hold-and-win: 9 cells, tap to reveal coin values.
+// First 6 cells = value coins (multipliers of the current bet, so displayed
+// dollar values scale with the bet). Last 3 cells (royal reels) may upgrade
+// to a fixed MIN/MID/MAX/ULTRA jackpot coin. Royal = a jackpot landed.
+const VALUE_MULTS = [1, 2, 5, 7, 10, 15];
+const ROYAL_MULT = 20;
+const JACKPOT_TIERS = ['MIN', 'MID', 'MAX', 'ULTRA'];
+
 export function runBonus(bet, rtp = 50) {
-  const lowVals = [0.5, 1, 1.5, 2, 2.5, 3];
-  const midVals = [3, 4, 5, 6, 7];
-  const royalVals = [7.5, 12, 20, 50]; // includes ULTRA jackpot
   const r = () => Math.random();
+  const factor = rtp / 50;
   const cells = [];
-  for (let i = 0; i < 9; i++) {
-    if (i < 6) cells.push(lowVals[Math.floor(r() * lowVals.length)] * (rtp / 50));
-    else cells.push(midVals[Math.floor(r() * midVals.length)] * (rtp / 50));
+  for (let i = 0; i < 6; i++) {
+    cells.push({ type: 'value', mult: VALUE_MULTS[Math.floor(r() * VALUE_MULTS.length)] * factor });
   }
-  // randomly upgrade one cell to a royal jackpot
+  for (let i = 6; i < 9; i++) {
+    cells.push({ type: 'value', mult: ROYAL_MULT * factor });
+  }
+  // chance to upgrade a royal cell to a fixed jackpot coin
   if (r() < 0.35 + rtp / 250) {
-    cells[6 + Math.floor(r() * 3)] = royalVals[Math.floor(r() * royalVals.length)];
+    const idx = 6 + Math.floor(r() * 3);
+    cells[idx] = { type: 'jackpot', tier: JACKPOT_TIERS[Math.floor(r() * JACKPOT_TIERS.length)] };
   }
-  // guarantee at least a small payout floor
-  cells[0] = Math.max(cells[0], 0.5);
-  const total = cells.reduce((a, b) => a + b, 0);
-  const royal = cells.slice(6).some(v => v >= 7.5);
+  // guarantee at least a small payout floor on the first cell
+  if (cells[0].type === 'value') cells[0].mult = Math.max(cells[0].mult, 1);
+  const total = cells.reduce((a, c) => a + cellValue(c, bet), 0);
+  const royal = cells.slice(6).some(c => c.type === 'jackpot');
   return { cells, total: +total.toFixed(2), royal };
 }
 
