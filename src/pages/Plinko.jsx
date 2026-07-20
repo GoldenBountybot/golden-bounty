@@ -271,7 +271,7 @@ export default function Plinko() {
             <Link to="/dashboard" className="w-8 h-8 flex items-center justify-center" style={{ ...goldBtn }}>
               <Plus className="w-4 h-4" />
             </Link>
-            <button onClick={share} className="w-5 h-5 flex items-center justify-center" style={{ ...woodBtn, color: '#f3e2b3' }}>
+            <button onClick={share} className="w-5 h-5 flex items-center justify-center bg-transparent border-0 shadow-none" style={{ color: '#f3e2b3' }}>
               {copied ? <Check className="w-[5px] h-[5px]" style={{ color: '#f5c542' }} /> : <Share2 className="w-[5px] h-[5px]" />}
             </button>
           </div>
