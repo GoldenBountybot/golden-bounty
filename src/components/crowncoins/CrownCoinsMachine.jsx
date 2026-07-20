@@ -76,8 +76,8 @@ function ReelColumn({ col, gridIndexBase, phase, winMask, speed, colIndex, amoun
   const anim = phase === 'spin' ? `reelFall ${speed}s linear infinite` : phase === 'land' ? 'reelLand 0.4s ease-out' : 'none';
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3' }}>
-      <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto', backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3', backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto' }}>
         {strip.map((cell, i) => {
           const gIdx = gridIndexBase + i * 3; // row-major: col + row*3
           return (
