@@ -7,10 +7,10 @@ const IMG = {
   lemon: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7e3526539_generated_image.png',
   plum: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b17d8bc3d_generated_image.png',
   watermelon: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/17ef1f16b_generated_image.png',
-  orange: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/27343416c_generated_image.png',
+  orange: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d06a66723_generated_image.png',
   bell: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/32ed52293_generated_image.png',
   bar: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3a13fd6fd_generated_image.png',
-  grape: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/593005698_generated_image.png',
+  grape: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fdc47a05f_generated_image.png',
   coin: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7b32fae4a_generated_image.png',
 };
 
