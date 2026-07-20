@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { useToast } from '@/components/ui/use-toast';
-import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult } from '@/lib/crownCoinsEngine';
+import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeGrid } from '@/lib/crownCoinsEngine';
 import { playCoinSound } from '@/lib/crownCoinsSound';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
@@ -164,6 +164,8 @@ export default function CrownCoinsMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [autoSpin, setAutoSpin] = useState(false);
   const [turbo, setTurbo] = useState(false);
+  const [freeSpins, setFreeSpins] = useState(0);
+  const freeSpinsRef = useRef(0);
   const timers = useRef([]);
   const autoRef = useRef(false);
   const reelsRef = useRef(null);
@@ -176,16 +178,20 @@ export default function CrownCoinsMachine() {
 
   const doSpin = useCallback(async () => {
     if (spinning) return;
-    if (bet <= 0) { toast({ title: 'Set a bet amount' }); return; }
-    if (balance < bet) { toast({ title: 'Insufficient balance' }); autoRef.current = false; setAutoSpin(false); return; }
+    const isFree = freeSpinsRef.current > 0;
+    if (!isFree) {
+      if (bet <= 0) { toast({ title: 'Set a bet amount' }); return; }
+      if (balance < bet) { toast({ title: 'Insufficient balance' }); autoRef.current = false; setAutoSpin(false); return; }
+    }
     setSpinning(true);
     setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
     setLastWin(0);
-    setBalance(b => Math.max(0, b - bet));
+    if (!isFree) setBalance(b => Math.max(0, b - bet));
+    if (isFree) { freeSpinsRef.current -= 1; setFreeSpins(freeSpinsRef.current); }
     clearTimers();
 
     // compute final result
-    const resultGrid = spinGrid(rtp); // 9 keys row-major
+    const resultGrid = isFree ? spinFreeGrid() : spinGrid(rtp); // 9 keys row-major
     const cols = [
       [resultGrid[0], resultGrid[3], resultGrid[6]],
       [resultGrid[1], resultGrid[4], resultGrid[7]],
@@ -225,6 +231,17 @@ export default function CrownCoinsMachine() {
           mask[col][row] = true;
         });
       });
+      // Free spin trigger: Crown Coin in center + value coins in both side columns.
+      let triggered = false;
+      if (!isFree && isFreeSpinTrigger(resultGrid)) {
+        triggered = true;
+        mask[1][1] = true; // center Crown Coin glows
+        [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) mask[0][Math.floor(i / 3)] = true; });
+        [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) mask[2][Math.floor(i / 3)] = true; });
+        freeSpinsRef.current = 10;
+        setFreeSpins(10);
+        toast({ title: 'Crown Coin Bonus!', description: '10 Free Spins — only Value Coins!' });
+      }
       setWinMask(mask);
 
       let bonusResult = null;
@@ -260,9 +277,15 @@ export default function CrownCoinsMachine() {
       }
       if (bonusResult) { setBonus(bonusResult); setRevealStep(0); autoRef.current = false; setAutoSpin(false); }
       logActivity('crown-coins', bet, win, win > 0 ? 'win' : 'loss');
-      try { base44.analytics.track({ eventName: 'crown_coins_spin', properties: { bet, win: Math.round(win * 100) / 100, coins } }); } catch {}
+      try { base44.analytics.track({ eventName: 'crown_coins_spin', properties: { bet, win: Math.round(win * 100) / 100, coins, free: isFree } }); } catch {}
 
-      if (autoRef.current && !bonusResult) {
+      if (bonusResult) {
+        // bonus modal open — pause
+      } else if (freeSpinsRef.current > 0) {
+        const delay = triggered ? 1200 : 700;
+        const tNext = setTimeout(() => doSpin(), delay);
+        timers.current.push(tNext);
+      } else if (autoRef.current) {
         const tAuto = setTimeout(() => { if (autoRef.current) doSpin(); }, 500);
         timers.current.push(tAuto);
       }
@@ -376,7 +399,7 @@ export default function CrownCoinsMachine() {
 
           <button
             onClick={doSpin}
-            disabled={spinning || sLoading}
+            disabled={spinning || sLoading || freeSpins > 0}
             className="relative w-16 h-16 rounded-full flex items-center justify-center disabled:opacity-60"
             style={{
               background: 'radial-gradient(circle at center, #fff2c0 0%, #e8a93a 55%, #b8860b 100%)',
@@ -393,7 +416,7 @@ export default function CrownCoinsMachine() {
             <RotateCw className="w-5 h-5" />
           </button>
         </div>
-        <p className="text-center text-[10px] font-bold tracking-widest text-yellow-200/80">{spinning ? 'GOOD LUCK!' : 'PLACE YOUR BET'}</p>
+        <p className="text-center text-[10px] font-bold tracking-widest text-yellow-200/80">{freeSpins > 0 ? `FREE SPINS: ${freeSpins}` : (spinning ? 'GOOD LUCK!' : 'PLACE YOUR BET')}</p>
 
         <div className="flex items-center justify-between px-1">
           <button className="w-8 h-8 flex items-center justify-center text-white/80"><Menu className="w-5 h-5" /></button>

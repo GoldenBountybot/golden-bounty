@@ -114,6 +114,19 @@ export function spinGrid(rtp = 50) {
   return grid;
 }
 
+// Free spin trigger: Crown Coin in center + a value coin in each side column.
+export function isFreeSpinTrigger(grid) {
+  if (grid[4] !== 'coin') return false;
+  const col0 = [0, 3, 6].some(i => isValueCoin(grid[i]));
+  const col2 = [2, 5, 8].some(i => isValueCoin(grid[i]));
+  return col0 && col2;
+}
+
+// Free spin grid: every cell is a value coin (no other symbols fall).
+export function spinFreeGrid() {
+  return Array.from({ length: 9 }, () => VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)]);
+}
+
 export function evaluateGrid(grid) {
   const betPerLine = 1; // caller scales by bet/5
   const lines = [];
