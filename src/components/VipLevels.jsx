@@ -15,7 +15,7 @@ export default function VipLevels({ totalDeposits }) {
   return (
     <div className="flex flex-col gap-3">
       {/* Current VIP status */}
-      <WesternFrame glow className="p-4 flex flex-col gap-2">
+      <WesternFrame glow variant="glass" className="p-4 flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Crown className="w-5 h-5" style={{ color: current?.color || '#8a7a5a' }} />
@@ -54,6 +54,7 @@ export default function VipLevels({ totalDeposits }) {
         return (
           <WesternFrame
             key={lv.level}
+            variant="glass"
             className={`p-3 flex items-center gap-3 ${isCurrent ? 'ring-2' : ''}`}
             style={isCurrent ? { boxShadow: `inset 0 0 0 2px ${lv.color}, 0 2px 6px rgba(0,0,0,0.5)` } : {}}
           >

@@ -110,7 +110,7 @@ export default function Dashboard() {
 
       <main className="relative z-10 max-w-md mx-auto px-4 py-3 flex flex-col gap-3">
         {/* Balance */}
-        <WesternFrame glow className="p-2.5 flex items-center justify-between">
+        <WesternFrame glow variant="glass" className="p-2.5 flex items-center justify-between">
           <div>
             <p className="text-[8px] tracking-widest uppercase text-amber-300/70" style={{ fontFamily: 'Rye, Georgia, serif' }}>Balance</p>
             <p className="text-xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${acct.balance.toFixed(2)}</p>
@@ -138,7 +138,7 @@ export default function Dashboard() {
 
         {tab === 'wallet' && (
           <div className="flex flex-col gap-2.5">
-            <WesternFrame className="p-2.5 flex flex-col gap-2">
+            <WesternFrame variant="glass" className="p-2.5 flex flex-col gap-2">
               <div className="flex items-center gap-1.5 text-amber-200">
                 <ArrowDownToLine className="w-3.5 h-3.5" />
                 <h2 className="text-[11px] font-black italic" style={{ fontFamily: 'Rye, Georgia, serif' }}>Deposit</h2>
@@ -154,7 +154,7 @@ export default function Dashboard() {
               </div>
             </WesternFrame>
 
-            <WesternFrame className="p-2.5 flex flex-col gap-2">
+            <WesternFrame variant="glass" className="p-2.5 flex flex-col gap-2">
               <div className="flex items-center gap-1.5 text-amber-200">
                 <ArrowUpFromLine className="w-3.5 h-3.5" />
                 <h2 className="text-[11px] font-black italic" style={{ fontFamily: 'Rye, Georgia, serif' }}>Withdraw</h2>
@@ -178,7 +178,7 @@ export default function Dashboard() {
                 const credit = t.type === 'deposit';
                 const statusColor = t.status === 'completed' ? 'text-emerald-300' : t.status === 'pending' ? 'text-amber-300' : 'text-rose-400';
                 return (
-                  <WesternFrame key={t.id} className="p-2 flex items-center justify-between gap-2">
+                  <WesternFrame key={t.id} variant="glass" className="p-2 flex items-center justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <p className="text-[11px] font-bold italic text-amber-100" style={{ fontFamily: 'Georgia, serif' }}>
                         {credit ? 'Deposit' : 'Withdraw'} · <span className={credit ? 'text-emerald-300' : 'text-rose-300'}>{credit ? '+' : '−'}${Number(t.amount).toFixed(2)}</span>
@@ -226,7 +226,7 @@ export default function Dashboard() {
               ].map((s, i) => {
                 const Icon = s.icon;
                 return (
-                  <WesternFrame key={i} className="flex flex-col items-center py-1.5 px-1">
+                  <WesternFrame key={i} variant="glass" className="flex flex-col items-center py-1.5 px-1">
                     {Icon && <Icon className="w-3 h-3 text-amber-300/70 mb-0.5" />}
                     <span className="text-[8px] text-amber-300/70 tracking-widest uppercase" style={{ fontFamily: 'Rye, Georgia, serif' }}>{s.label}</span>
                     <span className="text-[11px] font-bold italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>{s.value}</span>
@@ -253,7 +253,7 @@ export default function Dashboard() {
             </button>
 
             {/* Stake form */}
-            <WesternFrame className="p-2 flex flex-col gap-2">
+            <WesternFrame variant="glass" className="p-2 flex flex-col gap-2">
               <div className="flex items-center gap-1.5 text-amber-200">
                 <Layers className="w-3.5 h-3.5" />
                 <h2 className="text-sm font-black italic" style={{ fontFamily: 'Rye, Georgia, serif' }}>Stack More</h2>

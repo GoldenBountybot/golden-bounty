@@ -144,7 +144,7 @@ export default function PayMethod() {
       </header>
 
       <main className="relative z-10 max-w-md mx-auto px-4 py-5 flex flex-col gap-4">
-        <WesternFrame glow className="p-4 flex items-center justify-between">
+        <WesternFrame glow variant="glass" className="p-4 flex items-center justify-between">
           <div>
             <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Depositing</p>
             <p className="text-2xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${amount.toFixed(2)}</p>
@@ -180,7 +180,7 @@ export default function PayMethod() {
             {networks.map((n, i) => {
               const active = selectedNet?.name === n.name;
               return (
-                <WesternFrame key={i} className={`p-3 flex flex-col gap-2 ${active ? 'ring-2 ring-amber-300' : ''}`}>
+                <WesternFrame key={i} variant="glass" className={`p-3 flex flex-col gap-2 ${active ? 'ring-2 ring-amber-300' : ''}`}>
                   <div className="flex items-center gap-2">
                     <CoinLogo symbol={n.symbol} color={n.color} />
                     <div className="flex-1 min-w-0">
@@ -200,7 +200,7 @@ export default function PayMethod() {
               );
             })}
 
-            <WesternFrame className="p-4 flex flex-col gap-3">
+            <WesternFrame variant="glass" className="p-4 flex flex-col gap-3">
               <h2 className="font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Submit Transaction ID</h2>
               {selectedNet && <p className="text-[11px] text-amber-100/60 italic">Network: {selectedNet.name}</p>}
               <input
@@ -225,7 +225,7 @@ export default function PayMethod() {
 
         {view === 'binance' && (
           <div className="flex flex-col gap-4 items-center">
-            <WesternFrame glow className="p-5 flex flex-col items-center gap-3 w-full">
+            <WesternFrame glow variant="glass" className="p-5 flex flex-col items-center gap-3 w-full">
               <div className="w-56 h-56 rounded-lg overflow-hidden bg-white p-3 flex items-center justify-center" style={{ boxShadow: '0 0 0 1px rgba(190,140,55,0.5), 0 4px 12px rgba(0,0,0,0.5)' }}>
                 <img src={payData.binance?.qr_image_url || 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2a51a6e74_InShot_20260718_2329057661.jpg'} alt="Binance Pay QR" className="w-full h-full object-contain" />
               </div>

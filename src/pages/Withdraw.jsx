@@ -104,7 +104,7 @@ export default function Withdraw() {
       </header>
 
       <main className="relative z-10 max-w-md mx-auto px-4 py-5 flex flex-col gap-4">
-        <WesternFrame glow className="p-4 flex items-center justify-between">
+        <WesternFrame glow variant="glass" className="p-4 flex items-center justify-between">
           <div>
             <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Withdrawing</p>
             <p className="text-2xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: FONT }}>${amount.toFixed(2)}</p>
@@ -135,7 +135,7 @@ export default function Withdraw() {
         )}
 
         {view === 'binance' && (
-          <WesternFrame className="p-4 flex flex-col gap-3">
+          <WesternFrame variant="glass" className="p-4 flex flex-col gap-3">
             <h2 className="font-black italic text-amber-200" style={{ fontFamily: FONT }}>Enter Binance UID</h2>
             <p className="text-[11px] text-amber-100/60 italic">Enter your Binance Pay ID where you want to receive the funds.</p>
             <input
@@ -180,7 +180,7 @@ export default function Withdraw() {
             })}
 
             {selectedNet && (
-              <WesternFrame className="p-4 flex flex-col gap-3">
+              <WesternFrame variant="glass" className="p-4 flex flex-col gap-3">
                 <h2 className="font-black italic text-amber-200" style={{ fontFamily: FONT }}>Your Wallet Address</h2>
                 <p className="text-[11px] text-amber-100/60 italic">Network: {selectedNet.name}</p>
                 <input
