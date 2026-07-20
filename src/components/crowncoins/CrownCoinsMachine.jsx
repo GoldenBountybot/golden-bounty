@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { useToast } from '@/components/ui/use-toast';
-import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
+import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeAccum, freeTotal, isJackpotCoin, jackpotMult, jackpotTier, jackpotPayout } from '@/lib/crownCoinsEngine';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
@@ -60,15 +60,20 @@ function CoinPile() {
 function Tile({ symKey, win, dim, bet, amount }) {
   const isCoin = symKey === 'coin';
   const isVC = isValueCoin(symKey);
-  const s = isVC ? null : (symbolByKey(symKey) || SYMBOLS[0]);
+  const isJP = isJackpotCoin(symKey);
+  const jpTier = isJP ? jackpotTier(symKey) : null;
+  const jpVal = isJP ? jackpotMult(symKey) * bet : 0;
+  const s = (isVC || isJP) ? null : (symbolByKey(symKey) || SYMBOLS[0]);
   const vcVal = isVC ? valueCoinMult(symKey) * bet : 0;
+  const winShow = win || isJP;
+  const showAmount = isJP ? jpVal : amount;
   return (
     <div
       className="relative flex items-center justify-center overflow-hidden p-[3px]"
       style={{
         background: 'transparent',
-        border: win ? '2px solid #ffd24a' : '1px solid rgba(212,175,55,0.35)',
-        boxShadow: win
+        border: winShow ? '2px solid #ffd24a' : '1px solid rgba(212,175,55,0.35)',
+        boxShadow: winShow
           ? '0 0 12px rgba(255,210,80,0.9), inset 0 0 0 2px rgba(255,235,150,0.9)'
           : 'none',
         opacity: dim ? 0.5 : 1,
@@ -84,6 +89,10 @@ function Tile({ symKey, win, dim, bet, amount }) {
             <img src={VALUE_COIN_IMG} alt="coin" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen' }} />
             <span className="absolute font-black text-yellow-100" style={{ fontSize: '10px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${vcVal.toFixed(2)}</span>
           </div>
+        ) : isJP ? (
+          <div className="relative w-full h-full flex items-center justify-center">
+            <img src={JACKPOT_COINS[jpTier]} alt={jpTier} className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 6px rgba(255,210,80,0.7))' }} />
+          </div>
         ) : (
           <img
             src={s.image}
@@ -93,13 +102,13 @@ function Tile({ symKey, win, dim, bet, amount }) {
             style={{ mixBlendMode: 'screen' }}
           />
         )}
-        {win && (
+        {winShow && (
           <span
             className="absolute inset-0 pointer-events-none"
             style={{ boxShadow: 'inset 0 0 12px rgba(255,220,120,0.8)', background: 'radial-gradient(circle at center, rgba(255,235,150,0.25), transparent 70%)' }}
           />
         )}
-        {amount != null && (
+        {showAmount != null && (
           <span
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
             style={{
@@ -113,7 +122,7 @@ function Tile({ symKey, win, dim, bet, amount }) {
               whiteSpace: 'nowrap',
             }}
           >
-            ${Number(amount).toFixed(2)}
+            ${Number(showAmount).toFixed(2)}
           </span>
         )}
       </div>
@@ -152,7 +161,7 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell }
       <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto', backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {strip.map((k, i) => (
           <div key={i} style={{ width: '100%', aspectRatio: '1 / 1' }}>
-            <Tile symKey={k} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i]} bet={bet} amount={amountCell && amountCell.col === colIndex && amountCell.row === i ? amountCell.amount : null} />
+            <Tile symKey={k} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i] && !isJackpotCoin(k)} bet={bet} amount={amountCell && amountCell.col === colIndex && amountCell.row === i ? amountCell.amount : null} />
           </div>
         ))}
       </div>
@@ -280,7 +289,8 @@ export default function CrownCoinsMachine() {
       }
 
       const { lines, totalMul, coins, scatterMul } = evaluateGrid(resultGrid);
-      let win = totalMul * (bet / 5) + scatterMul * bet;
+      const jpPay = jackpotPayout(resultGrid, bet);
+      let win = totalMul * (bet / 5) + scatterMul * bet + jpPay;
 
       // build win mask per reel (which rows are part of a winning line)
       const mask = cols.map(() => [false, false, false]);
@@ -346,11 +356,12 @@ export default function CrownCoinsMachine() {
         const cellW = rc.width / 3, cellH = rc.height / 3;
         const coins = [];
         resultGrid.forEach((k, i) => {
-          if (isValueCoin(k)) {
+          const jp = isJackpotCoin(k);
+          if (isValueCoin(k) || jp) {
             const col = i % 3, row = Math.floor(i / 3);
             const fx = rc.left + (col + 0.5) * cellW;
             const fy = rc.top + (row + 0.5) * cellH;
-            coins.push({ id: i + '-' + Date.now(), fx, fy, dx: bc.left + bc.width / 2 - fx, dy: bc.top + bc.height / 2 - fy, mult: valueCoinMult(k) });
+            coins.push({ id: i + '-' + Date.now(), fx, fy, dx: bc.left + bc.width / 2 - fx, dy: bc.top + bc.height / 2 - fy, mult: jp ? jackpotMult(k) : valueCoinMult(k), jp: jp ? jackpotTier(k) : null });
           }
         });
         if (coins.length) {
@@ -641,7 +652,7 @@ export default function CrownCoinsMachine() {
       {flyCoins.map(c => (
         <div key={c.id} className="absolute pointer-events-none" style={{ left: c.fx, top: c.fy, animation: 'ccCoinFly 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}>
           <div className="relative w-9 h-9 flex items-center justify-center">
-            <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" style={{ WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain' }} />
+            <img src={c.jp ? JACKPOT_COINS[c.jp] : VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" style={c.jp ? { mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.9))' } : { WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain' }} />
             <span className="absolute font-black text-yellow-100" style={{ fontSize: '8px', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}>${(c.mult * bet).toFixed(2)}</span>
           </div>
         </div>

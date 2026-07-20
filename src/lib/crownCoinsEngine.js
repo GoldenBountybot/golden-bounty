@@ -10,6 +10,18 @@ export const VALUE_COIN_MULTS = [1, 3, 5, 7, 10, 15, 20];
 export const VALUE_COIN_KEYS = VALUE_COIN_MULTS.map(m => 'vc' + m);
 export function isValueCoin(key) { return typeof key === 'string' && key.startsWith('vc'); }
 export function valueCoinMult(key) { return Number(String(key).slice(2)) || 0; }
+
+// Jackpot coins — premium reel symbols with bet-scaled payouts.
+// At a $0.05 bet: MIN $1.25, MID $2.50, MAX $7.50, ULTRA $50.00.
+// Multipliers scale linearly with the bet, so amounts double when the bet doubles.
+export const JACKPOT_SYM_MULTS = { MIN: 25, MID: 50, MAX: 150, ULTRA: 1000 };
+export const JACKPOT_SYM_KEYS = ['jpMIN', 'jpMID', 'jpMAX', 'jpULTRA'];
+export function isJackpotCoin(key) { return typeof key === 'string' && key.startsWith('jp'); }
+export function jackpotTier(key) { return String(key).slice(2); }
+export function jackpotMult(key) { return JACKPOT_SYM_MULTS[jackpotTier(key)] || 0; }
+export function jackpotPayout(grid, bet) {
+  return grid.reduce((a, k) => a + (isJackpotCoin(k) ? jackpotMult(k) * bet : 0), 0);
+}
 export const JACKPOT_COINS = {
   MIN: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f672115c5_generated_image.png',
   MID: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/462282802_generated_image.png',
@@ -101,6 +113,19 @@ export function spinGrid(rtp = 50) {
     grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
   }
 
+  // Jackpot coins (MIN/MID/MAX/ULTRA) — rare premium drops. At most one per
+  // spin, never overriding a Crown Coin or value coin cell. Amounts scale with
+  // the bet via the multipliers above.
+  [0, 1, 2, 3, 4, 5, 6, 7, 8].forEach(i => { if (isJackpotCoin(grid[i])) grid[i] = rReg(); });
+  {
+    const jr = Math.random();
+    const tier = jr < 0.004 ? 'ULTRA' : jr < 0.012 ? 'MAX' : jr < 0.03 ? 'MID' : jr < 0.06 ? 'MIN' : null;
+    if (tier) {
+      const empty = [0, 1, 2, 3, 4, 5, 6, 7, 8].filter(i => grid[i] !== 'coin' && !isValueCoin(grid[i]));
+      if (empty.length) grid[empty[Math.floor(Math.random() * empty.length)]] = 'jp' + tier;
+    }
+  }
+
   // RTP gate: with probability (1 - rtp/100) force a losing board, otherwise
   // guarantee at least one winning line so the win rate equals rtp/100.
   const forceLoss = Math.random() * 100 > rtp;
@@ -118,7 +143,7 @@ export function spinGrid(rtp = 50) {
     const { lines } = evaluateGrid(grid);
     if (!lines.length) {
       // build a winning line of a regular symbol, avoiding Crown Coin / value coin cells
-      const candLines = PAYLINES.filter(ln => ln.idxs.every(i => grid[i] !== 'coin' && !isValueCoin(grid[i])));
+      const candLines = PAYLINES.filter(ln => ln.idxs.every(i => grid[i] !== 'coin' && !isValueCoin(grid[i]) && !isJackpotCoin(grid[i])));
       const ln = candLines.length ? candLines[Math.floor(Math.random() * candLines.length)] : PAYLINES[Math.floor(Math.random() * PAYLINES.length)];
       const sym = REG[Math.floor(Math.random() * REG.length)];
       ln.idxs.forEach(i => { grid[i] = sym; });
@@ -170,7 +195,7 @@ export function evaluateGrid(grid) {
   let totalMul = 0;
   for (const ln of PAYLINES) {
     const keys = ln.idxs.map(i => grid[i]);
-    if (keys[0] === keys[1] && keys[1] === keys[2] && keys[0] !== 'coin' && !isValueCoin(keys[0])) {
+    if (keys[0] === keys[1] && keys[1] === keys[2] && keys[0] !== 'coin' && !isValueCoin(keys[0]) && !isJackpotCoin(keys[0])) {
       const sym = symbolByKey(keys[0]);
       if (sym && sym.pay) {
         lines.push({ ...ln, symbol: keys[0], mul: sym.pay });
