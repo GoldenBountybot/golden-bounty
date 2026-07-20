@@ -139,27 +139,28 @@ export function isFreeSpinTrigger(grid) {
   return col0 && col2;
 }
 
-// Free spin accumulation: the anchor value coin (first trigger coin) stays
-// stuck; every other cell keeps spinning regular symbols. When a value coin
-// lands in a spinning cell it flies to the anchor and adds to its total
-// (handled by the component). `stuck` holds only the anchor + center crown.
+// Free spin accumulation: value coins that land stick across spins; remaining
+// cells keep spinning regular symbols. `stuck` is a 9-array (null or value-coin
+// key). Each column has a chance per spin to drop one new value coin in an
+// empty cell of that column. Returns { grid, stuck }.
 const FREE_COIN_CHANCE = 0.01; // per column per spin — 1% chance a value coin drops
 export function spinFreeAccum(stuck) {
   const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
   const rReg = () => REG[Math.floor(Math.random() * REG.length)];
+  const newStuck = [...stuck];
   const grid = Array.from({ length: 9 }, () => rReg());
-  // keep stuck cells fixed (anchor + crown)
-  stuck.forEach((k, i) => { if (k) grid[i] = k; });
-  // chance to drop a value coin into a spinning cell of each column
+  newStuck.forEach((k, i) => { if (k) grid[i] = k; });
   [0, 1, 2].forEach(col => {
     const rows = [col, col + 3, col + 6];
-    const empty = rows.filter(i => !stuck[i]);
+    const empty = rows.filter(i => !newStuck[i]);
     if (empty.length && Math.random() < FREE_COIN_CHANCE) {
       const cell = empty[Math.floor(Math.random() * empty.length)];
-      grid[cell] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
+      const k = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
+      newStuck[cell] = k;
+      grid[cell] = k;
     }
   });
-  return { grid, stuck }; // stuck unchanged — value coins fly to the anchor
+  return { grid, stuck: newStuck };
 }
 
 // Sum of all stuck value coins in dollars.
