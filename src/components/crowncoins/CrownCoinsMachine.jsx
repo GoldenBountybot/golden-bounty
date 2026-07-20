@@ -380,6 +380,8 @@ export default function CrownCoinsMachine() {
               marginLeft: '-6vw', marginTop: '-6vw',
               mixBlendMode: 'screen',
               filter: 'drop-shadow(0 0 6px rgba(255,210,80,0.9))',
+              WebkitMaskImage: 'radial-gradient(circle at center, #000 47%, transparent 53%)',
+              maskImage: 'radial-gradient(circle at center, #000 47%, transparent 53%)',
               ['--dx']: `${fl.dx}px`, ['--dy']: `${fl.dy}px`,
               animation: `ccCoinFly 1.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) ${fl.delay}ms forwards`,
             }}
