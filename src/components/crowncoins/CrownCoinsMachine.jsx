@@ -475,10 +475,37 @@ export default function CrownCoinsMachine() {
                 {stuckView.map((k, i) => (
                   <div key={i} className="flex items-center justify-center">
                     {k && (
-                      <div className="relative w-full h-full flex items-center justify-center" style={{ animation: 'ccReelLand 0.45s ease-out' }}>
-                        <img src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' }} />
+                      <div
+                        className="relative w-full h-full flex items-center justify-center"
+                        style={{ animation: 'ccReelLand 0.45s ease-out' }}
+                      >
+                        <div
+                          className="absolute inset-[3px] rounded-[3px] pointer-events-none"
+                          style={{
+                            border: '2px solid #d4af37',
+                            borderRadius: '4px',
+                            animation: 'ccFireFlicker 0.9s ease-in-out infinite',
+                          }}
+                        />
+                        {/* Embers rising along the border */}
+                        {[0, 1, 2, 3].map(e => (
+                          <span
+                            key={e}
+                            className="absolute pointer-events-none rounded-full"
+                            style={{
+                              left: ['18%', '48%', '72%', '34%'][e],
+                              bottom: '14%',
+                              width: '3px',
+                              height: '3px',
+                              background: 'radial-gradient(circle, #ffd24a, rgba(255,120,0,0.8) 60%, transparent)',
+                              animation: `ccFireEmber ${0.8 + e * 0.18}s ease-out ${e * 0.25}s infinite`,
+                              '--ex': `${(e % 2 === 0 ? 1 : -1) * (4 + e * 2)}px`,
+                            }}
+                          />
+                        ))}
+                        <img src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="relative w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' }} />
                         {k !== 'coin' && (
-                          <span className="absolute font-black text-yellow-100" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
+                          <span className="absolute font-black text-yellow-100 z-10" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
                         )}
                       </div>
                     )}

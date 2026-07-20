@@ -337,6 +337,20 @@
   50%      { opacity: 1; }
 }
 
+@keyframes ccFireFlicker {
+  0%   { box-shadow: 0 0 6px 1px rgba(255,140,0,0.85), 0 0 12px 2px rgba(255,80,0,0.6), inset 0 0 0 2px #ffd24a; filter: brightness(1) saturate(1.1); }
+  25%  { box-shadow: 0 0 10px 2px rgba(255,170,0,0.95), 0 0 18px 3px rgba(255,90,0,0.75), inset 0 0 0 2px #ffe9a8; filter: brightness(1.12) saturate(1.2); }
+  50%  { box-shadow: 0 0 7px 1px rgba(255,120,0,0.9), 0 0 14px 2px rgba(255,70,0,0.65), inset 0 0 0 2px #ffd24a; filter: brightness(1) saturate(1.1); }
+  75%  { box-shadow: 0 0 11px 2px rgba(255,180,0,1), 0 0 20px 4px rgba(255,100,0,0.8), inset 0 0 0 2px #ffe9a8; filter: brightness(1.15) saturate(1.25); }
+  100% { box-shadow: 0 0 6px 1px rgba(255,140,0,0.85), 0 0 12px 2px rgba(255,80,0,0.6), inset 0 0 0 2px #ffd24a; filter: brightness(1) saturate(1.1); }
+}
+
+@keyframes ccFireEmber {
+  0%   { transform: translate(-50%, 0) scale(1); opacity: 0; }
+  20%  { opacity: 0.9; }
+  100% { transform: translate(calc(-50% + var(--ex, 0px)), -22px) scale(0.3); opacity: 0; }
+}
+
 @keyframes ccTriggerGlow {
   0%   { opacity: 0; box-shadow: inset 0 0 0 rgba(255,200,0,0); background: radial-gradient(circle at center, rgba(255,200,0,0), transparent 70%); }
   18%  { opacity: 1; box-shadow: inset 0 0 26px rgba(255,200,0,1), 0 0 18px rgba(255,200,80,0.9); background: radial-gradient(circle at center, rgba(253,224,71,0.6), transparent 70%); }
