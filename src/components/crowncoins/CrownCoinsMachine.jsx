@@ -411,7 +411,7 @@ export default function CrownCoinsMachine() {
       {DiamondBG}
 
       <div className="max-w-lg mx-auto px-3 pt-0 pb-4 flex flex-col gap-0">
-        <div className="flex items-center justify-between -mb-4">
+        <div className="flex items-center justify-between -mb-6">
           <button onClick={() => setShowInfo(true)} className="w-6 h-6 rounded-full border border-white/70 flex items-center justify-center text-white/90 bg-black/20">
             <Info className="w-3.5 h-3.5" />
           </button>
@@ -429,7 +429,7 @@ export default function CrownCoinsMachine() {
         </div>
 
         <div
-          className="relative rounded-lg p-1 overflow-hidden -mt-28 w-full"
+          className="relative rounded-lg p-1 overflow-hidden -mt-32 w-full"
           style={{
             border: '2px solid #d4af37',
             boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 1px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)',
