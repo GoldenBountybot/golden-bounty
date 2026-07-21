@@ -151,9 +151,9 @@ export default function PayMethod() {
         {amount <= 0 ? (
           <WesternFrame variant="glass" className="p-5 flex flex-col items-center gap-3 text-center">
             <AlertTriangle className="w-8 h-8 text-amber-400" />
-            <p className="text-amber-100 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>কোনো ডিপোজিট অ্যামাউন্ট নির্বাচন করা হয়নি।</p>
-            <p className="text-amber-100/60 text-xs italic">ড্যাশবোর্ড থেকে ডিপোজিট অ্যামাউন্ট নির্বাচন করুন।</p>
-            <button onClick={() => window.location.href = '/dashboard'} className="px-4 py-2 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>ড্যাশবোর্ডে যান</button>
+            <p className="text-amber-100 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>No deposit amount selected.</p>
+            <p className="text-amber-100/60 text-xs italic">Please choose a deposit amount from the dashboard.</p>
+            <button onClick={() => window.location.href = '/dashboard'} className="px-4 py-2 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>Go to Dashboard</button>
           </WesternFrame>
         ) : (
         <>
