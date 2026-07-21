@@ -1,34 +1,37 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
-import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 
-const WAIT_MS = 5000;        // betting window before each round
-const CRASH_HOLD_MS = 3500;  // show crash result before next round
-const GROWTH = 1.10;          // multiplier = GROWTH ^ elapsedSec  (gentle takeoff, doubles ~ every 7.3s)
+const WAIT_MS = 5000;        // betting window (must match server)
+const GROWTH = 1.10;         // multiplier = GROWTH ^ elapsedSec
+const POLL_MS = 800;         // how often we sync with the shared round
 
 const NAMES = ['Crypto_Kid', 'xX_Rider', 'FlyHigh', 'AcePilot', 'Midnight', 'BlueFox',
   'GoldRush', 'NeonSam', 'QuickDraw', 'Vega', 'Lucky7', 'Storm', 'Maverick', 'Phoenix',
   'Zara', 'Rex', 'Nova', 'Dynamo', 'Blaze', 'Echo', 'Hawk', 'Iris', 'Jett', 'Kilo',
   'Luna', 'Onyx', 'Pixel', 'Quartz', 'Raven', 'Sable', 'Tango', 'Viper'];
 
-// Provably-fair style crash point from RTP: P(crash <= m) = 1 - rtp/m
-function genCrashPoint(rtp) {
-  const r = Math.random();
-  let crash = (rtp / 100) / (1 - r);
-  if (crash < 1.00) crash = 1.00;   // instant bust
-  return Math.min(crash, 250);
+// Deterministic PRNG so every user sees the same fake live-bet list per round.
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
-function genLiveBets() {
-  const n = 10 + Math.floor(Math.random() * 16);
+function genLiveBets(roundId) {
+  const rnd = mulberry32((roundId || 1) * 2654435761);
+  const n = 10 + Math.floor(rnd() * 16);
   const arr = [];
   for (let i = 0; i < n; i++) {
     arr.push({
-      id: Math.random().toString(36).slice(2),
-      name: NAMES[Math.floor(Math.random() * NAMES.length)] + (Math.floor(Math.random() * 900) + 100),
-      amount: +(Math.random() * 95 + 1).toFixed(2),
-      cashOutAt: +(1.15 + Math.random() * 9).toFixed(2),
+      id: roundId + '-' + i,
+      name: NAMES[Math.floor(rnd() * NAMES.length)] + (Math.floor(rnd() * 900) + 100),
+      amount: +(rnd() * 95 + 1).toFixed(2),
+      cashOutAt: +(1.15 + rnd() * 9).toFixed(2),
       cashedOut: false,
       win: 0,
     });
@@ -36,74 +39,121 @@ function genLiveBets() {
   return arr;
 }
 
+const newPanel = () => ({ amount: 1, placed: false, cashedOut: false, cashOutMult: null, autoBet: false, autoCashout: 0, win: 0 });
+
 export function useCrashGame() {
   const { balance, setBalance } = useCasinoBalance();
-  const { rtp } = useGameSettings('rocket-crash');
   const logActivity = useLogActivity();
-  const rtpRef = useRef(97);
-  useEffect(() => { rtpRef.current = rtp || 97; }, [rtp]);
 
-  const [phase, setPhase] = useState('waiting');      // waiting | running | crashed
+  const [phase, setPhase] = useState('waiting');
   const [multiplier, setMultiplier] = useState(1.00);
-  const [history, setHistory] = useState(() =>
-    Array.from({ length: 16 }, () => +(1 + Math.random() * 4).toFixed(2)));
+  const [history, setHistory] = useState([]);
   const [countdown, setCountdown] = useState(WAIT_MS);
-  const [bets, setBets] = useState([
-    { amount: 1, placed: false, cashedOut: false, cashOutMult: null, autoBet: false, autoCashout: 0, win: 0 },
-    { amount: 1, placed: false, cashedOut: false, cashOutMult: null, autoBet: false, autoCashout: 0, win: 0 },
-  ]);
+  const [bets, setBets] = useState([newPanel(), newPanel()]);
   const [liveBets, setLiveBets] = useState([]);
+  const [roundId, setRoundId] = useState(0);
 
   const rafRef = useRef(null);
-  const startRef = useRef(0);
-  const crashRef = useRef(0);
-  const multRef = useRef(1.00);
   const phaseRef = useRef('waiting');
+  const multRef = useRef(1.00);
   const betsRef = useRef(bets);
   const liveRef = useRef(liveBets);
   const balanceRef = useRef(balance);
-  const timers = useRef([]);
+  const serverOffsetRef = useRef(0);
+  const roundIdRef = useRef(0);
+  const waitStartRef = useRef(0);
+  const runStartRef = useRef(0);
+  const crashPointRef = useRef(1);
 
-  useEffect(() => { phaseRef.current = phase; }, [phase]);
   useEffect(() => { betsRef.current = bets; }, [bets]);
   useEffect(() => { liveRef.current = liveBets; }, [liveBets]);
   useEffect(() => { balanceRef.current = balance; }, [balance]);
 
-  useEffect(() => () => {
-    cancelAnimationFrame(rafRef.current);
-    timers.current.forEach(clearTimeout);
-  }, []);
+  // Apply a snapshot of the shared round coming from the server.
+  const applyState = useCallback((data) => {
+    if (!data) return;
+    serverOffsetRef.current = data.now - Date.now();
 
-  // round lifecycle
-  useEffect(() => {
-    if (phase === 'waiting') {
-      const cp = genCrashPoint(rtpRef.current);
-      crashRef.current = cp;
-      setLiveBets(genLiveBets());
-      const start = Date.now();
-      const tick = () => {
-        const left = WAIT_MS - (Date.now() - start);
-        setCountdown(Math.max(0, left));
-        if (left <= 0) { setPhase('running'); startRef.current = Date.now(); return; }
-        timers.current.push(setTimeout(tick, 100));
-      };
-      tick();
-      return () => { timers.current.forEach(clearTimeout); timers.current = []; };
+    const prevRound = roundIdRef.current;
+    const prevPhase = phaseRef.current;
+
+    if (data.round_id !== prevRound) {
+      roundIdRef.current = data.round_id;
+      setRoundId(data.round_id);
+
+      // Reset panels for the new round; auto-bet only fires during the waiting window.
+      let balDelta = 0;
+      const reset = betsRef.current.map((b) => {
+        const r = { ...b, placed: false, cashedOut: false, cashOutMult: null, win: 0 };
+        if (data.phase === 'waiting' && b.autoBet && balanceRef.current + balDelta >= b.amount) {
+          balDelta -= b.amount;
+          return { ...r, placed: true };
+        }
+        return r;
+      });
+      if (balDelta) { balanceRef.current += balDelta; setBalance((bal) => bal + balDelta); }
+      betsRef.current = reset;
+      setBets(reset);
+
+      const lb = genLiveBets(data.round_id);
+      liveRef.current = lb;
+      setLiveBets(lb);
+
+      setHistory(data.history || []);
+    } else if (data.phase === 'crashed' && prevPhase === 'running') {
+      setHistory(data.history || []);
     }
 
-    if (phase === 'running') {
-      const loop = () => {
-        const elapsed = (Date.now() - startRef.current) / 1000;
-        const m = Math.pow(GROWTH, elapsed);
-        const cp = crashRef.current;
-        if (m >= cp) { setMultiplier(cp); multRef.current = cp; setPhase('crashed'); return; }
-        setMultiplier(m);
+    waitStartRef.current = data.wait_start;
+    runStartRef.current = data.run_start;
+    crashPointRef.current = data.crash_point;
+
+    if (data.phase !== prevPhase) {
+      phaseRef.current = data.phase;
+      setPhase(data.phase);
+      if (data.phase === 'crashed' && prevPhase === 'running') {
+        const totalBet = betsRef.current.reduce((s, b) => s + (b.placed ? b.amount : 0), 0);
+        const totalWin = betsRef.current.reduce((s, b) => s + (b.cashedOut ? b.win : 0), 0);
+        logActivity('rocket-crash', totalBet, totalWin, totalWin > 0 ? 'win' : 'loss');
+      }
+    }
+  }, [logActivity, setBalance]);
+
+  // Poll the shared round orchestrator.
+  useEffect(() => {
+    let active = true;
+    const poll = async () => {
+      try {
+        const res = await base44.functions.invoke('crashRoundTick', {});
+        if (active && res && res.data) applyState(res.data);
+      } catch (_e) {}
+    };
+    poll();
+    const id = setInterval(poll, POLL_MS);
+    return () => { active = false; clearInterval(id); };
+  }, [applyState]);
+
+  // Smooth local rendering + auto cashouts between server syncs.
+  useEffect(() => {
+    const loop = () => {
+      const now = Date.now() + serverOffsetRef.current;
+      const ph = phaseRef.current;
+
+      if (ph === 'waiting') {
+        const left = Math.max(0, WAIT_MS - (now - waitStartRef.current));
+        setCountdown(left);
+        if (multRef.current !== 1.00) { multRef.current = 1.00; setMultiplier(1.00); }
+      } else if (ph === 'running') {
+        const elapsed = (now - runStartRef.current) / 1000;
+        let m = Math.pow(GROWTH, Math.max(0, elapsed));
+        if (m >= crashPointRef.current) m = crashPointRef.current;
         multRef.current = m;
+        setMultiplier(m);
 
         // auto cashout — player bets
         let balAdd = 0;
         let changed = false;
-        const next = betsRef.current.map(b => {
+        const next = betsRef.current.map((b) => {
           if (b.placed && !b.cashedOut && b.autoCashout > 0 && m >= b.autoCashout) {
             const win = +(b.amount * b.autoCashout).toFixed(2);
             balAdd += win; changed = true;
@@ -111,11 +161,11 @@ export function useCrashGame() {
           }
           return b;
         });
-        if (changed) { betsRef.current = next; setBets(next); setBalance(bal => bal + balAdd); }
+        if (changed) { betsRef.current = next; setBets(next); setBalance((bal) => bal + balAdd); }
 
-        // auto cashout — live (fake) bets
+        // auto cashout — shared live bets
         let lbChanged = false;
-        const lbnext = liveRef.current.map(lb => {
+        const lbnext = liveRef.current.map((lb) => {
           if (!lb.cashedOut && m >= lb.cashOutAt) {
             lbChanged = true;
             return { ...lb, cashedOut: true, win: +(lb.amount * lb.cashOutAt).toFixed(2) };
@@ -123,50 +173,27 @@ export function useCrashGame() {
           return lb;
         });
         if (lbChanged) { liveRef.current = lbnext; setLiveBets(lbnext); }
+      } else if (ph === 'crashed') {
+        if (multRef.current !== crashPointRef.current) {
+          multRef.current = crashPointRef.current;
+          setMultiplier(crashPointRef.current);
+        }
+      }
 
-        rafRef.current = requestAnimationFrame(loop);
-      };
       rafRef.current = requestAnimationFrame(loop);
-      return () => cancelAnimationFrame(rafRef.current);
-    }
-
-    if (phase === 'crashed') {
-      const totalBet = betsRef.current.reduce((s, b) => s + (b.placed ? b.amount : 0), 0);
-      const totalWin = betsRef.current.reduce((s, b) => s + (b.cashedOut ? b.win : 0), 0);
-      logActivity('rocket-crash', totalBet, totalWin, totalWin > 0 ? 'win' : 'loss');
-      setHistory(h => [crashRef.current, ...h].slice(0, 22));
-
-      const t = setTimeout(() => {
-        // reset for next round + apply auto-bet
-        let balDelta = 0;
-        const reset = betsRef.current.map(b => {
-          const r = { ...b, placed: false, cashedOut: false, cashOutMult: null, win: 0 };
-          if (b.autoBet && balanceRef.current + balDelta >= b.amount) {
-            balDelta -= b.amount;
-            return { ...r, placed: true };
-          }
-          return r;
-        });
-        if (balDelta) { balanceRef.current += balDelta; setBalance(bal => bal + balDelta); }
-        betsRef.current = reset;
-        setBets(reset);
-        setMultiplier(1.00);
-        multRef.current = 1.00;
-        setPhase('waiting');
-      }, CRASH_HOLD_MS);
-      timers.current.push(t);
-      return () => clearTimeout(t);
-    }
-  }, [phase]);
+    };
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
 
   const placeBet = (i) => {
     if (phaseRef.current !== 'waiting') return;
     const b = betsRef.current[i];
     if (b.placed) return;
     if (balanceRef.current < b.amount) return;
-    setBalance(bal => bal - b.amount);
+    setBalance((bal) => bal - b.amount);
     balanceRef.current -= b.amount;
-    const next = betsRef.current.map((bb, idx) => idx === i ? { ...bb, placed: true } : bb);
+    const next = betsRef.current.map((bb, idx) => (idx === i ? { ...bb, placed: true } : bb));
     betsRef.current = next;
     setBets(next);
   };
@@ -175,9 +202,9 @@ export function useCrashGame() {
     if (phaseRef.current !== 'waiting') return;
     const b = betsRef.current[i];
     if (!b.placed) return;
-    setBalance(bal => bal + b.amount);
+    setBalance((bal) => bal + b.amount);
     balanceRef.current += b.amount;
-    const next = betsRef.current.map((bb, idx) => idx === i ? { ...bb, placed: false } : bb);
+    const next = betsRef.current.map((bb, idx) => (idx === i ? { ...bb, placed: false } : bb));
     betsRef.current = next;
     setBets(next);
   };
@@ -188,10 +215,10 @@ export function useCrashGame() {
     if (!b.placed || b.cashedOut) return;
     const m = multRef.current;
     const win = +(b.amount * m).toFixed(2);
-    setBalance(bal => bal + win);
+    setBalance((bal) => bal + win);
     balanceRef.current += win;
     const next = betsRef.current.map((bb, idx) =>
-      idx === i ? { ...bb, cashedOut: true, cashOutMult: +m.toFixed(2), win } : bb);
+      (idx === i ? { ...bb, cashedOut: true, cashOutMult: +m.toFixed(2), win } : bb));
     betsRef.current = next;
     setBets(next);
   };
@@ -199,14 +226,14 @@ export function useCrashGame() {
   const setAmount = (i, amt) => {
     const n = +(amt || 0);
     const v = Math.max(0.10, Math.min(500, +(isFinite(n) ? n : 0).toFixed(2)));
-    setBets(prev => prev.map((b, idx) => idx === i ? { ...b, amount: v } : b));
+    setBets((prev) => prev.map((b, idx) => (idx === i ? { ...b, amount: v } : b)));
   };
-  const toggleAutoBet = (i) => setBets(prev => prev.map((b, idx) => idx === i ? { ...b, autoBet: !b.autoBet } : b));
-  const toggleAutoCashout = (i) => setBets(prev => prev.map((b, idx) => idx === i ? { ...b, autoCashout: b.autoCashout > 0 ? 0 : 2 } : b));
-  const setAutoCashout = (i, v) => setBets(prev => prev.map((b, idx) => idx === i ? { ...b, autoCashout: Math.max(1.01, +v || 0) } : b));
+  const toggleAutoBet = (i) => setBets((prev) => prev.map((b, idx) => (idx === i ? { ...b, autoBet: !b.autoBet } : b)));
+  const toggleAutoCashout = (i) => setBets((prev) => prev.map((b, idx) => (idx === i ? { ...b, autoCashout: b.autoCashout > 0 ? 0 : 2 } : b)));
+  const setAutoCashout = (i, v) => setBets((prev) => prev.map((b, idx) => (idx === i ? { ...b, autoCashout: Math.max(1.01, +v || 0) } : b)));
 
   return {
-    phase, multiplier, history, countdown, bets, liveBets, balance,
+    phase, multiplier, history, countdown, bets, liveBets, balance, roundId,
     placeBet, cancelBet, cashOut, setAmount, toggleAutoBet, toggleAutoCashout, setAutoCashout,
   };
 }

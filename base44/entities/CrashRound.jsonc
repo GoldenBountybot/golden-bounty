@@ -1,0 +1,79 @@
+{
+  "name": "CrashRound",
+  "type": "object",
+  "properties": {
+    "current": {
+      "type": "boolean",
+      "default": true,
+      "description": "Marks the singleton record representing the live round"
+    },
+    "round_id": {
+      "type": "number",
+      "default": 1
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "waiting",
+        "running",
+        "crashed"
+      ],
+      "default": "waiting"
+    },
+    "crash_point": {
+      "type": "number",
+      "default": 1,
+      "description": "Multiplier at which the current round busts"
+    },
+    "wait_start": {
+      "type": "number",
+      "default": 0,
+      "description": "Server epoch ms when the betting window started"
+    },
+    "run_start": {
+      "type": "number",
+      "default": 0,
+      "description": "Server epoch ms when the round started flying"
+    },
+    "crash_at": {
+      "type": "number",
+      "default": 0,
+      "description": "Server epoch ms when the round busted"
+    },
+    "final_multiplier": {
+      "type": "number",
+      "default": 1
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "default": [],
+      "description": "Recent crash points, newest first"
+    }
+  },
+  "required": [
+    "current",
+    "round_id",
+    "phase"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": true,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
