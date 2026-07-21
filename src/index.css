@@ -323,10 +323,10 @@
 /* Crown Coins — value coin flying to the Crown Coins banner */
 @keyframes ccCoinFly {
   0%   { transform: translate(0, 0) scale(1.4) rotateY(0deg);    opacity: 1; filter: brightness(1) drop-shadow(0 0 5px rgba(255,210,80,0.7)); }
-  10%  { transform: translate(0, 0) scale(1.4) rotateY(0deg);    opacity: 1; filter: brightness(1.1) drop-shadow(0 0 7px rgba(255,210,80,0.85)); }
-  55%  { transform: translate(0, 0) scale(1.4) rotateY(720deg);   opacity: 1; filter: brightness(1.2) drop-shadow(0 0 10px rgba(255,220,100,1)); }
-  70%  { transform: translate(calc(var(--dx) * 0.55), calc(var(--dy) * 0.55)) scale(0.85) rotateY(720deg); opacity: 0.92; filter: brightness(2.4) blur(1px) drop-shadow(0 0 16px rgba(255,240,150,1)); }
-  100% { transform: translate(var(--dx), var(--dy)) scale(0.25) rotateY(720deg); opacity: 0; filter: brightness(3.2) blur(5px) drop-shadow(0 0 24px rgba(255,250,200,1)); }
+  45%  { transform: translate(0, 0) scale(1.4) rotateY(360deg);   opacity: 1; filter: brightness(1.15) drop-shadow(0 0 9px rgba(255,220,100,0.95)); }
+  62%  { transform: translate(calc(var(--dx) * 0.28), calc(var(--dy) * 0.28)) scale(1.55) rotateY(360deg); opacity: 1; filter: brightness(2) blur(1.5px) drop-shadow(0 0 16px rgba(255,240,150,1)); }
+  78%  { transform: translate(calc(var(--dx) * 0.6), calc(var(--dy) * 0.6)) scale(1.1) rotateY(360deg); opacity: 0.85; filter: brightness(3.2) blur(4px) drop-shadow(0 0 22px rgba(255,250,200,1)); }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.3) rotateY(360deg); opacity: 0; filter: brightness(4.5) blur(9px) drop-shadow(0 0 30px rgba(255,255,210,1)); }
 }
 
 @keyframes ccSparkle {

@@ -390,7 +390,7 @@ export default function CrownCoinsMachine() {
         if (coins.length) {
           setFlyCoins(coins);
           coins.forEach((c, idx) => { const t = setTimeout(() => playCoinSound(), idx * 130); timers.current.push(t); });
-          const tClear = setTimeout(() => setFlyCoins([]), 1350);
+          const tClear = setTimeout(() => setFlyCoins([]), 1950);
           timers.current.push(tClear);
         }
       }
@@ -779,7 +779,7 @@ export default function CrownCoinsMachine() {
       {showRoyalBanner && <RoyalTreasuryBanner onContinue={continueRoyalBanner} winAmount={royalWin} />}
 
       {flyCoins.map(c => (
-        <div key={c.id} className="absolute pointer-events-none" style={{ left: c.fx, top: c.fy, animation: 'ccCoinFly 1.2s ease-in forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}>
+        <div key={c.id} className="absolute pointer-events-none" style={{ left: c.fx, top: c.fy, animation: 'ccCoinFly 1.8s ease-in forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}>
           <div className="relative w-9 h-9 flex items-center justify-center">
             <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" style={{ WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain' }} />
             <span className="absolute font-black text-yellow-100" style={{ fontSize: '8px', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}>${(c.mult * bet).toFixed(2)}</span>
