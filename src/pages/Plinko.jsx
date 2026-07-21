@@ -164,6 +164,8 @@ export default function Plinko() {
   const [dropping, setDropping] = useState(false);
   const [ballPos, setBallPos] = useState(null);
   const [resultBucket, setResultBucket] = useState(null);
+  const [hitPeg, setHitPeg] = useState(null);
+  const [bounceKey, setBounceKey] = useState(0);
   const [message, setMessage] = useState('Drop the ball');
   const [lastWin, setLastWin] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -215,6 +217,8 @@ export default function Plinko() {
     let step = 0;
     const animate = () => {
       setBallPos(path[step]);
+      setBounceKey(k => k + 1);
+      setHitPeg(path[step]);
       if (step > 0) playPeg();
       if (step < path.length - 1) {
         const t = setTimeout(() => { step++; animate(); }, 260);
@@ -283,19 +287,29 @@ export default function Plinko() {
         {/* Board */}
         <div className="relative w-full mx-auto" style={{ maxWidth: 420, aspectRatio: '1.5 / 1', clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)', background: 'radial-gradient(circle at 50% 100%, rgba(139,92,246,0.12), transparent 70%)' }}>
           {Array.from({ length: ROWS + 1 }).map((_, r) =>
-            Array.from({ length: r + 1 }).map((_, c) => (
-              <span
-                key={`p-${r}-${c}`}
-                className="absolute rounded-full"
-                style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: 9, height: 9, background: 'radial-gradient(circle at 35% 30%, #fff3d6, #e0b94e 55%, #9a6a1e)', boxShadow: '0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55)' }}
-              />
-            ))
+            Array.from({ length: r + 1 }).map((_, c) => {
+              const isHit = hitPeg && hitPeg.row === r && hitPeg.col === c;
+              const size = r === 0 ? 22 : 14;
+              return (
+                <span
+                  key={`p-${r}-${c}`}
+                  className="absolute rounded-full"
+                  style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: size, height: size, background: 'radial-gradient(circle at 35% 30%, #fff3d6, #e0b94e 55%, #9a6a1e)', boxShadow: '0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55)', ...(isHit ? { animation: 'plinkoPegHit 0.26s ease-out' } : {}) }}
+                />
+              );
+            })
           )}
           {ballPos && (
             <span
-              className="absolute rounded-full z-10"
-              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 15, height: 15, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.26s linear, top 0.26s linear' }}
-            />
+              className="absolute z-10"
+              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', transition: 'left 0.26s linear, top 0.26s linear' }}
+            >
+              <span
+                key={bounceKey}
+                className="block rounded-full"
+                style={{ width: 16, height: 16, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', animation: 'plinkoBounce 0.26s ease-out' }}
+              />
+            </span>
           )}
           <div className="absolute inset-x-0 bottom-1 flex gap-0.5 px-1">
             {MULTS.map((m, i) => {
