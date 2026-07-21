@@ -49,6 +49,7 @@
     "@ton/core": "^0.60.1",
     "@tonconnect/ui-react": "^2.4.4",
     "@walletconnect/ethereum-provider": "^2.23.10",
+    "buffer": "^6.0.3",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
