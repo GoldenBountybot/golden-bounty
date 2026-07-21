@@ -117,7 +117,7 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
 
   const busy = ['sending', 'verifying'].includes(status);
   const statusText = {
-    sending: 'Sending transaction request to Tonkeeper…',
+    sending: 'Sending transaction request to Ton Wallet…',
     verifying: 'Waiting for blockchain confirmation and adding balance…',
   }[status];
 
@@ -127,7 +127,7 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
         <button onClick={onBack} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md italic font-bold border border-amber-600/80 text-amber-200 bg-black/40 active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>
           <ChevronLeft className="w-4 h-4" /> Back
         </button>
-        <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Tonkeeper (TON) Deposit</h1>
+        <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Ton Wallet (TON) Deposit</h1>
       </div>
 
       <WesternFrame glow variant="glass" className="p-4 flex items-center justify-between">
@@ -149,7 +149,7 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
         <div className="flex items-center gap-2 p-3 rounded-md border border-amber-700/40 bg-black/30 text-amber-200 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>
           <Loader2 className="w-4 h-4 animate-spin" /> {statusText}
           {status === 'sending' && (
-            <p className="text-[12px] text-amber-100/80 italic ml-2">Confirm the transaction in the Tonkeeper app. A small amount of TON is needed for gas.</p>
+            <p className="text-[12px] text-amber-100/80 italic ml-2">Confirm the transaction in the Ton Wallet app. A small amount of TON is needed for gas.</p>
           )}
         </div>
       )}
@@ -162,7 +162,7 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
           </div>
           {!connected ? (
             <button onClick={() => tonConnectUI?.openModal()} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
-              <Smartphone className="w-5 h-5" /> Connect Tonkeeper
+              <Smartphone className="w-5 h-5" /> Connect Ton Wallet
             </button>
           ) : (
             <button onClick={deposit} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 text-stone-950 font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>

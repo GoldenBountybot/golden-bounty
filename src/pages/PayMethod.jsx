@@ -13,7 +13,7 @@ const METHODS = [
   { id: 'usdt', label: 'Pay USDT in Crypto', badge: '₮', badgeClass: 'bg-emerald-500 text-white ring-emerald-300', hint: 'Tether (USDT) transfer' },
   { id: 'crypto', label: 'Pay Crypto', badge: null, icon: Bitcoin, iconClass: 'text-amber-300', hint: 'BTC / ETH / BNB & other coins' },
   { id: 'trust', label: 'Trust Wallet', badge: 'T', badgeClass: 'bg-blue-600 text-white ring-blue-300', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
-  { id: 'tonkeeper', label: 'Tonkeeper (TON)', badge: 'T', badgeClass: 'bg-sky-500 text-white ring-sky-300', hint: 'Connect Tonkeeper & pay USDT (TON) — auto credit' },
+  { id: 'tonkeeper', label: 'Ton Wallet (TON)', badge: 'T', badgeClass: 'bg-sky-500 text-white ring-sky-300', hint: 'Connect Ton Wallet & pay USDT (TON) — auto credit' },
 ];
 
 const USDT_NETWORKS = [
@@ -96,7 +96,7 @@ export default function PayMethod() {
   };
 
   const networks = view === 'usdt' ? payData.usdt : view === 'crypto' ? payData.crypto : [];
-  const methodLabel = view === 'usdt' ? 'USDT Deposit' : view === 'crypto' ? 'Crypto Deposit' : view === 'tonkeeper' ? 'Tonkeeper Deposit' : 'Binance Pay Deposit';
+  const methodLabel = view === 'usdt' ? 'USDT Deposit' : view === 'crypto' ? 'Crypto Deposit' : view === 'tonkeeper' ? 'Ton Wallet Deposit' : 'Binance Pay Deposit';
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950 pb-10">
