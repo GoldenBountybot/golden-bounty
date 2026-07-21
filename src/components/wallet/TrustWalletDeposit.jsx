@@ -1,51 +1,44 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { QRCodeSVG } from 'qrcode.react';
-import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome } from 'lucide-react';
-import { connectWalletConnect, hasWalletConnect, onWalletConnectUri } from '@/lib/walletConnect';
+import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, ChevronDown } from 'lucide-react';
+import { connectWalletConnect, hasWalletConnect, onWalletConnectUri, preloadWalletConnect } from '@/lib/walletConnect';
+import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 
-// Trust Wallet deposit on BNB Smart Chain USDT. Two connect paths:
-//  - Mobile app via WalletConnect (QR scan) — works on phones.
-//  - Injected provider (Trust extension / MetaMask) — desktop.
-const BSC_PARAMS = {
-  chainId: '0x38',
-  chainName: 'BNB Smart Chain',
-  nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-  rpcUrls: ['https://bsc-dataseed.binance.org'],
-  blockExplorerUrls: ['https://bscscan.com'],
-};
-const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955'; // BSC USDT (18 decimals)
-const ADMIN_BSC = '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570';
-
-function getInjectedProvider() {
-  if (typeof window === 'undefined') return null;
-  return window.trustwallet || window.ethereum || null;
-}
-function toHexAmount(usd) {
-  return '0x' + BigInt(Math.round(usd * 1e18)).toString(16);
+function toHexAmount(usd, decimals) {
+  const factor = Math.pow(10, decimals);
+  return '0x' + BigInt(Math.round(usd * factor)).toString(16);
 }
 function pad32(addr) {
   let h = String(addr).toLowerCase().replace(/^0x/, '');
   while (h.length < 64) h = '0' + h;
   return '0x' + h;
 }
+function getInjectedProvider() {
+  if (typeof window === 'undefined') return null;
+  return window.trustwallet || window.ethereum || null;
+}
+const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent || '');
 
 export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const { setBalance } = useCasinoBalance();
   const { toast } = useToast();
+  const [netKey, setNetKey] = useState(USDT_NETWORKS[0].key);
   const [account, setAccount] = useState(null);
   const [status, setStatus] = useState('idle'); // idle|connecting|connected|sending|confirming|verifying|done|error
   const [errMsg, setErrMsg] = useState('');
   const [wcUri, setWcUri] = useState('');
   const providerRef = useRef(null);
   const accountRef = useRef(null);
+  const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
 
-  const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent || '');
+  // Pre-warm the WalletConnect provider for the default chain → faster connect.
+  useEffect(() => { if (hasWalletConnect()) preloadWalletConnect(net.chainId); }, []);
 
-  // সরাসরি Trust Wallet অ্যাপ খুলে কানেক্ট → কানেক্ট হলেই অটো পেমেন্ট রিকোয়েস্ট পাঠায়।
+  // সরাসরি Trust Wallet অ্যাপ খুলে কানেক্ট → কানেক্ট হলেই অটো পেমেন্ট রিকোয়েস্ট।
   const connectAndPay = async () => {
     if (!hasWalletConnect()) {
       setErrMsg('WalletConnect projectId সেট করা হয়নি (src/lib/walletConfig.js)।');
@@ -59,7 +52,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         try { window.open('https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
       }
     });
-    const res = await connectWalletConnect();
+    const res = await connectWalletConnect(net.chainId);
     if (res && res.account) {
       providerRef.current = res.provider;
       accountRef.current = res.account;
@@ -74,15 +67,24 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
 
   const connectInjected = async () => {
     const p = getInjectedProvider();
-    if (!p) { setErrMsg('কোনো ইনজেক্টেড ওয়ালেট নেই। মোবাইল QR ব্যবহার করুন।'); setStatus('error'); return; }
+    if (!p) { setErrMsg('কোনো ইনজেক্টেড ওয়ালেট নেই। মোবাইল অ্যাপ ব্যবহার করুন।'); setStatus('error'); return; }
     setStatus('connecting'); setErrMsg(''); setWcUri('');
     try {
       const accts = await p.request({ method: 'eth_requestAccounts' });
       try {
-        await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: BSC_PARAMS.chainId }] });
+        await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: net.chainIdHex }] });
       } catch (e) {
         if (e && (e.code === 4902 || e.code === -32603)) {
-          await p.request({ method: 'wallet_addEthereumChain', params: [BSC_PARAMS] });
+          await p.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: net.chainIdHex,
+              chainName: net.label,
+              nativeCurrency: { name: net.nativeName, symbol: net.nativeSymbol, decimals: 18 },
+              rpcUrls: [net.rpc],
+              blockExplorerUrls: [net.explorer],
+            }],
+          });
         } else { throw e; }
       }
       providerRef.current = p;
@@ -101,7 +103,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     }
     setStatus('connecting'); setErrMsg(''); setWcUri('');
     onWalletConnectUri(setWcUri);
-    const res = await connectWalletConnect();
+    const res = await connectWalletConnect(net.chainId);
     if (res && res.account) {
       providerRef.current = res.provider;
       accountRef.current = res.account;
@@ -120,10 +122,11 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
     try {
-      const data = '0xa9059cbb' + pad32(ADMIN_BSC).slice(2) + pad32(toHexAmount(amount)).slice(2);
+      // ERC20 transfer(address,uint256) → selected network's USDT contract.
+      const data = '0xa9059cbb' + pad32(net.admin).slice(2) + pad32(toHexAmount(amount, net.decimals)).slice(2);
       const txHash = await p.request({
         method: 'eth_sendTransaction',
-        params: [{ from: acct, to: USDT_CONTRACT, data, value: '0x0' }],
+        params: [{ from: acct, to: net.usdt, data, value: '0x0' }],
       });
       setStatus('confirming');
       let receipt = null;
@@ -136,7 +139,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       if (receipt.status !== '0x1') { setErrMsg('লেনদেন ব্যর্থ (reverted)।'); setStatus('error'); return; }
 
       setStatus('verifying');
-      const res = await base44.functions.invoke('verifyEvmDeposit', { txHash, amount, userWallet: acct });
+      const res = await base44.functions.invoke('verifyEvmDeposit', { txHash, amount, userWallet: acct, network: net.key });
       if (res?.data?.ok) {
         if (!res.data.already) setBalance((b) => b + Number(res.data.amount || amount));
         setStatus('done');
@@ -162,6 +165,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     confirming: 'ব্লকচেইনে কনফার্মেশনের জন্য অপেক্ষা…',
     verifying: 'ভেরিফিকেশন ও ব্যালেন্স যোগ হচ্ছে…',
   }[status];
+  const netLocked = busy || status === 'connected';
 
   return (
     <div className="flex flex-col gap-4">
@@ -172,11 +176,30 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Trust Wallet Deposit</h1>
       </div>
 
+      {/* Network selector */}
+      <div className="flex flex-col gap-1">
+        <label className="text-[10px] tracking-widest uppercase text-amber-300/70">USDT নেটওয়ার্ক বেছে নিন</label>
+        <div className="relative">
+          <select
+            value={netKey}
+            onChange={(e) => setNetKey(e.target.value)}
+            disabled={netLocked}
+            className="w-full appearance-none px-3 py-2.5 pr-9 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-sm font-bold italic outline-none disabled:opacity-50"
+            style={{ fontFamily: 'Georgia, serif' }}
+          >
+            {USDT_NETWORKS.map((n) => (
+              <option key={n.key} value={n.key} className="bg-stone-900 text-amber-100">{n.label}</option>
+            ))}
+          </select>
+          <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-amber-300 pointer-events-none" />
+        </div>
+      </div>
+
       <WesternFrame glow variant="glass" className="p-4 flex items-center justify-between">
         <div>
           <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Depositing</p>
           <p className="text-2xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${amount.toFixed(2)}</p>
-          <p className="text-[11px] text-amber-100/50 italic">BSC · USDT (BEP20)</p>
+          <p className="text-[11px] text-amber-100/50 italic">{net.short} (BEP20/ERC20)</p>
         </div>
         <Wallet className="w-8 h-8 text-amber-400/60" />
       </WesternFrame>
@@ -234,7 +257,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       )}
 
       <p className="text-[10px] text-amber-100/40 italic text-center">
-        কনফার্ম দিলে আপনার ওয়ালেট থেকে সরাসরি অ্যাডমিনের ওয়ালেটে USDT চলে যাবে ও ব্যালেন্স অটো যোগ হবে।
+        কনফার্ম দিলে আপনার ওয়ালেট থেকে সরাসরি অ্যাডমিনের ওয়ালেটে {net.short} চলে যাবে ও ব্যালেন্স অটো যোগ হবে।
       </p>
     </div>
   );
