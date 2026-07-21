@@ -112,7 +112,7 @@ function Tile({ symKey, win, dim, bet, amount }) {
 // A single reel column — wild-bounty style: continuous downward reelFall loop
 // while spinning (seamless because last block == first block, so no blur needed),
 // then a reelLand bounce when it stops.
-function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell }) {
+function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, free }) {
   // result: 3 keys (top, mid, bottom). phase: 'idle' | 'spin' | 'land'
   const [spinStrip, setSpinStrip] = useState(() => [...result]);
 
@@ -135,6 +135,9 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell }
       ? 'reelLand 0.4s ease-out'
       : 'none';
 
+  if (free) {
+    return <div className="relative flex-1" style={{ aspectRatio: '1 / 3', background: 'transparent' }} />;
+  }
   return (
     <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3', background: 'transparent' }}>
       <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto', backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
@@ -449,11 +452,11 @@ export default function CrownCoinsMachine() {
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f28be6c98_.jpg"
             alt=""
             className="absolute inset-0 w-full h-full object-cover rounded-md pointer-events-none"
-            style={{ opacity: 1 }}
+            style={{ opacity: freeSpins > 0 ? 0 : 1 }}
           />
           <div ref={reelsRef} className="relative flex gap-0.5 rounded-md overflow-hidden" style={{ background: 'transparent' }}>
             {reels.map((col, i) => (
-              <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} colIndex={i} amountCell={amountCell} />
+              <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} colIndex={i} amountCell={amountCell} free={freeSpins > 0} />
             ))}
             {(freeSpins > 0 || stuckView.some(k => !!k)) && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-20" style={{ gap: '2px' }}>
