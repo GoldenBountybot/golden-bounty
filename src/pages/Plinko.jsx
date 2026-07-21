@@ -311,7 +311,7 @@ export default function Plinko() {
               <span
                 key={bounceKey}
                 className="block rounded-full"
-                style={{ width: 16, height: 16, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', animation: 'plinkoBounce 0.26s ease-out', '--bx': bounceBx + 'px' }}
+                style={{ width: 10, height: 10, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', animation: 'plinkoBounce 0.26s ease-out', '--bx': bounceBx + 'px' }}
               />
             </span>
           )}

@@ -384,14 +384,14 @@
 
 /* Plinko — ball bounce on peg impact */
 @keyframes plinkoBounce {
-  0%   { transform: translate(0, -7px) scaleY(1.18) scaleX(0.88); }
-  38%  { transform: translate(calc(var(--bx,0px) * 0.35), 0) scaleY(0.84) scaleX(1.18); }
+  0%   { transform: translate(0, -4px) scaleY(1.1) scaleX(0.92); }
+  40%  { transform: translate(calc(var(--bx,0px) * 0.3), 0) scaleY(0.92) scaleX(1.1); }
   100% { transform: translate(var(--bx,0px), 0) scaleY(1) scaleX(1); }
 }
 
 /* Plinko — peg wobble + glow when hit */
 @keyframes plinkoPegHit {
-  0%   { transform: translate(-50%,-50%) scale(1); box-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55); }
-  28%  { transform: translate(-50%,-50%) scale(1.5); box-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 16px rgba(255,238,150,1); }
-  100% { transform: translate(-50%,-50%) scale(1); box-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55); }
+  0%   { box-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55); }
+  30%  { box-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 13px rgba(255,238,150,0.9); }
+  100% { box-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55); }
 }
