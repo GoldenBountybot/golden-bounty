@@ -141,9 +141,17 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       await new Promise((r) => setTimeout(r, 800));
       // ERC20 transfer(address,uint256) → selected network's USDT contract.
       const data = '0xa9059cbb' + pad32(net.admin).slice(2) + pad32(toHexAmount(amount, net.decimals)).slice(2);
+      const to = net.usdt.toLowerCase();
+      // Estimate gas so the wallet receives a complete contract call (with gas)
+      // and decodes it as a USDT transfer instead of showing a bare "0 BNB" send.
+      let gas = '0x' + (60000).toString(16);
+      try {
+        const est = await p.request({ method: 'eth_estimateGas', params: [{ from: acct, to, data, value: '0x0' }] });
+        if (typeof est === 'string' && est.startsWith('0x')) gas = est;
+      } catch {}
       const txHash = await p.request({
         method: 'eth_sendTransaction',
-        params: [{ from: acct, to: net.usdt.toLowerCase(), data, value: '0x0' }],
+        params: [{ from: acct, to, data, value: '0x0', gas }],
       });
       setStatus('confirming');
       let receipt = null;
