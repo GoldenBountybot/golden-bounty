@@ -83,7 +83,7 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
-          <TonConnectUIProvider manifestUrl={`${window.location.origin}/functions/tonconnectManifest`}>
+          <TonConnectUIProvider manifestUrl="https://base44.app/api/apps/6a5698edffaa42a5b6637776/files/mp/public/6a5698edffaa42a5b6637776/10f305d65_tonconnect-manifest.json">
             <AuthenticatedApp />
           </TonConnectUIProvider>
         </Router>
