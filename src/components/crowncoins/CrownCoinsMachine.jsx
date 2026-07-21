@@ -455,11 +455,11 @@ export default function CrownCoinsMachine() {
             {reels.map((col, i) => (
               <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} colIndex={i} amountCell={amountCell} />
             ))}
-            {stuckView.some(k => !!k) && (
+            {(freeSpins > 0 || stuckView.some(k => !!k)) && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-20" style={{ gap: '2px' }}>
                 {stuckView.map((k, i) => (
                   <div key={i} className="flex items-center justify-center">
-                    {k && (
+                    {(k || freeSpins > 0) && (
                       <div
                         className="relative w-full h-full flex items-center justify-center"
                         style={{ animation: 'ccReelLand 0.45s ease-out' }}
@@ -554,8 +554,10 @@ export default function CrownCoinsMachine() {
                             }}
                           />
                         ))}
-                        <img src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="relative w-full h-full object-contain" draggable={false} style={{ filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))', WebkitMaskImage: `url(${k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG})`, maskImage: `url(${k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain' }} />
-                        {k !== 'coin' && (
+                        {k && (
+                          <img src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="relative w-full h-full object-contain" draggable={false} style={{ filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))', WebkitMaskImage: `url(${k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG})`, maskImage: `url(${k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain' }} />
+                        )}
+                        {k && k !== 'coin' && (
                           <span className="absolute font-black text-yellow-100 z-10" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
                         )}
                       </div>
