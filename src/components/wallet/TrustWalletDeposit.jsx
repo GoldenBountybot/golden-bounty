@@ -65,10 +65,10 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     }
   }, [payAsset, netKey]);
 
-  // সরাসরি Trust Wallet অ্যাপ খুলে কানেক্ট → কানেক্ট হলেই অটো পেমেন্ট রিকোয়েস্ট।
+  // Open the Trust Wallet app directly and connect → auto-fire payment request once connected.
   const connectAndPay = async () => {
     if (!hasWalletConnect()) {
-      setErrMsg('WalletConnect projectId সেট করা হয়নি (src/lib/walletConfig.js)।');
+      setErrMsg('WalletConnect projectId is not set (src/lib/walletConfig.js).');
       setStatus('error'); return;
     }
     setStatus('connecting'); setErrMsg(''); setWcUri('');
@@ -88,14 +88,14 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       setWcUri('');
       await deposit();
     } else {
-      setErrMsg('ওয়ালেট কানেকশন বাতিল বা ব্যর্থ হয়েছে।');
+      setErrMsg('Wallet connection was cancelled or failed.');
       setStatus('error'); setWcUri('');
     }
   };
 
   const connectInjected = async () => {
     const p = getInjectedProvider();
-    if (!p) { setErrMsg('কোনো ইনজেক্টেড ওয়ালেট নেই। মোবাইল অ্যাপ ব্যবহার করুন।'); setStatus('error'); return; }
+    if (!p) { setErrMsg('No injected wallet found. Use the mobile app.'); setStatus('error'); return; }
     setStatus('connecting'); setErrMsg(''); setWcUri('');
     try {
       const accts = await p.request({ method: 'eth_requestAccounts' });
@@ -120,13 +120,13 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       setAccount(accts[0]);
       setStatus('connected');
     } catch {
-      setErrMsg('ওয়ালেট কানেকশন বাতিল হয়েছে।'); setStatus('error');
+      setErrMsg('Wallet connection was cancelled.'); setStatus('error');
     }
   };
 
   const connectMobile = async () => {
     if (!hasWalletConnect()) {
-      setErrMsg('WalletConnect projectId সেট করা হয়নি (src/lib/walletConfig.js)।');
+      setErrMsg('WalletConnect projectId is not set (src/lib/walletConfig.js).');
       setStatus('error'); return;
     }
     setStatus('connecting'); setErrMsg(''); setWcUri('');
@@ -139,7 +139,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       setWcUri('');
       setStatus('connected');
     } else {
-      setErrMsg('মোবাইল ওয়ালেট কানেকশন ব্যর্থ বা বাতিল হয়েছে।');
+      setErrMsg('Mobile wallet connection failed or was cancelled.');
       setStatus('error'); setWcUri('');
     }
   };
@@ -150,11 +150,11 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     if (res?.data?.ok) {
       if (!res.data.already) setBalance((b) => b + Number(res.data.amount || amt));
       setStatus('done');
-      toast({ title: 'ডিপোজিট সফল', description: `$${Number(res.data.amount || amt).toFixed(2)} ব্যালেন্সে যোগ হয়েছে।` });
+      toast({ title: 'Deposit successful', description: `$${Number(res.data.amount || amt).toFixed(2)} has been added to your balance.` });
       setTimeout(() => onDone?.(), 1200);
     } else {
       const reason = res?.data?.reason || 'unknown';
-      setErrMsg(reason === 'pending' ? 'লেনদেন এখনও পেন্ডিং — কিছুক্ষণ পর আবার চেষ্টা করুন।' : `ভেরিফিকেশন ব্যর্থ: ${reason}`);
+      setErrMsg(reason === 'pending' ? 'Transaction is still pending — please try again shortly.' : `Verification failed: ${reason}`);
       setStatus('error');
     }
   };
@@ -171,7 +171,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       if (payAsset === 'native') {
         // Native BNB / ETH transfer: $ amount → equivalent coin at live price.
         const pr = price || (await getCryptoPrices())[nativeKey] || 0;
-        if (!pr) { setErrMsg('কয়েন প্রাইস আনা যায়নি। আবার চেষ্টা করুন।'); setStatus('error'); return; }
+        if (!pr) { setErrMsg('Could not fetch coin price. Please try again.'); setStatus('error'); return; }
         const wei = BigInt(Math.round((amount / pr) * 1e18));
         const value = '0x' + wei.toString(16);
         const txHash = await p.request({ method: 'eth_sendTransaction', params: [{ from: acct, to: net.admin, value }] });
@@ -182,8 +182,8 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
           receipt = await p.request({ method: 'eth_getTransactionReceipt', params: [txHash] });
           if (receipt) break;
         }
-        if (!receipt) { setErrMsg('কনফার্মেশন এখনও হয়নি, কিছুক্ষণ পর চেষ্টা করুন।'); setStatus('error'); return; }
-        if (receipt.status !== '0x1') { setErrMsg('লেনদেন ব্যর্থ (reverted)।'); setStatus('error'); return; }
+        if (!receipt) { setErrMsg('Confirmation not yet received, please try again shortly.'); setStatus('error'); return; }
+        if (receipt.status !== '0x1') { setErrMsg('Transaction failed (reverted).'); setStatus('error'); return; }
         await finishVerify('verifyEvmNativeDeposit', { txHash, amount, userWallet: acct, network: net.key, expectedWei: value }, amount);
         return;
       }
@@ -209,23 +209,23 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         receipt = await p.request({ method: 'eth_getTransactionReceipt', params: [txHash] });
         if (receipt) break;
       }
-      if (!receipt) { setErrMsg('কনফার্মেশন এখনও হয়নি, কিছুক্ষণ পর চেষ্টা করুন।'); setStatus('error'); return; }
-      if (receipt.status !== '0x1') { setErrMsg('লেনদেন ব্যর্থ (reverted)।'); setStatus('error'); return; }
+      if (!receipt) { setErrMsg('Confirmation not yet received, please try again shortly.'); setStatus('error'); return; }
+      if (receipt.status !== '0x1') { setErrMsg('Transaction failed (reverted).'); setStatus('error'); return; }
       await finishVerify('verifyEvmDeposit', { txHash, amount, userWallet: acct, network: net.key }, amount);
     } catch (e) {
       console.error('TrustWalletDeposit send error:', e);
-      const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'বাতিল/ব্যর্থ');
-      setErrMsg('লেনদেন বাতিল/ব্যর্থ: ' + msg);
+      const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'cancelled/failed');
+      setErrMsg('Transaction cancelled/failed: ' + msg);
       setStatus('error');
     }
   };
 
   const busy = ['connecting', 'sending', 'confirming', 'verifying'].includes(status);
   const statusText = {
-    connecting: 'ওয়ালেট কানেক্ট হচ্ছে…',
-    sending: 'ওয়ালেটে লেনদেন রিকোয়েস্ট পাঠানো হচ্ছে…',
-    confirming: 'ব্লকচেইনে কনফার্মেশনের জন্য অপেক্ষা…',
-    verifying: 'ভেরিফিকেশন ও ব্যালেন্স যোগ হচ্ছে…',
+    connecting: 'Connecting wallet…',
+    sending: 'Sending transaction request to wallet…',
+    confirming: 'Waiting for blockchain confirmation…',
+    verifying: 'Verifying and adding balance…',
   }[status];
   const netLocked = busy || status === 'connected';
 
@@ -240,7 +240,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
 
       {/* Network selector */}
       <div className="flex flex-col gap-1">
-        <label className="text-[10px] tracking-widest uppercase text-amber-300/70">USDT নেটওয়ার্ক বেছে নিন</label>
+        <label className="text-[10px] tracking-widest uppercase text-amber-300/70">Select USDT Network</label>
         <div className="relative">
           <select
             value={netKey}
@@ -259,10 +259,10 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
 
       {nativeSupported && (
         <div className="flex flex-col gap-1">
-          <label className="text-[10px] tracking-widest uppercase text-amber-300/70">পেমেন্ট কয়েন</label>
+          <label className="text-[10px] tracking-widest uppercase text-amber-300/70">Payment Coin</label>
           <div className="grid grid-cols-2 gap-2">
             <button onClick={() => setPayAsset('usdt')} disabled={netLocked} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'usdt' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>USDT</button>
-            <button onClick={() => setPayAsset('native')} disabled={netLocked} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'native' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>{net.nativeSymbol} (নেটিভ)</button>
+            <button onClick={() => setPayAsset('native')} disabled={netLocked} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'native' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>{net.nativeSymbol} (Native)</button>
           </div>
         </div>
       )}
@@ -271,7 +271,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         <div>
           <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Depositing</p>
           <p className="text-2xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${amount.toFixed(2)}</p>
-          <p className="text-[11px] text-amber-100/50 italic">{payAsset === 'native' ? `≈ ${coinAmt.toFixed(5)} ${net.nativeSymbol} (নেটিভ)` : `${net.short} (BEP20/ERC20)`}</p>
+          <p className="text-[11px] text-amber-100/50 italic">{payAsset === 'native' ? `≈ ${coinAmt.toFixed(5)} ${net.nativeSymbol} (Native)` : `${net.short} (BEP20/ERC20)`}</p>
         </div>
         <Wallet className="w-8 h-8 text-amber-400/60" />
       </WesternFrame>
@@ -290,10 +290,10 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
           {status === 'sending' && (
             <>
               <p className="text-[12px] text-amber-100/80 italic" style={{ fontFamily: 'Georgia, serif' }}>
-                ওয়ালেটে "<b className="text-amber-200">0 BNB</b>" দেখানো স্বাভাবিক — USDT ট্রান্সফারে নেটিভ BNB ০ থাকে, আসল {amount.toFixed(2)} USDT কন্ট্রাক্ট কলের ভেতর যায়। তবে গ্যাস ফির জন্য ওয়ালেটে <b className="text-amber-200">সামান্য BNB ($0.05–0.20)</b> থাকতে হবে — না থাকলে "Insufficient BNB balance" দেখাবে।
+                Seeing "<b className="text-amber-200">0 BNB</b>" in the wallet is normal — USDT transfers carry 0 native BNB; the actual {amount.toFixed(2)} USDT goes inside the contract call. However, your wallet needs a <b className="text-amber-200">small amount of BNB ($0.05–0.20)</b> for gas — otherwise it will show "Insufficient BNB balance".
               </p>
               <button onClick={openTrustApp} className="self-start flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold italic active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>
-                <Smartphone className="w-4 h-4" /> Trust Wallet খুলুন
+                <Smartphone className="w-4 h-4" /> Open Trust Wallet
               </button>
             </>
           )}
@@ -303,28 +303,28 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       {status === 'connecting' && wcUri && (
         <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white" style={{ boxShadow: '0 0 0 1px rgba(190,140,55,0.5), 0 4px 12px rgba(0,0,0,0.5)' }}>
           <QRCodeSVG value={wcUri} size={208} level="M" />
-          <p className="text-xs text-stone-800 font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>ট্রাস্ট অ্যাপ দিয়ে এই QR স্ক্যান করুন</p>
-          <p className="text-[10px] text-stone-500 italic">Trust Wallet অ্যাপ → Settings → WalletConnect</p>
+          <p className="text-xs text-stone-800 font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>Scan this QR with the Trust app</p>
+          <p className="text-[10px] text-stone-500 italic">Trust Wallet app → Settings → WalletConnect</p>
         </div>
       )}
 
       {status === 'idle' && (
         <div className="flex flex-col gap-2">
           <button onClick={connectAndPay} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
-            <Smartphone className="w-5 h-5" /> Trust Wallet অ্যাপে খুলুন (অটো পেমেন্ট)
+            <Smartphone className="w-5 h-5" /> Open in Trust Wallet App (Auto Pay)
           </button>
           <button onClick={connectMobile} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
-            <Wallet className="w-5 h-5" /> QR স্ক্যান করে কানেক্ট
+            <Wallet className="w-5 h-5" /> Connect via QR Scan
           </button>
           <button onClick={connectInjected} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-black/40 border border-amber-700/40 text-amber-100 font-bold italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
-            <Chrome className="w-5 h-5" /> ব্রাউজার এক্সটেনশন
+            <Chrome className="w-5 h-5" /> Browser Extension
           </button>
         </div>
       )}
 
       {status === 'connected' && (
         <button onClick={deposit} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 text-stone-950 font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
-          <ArrowRight className="w-5 h-5" /> ওয়ালেট থেকে {payAsset === 'native' ? `${coinAmt.toFixed(5)} ${net.nativeSymbol}` : `$${amount.toFixed(2)} USDT`} পাঠান
+          <ArrowRight className="w-5 h-5" /> Send {payAsset === 'native' ? `${coinAmt.toFixed(5)} ${net.nativeSymbol}` : `$${amount.toFixed(2)} USDT`} from wallet
         </button>
       )}
 
@@ -336,12 +336,12 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
 
       {status === 'done' && (
         <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-emerald-700/50 bg-emerald-950/40 text-emerald-200 text-sm italic font-bold" style={{ fontFamily: 'Georgia, serif' }}>
-          <CheckCircle2 className="w-5 h-5" /> ডিপোজিট সফল হয়েছে!
+          <CheckCircle2 className="w-5 h-5" /> Deposit successful!
         </div>
       )}
 
       <p className="text-[10px] text-amber-100/40 italic text-center">
-        কনফার্ম দিলে আপনার ওয়ালেট থেকে সরাসরি অ্যাডমিনের ওয়ালেটে {net.short} চলে যাবে ও ব্যালেন্স অটো যোগ হবে।
+        Upon confirmation, {net.short} will be sent directly from your wallet to the admin wallet and your balance will be credited automatically.
       </p>
     </div>
   );

@@ -42,14 +42,14 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
 
   const deposit = async () => {
     if (!connected || !account?.address) return;
-    if (!amount || amount <= 0) { setErrMsg('ডিপোজিট অ্যামাউন্ট নেই — ড্যাশবোর্ড থেকে অ্যামাউন্ট নির্বাচন করুন।'); setStatus('error'); return; }
+    if (!amount || amount <= 0) { setErrMsg('No deposit amount selected — please choose an amount from the dashboard.'); setStatus('error'); return; }
     setStatus('sending'); setErrMsg('');
     try {
       let expectedNano;
       if (payAsset === 'ton') {
         // Native TON transfer: $ amount → equivalent TON at live price.
         const pr = price || (await getCryptoPrices()).ton || 0;
-        if (!pr) { setErrMsg('TON প্রাইস আনা যায়নি। আবার চেষ্টা করুন।'); setStatus('error'); return; }
+        if (!pr) { setErrMsg('Could not fetch TON price. Please try again.'); setStatus('error'); return; }
         expectedNano = BigInt(Math.round((amount / pr) * 1e9));
         await tonConnectUI.sendTransaction({
           validUntil: Math.floor(Date.now() / 1000) + 300,
@@ -59,7 +59,7 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
         // 1. Resolve the user's USDT jetton wallet (destination of the transfer message).
         const jwRaw = await getUserJettonWallet(account.address);
         if (!jwRaw) {
-          setErrMsg('আপনার ওয়ালেটে USDT (TON) পাওয়া যায়নি। আগে USDT যোগ করুন।');
+          setErrMsg('No USDT (TON) found in your wallet. Add USDT first.');
           setStatus('error'); return;
         }
         const jettonWallet = Address.parse(jwRaw).toString();
@@ -100,25 +100,25 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
       if (res?.data?.ok) {
         if (!res.data.already) setBalance((b) => b + Number(res.data.amount || amount));
         setStatus('done');
-        toast({ title: 'ডিপোজিট সফল', description: `$${Number(res.data.amount || amount).toFixed(2)} ব্যালেন্সে যোগ হয়েছে।` });
+        toast({ title: 'Deposit successful', description: `$${Number(res.data.amount || amount).toFixed(2)} has been added to your balance.` });
         setTimeout(() => onDone?.(), 1200);
       } else {
         const reason = res?.data?.reason || 'unknown';
-        setErrMsg(reason === 'pending' ? 'লেনদেন এখনও কনফার্ম হয়নি — কিছুক্ষণ পর আবার চেষ্টা করুন।' : `ভেরিফিকেশন ব্যর্থ: ${reason}`);
+        setErrMsg(reason === 'pending' ? 'Transaction is not confirmed yet — please try again shortly.' : `Verification failed: ${reason}`);
         setStatus('error');
       }
     } catch (e) {
       console.error('TonkeeperDeposit error:', e);
-      const msg = e?.message || (typeof e === 'string' ? e : 'বাতিল/ব্যর্থ');
-      setErrMsg('লেনদেন বাতিল/ব্যর্থ: ' + msg);
+      const msg = e?.message || (typeof e === 'string' ? e : 'cancelled/failed');
+      setErrMsg('Transaction cancelled/failed: ' + msg);
       setStatus('error');
     }
   };
 
   const busy = ['sending', 'verifying'].includes(status);
   const statusText = {
-    sending: 'Tonkeeper-এ লেনদেন রিকোয়েস্ট পাঠানো হচ্ছে…',
-    verifying: 'ব্লকচেইনে কনফার্মেশন ও ব্যালেন্স যোগ হচ্ছে…',
+    sending: 'Sending transaction request to Tonkeeper…',
+    verifying: 'Waiting for blockchain confirmation and adding balance…',
   }[status];
 
   return (
@@ -134,7 +134,7 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
         <div>
           <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Depositing</p>
           <p className="text-2xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${amount.toFixed(2)}</p>
-          <p className="text-[11px] text-amber-100/50 italic">{payAsset === 'ton' ? `≈ ${coinAmt.toFixed(5)} TON (নেটিভ)` : 'USDT · TON Network (Jetton)'}</p>
+          <p className="text-[11px] text-amber-100/50 italic">{payAsset === 'ton' ? `≈ ${coinAmt.toFixed(5)} TON (Native)` : 'USDT · TON Network (Jetton)'}</p>
         </div>
         <Wallet className="w-8 h-8 text-amber-400/60" />
       </WesternFrame>
@@ -149,7 +149,7 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
         <div className="flex items-center gap-2 p-3 rounded-md border border-amber-700/40 bg-black/30 text-amber-200 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>
           <Loader2 className="w-4 h-4 animate-spin" /> {statusText}
           {status === 'sending' && (
-            <p className="text-[12px] text-amber-100/80 italic ml-2">Tonkeeper অ্যাপে লেনদেন কনফার্ম করুন। গ্যাসের জন্য সামান্য TON লাগবে।</p>
+            <p className="text-[12px] text-amber-100/80 italic ml-2">Confirm the transaction in the Tonkeeper app. A small amount of TON is needed for gas.</p>
           )}
         </div>
       )}
@@ -158,15 +158,15 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
         <div className="flex flex-col gap-2">
           <div className="grid grid-cols-2 gap-2">
             <button onClick={() => setPayAsset('usdt')} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'usdt' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>USDT (Jetton)</button>
-            <button onClick={() => setPayAsset('ton')} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'ton' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>TON (নেটিভ)</button>
+            <button onClick={() => setPayAsset('ton')} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'ton' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>TON (Native)</button>
           </div>
           {!connected ? (
             <button onClick={() => tonConnectUI?.openModal()} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
-              <Smartphone className="w-5 h-5" /> Tonkeeper কানেক্ট করুন
+              <Smartphone className="w-5 h-5" /> Connect Tonkeeper
             </button>
           ) : (
             <button onClick={deposit} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 text-stone-950 font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
-              <ArrowRight className="w-5 h-5" /> ওয়ালেট থেকে {payAsset === 'ton' ? `${coinAmt.toFixed(5)} TON` : `$${amount.toFixed(2)} USDT`} পাঠান
+              <ArrowRight className="w-5 h-5" /> Send {payAsset === 'ton' ? `${coinAmt.toFixed(5)} TON` : `$${amount.toFixed(2)} USDT`} from wallet
             </button>
           )}
         </div>
@@ -180,12 +180,12 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
 
       {status === 'done' && (
         <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-emerald-700/50 bg-emerald-950/40 text-emerald-200 text-sm italic font-bold" style={{ fontFamily: 'Georgia, serif' }}>
-          <CheckCircle2 className="w-5 h-5" /> ডিপোজিট সফল হয়েছে!
+          <CheckCircle2 className="w-5 h-5" /> Deposit successful!
         </div>
       )}
 
       <p className="text-[10px] text-amber-100/40 italic text-center">
-        কনফার্ম দিলে আপনার Tonkeeper থেকে অ্যাডমিনের TON অ্যাড্রেসে {payAsset === 'ton' ? 'TON (নেটিভ)' : 'USDT'} যাবে ও ব্যালেন্স অটো যোগ হবে। গ্যাসের জন্য ওয়ালেটে সামান্য TON থাকতে হবে।
+        Upon confirmation, {payAsset === 'ton' ? 'TON (Native)' : 'USDT'} will be sent from your Tonkeeper to the admin's TON wallet and your balance will be credited automatically. Keep a small amount of TON in your wallet for gas.
       </p>
     </div>
   );
