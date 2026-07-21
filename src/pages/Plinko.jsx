@@ -5,9 +5,13 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 
-const MULTS = [25, 10, 5, 2, 1.5, 0, 1.5, 2, 5, 10, 25];
+const MULTS = [100, 50, 25, 10, 5, 2, 0, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1;
 const BETS = [0.1, 1, 5, 10];
+// Absolute per-bucket landing chance (percent). Jackpot edges are very rare.
+// 100x: 0.01% · 50x: 0.5% · 25x: 1% · 10x: 3% · 5x: 5% (each side).
+const WEIGHTS = [0.01, 0.5, 1, 3, 5, 13, 54.98, 13, 5, 3, 1, 0.5, 0.01];
+const WEIGHT_TOTAL = WEIGHTS.reduce((a, b) => a + b, 0);
 
 const FONT = "Rye, Georgia, serif";
 
@@ -131,11 +135,12 @@ const goldBtn = {
 };
 
 function colorFor(m) {
-  if (m >= 10) return { bg: '#d53f8c', glow: 'rgba(213,63,140,0.6)' };
-  if (m >= 5) return { bg: '#ecc94b', glow: 'rgba(236,201,75,0.6)' };
-  if (m >= 3) return { bg: '#e53e3e', glow: 'rgba(229,62,62,0.6)' };
-  if (m >= 2) return { bg: '#6b3fa0', glow: 'rgba(107,63,160,0.6)' };
-  if (m >= 1.5) return { bg: '#4299e1', glow: 'rgba(66,153,225,0.6)' };
+  if (m >= 100) return { bg: '#dc2626', glow: 'rgba(220,38,38,0.75)' };
+  if (m >= 50) return { bg: '#d53f8c', glow: 'rgba(213,63,140,0.7)' };
+  if (m >= 25) return { bg: '#7c3aed', glow: 'rgba(124,58,237,0.7)' };
+  if (m >= 10) return { bg: '#ecc94b', glow: 'rgba(236,201,75,0.6)' };
+  if (m >= 5) return { bg: '#f97316', glow: 'rgba(249,115,22,0.6)' };
+  if (m >= 2) return { bg: '#4299e1', glow: 'rgba(66,153,225,0.6)' };
   return { bg: '#718096', glow: 'rgba(113,128,150,0.5)' };
 }
 
@@ -201,11 +206,10 @@ export default function Plinko() {
     setBallPos(null);
     playDropStart();
 
-    const profitIdx = MULTS.map((_, i) => i).filter((i) => MULTS[i] >= 1);
-    const loseIdx = MULTS.map((_, i) => i).filter((i) => MULTS[i] < 1);
-    let bucket;
-    if (Math.random() < rtp / 100) bucket = profitIdx[Math.floor(Math.random() * profitIdx.length)];
-    else bucket = (loseIdx.length ? loseIdx : profitIdx)[Math.floor(Math.random() * (loseIdx.length || profitIdx.length))];
+    // Weighted random landing — high multipliers are intentionally rare.
+    let r = Math.random() * WEIGHT_TOTAL;
+    let bucket = 0;
+    for (let i = 0; i < WEIGHTS.length; i++) { r -= WEIGHTS[i]; if (r <= 0) { bucket = i; break; } }
 
     const steps = Array.from({ length: ROWS }, (_, i) => (i < bucket ? 1 : 0));
     for (let i = steps.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [steps[i], steps[j]] = [steps[j], steps[i]]; }
