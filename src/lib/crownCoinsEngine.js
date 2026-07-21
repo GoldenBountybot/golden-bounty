@@ -122,6 +122,11 @@ export function spinGrid(rtp = 50) {
     [0, 3, 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
+    // Anticipation payoff: 10% chance a value coin drops on the slow-motion
+    // third reel (right side column), completing the free-spin trigger.
+    if (Math.random() < 0.10) {
+      grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
+    }
   }
 
   // Win gate: 12% chance the spin is a winner (symbol line match).
