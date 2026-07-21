@@ -76,7 +76,7 @@ function Tile({ symKey, win, dim, bet, amount }) {
           <img
             src={s.image}
             alt={s.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain p-0.5"
             draggable={false}
             style={{ mixBlendMode: 'screen' }}
           />
@@ -429,7 +429,7 @@ export default function CrownCoinsMachine() {
         </div>
 
         <div
-          className="relative rounded-lg p-1 overflow-hidden -mt-24"
+          className="relative rounded-lg p-1 overflow-hidden -mt-24 max-w-[300px] mx-auto"
           style={{
             border: '2px solid #d4af37',
             boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 1px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)',
