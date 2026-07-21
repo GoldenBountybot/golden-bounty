@@ -89,13 +89,16 @@ function Tile({ symKey, win, dim, bet, amount }) {
         )}
         {amount != null && (
           <span
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            className="absolute pointer-events-none"
             style={{
+              right: '2px',
+              bottom: '2px',
+              transform: 'none',
               fontFamily: 'Rye, Georgia, serif',
               fontWeight: 400,
-              fontSize: 'clamp(11px, 3.4vw, 16px)',
-              color: '#ff1a1a',
-              textShadow: '0 0 3px #fff, 0 0 6px rgba(255,255,255,0.9), 0 1px 2px #000',
+              fontSize: 'clamp(10px, 3vw, 14px)',
+              color: '#ffd24a',
+              textShadow: '0 0 3px #000, 0 0 6px rgba(0,0,0,0.95), 0 1px 2px #5a3a06',
               animation: 'saWinPop 0.35s ease-out',
               letterSpacing: '0.5px',
               whiteSpace: 'nowrap',
