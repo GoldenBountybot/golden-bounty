@@ -10,7 +10,7 @@ const ROWS = MULTS.length - 1;
 const BETS = [0.1, 1, 5, 10];
 // Absolute per-bucket landing chance (percent). Jackpot edges are very rare.
 // 100x: 0.01% · 50x: 0.5% · 25x: 1% · 10x: 3% · 5x: 5% (each side).
-const WEIGHTS = [0.01, 0.5, 1, 3, 5, 13, 54.98, 13, 5, 3, 1, 0.5, 0.01];
+const WEIGHTS = [0.01, 0.5, 1, 3, 5, 17.5, 54.98, 17.5, 5, 3, 1, 0.5, 0.01];
 const WEIGHT_TOTAL = WEIGHTS.reduce((a, b) => a + b, 0);
 
 const FONT = "Rye, Georgia, serif";
@@ -308,28 +308,27 @@ export default function Plinko() {
       <main className="relative z-10 max-w-lg mx-auto w-full px-3 flex-1 flex flex-col">
         {/* Board */}
         <div className="relative w-full" style={{ aspectRatio: '1.1 / 1' }}>
-          <div className="absolute inset-0" style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)', background: 'radial-gradient(circle at 50% 100%, rgba(139,92,246,0.12), transparent 70%)' }}>
-            {Array.from({ length: ROWS }).map((_, r) =>
-              Array.from({ length: r + 1 }).map((_, c) => {
-                const isHit = hitPeg && hitPeg.row === r && hitPeg.col === c;
-                const size = r === 0 ? 16 : 10;
-                const isTop = r === 0;
-                return (
-                  <span
-                    key={`p-${r}-${c}`}
-                    className="absolute rounded-full"
-                    style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: size, height: size, background: isTop ? 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)' : 'radial-gradient(circle at 35% 30%, #fff3d6, #e0b94e 55%, #9a6a1e)', boxShadow: isTop ? '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)' : '0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55)', ...(isHit ? { animation: 'plinkoPegHit 0.26s ease-out' } : {}) }}
-                  />
-                );
-              })
-            )}
-            {ballPos && ballPos.kind === 'peg' && (
-              <span
-                className="absolute z-10 rounded-full"
-                style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 10, height: 10, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.2s ease-in, top 0.2s ease-in' }}
-              />
-            )}
-          </div>
+          <div className="absolute inset-0" style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)', background: 'radial-gradient(circle at 50% 100%, rgba(139,92,246,0.12), transparent 70%)' }} />
+          {Array.from({ length: ROWS }).map((_, r) =>
+            Array.from({ length: r + 1 }).map((_, c) => {
+              const isHit = hitPeg && hitPeg.row === r && hitPeg.col === c;
+              const size = r === 0 ? 16 : 10;
+              const isTop = r === 0;
+              return (
+                <span
+                  key={`p-${r}-${c}`}
+                  className="absolute rounded-full"
+                  style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: size, height: size, background: isTop ? 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)' : 'radial-gradient(circle at 35% 30%, #fff3d6, #e0b94e 55%, #9a6a1e)', boxShadow: isTop ? '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)' : '0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55)', ...(isHit ? { animation: 'plinkoPegHit 0.26s ease-out' } : {}) }}
+                />
+              );
+            })
+          )}
+          {ballPos && ballPos.kind === 'peg' && (
+            <span
+              className="absolute z-10 rounded-full"
+              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 10, height: 10, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.2s ease-in, top 0.2s ease-in' }}
+            />
+          )}
           {/* Multiplier chips sit in the gaps between the bottom pegs */}
           {MULTS.map((m, i) => {
             const c = colorFor(m);
