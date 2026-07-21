@@ -312,11 +312,12 @@ export default function Plinko() {
             Array.from({ length: r + 1 }).map((_, c) => {
               const isHit = hitPeg && hitPeg.row === r && hitPeg.col === c;
               const size = r === 0 ? 16 : 10;
+              const isTop = r === 0;
               return (
                 <span
                   key={`p-${r}-${c}`}
                   className="absolute rounded-full"
-                  style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: size, height: size, background: 'radial-gradient(circle at 35% 30%, #fff3d6, #e0b94e 55%, #9a6a1e)', boxShadow: '0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55)', ...(isHit ? { animation: 'plinkoPegHit 0.26s ease-out' } : {}) }}
+                  style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: size, height: size, background: isTop ? 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)' : 'radial-gradient(circle at 35% 30%, #fff3d6, #e0b94e 55%, #9a6a1e)', boxShadow: isTop ? '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)' : '0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55)', ...(isHit ? { animation: 'plinkoPegHit 0.26s ease-out' } : {}) }}
                 />
               );
             })
