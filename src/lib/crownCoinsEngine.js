@@ -111,20 +111,20 @@ export function spinGrid(rtp = 50) {
   // (right side kept clear so it is not a full trigger).
   // Overall game winning chance target ≈ 50% (symbol wins + free spins + bonus).
   const triggerRoll = Math.random();
-  if (triggerRoll < 0.01) {
+  if (triggerRoll < 0.0005) {
     grid[4] = 'coin';
     [0, 3, 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
     grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
-  } else if (triggerRoll < 0.16) {
+  } else if (triggerRoll < 0.1505) {
     grid[4] = 'coin';
     [0, 3, 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
-    // Anticipation payoff: 10% chance a value coin drops on the slow-motion
+    // Anticipation payoff: 5% chance a value coin drops on the slow-motion
     // third reel (right side column), completing the free-spin trigger.
-    if (Math.random() < 0.10) {
+    if (Math.random() < 0.05) {
       grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
     }
   }
