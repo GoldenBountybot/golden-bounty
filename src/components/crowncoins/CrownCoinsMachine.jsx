@@ -335,9 +335,11 @@ export default function CrownCoinsMachine() {
         [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) mask[2][Math.floor(i / 3)] = true; });
         freeSpinsRef.current = 3;
         setFreeSpins(3);
-        // Free spins start with an empty board — the triggering Crown Coin
-        // and side value coins do NOT carry over as stuck coins.
+        // Free spins start with the two triggering side value coins already
+        // stuck on the board; the Crown Coin itself does not carry over.
         const stuck = new Array(9).fill(null);
+        [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) stuck[i] = resultGrid[i]; });
+        [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) stuck[i] = resultGrid[i]; });
         stuckRef.current = stuck;
         setStuckView(stuck);
         const tIdxs = [4];
