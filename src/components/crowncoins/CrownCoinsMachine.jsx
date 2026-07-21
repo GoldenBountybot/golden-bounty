@@ -464,36 +464,46 @@ export default function CrownCoinsMachine() {
                         className="relative w-full h-full flex items-center justify-center"
                         style={{ animation: 'ccReelLand 0.45s ease-out' }}
                       >
-                        {/* Western framed tile — dark wood plank + gilt trim */}
+                        {/* Western framed tile — dark wood plank + gilt trim + leather panel */}
                         <div
-                          className="absolute inset-0 rounded-[4px] pointer-events-none overflow-hidden"
+                          className="absolute inset-0 rounded-[5px] pointer-events-none overflow-hidden"
                           style={{
-                            border: '2px solid #8a5a06',
+                            border: '3px solid #6b4a08',
                             boxShadow:
-                              'inset 0 0 0 1px #d4af37, inset 0 2px 6px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)',
+                              'inset 0 0 0 2px #d4af37, inset 0 3px 8px rgba(0,0,0,0.8), 0 2px 5px rgba(0,0,0,0.6)',
                             background:
-                              'linear-gradient(rgba(30,16,5,0.78), rgba(14,7,2,0.9)), repeating-linear-gradient(90deg, rgba(0,0,0,0.18) 0, rgba(0,0,0,0.18) 1px, transparent 1px, transparent 9px)',
+                              'linear-gradient(rgba(26,14,4,0.82), rgba(10,5,1,0.92)), repeating-linear-gradient(90deg, rgba(0,0,0,0.22) 0, rgba(0,0,0,0.22) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(180deg, rgba(255,200,80,0.04) 0, rgba(255,200,80,0.04) 1px, transparent 1px, transparent 7px)',
+                          }}
+                        />
+                        {/* Inner leather panel */}
+                        <div
+                          className="absolute inset-[4px] rounded-[3px] pointer-events-none"
+                          style={{
+                            border: '1px solid rgba(212,175,55,0.55)',
+                            boxShadow: 'inset 0 0 6px rgba(0,0,0,0.6)',
+                            background:
+                              'radial-gradient(ellipse at center, rgba(60,34,12,0.5), rgba(20,10,2,0.7) 75%)',
                           }}
                         />
                         {/* Gilt corner studs */}
                         {[
-                          { top: '2px', left: '2px' },
-                          { top: '2px', right: '2px' },
-                          { bottom: '2px', left: '2px' },
-                          { bottom: '2px', right: '2px' },
+                          { top: '3px', left: '3px' },
+                          { top: '3px', right: '3px' },
+                          { bottom: '3px', left: '3px' },
+                          { bottom: '3px', right: '3px' },
                         ].map((p, s) => (
                           <span
                             key={s}
-                            className="absolute w-1 h-1 rounded-full pointer-events-none"
+                            className="absolute w-1.5 h-1.5 rounded-full pointer-events-none"
                             style={{
                               ...p,
                               background: 'radial-gradient(circle at 35% 30%, #ffe9a8, #b8860b 60%, #5a3a06)',
-                              boxShadow: '0 0 2px rgba(255,200,80,0.7)',
+                              boxShadow: '0 0 3px rgba(255,200,80,0.8), inset 0 0 0 1px #3a2400',
                             }}
                           />
                         ))}
                         <div
-                          className="absolute inset-[3px] rounded-[3px] pointer-events-none"
+                          className="absolute inset-[5px] rounded-[3px] pointer-events-none"
                           style={{
                             border: '2px solid #d4af37',
                             borderRadius: '4px',
