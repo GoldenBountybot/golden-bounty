@@ -83,7 +83,7 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
-          <TonConnectUIProvider manifestUrl={`${window.location.origin}/tonconnect-manifest.json`}>
+          <TonConnectUIProvider manifestUrl={`${window.location.origin}/functions/tonconnectManifest`}>
             <AuthenticatedApp />
           </TonConnectUIProvider>
         </Router>
