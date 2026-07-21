@@ -33,7 +33,19 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const [wcUri, setWcUri] = useState('');
   const providerRef = useRef(null);
   const accountRef = useRef(null);
+  const wcUriRef = useRef('');
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
+
+  // Bring the Trust Wallet app back to the foreground so the pending tx request
+  // can be confirmed — the wc session URI deep-links into the existing session.
+  const openTrustApp = () => {
+    const uri = wcUriRef.current;
+    if (uri) {
+      try { window.open('https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
+    } else {
+      try { window.open('https://link.trustwallet.com/open', '_blank'); } catch {}
+    }
+  };
 
   // Pre-warm the WalletConnect provider for the default chain → faster connect.
   useEffect(() => { if (hasWalletConnect()) preloadWalletConnect(net.chainId); }, []);
@@ -47,6 +59,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     setStatus('connecting'); setErrMsg(''); setWcUri('');
     const mobile = isMobile();
     onWalletConnectUri((uri) => {
+      wcUriRef.current = uri;
       setWcUri(uri);
       if (mobile) {
         try { window.open('https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
@@ -211,8 +224,20 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       )}
 
       {busy && !wcUri && (
-        <div className="flex items-center gap-2 text-amber-200 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>
-          <Loader2 className="w-4 h-4 animate-spin" /> {statusText}
+        <div className="flex flex-col gap-2 p-3 rounded-md border border-amber-700/40 bg-black/30">
+          <div className="flex items-center gap-2 text-amber-200 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>
+            <Loader2 className="w-4 h-4 animate-spin" /> {statusText}
+          </div>
+          {status === 'sending' && (
+            <>
+              <p className="text-[12px] text-amber-100/80 italic" style={{ fontFamily: 'Georgia, serif' }}>
+                ট্রাস্ট ওয়ালেট অ্যাপে গিয়ে লেনদেন কনফার্ম করুন। অ্যাপ খোলা না থাকলে নিচের বাটনে চাপুন।
+              </p>
+              <button onClick={openTrustApp} className="self-start flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold italic active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>
+                <Smartphone className="w-4 h-4" /> Trust Wallet খুলুন
+              </button>
+            </>
+          )}
         </div>
       )}
 
