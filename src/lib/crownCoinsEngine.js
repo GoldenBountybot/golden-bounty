@@ -105,9 +105,9 @@ export function spinGrid(rtp = 50) {
     }
   });
 
-  // Free Spin trigger: temporarily 50% chance — Crown Coin in center + a value
+  // Free Spin trigger: 1% chance — Crown Coin in center + a value
   // coin in each side column.
-  if (Math.random() < 0.50) {
+  if (Math.random() < 0.01) {
     grid[4] = 'coin';
     [0, 3, 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });

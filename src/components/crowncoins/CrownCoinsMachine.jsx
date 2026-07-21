@@ -112,7 +112,7 @@ function Tile({ symKey, win, dim, bet, amount }) {
 // A single reel column — wild-bounty style: continuous downward reelFall loop
 // while spinning (seamless because last block == first block, so no blur needed),
 // then a reelLand bounce when it stops.
-function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell }) {
+function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, anticipate }) {
   // result: 3 keys (top, mid, bottom). phase: 'idle' | 'spin' | 'land'
   const [spinStrip, setSpinStrip] = useState(() => [...result]);
 
@@ -128,15 +128,39 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell }
   const showResult = phase !== 'spin';
   const strip = showResult ? [...result] : spinStrip;
 
+  // Slow-motion drop for the anticipated reel: longer loop duration.
+  const spinSpeed = anticipate ? speed * 2.6 : speed;
   const anim =
     phase === 'spin'
-      ? `reelFall ${speed}s linear infinite`
+      ? `reelFall ${spinSpeed}s linear infinite`
       : phase === 'land'
       ? 'reelLand 0.4s ease-out'
       : 'none';
 
+  const showGlow = anticipate && phase !== 'idle';
+
   return (
     <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3', background: 'transparent' }}>
+      {showGlow && (
+        <>
+          <div
+            className="absolute left-0 top-0 bottom-0 w-2 z-30 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to right, rgba(255,210,80,0.95), rgba(255,235,150,0.2) 70%, transparent)',
+              boxShadow: '0 0 14px 2px rgba(255,210,80,0.9), inset 0 0 6px rgba(255,235,150,0.8)',
+              animation: 'ccPulse 0.55s ease-in-out infinite',
+            }}
+          />
+          <div
+            className="absolute right-0 top-0 bottom-0 w-2 z-30 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to left, rgba(255,210,80,0.95), rgba(255,235,150,0.2) 70%, transparent)',
+              boxShadow: '0 0 14px 2px rgba(255,210,80,0.9), inset 0 0 6px rgba(255,235,150,0.8)',
+              animation: 'ccPulse 0.55s ease-in-out infinite',
+            }}
+          />
+        </>
+      )}
       <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto', backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {strip.map((k, i) => (
           <div key={i} style={{ width: '100%', aspectRatio: '1 / 1' }}>
@@ -183,6 +207,7 @@ export default function CrownCoinsMachine() {
   const [triggerGlow, setTriggerGlow] = useState([]);
   const [showRoyalBanner, setShowRoyalBanner] = useState(false);
   const [royalWin, setRoyalWin] = useState(null);
+  const [anticipateCol, setAnticipateCol] = useState(-1);
 
   const clearTimers = () => { timers.current.forEach(t => clearTimeout(t)); timers.current = []; };
 
@@ -222,6 +247,13 @@ export default function CrownCoinsMachine() {
       [resultGrid[2], resultGrid[5], resultGrid[8]],
     ];
 
+    // Anticipation: a value coin in the first reel + a Crown Coin in the
+    // center → the third reel drops in slow motion with golden side glow.
+    const col0HasValue = [0, 3, 6].some(i => isValueCoin(resultGrid[i]));
+    const centerCrown = resultGrid[4] === 'coin';
+    const anticipate = !isFree && col0HasValue && centerCrown;
+    setAnticipateCol(anticipate ? 2 : -1);
+
     // start all reels spinning
     setReels(cols);
     setPhases(['spin', 'spin', 'spin']);
@@ -229,17 +261,19 @@ export default function CrownCoinsMachine() {
     const base = turbo ? 420 : 720;
     const step = turbo ? 160 : 260;
     const landMs = 460;
+    const anticiDelay = anticipate ? 900 : 0;
 
-    // staggered land per reel
+    // staggered land per reel; the anticipated third reel lingers longer
     cols.forEach((col, i) => {
+      const extra = (i === 2 && anticipate) ? anticiDelay : 0;
       const t1 = setTimeout(() => {
         setPhases(prev => prev.map((p, idx) => (idx === i ? 'land' : p)));
-      }, base + i * step);
+      }, base + i * step + extra);
       timers.current.push(t1);
     });
 
     // after the last reel lands, settle + evaluate
-    const settleAt = base + 2 * step + landMs;
+    const settleAt = base + 2 * step + anticiDelay + landMs;
     const tEnd = setTimeout(async () => {
       setPhases(['idle', 'idle', 'idle']);
 
@@ -453,7 +487,7 @@ export default function CrownCoinsMachine() {
           />
           <div ref={reelsRef} className="relative flex gap-0.5 rounded-md overflow-hidden" style={{ background: 'transparent' }}>
             {reels.map((col, i) => (
-              <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} colIndex={i} amountCell={amountCell} />
+              <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} colIndex={i} amountCell={amountCell} anticipate={anticipateCol === i} />
             ))}
             {stuckView.some(k => !!k) && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-20" style={{ gap: '2px' }}>
