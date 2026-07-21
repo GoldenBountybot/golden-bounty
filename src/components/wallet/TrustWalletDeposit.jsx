@@ -243,7 +243,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
           {status === 'sending' && (
             <>
               <p className="text-[12px] text-amber-100/80 italic" style={{ fontFamily: 'Georgia, serif' }}>
-                ট্রাস্ট ওয়ালেটে "<b className="text-amber-200">Transfer {amount.toFixed(2)} USDT</b>" দেখানোর কথা। যদি "0 BNB" দেখায় তাহলে অ্যাপ বন্ধ করে আবার খুলুন।
+                ওয়ালেটে "<b className="text-amber-200">0 BNB</b>" দেখানো স্বাভাবিক — USDT ট্রান্সফারে নেটিভ BNB ০ থাকে, আসল {amount.toFixed(2)} USDT কন্ট্রাক্ট কলের ভেতর যায়। তবে গ্যাস ফির জন্য ওয়ালেটে <b className="text-amber-200">সামান্য BNB ($0.05–0.20)</b> থাকতে হবে — না থাকলে "Insufficient BNB balance" দেখাবে।
               </p>
               <button onClick={openTrustApp} className="self-start flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold italic active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>
                 <Smartphone className="w-4 h-4" /> Trust Wallet খুলুন
