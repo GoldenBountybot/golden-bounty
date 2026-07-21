@@ -64,6 +64,8 @@ export function useCrashGame() {
   const waitStartRef = useRef(0);
   const runStartRef = useRef(0);
   const crashPointRef = useRef(1);
+  const lastCountdownRef = useRef(WAIT_MS);
+  const loggedRoundRef = useRef(0);
 
   useEffect(() => { betsRef.current = bets; }, [bets]);
   useEffect(() => { liveRef.current = liveBets; }, [liveBets]);
@@ -75,9 +77,9 @@ export function useCrashGame() {
     serverOffsetRef.current = data.now - Date.now();
 
     const prevRound = roundIdRef.current;
-    const prevPhase = phaseRef.current;
+    const newRound = data.round_id !== prevRound;
 
-    if (data.round_id !== prevRound) {
+    if (newRound) {
       roundIdRef.current = data.round_id;
       setRoundId(data.round_id);
 
@@ -95,27 +97,41 @@ export function useCrashGame() {
       betsRef.current = reset;
       setBets(reset);
 
-      const lb = genLiveBets(data.round_id);
-      liveRef.current = lb;
-      setLiveBets(lb);
+      liveRef.current = genLiveBets(data.round_id);
+      setLiveBets(liveRef.current);
 
       setHistory(data.history || []);
-    } else if (data.phase === 'crashed' && prevPhase === 'running') {
-      setHistory(data.history || []);
-    }
 
-    waitStartRef.current = data.wait_start;
-    runStartRef.current = data.run_start;
-    crashPointRef.current = data.crash_point;
-
-    if (data.phase !== prevPhase) {
+      // Fresh round — reset local phase/timers to the server snapshot.
       phaseRef.current = data.phase;
       setPhase(data.phase);
-      if (data.phase === 'crashed' && prevPhase === 'running') {
-        const totalBet = betsRef.current.reduce((s, b) => s + (b.placed ? b.amount : 0), 0);
-        const totalWin = betsRef.current.reduce((s, b) => s + (b.cashedOut ? b.win : 0), 0);
-        logActivity('rocket-crash', totalBet, totalWin, totalWin > 0 ? 'win' : 'loss');
+      waitStartRef.current = data.wait_start;
+      runStartRef.current = data.run_start;
+      crashPointRef.current = data.crash_point;
+    } else {
+      // Same round — sync timers but never regress a locally-advanced phase.
+      waitStartRef.current = data.wait_start;
+      crashPointRef.current = data.crash_point;
+      if (!runStartRef.current) runStartRef.current = data.run_start;
+
+      if (data.phase === 'running' && phaseRef.current === 'waiting') {
+        phaseRef.current = 'running';
+        setPhase('running');
+        if (!runStartRef.current) runStartRef.current = data.run_start;
       }
+      if (data.phase === 'crashed' && phaseRef.current !== 'crashed') {
+        phaseRef.current = 'crashed';
+        setPhase('crashed');
+      }
+      if (data.phase === 'crashed') setHistory(data.history || []);
+    }
+
+    // Log once per round when the server confirms the bust.
+    if (data.phase === 'crashed' && loggedRoundRef.current !== data.round_id) {
+      loggedRoundRef.current = data.round_id;
+      const totalBet = betsRef.current.reduce((s, b) => s + (b.placed ? b.amount : 0), 0);
+      const totalWin = betsRef.current.reduce((s, b) => s + (b.cashedOut ? b.win : 0), 0);
+      logActivity('rocket-crash', totalBet, totalWin, totalWin > 0 ? 'win' : 'loss');
     }
   }, [logActivity, setBalance]);
 
@@ -134,21 +150,43 @@ export function useCrashGame() {
   }, [applyState]);
 
   // Smooth local rendering + auto cashouts between server syncs.
+  // Local phase transitions happen the instant the timers say so — the
+  // rocket takes off and busts without waiting for the next poll.
   useEffect(() => {
     const loop = () => {
       const now = Date.now() + serverOffsetRef.current;
       const ph = phaseRef.current;
 
       if (ph === 'waiting') {
-        const left = Math.max(0, WAIT_MS - (now - waitStartRef.current));
-        setCountdown(left);
-        if (multRef.current !== 1.00) { multRef.current = 1.00; setMultiplier(1.00); }
+        if (waitStartRef.current > 0) {
+          const left = Math.max(0, WAIT_MS - (now - waitStartRef.current));
+          if (Math.abs(left - lastCountdownRef.current) >= 100 || left === 0) {
+            lastCountdownRef.current = left;
+            setCountdown(left);
+          }
+          if (multRef.current !== 1.00) { multRef.current = 1.00; setMultiplier(1.00); }
+          // Local takeoff the instant the betting window ends.
+          if (now - waitStartRef.current >= WAIT_MS) {
+            phaseRef.current = 'running';
+            runStartRef.current = waitStartRef.current + WAIT_MS;
+            setPhase('running');
+          }
+        }
       } else if (ph === 'running') {
         const elapsed = (now - runStartRef.current) / 1000;
         let m = Math.pow(GROWTH, Math.max(0, elapsed));
-        if (m >= crashPointRef.current) m = crashPointRef.current;
-        multRef.current = m;
-        setMultiplier(m);
+        const cp = crashPointRef.current;
+        if (m >= cp) {
+          // Local crash the instant the curve reaches the bust point.
+          m = cp;
+          multRef.current = m;
+          setMultiplier(m);
+          phaseRef.current = 'crashed';
+          setPhase('crashed');
+        } else {
+          multRef.current = m;
+          setMultiplier(m);
+        }
 
         // auto cashout — player bets
         let balAdd = 0;
