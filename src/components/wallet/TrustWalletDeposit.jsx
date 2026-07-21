@@ -7,6 +7,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, ChevronDown } from 'lucide-react';
 import { connectWalletConnect, hasWalletConnect, onWalletConnectUri, preloadWalletConnect } from '@/lib/walletConnect';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
+import { getCryptoPrices } from '@/lib/cryptoPrices';
 
 function toHexAmount(usd, decimals) {
   const factor = Math.pow(10, decimals);
@@ -31,10 +32,15 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const [status, setStatus] = useState('idle'); // idle|connecting|connected|sending|confirming|verifying|done|error
   const [errMsg, setErrMsg] = useState('');
   const [wcUri, setWcUri] = useState('');
+  const [payAsset, setPayAsset] = useState('usdt'); // 'usdt' | 'native'
+  const [price, setPrice] = useState(0);
   const providerRef = useRef(null);
   const accountRef = useRef(null);
   const wcUriRef = useRef('');
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
+  const nativeSupported = net.key === 'bsc' || net.key === 'eth';
+  const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
+  const coinAmt = price ? amount / price : 0;
 
   // Bring the Trust Wallet app back to the foreground so the pending tx request
   // can be confirmed — the wc session URI deep-links into the existing session.
@@ -49,6 +55,15 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
 
   // Pre-warm the WalletConnect provider for the default chain → faster connect.
   useEffect(() => { if (hasWalletConnect()) preloadWalletConnect(net.chainId); }, []);
+
+  // Reset to USDT if the selected network has no native option, and fetch the
+  // live native-coin price whenever native pay is active.
+  useEffect(() => { if (!nativeSupported && payAsset === 'native') setPayAsset('usdt'); }, [netKey]);
+  useEffect(() => {
+    if (payAsset === 'native' && nativeSupported) {
+      getCryptoPrices().then((p) => setPrice(p[nativeKey] || 0)).catch(() => {});
+    }
+  }, [payAsset, netKey]);
 
   // সরাসরি Trust Wallet অ্যাপ খুলে কানেক্ট → কানেক্ট হলেই অটো পেমেন্ট রিকোয়েস্ট।
   const connectAndPay = async () => {
@@ -129,17 +144,51 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     }
   };
 
+  const finishVerify = async (fn, payload, amt) => {
+    setStatus('verifying');
+    const res = await base44.functions.invoke(fn, payload);
+    if (res?.data?.ok) {
+      if (!res.data.already) setBalance((b) => b + Number(res.data.amount || amt));
+      setStatus('done');
+      toast({ title: 'ডিপোজিট সফল', description: `$${Number(res.data.amount || amt).toFixed(2)} ব্যালেন্সে যোগ হয়েছে।` });
+      setTimeout(() => onDone?.(), 1200);
+    } else {
+      const reason = res?.data?.reason || 'unknown';
+      setErrMsg(reason === 'pending' ? 'লেনদেন এখনও পেন্ডিং — কিছুক্ষণ পর আবার চেষ্টা করুন।' : `ভেরিফিকেশন ব্যর্থ: ${reason}`);
+      setStatus('error');
+    }
+  };
+
   const deposit = async () => {
     const p = providerRef.current;
     const acct = accountRef.current;
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
     try {
-      // Let the WC session fully settle before the first request — otherwise the
-      // relay can deliver the tx to the wallet with the `data` field dropped
-      // (wallet then shows a 0-value native send instead of the ERC20 transfer).
+      // Let the WC session fully settle before the first request.
       await new Promise((r) => setTimeout(r, 800));
-      // ERC20 transfer(address,uint256) → selected network's USDT contract.
+
+      if (payAsset === 'native') {
+        // Native BNB / ETH transfer: $ amount → equivalent coin at live price.
+        const pr = price || (await getCryptoPrices())[nativeKey] || 0;
+        if (!pr) { setErrMsg('কয়েন প্রাইস আনা যায়নি। আবার চেষ্টা করুন।'); setStatus('error'); return; }
+        const wei = BigInt(Math.round((amount / pr) * 1e18));
+        const value = '0x' + wei.toString(16);
+        const txHash = await p.request({ method: 'eth_sendTransaction', params: [{ from: acct, to: net.admin, value }] });
+        setStatus('confirming');
+        let receipt = null;
+        for (let i = 0; i < 45; i++) {
+          await new Promise((r) => setTimeout(r, 2000));
+          receipt = await p.request({ method: 'eth_getTransactionReceipt', params: [txHash] });
+          if (receipt) break;
+        }
+        if (!receipt) { setErrMsg('কনফার্মেশন এখনও হয়নি, কিছুক্ষণ পর চেষ্টা করুন।'); setStatus('error'); return; }
+        if (receipt.status !== '0x1') { setErrMsg('লেনদেন ব্যর্থ (reverted)।'); setStatus('error'); return; }
+        await finishVerify('verifyEvmNativeDeposit', { txHash, amount, userWallet: acct, network: net.key, expectedWei: value }, amount);
+        return;
+      }
+
+      // USDT (ERC20) transfer(address,uint256) → selected network's USDT contract.
       const data = '0xa9059cbb' + pad32(net.admin).slice(2) + pad32(toHexAmount(amount, net.decimals)).slice(2);
       const to = net.usdt.toLowerCase();
       // Estimate gas so the wallet receives a complete contract call (with gas)
@@ -162,19 +211,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       }
       if (!receipt) { setErrMsg('কনফার্মেশন এখনও হয়নি, কিছুক্ষণ পর চেষ্টা করুন।'); setStatus('error'); return; }
       if (receipt.status !== '0x1') { setErrMsg('লেনদেন ব্যর্থ (reverted)।'); setStatus('error'); return; }
-
-      setStatus('verifying');
-      const res = await base44.functions.invoke('verifyEvmDeposit', { txHash, amount, userWallet: acct, network: net.key });
-      if (res?.data?.ok) {
-        if (!res.data.already) setBalance((b) => b + Number(res.data.amount || amount));
-        setStatus('done');
-        toast({ title: 'ডিপোজিট সফল', description: `$${Number(res.data.amount || amount).toFixed(2)} ব্যালেন্সে যোগ হয়েছে।` });
-        setTimeout(() => onDone?.(), 1200);
-      } else {
-        const reason = res?.data?.reason || 'unknown';
-        setErrMsg(reason === 'pending' ? 'লেনদেন এখনও পেন্ডিং — কিছুক্ষণ পর আবার চেষ্টা করুন।' : `ভেরিফিকেশন ব্যর্থ: ${reason}`);
-        setStatus('error');
-      }
+      await finishVerify('verifyEvmDeposit', { txHash, amount, userWallet: acct, network: net.key }, amount);
     } catch (e) {
       console.error('TrustWalletDeposit send error:', e);
       const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'বাতিল/ব্যর্থ');
@@ -220,11 +257,21 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         </div>
       </div>
 
+      {nativeSupported && (
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] tracking-widest uppercase text-amber-300/70">পেমেন্ট কয়েন</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setPayAsset('usdt')} disabled={netLocked} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'usdt' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>USDT</button>
+            <button onClick={() => setPayAsset('native')} disabled={netLocked} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'native' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>{net.nativeSymbol} (নেটিভ)</button>
+          </div>
+        </div>
+      )}
+
       <WesternFrame glow variant="glass" className="p-4 flex items-center justify-between">
         <div>
           <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Depositing</p>
           <p className="text-2xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${amount.toFixed(2)}</p>
-          <p className="text-[11px] text-amber-100/50 italic">{net.short} (BEP20/ERC20)</p>
+          <p className="text-[11px] text-amber-100/50 italic">{payAsset === 'native' ? `≈ ${coinAmt.toFixed(5)} ${net.nativeSymbol} (নেটিভ)` : `${net.short} (BEP20/ERC20)`}</p>
         </div>
         <Wallet className="w-8 h-8 text-amber-400/60" />
       </WesternFrame>
@@ -277,7 +324,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
 
       {status === 'connected' && (
         <button onClick={deposit} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 text-stone-950 font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
-          <ArrowRight className="w-5 h-5" /> ওয়ালেট থেকে ${amount.toFixed(2)} পাঠান
+          <ArrowRight className="w-5 h-5" /> ওয়ালেট থেকে {payAsset === 'native' ? `${coinAmt.toFixed(5)} ${net.nativeSymbol}` : `$${amount.toFixed(2)} USDT`} পাঠান
         </button>
       )}
 

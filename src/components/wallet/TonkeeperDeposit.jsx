@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone } from 'lucide-react';
 import { TON_USDT_DECIMALS, TON_ADMIN, getUserJettonWallet } from '@/lib/tonConfig';
+import { getCryptoPrices } from '@/lib/cryptoPrices';
 
 // Jetton transfer op code: transfer#0f8a7ea5
 const JETTON_TRANSFER_OP = 0x0f8a7ea5;
@@ -17,8 +18,16 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
   const [tonConnectUI] = useTonConnectUI();
   const [account, setAccount] = useState(tonConnectUI?.account || null);
   const [connected, setConnected] = useState(!!tonConnectUI?.connected);
+  const [payAsset, setPayAsset] = useState('usdt'); // 'usdt' | 'ton'
+  const [price, setPrice] = useState(0);
   const [status, setStatus] = useState('idle'); // idle|sending|verifying|done|error
   const [errMsg, setErrMsg] = useState('');
+
+  const coinAmt = price ? amount / price : 0;
+
+  useEffect(() => {
+    if (payAsset === 'ton') getCryptoPrices().then((p) => setPrice(p.ton || 0)).catch(() => {});
+  }, [payAsset]);
 
   useEffect(() => {
     if (!tonConnectUI) return;
@@ -35,45 +44,58 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
     if (!connected || !account?.address) return;
     setStatus('sending'); setErrMsg('');
     try {
-      // 1. Resolve the user's USDT jetton wallet (destination of the transfer message).
-      const jwRaw = await getUserJettonWallet(account.address);
-      if (!jwRaw) {
-        setErrMsg('আপনার ওয়ালেটে USDT (TON) পাওয়া যায়নি। আগে USDT যোগ করুন।');
-        setStatus('error'); return;
+      let expectedNano;
+      if (payAsset === 'ton') {
+        // Native TON transfer: $ amount → equivalent TON at live price.
+        const pr = price || (await getCryptoPrices()).ton || 0;
+        if (!pr) { setErrMsg('TON প্রাইস আনা যায়নি। আবার চেষ্টা করুন।'); setStatus('error'); return; }
+        expectedNano = BigInt(Math.round((amount / pr) * 1e9));
+        await tonConnectUI.sendTransaction({
+          validUntil: Math.floor(Date.now() / 1000) + 300,
+          messages: [{ address: TON_ADMIN, amount: expectedNano.toString() }],
+        });
+      } else {
+        // 1. Resolve the user's USDT jetton wallet (destination of the transfer message).
+        const jwRaw = await getUserJettonWallet(account.address);
+        if (!jwRaw) {
+          setErrMsg('আপনার ওয়ালেটে USDT (TON) পাওয়া যায়নি। আগে USDT যোগ করুন।');
+          setStatus('error'); return;
+        }
+        const jettonWallet = Address.parse(jwRaw).toString();
+        const admin = Address.parse(TON_ADMIN);
+
+        // 2. Build the jetton transfer body: transfer(query_id, amount, dest, resp, fwd_ton).
+        const queryId = crypto.getRandomValues(new BigUint64Array(1))[0];
+        const nanoAmount = BigInt(Math.round(amount * Math.pow(10, TON_USDT_DECIMALS)));
+        const body = beginCell()
+          .storeUint(JETTON_TRANSFER_OP, 32)
+          .storeUint(queryId, 64)
+          .storeCoins(nanoAmount)
+          .storeAddress(admin)              // destination (admin)
+          .storeAddress(Address.parse(account.address)) // response_destination (excess → user)
+          .storeBit(0)                       // no custom_payload
+          .storeCoins(toNano('0.01'))        // forward_ton_amount
+          .storeBit(0)                       // no forward_payload
+          .endCell();
+        const bocBytes = body.toBoc({ idx: false });
+        let binary = '';
+        for (let i = 0; i < bocBytes.length; i++) binary += String.fromCharCode(bocBytes[i]);
+        const payload = btoa(binary);
+
+        // 3. Send via TON Connect → Tonkeeper signs & broadcasts.
+        await tonConnectUI.sendTransaction({
+          validUntil: Math.floor(Date.now() / 1000) + 300,
+          messages: [{ address: jettonWallet, amount: toNano('0.1').toString(), payload }],
+        });
       }
-      const jettonWallet = Address.parse(jwRaw).toString();
-      const admin = Address.parse(TON_ADMIN);
 
-      // 2. Build the jetton transfer body: transfer(query_id, amount, dest, resp, fwd_ton).
-      const queryId = crypto.getRandomValues(new BigUint64Array(1))[0];
-      const nanoAmount = BigInt(Math.round(amount * Math.pow(10, TON_USDT_DECIMALS)));
-      const body = beginCell()
-        .storeUint(JETTON_TRANSFER_OP, 32)
-        .storeUint(queryId, 64)
-        .storeCoins(nanoAmount)
-        .storeAddress(admin)              // destination (admin)
-        .storeAddress(Address.parse(account.address)) // response_destination (excess → user)
-        .storeBit(0)                       // no custom_payload
-        .storeCoins(toNano('0.01'))        // forward_ton_amount
-        .storeBit(0)                       // no forward_payload
-        .endCell();
-      const bocBytes = body.toBoc({ idx: false });
-      let binary = '';
-      for (let i = 0; i < bocBytes.length; i++) binary += String.fromCharCode(bocBytes[i]);
-      const payload = btoa(binary);
-
-      // 3. Send via TON Connect → Tonkeeper signs & broadcasts.
-      await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 300,
-        messages: [{ address: jettonWallet, amount: toNano('0.1').toString(), payload }],
-      });
-
-      // 4. Verify on backend (polls admin's jetton wallet for the incoming transfer).
+      // 4. Verify on backend (polls admin's wallet for the incoming transfer).
       setStatus('verifying');
-      const res = await base44.functions.invoke('verifyTonDeposit', {
-        userWallet: account.address,
-        amount,
-      });
+      const fn = payAsset === 'ton' ? 'verifyTonNativeDeposit' : 'verifyTonDeposit';
+      const verifyPayload = payAsset === 'ton'
+        ? { userWallet: account.address, amount, expectedNano: String(expectedNano) }
+        : { userWallet: account.address, amount };
+      const res = await base44.functions.invoke(fn, verifyPayload);
       if (res?.data?.ok) {
         if (!res.data.already) setBalance((b) => b + Number(res.data.amount || amount));
         setStatus('done');
@@ -111,7 +133,7 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
         <div>
           <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Depositing</p>
           <p className="text-2xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${amount.toFixed(2)}</p>
-          <p className="text-[11px] text-amber-100/50 italic">USDT · TON Network (Jetton)</p>
+          <p className="text-[11px] text-amber-100/50 italic">{payAsset === 'ton' ? `≈ ${coinAmt.toFixed(5)} TON (নেটিভ)` : 'USDT · TON Network (Jetton)'}</p>
         </div>
         <Wallet className="w-8 h-8 text-amber-400/60" />
       </WesternFrame>
@@ -133,13 +155,17 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
 
       {status === 'idle' && (
         <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setPayAsset('usdt')} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'usdt' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>USDT (Jetton)</button>
+            <button onClick={() => setPayAsset('ton')} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'ton' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>TON (নেটিভ)</button>
+          </div>
           {!connected ? (
             <button onClick={() => tonConnectUI?.openModal()} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
               <Smartphone className="w-5 h-5" /> Tonkeeper কানেক্ট করুন
             </button>
           ) : (
             <button onClick={deposit} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 text-stone-950 font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
-              <ArrowRight className="w-5 h-5" /> ওয়ালেট থেকে ${amount.toFixed(2)} USDT পাঠান
+              <ArrowRight className="w-5 h-5" /> ওয়ালেট থেকে {payAsset === 'ton' ? `${coinAmt.toFixed(5)} TON` : `$${amount.toFixed(2)} USDT`} পাঠান
             </button>
           )}
         </div>
@@ -158,7 +184,7 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
       )}
 
       <p className="text-[10px] text-amber-100/40 italic text-center">
-        কনফার্ম দিলে আপনার Tonkeeper থেকে অ্যাডমিনের TON অ্যাড্রেসে USDT যাবে ও ব্যালেন্স অটো যোগ হবে। গ্যাসের জন্য ওয়ালেটে সামান্য TON থাকতে হবে।
+        কনফার্ম দিলে আপনার Tonkeeper থেকে অ্যাডমিনের TON অ্যাড্রেসে {payAsset === 'ton' ? 'TON (নেটিভ)' : 'USDT'} যাবে ও ব্যালেন্স অটো যোগ হবে। গ্যাসের জন্য ওয়ালেটে সামান্য TON থাকতে হবে।
       </p>
     </div>
   );
