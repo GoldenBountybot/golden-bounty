@@ -5,7 +5,7 @@ import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
-import { playCoinSound } from '@/lib/crownCoinsSound';
+
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
@@ -391,7 +391,6 @@ export default function CrownCoinsMachine() {
         });
         if (coins.length) {
           setFlyCoins(coins);
-          coins.forEach((c, idx) => { const t = setTimeout(() => playCoinSound(), idx * 130); timers.current.push(t); });
           const tClear = setTimeout(() => setFlyCoins([]), 1950);
           timers.current.push(tClear);
         }
