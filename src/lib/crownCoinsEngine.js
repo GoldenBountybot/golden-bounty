@@ -124,8 +124,8 @@ export function spinGrid(rtp = 50) {
     grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
   }
 
-  // Win gate: 20% chance the spin is a winner (symbol line match).
-  const forceLoss = Math.random() * 100 > 20;
+  // Win gate: 12% chance the spin is a winner (symbol line match).
+  const forceLoss = Math.random() * 100 > 12;
   if (forceLoss) {
     for (let iter = 0; iter < 4; iter++) {
       const { lines } = evaluateGrid(grid);
