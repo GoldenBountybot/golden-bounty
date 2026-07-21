@@ -41,6 +41,36 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const [errMsg, setErrMsg] = useState('');
   const [wcUri, setWcUri] = useState('');
   const providerRef = useRef(null);
+  const accountRef = useRef(null);
+
+  const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent || '');
+
+  // সরাসরি Trust Wallet অ্যাপ খুলে কানেক্ট → কানেক্ট হলেই অটো পেমেন্ট রিকোয়েস্ট পাঠায়।
+  const connectAndPay = async () => {
+    if (!hasWalletConnect()) {
+      setErrMsg('WalletConnect projectId সেট করা হয়নি (src/lib/walletConfig.js)।');
+      setStatus('error'); return;
+    }
+    setStatus('connecting'); setErrMsg(''); setWcUri('');
+    const mobile = isMobile();
+    onWalletConnectUri((uri) => {
+      setWcUri(uri);
+      if (mobile) {
+        try { window.location.href = 'https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri); } catch {}
+      }
+    });
+    const res = await connectWalletConnect();
+    if (res && res.account) {
+      providerRef.current = res.provider;
+      accountRef.current = res.account;
+      setAccount(res.account);
+      setWcUri('');
+      await deposit();
+    } else {
+      setErrMsg('ওয়ালেট কানেকশন বাতিল বা ব্যর্থ হয়েছে।');
+      setStatus('error'); setWcUri('');
+    }
+  };
 
   const connectInjected = async () => {
     const p = getInjectedProvider();
@@ -56,6 +86,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         } else { throw e; }
       }
       providerRef.current = p;
+      accountRef.current = accts[0];
       setAccount(accts[0]);
       setStatus('connected');
     } catch {
@@ -73,6 +104,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     const res = await connectWalletConnect();
     if (res && res.account) {
       providerRef.current = res.provider;
+      accountRef.current = res.account;
       setAccount(res.account);
       setWcUri('');
       setStatus('connected');
@@ -84,13 +116,14 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
 
   const deposit = async () => {
     const p = providerRef.current;
-    if (!p || !account) return;
+    const acct = accountRef.current;
+    if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
     try {
       const data = '0xa9059cbb' + pad32(ADMIN_BSC).slice(2) + pad32(toHexAmount(amount)).slice(2);
       const txHash = await p.request({
         method: 'eth_sendTransaction',
-        params: [{ from: account, to: USDT_CONTRACT, data, value: '0x0' }],
+        params: [{ from: acct, to: USDT_CONTRACT, data, value: '0x0' }],
       });
       setStatus('confirming');
       let receipt = null;
@@ -103,7 +136,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       if (receipt.status !== '0x1') { setErrMsg('লেনদেন ব্যর্থ (reverted)।'); setStatus('error'); return; }
 
       setStatus('verifying');
-      const res = await base44.functions.invoke('verifyEvmDeposit', { txHash, amount, userWallet: account });
+      const res = await base44.functions.invoke('verifyEvmDeposit', { txHash, amount, userWallet: acct });
       if (res?.data?.ok) {
         if (!res.data.already) setBalance((b) => b + Number(res.data.amount || amount));
         setStatus('done');
@@ -170,11 +203,14 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
 
       {status === 'idle' && (
         <div className="flex flex-col gap-2">
-          <button onClick={connectMobile} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
-            <Smartphone className="w-5 h-5" /> মোবাইল অ্যাপ দিয়ে কানেক্ট (QR)
+          <button onClick={connectAndPay} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
+            <Smartphone className="w-5 h-5" /> Trust Wallet অ্যাপে খুলুন (অটো পেমেন্ট)
           </button>
-          <button onClick={connectInjected} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
-            <Chrome className="w-5 h-5" /> ব্রাউজার এক্সটেনশন দিয়ে কানেক্ট
+          <button onClick={connectMobile} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
+            <Wallet className="w-5 h-5" /> QR স্ক্যান করে কানেক্ট
+          </button>
+          <button onClick={connectInjected} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-black/40 border border-amber-700/40 text-amber-100 font-bold italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
+            <Chrome className="w-5 h-5" /> ব্রাউজার এক্সটেনশন
           </button>
         </div>
       )}
