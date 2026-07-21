@@ -5,11 +5,13 @@ import WesternBackdrop from '@/components/WesternBackdrop';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import { Bitcoin, Wallet, Copy, Check, ArrowLeft, Send } from 'lucide-react';
+import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
 
 const METHODS = [
   { id: 'binance', label: 'Pay with Binance', badge: 'B', badgeClass: 'bg-amber-400 text-stone-950 ring-amber-200', hint: 'Binance Pay wallet' },
   { id: 'usdt', label: 'Pay USDT in Crypto', badge: '₮', badgeClass: 'bg-emerald-500 text-white ring-emerald-300', hint: 'Tether (USDT) transfer' },
   { id: 'crypto', label: 'Pay Crypto', badge: null, icon: Bitcoin, iconClass: 'text-amber-300', hint: 'BTC / ETH / BNB & other coins' },
+  { id: 'trust', label: 'Trust Wallet', badge: 'T', badgeClass: 'bg-blue-600 text-white ring-blue-300', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
 ];
 
 const USDT_NETWORKS = [
@@ -90,7 +92,7 @@ export default function PayMethod() {
   }, []);
 
   const choose = (m) => {
-    if (m.id === 'usdt' || m.id === 'crypto' || m.id === 'binance') { setView(m.id); return; }
+    if (m.id === 'usdt' || m.id === 'crypto' || m.id === 'binance' || m.id === 'trust') { setView(m.id); return; }
     toast({ title: `${m.label} selected`, description: 'Payment processing coming soon.' });
   };
 
@@ -253,6 +255,14 @@ export default function PayMethod() {
               <p className="text-[10px] text-amber-100/40 italic text-center">Your balance updates after admin approves the deposit.</p>
             </WesternFrame>
           </div>
+        )}
+
+        {view === 'trust' && (
+          <TrustWalletDeposit
+            amount={amount}
+            onBack={() => { setView('choose'); }}
+            onDone={() => { window.location.href = '/dashboard'; }}
+          />
         )}
       </main>
     </div>
