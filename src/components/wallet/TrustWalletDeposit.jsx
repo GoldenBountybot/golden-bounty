@@ -90,7 +90,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       const data = '0xa9059cbb' + pad32(ADMIN_BSC).slice(2) + pad32(toHexAmount(amount)).slice(2);
       const txHash = await p.request({
         method: 'eth_sendTransaction',
-        params: [{ from: account, to: USDT_CONTRACT, data }],
+        params: [{ from: account, to: USDT_CONTRACT, data, value: '0x0' }],
       });
       setStatus('confirming');
       let receipt = null;
@@ -114,8 +114,10 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         setErrMsg(reason === 'pending' ? 'লেনদেন এখনও পেন্ডিং — কিছুক্ষণ পর আবার চেষ্টা করুন।' : `ভেরিফিকেশন ব্যর্থ: ${reason}`);
         setStatus('error');
       }
-    } catch {
-      setErrMsg('লেনদেন বাতিল বা ব্যর্থ হয়েছে।');
+    } catch (e) {
+      console.error('TrustWalletDeposit send error:', e);
+      const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'বাতিল/ব্যর্থ');
+      setErrMsg('লেনদেন বাতিল/ব্যর্থ: ' + msg);
       setStatus('error');
     }
   };
