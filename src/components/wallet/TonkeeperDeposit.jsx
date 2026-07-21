@@ -42,6 +42,7 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
 
   const deposit = async () => {
     if (!connected || !account?.address) return;
+    if (!amount || amount <= 0) { setErrMsg('ডিপোজিট অ্যামাউন্ট নেই — ড্যাশবোর্ড থেকে অ্যামাউন্ট নির্বাচন করুন।'); setStatus('error'); return; }
     setStatus('sending'); setErrMsg('');
     try {
       let expectedNano;

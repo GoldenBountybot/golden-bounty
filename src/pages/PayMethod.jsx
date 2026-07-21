@@ -4,7 +4,7 @@ import WesternFrame from '@/components/wildbounty/WesternFrame';
 import WesternBackdrop from '@/components/WesternBackdrop';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
-import { Bitcoin, Wallet, Copy, Check, ArrowLeft, Send } from 'lucide-react';
+import { Bitcoin, Wallet, Copy, Check, ArrowLeft, Send, AlertTriangle } from 'lucide-react';
 import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
 import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
 
@@ -148,6 +148,15 @@ export default function PayMethod() {
       </header>
 
       <main className="relative z-10 max-w-md mx-auto px-4 py-5 flex flex-col gap-4">
+        {amount <= 0 ? (
+          <WesternFrame variant="glass" className="p-5 flex flex-col items-center gap-3 text-center">
+            <AlertTriangle className="w-8 h-8 text-amber-400" />
+            <p className="text-amber-100 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>কোনো ডিপোজিট অ্যামাউন্ট নির্বাচন করা হয়নি।</p>
+            <p className="text-amber-100/60 text-xs italic">ড্যাশবোর্ড থেকে ডিপোজিট অ্যামাউন্ট নির্বাচন করুন।</p>
+            <button onClick={() => window.location.href = '/dashboard'} className="px-4 py-2 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>ড্যাশবোর্ডে যান</button>
+          </WesternFrame>
+        ) : (
+        <>
         <WesternFrame glow variant="glass" className="p-4 flex items-center justify-between">
           <div>
             <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Depositing</p>
@@ -273,6 +282,8 @@ export default function PayMethod() {
             onBack={() => { setView('choose'); }}
             onDone={() => { window.location.href = '/dashboard'; }}
           />
+        )}
+        </>
         )}
       </main>
     </div>
