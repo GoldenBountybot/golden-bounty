@@ -305,15 +305,9 @@ export default function Plinko() {
           )}
           {ballPos && (
             <span
-              className="absolute z-10"
-              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', transition: 'left 0.26s linear, top 0.26s linear' }}
-            >
-              <span
-                key={bounceKey}
-                className="block rounded-full"
-                style={{ width: 10, height: 10, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', animation: 'plinkoBounce 0.26s ease-out', '--bx': bounceBx + 'px' }}
-              />
-            </span>
+              className="absolute z-10 rounded-full"
+              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 10, height: 10, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.26s ease-in-out, top 0.26s ease-in-out' }}
+            />
           )}
           <div className="absolute inset-x-0 bottom-1 flex gap-0.5 px-1">
             {MULTS.map((m, i) => {
