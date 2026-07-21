@@ -463,6 +463,34 @@ export default function CrownCoinsMachine() {
                             animation: 'ccFireFlicker 0.9s ease-in-out infinite',
                           }}
                         />
+                        {/* Flame tongues licking along all four borders */}
+                        {[
+                          { side: 'bottom', left: '15%', delay: 0 },
+                          { side: 'bottom', left: '45%', delay: 0.3 },
+                          { side: 'bottom', left: '75%', delay: 0.6 },
+                          { side: 'top',    left: '30%', delay: 0.15 },
+                          { side: 'top',    left: '60%', delay: 0.45 },
+                          { side: 'left',   top: '30%', delay: 0.25 },
+                          { side: 'left',   top: '65%', delay: 0.55 },
+                          { side: 'right',  top: '35%', delay: 0.1 },
+                          { side: 'right',  top: '70%', delay: 0.4 },
+                        ].map((f, e) => (
+                          <span
+                            key={e}
+                            className="absolute pointer-events-none"
+                            style={{
+                              ...(f.side === 'bottom' ? { bottom: '-4px', left: f.left, transform: 'translateX(-50%)', width: '7px', height: '14px' } :
+                                 f.side === 'top'    ? { top: '-4px',    left: f.left, transform: 'translateX(-50%)', width: '7px', height: '14px' } :
+                                 f.side === 'left'   ? { left: '-4px',   top: f.top,   transform: 'translateY(-50%) rotate(-90deg)', width: '7px', height: '14px' } :
+                                                        { right: '-4px',  top: f.top,   transform: 'translateY(-50%) rotate(90deg)', width: '7px', height: '14px' }),
+                              transformOrigin: f.side === 'bottom' ? 'bottom center' : f.side === 'top' ? 'top center' : 'center center',
+                              borderRadius: '50% 50% 30% 30%',
+                              background: 'linear-gradient(to top, rgba(255,40,0,0.9), rgba(255,140,0,1) 45%, rgba(255,220,80,0.95) 85%, transparent)',
+                              filter: 'blur(1.2px) drop-shadow(0 0 5px rgba(255,120,0,0.8))',
+                              animation: `ccFlameTongue ${0.85 + e * 0.06}s ease-in-out ${f.delay}s infinite`,
+                            }}
+                          />
+                        ))}
                         {/* Embers rising along the border */}
                         {[0, 1, 2, 3].map(e => (
                           <span
