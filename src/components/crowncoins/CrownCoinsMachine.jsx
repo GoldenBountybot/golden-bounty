@@ -580,8 +580,8 @@ export default function CrownCoinsMachine() {
 
         {freeSpins > 0 && (
           <div className="flex items-center justify-center gap-1.5 -mt-1 mb-1">
-            {[1, 2, 3].map(n => {
-              const current = 4 - freeSpins === n;
+            {[3, 2, 1].map(n => {
+              const current = freeSpins === n;
               return (
                 <div
                   key={n}
