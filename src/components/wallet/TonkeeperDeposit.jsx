@@ -184,9 +184,6 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
         </div>
       )}
 
-      <p className="text-[10px] text-amber-100/40 italic text-center">
-        Upon confirmation, {payAsset === 'ton' ? 'TON (Native)' : 'USDT'} will be sent from your Tonkeeper to the admin's TON wallet and your balance will be credited automatically. Keep a small amount of TON in your wallet for gas.
-      </p>
     </div>
   );
 }

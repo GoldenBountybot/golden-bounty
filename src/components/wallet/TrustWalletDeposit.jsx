@@ -340,9 +340,6 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         </div>
       )}
 
-      <p className="text-[10px] text-amber-100/40 italic text-center">
-        Upon confirmation, {net.short} will be sent directly from your wallet to the admin wallet and your balance will be credited automatically.
-      </p>
     </div>
   );
 }
