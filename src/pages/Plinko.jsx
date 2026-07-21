@@ -5,7 +5,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 
-const MULTS = [50, 25, 10, 3, 2, 0, 2, 3, 10, 25, 50];
+const MULTS = [25, 10, 5, 2, 1.5, 0, 1.5, 2, 5, 10, 25];
 const ROWS = MULTS.length - 1;
 const BETS = [0.1, 1, 5, 10];
 
@@ -305,9 +305,9 @@ export default function Plinko() {
       </header>
 
       {/* Board area */}
-      <main className="relative z-10 max-w-md mx-auto w-full px-3 flex-1 flex flex-col">
+      <main className="relative z-10 max-w-lg mx-auto w-full px-3 flex-1 flex flex-col">
         {/* Board */}
-        <div className="relative w-full mx-auto" style={{ maxWidth: 440, aspectRatio: '1.2 / 1', clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)', background: 'radial-gradient(circle at 50% 100%, rgba(139,92,246,0.12), transparent 70%)' }}>
+        <div className="relative w-full" style={{ aspectRatio: '1.1 / 1', clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)', background: 'radial-gradient(circle at 50% 100%, rgba(139,92,246,0.12), transparent 70%)' }}>
           {Array.from({ length: ROWS + 1 }).map((_, r) =>
             Array.from({ length: r + 1 }).map((_, c) => {
               const isHit = hitPeg && hitPeg.row === r && hitPeg.col === c;
