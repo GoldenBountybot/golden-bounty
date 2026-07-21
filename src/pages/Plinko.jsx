@@ -166,6 +166,7 @@ export default function Plinko() {
   const [resultBucket, setResultBucket] = useState(null);
   const [hitPeg, setHitPeg] = useState(null);
   const [bounceKey, setBounceKey] = useState(0);
+  const [bounceBx, setBounceBx] = useState(0);
   const [message, setMessage] = useState('Drop the ball');
   const [lastWin, setLastWin] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -216,9 +217,12 @@ export default function Plinko() {
 
     let step = 0;
     const animate = () => {
-      setBallPos(path[step]);
+      const cur = path[step];
+      const nxt = path[step + 1];
+      setBallPos(cur);
       setBounceKey(k => k + 1);
-      setHitPeg(path[step]);
+      setHitPeg(cur);
+      setBounceBx(nxt ? (nxt.col > cur.col ? 14 : -14) : 0);
       if (step > 0) playPeg();
       if (step < path.length - 1) {
         const t = setTimeout(() => { step++; animate(); }, 260);
@@ -307,7 +311,7 @@ export default function Plinko() {
               <span
                 key={bounceKey}
                 className="block rounded-full"
-                style={{ width: 16, height: 16, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', animation: 'plinkoBounce 0.26s ease-out' }}
+                style={{ width: 16, height: 16, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', animation: 'plinkoBounce 0.26s ease-out', '--bx': bounceBx + 'px' }}
               />
             </span>
           )}

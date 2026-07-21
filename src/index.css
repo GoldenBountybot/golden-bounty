@@ -384,10 +384,9 @@
 
 /* Plinko — ball bounce on peg impact */
 @keyframes plinkoBounce {
-  0%   { transform: translateY(-6px) scaleY(1.22) scaleX(0.82); }
-  42%  { transform: translateY(0) scaleY(0.84) scaleX(1.16); }
-  68%  { transform: translateY(-2px) scaleY(1.06) scaleX(0.96); }
-  100% { transform: translateY(0) scaleY(1) scaleX(1); }
+  0%   { transform: translate(0, -7px) scaleY(1.18) scaleX(0.88); }
+  38%  { transform: translate(calc(var(--bx,0px) * 0.35), 0) scaleY(0.84) scaleX(1.18); }
+  100% { transform: translate(var(--bx,0px), 0) scaleY(1) scaleX(1); }
 }
 
 /* Plinko — peg wobble + glow when hit */
