@@ -540,6 +540,30 @@ export default function CrownCoinsMachine() {
           </div>
         </div>
 
+        {freeSpins > 0 && (
+          <div className="flex items-center justify-center gap-1.5 -mt-1 mb-1">
+            {[1, 2, 3].map(n => {
+              const current = 4 - freeSpins === n;
+              return (
+                <div
+                  key={n}
+                  className="w-7 h-7 rounded-md flex items-center justify-center text-xs font-black"
+                  style={{
+                    border: current ? '2px solid #ffd24a' : '1px solid rgba(212,175,55,0.4)',
+                    background: current ? 'radial-gradient(circle at center, #fff2c0, #e8a93a 70%, #b8860b)' : 'rgba(0,0,0,0.5)',
+                    color: current ? '#3a2400' : 'rgba(255,235,150,0.5)',
+                    boxShadow: current ? '0 0 10px rgba(255,210,80,0.9), inset 0 0 0 1px #8a5a00' : 'none',
+                    fontFamily: 'Georgia, serif',
+                    transition: 'all .2s',
+                  }}
+                >
+                  {n}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         <div className="grid grid-cols-3 gap-1.5 text-center">
           <div className="rounded-md bg-black/50 border border-yellow-700/40 py-1">
             <div className="text-[8px] text-yellow-300/70 font-bold tracking-wider">BET</div>
