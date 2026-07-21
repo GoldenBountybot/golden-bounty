@@ -27,6 +27,11 @@
         "push"
       ],
       "default": "loss"
+    },
+    "multiplier": {
+      "type": "number",
+      "default": 0,
+      "description": "Round odds / multiplier the player cashed out at or the round busted at"
     }
   },
   "required": [

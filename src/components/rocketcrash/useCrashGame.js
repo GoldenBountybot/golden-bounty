@@ -131,7 +131,11 @@ export function useCrashGame() {
       loggedRoundRef.current = data.round_id;
       const totalBet = betsRef.current.reduce((s, b) => s + (b.placed ? b.amount : 0), 0);
       const totalWin = betsRef.current.reduce((s, b) => s + (b.cashedOut ? b.win : 0), 0);
-      logActivity('rocket-crash', totalBet, totalWin, totalWin > 0 ? 'win' : 'loss');
+      // Odds: the player's cash-out multiplier when they won, otherwise the
+      // round's bust point (the odds they missed).
+      const cashed = betsRef.current.find((b) => b.cashedOut && b.cashOutMult);
+      const odds = cashed ? cashed.cashOutMult : crashPointRef.current;
+      logActivity('rocket-crash', totalBet, totalWin, totalWin > 0 ? 'win' : 'loss', odds);
     }
   }, [logActivity, setBalance]);
 

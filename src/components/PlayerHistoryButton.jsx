@@ -39,8 +39,10 @@ export default function PlayerHistoryButton() {
     return () => { active = false; };
   }, [open]);
 
-  const totalBet = rows.reduce((s, r) => s + (r.bet || 0), 0);
-  const totalWin = rows.reduce((s, r) => s + (r.win || 0), 0);
+  // Only rounds where the player actually placed a bet are shown.
+  const hist = rows.filter((r) => (r.bet || 0) > 0);
+  const totalBet = hist.reduce((s, r) => s + (r.bet || 0), 0);
+  const totalWin = hist.reduce((s, r) => s + (r.win || 0), 0);
   const net = totalWin - totalBet;
 
   return (
@@ -91,19 +93,20 @@ export default function PlayerHistoryButton() {
                 <div className="flex items-center justify-center py-10">
                   <div className="w-6 h-6 border-2 border-indigo-300/30 border-t-indigo-300 rounded-full animate-spin" />
                 </div>
-              ) : rows.length === 0 ? (
+              ) : hist.length === 0 ? (
                 <div className="py-10 text-center text-indigo-300/50 text-sm italic">No history yet</div>
               ) : (
-                rows.map((r) => {
+                hist.map((r) => {
                   const profit = (r.win || 0) - (r.bet || 0);
+                  const odds = Number(r.multiplier) || 0;
                   return (
-                    <div key={r.id} className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2 px-4 py-2 border-b border-white/5 text-xs">
+                    <div key={r.id} className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-2 px-4 py-2 border-b border-white/5 text-xs">
                       <div className="flex flex-col">
                         <span className="font-bold text-indigo-100">{GAME_LABELS[r.game_id] || r.game_id}</span>
                         <span className="text-[10px] text-indigo-300/50">{fmtDate(r.created_date)}</span>
                       </div>
-                      <span className="text-right tabular-nums text-indigo-200/70">${(r.bet || 0).toFixed(2)}</span>
-                      <span className="text-right tabular-nums text-emerald-200/70">${(r.win || 0).toFixed(2)}</span>
+                      <span className="text-right tabular-nums text-amber-200/80">{odds > 0 ? `×${odds.toFixed(2)}` : '—'}</span>
+                      <span className="text-right tabular-nums text-indigo-200/70">${(r.win || 0).toFixed(2)}</span>
                       <span className={`text-right font-bold tabular-nums ${profit >= 0 ? 'text-emerald-300' : 'text-rose-400'}`}>
                         {profit >= 0 ? '+' : ''}{profit.toFixed(2)}
                       </span>
@@ -113,9 +116,9 @@ export default function PlayerHistoryButton() {
               )}
             </div>
 
-            <div className="grid grid-cols-4 gap-2 px-4 py-2 border-t border-indigo-900/40 text-[9px] text-indigo-300/50 font-bold tracking-wider">
+            <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2 px-4 py-2 border-t border-indigo-900/40 text-[9px] text-indigo-300/50 font-bold tracking-wider">
               <span>GAME</span>
-              <span className="text-right">BET</span>
+              <span className="text-right">ODDS</span>
               <span className="text-right">WIN</span>
               <span className="text-right">NET</span>
             </div>
