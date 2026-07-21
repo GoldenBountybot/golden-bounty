@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useLogActivity } from '@/lib/useLogActivity';
+import { playTakeoff, startFlying, stopFlying, playBlast } from './crashSounds';
 
 const WAIT_MS = 5000;        // betting window (must match server)
 const GROWTH = 1.10;         // multiplier = GROWTH ^ elapsedSec
@@ -70,6 +71,19 @@ export function useCrashGame() {
   useEffect(() => { betsRef.current = bets; }, [bets]);
   useEffect(() => { liveRef.current = liveBets; }, [liveBets]);
   useEffect(() => { balanceRef.current = balance; }, [balance]);
+
+  // Phase-driven sound effects: takeoff + engine rumble while flying, blast on crash.
+  const prevPhaseRef = useRef('waiting');
+  useEffect(() => {
+    const prev = prevPhaseRef.current;
+    if (phase === prev) return;
+    if (phase === 'running' && prev !== 'running') { playTakeoff(); startFlying(); }
+    else if (phase === 'crashed' && prev !== 'crashed') { playBlast(); }
+    else if (phase === 'waiting') { stopFlying(); }
+    prevPhaseRef.current = phase;
+  }, [phase]);
+
+  useEffect(() => () => stopFlying(), []);
 
   // Apply a snapshot of the shared round coming from the server.
   const applyState = useCallback((data) => {
