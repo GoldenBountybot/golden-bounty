@@ -23,6 +23,7 @@ import Profile from './pages/Profile';
 import PayMethod from './pages/PayMethod';
 import Withdraw from './pages/Withdraw';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { TonConnectUIProvider } from '@tonconnect/ui-react';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -82,7 +83,9 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
-          <AuthenticatedApp />
+          <TonConnectUIProvider manifestUrl={`${window.location.origin}/tonconnect-manifest.json`}>
+            <AuthenticatedApp />
+          </TonConnectUIProvider>
         </Router>
         <Toaster />
       </QueryClientProvider>

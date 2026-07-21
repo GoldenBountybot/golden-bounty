@@ -6,12 +6,14 @@ import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import { Bitcoin, Wallet, Copy, Check, ArrowLeft, Send } from 'lucide-react';
 import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
+import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
 
 const METHODS = [
   { id: 'binance', label: 'Pay with Binance', badge: 'B', badgeClass: 'bg-amber-400 text-stone-950 ring-amber-200', hint: 'Binance Pay wallet' },
   { id: 'usdt', label: 'Pay USDT in Crypto', badge: '₮', badgeClass: 'bg-emerald-500 text-white ring-emerald-300', hint: 'Tether (USDT) transfer' },
   { id: 'crypto', label: 'Pay Crypto', badge: null, icon: Bitcoin, iconClass: 'text-amber-300', hint: 'BTC / ETH / BNB & other coins' },
   { id: 'trust', label: 'Trust Wallet', badge: 'T', badgeClass: 'bg-blue-600 text-white ring-blue-300', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
+  { id: 'tonkeeper', label: 'Tonkeeper (TON)', badge: 'T', badgeClass: 'bg-sky-500 text-white ring-sky-300', hint: 'Connect Tonkeeper & pay USDT (TON) — auto credit' },
 ];
 
 const USDT_NETWORKS = [
@@ -92,12 +94,12 @@ export default function PayMethod() {
   }, []);
 
   const choose = (m) => {
-    if (m.id === 'usdt' || m.id === 'crypto' || m.id === 'binance' || m.id === 'trust') { setView(m.id); return; }
+    if (m.id === 'usdt' || m.id === 'crypto' || m.id === 'binance' || m.id === 'trust' || m.id === 'tonkeeper') { setView(m.id); return; }
     toast({ title: `${m.label} selected`, description: 'Payment processing coming soon.' });
   };
 
   const networks = view === 'usdt' ? payData.usdt : view === 'crypto' ? payData.crypto : [];
-  const methodLabel = view === 'usdt' ? 'USDT Deposit' : view === 'crypto' ? 'Crypto Deposit' : 'Binance Pay Deposit';
+  const methodLabel = view === 'usdt' ? 'USDT Deposit' : view === 'crypto' ? 'Crypto Deposit' : view === 'tonkeeper' ? 'Tonkeeper Deposit' : 'Binance Pay Deposit';
 
   const submitTxid = async () => {
     if (view !== 'binance' && !selectedNet) { toast({ title: 'Select a network first' }); return; }
@@ -259,6 +261,14 @@ export default function PayMethod() {
 
         {view === 'trust' && (
           <TrustWalletDeposit
+            amount={amount}
+            onBack={() => { setView('choose'); }}
+            onDone={() => { window.location.href = '/dashboard'; }}
+          />
+        )}
+
+        {view === 'tonkeeper' && (
+          <TonkeeperDeposit
             amount={amount}
             onBack={() => { setView('choose'); }}
             onDone={() => { window.location.href = '/dashboard'; }}
