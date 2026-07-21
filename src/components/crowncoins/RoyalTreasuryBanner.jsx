@@ -114,7 +114,7 @@ export default function RoyalTreasuryBanner({ onContinue, winAmount }) {
                 textShadow: '0 1px 2px rgba(0,0,0,0.8)',
               }}
             >
-              10 free spins await — claim the crown's hoard
+              3 free spins await — land a coin to keep spinning
             </span>
           )}
 

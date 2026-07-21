@@ -200,15 +200,16 @@ export default function CrownCoinsMachine() {
     setLastWin(0);
     setAmountCell(null);
     if (!isFree) setBalance(b => Math.max(0, b - bet));
-    if (isFree) { freeSpinsRef.current -= 1; setFreeSpins(freeSpinsRef.current); }
     clearTimers();
 
     // compute final result
     let resultGrid;
+    let freeDropped = 0;
     if (isFree) {
       const r = spinFreeAccum(stuckRef.current);
       stuckRef.current = r.stuck;
       setStuckView(r.stuck);
+      freeDropped = r.dropped;
       // Reels show regular symbols behind; stuck coins render via the overlay.
       const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
       resultGrid = r.grid.map((k, i) => (r.stuck[i] ? REG[Math.floor(Math.random() * REG.length)] : k));
@@ -245,13 +246,22 @@ export default function CrownCoinsMachine() {
       // Free spins: coins accumulate and stick; no line wins, no flying coins.
       if (isFree) {
         const runningTotal = freeTotal(stuckRef.current, bet);
+        const allFilled = stuckRef.current.every(k => !!k);
+        // A value coin dropping this spin resets the 3-spin counter.
+        // No drop → counter decrements; reaching 0 ends the free-spin round.
+        if (freeDropped > 0) {
+          freeSpinsRef.current = 3;
+        } else {
+          freeSpinsRef.current -= 1;
+        }
+        setFreeSpins(freeSpinsRef.current);
         setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
         setLastWin(runningTotal);
         setSpinning(false);
         logActivity('crown-coins', 0, 0, 'push');
-        try { base44.analytics.track({ eventName: 'crown_coins_free_spin', properties: { bet, stuck: runningTotal, remaining: freeSpinsRef.current } }); } catch {}
+        try { base44.analytics.track({ eventName: 'crown_coins_free_spin', properties: { bet, stuck: runningTotal, remaining: freeSpinsRef.current, dropped: freeDropped } }); } catch {}
 
-        if (freeSpinsRef.current > 0) {
+        if (freeSpinsRef.current > 0 && !allFilled) {
           const tNext = setTimeout(() => doSpin(), 700);
           timers.current.push(tNext);
         } else {
@@ -286,8 +296,8 @@ export default function CrownCoinsMachine() {
         mask[1][1] = true; // center Crown Coin glows
         [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) mask[0][Math.floor(i / 3)] = true; });
         [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) mask[2][Math.floor(i / 3)] = true; });
-        freeSpinsRef.current = 10;
-        setFreeSpins(10);
+        freeSpinsRef.current = 3;
+        setFreeSpins(3);
         // Free spins start with an empty board — the triggering Crown Coin
         // and side value coins do NOT carry over as stuck coins.
         const stuck = new Array(9).fill(null);
