@@ -75,10 +75,10 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
           transformOrigin: 'center center',
           transition: 'left 0.14s linear, top 0.22s ease-out, transform 0.22s ease-out',
         }}>
-          <span className="relative flex items-center justify-center" style={{ width: '215px', height: '130px' }}>
+          <span className="relative flex items-center justify-center" style={{ width: '280px', height: '168px' }}>
             {/* exhaust / jet flame trail behind the bomber */}
             <span className="absolute" style={{
-              left: '-61px', top: '50%', width: '61px', height: '22px', transform: 'translateY(-50%)',
+              left: '-80px', top: '50%', width: '80px', height: '28px', transform: 'translateY(-50%)',
               background: 'linear-gradient(to left, rgba(255,180,60,0.95), rgba(255,120,40,0.6) 40%, rgba(255,80,20,0) 100%)',
               borderRadius: '50%', filter: 'blur(3px)', mixBlendMode: 'screen',
               animation: 'jetExhaust 0.18s ease-in-out infinite', boxShadow: '0 0 14px rgba(255,140,40,0.8)',
