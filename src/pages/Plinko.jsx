@@ -215,17 +215,35 @@ export default function Plinko() {
     let col = 0;
     for (let r = 1; r <= ROWS; r++) { col += steps[r - 1]; path.push({ row: r, col }); }
 
+    // Build an expanded path that inserts a "gap" midpoint between each peg so
+    // the ball visibly passes through the empty space between pegs.
+    const fullSteps = [];
+    for (let i = 0; i < path.length; i++) {
+      fullSteps.push({ kind: 'peg', ...path[i] });
+      if (i < path.length - 1) {
+        const a = path[i], b = path[i + 1];
+        fullSteps.push({
+          kind: 'gap',
+          row: (a.row + b.row) / 2,
+          col: (a.col + b.col) / 2,
+          hitPeg: a,
+        });
+      }
+    }
+
     let step = 0;
     const animate = () => {
-      const cur = path[step];
-      const nxt = path[step + 1];
+      const cur = fullSteps[step];
       setBallPos(cur);
       setBounceKey(k => k + 1);
-      setHitPeg(cur);
-      setBounceBx(nxt ? (nxt.col > cur.col ? 14 : -14) : 0);
-      if (step > 0) playPeg();
-      if (step < path.length - 1) {
-        const t = setTimeout(() => { step++; animate(); }, 260);
+      if (cur.kind === 'peg') {
+        setHitPeg(cur);
+        if (step > 0) playPeg();
+      }
+      setBounceBx(0);
+      if (step < fullSteps.length - 1) {
+        const dur = cur.kind === 'peg' ? 200 : 170;
+        const t = setTimeout(() => { step++; animate(); }, dur);
         timers.current.push(t);
       } else {
         const t = setTimeout(() => {
@@ -247,9 +265,9 @@ export default function Plinko() {
 
   const pos = (row, col) => {
     const rowFrac = row / ROWS;
-    const spread = rowFrac * 88;
+    const spread = rowFrac * 94;
     const left = 50 + ((col + 0.5) / (row + 1) - 0.5) * spread;
-    const top = 6 + rowFrac * 82;
+    const top = 5 + rowFrac * 84;
     return { left: `${left}%`, top: `${top}%` };
   };
 
@@ -293,7 +311,7 @@ export default function Plinko() {
           {Array.from({ length: ROWS + 1 }).map((_, r) =>
             Array.from({ length: r + 1 }).map((_, c) => {
               const isHit = hitPeg && hitPeg.row === r && hitPeg.col === c;
-              const size = r === 0 ? 22 : 14;
+              const size = r === 0 ? 16 : 10;
               return (
                 <span
                   key={`p-${r}-${c}`}
@@ -306,7 +324,7 @@ export default function Plinko() {
           {ballPos && (
             <span
               className="absolute z-10 rounded-full"
-              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 10, height: 10, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.26s ease-in-out, top 0.26s ease-in-out' }}
+              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 10, height: 10, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.2s ease-in, top 0.2s ease-in' }}
             />
           )}
           <div className="absolute inset-x-0 bottom-1 flex gap-0.5 px-1">
