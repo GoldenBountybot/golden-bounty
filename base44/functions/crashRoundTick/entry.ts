@@ -4,9 +4,13 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 // Clients poll this function; it lazily advances the single live round
 // (waiting -> running -> crashed -> next waiting) based on server timestamps
 // so every user sees the exact same round at the same time.
+//
+// Kept as cheap as possible: one read per poll, a write only when a phase
+// actually transitions (rare). RTP is read only when a new crash point is
+// generated. This avoids the per-function rate limit under load.
 
 const WAIT_MS = 5000;        // betting window before each round
-const CRASH_HOLD_MS = 1500;  // brief blast flash, then next round starts
+const CRASH_HOLD_MS = 1500;  // brief blast flash before next round
 const GROWTH = 1.10;         // multiplier = GROWTH ^ elapsedSec
 
 function genCrashPoint(rtp) {
@@ -19,21 +23,10 @@ function genCrashPoint(rtp) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-
     const svc = base44.asServiceRole;
-
-    // Resolve RTP from game settings (fall back to 97).
-    let rtp = 97;
-    try {
-      const settings = await svc.entities.GameSetting.filter({ game_id: 'rocket-crash' });
-      if (settings && settings.length && settings[0].rtp) rtp = settings[0].rtp;
-    } catch (_e) {}
-
     const now = Date.now();
 
-    // Fetch the singleton live-round record.
+    // Single read per poll — the live-round singleton.
     let round = null;
     const existing = await svc.entities.CrashRound.filter({ current: true }, '-updated_date', 1);
     if (existing && existing.length) round = existing[0];
@@ -43,7 +36,7 @@ Deno.serve(async (req) => {
         current: true,
         round_id: 1,
         phase: 'waiting',
-        crash_point: genCrashPoint(rtp),
+        crash_point: genCrashPoint(97),
         wait_start: now,
         run_start: 0,
         crash_at: 0,
@@ -75,6 +68,12 @@ Deno.serve(async (req) => {
       }
     } else if (round.phase === 'crashed') {
       if (now - round.crash_at >= CRASH_HOLD_MS) {
+        // Read RTP only when generating a new crash point.
+        let rtp = 97;
+        try {
+          const settings = await svc.entities.GameSetting.filter({ game_id: 'rocket-crash' });
+          if (settings && settings.length && settings[0].rtp) rtp = settings[0].rtp;
+        } catch (_e) {}
         patch.round_id = (round.round_id || 1) + 1;
         patch.phase = 'waiting';
         patch.crash_point = genCrashPoint(rtp);
