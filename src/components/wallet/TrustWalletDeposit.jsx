@@ -56,7 +56,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     onWalletConnectUri((uri) => {
       setWcUri(uri);
       if (mobile) {
-        try { window.location.href = 'https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri); } catch {}
+        try { window.open('https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
       }
     });
     const res = await connectWalletConnect();
