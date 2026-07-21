@@ -265,7 +265,8 @@ export default function Plinko() {
 
   const pos = (row, col) => {
     const rowFrac = row / ROWS;
-    const spread = rowFrac * 94;
+    // Give upper rows a base spread so the third line has a wider gap between pegs.
+    const spread = (0.12 + rowFrac * 0.88) * 94;
     const left = 50 + ((col + 0.5) / (row + 1) - 0.5) * spread;
     const top = 5 + rowFrac * 84;
     return { left: `${left}%`, top: `${top}%` };
