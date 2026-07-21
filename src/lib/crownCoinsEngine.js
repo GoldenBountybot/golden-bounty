@@ -105,26 +105,27 @@ export function spinGrid(rtp = 50) {
     }
   });
 
-  // Free Spin trigger: 2% chance — Crown Coin in center + a value
+  // Free Spin trigger: 1% chance — Crown Coin in center + a value
   // coin in each side column. Anticipation: additional 15% chance —
   // a value coin in the left side column only + a Crown Coin in the center
   // (right side kept clear so it is not a full trigger).
+  // Overall game winning chance target ≈ 50% (symbol wins + free spins + bonus).
   const triggerRoll = Math.random();
-  if (triggerRoll < 0.02) {
+  if (triggerRoll < 0.01) {
     grid[4] = 'coin';
     [0, 3, 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
     grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
-  } else if (triggerRoll < 0.17) {
+  } else if (triggerRoll < 0.16) {
     grid[4] = 'coin';
     [0, 3, 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
   }
 
-  // Win gate: 25% chance the spin is a winner (symbol line match).
-  const forceLoss = Math.random() * 100 > 25;
+  // Win gate: 20% chance the spin is a winner (symbol line match).
+  const forceLoss = Math.random() * 100 > 20;
   if (forceLoss) {
     for (let iter = 0; iter < 4; iter++) {
       const { lines } = evaluateGrid(grid);
@@ -160,7 +161,7 @@ export function isFreeSpinTrigger(grid) {
 // cells keep spinning regular symbols. `stuck` is a 9-array (null or value-coin
 // key). Each column has a chance per spin to drop one new value coin in an
 // empty cell of that column. Returns { grid, stuck }.
-const FREE_COIN_CHANCE = 0.08; // per column per spin — 8% chance a value coin drops
+const FREE_COIN_CHANCE = 0.04; // per column per spin — 4% chance a value coin drops
 export function spinFreeAccum(stuck) {
   const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
   const rReg = () => REG[Math.floor(Math.random() * REG.length)];
