@@ -5,6 +5,7 @@ import BetPanel from './BetPanel';
 import HistoryBar from './HistoryBar';
 import LiveBets from './LiveBets';
 import GameHeader from '@/components/GameHeader';
+import PlayerHistoryButton from '@/components/PlayerHistoryButton';
 
 export default function CrashGame() {
   const g = useCrashGame();
@@ -13,7 +14,10 @@ export default function CrashGame() {
     <div className="flex flex-col gap-3 max-w-5xl mx-auto">
       <GameHeader title="Aviator" accent="text-indigo-200" border="border-indigo-700/40" balance={g.balance} />
 
-      <HistoryBar history={g.history} />
+      <div className="flex items-center justify-between gap-2">
+        <HistoryBar history={g.history} />
+        <PlayerHistoryButton />
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-3">
         <CrashGraph phase={g.phase} multiplier={g.multiplier} countdown={g.countdown} />
