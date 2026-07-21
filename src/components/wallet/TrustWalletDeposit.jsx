@@ -135,11 +135,15 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
     try {
+      // Let the WC session fully settle before the first request — otherwise the
+      // relay can deliver the tx to the wallet with the `data` field dropped
+      // (wallet then shows a 0-value native send instead of the ERC20 transfer).
+      await new Promise((r) => setTimeout(r, 800));
       // ERC20 transfer(address,uint256) → selected network's USDT contract.
       const data = '0xa9059cbb' + pad32(net.admin).slice(2) + pad32(toHexAmount(amount, net.decimals)).slice(2);
       const txHash = await p.request({
         method: 'eth_sendTransaction',
-        params: [{ from: acct, to: net.usdt, data, value: '0x0' }],
+        params: [{ from: acct, to: net.usdt.toLowerCase(), data, value: '0x0' }],
       });
       setStatus('confirming');
       let receipt = null;
@@ -231,7 +235,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
           {status === 'sending' && (
             <>
               <p className="text-[12px] text-amber-100/80 italic" style={{ fontFamily: 'Georgia, serif' }}>
-                ট্রাস্ট ওয়ালেট অ্যাপে গিয়ে লেনদেন কনফার্ম করুন। অ্যাপ খোলা না থাকলে নিচের বাটনে চাপুন।
+                ট্রাস্ট ওয়ালেটে "<b className="text-amber-200">Transfer {amount.toFixed(2)} USDT</b>" দেখানোর কথা। যদি "0 BNB" দেখায় তাহলে অ্যাপ বন্ধ করে আবার খুলুন।
               </p>
               <button onClick={openTrustApp} className="self-start flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold italic active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>
                 <Smartphone className="w-4 h-4" /> Trust Wallet খুলুন
