@@ -464,6 +464,34 @@ export default function CrownCoinsMachine() {
                         className="relative w-full h-full flex items-center justify-center"
                         style={{ animation: 'ccReelLand 0.45s ease-out' }}
                       >
+                        {/* Western framed tile — dark wood plank + gilt trim */}
+                        <div
+                          className="absolute inset-0 rounded-[4px] pointer-events-none overflow-hidden"
+                          style={{
+                            border: '2px solid #8a5a06',
+                            boxShadow:
+                              'inset 0 0 0 1px #d4af37, inset 0 2px 6px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)',
+                            background:
+                              'linear-gradient(rgba(30,16,5,0.78), rgba(14,7,2,0.9)), repeating-linear-gradient(90deg, rgba(0,0,0,0.18) 0, rgba(0,0,0,0.18) 1px, transparent 1px, transparent 9px)',
+                          }}
+                        />
+                        {/* Gilt corner studs */}
+                        {[
+                          { top: '2px', left: '2px' },
+                          { top: '2px', right: '2px' },
+                          { bottom: '2px', left: '2px' },
+                          { bottom: '2px', right: '2px' },
+                        ].map((p, s) => (
+                          <span
+                            key={s}
+                            className="absolute w-1 h-1 rounded-full pointer-events-none"
+                            style={{
+                              ...p,
+                              background: 'radial-gradient(circle at 35% 30%, #ffe9a8, #b8860b 60%, #5a3a06)',
+                              boxShadow: '0 0 2px rgba(255,200,80,0.7)',
+                            }}
+                          />
+                        ))}
                         <div
                           className="absolute inset-[3px] rounded-[3px] pointer-events-none"
                           style={{
