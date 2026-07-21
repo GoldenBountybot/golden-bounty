@@ -6,7 +6,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 // so every user sees the exact same round at the same time.
 
 const WAIT_MS = 5000;        // betting window before each round
-const CRASH_HOLD_MS = 3500;  // show crash result before next round
+const CRASH_HOLD_MS = 1500;  // brief blast flash, then next round starts
 const GROWTH = 1.10;         // multiplier = GROWTH ^ elapsedSec
 
 function genCrashPoint(rtp) {

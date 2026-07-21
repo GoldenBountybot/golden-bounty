@@ -5,7 +5,7 @@ import { useLogActivity } from '@/lib/useLogActivity';
 
 const WAIT_MS = 5000;        // betting window (must match server)
 const GROWTH = 1.10;         // multiplier = GROWTH ^ elapsedSec
-const POLL_MS = 800;         // how often we sync with the shared round
+const POLL_MS = 600;         // how often we sync with the shared round
 
 const NAMES = ['Crypto_Kid', 'xX_Rider', 'FlyHigh', 'AcePilot', 'Midnight', 'BlueFox',
   'GoldRush', 'NeonSam', 'QuickDraw', 'Vega', 'Lucky7', 'Storm', 'Maverick', 'Phoenix',
