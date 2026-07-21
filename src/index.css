@@ -322,9 +322,9 @@
 
 /* Crown Coins — value coin flying to the Crown Coins banner */
 @keyframes ccCoinFly {
-  0%   { transform: translate(0, 0) scale(1.35) rotateY(0deg);    opacity: 1; filter: brightness(1) drop-shadow(0 0 5px rgba(255,210,80,0.7)); }
-  10%  { transform: translate(0, 0) scale(1.4) rotateY(0deg);     opacity: 1; filter: brightness(1.1) drop-shadow(0 0 7px rgba(255,210,80,0.85)); }
-  55%  { transform: translate(calc(var(--dx) * 0.32), calc(var(--dy) * 0.32 - 12px)) scale(1.1) rotateY(720deg); opacity: 1; filter: brightness(1.4) drop-shadow(0 0 10px rgba(255,220,100,1)); }
+  0%   { transform: translate(0, 0) scale(1.4) rotateY(0deg);    opacity: 1; filter: brightness(1) drop-shadow(0 0 5px rgba(255,210,80,0.7)); }
+  10%  { transform: translate(0, 0) scale(1.4) rotateY(0deg);    opacity: 1; filter: brightness(1.1) drop-shadow(0 0 7px rgba(255,210,80,0.85)); }
+  55%  { transform: translate(0, 0) scale(1.4) rotateY(720deg);   opacity: 1; filter: brightness(1.2) drop-shadow(0 0 10px rgba(255,220,100,1)); }
   70%  { transform: translate(calc(var(--dx) * 0.55), calc(var(--dy) * 0.55)) scale(0.85) rotateY(720deg); opacity: 0.92; filter: brightness(2.4) blur(1px) drop-shadow(0 0 16px rgba(255,240,150,1)); }
   100% { transform: translate(var(--dx), var(--dy)) scale(0.25) rotateY(720deg); opacity: 0; filter: brightness(3.2) blur(5px) drop-shadow(0 0 24px rgba(255,250,200,1)); }
 }
