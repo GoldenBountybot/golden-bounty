@@ -554,7 +554,7 @@ export default function CrownCoinsMachine() {
                             }}
                           />
                         ))}
-                        <img src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="relative w-full h-full object-contain" draggable={false} style={{ filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))', WebkitMaskImage: `url(${k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG})`, maskImage: `url(${k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain' }} />
+                        <img src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="relative w-full h-full object-contain" draggable={false} style={{ filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))' }} />
                         {k !== 'coin' && (
                           <span className="absolute font-black text-yellow-100 z-10" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
                         )}
