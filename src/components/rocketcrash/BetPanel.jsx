@@ -29,7 +29,7 @@ export default function BetPanel({ index, panel, phase, multiplier, balance, onP
     );
   } else if (running && panel.placed && !panel.cashedOut) {
     button = (
-      <button onClick={() => onCashOut(index)}
+      <button onClick={(e) => onCashOut(index, e.currentTarget)}
         className="w-full py-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white text-lg font-black italic shadow-lg shadow-orange-900/40 hover:from-orange-400 hover:to-amber-500 transition-colors animate-pulse"
         style={{ fontFamily: 'Georgia, serif' }}>
         CASH OUT · ${potentialWin.toFixed(2)}

@@ -17,7 +17,7 @@ export default function GameHeader({ title, border = 'border-amber-700/30', bala
         right={
           <>
             {hasBalance && (
-              <span className="flex items-center gap-1 rounded-full bg-black/40 border border-indigo-700/40 px-2 py-0.5 text-[11px] font-bold tabular-nums text-yellow-100">
+              <span id="game-balance-chip" className="flex items-center gap-1 rounded-full bg-black/40 border border-indigo-700/40 px-2 py-0.5 text-[11px] font-bold tabular-nums text-yellow-100">
                 <Wallet className="w-3.5 h-3.5 text-yellow-300" />
                 ${balance.toFixed(2)}
               </span>
