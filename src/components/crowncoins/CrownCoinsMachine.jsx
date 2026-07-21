@@ -464,25 +464,23 @@ export default function CrownCoinsMachine() {
                         className="relative w-full h-full flex items-center justify-center"
                         style={{ animation: 'ccReelLand 0.45s ease-out' }}
                       >
-                        {/* Western framed tile — dark wood plank + gilt trim + leather panel */}
+                        {/* Western framed tile — gilt trim only, money bg shows through */}
                         <div
                           className="absolute inset-0 rounded-[5px] pointer-events-none overflow-hidden"
                           style={{
                             border: '3px solid #6b4a08',
                             boxShadow:
-                              'inset 0 0 0 2px #d4af37, inset 0 3px 8px rgba(0,0,0,0.8), 0 2px 5px rgba(0,0,0,0.6)',
-                            background:
-                              'linear-gradient(rgba(26,14,4,0.82), rgba(10,5,1,0.92)), repeating-linear-gradient(90deg, rgba(0,0,0,0.22) 0, rgba(0,0,0,0.22) 1px, transparent 1px, transparent 11px), repeating-linear-gradient(180deg, rgba(255,200,80,0.04) 0, rgba(255,200,80,0.04) 1px, transparent 1px, transparent 7px)',
+                              'inset 0 0 0 2px #d4af37, 0 2px 5px rgba(0,0,0,0.6)',
+                            background: 'transparent',
                           }}
                         />
-                        {/* Inner leather panel */}
+                        {/* Inner gilt trim line */}
                         <div
                           className="absolute inset-[4px] rounded-[3px] pointer-events-none"
                           style={{
                             border: '1px solid rgba(212,175,55,0.55)',
-                            boxShadow: 'inset 0 0 6px rgba(0,0,0,0.6)',
-                            background:
-                              'radial-gradient(ellipse at center, rgba(60,34,12,0.5), rgba(20,10,2,0.7) 75%)',
+                            boxShadow: 'inset 0 0 6px rgba(0,0,0,0.4)',
+                            background: 'transparent',
                           }}
                         />
                         {/* Gilt corner studs */}
