@@ -464,14 +464,16 @@ export default function CrownCoinsMachine() {
                         className="relative w-full h-full flex items-center justify-center"
                         style={{ animation: 'ccReelLand 0.45s ease-out' }}
                       >
-                        {/* Western framed tile — gilt trim only, money bg shows through */}
+                        {/* Western framed tile — gilt trim over dark money pattern (matches reels) */}
                         <div
                           className="absolute inset-0 rounded-[5px] pointer-events-none overflow-hidden"
                           style={{
                             border: '3px solid #6b4a08',
                             boxShadow:
                               'inset 0 0 0 2px #d4af37, 0 2px 5px rgba(0,0,0,0.6)',
-                            background: 'transparent',
+                            backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
                           }}
                         />
                         {/* Inner gilt trim line */}
