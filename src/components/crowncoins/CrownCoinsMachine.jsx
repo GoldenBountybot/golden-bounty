@@ -471,7 +471,7 @@ export default function CrownCoinsMachine() {
                             border: '3px solid #6b4a08',
                             boxShadow:
                               'inset 0 0 0 2px #d4af37, 0 2px 5px rgba(0,0,0,0.6)',
-                            backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`,
+                            backgroundImage: `linear-gradient(rgba(0,0,0,0.70), rgba(0,0,0,0.70)), url(${MONEY_BG})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                           }}
