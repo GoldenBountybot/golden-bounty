@@ -152,12 +152,7 @@ export default function BigBrownMachine() {
                             ) : (
                               <div className="w-full h-full" style={{ background: '#02060d' }} />
                             )}
-                            {isScatter && (
-                              <span
-                                className="absolute inset-0 pointer-events-none animate-pulse"
-                                style={{ boxShadow: 'inset 0 0 12px rgba(255,170,40,0.7)' }}
-                              />
-                            )}
+
                           </div>
                         );
                       })}
