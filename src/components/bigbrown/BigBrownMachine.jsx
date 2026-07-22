@@ -104,7 +104,7 @@ export default function BigBrownMachine() {
       </div>
 
       {/* BONUS POP — circular gold emblem + red price badge, right side */}
-      <div className="relative z-10 flex justify-end pr-4 mt-1 mb-2">
+      <div className="relative z-30 flex justify-end pr-4 mt-1 mb-2">
         <div
           onClick={() => { if (!spinning && freeSpins === 0) setShowBonusMenu(s => !s); }}
           className={`relative flex flex-col items-center cursor-pointer transition-transform active:scale-95 ${(spinning || freeSpins > 0) ? 'opacity-40 pointer-events-none' : ''}`}
