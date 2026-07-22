@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -26,11 +27,30 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import AppLoadingImage from '@/components/AppLoadingImage';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 
+const MIN_SPLASH_MS = 3500;
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const loading = isLoadingPublicSettings || isLoadingAuth;
 
-  if (loading) {
+  // Keep the branded splash visible until the app has finished loading AND the
+  // image has finished downloading AND a minimum splash duration has elapsed,
+  // so users actually see it instead of a flash.
+  const [imgReady, setImgReady] = useState(false);
+  const [minDone, setMinDone] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setImgReady(true);
+    img.onerror = () => setImgReady(true); // don't trap the user on a failed image
+    img.src = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5cc61204f_InShot_20260722_115033604.jpg';
+    const t = setTimeout(() => setMinDone(true), MIN_SPLASH_MS);
+    return () => clearTimeout(t);
+  }, []);
+
+  const showSplash = loading || !imgReady || !minDone;
+
+  if (showSplash) {
     return <AppLoadingImage />;
   }
 
