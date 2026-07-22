@@ -66,15 +66,6 @@ export default function BigBrownMachine() {
     >
       {showInfo && <BigBrownInfo bet={bet} onClose={() => setShowInfo(false)} />}
 
-      {/* Ambient moon glow */}
-      <div
-        className="absolute top-6 right-6 w-16 h-16 rounded-full pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle, #c8dae8 0%, rgba(200,218,232,0.25) 60%, transparent 100%)',
-          filter: 'blur(2px)',
-        }}
-      />
-
       {/* Info button — top-left, large circular */}
       <button
         onClick={() => setShowInfo(true)}
