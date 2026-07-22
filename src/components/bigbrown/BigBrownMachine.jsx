@@ -83,7 +83,7 @@ export default function BigBrownMachine() {
       </button>
 
       {/* Title + Bonus Pop — single row, banner left, bonus emblem right */}
-      <div className="relative flex items-center justify-between pl-10 pr-3 pt-1">
+      <div className="relative flex items-center justify-between pl-14 pr-3 pt-1">
         <img
           src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f423d208b_generated_image.png"
           alt="BIG BROWN"
