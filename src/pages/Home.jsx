@@ -60,7 +60,7 @@ export default function Home() {
                 toast({ title: next ? 'Demo Mode ON · $1000 practice balance' : 'Demo Mode OFF · real balance restored' });
               }}
               title={demoMode ? 'Demo mode is ON' : 'Enable demo mode'}
-              className="flex items-center gap-1 px-2 py-1 rounded-[6px] transition-all active:scale-95"
+              className="flex items-center gap-1 px-2 py-1 mr-3 rounded-[6px] transition-all active:scale-95"
               style={{
                 border: demoMode ? '1px solid rgba(74,222,128,0.75)' : '1px solid rgba(214,178,98,0.45)',
                 background: demoMode ? 'rgba(34,197,94,0.18)' : 'rgba(20,17,13,0.6)',
