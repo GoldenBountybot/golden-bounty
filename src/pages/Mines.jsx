@@ -224,7 +224,43 @@ export default function Mines() {
           </div>
         </WesternFrame>
 
-        {/* Bet button — on top during idle */}
+        {/* Grid — game board, above the bet button */}
+        <WesternFrame className="p-3">
+          <div className="grid grid-cols-5 gap-2">
+            {Array.from({ length: TOTAL }).map((_, i) => {
+              const isRev = revealed.has(i);
+              const isMine = mineSet.has(i);
+              const showMine = isRev && isMine;
+              const showSafe = isRev && !isMine;
+              const revealLost = isOver && isMine && !isRev;
+              return (
+                <button
+                  key={i}
+                  onClick={() => reveal(i)}
+                  disabled={phase !== 'playing' || isRev}
+                  className="aspect-square rounded-md flex items-center justify-center transition-all duration-150"
+                  style={
+                    showMine ? { background: 'radial-gradient(circle, #8b1a1a, #4a0a0a)', border: '1px solid #e0742b', boxShadow: '0 0 12px rgba(255,120,40,0.6)' }
+                    : showSafe ? { background: 'linear-gradient(to bottom, rgba(40,28,14,0.95), rgba(20,14,7,0.95))', border: '1px solid rgba(190,140,55,0.8)' }
+                    : revealLost ? { background: 'radial-gradient(circle, #3a0a0a, #1a0808)', border: '1px solid rgba(190,60,40,0.5)' }
+                    : {
+                        background: 'linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.94))',
+                        border: '1px solid rgba(190,140,55,0.6)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.25), inset 0 -2px 4px rgba(0,0,0,0.4)',
+                      }
+                  }
+                >
+                  {showMine ? <Bomb className="w-7 h-7 text-stone-900" style={{ filter: 'drop-shadow(0 0 6px rgba(255,120,40,0.8))' }} />
+                    : showSafe ? <GoldBar />
+                    : revealLost ? <Bomb className="w-6 h-6 text-rose-300/80" />
+                    : <GiftBox />}
+                </button>
+              );
+            })}
+          </div>
+        </WesternFrame>
+
+        {/* Bet button — below the board */}
         {phase === 'idle' && (
           <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40 relative" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/67ff4e03b_generated_image.png') center / cover, linear-gradient(to bottom, #f5c542, #c8881e)", border: '1px solid rgba(245,210,120,0.9)', boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 3px 10px rgba(200,136,30,0.45)', color: '#2a1a06', ...W }}>
             <Pickaxe className="w-5 h-5 relative" /> <span className="relative" style={{ color: '#f5c542', textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>BET ${bet.toFixed(2)} · {mines} MINES</span>
@@ -300,42 +336,6 @@ export default function Mines() {
             </div>
           </WesternFrame>
         )}
-
-        {/* Grid — below the bet button */}
-        <WesternFrame className="p-3">
-          <div className="grid grid-cols-5 gap-2">
-            {Array.from({ length: TOTAL }).map((_, i) => {
-              const isRev = revealed.has(i);
-              const isMine = mineSet.has(i);
-              const showMine = isRev && isMine;
-              const showSafe = isRev && !isMine;
-              const revealLost = isOver && isMine && !isRev;
-              return (
-                <button
-                  key={i}
-                  onClick={() => reveal(i)}
-                  disabled={phase !== 'playing' || isRev}
-                  className="aspect-square rounded-md flex items-center justify-center transition-all duration-150"
-                  style={
-                    showMine ? { background: 'radial-gradient(circle, #8b1a1a, #4a0a0a)', border: '1px solid #e0742b', boxShadow: '0 0 12px rgba(255,120,40,0.6)' }
-                    : showSafe ? { background: 'linear-gradient(to bottom, rgba(40,28,14,0.95), rgba(20,14,7,0.95))', border: '1px solid rgba(190,140,55,0.8)' }
-                    : revealLost ? { background: 'radial-gradient(circle, #3a0a0a, #1a0808)', border: '1px solid rgba(190,60,40,0.5)' }
-                    : {
-                        background: 'linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.94))',
-                        border: '1px solid rgba(190,140,55,0.6)',
-                        boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.25), inset 0 -2px 4px rgba(0,0,0,0.4)',
-                      }
-                  }
-                >
-                  {showMine ? <Bomb className="w-7 h-7 text-stone-900" style={{ filter: 'drop-shadow(0 0 6px rgba(255,120,40,0.8))' }} />
-                    : showSafe ? <GoldBar />
-                    : revealLost ? <Bomb className="w-6 h-6 text-rose-300/80" />
-                    : <GiftBox />}
-                </button>
-              );
-            })}
-          </div>
-        </WesternFrame>
 
         {/* Ticker while playing */}
         {phase === 'playing' && (
