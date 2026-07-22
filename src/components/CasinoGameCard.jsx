@@ -54,11 +54,11 @@ export default function CasinoGameCard({ game }) {
         </button>
       )}
 
-      <div className="absolute bottom-0 inset-x-0 p-1.5">
-        <h3 className="text-white font-black italic text-[10px] leading-tight drop-shadow" style={{ fontFamily: 'Georgia, serif' }}>
+      <div className="absolute bottom-0 inset-x-0 p-2">
+        <h3 className="text-white font-black italic text-xs leading-tight drop-shadow" style={{ fontFamily: 'Georgia, serif' }}>
           {game.title}
         </h3>
-        <p className="text-[7px] text-amber-100/75 mt-0.5">{game.desc}</p>
+        <p className="text-[9px] text-amber-100/75 mt-0.5">{game.desc}</p>
       </div>
 
       {game.coming ? (
