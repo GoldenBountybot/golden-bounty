@@ -8,6 +8,20 @@ import React, { useRef, useEffect } from 'react';
 export default function AppLoadingVideo({ keepLooping = false, onFinished }) {
   const ref = useRef(null);
 
+  // React's `muted` JSX attribute does NOT reliably set the DOM property,
+  // and unmuted autoplay is blocked by browsers (=> black screen). So we
+  // explicitly mute + kick off playback in JS, and re-apply on canplay.
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    v.muted = true;
+    v.defaultMuted = true;
+    v.play().catch(() => {});
+    const onCanPlay = () => { v.muted = true; v.play().catch(() => {}); };
+    v.addEventListener('canplay', onCanPlay);
+    return () => v.removeEventListener('canplay', onCanPlay);
+  }, []);
+
   // Safety fallback: never trap the user on the loader forever.
   useEffect(() => {
     if (!onFinished) return;
@@ -18,6 +32,7 @@ export default function AppLoadingVideo({ keepLooping = false, onFinished }) {
   const handleEnded = () => {
     if (keepLooping && ref.current) {
       ref.current.currentTime = 0;
+      ref.current.muted = true;
       ref.current.play().catch(() => {});
     } else {
       onFinished?.();
@@ -32,6 +47,7 @@ export default function AppLoadingVideo({ keepLooping = false, onFinished }) {
         autoPlay
         muted
         playsInline
+        preload="auto"
         onEnded={handleEnded}
         className="w-full h-full object-contain"
       />
