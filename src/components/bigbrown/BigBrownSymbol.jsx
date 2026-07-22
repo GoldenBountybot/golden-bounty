@@ -17,15 +17,19 @@ export default function BigBrownSymbol({ sym, highlight = false, expand = false 
         background: isWild
           ? 'linear-gradient(160deg,#3a2a12,#1a130a)'
           : isScatter
-          ? 'linear-gradient(160deg,#2a1f0f,#120c06)'
+          ? 'linear-gradient(160deg,#5a441a,#3a2c0e)'
           : 'linear-gradient(160deg,#1a130a,#0a0703)',
         border: highlight
           ? '3px solid rgba(255,245,150,1)'
+          : isScatter
+          ? '2px solid rgba(255,225,120,0.95)'
           : '1px solid rgba(214,178,98,0.35)',
         boxShadow: highlight
           ? '0 0 22px rgba(255,234,0,1), 0 0 40px rgba(255,200,80,0.85), inset 0 0 16px rgba(255,240,150,0.85)'
           : isWild
           ? '0 0 10px rgba(255,200,80,0.6), inset 0 0 6px rgba(255,200,80,0.25)'
+          : isScatter
+          ? '0 0 16px rgba(255,210,90,0.9), 0 0 26px rgba(255,180,60,0.5), inset 0 0 10px rgba(255,225,130,0.5)'
           : 'inset 0 0 6px rgba(0,0,0,0.5)',
       }}
     >
@@ -39,6 +43,8 @@ export default function BigBrownSymbol({ sym, highlight = false, expand = false 
               ? 'brightness(1.45) drop-shadow(0 0 10px rgba(255,234,0,1)) drop-shadow(0 0 18px rgba(255,200,80,0.85))'
               : isWild
               ? 'brightness(1.1) drop-shadow(0 0 4px rgba(255,200,80,0.5))'
+              : isScatter
+              ? 'brightness(1.35) saturate(1.3) drop-shadow(0 0 8px rgba(255,210,90,0.9)) drop-shadow(0 0 14px rgba(255,180,50,0.6))'
               : 'drop-shadow(0 1px 2px rgba(0,0,0,0.6))',
           }}
           draggable={false}
