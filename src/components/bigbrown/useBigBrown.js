@@ -129,8 +129,8 @@ export function useBigBrown() {
       }
     }
 
-    const baseGap = turbo ? 120 : 210;
-    const slowGap = turbo ? 800 : 1300;
+    const baseGap = turbo ? 150 : 250;
+    const slowGap = turbo ? 850 : 1250;
 
     let stoppedScatter = 0;
     const stopReel = (i, slow) => {

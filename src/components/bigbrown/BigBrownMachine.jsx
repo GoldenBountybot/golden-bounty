@@ -117,18 +117,22 @@ export default function BigBrownMachine() {
                         className="relative rounded-[4px] overflow-hidden"
                         style={{
                           aspectRatio: '3 / 4',
-                          transform: stopped ? 'translateY(0)' : 'translateY(-8%)',
-                          transition: `transform 0.18s ease-out${stopped ? '' : ' 0s'}`,
+                          animation: stopped ? `bbLand 0.34s cubic-bezier(0.25,0.9,0.3,1) both` : 'none',
                         }}
                       >
                         {stopped ? (
                           <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
                         ) : (
                           <div
-                            className="w-full h-full flex items-center justify-center text-xl opacity-30"
-                            style={{ background: 'linear-gradient(160deg,#0a140a,#050803)', filter: 'blur(1px)' }}
+                            className="w-full h-full overflow-hidden relative"
+                            style={{ background: 'linear-gradient(160deg,#0a140a,#050803)' }}
                           >
-                            <span className="animate-pulse">🌲</span>
+                            <div
+                              className="absolute inset-0 flex items-center justify-center text-lg opacity-25"
+                              style={{ animation: 'bbPlaceholderScroll 0.28s linear infinite', filter: 'blur(1.5px)' }}
+                            >
+                              🌲
+                            </div>
                           </div>
                         )}
                         {isScatter && (
