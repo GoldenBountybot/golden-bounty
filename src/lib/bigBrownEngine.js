@@ -11,7 +11,7 @@ export const WILD_REELS = new Set([1, 2, 3, 4]);
 
 // Full-height (4-cell) wild graphic shown when a wild reel expands.
 export const WILD_EXPAND_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0c9868e8b_InShot_20260722_201447193.jpg';
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6b4fd8d8c_generated_image.png';
 
 // Symbol image URLs (generated to match reference screenshots).
 const IMG = {
