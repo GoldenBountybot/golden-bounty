@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
-import GameHeader from '@/components/GameHeader';
+import BackButton from '@/components/BackButton';
 import BigBrownMachine from '@/components/bigbrown/BigBrownMachine';
 
 export default function BigBrown() {
@@ -11,11 +11,11 @@ export default function BigBrown() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/30 to-stone-950">
-      <GameHeader title="Big Brown" backHref="/" />
-      <div className="pt-16">
-        <BigBrownMachine />
+    <div className="min-h-screen" style={{ background: '#00122e' }}>
+      <div className="absolute top-2 left-2 z-30">
+        <BackButton href="/" label="" />
       </div>
+      <BigBrownMachine />
     </div>
   );
 }

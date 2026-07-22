@@ -9,30 +9,58 @@ export const BETS = [0.10, 0.25, 0.50, 1.00, 2.00];
 // Reels where wilds may land (0-indexed): reels 2,3,4,5 → indices 1,2,3,4.
 export const WILD_REELS = new Set([1, 2, 3, 4]);
 
-export const SYMBOLS = {
-  scatter: { id: 'scatter', label: 'SCATTER', type: 'scatter', emoji: '🐾', pay: { 3: 2, 4: 5, 5: 10, 6: 25 } },
-  spirit:  { id: 'spirit',  label: 'SPIRIT BEAR', type: 'spirit', emoji: '🐻‍❄️', pay: { 3: 5, 4: 10, 5: 25, 6: 50 }, mult: 2 },
-  brown:   { id: 'brown',   label: 'BROWN BEAR', type: 'wild', emoji: '🐻', pay: { 3: 5, 4: 10, 5: 25, 6: 50 } },
-  buffalo: { id: 'buffalo', label: 'BUFFALO', type: 'high', emoji: '🐃', pay: { 3: 3, 4: 8, 5: 15, 6: 30 } },
-  eagle:   { id: 'eagle',   label: 'EAGLE', type: 'high', emoji: '🦅', pay: { 3: 2, 4: 5, 5: 10, 6: 20 } },
-  wolf:    { id: 'wolf',    label: 'WOLF', type: 'high', emoji: '🐺', pay: { 3: 2, 4: 4, 5: 8, 6: 15 } },
-  deer:    { id: 'deer',    label: 'DEER', type: 'mid', emoji: '🦌', pay: { 3: 1, 4: 3, 5: 6, 6: 12 } },
-  A: { id: 'A', label: 'A', type: 'low', emoji: 'A', pay: { 3: 1, 4: 2, 5: 4, 6: 8 } },
-  K: { id: 'K', label: 'K', type: 'low', emoji: 'K', pay: { 3: 1, 4: 2, 5: 3, 6: 6 } },
-  Q: { id: 'Q', label: 'Q', type: 'low', emoji: 'Q', pay: { 3: 0.5, 4: 1, 5: 2, 6: 4 } },
-  J: { id: 'J', label: 'J', type: 'low', emoji: 'J', pay: { 3: 0.5, 4: 1, 5: 2, 6: 4 } },
+// Symbol image URLs (generated to match reference screenshots).
+const IMG = {
+  scatter: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/98a234d10_generated_image.png',
+  brown:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/31ddcdcb0_generated_image.png',
+  spirit:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/31ddcdcb0_generated_image.png',
+  buffalo: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d5e8a8396_generated_image.png',
+  eagle:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7d8561976_generated_image.png',
+  cougar:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/678cbc6de_generated_image.png',
+  wolf:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d03f81032_generated_image.png',
+  deer:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/75af4c854_generated_image.png',
+  A: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b7e1c393e_generated_image.png',
+  K: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0563064f0_generated_image.png',
+  Q: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11e4aee1c_generated_image.png',
+  J: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/aa1e47a19_generated_image.png',
+  '10': 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a84f78c38_generated_image.png',
+  '9':  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e5f443649_generated_image.png',
 };
+
+export const SYMBOLS = {
+  scatter: { id: 'scatter', label: 'BONUS', type: 'scatter', img: IMG.scatter, pay: { 3: 2, 4: 5, 5: 10, 6: 25 } },
+  spirit:  { id: 'spirit',  label: 'SPIRIT BEAR', type: 'spirit', img: IMG.spirit, pay: { 3: 5, 4: 10, 5: 25, 6: 50 }, mult: 2 },
+  brown:   { id: 'brown',   label: 'WILD', type: 'wild', img: IMG.brown, pay: { 3: 5, 4: 10, 5: 25, 6: 50 } },
+  buffalo: { id: 'buffalo', label: 'BUFFALO', type: 'high', img: IMG.buffalo, pay: { 3: 3, 4: 8, 5: 15, 6: 30 } },
+  eagle:   { id: 'eagle',   label: 'EAGLE', type: 'high', img: IMG.eagle, pay: { 3: 2, 4: 5, 5: 10, 6: 20 } },
+  cougar:  { id: 'cougar',  label: 'COUGAR', type: 'high', img: IMG.cougar, pay: { 3: 2, 4: 4, 5: 8, 6: 15 } },
+  wolf:    { id: 'wolf',    label: 'WOLF', type: 'high', img: IMG.wolf, pay: { 3: 2, 4: 4, 5: 8, 6: 15 } },
+  deer:    { id: 'deer',    label: 'DEER', type: 'mid', img: IMG.deer, pay: { 3: 1, 4: 3, 5: 6, 6: 12 } },
+  A: { id: 'A', label: 'A', type: 'low', img: IMG.A, pay: { 3: 1, 4: 2, 5: 4, 6: 8 } },
+  K: { id: 'K', label: 'K', type: 'low', img: IMG.K, pay: { 3: 1, 4: 2, 5: 3, 6: 6 } },
+  Q: { id: 'Q', label: 'Q', type: 'low', img: IMG.Q, pay: { 3: 0.5, 4: 1, 5: 2, 6: 4 } },
+  J: { id: 'J', label: 'J', type: 'low', img: IMG.J, pay: { 3: 0.5, 4: 1, 5: 2, 6: 4 } },
+  '10': { id: '10', label: '10', type: 'low', img: IMG['10'], pay: { 3: 0.5, 4: 1, 5: 2, 6: 4 } },
+  '9':  { id: '9',  label: '9',  type: 'low', img: IMG['9'],  pay: { 3: 0.5, 4: 1, 5: 2, 6: 4 } },
+};
+
+export function getSymbolImg(id) {
+  return (SYMBOLS[id] && SYMBOLS[id].img) || null;
+}
 
 // Weighted pool for non-wild reels. Scatter is rare; lows are common.
 const BASE_POOL = [
   'buffalo', 'buffalo',
   'eagle', 'eagle', 'eagle',
+  'cougar', 'cougar', 'cougar',
   'wolf', 'wolf', 'wolf', 'wolf',
   'deer', 'deer', 'deer', 'deer', 'deer',
   'A', 'A', 'A', 'A', 'A', 'A', 'A',
   'K', 'K', 'K', 'K', 'K', 'K', 'K',
   'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q',
   'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J',
+  '10', '10', '10', '10', '10', '10', '10', '10',
+  '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
 ];
 
 // Wild pool for wild reels — includes brown + spirit + scatter, rare.
@@ -41,9 +69,10 @@ const WILD_POOL = [
   'spirit',
   'scatter', 'scatter',
   'buffalo', 'eagle', 'eagle',
+  'cougar', 'cougar',
   'wolf', 'wolf',
   'deer', 'deer',
-  'A', 'A', 'K', 'K', 'Q', 'Q', 'J', 'J',
+  'A', 'A', 'K', 'K', 'Q', 'Q', 'J', 'J', '10', '10', '9', '9',
 ];
 
 export function randomSymbol(reelIndex = -1) {
