@@ -1,224 +1,320 @@
 import React, { useState } from 'react';
-import { Info } from 'lucide-react';
+import { Info, Zap, Plus, Repeat, DollarSign, Menu, Play } from 'lucide-react';
 import BigBrownSymbol from './BigBrownSymbol';
 import BigBrownInfo from './BigBrownInfo';
 import { useBigBrown } from './useBigBrown';
+import { WAYS, BETS } from '@/lib/bigBrownEngine';
 
 // Big Brown slot machine — 6x4 grid, 4096 ways, expanding wilds, free spins.
-// Night-forest design matching the reference screenshots.
-const FOREST_BG = 'radial-gradient(ellipse at 50% 20%, #1a3359 0%, #0a1a33 45%, #00122e 100%)';
+// Night-forest design matching the reference screenshot.
+const FOREST_BG = 'radial-gradient(ellipse at 50% 15%, #0d2847 0%, #071a33 40%, #02091a 100%)';
+
+// Branch / gnarled wood frame styling.
+const BRANCH_FRAME = `
+  linear-gradient(135deg, #3a2614 0%, #1a0f06 30%, #2a1a0c 60%, #120a04 100%)
+`;
 
 export default function BigBrownMachine() {
   const [showInfo, setShowInfo] = useState(false);
+  const [showBetMenu, setShowBetMenu] = useState(false);
   const g = useBigBrown();
   const {
     grid, balance, bet, betIndex, spinning, stoppedReels,
     lastWin, message, winningPositions, expandedReels, scatterPositions,
     freeSpins, turbo, autoSpin,
     showFreeSpinStart, freeSpinsActive, startFreeSpins,
-    anticipation,
+    anticipation, bonusCost, buyBonus,
     spin, setBetIndex, setTurbo, setAutoSpin,
   } = g;
 
+  const fmt = (v) => `$${v.toFixed(2)}`;
+
   return (
     <div
-      className="relative w-full max-w-2xl mx-auto pb-4 min-h-screen flex flex-col"
+      className="relative w-full max-w-md mx-auto min-h-screen flex flex-col overflow-hidden"
       style={{ background: FOREST_BG }}
     >
       {showInfo && <BigBrownInfo bet={bet} onClose={() => setShowInfo(false)} />}
-      {/* Moon glow */}
+
+      {/* Ambient moon glow */}
       <div
-        className="absolute top-8 right-8 w-20 h-20 rounded-full pointer-events-none"
+        className="absolute top-6 right-6 w-16 h-16 rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, #c0d6e4 0%, rgba(192,214,228,0.3) 60%, transparent 100%)',
+          background: 'radial-gradient(circle, #c8dae8 0%, rgba(200,218,232,0.25) 60%, transparent 100%)',
           filter: 'blur(2px)',
         }}
       />
 
-      {/* Info button */}
+      {/* Info button — top-left, large circular */}
       <button
         onClick={() => setShowInfo(true)}
-        className="absolute top-2 left-2 z-20 w-8 h-8 rounded-full flex items-center justify-center"
-        style={{ border: '1px solid rgba(214,178,98,0.5)', background: 'rgba(0,18,46,0.7)' }}
+        className="absolute top-3 left-3 z-30 w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+        style={{
+          border: '1.5px solid rgba(214,178,98,0.7)',
+          background: 'radial-gradient(circle, rgba(20,30,55,0.9), rgba(5,12,28,0.95))',
+          boxShadow: '0 0 8px rgba(214,178,98,0.25)',
+        }}
       >
         <Info className="w-4 h-4 text-amber-300" />
       </button>
 
-      {/* Logo */}
-      <div className="relative pt-3 pb-2 text-center">
+      {/* Title — BIG BROWN ornate gold */}
+      <div className="relative pt-3 pb-1 text-center z-10">
         <h1
-          className="text-3xl italic font-black tracking-wide"
+          className="text-2xl sm:text-3xl italic font-black tracking-wider leading-none"
           style={{
             fontFamily: 'Rye, Georgia, serif',
-            background: 'linear-gradient(to bottom,#f5c542,#8b5a2b)',
+            background: 'linear-gradient(to bottom, #ffe9a8 0%, #f5c542 35%, #c8881e 70%, #8b5a2b 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.8))',
+            filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(214,178,98,0.3))',
           }}
         >
           BIG BROWN
         </h1>
-        <p className="text-[9px] text-amber-200/50 italic tracking-[0.2em] mt-0.5" style={{ fontFamily: 'Georgia, serif' }}>
-          🌲 🦌 🌲  4096 WAYS  🌲 🦌 🌲
+        <p
+          className="text-[8px] tracking-[0.35em] mt-1 italic"
+          style={{ fontFamily: 'Georgia, serif', color: 'rgba(214,178,98,0.6)' }}
+        >
+          4096 WAYS
         </p>
       </div>
 
-      {/* Reel area — rustic wood frame */}
-      <div className="relative px-2 flex-1 flex flex-col justify-center">
+      {/* Reel area — gnarled branch frame */}
+      <div className="relative px-3 flex-1 flex flex-col justify-center z-10">
         <div
-          className="relative rounded-[12px] p-2.5 overflow-hidden"
+          className="relative rounded-[10px] overflow-hidden"
           style={{
-            border: '3px solid #5a3a1a',
-            background: 'linear-gradient(to bottom,#1a0f05,#0d0703)',
-            boxShadow: 'inset 0 0 30px rgba(0,0,0,0.8), 0 0 0 2px rgba(214,178,98,0.3), 0 6px 20px rgba(0,0,0,0.6)',
+            padding: 6,
+            background: BRANCH_FRAME,
+            boxShadow: 'inset 0 0 0 2px rgba(90,58,26,0.6), inset 0 0 0 4px rgba(20,12,5,0.8), 0 4px 18px rgba(0,0,0,0.7)',
           }}
         >
-          {anticipation && (
-            <div className="absolute inset-0 z-10 pointer-events-none animate-pulse" style={{ boxShadow: 'inset 0 0 40px rgba(255,200,80,0.45)' }} />
-          )}
+          {/* Inner dark forest cavity */}
+          <div
+            className="relative rounded-[6px] overflow-hidden p-1.5"
+            style={{
+              background: 'linear-gradient(to bottom, #02060d, #050a14)',
+              boxShadow: 'inset 0 0 24px rgba(0,0,0,0.9)',
+            }}
+          >
+            {anticipation && (
+              <div className="absolute inset-0 z-10 pointer-events-none animate-pulse" style={{ boxShadow: 'inset 0 0 40px rgba(255,200,80,0.5)' }} />
+            )}
 
-          <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
-            {grid.map((reel, ri) => (
-              <div key={ri} className="flex flex-col gap-1">
-                {reel.map((sym, row) => {
-                  const key = `${ri}-${row}`;
-                  const stopped = stoppedReels.has(ri);
-                  const isWin = winningPositions.has(key);
-                  const isScatter = scatterPositions.has(key);
-                  const expanded = expandedReels.has(ri) && (sym === 'brown' || sym === 'spirit');
-                  return (
-                    <div
-                      key={key}
-                      className="relative rounded-[5px] overflow-hidden"
-                      style={{
-                        aspectRatio: '3 / 4',
-                        transform: stopped ? 'translateY(0)' : 'translateY(-8%)',
-                        transition: `transform 0.18s ease-out${stopped ? '' : ' 0s'}`,
-                      }}
-                    >
-                      {stopped ? (
-                        <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
-                      ) : (
-                        <div
-                          className="w-full h-full flex items-center justify-center text-2xl opacity-40"
-                          style={{ background: 'linear-gradient(160deg,#1a140a,#0a0703)', filter: 'blur(1px)' }}
-                        >
-                          <span className="animate-pulse">🌲</span>
-                        </div>
-                      )}
-                      {isScatter && (
-                        <span
-                          className="absolute inset-0 pointer-events-none animate-pulse"
-                          style={{ boxShadow: 'inset 0 0 12px rgba(255,170,40,0.7)' }}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+            <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+              {grid.map((reel, ri) => (
+                <div key={ri} className="flex flex-col gap-1">
+                  {reel.map((sym, row) => {
+                    const key = `${ri}-${row}`;
+                    const stopped = stoppedReels.has(ri);
+                    const isWin = winningPositions.has(key);
+                    const isScatter = scatterPositions.has(key);
+                    const expanded = expandedReels.has(ri) && (sym === 'brown' || sym === 'spirit');
+                    return (
+                      <div
+                        key={key}
+                        className="relative rounded-[4px] overflow-hidden"
+                        style={{
+                          aspectRatio: '3 / 4',
+                          transform: stopped ? 'translateY(0)' : 'translateY(-8%)',
+                          transition: `transform 0.18s ease-out${stopped ? '' : ' 0s'}`,
+                        }}
+                      >
+                        {stopped ? (
+                          <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
+                        ) : (
+                          <div
+                            className="w-full h-full flex items-center justify-center text-xl opacity-30"
+                            style={{ background: 'linear-gradient(160deg,#0a140a,#050803)', filter: 'blur(1px)' }}
+                          >
+                            <span className="animate-pulse">🌲</span>
+                          </div>
+                        )}
+                        {isScatter && (
+                          <span
+                            className="absolute inset-0 pointer-events-none animate-pulse"
+                            style={{ boxShadow: 'inset 0 0 12px rgba(255,170,40,0.7)' }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+
+            {/* Free spin start overlay */}
+            {showFreeSpinStart && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3" style={{ background: 'rgba(3,5,10,0.9)', backdropFilter: 'blur(4px)' }}>
+                <h3 className="text-2xl italic font-black text-amber-300" style={{ fontFamily: 'Rye, Georgia, serif' }}>FREE GAMES!</h3>
+                <p className="text-xs text-amber-100/80 italic text-center px-6" style={{ fontFamily: 'Georgia, serif' }}>
+                  Expanding Wild guaranteed on every spin
+                </p>
+                <button
+                  onClick={startFreeSpins}
+                  className="px-6 py-2 rounded-[8px] italic font-black text-[#2a1a06] active:scale-95 transition-transform"
+                  style={{ background: 'linear-gradient(to bottom,#f5c542,#c8881e)', fontFamily: 'Georgia, serif', border: '1px solid rgba(214,178,98,0.8)' }}
+                >
+                  START
+                </button>
               </div>
-            ))}
+            )}
           </div>
 
-          {/* Free spin start overlay */}
-          {showFreeSpinStart && (
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3" style={{ background: 'rgba(6,5,3,0.88)', backdropFilter: 'blur(4px)' }}>
-              <h3 className="text-2xl italic font-black text-amber-300" style={{ fontFamily: 'Rye, Georgia, serif' }}>FREE GAMES!</h3>
-              <p className="text-sm text-amber-100/80 italic text-center px-6" style={{ fontFamily: 'Georgia, serif' }}>
-                Expanding Wild guaranteed on every spin
-              </p>
-              <button
-                onClick={startFreeSpins}
-                className="px-6 py-2 rounded-[8px] italic font-black text-[#2a1a06] active:scale-95 transition-transform"
-                style={{ background: 'linear-gradient(to bottom,#f5c542,#c8881e)', fontFamily: 'Georgia, serif', border: '1px solid rgba(214,178,98,0.8)' }}
-              >
-                START
-              </button>
+          {/* Win display — floats over grid */}
+          {lastWin > 0 && !spinning && (
+            <div className="absolute top-1 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full" style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,210,80,0.5)' }}>
+              <span className="text-sm italic font-black text-yellow-300 animate-pulse" style={{ fontFamily: 'Rye, Georgia, serif', textShadow: '0 0 8px rgba(255,234,0,0.7)' }}>
+                WIN {fmt(lastWin)}
+              </span>
             </div>
           )}
         </div>
 
-        {/* Win display */}
-        {lastWin > 0 && (
-          <div className="mt-2 text-center">
-            <span className="text-xl italic font-black text-yellow-300 animate-pulse" style={{ fontFamily: 'Rye, Georgia, serif', textShadow: '0 0 10px rgba(255,234,0,0.6)' }}>
-              WIN ${lastWin.toFixed(2)}
-            </span>
-          </div>
-        )}
+        {/* BONUS POP floating badge — left side */}
+        <button
+          onClick={buyBonus}
+          disabled={spinning || freeSpins > 0 || balance < bonusCost}
+          className="absolute left-1 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center justify-center w-14 h-14 rounded-full disabled:opacity-50 active:scale-95 transition-transform"
+          style={{
+            background: 'radial-gradient(circle at 35% 30%, #ffe9a8, #f5c542 40%, #c8881e 80%)',
+            border: '2px solid rgba(255,234,160,0.9)',
+            boxShadow: '0 0 12px rgba(255,200,80,0.5), inset 0 -3px 6px rgba(120,80,20,0.6)',
+          }}
+        >
+          <span className="text-[7px] font-black italic leading-none text-[#3a2408]" style={{ fontFamily: 'Georgia, serif' }}>BONUS</span>
+          <span className="text-[7px] font-black italic leading-none text-[#3a2408]" style={{ fontFamily: 'Georgia, serif' }}>POP</span>
+          <span className="text-[9px] font-black leading-none mt-0.5 text-[#b8430a]">{fmt(bonusCost)}</span>
+        </button>
       </div>
 
-      {/* Controls */}
-      <div className="relative px-3 pb-1 mt-2">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          {/* Bet minus */}
-          <button
-            onClick={() => setBetIndex(i => Math.max(0, i - 1))}
-            disabled={spinning}
-            className="w-9 h-9 rounded-full italic font-black text-amber-200 disabled:opacity-40 active:scale-95 flex items-center justify-center"
-            style={{ border: '1px solid rgba(214,178,98,0.6)', background: 'rgba(20,17,13,0.8)', fontFamily: 'Georgia, serif' }}
-          >−</button>
+      {/* Bet menu popover */}
+      {showBetMenu && (
+        <div className="absolute bottom-24 left-3 z-40 rounded-[8px] py-1 px-1 flex flex-col gap-0.5" style={{ background: 'rgba(5,12,28,0.96)', border: '1px solid rgba(214,178,98,0.5)', boxShadow: '0 6px 18px rgba(0,0,0,0.6)' }}>
+          {[0, 1, 2, 3, 4].map(i => (
+            <button
+              key={i}
+              onClick={() => { setBetIndex(i); setShowBetMenu(false); }}
+              className={`px-3 py-1 rounded text-[11px] italic font-bold text-left ${i === betIndex ? 'text-yellow-300' : 'text-white/70'}`}
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              {fmt(BETS[i])}
+            </button>
+          ))}
+        </div>
+      )}
 
-          {/* Spin button */}
+      {/* Control panel */}
+      <div className="relative px-3 pt-2 pb-1 z-10">
+        <div className="flex items-center justify-between">
+          {/* Left cluster: Turbo + Menu */}
+          <div className="flex flex-col gap-2 items-center">
+            <button
+              onClick={() => setTurbo(t => !t)}
+              className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+              style={{
+                border: `1.5px solid ${turbo ? 'rgba(255,234,120,0.9)' : 'rgba(214,178,98,0.45)'}`,
+                background: turbo ? 'rgba(255,200,80,0.18)' : 'rgba(8,18,38,0.85)',
+                boxShadow: turbo ? '0 0 10px rgba(255,200,80,0.4)' : 'none',
+              }}
+            >
+              <Zap className={`w-4 h-4 ${turbo ? 'text-yellow-300' : 'text-amber-200/70'}`} fill={turbo ? 'currentColor' : 'none'} />
+            </button>
+            <button
+              onClick={() => setShowBetMenu(s => !s)}
+              className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+              style={{ border: '1.5px solid rgba(214,178,98,0.45)', background: 'rgba(8,18,38,0.85)' }}
+            >
+              <Menu className="w-4 h-4 text-amber-200/70" />
+            </button>
+          </div>
+
+          {/* Center: Large circular white spin button */}
           <button
             onClick={spin}
             disabled={spinning}
-            className="relative w-16 h-16 rounded-full disabled:opacity-60 active:scale-95 transition-transform flex items-center justify-center"
+            className="relative w-16 h-16 rounded-full disabled:opacity-70 active:scale-95 transition-transform flex items-center justify-center"
             style={{
               background: spinning
-                ? 'radial-gradient(circle,#6a4a1a,#3a2a10)'
-                : 'radial-gradient(circle,#f5c542,#c8881e)',
-              border: '2px solid rgba(255,234,120,0.85)',
-              boxShadow: spinning ? 'none' : '0 0 16px rgba(255,210,80,0.6)',
+                ? 'radial-gradient(circle, #4a5a6a, #2a3a4a)'
+                : 'radial-gradient(circle at 35% 30%, #ffffff, #e8edf2 60%, #c0c8d0 100%)',
+              border: '2px solid rgba(255,255,255,0.5)',
+              boxShadow: spinning ? 'none' : '0 0 16px rgba(255,255,255,0.35), 0 2px 8px rgba(0,0,0,0.5)',
             }}
           >
-            <span className="text-2xl font-black text-[#2a1a06]" style={{ fontFamily: 'Rye, Georgia, serif' }}>
-              {freeSpinsActive ? freeSpins : '▶'}
-            </span>
+            {freeSpinsActive ? (
+              <span className="text-lg font-black text-slate-800" style={{ fontFamily: 'Georgia, serif' }}>{freeSpins}</span>
+            ) : (
+              <Play className="w-6 h-6 text-slate-800" fill="currentColor" style={{ marginLeft: 2 }} />
+            )}
           </button>
 
-          {/* Bet plus */}
-          <button
-            onClick={() => setBetIndex(i => Math.min(4, i + 1))}
-            disabled={spinning}
-            className="w-9 h-9 rounded-full italic font-black text-amber-200 disabled:opacity-40 active:scale-95 flex items-center justify-center"
-            style={{ border: '1px solid rgba(214,178,98,0.6)', background: 'rgba(20,17,13,0.8)', fontFamily: 'Georgia, serif' }}
-          >+</button>
-        </div>
-
-        {/* Turbo + Auto row */}
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <button
-            onClick={() => setTurbo(t => !t)}
-            title="Turbo"
-            className="w-8 h-8 rounded-full text-sm italic font-bold active:scale-95 flex items-center justify-center"
-            style={{ border: `1px solid ${turbo ? 'rgba(255,234,120,0.9)' : 'rgba(214,178,98,0.4)'}`, background: turbo ? 'rgba(255,200,80,0.2)' : 'rgba(20,17,13,0.7)', color: turbo ? '#ffe9a8' : '#e8c878', fontFamily: 'Georgia, serif' }}
-          >⚡</button>
-          <button
-            onClick={() => setAutoSpin(a => !a)}
-            title="Auto"
-            className="w-8 h-8 rounded-full text-sm italic font-bold active:scale-95 flex items-center justify-center"
-            style={{ border: `1px solid ${autoSpin ? 'rgba(120,220,160,0.9)' : 'rgba(214,178,98,0.4)'}`, background: autoSpin ? 'rgba(60,200,120,0.2)' : 'rgba(20,17,13,0.7)', color: autoSpin ? '#bbf7d0' : '#e8c878', fontFamily: 'Georgia, serif' }}
-          >↻</button>
+          {/* Right cluster: Plus + Autoplay + Currency */}
+          <div className="flex flex-col gap-2 items-center">
+            <button
+              onClick={() => setBetIndex(i => Math.min(4, i + 1))}
+              disabled={spinning}
+              className="w-9 h-9 rounded-full flex items-center justify-center disabled:opacity-40 active:scale-95 transition-transform"
+              style={{ border: '1.5px solid rgba(214,178,98,0.45)', background: 'rgba(8,18,38,0.85)' }}
+            >
+              <Plus className="w-4 h-4 text-amber-200/70" />
+            </button>
+            <button
+              onClick={() => setAutoSpin(a => !a)}
+              className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+              style={{
+                border: `1.5px solid ${autoSpin ? 'rgba(120,220,160,0.9)' : 'rgba(214,178,98,0.45)'}`,
+                background: autoSpin ? 'rgba(60,200,120,0.18)' : 'rgba(8,18,38,0.85)',
+                boxShadow: autoSpin ? '0 0 10px rgba(60,200,120,0.35)' : 'none',
+              }}
+            >
+              <Repeat className={`w-4 h-4 ${autoSpin ? 'text-emerald-300' : 'text-amber-200/70'}`} />
+            </button>
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center"
+              style={{ border: '1.5px solid rgba(214,178,98,0.45)', background: 'rgba(8,18,38,0.85)' }}
+            >
+              <DollarSign className="w-4 h-4 text-amber-200/70" />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Bottom info bar — matches screenshot layout */}
+      {/* Bottom status bar — two rows per screenshot */}
       <div
-        className="relative mx-2 mb-2 rounded-[8px] px-3 py-2"
-        style={{ border: '1px solid rgba(214,178,98,0.3)', background: 'rgba(0,18,46,0.85)' }}
+        className="relative mx-2 mb-2 rounded-[8px] overflow-hidden z-10"
+        style={{ border: '1px solid rgba(214,178,98,0.3)', background: 'rgba(2,10,26,0.9)' }}
       >
-        <div className="flex items-center justify-between text-[10px] text-white/70 italic mb-1" style={{ fontFamily: 'Georgia, serif' }}>
-          <span>BET</span>
-          <span>WAYS</span>
-          <span>BALANCE</span>
+        {/* Row 1: BET | LAST WIN | WAYS */}
+        <div className="flex items-stretch text-center" style={{ borderBottom: '1px solid rgba(214,178,98,0.18)' }}>
+          <div className="flex-1 py-1.5 px-1" style={{ borderRight: '1px solid rgba(214,178,98,0.18)' }}>
+            <div className="text-[8px] text-white/45 tracking-widest" style={{ fontFamily: 'Georgia, serif' }}>BET</div>
+            <div className="text-[11px] font-black tabular-nums text-yellow-300" style={{ fontFamily: 'Georgia, serif' }}>{fmt(bet)}</div>
+          </div>
+          <div className="flex-1 py-1.5 px-1" style={{ borderRight: '1px solid rgba(214,178,98,0.18)' }}>
+            <div className="text-[8px] text-white/45 tracking-widest" style={{ fontFamily: 'Georgia, serif' }}>LAST WIN</div>
+            <div className="text-[11px] font-black tabular-nums text-white" style={{ fontFamily: 'Georgia, serif' }}>{fmt(lastWin)}</div>
+          </div>
+          <div className="flex-1 py-1.5 px-1">
+            <div className="text-[8px] text-white/45 tracking-widest" style={{ fontFamily: 'Georgia, serif' }}>WAYS</div>
+            <div className="text-[11px] font-black tabular-nums text-white" style={{ fontFamily: 'Georgia, serif' }}>{WAYS}</div>
+          </div>
         </div>
-        <div className="flex items-center justify-between text-xs font-black tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
-          <span className="text-yellow-300">${bet.toFixed(2)}</span>
-          <span className="text-white">{lastWin > 0 ? `$${lastWin.toFixed(2)}` : '4096'}</span>
-          <span className="text-white">${balance.toFixed(2)}</span>
+        {/* Row 2: BALANCE | CURRENCY */}
+        <div className="flex items-stretch text-center">
+          <div className="flex-1 py-1.5 px-1" style={{ borderRight: '1px solid rgba(214,178,98,0.18)' }}>
+            <div className="text-[8px] text-white/45 tracking-widest" style={{ fontFamily: 'Georgia, serif' }}>BALANCE</div>
+            <div className="text-[11px] font-black tabular-nums text-white" style={{ fontFamily: 'Georgia, serif' }}>{fmt(balance)}</div>
+          </div>
+          <div className="flex-1 py-1.5 px-1">
+            <div className="text-[8px] text-white/45 tracking-widest" style={{ fontFamily: 'Georgia, serif' }}>CURRENCY</div>
+            <div className="text-[11px] font-black tabular-nums text-amber-300/80" style={{ fontFamily: 'Georgia, serif' }}>USD</div>
+          </div>
         </div>
+
         {freeSpinsActive && (
-          <div className="text-center text-[10px] text-emerald-300 font-bold italic mt-1" style={{ fontFamily: 'Georgia, serif' }}>
+          <div className="text-center text-[9px] text-emerald-300 font-bold italic py-0.5" style={{ fontFamily: 'Georgia, serif', borderTop: '1px solid rgba(214,178,98,0.18)' }}>
             FREE GAMES · {freeSpins} LEFT
           </div>
         )}

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { BETS, buildGrid, expandWilds, evaluateWins, freeSpinsForScatters, WILD_REELS } from '@/lib/bigBrownEngine';
+import { BETS, buildGrid, expandWilds, evaluateWins, freeSpinsForScatters, WILD_REELS, bonusPopCost } from '@/lib/bigBrownEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -186,6 +186,21 @@ export function useBigBrown() {
     spin();
   }, [spin]);
 
+  const bonusCost = bonusPopCost(bet, 8);
+
+  const buyBonus = useCallback(() => {
+    if (spinning || showFreeSpinStart) return;
+    if (freeSpins > 0) return;
+    if (balance < bonusCost) {
+      setMessage('Insufficient balance for Bonus Pop');
+      return;
+    }
+    setBalance(b => b - bonusCost);
+    setFreeSpins(8);
+    setShowFreeSpinStart(true);
+    setMessage(`BONUS POP · 8 FREE GAMES`);
+  }, [spinning, showFreeSpinStart, freeSpins, balance, bonusCost, setBalance]);
+
   const reset = () => {
     resetBalance();
     setLastWin(0);
@@ -202,5 +217,6 @@ export function useBigBrown() {
     showFreeSpinStart, freeSpinsActive, startFreeSpins,
     anticipation,
     spin, setBetIndex, setTurbo, setAutoSpin, reset,
+    bonusCost, buyBonus,
   };
 }

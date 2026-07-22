@@ -161,7 +161,7 @@ export function freeSpinsForScatters(count) {
 }
 
 // Bonus Pop buy cost = total bet × multiplier (per the reference: cost scales with bet).
-export const BONUS_POP_COSTS = { 8: 50, 12: 75, 16: 100, 24: 150 };
+export const BONUS_POP_COSTS = { 8: 39, 12: 58, 16: 78, 24: 117 };
 export function bonusPopCost(bet, games = 8) {
-  return bet * (BONUS_POP_COSTS[games] || 50);
+  return bet * (BONUS_POP_COSTS[games] || 39);
 }

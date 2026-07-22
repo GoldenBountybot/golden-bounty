@@ -12,7 +12,7 @@ export default function BigBrown() {
 
   return (
     <div className="min-h-screen" style={{ background: '#00122e' }}>
-      <div className="absolute top-2 left-2 z-30">
+      <div className="absolute top-2 right-2 z-30">
         <BackButton href="/" label="" />
       </div>
       <BigBrownMachine />
