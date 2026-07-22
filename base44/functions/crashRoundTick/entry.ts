@@ -14,16 +14,21 @@ const CRASH_HOLD_MS = 1500;  // brief blast flash before next round
 const GROWTH = 1.10;         // multiplier = GROWTH ^ elapsedSec
 
 function genCrashPoint(rtp) {
+  // Jitter the effective RTP round-to-round and layer in multiplicative
+  // noise so the resulting distribution can't be reverse-engineered from
+  // observed history — no two rounds follow a predictable curve.
+  const rtpJitter = rtp + (Math.random() - 0.5) * 6; // ±3% band around configured RTP
   const r = Math.random();
-  let crash = (rtp / 100) / (1 - r);
+  let crash = (rtpJitter / 100) / (1 - r);
+  crash *= 1 + (Math.random() - 0.5) * 0.3; // ±15% noise, mean-preserving
+  // Occasionally inject an outlier spike or early dip for extra entropy.
+  if (Math.random() < 0.08) crash *= 0.4 + Math.random() * 2.2;
   if (crash < 1.00) {
-    // Rounds that previously clamped to an instant 1.00x bust are now
-    // redistributed below 2.00x. 50% of them still bust at exactly 1.00x
-    // (so the 1.00x rate is half of what it was) and the rest bust
-    // somewhere in (1.00, 2.00).
+    // Same redistribution rule: 50% fewer exact 1.00x busts, the rest
+    // spread across (1.00, 2.00).
     crash = Math.random() < 0.5 ? 1.00 : 1.00 + Math.random();
   }
-  return Math.min(crash, 250);
+  return Math.min(Math.max(crash, 1.00), 250);
 }
 
 Deno.serve(async (req) => {
