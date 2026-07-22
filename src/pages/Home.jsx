@@ -38,7 +38,7 @@ export default function Home() {
         className="sticky top-0 z-20 backdrop-blur-xl"
         style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}
       >
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto pl-4 pr-0 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div
               className="w-9 h-9 shrink-0 self-end rounded-[8px] flex items-center justify-center"
@@ -46,7 +46,7 @@ export default function Home() {
             >
               <Gamepad2 className="w-4 h-4 text-stone-950" />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 self-start">
               <WesternTitleBadge size="lg" fullWidth>Golden Bounty</WesternTitleBadge>
               <p className="text-[11px] text-amber-100/55 tracking-wide mt-1 text-center">{playable} Games Live · Play & Win</p>
             </div>
@@ -55,7 +55,7 @@ export default function Home() {
           <Link
             to="/dashboard"
             className="flex items-center gap-1.5 px-2.5 py-1.5 self-end rounded-[8px] transition-colors"
-            style={{ border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)' }}
+            style={{ border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)', marginRight: 0 }}
           >
             <Wallet className="w-3.5 h-3.5 text-amber-400" />
             <span className="text-xs font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
