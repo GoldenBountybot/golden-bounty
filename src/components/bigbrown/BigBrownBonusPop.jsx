@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { WILD_EXPAND_IMG } from '@/lib/bigBrownEngine';
+import { SYMBOLS } from '@/lib/bigBrownEngine';
 
 const fmt = (v) => `$${v.toFixed(2)}`;
 
@@ -141,10 +141,10 @@ export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBo
                   }}
                 >
                   <img
-                    src={WILD_EXPAND_IMG}
+                    src={SYMBOLS.brown.img}
                     alt="WILD"
                     className="w-full h-full object-cover"
-                    style={{ filter: 'brightness(1) saturate(1) drop-shadow(0 0 3px rgba(255,200,80,0.5))' }}
+                    style={{ filter: 'brightness(1.1) saturate(1.05) drop-shadow(0 0 3px rgba(255,200,80,0.5))' }}
                     draggable={false}
                   />
                 </div>
