@@ -16,7 +16,7 @@ export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBo
   const disabled = spinning || freeSpins > 0;
 
   return (
-    <div className="relative z-30 flex justify-end pr-4 mt-1 mb-2">
+    <div className="relative z-30">
       <div
         onClick={() => { if (!disabled) setShowBonusMenu(s => !s); }}
         className={`relative flex flex-col items-center cursor-pointer transition-transform active:scale-95 ${disabled ? 'opacity-40 pointer-events-none' : ''}`}

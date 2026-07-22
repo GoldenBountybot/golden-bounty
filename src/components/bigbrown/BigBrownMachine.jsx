@@ -82,34 +82,24 @@ export default function BigBrownMachine() {
         <Info className="w-4 h-4 text-amber-300" />
       </button>
 
-      {/* Title — BIG BROWN themed banner image (z-index removed so screen blend
-          keys the black backdrop against the FOREST_BG behind, not an empty
-          stacking context) */}
-      <div className="relative pt-2 pb-1 text-center">
+      {/* Title + Bonus Pop — single row, banner left, bonus emblem right */}
+      <div className="relative flex items-center justify-between px-3 pt-1">
         <img
           src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f423d208b_generated_image.png"
           alt="BIG BROWN"
-          className="mx-auto w-[78%] max-w-[300px] object-contain select-none"
+          className="w-[66%] max-w-[280px] object-contain select-none"
           style={{ mixBlendMode: 'screen', filter: 'saturate(1.1)' }}
           draggable={false}
         />
-        <p
-          className="text-[8px] tracking-[0.35em] mt-0.5 italic"
-          style={{ fontFamily: 'Georgia, serif', color: 'rgba(214,178,98,0.6)' }}
-        >
-          4096 WAYS
-        </p>
+        <BigBrownBonusPop
+          balance={balance}
+          bonusCost={bonusCost}
+          bonusCosts={bonusCosts}
+          buyBonus={buyBonus}
+          spinning={spinning}
+          freeSpins={freeSpins}
+        />
       </div>
-
-      {/* BONUS POP — circular gold emblem + red price badge, right side */}
-      <BigBrownBonusPop
-        balance={balance}
-        bonusCost={bonusCost}
-        bonusCosts={bonusCosts}
-        buyBonus={buyBonus}
-        spinning={spinning}
-        freeSpins={freeSpins}
-      />
 
       {/* Reel area — gnarled branch frame */}
       <div className="relative px-3 flex-1 flex flex-col justify-center z-10">
