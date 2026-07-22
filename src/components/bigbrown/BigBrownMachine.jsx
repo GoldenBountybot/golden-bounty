@@ -3,11 +3,42 @@ import { Info, Zap, Plus, Repeat, DollarSign, Menu, Play } from 'lucide-react';
 import BigBrownSymbol from './BigBrownSymbol';
 import BigBrownInfo from './BigBrownInfo';
 import { useBigBrown } from './useBigBrown';
-import { WAYS, BETS, WILD_EXPAND_IMG } from '@/lib/bigBrownEngine';
+import { WAYS, BETS, WILD_EXPAND_IMG, randomSymbol } from '@/lib/bigBrownEngine';
 
 // Big Brown slot machine — 6x4 grid, 4096 ways, expanding wilds, free spins.
 // Night-forest design matching the reference screenshot.
 const FOREST_BG = 'radial-gradient(ellipse at 50% 15%, #0d2847 0%, #071a33 40%, #02091a 100%)';
+
+// Spinning reel strip — a tall vertical column of random symbols that scrolls
+// downward while a reel is spinning (Wild Bounty "showdown" style). The strip
+// is 4 blocks tall where the last block equals the first, so the -75%→0%
+// reelFall loop is seamless. Blurred for a motion feel.
+const SpinStrip = React.memo(function SpinStrip({ reelIndex, turbo }) {
+  const strip = React.useMemo(() => {
+    const block = () => Array.from({ length: 4 }, () => randomSymbol(reelIndex));
+    const b = block();
+    return [...b, ...block(), ...block(), ...b];
+  }, [reelIndex]);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden rounded-[4px] pointer-events-none">
+      <div
+        className="flex flex-col gap-1 w-full"
+        style={{
+          animation: `reelFall ${turbo ? 0.28 : 0.42}s linear infinite`,
+          filter: 'blur(1.5px) saturate(1.1)',
+          willChange: 'transform',
+        }}
+      >
+        {strip.map((s, i) => (
+          <div key={i} className="rounded-[4px] overflow-hidden" style={{ aspectRatio: '3 / 4' }}>
+            <BigBrownSymbol sym={s} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
 
 // Branch / gnarled wood frame styling.
 const BRANCH_FRAME = `
@@ -106,43 +137,43 @@ export default function BigBrownMachine() {
               {grid.map((reel, ri) => {
                 const reelExpanded = expandedReels.has(ri);
                 const wildType = reelExpanded && reel[0] ? (reel[0] === 'spirit' ? 'spirit' : 'brown') : null;
+                const stopped = stoppedReels.has(ri);
                 return (
-                  <div key={ri} className="relative flex flex-col gap-1">
-                    {reel.map((sym, row) => {
-                      const key = `${ri}-${row}`;
-                      const stopped = stoppedReels.has(ri);
-                      const isWin = winningPositions.has(key);
-                      const isScatter = scatterPositions.has(key);
-                      const expanded = reelExpanded && (sym === 'brown' || sym === 'spirit');
-                      return (
-                        <div
-                          key={key}
-                          className="relative rounded-[4px] overflow-hidden"
-                          style={{
-                            aspectRatio: '3 / 4',
-                            animation: stopped ? `bbLand 0.5s cubic-bezier(0.36,0,0.5,1) both` : 'none',
-                            animationDelay: stopped ? `${[3, 0, 2, 1].indexOf(row) * 0.06}s` : '0s',
-                            willChange: 'transform, opacity',
-                            transform: 'translateZ(0)',
-                          }}
-                        >
-                          {stopped ? (
-                            <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
-                          ) : (
-                            <div
-                              className="w-full h-full overflow-hidden relative"
-                              style={{ background: '#000000' }}
-                            />
-                          )}
-                          {isScatter && (
-                            <span
-                              className="absolute inset-0 pointer-events-none animate-pulse"
-                              style={{ boxShadow: 'inset 0 0 12px rgba(255,170,40,0.7)' }}
-                            />
-                          )}
-                        </div>
-                      );
-                    })}
+                  <div key={ri} className="relative">
+                    <div
+                      className="relative flex flex-col gap-1"
+                      style={{
+                        animation: stopped ? 'reelLand 0.4s ease-out' : 'none',
+                        willChange: 'transform',
+                      }}
+                    >
+                      {reel.map((sym, row) => {
+                        const key = `${ri}-${row}`;
+                        const isWin = winningPositions.has(key);
+                        const isScatter = scatterPositions.has(key);
+                        const expanded = reelExpanded && (sym === 'brown' || sym === 'spirit');
+                        return (
+                          <div
+                            key={key}
+                            className="relative rounded-[4px] overflow-hidden"
+                            style={{ aspectRatio: '3 / 4' }}
+                          >
+                            {stopped ? (
+                              <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
+                            ) : (
+                              <div className="w-full h-full" style={{ background: '#02060d' }} />
+                            )}
+                            {isScatter && (
+                              <span
+                                className="absolute inset-0 pointer-events-none animate-pulse"
+                                style={{ boxShadow: 'inset 0 0 12px rgba(255,170,40,0.7)' }}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {!stopped && <SpinStrip reelIndex={ri} turbo={turbo} />}
                     {reelExpanded && (
                       <div
                         className="absolute inset-0 z-20 pointer-events-none rounded-[4px] overflow-hidden"
