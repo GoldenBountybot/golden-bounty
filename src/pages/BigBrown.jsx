@@ -9,7 +9,13 @@ export default function BigBrown() {
   const { balance } = useCasinoBalance();
 
   if (!ready) {
-    return <GameLoadingScreen title="Big Brown" onDone={() => setReady(true)} />;
+    return (
+      <GameLoadingScreen
+        title="Big Brown"
+        onDone={() => setReady(true)}
+        bgImage="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9a6ce937b_generated_image.png"
+      />
+    );
   }
 
   return (

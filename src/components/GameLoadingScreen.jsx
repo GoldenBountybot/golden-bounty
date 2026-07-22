@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 // with a timed progress bar (~2.2s) so every game shows a brief loading intro.
 const LOGO_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e0ebe2f88_InShot_20260722_150739877.jpg';
 
-export default function GameLoadingScreen({ title = 'Loading', onDone, duration = 2200 }) {
+export default function GameLoadingScreen({ title = 'Loading', onDone, duration = 2200, bgImage }) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -21,7 +21,11 @@ export default function GameLoadingScreen({ title = 'Loading', onDone, duration 
   }, [onDone, duration]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-b from-stone-950 via-amber-950/50 to-stone-950">
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-b from-stone-950 via-amber-950/50 to-stone-950"
+      style={bgImage ? { backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+    >
+      {bgImage && <div className="absolute inset-0 bg-black/55" />}
       <div className="relative mb-8">
         <div
           className="w-24 h-24 rounded-full border-4 border-amber-600/30 border-t-amber-400 animate-spin"
