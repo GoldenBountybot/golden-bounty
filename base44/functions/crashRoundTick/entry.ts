@@ -16,7 +16,9 @@ const GROWTH = 1.10;         // multiplier = GROWTH ^ elapsedSec
 function genCrashPoint(rtp) {
   const r = Math.random();
   let crash = (rtp / 100) / (1 - r);
-  if (crash < 1.00) crash = 1.00; // instant bust
+  // Raise the minimum so the rocket flies past 1.00x more often —
+  // instant 1.00x busts are far less frequent than before.
+  if (crash < 1.10) crash = 1.10;
   return Math.min(crash, 250);
 }
 
