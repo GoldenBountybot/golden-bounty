@@ -394,8 +394,8 @@
   100% { transform: translateY(0%); }
 }
 @keyframes bbPlaceholderScroll {
-  0%   { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
+  0%   { transform: translateY(0%); }
+  100% { transform: translateY(-33.333%); }
 }
 
 /* Plinko — ball bounce on peg impact */

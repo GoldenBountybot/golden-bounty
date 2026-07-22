@@ -128,11 +128,14 @@ export default function BigBrownMachine() {
                             style={{ background: 'linear-gradient(160deg,#0a140a,#050803)' }}
                           >
                             <div
-                              className="absolute inset-0 flex items-center justify-center text-lg opacity-25"
-                              style={{ animation: 'bbPlaceholderScroll 0.28s linear infinite', filter: 'blur(1.5px)' }}
+                              className="absolute left-0 right-0 flex flex-col items-center justify-around"
+                              style={{ animation: 'bbPlaceholderScroll 0.24s linear infinite', filter: 'blur(2px)', height: '300%', top: 0 }}
                             >
-                              🌲
+                              {['🌲','🦉','🐺','🌲','🦉','🐺','🌲','🦉','🐺'].map((e, i) => (
+                                <span key={i} className="text-base opacity-30 leading-none">{e}</span>
+                              ))}
                             </div>
+                            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(2,6,13,0.85), transparent 25%, transparent 75%, rgba(2,6,13,0.85))' }} />
                           </div>
                         )}
                         {isScatter && (
@@ -176,22 +179,22 @@ export default function BigBrownMachine() {
           )}
         </div>
 
-        {/* BONUS POP floating badge — left side */}
-        <button
-          onClick={buyBonus}
-          disabled={spinning || freeSpins > 0 || balance < bonusCost}
-          className="absolute left-1 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center justify-center w-14 h-14 rounded-full disabled:opacity-50 active:scale-95 transition-transform"
-          style={{
-            background: 'radial-gradient(circle at 35% 30%, #ffe9a8, #f5c542 40%, #c8881e 80%)',
-            border: '2px solid rgba(255,234,160,0.9)',
-            boxShadow: '0 0 12px rgba(255,200,80,0.5), inset 0 -3px 6px rgba(120,80,20,0.6)',
-          }}
-        >
-          <span className="text-[7px] font-black italic leading-none text-[#3a2408]" style={{ fontFamily: 'Georgia, serif' }}>BONUS</span>
-          <span className="text-[7px] font-black italic leading-none text-[#3a2408]" style={{ fontFamily: 'Georgia, serif' }}>POP</span>
-          <span className="text-[9px] font-black leading-none mt-0.5 text-[#b8430a]">{fmt(bonusCost)}</span>
-        </button>
       </div>
+
+      {/* BONUS POP badge — below the board */}
+      <button
+        onClick={buyBonus}
+        disabled={spinning || freeSpins > 0 || balance < bonusCost}
+        className="relative z-10 mx-auto mb-1 flex items-center gap-2 px-4 py-1.5 rounded-full disabled:opacity-40 active:scale-95 transition-transform"
+        style={{
+          background: 'radial-gradient(circle at 35% 30%, #ffe9a8, #f5c542 40%, #c8881e 80%)',
+          border: '2px solid rgba(255,234,160,0.9)',
+          boxShadow: '0 0 12px rgba(255,200,80,0.45), inset 0 -3px 6px rgba(120,80,20,0.6)',
+        }}
+      >
+        <span className="text-[10px] font-black italic leading-none text-[#3a2408] tracking-wide" style={{ fontFamily: 'Georgia, serif' }}>BONUS POP</span>
+        <span className="text-[11px] font-black leading-none text-[#b8430a]" style={{ fontFamily: 'Georgia, serif' }}>{fmt(bonusCost)}</span>
+      </button>
 
       {/* Bet menu popover */}
       {showBetMenu && (
