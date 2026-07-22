@@ -64,6 +64,18 @@ export default function BigBrownSymbol({ sym, highlight = false, expand = false 
           {type === 'spirit' ? 'WILD x2' : 'WILD'}
         </span>
       )}
+      {isScatter && (
+        <span
+          className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-black tracking-widest"
+          style={{
+            fontFamily: 'Rye, Georgia, serif',
+            color: '#ffe9a8',
+            textShadow: '0 1px 3px rgba(0,0,0,0.9)',
+          }}
+        >
+          BONUS
+        </span>
+      )}
     </div>
   );
 }
