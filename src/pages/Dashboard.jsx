@@ -214,7 +214,15 @@ export default function Dashboard() {
         )}
 
         {tab === 'vip' && (
-          <VipLevels totalDeposits={stake.totalDeposits} />
+          <div className="relative -mx-4 -my-3 px-4 py-4 min-h-[calc(100vh-64px)]">
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+              style={{ backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/64820b41c_MuchaTseBle.jpg)' }}
+            />
+            <div className="relative z-10">
+              <VipLevels totalDeposits={stake.totalDeposits} />
+            </div>
+          </div>
         )}
 
         {tab === 'stack' && (
