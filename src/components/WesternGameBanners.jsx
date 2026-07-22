@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 
@@ -54,20 +54,70 @@ const BANNERS = [
 ];
 
 export default function WesternGameBanners() {
-  const [index, setIndex] = useState(0);
-  const navigate = useNavigate();
   const count = BANNERS.length;
+  // Duplicate the list so the track can scroll seamlessly forever and
+  // snap back to the start without a visible jump back to "the first slide".
+  const SLIDES = [...BANNERS, ...BANNERS];
+  const [raw, setRaw] = useState(0);
+  const [noTrans, setNoTrans] = useState(false);
+  const [hold, setHold] = useState(false);
+  const navigate = useNavigate();
 
+  const press = useRef({ t: 0, x: 0, y: 0, moved: false, long: false });
+  const longTimer = useRef(null);
+
+  // Continuous advance — never modulo; we snap back invisibly instead.
   useEffect(() => {
-    const t = setInterval(() => setIndex((i) => (i + 1) % count), 3500);
+    if (hold) return;
+    const t = setInterval(() => setRaw((r) => r + 1), 3500);
     return () => clearInterval(t);
-  }, [count]);
+  }, [hold]);
+
+  // Seamless snap-back: once we've fully scrolled onto the cloned first set,
+  // jump (without transition) to the equivalent real index.
+  const handleTransitionEnd = () => {
+    if (raw >= count) {
+      setNoTrans(true);
+      setRaw(raw % count);
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => setNoTrans(false))
+      );
+    }
+  };
+
+  // Press-and-hold pauses rotation; a quick tap still navigates.
+  const onPointerDown = (e) => {
+    press.current = { t: Date.now(), x: e.clientX, y: e.clientY, moved: false, long: false };
+    setHold(true);
+    clearTimeout(longTimer.current);
+    longTimer.current = setTimeout(() => { press.current.long = true; }, 300);
+  };
+  const onPointerMove = (e) => {
+    if (Math.abs(e.clientX - press.current.x) > 10 || Math.abs(e.clientY - press.current.y) > 10) {
+      press.current.moved = true;
+    }
+  };
+  const onPointerUp = (link) => {
+    clearTimeout(longTimer.current);
+    setHold(false);
+    const dur = Date.now() - press.current.t;
+    // Treat as a tap only if it was short, didn't drift, and wasn't a hold.
+    if (!press.current.moved && !press.current.long && dur < 400) {
+      navigate(link);
+    }
+  };
+  const onPointerLeave = () => {
+    clearTimeout(longTimer.current);
+    setHold(false);
+  };
+
+  const active = raw % count;
 
   return (
     <div className="relative">
       {/* Sharp gilt frame */}
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden select-none"
         style={{
           borderRadius: 9,
           border: '1px solid rgba(214,178,98,0.55)',
@@ -75,14 +125,22 @@ export default function WesternGameBanners() {
         }}
       >
         <div
-          className="flex transition-transform duration-700 ease-out"
-          style={{ transform: `translateX(-${index * 100}%)` }}
+          className="flex"
+          style={{
+            transform: `translateX(-${raw * 100}%)`,
+            transition: noTrans ? 'none' : 'transform 0.7s ease-out',
+          }}
+          onTransitionEnd={handleTransitionEnd}
         >
-          {BANNERS.map((b, i) => (
+          {SLIDES.map((b, i) => (
             <div
               key={i}
-              onClick={() => navigate(b.link)}
-              className="w-full shrink-0 cursor-pointer relative"
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={() => onPointerUp(b.link)}
+              onPointerLeave={onPointerLeave}
+              onPointerCancel={onPointerLeave}
+              className="w-full shrink-0 cursor-pointer relative touch-none"
               style={{ aspectRatio: '16 / 7' }}
             >
               <img
@@ -90,6 +148,7 @@ export default function WesternGameBanners() {
                 alt={b.title}
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
+                draggable={false}
               />
               {/* Western vignette + bottom fade for text legibility */}
               <div
@@ -105,8 +164,24 @@ export default function WesternGameBanners() {
               <div className="absolute bottom-2 left-2 w-6 h-6 border-l border-b" style={{ borderColor: 'rgba(245,210,120,0.7)' }} />
               <div className="absolute bottom-2 right-2 w-6 h-6 border-r border-b" style={{ borderColor: 'rgba(245,210,120,0.7)' }} />
 
+              {/* "Hold to pause" hint + paused badge */}
+              {hold && (
+                <div
+                  className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1 italic text-[10px] font-black tracking-wide"
+                  style={{
+                    borderRadius: 6,
+                    border: '1px solid rgba(245,210,120,0.9)',
+                    background: 'rgba(10,8,5,0.85)',
+                    color: '#f7e3a8',
+                    fontFamily: 'Rye, Georgia, serif',
+                  }}
+                >
+                  Paused
+                </div>
+              )}
+
               {/* Text */}
-              <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex flex-col items-center text-center">
+              <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex flex-col items-center text-center pointer-events-none">
                 {/* decorative gilt rule */}
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="block h-px w-8" style={{ background: `linear-gradient(to right, transparent, ${b.accent})` }} />
@@ -168,12 +243,12 @@ export default function WesternGameBanners() {
         {BANNERS.map((_, i) => (
           <button
             key={i}
-            onClick={() => setIndex(i)}
+            onClick={() => setRaw(i)}
             aria-label={`Banner ${i + 1}`}
             className="h-1.5 rounded-full transition-all"
             style={{
-              width: i === index ? 24 : 6,
-              background: i === index ? 'linear-gradient(to right,#f5c542,#c8881e)' : 'rgba(245,210,120,0.3)',
+              width: i === active ? 24 : 6,
+              background: i === active ? 'linear-gradient(to right,#f5c542,#c8881e)' : 'rgba(245,210,120,0.3)',
             }}
           />
         ))}
