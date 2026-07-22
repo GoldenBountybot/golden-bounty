@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '@/components/BackButton';
+import WesternTitleBadge from '@/components/WesternTitleBadge';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import WesternBackdrop from '@/components/WesternBackdrop';
 import { useToast } from '@/components/ui/use-toast';
@@ -147,7 +148,7 @@ export default function PayMethod() {
             <BackButton href="/dashboard" />
           )}
           <div className="flex-1 text-center">
-            <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>{view === 'choose' ? 'Choose Payment' : methodLabel}</h1>
+            <WesternTitleBadge size="lg">{view === 'choose' ? 'Choose Payment' : methodLabel}</WesternTitleBadge>
           </div>
         </div>
       </header>

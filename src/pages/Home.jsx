@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import CasinoGameCard from '@/components/CasinoGameCard';
 import WesternGameBanners from '@/components/WesternGameBanners';
 import BottomNav from '@/components/BottomNav';
+import WesternTitleBadge from '@/components/WesternTitleBadge';
 import { Gamepad2, Wallet } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -46,9 +47,7 @@ export default function Home() {
               <Gamepad2 className="w-5 h-5 text-stone-950" />
             </div>
             <div>
-              <h1 className="text-lg font-black italic text-amber-200 tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
-                Golden Bounty
-              </h1>
+              <WesternTitleBadge size="lg">Golden Bounty</WesternTitleBadge>
               <p className="text-[11px] text-amber-100/55 tracking-wide">{playable} Games Live · Play & Win</p>
             </div>
           </div>

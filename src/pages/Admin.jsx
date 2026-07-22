@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Shield, Users, Receipt, SlidersHorizontal, Gift, Wallet } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import BackButton from '@/components/BackButton';
+import WesternTitleBadge from '@/components/WesternTitleBadge';
 import AdminPlayers from '@/components/admin/AdminPlayers';
 import AdminTransactions from '@/components/admin/AdminTransactions';
 import AdminGameSettings from '@/components/admin/AdminGameSettings';
@@ -63,7 +64,7 @@ export default function Admin() {
           <BackButton />
           <div className="flex-1 flex items-center justify-center gap-2">
             <Shield className="w-4 h-4 text-amber-300" />
-            <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Admin Panel</h1>
+            <WesternTitleBadge size="lg">Admin Panel</WesternTitleBadge>
           </div>
         </div>
       </header>

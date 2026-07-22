@@ -7,6 +7,7 @@ import { base44 } from '@/api/base44Client';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import WesternBackdrop from '@/components/WesternBackdrop';
 import BackButton from '@/components/BackButton';
+import WesternTitleBadge from '@/components/WesternTitleBadge';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -129,7 +130,7 @@ export default function Profile() {
         <div className="max-w-md mx-auto px-4 py-2 flex items-center gap-2">
           <BackButton />
           <div className="flex-1 text-center">
-            <h1 className="text-sm font-black italic text-amber-200" style={{ fontFamily: 'Rye, Georgia, serif' }}>Profile</h1>
+            <WesternTitleBadge>Profile</WesternTitleBadge>
           </div>
           <div className="w-6" />
         </div>
