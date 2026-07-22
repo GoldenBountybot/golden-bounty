@@ -88,13 +88,15 @@ export default function BigBrownFreeSpinStart({ count, onStart }) {
       />
 
       {/* Dynamic number — big embossed golden 3D */}
-      <div className="relative z-10 mt-4">
+      <div className="relative z-10 pt-6 pb-2 px-2" style={{ lineHeight: 1 }}>
         <span
-          className="block leading-none italic font-black"
+          className="block italic font-black"
           style={{
             ...GOLD_TEXT,
-            fontSize: '8.5rem',
-            textShadow: '0 4px 0 #3a2408, 0 7px 10px rgba(0,0,0,0.95)',
+            fontSize: '7.5rem',
+            lineHeight: 1.05,
+            display: 'block',
+            textShadow: '0 4px 0 #3a2408, 0 7px 10px rgba(0,0,0,0.95), 0 0 18px rgba(255,200,80,0.7)',
             animation: 'ccPulse 1.8s ease-in-out infinite',
           }}
         >
