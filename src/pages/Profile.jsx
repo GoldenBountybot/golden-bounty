@@ -130,7 +130,7 @@ export default function Profile() {
         <div className="max-w-md mx-auto px-4 py-2 flex items-center gap-2">
           <BackButton />
           <div className="flex-1 text-center">
-            <WesternTitleBadge>Profile</WesternTitleBadge>
+            <WesternTitleBadge fullWidth>Profile</WesternTitleBadge>
           </div>
           <div className="w-6" />
         </div>
