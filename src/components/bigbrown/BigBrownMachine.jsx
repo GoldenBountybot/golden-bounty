@@ -81,7 +81,7 @@ export default function BigBrownMachine() {
       </button>
 
       {/* Title — BIG BROWN ornate gold */}
-      <div className="relative pt-3 pb-1 text-center z-10">
+      <div className="relative pt-3 pb-2 text-center z-10">
         <h1
           className="text-2xl sm:text-3xl italic font-black tracking-wider leading-none"
           style={{
@@ -100,6 +100,48 @@ export default function BigBrownMachine() {
         >
           4096 WAYS
         </p>
+      </div>
+
+      {/* BONUS POP — premium circular Western frame above the board */}
+      <div className="relative z-10 flex justify-center mt-1 mb-2">
+        <button
+          onClick={buyBonus}
+          disabled={spinning || freeSpins > 0 || balance < bonusCost}
+          className="relative active:scale-95 transition-transform disabled:opacity-40"
+        >
+          {/* Outer gilt-wood ring */}
+          <div
+            className="relative rounded-full flex items-center justify-center"
+            style={{
+              padding: 6,
+              background: BRANCH_FRAME,
+              boxShadow: '0 0 14px rgba(255,200,80,0.4), inset 0 0 0 2px rgba(90,58,26,0.6), inset 0 0 0 3px rgba(20,12,5,0.7), 0 4px 12px rgba(0,0,0,0.6)',
+            }}
+          >
+            {/* Inner golden disc */}
+            <div
+              className="rounded-full flex items-center gap-2 px-4 py-1.5"
+              style={{
+                background: 'radial-gradient(circle at 35% 30%, #fff7d6, #ffe9a8 22%, #f5c542 50%, #c8881e 80%, #8b5a2b 100%)',
+                border: '2px solid rgba(255,234,160,0.9)',
+                boxShadow: 'inset 0 -3px 6px rgba(120,80,20,0.6), inset 0 2px 4px rgba(255,250,200,0.5)',
+              }}
+            >
+              <span
+                className="text-[10px] font-black italic leading-none tracking-wide"
+                style={{ fontFamily: 'Rye, Georgia, serif', color: '#3a2408', textShadow: '0 1px 0 rgba(255,245,200,0.5)' }}
+              >
+                BONUS POP
+              </span>
+              <span
+                className="text-[11px] font-black leading-none"
+                style={{ fontFamily: 'Georgia, serif', color: '#b8430a', textShadow: '0 1px 0 rgba(255,200,120,0.4)' }}
+              >
+                {fmt(bonusCost)}
+              </span>
+            </div>
+          </div>
+        </button>
       </div>
 
       {/* Reel area — gnarled branch frame */}
@@ -249,21 +291,6 @@ export default function BigBrownMachine() {
         </div>
 
       </div>
-
-      {/* BONUS POP badge — below the board */}
-      <button
-        onClick={buyBonus}
-        disabled={spinning || freeSpins > 0 || balance < bonusCost}
-        className="relative z-10 mx-auto mb-1 flex items-center gap-2 px-4 py-1.5 rounded-full disabled:opacity-40 active:scale-95 transition-transform"
-        style={{
-          background: 'radial-gradient(circle at 35% 30%, #ffe9a8, #f5c542 40%, #c8881e 80%)',
-          border: '2px solid rgba(255,234,160,0.9)',
-          boxShadow: '0 0 12px rgba(255,200,80,0.45), inset 0 -3px 6px rgba(120,80,20,0.6)',
-        }}
-      >
-        <span className="text-[10px] font-black italic leading-none text-[#3a2408] tracking-wide" style={{ fontFamily: 'Georgia, serif' }}>BONUS POP</span>
-        <span className="text-[11px] font-black leading-none text-[#b8430a]" style={{ fontFamily: 'Georgia, serif' }}>{fmt(bonusCost)}</span>
-      </button>
 
       {/* Bet menu popover */}
       {showBetMenu && (
