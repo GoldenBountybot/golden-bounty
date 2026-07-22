@@ -10,8 +10,9 @@ export const BETS = [0.50, 1.00, 2.00, 5.00, 12.50];
 export const WILD_REELS = new Set([1, 2, 3, 4]);
 
 // Full-height (4-cell) wild graphic shown when a wild reel expands.
+// Black background so mix-blend-mode:screen drops it out against the reels.
 export const WILD_EXPAND_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6b4fd8d8c_generated_image.png';
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/79ff90e76_generated_image.png';
 
 // Symbol image URLs (generated to match reference screenshots).
 const IMG = {

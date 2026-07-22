@@ -163,7 +163,10 @@ export default function BigBrownMachine() {
                           src={WILD_EXPAND_IMG}
                           alt="WILD"
                           className="w-full h-full object-cover"
-                          style={{ filter: 'drop-shadow(0 0 6px rgba(255,200,80,0.6))' }}
+                          style={{
+                            mixBlendMode: 'screen',
+                            filter: 'drop-shadow(0 0 6px rgba(255,200,80,0.7)) brightness(1.05)',
+                          }}
                           draggable={false}
                         />
                         {wildType === 'spirit' && (
