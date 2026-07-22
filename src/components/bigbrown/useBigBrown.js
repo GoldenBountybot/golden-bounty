@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { BETS, buildGrid, expandWilds, evaluateWins, freeSpinsForScatters, WILD_REELS, bonusPopCost } from '@/lib/bigBrownEngine';
+import { BETS, buildGrid, clearWilds, expandWilds, evaluateWins, freeSpinsForScatters, WILD_REELS, bonusPopCost } from '@/lib/bigBrownEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -107,8 +107,9 @@ export function useBigBrown() {
     // RTP bias: force a win or a clean loss.
     const wantWin = Math.random() < (rtpRef.current / 100);
     if (wantWin) {
-      // Place a matching low symbol on reels 0 and 2, and a wild on reel 1
-      // (expands to fill reel 1 → substitutes) for a guaranteed 3-of-a-kind.
+      // Clear any natural wilds first so at most one wild exists on the board,
+      // then place a single wild on reel 1 for a guaranteed 3-of-a-kind.
+      finalGrid = clearWilds(finalGrid);
       const sym = 'A';
       finalGrid[0][0] = sym;
       finalGrid[1][Math.floor(Math.random() * 4)] = 'brown';
@@ -121,12 +122,11 @@ export function useBigBrown() {
       }
     }
 
-    // In free spins, guarantee an expanding wild on one of reels 2-5.
+    // In free spins, guarantee a single expanding wild on one of reels 2-5.
     if (usingFree) {
+      finalGrid = clearWilds(finalGrid);
       const wr = 1 + Math.floor(Math.random() * 4);
-      if (!finalGrid[wr].some(s => s === 'brown' || s === 'spirit')) {
-        finalGrid[wr][Math.floor(Math.random() * 4)] = Math.random() < 0.25 ? 'spirit' : 'brown';
-      }
+      finalGrid[wr][Math.floor(Math.random() * 4)] = Math.random() < 0.25 ? 'spirit' : 'brown';
     }
 
     const baseGap = turbo ? 150 : 250;

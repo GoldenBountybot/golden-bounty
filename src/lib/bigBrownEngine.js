@@ -67,16 +67,23 @@ const BASE_POOL = [
   '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
 ];
 
-// Wild pool for wild reels — includes brown + spirit + scatter, rare.
+// Wild pool for wild reels. Wilds (brown/spirit) are intentionally rare:
+// at most one wild may appear per spin (see capWildsToOne), so the pool
+// carries only a single brown and a single spirit entry among many base symbols.
 const WILD_POOL = [
-  'brown', 'brown', 'brown', 'brown',
+  'brown',
   'spirit',
   'scatter', 'scatter',
-  'buffalo', 'eagle', 'eagle',
-  'cougar', 'cougar',
-  'wolf', 'wolf',
-  'deer', 'deer',
-  'A', 'A', 'K', 'K', 'Q', 'Q', 'J', 'J', '10', '10', '9', '9',
+  'buffalo', 'buffalo', 'eagle', 'eagle', 'eagle',
+  'cougar', 'cougar', 'cougar',
+  'wolf', 'wolf', 'wolf', 'wolf',
+  'deer', 'deer', 'deer', 'deer', 'deer',
+  'A', 'A', 'A', 'A', 'A', 'A', 'A',
+  'K', 'K', 'K', 'K', 'K', 'K', 'K',
+  'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q',
+  'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J',
+  '10', '10', '10', '10', '10', '10', '10', '10',
+  '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
 ];
 
 export function randomSymbol(reelIndex = -1) {
@@ -89,7 +96,31 @@ export function buildReel(rows, reelIndex) {
 }
 
 export function buildGrid() {
-  return REEL_ROWS.map((r, i) => buildReel(r, i));
+  const grid = REEL_ROWS.map((r, i) => buildReel(r, i));
+  return capWildsToOne(grid);
+}
+
+// Replace every wild (brown/spirit) with a random base symbol (no wild/scatter).
+export function clearWilds(grid) {
+  return grid.map(reel => reel.map(s => (s === 'brown' || s === 'spirit') ? randomSymbol(-1) : s));
+}
+
+// Enforce at most one wild symbol across the whole grid: keeps the first wild
+// found (scanning reels left→right, rows top→bottom) and replaces any extra
+// wilds with random base symbols. This guarantees any single pay way contains
+// no more than one wild.
+export function capWildsToOne(grid) {
+  const wilds = [];
+  grid.forEach((reel, ri) => reel.forEach((s, row) => {
+    if (s === 'brown' || s === 'spirit') wilds.push([ri, row]);
+  }));
+  if (wilds.length <= 1) return grid;
+  const out = grid.map(r => [...r]);
+  for (let i = 1; i < wilds.length; i++) {
+    const [ri, row] = wilds[i];
+    out[ri][row] = randomSymbol(-1);
+  }
+  return out;
 }
 
 // Expand wilds: on reels 1-4, any brown/spirit wild fills the whole reel.
