@@ -29,7 +29,7 @@ const IMG = {
   K: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0563064f0_generated_image.png',
   Q: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11e4aee1c_generated_image.png',
   J: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/aa1e47a19_generated_image.png',
-  '10': 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a84f78c38_generated_image.png',
+  '10': 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1cc5bdadb_generated_image.png',
   '9':  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e5f443649_generated_image.png',
 };
 

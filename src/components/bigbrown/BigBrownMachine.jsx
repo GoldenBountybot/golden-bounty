@@ -25,7 +25,7 @@ const SpinStrip = React.memo(function SpinStrip({ reelIndex, turbo }) {
       <div
         className="flex flex-col gap-1 w-full"
         style={{
-          animation: `reelFall ${turbo ? 0.28 : 0.42}s linear infinite`,
+          animation: `reelFall ${turbo ? 0.4 : 0.6}s linear infinite`,
           willChange: 'transform',
         }}
       >
@@ -151,7 +151,7 @@ export default function BigBrownMachine() {
                           <div
                             key={key}
                             className="relative rounded-[4px] overflow-hidden"
-                            style={{ aspectRatio: '3 / 4' }}
+                            style={{ aspectRatio: '3 / 4', opacity: stopped ? 1 : 0, transition: 'opacity 0.18s ease-out' }}
                           >
                             {stopped ? (
                               <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
