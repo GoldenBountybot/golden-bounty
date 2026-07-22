@@ -20,10 +20,10 @@ export default function BigBrownSymbol({ sym, highlight = false, expand = false 
           ? 'linear-gradient(160deg,#2a1f0f,#120c06)'
           : 'linear-gradient(160deg,#1a130a,#0a0703)',
         border: highlight
-          ? '2px solid rgba(255,234,0,0.95)'
+          ? '3px solid rgba(255,245,150,1)'
           : '1px solid rgba(214,178,98,0.35)',
         boxShadow: highlight
-          ? '0 0 16px rgba(255,234,0,0.9), inset 0 0 12px rgba(255,220,130,0.5)'
+          ? '0 0 22px rgba(255,234,0,1), 0 0 40px rgba(255,200,80,0.85), inset 0 0 16px rgba(255,240,150,0.85)'
           : isWild
           ? '0 0 10px rgba(255,200,80,0.6), inset 0 0 6px rgba(255,200,80,0.25)'
           : 'inset 0 0 6px rgba(0,0,0,0.5)',
@@ -36,7 +36,7 @@ export default function BigBrownSymbol({ sym, highlight = false, expand = false 
           className="w-full h-full object-cover"
           style={{
             filter: highlight
-              ? 'brightness(1.25) drop-shadow(0 0 6px rgba(255,234,0,0.8))'
+              ? 'brightness(1.45) drop-shadow(0 0 10px rgba(255,234,0,1)) drop-shadow(0 0 18px rgba(255,200,80,0.85))'
               : isWild
               ? 'brightness(1.1) drop-shadow(0 0 4px rgba(255,200,80,0.5))'
               : 'drop-shadow(0 1px 2px rgba(0,0,0,0.6))',
