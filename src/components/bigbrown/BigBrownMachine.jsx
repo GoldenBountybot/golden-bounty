@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Info, Zap, Plus, Repeat, DollarSign, Menu, Play } from 'lucide-react';
 import BigBrownSymbol from './BigBrownSymbol';
 import BigBrownInfo from './BigBrownInfo';
+import BigBrownFreeSpinStart from './BigBrownFreeSpinStart';
 import { useBigBrown } from './useBigBrown';
 import { WAYS, BETS, WILD_EXPAND_IMG, randomSymbol } from '@/lib/bigBrownEngine';
 
@@ -52,7 +53,7 @@ export default function BigBrownMachine() {
     grid, balance, bet, betIndex, spinning, stoppedReels,
     lastWin, message, winningPositions, expandedReels, scatterPositions,
     freeSpins, turbo, autoSpin,
-    showFreeSpinStart, freeSpinsActive, startFreeSpins,
+    showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     anticipation, bonusCost, buyBonus,
     spin, setBetIndex, setTurbo, setAutoSpin,
   } = g;
@@ -218,19 +219,7 @@ export default function BigBrownMachine() {
 
             {/* Free spin start overlay */}
             {showFreeSpinStart && (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3" style={{ background: 'rgba(3,5,10,0.9)', backdropFilter: 'blur(4px)' }}>
-                <h3 className="text-2xl italic font-black text-amber-300" style={{ fontFamily: 'Rye, Georgia, serif' }}>FREE GAMES!</h3>
-                <p className="text-xs text-amber-100/80 italic text-center px-6" style={{ fontFamily: 'Georgia, serif' }}>
-                  Expanding Wild guaranteed on every spin
-                </p>
-                <button
-                  onClick={startFreeSpins}
-                  className="px-6 py-2 rounded-[8px] italic font-black text-[#2a1a06] active:scale-95 transition-transform"
-                  style={{ background: 'linear-gradient(to bottom,#f5c542,#c8881e)', fontFamily: 'Georgia, serif', border: '1px solid rgba(214,178,98,0.8)' }}
-                >
-                  START
-                </button>
-              </div>
+              <BigBrownFreeSpinStart count={awardedFreeSpins} onStart={startFreeSpins} />
             )}
           </div>
 

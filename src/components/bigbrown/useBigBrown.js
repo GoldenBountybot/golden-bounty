@@ -17,6 +17,7 @@ export function useBigBrown() {
   const [freeSpins, setFreeSpins] = useState(0);
   const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
+  const [awardedFreeSpins, setAwardedFreeSpins] = useState(8);
   const [turbo, setTurbo] = useState(false);
   const [autoSpin, setAutoSpin] = useState(false);
   const [stoppedReels, setStoppedReels] = useState(new Set([0, 1, 2, 3, 4, 5]));
@@ -83,6 +84,7 @@ export function useBigBrown() {
     // Free spins trigger.
     if (scatterCount >= 3) {
       const award = freeSpinsForScatters(scatterCount);
+      setAwardedFreeSpins(award);
       setFreeSpins(f => f + award);
       if (!wasFree) setShowFreeSpinStart(true);
       setMessage(`${scatterCount} SCATTERS · +${award} FREE GAMES`);
@@ -207,6 +209,7 @@ export function useBigBrown() {
       return;
     }
     setBalance(b => b - bonusCost);
+    setAwardedFreeSpins(8);
     setFreeSpins(8);
     setShowFreeSpinStart(true);
     setMessage(`BONUS POP · 8 FREE GAMES`);
@@ -225,7 +228,7 @@ export function useBigBrown() {
     grid, balance, bet, betIndex, spinning, stoppedReels,
     lastWin, message, winningPositions, expandedReels, scatterPositions,
     freeSpins, turbo, autoSpin,
-    showFreeSpinStart, freeSpinsActive, startFreeSpins,
+    showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     anticipation,
     spin, setBetIndex, setTurbo, setAutoSpin, reset,
     bonusCost, buyBonus,
