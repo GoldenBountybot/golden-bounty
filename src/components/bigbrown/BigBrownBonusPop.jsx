@@ -116,18 +116,17 @@ export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBo
                     boxShadow: 'inset 0 0 10px rgba(0,0,0,0.5)',
                   }}
                 >
-                  {/* Big golden number — padded so italic glyphs aren't clipped */}
+                  {/* Big golden number — embossed watermark style */}
                   <span
-                    className="inline-block text-[24px] font-black italic leading-none"
+                    className="inline-block text-[26px] font-black italic leading-none select-none"
                     style={{
                       fontFamily: 'Rye, Georgia, serif',
                       padding: '0 6px',
                       overflow: 'visible',
-                      background: 'linear-gradient(to bottom, #fff7d6 0%, #ffe9a8 22%, #f5c542 50%, #c8881e 80%, #8b5a2b 100%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                      filter: 'drop-shadow(0 1px 0 #6b4a1a) drop-shadow(0 2px 2px rgba(0,0,0,0.7))',
+                      color: '#daa520',
+                      opacity: 0.92,
+                      WebkitTextStroke: '0.5px rgba(255,234,160,0.5)',
+                      textShadow: '0 2px 0 #5a3a0a, 0 3px 3px rgba(0,0,0,0.85), 0 -1px 0 rgba(255,245,200,0.35)',
                     }}
                   >
                     {games}
@@ -164,13 +163,16 @@ export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBo
                     />
                   </div>
 
-                  {/* WILD — flat text label, NOT a button */}
+                  {/* WILD — gold metallic plaque label, NOT a button */}
                   <span
-                    className="text-[9px] font-black italic tracking-[0.18em] leading-none"
+                    className="px-2 py-0.5 rounded-[3px] text-[9px] font-black italic tracking-[0.18em] leading-none"
                     style={{
                       fontFamily: 'Rye, Georgia, serif',
-                      color: '#ffe9a8',
-                      textShadow: '0 1px 2px rgba(0,0,0,0.9)',
+                      color: '#3a2408',
+                      background: 'linear-gradient(to bottom, #fff7d6, #ffe9a8 30%, #f5c542 65%, #c8881e)',
+                      border: '1px solid rgba(255,234,160,0.8)',
+                      boxShadow: 'inset 0 -1px 2px rgba(120,80,20,0.5), inset 0 1px 1px rgba(255,250,200,0.5)',
+                      textShadow: '0 1px 0 rgba(255,245,200,0.4)',
                     }}
                   >
                     WILD
