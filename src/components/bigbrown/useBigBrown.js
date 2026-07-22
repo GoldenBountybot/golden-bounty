@@ -121,12 +121,16 @@ export function useBigBrown() {
     const wantWin = Math.random() < (rtpRef.current / 100) * 0.6;
     if (wantWin) {
       // Clear any natural wilds first so at most one wild exists on the board,
-      // then place a single wild on reel 1 for a guaranteed 3-of-a-kind.
+      // then place matching symbols on reels 0 & 2 and a single wild on either
+      // reel 1 or reel 2 for a guaranteed 3-of-a-kind. This distributes forced
+      // wilds across lines 2 & 3 instead of always dropping them on reel 1.
+      // Wilds on reels 3 & 4 (lines 4 & 5) come from the natural WILD_CHANCE.
       finalGrid = clearWilds(finalGrid);
       const sym = 'A';
       finalGrid[0][0] = sym;
-      finalGrid[1][Math.floor(Math.random() * 4)] = 'brown';
       finalGrid[2][0] = sym;
+      const wildReel = Math.random() < 0.5 ? 1 : 2;
+      finalGrid[wildReel][Math.floor(Math.random() * 4)] = 'brown';
     } else {
       let attempts = 0;
       while (attempts < 6 && evaluateWins(expandWilds(finalGrid), bet).wins.length > 0) {
