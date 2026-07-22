@@ -27,15 +27,6 @@ const BANNERS = [
     accent: '#d98a3a',
   },
   {
-    title: 'Golden Stack',
-    subtitle: 'Lock & Earn Daily',
-    desc: 'Lock your balance in the Golden Stack vault and earn up to 2.00% profit every single day for 30 days — your gold keeps growing while you play. Claim your profit anytime, then withdraw once the lock ends.',
-    image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c6e6b2403_generated_image.png',
-    link: '/dashboard?tab=stack',
-    accent: '#f5c542',
-    stack: true,
-  },
-  {
     title: 'Golden Stack Vault',
     subtitle: 'Daily Gold Profits',
     desc: 'Stake any amount from $50 up and watch your balance compound. The longer it stays locked, the more daily gold you harvest — guaranteed returns, zero risk, paid straight to your wallet.',
