@@ -129,18 +129,8 @@ export default function BigBrownMachine() {
                           ) : (
                             <div
                               className="w-full h-full overflow-hidden relative"
-                              style={{ background: 'linear-gradient(160deg,#0a140a,#050803)' }}
-                            >
-                              <div
-                                className="absolute inset-0"
-                                style={{
-                                  animation: 'bbFallStreak 0.28s linear infinite',
-                                  backgroundImage: 'repeating-linear-gradient(to bottom, rgba(214,178,98,0.14) 0px, rgba(214,178,98,0.14) 2px, transparent 2px, transparent 28px)',
-                                  filter: 'blur(1.5px)',
-                                }}
-                              />
-                              <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(2,6,13,0.92), transparent 18%, transparent 82%, rgba(2,6,13,0.92))' }} />
-                            </div>
+                              style={{ background: '#000000' }}
+                            />
                           )}
                           {isScatter && (
                             <span
