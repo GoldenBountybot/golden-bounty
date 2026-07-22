@@ -47,7 +47,7 @@ export default function Home() {
               <Gamepad2 className="w-4 h-4 text-stone-950" />
             </div>
             <div className="flex-1 min-w-0 self-start">
-              <WesternTitleBadge size="lg" fullWidth>Golden Bounty</WesternTitleBadge>
+              <WesternTitleBadge size="lg" fullWidth className="-mt-3">Golden Bounty</WesternTitleBadge>
               <p className="text-[11px] text-amber-100/55 tracking-wide mt-1 text-center">{playable} Games Live · Play & Win</p>
             </div>
           </div>
@@ -57,7 +57,7 @@ export default function Home() {
             className="flex items-center gap-1.5 px-2.5 py-1.5 self-end rounded-[8px] transition-colors"
             style={{ border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)', marginRight: 0 }}
           >
-            <Wallet className="w-3.5 h-3.5 text-amber-400" />
+            <Wallet className="w-4 h-4 text-amber-400" />
             <span className="text-xs font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
               ${balance.toFixed(2)}
             </span>
