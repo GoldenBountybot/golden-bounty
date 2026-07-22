@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CasinoGameCard from '@/components/CasinoGameCard';
-import BannerCarousel from '@/components/BannerCarousel';
+import WesternGameBanners from '@/components/WesternGameBanners';
 import BottomNav from '@/components/BottomNav';
 import { Gamepad2, Wallet } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
@@ -66,9 +66,9 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Rotating banner carousel */}
+      {/* Premium Western game banners */}
       <div className="max-w-6xl mx-auto px-4 pt-5">
-        <BannerCarousel />
+        <WesternGameBanners />
       </div>
 
       {/* Category tabs */}
