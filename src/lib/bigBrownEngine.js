@@ -76,7 +76,7 @@ const BASE_POOL = [
 // Wild reels use the base pool plus a reel-specific chance to inject a wild
 // (brown/spirit). Reels 1 & 2 (2nd/3rd lines) get a much lower wild chance
 // than reels 3 & 4. At most one wild is kept per spin via capWildsToOne.
-const WILD_CHANCE = { 1: 0.004, 2: 0.008, 3: 0.06, 4: 0.06 };
+const WILD_CHANCE = { 1: 0.002, 2: 0.008, 3: 0.06, 4: 0.06 };
 
 export function randomSymbol(reelIndex = -1) {
   if (!WILD_REELS.has(reelIndex)) {
