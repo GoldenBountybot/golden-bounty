@@ -39,16 +39,16 @@ export default function Home() {
         style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}
       >
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
             <div
-              className="w-10 h-10 rounded-[8px] flex items-center justify-center"
+              className="w-10 h-10 shrink-0 rounded-[8px] flex items-center justify-center"
               style={{ border: '1px solid rgba(214,178,98,0.6)', background: 'linear-gradient(to bottom,#f5c542,#c8881e)', boxShadow: 'inset 0 1px 0 rgba(255,240,200,0.5), 0 4px 12px rgba(200,136,30,0.4)' }}
             >
               <Gamepad2 className="w-5 h-5 text-stone-950" />
             </div>
-            <div>
-              <WesternTitleBadge size="lg">Golden Bounty</WesternTitleBadge>
-              <p className="text-[11px] text-amber-100/55 tracking-wide">{playable} Games Live · Play & Win</p>
+            <div className="flex-1 min-w-0">
+              <WesternTitleBadge size="lg" fullWidth>Golden Bounty</WesternTitleBadge>
+              <p className="text-[11px] text-amber-100/55 tracking-wide mt-1 text-center">{playable} Games Live · Play & Win</p>
             </div>
           </div>
 

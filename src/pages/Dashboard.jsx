@@ -100,7 +100,7 @@ export default function Dashboard() {
         <div className="max-w-md mx-auto px-4 py-2 flex items-center gap-2">
           <BackButton />
           <div className="flex-1 text-center">
-            <WesternTitleBadge>{tab === 'stack' ? 'Stack' : tab === 'vip' ? 'VIP' : 'Dashboard'}</WesternTitleBadge>
+            <WesternTitleBadge fullWidth>{tab === 'stack' ? 'Stack' : tab === 'vip' ? 'VIP' : 'Dashboard'}</WesternTitleBadge>
           </div>
           <button
             onClick={() => setMenuOpen(o => !o)}

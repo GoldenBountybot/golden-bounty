@@ -148,7 +148,7 @@ export default function PayMethod() {
             <BackButton href="/dashboard" />
           )}
           <div className="flex-1 text-center">
-            <WesternTitleBadge size="lg">{view === 'choose' ? 'Choose Payment' : methodLabel}</WesternTitleBadge>
+            <WesternTitleBadge size="lg" fullWidth>{view === 'choose' ? 'Choose Payment' : methodLabel}</WesternTitleBadge>
           </div>
         </div>
       </header>
