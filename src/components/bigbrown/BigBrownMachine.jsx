@@ -48,13 +48,14 @@ const BRANCH_FRAME = `
 export default function BigBrownMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
+  const [showBonusMenu, setShowBonusMenu] = useState(false);
   const g = useBigBrown();
   const {
     grid, balance, bet, betIndex, spinning, stoppedReels,
     lastWin, message, winningPositions, expandedReels, scatterPositions,
     freeSpins, turbo, autoSpin,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
-    anticipation, bonusCost, buyBonus,
+    anticipation, bonusCost, bonusCosts, buyBonus,
     spin, setBetIndex, setTurbo, setAutoSpin,
   } = g;
 
@@ -102,57 +103,60 @@ export default function BigBrownMachine() {
         </p>
       </div>
 
-      {/* BONUS POP — premium circular Western emblem, right side */}
-      <div className="relative z-10 flex justify-end pr-4 mt-1 mb-2">
-        <button
-          onClick={buyBonus}
-          disabled={spinning || freeSpins > 0 || balance < bonusCost}
-          className="relative active:scale-95 transition-transform disabled:opacity-40"
-          style={{ width: 58, height: 58 }}
+      {/* BONUS POP — Western banner in a gilt-wood frame, right side */}
+      <div className="relative z-10 flex justify-end pr-3 mt-1 mb-2">
+        <div
+          onClick={() => { if (!spinning && freeSpins === 0) setShowBonusMenu(s => !s); }}
+          className={`relative rounded-full flex items-center cursor-pointer transition-transform active:scale-95 ${(spinning || freeSpins > 0) ? 'opacity-40 pointer-events-none' : ''}`}
+          style={{
+            padding: 4,
+            background: BRANCH_FRAME,
+            boxShadow: '0 0 12px rgba(255,200,80,0.35), inset 0 0 0 1.5px rgba(90,58,26,0.6), inset 0 0 0 2.5px rgba(20,12,5,0.7), 0 3px 10px rgba(0,0,0,0.6)',
+          }}
         >
-          {/* Outer gilt-wood ring */}
+          {/* Inner banner — gold gradient, NOT a button look */}
           <div
-            className="relative rounded-full flex items-center justify-center"
+            className="rounded-full flex items-center gap-1.5 px-3 py-1"
             style={{
-              width: '100%',
-              height: '100%',
-              padding: 5,
-              background: BRANCH_FRAME,
-              boxShadow: '0 0 14px rgba(255,200,80,0.4), inset 0 0 0 2px rgba(90,58,26,0.6), inset 0 0 0 3px rgba(20,12,5,0.7), 0 4px 12px rgba(0,0,0,0.6)',
+              background: 'radial-gradient(circle at 35% 30%, #fff7d6, #ffe9a8 18%, #f5c542 45%, #c8881e 78%, #8b5a2b 100%)',
+              border: '1.5px solid rgba(255,234,160,0.9)',
+              boxShadow: 'inset 0 -2px 4px rgba(120,80,20,0.6), inset 0 2px 3px rgba(255,250,200,0.5)',
             }}
           >
-            {/* Inner golden disc */}
-            <div
-              className="rounded-full flex flex-col items-center justify-center"
-              style={{
-                width: '100%',
-                height: '100%',
-                background: 'radial-gradient(circle at 35% 30%, #fff7d6, #ffe9a8 22%, #f5c542 50%, #c8881e 80%, #8b5a2b 100%)',
-                border: '2px solid rgba(255,234,160,0.9)',
-                boxShadow: 'inset 0 -3px 6px rgba(120,80,20,0.6), inset 0 2px 4px rgba(255,250,200,0.5)',
-              }}
+            <span
+              className="text-[9px] font-black italic leading-none tracking-wide"
+              style={{ fontFamily: 'Rye, Georgia, serif', color: '#3a2408', textShadow: '0 1px 0 rgba(255,245,200,0.5)' }}
             >
-              <span
-                className="text-[8px] font-black italic leading-none tracking-wide"
-                style={{ fontFamily: 'Rye, Georgia, serif', color: '#3a2408', textShadow: '0 1px 0 rgba(255,245,200,0.5)' }}
-              >
-                BONUS
-              </span>
-              <span
-                className="text-[9px] font-black italic leading-none tracking-wide mt-0.5"
-                style={{ fontFamily: 'Rye, Georgia, serif', color: '#3a2408', textShadow: '0 1px 0 rgba(255,245,200,0.5)' }}
-              >
-                POP
-              </span>
-              <span
-                className="text-[8px] font-black leading-none mt-0.5"
-                style={{ fontFamily: 'Georgia, serif', color: '#b8430a', textShadow: '0 1px 0 rgba(255,200,120,0.4)' }}
-              >
-                {fmt(bonusCost)}
-              </span>
-            </div>
+              BONUS POP
+            </span>
+            <span
+              className="text-[8px] leading-none"
+              style={{ color: '#6b4a1a' }}
+            >
+              ⌄
+            </span>
           </div>
-        </button>
+        </div>
+
+        {/* Bonus menu — 8/12/16/24 free spin offers */}
+        {showBonusMenu && (
+          <div className="absolute top-full right-0 mt-1 z-40 rounded-[10px] py-1.5 px-1.5 flex flex-col gap-1" style={{ background: 'rgba(5,12,28,0.97)', border: '1.5px solid rgba(214,178,98,0.5)', boxShadow: '0 8px 22px rgba(0,0,0,0.7)' }}>
+            {Object.entries(bonusCosts).map(([games, cost]) => (
+              <button
+                key={games}
+                onClick={() => { buyBonus(Number(games)); setShowBonusMenu(false); }}
+                disabled={balance < cost}
+                className="flex items-center justify-between gap-3 px-2.5 py-1.5 rounded-[6px] text-left disabled:opacity-35"
+                style={{ border: '1px solid rgba(214,178,98,0.25)', background: 'rgba(20,30,55,0.6)' }}
+              >
+                <span className="text-[11px] italic font-bold text-yellow-300" style={{ fontFamily: 'Georgia, serif' }}>
+                  {games} <span className="text-[8px] text-white/50">FREE GAMES</span>
+                </span>
+                <span className="text-[11px] font-black tabular-nums text-amber-300" style={{ fontFamily: 'Georgia, serif' }}>{fmt(cost)}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Reel area — gnarled branch frame */}

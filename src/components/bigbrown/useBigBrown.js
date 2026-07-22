@@ -203,21 +203,28 @@ export function useBigBrown() {
     spin();
   }, [spin]);
 
-  const bonusCost = bonusPopCost(bet, 8);
+  const bonusCosts = {
+    8: bonusPopCost(bet, 8),
+    12: bonusPopCost(bet, 12),
+    16: bonusPopCost(bet, 16),
+    24: bonusPopCost(bet, 24),
+  };
+  const bonusCost = bonusCosts[8];
 
-  const buyBonus = useCallback(() => {
+  const buyBonus = useCallback((games = 8) => {
+    const cost = bonusPopCost(bet, games);
     if (spinning || showFreeSpinStart) return;
     if (freeSpins > 0) return;
-    if (balance < bonusCost) {
+    if (balance < cost) {
       setMessage('Insufficient balance for Bonus Pop');
       return;
     }
-    setBalance(b => b - bonusCost);
-    setAwardedFreeSpins(8);
-    setFreeSpins(8);
+    setBalance(b => b - cost);
+    setAwardedFreeSpins(games);
+    setFreeSpins(games);
     setShowFreeSpinStart(true);
-    setMessage(`BONUS POP · 8 FREE GAMES`);
-  }, [spinning, showFreeSpinStart, freeSpins, balance, bonusCost, setBalance]);
+    setMessage(`BONUS POP · ${games} FREE GAMES`);
+  }, [spinning, showFreeSpinStart, freeSpins, balance, bet, setBalance]);
 
   const reset = () => {
     resetBalance();
@@ -235,6 +242,6 @@ export function useBigBrown() {
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     anticipation,
     spin, setBetIndex, setTurbo, setAutoSpin, reset,
-    bonusCost, buyBonus,
+    bonusCost, bonusCosts, buyBonus,
   };
 }
