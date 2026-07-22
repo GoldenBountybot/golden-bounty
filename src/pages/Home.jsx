@@ -4,7 +4,7 @@ import CasinoGameCard from '@/components/CasinoGameCard';
 import WesternGameBanners from '@/components/WesternGameBanners';
 import BottomNav from '@/components/BottomNav';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
-import { Gamepad2, Wallet, FlaskConical } from 'lucide-react';
+import { Wallet, FlaskConical } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
@@ -40,12 +40,12 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto pl-4 pr-0 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div
-              className="w-9 h-9 shrink-0 self-end rounded-[8px] flex items-center justify-center"
-              style={{ border: '1px solid rgba(214,178,98,0.6)', background: 'linear-gradient(to bottom,#f5c542,#c8881e)', boxShadow: 'inset 0 1px 0 rgba(255,240,200,0.5), 0 4px 12px rgba(200,136,30,0.4)' }}
-            >
-              <Gamepad2 className="w-4 h-4 text-stone-950" />
-            </div>
+            <img
+              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e0ebe2f88_InShot_20260722_150739877.jpg"
+              alt="Golden Bounty"
+              className="w-12 h-12 shrink-0 self-end rounded-[8px] object-cover"
+              style={{ border: '1px solid rgba(214,178,98,0.6)', boxShadow: '0 4px 12px rgba(200,136,30,0.4)' }}
+            />
             <div className="flex-1 min-w-0 self-start">
               <WesternTitleBadge size="lg" fullWidth className="-mt-3">Golden Bounty</WesternTitleBadge>
               <p className="text-[11px] text-amber-100/55 tracking-wide mt-1 text-center">{playable} Games Live · Play & Win</p>
