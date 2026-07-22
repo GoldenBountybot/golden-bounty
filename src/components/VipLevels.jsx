@@ -1,5 +1,6 @@
 import React from 'react';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import VipMedal from '@/components/VipMedal';
 import { Crown } from 'lucide-react';
 import { VIP_LEVELS, getVipLevel, getNextVipLevel, BASE_RATE } from '@/lib/vipLevels';
 
@@ -58,9 +59,7 @@ export default function VipLevels({ totalDeposits }) {
             className={`p-3 flex items-center gap-3 ${isCurrent ? 'ring-2' : ''}`}
             style={isCurrent ? { boxShadow: `inset 0 0 0 2px ${lv.color}, 0 2px 6px rgba(0,0,0,0.5)` } : {}}
           >
-            <div className="flex items-center justify-center w-10 h-10 rounded-full shrink-0" style={{ background: lv.color, boxShadow: '0 0 0 2px rgba(255,255,255,0.15), 0 1px 4px rgba(0,0,0,0.4)' }}>
-              <span className="text-lg font-black" style={{ fontFamily: 'Georgia, serif', color: '#2a1a06' }}>{lv.level}</span>
-            </div>
+            <VipMedal tier={lv.name} className="w-10 h-10 shrink-0" />
             <div className="flex-1">
               <h3 className="font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>
                 VIP {lv.level} · {lv.name}
