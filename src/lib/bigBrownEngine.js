@@ -9,6 +9,10 @@ export const BETS = [0.50, 1.00, 2.00, 5.00, 12.50];
 // Reels where wilds may land (0-indexed): reels 2,3,4,5 → indices 1,2,3,4.
 export const WILD_REELS = new Set([1, 2, 3, 4]);
 
+// Full-height (4-cell) wild graphic shown when a wild reel expands.
+export const WILD_EXPAND_IMG =
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0c9868e8b_InShot_20260722_201447193.jpg';
+
 // Symbol image URLs (generated to match reference screenshots).
 const IMG = {
   scatter: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/98a234d10_generated_image.png',

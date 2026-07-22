@@ -3,7 +3,7 @@ import { Info, Zap, Plus, Repeat, DollarSign, Menu, Play } from 'lucide-react';
 import BigBrownSymbol from './BigBrownSymbol';
 import BigBrownInfo from './BigBrownInfo';
 import { useBigBrown } from './useBigBrown';
-import { WAYS, BETS } from '@/lib/bigBrownEngine';
+import { WAYS, BETS, WILD_EXPAND_IMG } from '@/lib/bigBrownEngine';
 
 // Big Brown slot machine — 6x4 grid, 4096 ways, expanding wilds, free spins.
 // Night-forest design matching the reference screenshot.
@@ -103,52 +103,87 @@ export default function BigBrownMachine() {
             )}
 
             <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
-              {grid.map((reel, ri) => (
-                <div key={ri} className="flex flex-col gap-1">
-                  {reel.map((sym, row) => {
-                    const key = `${ri}-${row}`;
-                    const stopped = stoppedReels.has(ri);
-                    const isWin = winningPositions.has(key);
-                    const isScatter = scatterPositions.has(key);
-                    const expanded = expandedReels.has(ri) && (sym === 'brown' || sym === 'spirit');
-                    return (
+              {grid.map((reel, ri) => {
+                const reelExpanded = expandedReels.has(ri);
+                const wildType = reelExpanded && reel[0] ? (reel[0] === 'spirit' ? 'spirit' : 'brown') : null;
+                return (
+                  <div key={ri} className="relative flex flex-col gap-1">
+                    {reel.map((sym, row) => {
+                      const key = `${ri}-${row}`;
+                      const stopped = stoppedReels.has(ri);
+                      const isWin = winningPositions.has(key);
+                      const isScatter = scatterPositions.has(key);
+                      const expanded = reelExpanded && (sym === 'brown' || sym === 'spirit');
+                      return (
+                        <div
+                          key={key}
+                          className="relative rounded-[4px] overflow-hidden"
+                          style={{
+                            aspectRatio: '3 / 4',
+                            animation: stopped ? `bbLand 0.34s cubic-bezier(0.25,0.9,0.3,1) both` : 'none',
+                          }}
+                        >
+                          {stopped ? (
+                            <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
+                          ) : (
+                            <div
+                              className="w-full h-full overflow-hidden relative"
+                              style={{ background: 'linear-gradient(160deg,#0a140a,#050803)' }}
+                            >
+                              <div
+                                className="absolute left-0 right-0 flex flex-col items-center justify-around"
+                                style={{ animation: 'bbPlaceholderScroll 0.24s linear infinite', filter: 'blur(2px)', height: '300%', top: 0 }}
+                              >
+                                {['🌲','🦉','🐺','🌲','🦉','🐺','🌲','🦉','🐺'].map((e, i) => (
+                                  <span key={i} className="text-base opacity-30 leading-none">{e}</span>
+                                ))}
+                              </div>
+                              <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(2,6,13,0.85), transparent 25%, transparent 75%, rgba(2,6,13,0.85))' }} />
+                            </div>
+                          )}
+                          {isScatter && (
+                            <span
+                              className="absolute inset-0 pointer-events-none animate-pulse"
+                              style={{ boxShadow: 'inset 0 0 12px rgba(255,170,40,0.7)' }}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                    {reelExpanded && (
                       <div
-                        key={key}
-                        className="relative rounded-[4px] overflow-hidden"
+                        className="absolute inset-0 z-20 pointer-events-none rounded-[4px] overflow-hidden"
                         style={{
-                          aspectRatio: '3 / 4',
-                          animation: stopped ? `bbLand 0.34s cubic-bezier(0.25,0.9,0.3,1) both` : 'none',
+                          border: '2px solid rgba(255,234,120,0.85)',
+                          boxShadow: '0 0 14px rgba(255,200,80,0.7), inset 0 0 10px rgba(255,210,90,0.5)',
+                          animation: 'bbWildExpand 0.5s cubic-bezier(0.2,0.8,0.3,1.2) both',
                         }}
                       >
-                        {stopped ? (
-                          <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
-                        ) : (
-                          <div
-                            className="w-full h-full overflow-hidden relative"
-                            style={{ background: 'linear-gradient(160deg,#0a140a,#050803)' }}
-                          >
-                            <div
-                              className="absolute left-0 right-0 flex flex-col items-center justify-around"
-                              style={{ animation: 'bbPlaceholderScroll 0.24s linear infinite', filter: 'blur(2px)', height: '300%', top: 0 }}
-                            >
-                              {['🌲','🦉','🐺','🌲','🦉','🐺','🌲','🦉','🐺'].map((e, i) => (
-                                <span key={i} className="text-base opacity-30 leading-none">{e}</span>
-                              ))}
-                            </div>
-                            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(2,6,13,0.85), transparent 25%, transparent 75%, rgba(2,6,13,0.85))' }} />
-                          </div>
-                        )}
-                        {isScatter && (
+                        <img
+                          src={WILD_EXPAND_IMG}
+                          alt="WILD"
+                          className="w-full h-full object-cover"
+                          style={{ filter: 'drop-shadow(0 0 6px rgba(255,200,80,0.6))' }}
+                          draggable={false}
+                        />
+                        {wildType === 'spirit' && (
                           <span
-                            className="absolute inset-0 pointer-events-none animate-pulse"
-                            style={{ boxShadow: 'inset 0 0 12px rgba(255,170,40,0.7)' }}
-                          />
+                            className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full text-[9px] font-black italic"
+                            style={{
+                              background: 'linear-gradient(to bottom,#ffe9a8,#c8881e)',
+                              color: '#3a2408',
+                              fontFamily: 'Georgia, serif',
+                              border: '1px solid rgba(255,255,255,0.6)',
+                            }}
+                          >
+                            x2
+                          </span>
                         )}
                       </div>
-                    );
-                  })}
-                </div>
-              ))}
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Free spin start overlay */}
