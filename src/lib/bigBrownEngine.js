@@ -73,27 +73,21 @@ const BASE_POOL = [
   '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
 ];
 
-// Wild pool for wild reels. Wilds (brown/spirit) are intentionally rare:
-// at most one wild may appear per spin (see capWildsToOne), so the pool
-// carries only a single brown and a single spirit entry among many base symbols.
-const WILD_POOL = [
-  'brown',
-  'spirit',
-  'scatter', 'scatter',
-  'buffalo', 'buffalo', 'eagle', 'eagle', 'eagle',
-  'cougar', 'cougar', 'cougar',
-  'wolf', 'wolf', 'wolf', 'wolf',
-  'deer', 'deer', 'deer', 'deer', 'deer',
-  'A', 'A', 'A', 'A', 'A', 'A', 'A',
-  'K', 'K', 'K', 'K', 'K', 'K', 'K',
-  'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q',
-  'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J',
-  '10', '10', '10', '10', '10', '10', '10', '10',
-  '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
-];
+// Wild reels use the base pool plus a reel-specific chance to inject a wild
+// (brown/spirit). Reels 1 & 2 (2nd/3rd lines) get a much lower wild chance
+// than reels 3 & 4. At most one wild is kept per spin via capWildsToOne.
+const WILD_CHANCE = { 1: 0.018, 2: 0.018, 3: 0.06, 4: 0.06 };
 
 export function randomSymbol(reelIndex = -1) {
-  const pool = WILD_REELS.has(reelIndex) ? WILD_POOL : BASE_POOL;
+  if (!WILD_REELS.has(reelIndex)) {
+    return BASE_POOL[Math.floor(Math.random() * BASE_POOL.length)];
+  }
+  const chance = WILD_CHANCE[reelIndex] || 0.03;
+  if (Math.random() < chance) {
+    return Math.random() < 0.18 ? 'spirit' : 'brown';
+  }
+  // Otherwise draw a non-wild symbol (scatter allowed on wild reels).
+  const pool = BASE_POOL.concat(['scatter', 'scatter']);
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
