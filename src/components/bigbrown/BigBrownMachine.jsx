@@ -51,13 +51,13 @@ export default function BigBrownMachine() {
   const [showBetMenu, setShowBetMenu] = useState(false);
   const g = useBigBrown();
   const {
-    grid, balance, bet, betIndex, spinning, stoppedReels,
+    grid, balance, bet, spinning, stoppedReels,
     lastWin, message, winningPositions, expandedReels, scatterPositions,
     freeSpins, turbo, autoSpin,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,
     anticipation, bonusCost, bonusCosts, buyBonus,
-    spin, setBetIndex, setTurbo, setAutoSpin,
+    spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin,
   } = g;
 
   const fmt = (v) => `$${v.toFixed(2)}`;
@@ -251,17 +251,54 @@ export default function BigBrownMachine() {
 
       {/* Bet menu popover */}
       {showBetMenu && (
-        <div className="absolute bottom-24 left-3 z-40 rounded-[8px] py-1 px-1 flex flex-col gap-0.5" style={{ background: 'rgba(5,12,28,0.96)', border: '1px solid rgba(214,178,98,0.5)', boxShadow: '0 6px 18px rgba(0,0,0,0.6)' }}>
-          {[0, 1, 2, 3, 4].map(i => (
-            <button
-              key={i}
-              onClick={() => { setBetIndex(i); setShowBetMenu(false); }}
-              className={`px-3 py-1 rounded text-[11px] italic font-bold text-left ${i === betIndex ? 'text-yellow-300' : 'text-white/70'}`}
-              style={{ fontFamily: 'Georgia, serif' }}
-            >
-              {fmt(BETS[i])}
-            </button>
-          ))}
+        <div className="absolute bottom-24 left-3 z-40 rounded-[8px] p-1.5 flex flex-col gap-1" style={{ background: 'rgba(5,12,28,0.96)', border: '1px solid rgba(214,178,98,0.5)', boxShadow: '0 6px 18px rgba(0,0,0,0.6)' }}>
+          {BETS.map((b) => {
+            const active = Math.abs(bet - b) < 0.001;
+            return (
+              <button
+                key={b}
+                onClick={() => { setBet(b); setShowBetMenu(false); }}
+                className={`px-3 py-1 rounded text-[11px] italic font-bold text-left ${active ? 'text-yellow-300' : 'text-white/70'}`}
+                style={{ fontFamily: 'Georgia, serif' }}
+              >
+                {fmt(b)}
+              </button>
+            );
+          })}
+          {/* Custom bet input */}
+          <div className="pt-1 mt-0.5" style={{ borderTop: '1px solid rgba(214,178,98,0.25)' }}>
+            <div className="text-[8px] text-white/45 tracking-widest mb-1 px-1" style={{ fontFamily: 'Georgia, serif' }}>CUSTOM</div>
+            <div className="flex items-center gap-1">
+              <span className="text-amber-300 text-[12px] font-black" style={{ fontFamily: 'Georgia, serif' }}>$</span>
+              <input
+                type="number"
+                inputMode="decimal"
+                step="0.50"
+                min={minBet}
+                max={maxBet}
+                defaultValue={bet}
+                key={bet}
+                onBlur={(e) => setCustomBet(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { setCustomBet(e.target.value); setShowBetMenu(false); } }}
+                className="w-20 px-2 py-1 rounded text-[11px] font-bold text-yellow-300 tabular-nums outline-none"
+                style={{
+                  fontFamily: 'Georgia, serif',
+                  background: 'rgba(0,0,0,0.5)',
+                  border: '1px solid rgba(214,178,98,0.5)',
+                }}
+              />
+              <button
+                onClick={(e) => { const v = e.currentTarget.previousSibling.value; setCustomBet(v); setShowBetMenu(false); }}
+                className="px-2 py-1 rounded text-[10px] font-black italic"
+                style={{ fontFamily: 'Georgia, serif', color: '#ffe9a8', background: 'linear-gradient(to bottom,#8b4513,#4a280a)', border: '1px solid rgba(255,234,160,0.7)' }}
+              >
+                SET
+              </button>
+            </div>
+            <div className="text-[8px] text-white/35 mt-1 px-1" style={{ fontFamily: 'Georgia, serif' }}>
+              Min {fmt(minBet)} · Max {fmt(maxBet)}
+            </div>
+          </div>
         </div>
       )}
 
@@ -313,7 +350,11 @@ export default function BigBrownMachine() {
           {/* Right cluster: Plus + Autoplay + Currency */}
           <div className="flex flex-col gap-2 items-center">
             <button
-              onClick={() => setBetIndex(i => Math.min(4, i + 1))}
+              onClick={() => {
+                const idx = BETS.findIndex(b => Math.abs(bet - b) < 0.001);
+                if (idx >= 0 && idx < BETS.length - 1) setBet(BETS[idx + 1]);
+                else setCustomBet(bet + 1);
+              }}
               disabled={spinning}
               className="w-9 h-9 rounded-full flex items-center justify-center disabled:opacity-40 active:scale-95 transition-transform"
               style={{ border: '1.5px solid rgba(214,178,98,0.45)', background: 'rgba(8,18,38,0.85)' }}
