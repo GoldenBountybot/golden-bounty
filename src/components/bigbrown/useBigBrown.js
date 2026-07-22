@@ -35,20 +35,31 @@ export function useBigBrown() {
   const settle = useCallback((finalGrid, wasFree) => {
     // Expand wilds (visual + evaluation).
     const expanded = expandWilds(finalGrid);
-    const expReels = new Set();
-    expanded.forEach((reel, ri) => {
-      if (WILD_REELS.has(ri) && (finalGrid[ri].includes('brown') || finalGrid[ri].includes('spirit'))) expReels.add(ri);
-    });
-    setExpandedReels(expReels);
-    setGrid(expanded);
 
     // Scatter positions (on original grid, before expansion replaces them).
     const scPos = new Set();
     finalGrid.forEach((reel, ri) => reel.forEach((s, row) => { if (s === 'scatter') scPos.add(`${ri}-${row}`); }));
-    setScatterPositions(scPos);
 
     const { wins, scatterCount, scatterWin } = evaluateWins(expanded, bet);
     const totalWin = wins.reduce((sum, w) => sum + w.pay, 0) + scatterWin;
+
+    // Only expand wild reels that are part of a winning way. A wild on reel ri
+    // is part of a win only when ri falls within the consecutive winning range
+    // (0..maxReels-1) of at least one winning combination.
+    const maxReels = wins.reduce((m, w) => Math.max(m, w.reels), 0);
+    const expReels = new Set();
+    expanded.forEach((reel, ri) => {
+      if (WILD_REELS.has(ri) && (finalGrid[ri].includes('brown') || finalGrid[ri].includes('spirit')) && ri < maxReels) {
+        expReels.add(ri);
+      }
+    });
+
+    setExpandedReels(expReels);
+    // Build the display grid: only wild reels that are part of a win expand
+    // to a full wild column; other reels keep their original landed symbols.
+    const displayGrid = finalGrid.map((reel, ri) => expReels.has(ri) ? expanded[ri] : reel);
+    setGrid(displayGrid);
+    setScatterPositions(scPos);
 
     const wpos = new Set();
     wins.forEach(w => {
