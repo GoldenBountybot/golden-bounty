@@ -90,7 +90,7 @@ export default function BigBrownMachine() {
           src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/234a7ff76_generated_image.png"
           alt="BIG BROWN"
           className="mx-auto w-[78%] max-w-[300px] object-contain select-none"
-          style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.85)) drop-shadow(0 0 10px rgba(214,178,98,0.25)) brightness(1.05) saturate(1.1)' }}
+          style={{ mixBlendMode: 'screen', filter: 'contrast(1.5) brightness(1.08) saturate(1.15) drop-shadow(0 0 10px rgba(214,178,98,0.3))' }}
           draggable={false}
         />
         <p
