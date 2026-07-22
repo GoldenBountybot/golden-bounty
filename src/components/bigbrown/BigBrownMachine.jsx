@@ -83,24 +83,22 @@ export default function BigBrownMachine() {
       </button>
 
       {/* Title + Bonus Pop — single row, banner left, bonus emblem right */}
-      <div className="relative h-[72px] pt-1">
+      <div className="relative flex items-center justify-between pl-6 pr-3 pt-1">
         <img
           src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f423d208b_generated_image.png"
           alt="BIG BROWN"
-          className="absolute top-1 left-1/2 w-[66%] max-w-[280px] object-contain select-none"
-          style={{ mixBlendMode: 'screen', filter: 'saturate(1.1)', transform: 'translateX(calc(-50% + 28px))' }}
+          className="w-[66%] max-w-[280px] object-contain select-none"
+          style={{ mixBlendMode: 'screen', filter: 'saturate(1.1)' }}
           draggable={false}
         />
-        <div className="absolute top-1 right-3 z-30">
-          <BigBrownBonusPop
-            balance={balance}
-            bonusCost={bonusCost}
-            bonusCosts={bonusCosts}
-            buyBonus={buyBonus}
-            spinning={spinning}
-            freeSpins={freeSpins}
-          />
-        </div>
+        <BigBrownBonusPop
+          balance={balance}
+          bonusCost={bonusCost}
+          bonusCosts={bonusCosts}
+          buyBonus={buyBonus}
+          spinning={spinning}
+          freeSpins={freeSpins}
+        />
       </div>
 
       {/* Reel area — gnarled branch frame */}
