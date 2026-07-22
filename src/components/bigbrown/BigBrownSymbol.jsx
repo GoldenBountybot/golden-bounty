@@ -66,7 +66,7 @@ export default function BigBrownSymbol({ sym, highlight = false, expand = false 
       )}
       {isScatter && (
         <span
-          className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[16px] font-black italic leading-none tracking-[0.12em] select-none"
+          className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[12px] font-black italic leading-none tracking-[0.1em] select-none"
           style={{
             fontFamily: 'Rye, Georgia, serif',
             background: 'linear-gradient(to bottom, #fff7d1 0%, #ffe9a8 18%, #e8b945 38%, #d49d20 55%, #c8881e 72%, #8a5b15 100%)',
