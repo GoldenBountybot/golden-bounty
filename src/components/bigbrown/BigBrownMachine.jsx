@@ -165,10 +165,14 @@ export default function BigBrownMachine() {
                           className="w-full h-full object-cover"
                           style={{
                             mixBlendMode: 'screen',
-                            filter: 'drop-shadow(0 0 6px rgba(255,200,80,0.7)) brightness(1.05)',
+                            filter: 'drop-shadow(0 0 6px rgba(255,200,80,0.7)) brightness(1.1) saturate(1.1)',
                           }}
                           draggable={false}
                         />
+                        {/* HTML WILD plaque — always legible regardless of image crop */}
+                        <div className="absolute left-1/2 bottom-1 -translate-x-1/2 z-30 px-2 py-0.5 rounded-[3px]" style={{ background: 'linear-gradient(to bottom,#ffe9a8,#f5c542 50%,#c8881e)', border: '1px solid rgba(255,255,255,0.65)', boxShadow: '0 0 8px rgba(255,200,80,0.8)' }}>
+                          <span className="text-[10px] font-black italic tracking-wider text-[#3a2408] leading-none" style={{ fontFamily: 'Rye, Georgia, serif' }}>WILD</span>
+                        </div>
                         {wildType === 'spirit' && (
                           <span
                             className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full text-[9px] font-black italic"
