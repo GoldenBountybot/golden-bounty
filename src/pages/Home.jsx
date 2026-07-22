@@ -41,7 +41,7 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-xl font-black italic text-amber-200 tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
-                Golden Bounty Casino
+                Golden Bounty
               </h1>
               <p className="text-[11px] text-amber-100/70 tracking-wide">{playable} Games Live · Play & Win</p>
             </div>

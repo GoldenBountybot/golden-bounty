@@ -9,7 +9,7 @@ export default function ShareButton({ className = '' }) {
     const url = window.location.href;
     try {
       if (navigator.share) {
-        await navigator.share({ title: document.title || 'Golden Bounty Casino', url });
+        await navigator.share({ title: document.title || 'Golden Bounty', url });
       } else {
         await navigator.clipboard.writeText(url);
       }
