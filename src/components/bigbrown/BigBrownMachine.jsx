@@ -26,7 +26,6 @@ const SpinStrip = React.memo(function SpinStrip({ reelIndex, turbo }) {
         className="flex flex-col gap-1 w-full"
         style={{
           animation: `reelFall ${turbo ? 0.28 : 0.42}s linear infinite`,
-          filter: 'blur(1.5px) saturate(1.1)',
           willChange: 'transform',
         }}
       >
@@ -142,10 +141,6 @@ export default function BigBrownMachine() {
                   <div key={ri} className="relative">
                     <div
                       className="relative flex flex-col gap-1"
-                      style={{
-                        animation: stopped ? 'reelLand 0.4s ease-out' : 'none',
-                        willChange: 'transform',
-                      }}
                     >
                       {reel.map((sym, row) => {
                         const key = `${ri}-${row}`;
