@@ -4,7 +4,6 @@ import BigBrownSymbol from './BigBrownSymbol';
 import BigBrownInfo from './BigBrownInfo';
 import BigBrownFreeSpinStart from './BigBrownFreeSpinStart';
 import BigBrownBonusPop from './BigBrownBonusPop';
-import BigBrownTitle from './BigBrownTitle';
 import { useBigBrown } from './useBigBrown';
 import { WAYS, BETS, WILD_EXPAND_IMG, randomSymbol } from '@/lib/bigBrownEngine';
 
@@ -83,11 +82,17 @@ export default function BigBrownMachine() {
         <Info className="w-4 h-4 text-amber-300" />
       </button>
 
-      {/* Title — BIG BROWN themed logo (no background box) */}
-      <div className="relative pt-4 pb-1 flex flex-col items-center z-10">
-        <BigBrownTitle />
+      {/* Title — BIG BROWN themed banner image */}
+      <div className="relative pt-2 pb-1 text-center z-10">
+        <img
+          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/562cd5ef1_generated_image.png"
+          alt="BIG BROWN"
+          className="mx-auto w-[78%] max-w-[300px] object-contain select-none"
+          style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.85)) drop-shadow(0 0 10px rgba(214,178,98,0.25))' }}
+          draggable={false}
+        />
         <p
-          className="text-[8px] tracking-[0.35em] mt-2 italic"
+          className="text-[8px] tracking-[0.35em] mt-0.5 italic"
           style={{ fontFamily: 'Georgia, serif', color: 'rgba(214,178,98,0.6)' }}
         >
           4096 WAYS
