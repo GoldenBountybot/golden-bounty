@@ -148,12 +148,12 @@ export default function BigBrownFreeSpinStart({ count, onStart }) {
       </div>
 
       {/* ON EVERY SPIN */}
-      <p className="relative z-10 mt-4 text-sm italic font-black tracking-[0.16em]" style={GOLD_TEXT}>
+      <p className="relative z-10 mt-3 text-[11px] italic font-black tracking-[0.12em]" style={GOLD_TEXT}>
         ON EVERY SPIN
       </p>
 
       {/* TAP TO START hint */}
-      <p className="relative z-10 mt-4 text-sm italic font-black tracking-[0.3em] animate-pulse" style={GOLD_TEXT}>
+      <p className="relative z-10 mt-2 text-[11px] italic font-black tracking-[0.22em] animate-pulse" style={GOLD_TEXT}>
         TAP TO START
       </p>
     </div>
