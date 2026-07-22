@@ -82,8 +82,10 @@ export default function BigBrownMachine() {
         <Info className="w-4 h-4 text-amber-300" />
       </button>
 
-      {/* Title — BIG BROWN themed banner image */}
-      <div className="relative pt-2 pb-1 text-center z-10">
+      {/* Title — BIG BROWN themed banner image (z-index removed so screen blend
+          keys the black backdrop against the FOREST_BG behind, not an empty
+          stacking context) */}
+      <div className="relative pt-2 pb-1 text-center">
         <img
           src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/234a7ff76_generated_image.png"
           alt="BIG BROWN"
