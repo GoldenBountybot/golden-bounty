@@ -102,39 +102,50 @@ export default function BigBrownMachine() {
         </p>
       </div>
 
-      {/* BONUS POP — premium circular Western frame above the board */}
-      <div className="relative z-10 flex justify-center mt-1 mb-2">
+      {/* BONUS POP — premium circular Western emblem, right side */}
+      <div className="relative z-10 flex justify-end pr-4 mt-1 mb-2">
         <button
           onClick={buyBonus}
           disabled={spinning || freeSpins > 0 || balance < bonusCost}
           className="relative active:scale-95 transition-transform disabled:opacity-40"
+          style={{ width: 58, height: 58 }}
         >
           {/* Outer gilt-wood ring */}
           <div
             className="relative rounded-full flex items-center justify-center"
             style={{
-              padding: 6,
+              width: '100%',
+              height: '100%',
+              padding: 5,
               background: BRANCH_FRAME,
               boxShadow: '0 0 14px rgba(255,200,80,0.4), inset 0 0 0 2px rgba(90,58,26,0.6), inset 0 0 0 3px rgba(20,12,5,0.7), 0 4px 12px rgba(0,0,0,0.6)',
             }}
           >
             {/* Inner golden disc */}
             <div
-              className="rounded-full flex items-center gap-2 px-4 py-1.5"
+              className="rounded-full flex flex-col items-center justify-center"
               style={{
+                width: '100%',
+                height: '100%',
                 background: 'radial-gradient(circle at 35% 30%, #fff7d6, #ffe9a8 22%, #f5c542 50%, #c8881e 80%, #8b5a2b 100%)',
                 border: '2px solid rgba(255,234,160,0.9)',
                 boxShadow: 'inset 0 -3px 6px rgba(120,80,20,0.6), inset 0 2px 4px rgba(255,250,200,0.5)',
               }}
             >
               <span
-                className="text-[10px] font-black italic leading-none tracking-wide"
+                className="text-[8px] font-black italic leading-none tracking-wide"
                 style={{ fontFamily: 'Rye, Georgia, serif', color: '#3a2408', textShadow: '0 1px 0 rgba(255,245,200,0.5)' }}
               >
-                BONUS POP
+                BONUS
               </span>
               <span
-                className="text-[11px] font-black leading-none"
+                className="text-[9px] font-black italic leading-none tracking-wide mt-0.5"
+                style={{ fontFamily: 'Rye, Georgia, serif', color: '#3a2408', textShadow: '0 1px 0 rgba(255,245,200,0.5)' }}
+              >
+                POP
+              </span>
+              <span
+                className="text-[8px] font-black leading-none mt-0.5"
                 style={{ fontFamily: 'Georgia, serif', color: '#b8430a', textShadow: '0 1px 0 rgba(255,200,120,0.4)' }}
               >
                 {fmt(bonusCost)}
