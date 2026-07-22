@@ -146,7 +146,7 @@ export default function BigBrownMachine() {
                             style={{ aspectRatio: '3 / 4', opacity: stopped ? 1 : 0 }}
                           >
                             {stopped ? (
-                              <div className="w-full h-full" style={{ animation: 'bbSymbolDrop 0.34s ease-out both' }}>
+                              <div className="w-full h-full" style={{ animation: `bbSymbolDrop ${anticipation ? 0.6 : 0.34}s ease-out both` }}>
                                 <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
                               </div>
                             ) : (
@@ -158,6 +158,26 @@ export default function BigBrownMachine() {
                       })}
                     </div>
                     {!stopped && <SpinStrip reelIndex={ri} turbo={turbo} />}
+                    {anticipation && !stopped && (
+                      <>
+                        <div
+                          className="absolute left-0 top-0 bottom-0 w-[3px] z-20 pointer-events-none rounded-l-[4px]"
+                          style={{
+                            background: 'linear-gradient(to right, rgba(255,234,120,1), rgba(255,200,80,0.25))',
+                            boxShadow: '0 0 10px rgba(255,210,90,0.95), 0 0 18px rgba(255,180,50,0.6)',
+                            animation: 'lwLedPulse 0.7s ease-in-out infinite',
+                          }}
+                        />
+                        <div
+                          className="absolute right-0 top-0 bottom-0 w-[3px] z-20 pointer-events-none rounded-r-[4px]"
+                          style={{
+                            background: 'linear-gradient(to left, rgba(255,234,120,1), rgba(255,200,80,0.25))',
+                            boxShadow: '0 0 10px rgba(255,210,90,0.95), 0 0 18px rgba(255,180,50,0.6)',
+                            animation: 'lwLedPulse 0.7s ease-in-out infinite',
+                          }}
+                        />
+                      </>
+                    )}
                     {reelExpanded && (
                       <div
                         className="absolute inset-0 z-20 pointer-events-none rounded-[4px] overflow-hidden"
