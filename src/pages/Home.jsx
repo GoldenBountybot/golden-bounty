@@ -41,10 +41,10 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div
-              className="w-10 h-10 shrink-0 rounded-[8px] flex items-center justify-center"
+              className="w-9 h-9 shrink-0 self-end rounded-[8px] flex items-center justify-center"
               style={{ border: '1px solid rgba(214,178,98,0.6)', background: 'linear-gradient(to bottom,#f5c542,#c8881e)', boxShadow: 'inset 0 1px 0 rgba(255,240,200,0.5), 0 4px 12px rgba(200,136,30,0.4)' }}
             >
-              <Gamepad2 className="w-5 h-5 text-stone-950" />
+              <Gamepad2 className="w-4 h-4 text-stone-950" />
             </div>
             <div className="flex-1 min-w-0">
               <WesternTitleBadge size="lg" fullWidth>Golden Bounty</WesternTitleBadge>
@@ -54,11 +54,11 @@ export default function Home() {
 
           <Link
             to="/dashboard"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-[8px] transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 self-end rounded-[8px] transition-colors"
             style={{ border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)' }}
           >
-            <Wallet className="w-4 h-4 text-amber-400" />
-            <span className="text-sm font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
+            <Wallet className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-xs font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
               ${balance.toFixed(2)}
             </span>
           </Link>
