@@ -85,10 +85,10 @@ export default function BigBrownMachine() {
       {/* Title — BIG BROWN themed banner image */}
       <div className="relative pt-2 pb-1 text-center z-10">
         <img
-          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/562cd5ef1_generated_image.png"
+          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/234a7ff76_generated_image.png"
           alt="BIG BROWN"
           className="mx-auto w-[78%] max-w-[300px] object-contain select-none"
-          style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.85)) drop-shadow(0 0 10px rgba(214,178,98,0.25))' }}
+          style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.85)) drop-shadow(0 0 10px rgba(214,178,98,0.25)) brightness(1.05) saturate(1.1)' }}
           draggable={false}
         />
         <p
