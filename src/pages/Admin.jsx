@@ -57,8 +57,8 @@ export default function Admin() {
   const Active = TABS.find(t => t.id === tab).comp;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/40 to-stone-950 pb-10">
-      <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
+    <div className="min-h-screen bg-[#0b0b0d] pb-10">
+      <header className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
           <BackButton />
           <div className="flex-1 flex items-center justify-center gap-2">
@@ -73,7 +73,7 @@ export default function Admin() {
             const Icon = t.icon;
             const active = tab === t.id;
             return (
-              <button key={t.id} onClick={() => setTab(t.id)} className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border transition-colors ${active ? 'bg-amber-400 text-stone-900 border-amber-300' : 'bg-black/30 text-amber-100/80 border-amber-700/40 hover:bg-black/50'}`} style={{ fontFamily: 'Georgia, serif' }}>
+              <button key={t.id} onClick={() => setTab(t.id)} className="flex flex-col items-center gap-1 py-2.5 rounded-[8px] transition-colors" style={{ fontFamily: 'Georgia, serif', border: active ? '1px solid rgba(214,178,98,0.85)' : '1px solid rgba(214,178,98,0.3)', background: active ? 'linear-gradient(to bottom,#f5c542,#c8881e)' : 'rgba(20,17,13,0.6)', color: active ? '#2a1a06' : '#e8c878' }}>
                 <Icon className="w-5 h-5" /><span className="text-[11px] font-bold italic">{t.label}</span>
               </button>
             );

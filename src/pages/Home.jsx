@@ -31,25 +31,32 @@ export default function Home() {
   const playable = GAMES.filter(g => !g.coming).length;
 
   return (
-    <div className="min-h-screen pb-20 bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950">
+    <div className="min-h-screen pb-24 bg-[#0b0b0d]">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-emerald-950/90 backdrop-blur-xl border-b border-amber-600/30">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <header
+        className="sticky top-0 z-20 backdrop-blur-xl"
+        style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}
+      >
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-700/40">
-              <Gamepad2 className="w-6 h-6 text-stone-950" />
+            <div
+              className="w-10 h-10 rounded-[8px] flex items-center justify-center"
+              style={{ border: '1px solid rgba(214,178,98,0.6)', background: 'linear-gradient(to bottom,#f5c542,#c8881e)', boxShadow: 'inset 0 1px 0 rgba(255,240,200,0.5), 0 4px 12px rgba(200,136,30,0.4)' }}
+            >
+              <Gamepad2 className="w-5 h-5 text-stone-950" />
             </div>
             <div>
-              <h1 className="text-xl font-black italic text-amber-200 tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
+              <h1 className="text-lg font-black italic text-amber-200 tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
                 Golden Bounty
               </h1>
-              <p className="text-[11px] text-amber-100/70 tracking-wide">{playable} Games Live · Play & Win</p>
+              <p className="text-[11px] text-amber-100/55 tracking-wide">{playable} Games Live · Play & Win</p>
             </div>
           </div>
 
           <Link
             to="/dashboard"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-black/40 border border-amber-600/50 hover:border-amber-400/70 hover:bg-black/60 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[8px] transition-colors"
+            style={{ border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)' }}
           >
             <Wallet className="w-4 h-4 text-amber-400" />
             <span className="text-sm font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
@@ -59,10 +66,8 @@ export default function Home() {
         </div>
       </header>
 
-
-
       {/* Rotating banner carousel */}
-      <div className="max-w-6xl mx-auto px-4 pt-6">
+      <div className="max-w-6xl mx-auto px-4 pt-5">
         <BannerCarousel />
       </div>
 
@@ -73,8 +78,15 @@ export default function Home() {
             <button
               key={c}
               onClick={() => setCat(c)}
-              className={`px-4 py-2 rounded-full text-sm font-bold italic whitespace-nowrap transition-colors border ${cat === c ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/30 text-amber-100/80 border-amber-700/30 hover:bg-black/50'}`}
-              style={{ fontFamily: 'Georgia, serif' }}
+              className="px-4 py-2 rounded-[7px] text-sm font-bold italic whitespace-nowrap transition-colors"
+              style={{
+                fontFamily: 'Georgia, serif',
+                border: cat === c
+                  ? '1px solid rgba(214,178,98,0.85)'
+                  : '1px solid rgba(214,178,98,0.3)',
+                background: cat === c ? 'linear-gradient(to bottom,#f5c542,#c8881e)' : 'rgba(20,17,13,0.6)',
+                color: cat === c ? '#2a1a06' : '#e8c878',
+              }}
             >
               {c}
             </button>
@@ -84,7 +96,7 @@ export default function Home() {
 
       {/* Game grid */}
       <main id="games" className="max-w-6xl mx-auto px-4 py-6 scroll-mt-20">
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2.5">
           {filtered.map(g => (
             <CasinoGameCard key={g.id} game={g} />
           ))}
@@ -93,11 +105,10 @@ export default function Home() {
 
       <footer className="max-w-6xl mx-auto px-4 py-8 text-center">
         <p className="text-[11px] text-amber-100/40 italic" style={{ fontFamily: 'Georgia, serif' }}>
-          Golden Bounty ·Play Games try your Luck·Stack and Eran Money
+          Golden Bounty · Play Games, Try Your Luck · Stack and Earn Money
         </p>
       </footer>
 
-      {/* Bottom quick actions — premium western nav */}
       <BottomNav />
     </div>
   );

@@ -93,9 +93,9 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950 pb-10">
+    <div className="relative min-h-screen bg-[#0b0b0d] pb-10">
       <WesternBackdrop />
-      <header className="sticky top-0 z-20 bg-emerald-950/90 backdrop-blur-xl border-b border-amber-600/30">
+      <header className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
         <div className="max-w-md mx-auto px-4 py-2 flex items-center gap-2">
           <BackButton />
           <div className="flex-1 text-center">

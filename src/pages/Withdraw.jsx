@@ -86,9 +86,9 @@ export default function Withdraw() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950 pb-10">
+    <div className="relative min-h-screen bg-[#0b0b0d] pb-10">
       <WesternBackdrop />
-      <header className="sticky top-0 z-20 bg-emerald-950/90 backdrop-blur-xl border-b border-amber-600/30">
+      <header className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
           {view !== 'choose' ? (
             <button onClick={() => { setView('choose'); setSelectedNet(null); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md italic font-bold border border-amber-600/80 text-amber-200 bg-black/40 active:scale-95" style={{ fontFamily: FONT }}>
