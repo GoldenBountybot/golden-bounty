@@ -131,14 +131,14 @@ export default function BigBrownMachine() {
                               style={{ background: 'linear-gradient(160deg,#0a140a,#050803)' }}
                             >
                               <div
-                                className="absolute left-0 right-0 flex flex-col items-center justify-around"
-                                style={{ animation: 'bbPlaceholderScroll 0.24s linear infinite', filter: 'blur(2px)', height: '300%', top: 0 }}
-                              >
-                                {['🌲','🦉','🐺','🌲','🦉','🐺','🌲','🦉','🐺'].map((e, i) => (
-                                  <span key={i} className="text-base opacity-30 leading-none">{e}</span>
-                                ))}
-                              </div>
-                              <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(2,6,13,0.85), transparent 25%, transparent 75%, rgba(2,6,13,0.85))' }} />
+                                className="absolute inset-0"
+                                style={{
+                                  animation: 'bbPlaceholderScroll 0.32s linear infinite',
+                                  backgroundImage: 'repeating-linear-gradient(to bottom, rgba(214,178,98,0.10) 0px, rgba(214,178,98,0.10) 1px, transparent 1px, transparent 14px)',
+                                  filter: 'blur(1px)',
+                                }}
+                              />
+                              <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(2,6,13,0.9), transparent 22%, transparent 78%, rgba(2,6,13,0.9))' }} />
                             </div>
                           )}
                           {isScatter && (
