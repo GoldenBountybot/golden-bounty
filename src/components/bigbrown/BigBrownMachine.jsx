@@ -11,7 +11,7 @@ export default function BigBrownMachine() {
     freeSpins, turbo, autoSpin,
     showFreeSpinStart, freeSpinsActive, startFreeSpins,
     anticipation,
-    spin, setBetIndex, setTurbo, setAutoSpin, reset,
+    spin, setBetIndex, setTurbo, setAutoSpin,
   } = g;
 
   return (
@@ -159,9 +159,6 @@ export default function BigBrownMachine() {
         </div>
       </div>
 
-      <div className="mt-2 text-center">
-        <button onClick={reset} className="text-[10px] italic text-amber-100/50 underline" style={{ fontFamily: 'Georgia, serif' }}>Reset balance</button>
-      </div>
     </div>
   );
 }
