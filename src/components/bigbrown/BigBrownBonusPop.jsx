@@ -132,15 +132,13 @@ export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBo
                     {games}
                   </span>
 
-                  {/* FREE GAMES gold pill */}
+                  {/* FREE GAMES — flat static text label */}
                   <span
-                    className="px-2 py-0.5 rounded-full text-[8px] font-black italic leading-none tracking-wide"
+                    className="text-[8px] font-black italic leading-none tracking-wide"
                     style={{
                       fontFamily: 'Georgia, serif',
-                      color: '#3a2408',
-                      background: 'linear-gradient(to bottom, #fff7d6, #ffe9a8 30%, #f5c542 65%, #c8881e)',
-                      border: '1px solid rgba(255,234,160,0.8)',
-                      boxShadow: 'inset 0 -1px 2px rgba(120,80,20,0.5), inset 0 1px 1px rgba(255,250,200,0.5)',
+                      color: '#daa520',
+                      textShadow: '0 1px 0 rgba(0,0,0,0.6)',
                     }}
                   >
                     FREE GAMES
@@ -163,16 +161,13 @@ export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBo
                     />
                   </div>
 
-                  {/* WILD — gold metallic plaque label, NOT a button */}
+                  {/* WILD — flat static text label, NOT a button */}
                   <span
-                    className="px-2 py-0.5 rounded-[3px] text-[9px] font-black italic tracking-[0.18em] leading-none"
+                    className="text-[9px] font-black italic tracking-[0.18em] leading-none"
                     style={{
                       fontFamily: 'Rye, Georgia, serif',
-                      color: '#3a2408',
-                      background: 'linear-gradient(to bottom, #fff7d6, #ffe9a8 30%, #f5c542 65%, #c8881e)',
-                      border: '1px solid rgba(255,234,160,0.8)',
-                      boxShadow: 'inset 0 -1px 2px rgba(120,80,20,0.5), inset 0 1px 1px rgba(255,250,200,0.5)',
-                      textShadow: '0 1px 0 rgba(255,245,200,0.4)',
+                      color: '#daa520',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.9)',
                     }}
                   >
                     WILD
