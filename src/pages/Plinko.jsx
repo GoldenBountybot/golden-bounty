@@ -9,9 +9,9 @@ import GameLoadingScreen from '@/components/GameLoadingScreen';
 const MULTS = [100, 50, 25, 10, 5, 2, 0, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1;
 const BETS = [0.1, 1, 5, 10];
-// Absolute per-bucket landing chance (percent). Jackpot edges are very rare.
-// 100x: 0.01% · 50x: 0.5% · 25x: 1% · 10x: 3% · 5x: 5% (each side).
-const WEIGHTS = [0.01, 0.5, 1, 3, 5, 17.5, 54.98, 17.5, 5, 3, 1, 0.5, 0.01];
+// Absolute per-bucket landing chance (percent), symmetric across both edges.
+// 100x: 0.1% · 50x: 0.5% · 25x: 1% · 10x: 2% · 5x: 3% · 2x: 10% (split each side).
+const WEIGHTS = [0.05, 0.25, 0.5, 1, 1.5, 5, 84, 5, 1.5, 1, 0.5, 0.25, 0.05];
 const WEIGHT_TOTAL = WEIGHTS.reduce((a, b) => a + b, 0);
 
 const FONT = "Rye, Georgia, serif";
