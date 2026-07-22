@@ -3,8 +3,14 @@ import { SYMBOLS } from '@/lib/bigBrownEngine';
 
 const fmt = (v) => `$${v.toFixed(2)}`;
 
+// Wooden plaque background — same wood texture used by the dashboard header
+// (WesternTitleBadge) so the bonus menu carries the same Western gilt frame.
+const PLAQUE_BG =
+  "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/670fa1a3e_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.94), rgba(26,18,9,0.96))";
+
 // BONUS POP — circular gold emblem with red price badge + an overlay menu
-// offering 8/12/16/24 free games. The menu floats over the reel board.
+// offering 8/12/16/24 free games. The menu floats over the reel board inside
+// a Western gilt-trimmed wooden frame matching the dashboard header plaque.
 export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBonus, spinning, freeSpins }) {
   const [showBonusMenu, setShowBonusMenu] = useState(false);
   const disabled = spinning || freeSpins > 0;
@@ -79,104 +85,114 @@ export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBo
       {/* Bonus menu — 8/12/16/24 free spin offers (overlay over the board) */}
       {showBonusMenu && (
         <div
-          className="absolute left-1/2 -translate-x-1/2 z-50 w-[300px] rounded-[14px] p-2.5 grid grid-cols-2 gap-2"
+          className="absolute left-1/2 -translate-x-1/2 z-50 w-[320px] rounded-[10px] p-2"
           style={{
             top: 'calc(100% + 8px)',
-            background: 'radial-gradient(ellipse at center, rgba(15,22,40,0.97), rgba(2,8,20,0.98))',
-            border: '1.5px solid rgba(214,178,98,0.55)',
-            boxShadow: '0 12px 30px rgba(0,0,0,0.75), inset 0 0 18px rgba(0,0,0,0.6)',
+            background: PLAQUE_BG,
+            border: '1px solid rgba(190,140,55,0.85)',
+            boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.35), inset 0 0 0 3px rgba(20,14,6,0.85), inset 0 0 0 4px rgba(190,140,55,0.5), 0 10px 26px rgba(0,0,0,0.8)',
           }}
         >
-          {Object.entries(bonusCosts).map(([games, cost]) => {
-            const canAfford = balance >= cost;
-            return (
-              <button
-                key={games}
-                onClick={() => { if (canAfford) { buyBonus(Number(games)); setShowBonusMenu(false); } }}
-                disabled={!canAfford}
-                className="relative rounded-[10px] p-2 flex flex-col items-center gap-1 disabled:opacity-40 transition-transform active:scale-95"
-                style={{
-                  border: '1px solid rgba(214,178,98,0.3)',
-                  background: 'linear-gradient(160deg, rgba(30,42,70,0.7), rgba(8,16,32,0.7))',
-                  boxShadow: 'inset 0 0 10px rgba(0,0,0,0.5)',
-                }}
-              >
-                {/* Big golden number — padded so italic glyphs aren't clipped */}
-                <span
-                  className="inline-block text-[24px] font-black italic leading-none"
+          {/* Inner dark forest cavity */}
+          <div
+            className="rounded-[6px] p-2.5 grid grid-cols-2 gap-2"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(8,16,32,0.96), rgba(2,8,18,0.98))',
+              border: '1px solid rgba(120,80,30,0.6)',
+              boxShadow: 'inset 0 0 18px rgba(0,0,0,0.7)',
+            }}
+          >
+            {Object.entries(bonusCosts).map(([games, cost]) => {
+              const canAfford = balance >= cost;
+              return (
+                <button
+                  key={games}
+                  onClick={() => { if (canAfford) { buyBonus(Number(games)); setShowBonusMenu(false); } }}
+                  disabled={!canAfford}
+                  className="relative rounded-[10px] p-2 flex flex-col items-center gap-1 disabled:opacity-40 transition-transform active:scale-95"
                   style={{
-                    fontFamily: 'Rye, Georgia, serif',
-                    padding: '0 6px',
-                    overflow: 'visible',
-                    background: 'linear-gradient(to bottom, #fff7d6 0%, #ffe9a8 22%, #f5c542 50%, #c8881e 80%, #8b5a2b 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                    filter: 'drop-shadow(0 1px 0 #6b4a1a) drop-shadow(0 2px 2px rgba(0,0,0,0.7))',
+                    border: '1px solid rgba(214,178,98,0.3)',
+                    background: 'linear-gradient(160deg, rgba(30,42,70,0.7), rgba(8,16,32,0.7))',
+                    boxShadow: 'inset 0 0 10px rgba(0,0,0,0.5)',
                   }}
                 >
-                  {games}
-                </span>
+                  {/* Big golden number — padded so italic glyphs aren't clipped */}
+                  <span
+                    className="inline-block text-[24px] font-black italic leading-none"
+                    style={{
+                      fontFamily: 'Rye, Georgia, serif',
+                      padding: '0 6px',
+                      overflow: 'visible',
+                      background: 'linear-gradient(to bottom, #fff7d6 0%, #ffe9a8 22%, #f5c542 50%, #c8881e 80%, #8b5a2b 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                      filter: 'drop-shadow(0 1px 0 #6b4a1a) drop-shadow(0 2px 2px rgba(0,0,0,0.7))',
+                    }}
+                  >
+                    {games}
+                  </span>
 
-                {/* FREE GAMES gold pill */}
-                <span
-                  className="px-2 py-0.5 rounded-full text-[8px] font-black italic leading-none tracking-wide"
-                  style={{
-                    fontFamily: 'Georgia, serif',
-                    color: '#3a2408',
-                    background: 'linear-gradient(to bottom, #fff7d6, #ffe9a8 30%, #f5c542 65%, #c8881e)',
-                    border: '1px solid rgba(255,234,160,0.8)',
-                    boxShadow: 'inset 0 -1px 2px rgba(120,80,20,0.5), inset 0 1px 1px rgba(255,250,200,0.5)',
-                  }}
-                >
-                  FREE GAMES
-                </span>
+                  {/* FREE GAMES gold pill */}
+                  <span
+                    className="px-2 py-0.5 rounded-full text-[8px] font-black italic leading-none tracking-wide"
+                    style={{
+                      fontFamily: 'Georgia, serif',
+                      color: '#3a2408',
+                      background: 'linear-gradient(to bottom, #fff7d6, #ffe9a8 30%, #f5c542 65%, #c8881e)',
+                      border: '1px solid rgba(255,234,160,0.8)',
+                      boxShadow: 'inset 0 -1px 2px rgba(120,80,20,0.5), inset 0 1px 1px rgba(255,250,200,0.5)',
+                    }}
+                  >
+                    FREE GAMES
+                  </span>
 
-                {/* Bear wild symbol — dark background, no white bleed */}
-                <div
-                  className="w-12 h-14 rounded-[5px] overflow-hidden flex items-center justify-center"
-                  style={{
-                    background: 'linear-gradient(160deg,#2a1c0c,#0a0603)',
-                    border: '1px solid rgba(214,178,98,0.4)',
-                  }}
-                >
-                  <img
-                    src={SYMBOLS.brown.img}
-                    alt="WILD"
-                    className="w-full h-full object-cover"
-                    style={{ filter: 'brightness(1.1) saturate(1.05) drop-shadow(0 0 3px rgba(255,200,80,0.5))' }}
-                    draggable={false}
-                  />
-                </div>
+                  {/* Bear wild symbol — dark background, no white bleed */}
+                  <div
+                    className="w-12 h-14 rounded-[5px] overflow-hidden flex items-center justify-center"
+                    style={{
+                      background: 'linear-gradient(160deg,#2a1c0c,#0a0603)',
+                      border: '1px solid rgba(214,178,98,0.4)',
+                    }}
+                  >
+                    <img
+                      src={SYMBOLS.brown.img}
+                      alt="WILD"
+                      className="w-full h-full object-cover"
+                      style={{ filter: 'brightness(1.1) saturate(1.05) drop-shadow(0 0 3px rgba(255,200,80,0.5))' }}
+                      draggable={false}
+                    />
+                  </div>
 
-                {/* WILD — flat text label, NOT a button */}
-                <span
-                  className="text-[9px] font-black italic tracking-[0.18em] leading-none"
-                  style={{
-                    fontFamily: 'Rye, Georgia, serif',
-                    color: '#ffe9a8',
-                    textShadow: '0 1px 2px rgba(0,0,0,0.9)',
-                  }}
-                >
-                  WILD
-                </span>
+                  {/* WILD — flat text label, NOT a button */}
+                  <span
+                    className="text-[9px] font-black italic tracking-[0.18em] leading-none"
+                    style={{
+                      fontFamily: 'Rye, Georgia, serif',
+                      color: '#ffe9a8',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.9)',
+                    }}
+                  >
+                    WILD
+                  </span>
 
-                {/* Price */}
-                <span
-                  className="mt-0.5 px-2 py-0.5 rounded-full text-[9px] font-black leading-none tabular-nums"
-                  style={{
-                    fontFamily: 'Georgia, serif',
-                    color: '#fff',
-                    background: 'radial-gradient(circle at 35% 30%, #e8321a, #c21807 55%, #8b0000)',
-                    border: '1px solid rgba(255,180,150,0.6)',
-                    boxShadow: '0 0 6px rgba(194,24,7,0.5)',
-                  }}
-                >
-                  {fmt(cost)}
-                </span>
-              </button>
-            );
-          })}
+                  {/* Price */}
+                  <span
+                    className="mt-0.5 px-2 py-0.5 rounded-full text-[9px] font-black leading-none tabular-nums"
+                    style={{
+                      fontFamily: 'Georgia, serif',
+                      color: '#fff',
+                      background: 'radial-gradient(circle at 35% 30%, #e8321a, #c21807 55%, #8b0000)',
+                      border: '1px solid rgba(255,180,150,0.6)',
+                      boxShadow: '0 0 6px rgba(194,24,7,0.5)',
+                    }}
+                  >
+                    {fmt(cost)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
