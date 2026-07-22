@@ -33,25 +33,28 @@ const WOOD_LABEL = {
   boxShadow: 'inset 0 1px 2px rgba(255,200,140,0.3), inset 0 -1px 2px rgba(0,0,0,0.5), 0 2px 5px rgba(0,0,0,0.6)',
 };
 
-const WildTile = ({ sym, label }) => {
+const BearTile = ({ sym }) => {
   const def = SYMBOLS[sym];
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <div
-        className="relative w-20 h-20 rounded-[6px] overflow-hidden"
-        style={{
-          border: '2px solid rgba(255,225,120,0.95)',
-          boxShadow: '0 0 12px rgba(255,200,80,0.6), inset 0 0 8px rgba(255,210,90,0.35)',
-          background: 'linear-gradient(160deg,#2a1c0c,#0a0603)',
-        }}
-      >
-        <img src={def.img} alt={label} className="w-full h-full object-cover" draggable={false} style={{ filter: 'brightness(1.1) saturate(1.05) drop-shadow(0 0 4px rgba(255,200,80,0.5))' }} />
-      </div>
-      <div className="px-2.5 py-0.5 rounded-[3px]" style={WOOD_LABEL}>
-        <span className="text-[9px] font-black italic tracking-[0.18em] leading-none" style={{ color: '#ffe9a8', fontFamily: 'Rye, Georgia, serif' }}>
-          {label}
-        </span>
-      </div>
+    <div
+      className="relative w-20 h-20 rounded-[6px] overflow-hidden"
+      style={{
+        border: '2px solid rgba(255,225,120,0.95)',
+        boxShadow: '0 0 12px rgba(255,200,80,0.6), inset 0 0 8px rgba(255,210,90,0.35)',
+        background: 'linear-gradient(160deg,#2a1c0c,#0a0603)',
+      }}
+    >
+      <img src={def.img} alt="WILD" className="w-full h-full object-cover" draggable={false} style={{ filter: 'brightness(1.1) saturate(1.05) drop-shadow(0 0 4px rgba(255,200,80,0.5))' }} />
+    </div>
+  );
+};
+
+const WildLabel = ({ label }) => {
+  return (
+    <div className="px-2.5 py-0.5 rounded-[3px]" style={WOOD_LABEL}>
+      <span className="text-[9px] font-black italic tracking-[0.18em] leading-none" style={{ color: '#ffe9a8', fontFamily: 'Rye, Georgia, serif' }}>
+        {label}
+      </span>
     </div>
   );
 };
@@ -131,15 +134,21 @@ export default function BigBrownFreeSpinStart({ count, onStart }) {
         </div>
       </div>
 
-      {/* Two wilds with OR */}
-      <div className="relative z-10 flex items-center gap-5 mt-8">
-        <WildTile sym="brown" label="WILD" />
-        <span className="text-3xl italic font-black" style={GOLD_TEXT}>OR</span>
-        <WildTile sym="spirit" label="WILD" />
+      {/* Two wilds — bears on top, WILD labels with OR between them */}
+      <div className="relative z-10 flex flex-col items-center mt-6 gap-1.5">
+        <div className="flex items-center gap-6">
+          <BearTile sym="brown" />
+          <BearTile sym="spirit" />
+        </div>
+        <div className="flex items-center gap-4">
+          <WildLabel label="WILD" />
+          <span className="text-2xl italic font-black" style={GOLD_TEXT}>OR</span>
+          <WildLabel label="WILD" />
+        </div>
       </div>
 
       {/* ON EVERY SPIN */}
-      <p className="relative z-10 mt-5 text-lg italic font-black tracking-[0.18em]" style={GOLD_TEXT}>
+      <p className="relative z-10 mt-4 text-sm italic font-black tracking-[0.16em]" style={GOLD_TEXT}>
         ON EVERY SPIN
       </p>
 
