@@ -5,7 +5,7 @@ const PLAQUE_BG =
 
 // Western gilt-trimmed wooden plaque that frames a page header title text.
 export default function WesternTitleBadge({ children, size = 'sm', className = '' }) {
-  const pad = size === 'lg' ? 'px-4 py-1.5' : 'px-3 py-1';
+  const pad = size === 'lg' ? 'px-8 py-2.5' : 'px-6 py-2';
   const text = size === 'lg' ? 'text-sm sm:text-base' : 'text-xs sm:text-sm';
   return (
     <span
