@@ -4,6 +4,7 @@ import WesternFrame from '@/components/wildbounty/WesternFrame';
 import BackButton from '@/components/BackButton';
 import ShareButton from '@/components/ShareButton';
 import GameTitleBar from '@/components/GameTitleBar';
+import GameLoadingScreen from '@/components/GameLoadingScreen';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -62,6 +63,7 @@ function CardFace({ card, hidden }) {
 
 export default function HiLo() {
   const { balance, setBalance } = useCasinoBalance();
+  const [loaded, setLoaded] = useState(false);
   const { rtp } = useGameSettings('hi-lo');
   const [betIdx, setBetIdx] = useState(1);
   const [current, setCurrent] = useState(null);
@@ -131,6 +133,7 @@ export default function HiLo() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950">
+      {!loaded && <GameLoadingScreen title="High or Low" emoji="🃏" onDone={() => setLoaded(true)} />}
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-emerald-600/30">
         <GameTitleBar title="High or Low" left={<BackButton />} right={<ShareButton />} />
       </header>

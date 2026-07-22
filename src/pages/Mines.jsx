@@ -5,6 +5,7 @@ import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
+import GameLoadingScreen from '@/components/GameLoadingScreen';
 
 const TOTAL = 25;
 const COLS = 5;
@@ -86,6 +87,7 @@ const woodBtn = (active, color = 'amber') => ({
 
 export default function Mines() {
   const { balance, setBalance } = useCasinoBalance();
+  const [loaded, setLoaded] = useState(false);
   const { rtp } = useGameSettings('mines');
   const [betIdx, setBetIdx] = useState(0);
   const [customBet, setCustomBet] = useState('');
@@ -198,6 +200,7 @@ export default function Mines() {
 
   return (
     <div className="min-h-screen text-amber-100 flex flex-col relative" style={{ background: 'linear-gradient(to bottom, #1a1108, #0d0905)', ...W }}>
+      {!loaded && <GameLoadingScreen title="Mines" emoji="💣" onDone={() => setLoaded(true)} />}
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7ad5415af_.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5, mixBlendMode: 'screen' }} />
       <GameHeader title="Mines" accent="text-amber-200" border="border-amber-600/40" />
 

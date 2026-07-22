@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
+import GameLoadingScreen from '@/components/GameLoadingScreen';
 
 const MULTS = [100, 50, 25, 10, 5, 2, 0, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1;
@@ -161,6 +162,7 @@ function Stat({ label, value, accent }) {
 
 export default function Plinko() {
   const { balance, setBalance } = useCasinoBalance();
+  const [loaded, setLoaded] = useState(false);
   const { rtp } = useGameSettings('plinko');
   const [betIdx, setBetIdx] = useState(1);
   const [customBet, setCustomBet] = useState(null);
@@ -273,6 +275,7 @@ export default function Plinko() {
 
   return (
     <div className="min-h-screen text-white flex flex-col" style={{ background: 'radial-gradient(circle at 50% 0%, #1a0f2e 0%, #0a0a12 55%, #000 100%)', fontFamily: FONT }}>
+      {!loaded && <GameLoadingScreen title="Plinko Drop" emoji="🎯" onDone={() => setLoaded(true)} />}
       <div className="fixed inset-0 pointer-events-none opacity-50" style={{ backgroundImage: 'radial-gradient(1px 1px at 20% 30%, #fff, transparent), radial-gradient(1px 1px at 70% 60%, #b9a, transparent), radial-gradient(1px 1px at 40% 80%, #fff, transparent), radial-gradient(1.5px 1.5px at 85% 20%, #c8e, transparent), radial-gradient(1px 1px at 10% 70%, #fff, transparent)', backgroundSize: '300px 300px' }} />
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0dafcc686_.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.18, mixBlendMode: 'screen' }} />
 
