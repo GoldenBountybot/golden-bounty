@@ -3,6 +3,7 @@ import { Info, Zap, Plus, Repeat, DollarSign, Menu, Play } from 'lucide-react';
 import BigBrownSymbol from './BigBrownSymbol';
 import BigBrownInfo from './BigBrownInfo';
 import BigBrownFreeSpinStart from './BigBrownFreeSpinStart';
+import BigBrownBonusPop from './BigBrownBonusPop';
 import { useBigBrown } from './useBigBrown';
 import { WAYS, BETS, WILD_EXPAND_IMG, randomSymbol } from '@/lib/bigBrownEngine';
 
@@ -48,7 +49,6 @@ const BRANCH_FRAME = `
 export default function BigBrownMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
-  const [showBonusMenu, setShowBonusMenu] = useState(false);
   const g = useBigBrown();
   const {
     grid, balance, bet, betIndex, spinning, stoppedReels,
@@ -104,94 +104,14 @@ export default function BigBrownMachine() {
       </div>
 
       {/* BONUS POP — circular gold emblem + red price badge, right side */}
-      <div className="relative z-30 flex justify-end pr-4 mt-1 mb-2">
-        <div
-          onClick={() => { if (!spinning && freeSpins === 0) setShowBonusMenu(s => !s); }}
-          className={`relative flex flex-col items-center cursor-pointer transition-transform active:scale-95 ${(spinning || freeSpins > 0) ? 'opacity-40 pointer-events-none' : ''}`}
-        >
-          {/* Circular golden emblem */}
-          <div
-            className="relative rounded-full flex items-center justify-center"
-            style={{
-              width: 62,
-              height: 62,
-              padding: 4,
-              background: 'radial-gradient(circle at 35% 30%, #fff2c0 0%, #f5c542 35%, #c8881e 70%, #8b5a2b 100%)',
-              boxShadow: '0 0 12px rgba(255,200,80,0.45), inset 0 2px 3px rgba(255,250,200,0.6), inset 0 -3px 5px rgba(90,58,20,0.7), 0 3px 10px rgba(0,0,0,0.6)',
-            }}
-          >
-            {/* Inner embossed gold disc with claw-mark rays */}
-            <div
-              className="relative rounded-full flex flex-col items-center justify-center overflow-hidden"
-              style={{
-                width: '100%',
-                height: '100%',
-                background: 'radial-gradient(circle at 40% 30%, #ffe9a8 0%, #f5c542 45%, #c8881e 85%, #a86a1e 100%)',
-                border: '1.5px solid rgba(255,234,160,0.85)',
-                boxShadow: 'inset 0 -2px 4px rgba(120,80,20,0.7), inset 0 2px 3px rgba(255,250,200,0.45)',
-              }}
-            >
-              {/* Faint embossed rays / claw marks */}
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  backgroundImage: 'repeating-conic-gradient(from 0deg, rgba(120,80,20,0.18) 0deg, transparent 8deg, rgba(120,80,20,0.18) 16deg)',
-                  opacity: 0.5,
-                }}
-              />
-              <span
-                className="relative text-[10px] font-black italic leading-none tracking-wide"
-                style={{ fontFamily: 'Rye, Georgia, serif', color: '#fff7d6', textShadow: '0 1px 0 #8b5a2b, 0 2px 2px rgba(0,0,0,0.5), 0 -1px 0 rgba(255,245,200,0.4)' }}
-              >
-                BONUS
-              </span>
-              <span
-                className="relative text-[10px] font-black italic leading-none tracking-wide mt-0.5"
-                style={{ fontFamily: 'Rye, Georgia, serif', color: '#fff7d6', textShadow: '0 1px 0 #8b5a2b, 0 2px 2px rgba(0,0,0,0.5), 0 -1px 0 rgba(255,245,200,0.4)' }}
-              >
-                POP
-              </span>
-            </div>
-          </div>
-
-          {/* Red price badge */}
-          <div
-            className="relative -mt-1.5 z-10 rounded-full px-2.5 py-0.5"
-            style={{
-              background: 'radial-gradient(circle at 35% 30%, #e8321a, #c21807 55%, #8b0000 100%)',
-              border: '1.5px solid rgba(255,180,150,0.7)',
-              boxShadow: '0 0 8px rgba(194,24,7,0.7), inset 0 1px 1px rgba(255,200,180,0.4), inset 0 -1px 2px rgba(80,0,0,0.6)',
-            }}
-          >
-            <span
-              className="text-[10px] font-black leading-none tabular-nums"
-              style={{ fontFamily: 'Georgia, serif', color: '#fff', textShadow: '0 1px 1px rgba(80,0,0,0.8)' }}
-            >
-              {fmt(bonusCost)}
-            </span>
-          </div>
-        </div>
-
-        {/* Bonus menu — 8/12/16/24 free spin offers (overlays the board) */}
-        {showBonusMenu && (
-          <div className="absolute right-0 z-50 w-[180px] rounded-[12px] py-2 px-1.5 flex flex-col gap-1" style={{ top: 'calc(100% + 6px)', background: 'rgba(5,12,28,0.97)', border: '1.5px solid rgba(214,178,98,0.5)', boxShadow: '0 8px 22px rgba(0,0,0,0.7)' }}>
-            {Object.entries(bonusCosts).map(([games, cost]) => (
-              <button
-                key={games}
-                onClick={() => { buyBonus(Number(games)); setShowBonusMenu(false); }}
-                disabled={balance < cost}
-                className="flex items-center justify-between gap-3 px-2.5 py-1.5 rounded-[6px] text-left disabled:opacity-35"
-                style={{ border: '1px solid rgba(214,178,98,0.25)', background: 'rgba(20,30,55,0.6)' }}
-              >
-                <span className="text-[11px] italic font-bold text-yellow-300" style={{ fontFamily: 'Georgia, serif' }}>
-                  {games} <span className="text-[8px] text-white/50">FREE GAMES</span>
-                </span>
-                <span className="text-[11px] font-black tabular-nums text-amber-300" style={{ fontFamily: 'Georgia, serif' }}>{fmt(cost)}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      <BigBrownBonusPop
+        balance={balance}
+        bonusCost={bonusCost}
+        bonusCosts={bonusCosts}
+        buyBonus={buyBonus}
+        spinning={spinning}
+        freeSpins={freeSpins}
+      />
 
       {/* Reel area — gnarled branch frame */}
       <div className="relative px-3 flex-1 flex flex-col justify-center z-10">
