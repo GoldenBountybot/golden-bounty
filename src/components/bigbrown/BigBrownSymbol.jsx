@@ -66,15 +66,11 @@ export default function BigBrownSymbol({ sym, highlight = false, expand = false 
       )}
       {isScatter && (
         <span
-          className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[9px] font-black italic tracking-[0.12em] leading-none select-none"
+          className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-black tracking-widest"
           style={{
             fontFamily: 'Rye, Georgia, serif',
-            background: 'linear-gradient(to bottom, #ffffff 0%, #fff7d6 10%, #ffeb9c 25%, #ffd84d 45%, #f5c542 65%, #c8881e 88%, #8b5a2b 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            filter: 'drop-shadow(0 1px 0 #6b4a1a) drop-shadow(0 2px 2px rgba(0,0,0,0.95)) drop-shadow(0 0 12px rgba(255,220,80,1)) drop-shadow(0 0 20px rgba(255,200,60,0.8)) brightness(1.4)',
-            WebkitTextStroke: '0.3px rgba(255,240,180,0.7)',
+            color: '#ffe9a8',
+            textShadow: '0 1px 3px rgba(0,0,0,0.9)',
           }}
         >
           BONUS
