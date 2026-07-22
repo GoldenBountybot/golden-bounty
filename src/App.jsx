@@ -23,6 +23,7 @@ import Profile from './pages/Profile';
 import PayMethod from './pages/PayMethod';
 import Withdraw from './pages/Withdraw';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AppLoadingVideo from '@/components/AppLoadingVideo';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 
 const AuthenticatedApp = () => {
@@ -30,11 +31,7 @@ const AuthenticatedApp = () => {
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
-      </div>
-    );
+    return <AppLoadingVideo />;
   }
 
   // Handle authentication errors
