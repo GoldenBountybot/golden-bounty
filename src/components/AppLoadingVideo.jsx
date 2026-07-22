@@ -28,7 +28,7 @@ export default function AppLoadingVideo({ keepLooping = false, onFinished }) {
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black overflow-hidden">
       <video
         ref={ref}
-        src="https://media.base44.com/videos/public/6a5698edffaa42a5b6637776/7fe6109fe_InShot_20260722_110750222.mp4"
+        src="https://media.base44.com/videos/public/6a5698edffaa42a5b6637776/807af90f4_InShot_20260722_111640994.mp4"
         autoPlay
         muted
         playsInline
