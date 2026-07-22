@@ -69,12 +69,12 @@ export default function BigBrownSymbol({ sym, highlight = false, expand = false 
           className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[9px] font-black italic tracking-[0.12em] leading-none select-none"
           style={{
             fontFamily: 'Rye, Georgia, serif',
-            background: 'linear-gradient(to bottom, #fff7d6 0%, #ffe9a8 18%, #f5c542 45%, #c8881e 72%, #8b5a2b 100%)',
+            background: 'linear-gradient(to bottom, #ffffff 0%, #fff7d6 10%, #ffeb9c 25%, #ffd84d 45%, #f5c542 65%, #c8881e 88%, #8b5a2b 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
-            filter: 'drop-shadow(0 1px 0 #6b4a1a) drop-shadow(0 2px 2px rgba(0,0,0,0.95)) drop-shadow(0 0 9px rgba(255,200,80,0.8))',
-            WebkitTextStroke: '0.4px rgba(120,80,30,0.55)',
+            filter: 'drop-shadow(0 1px 0 #6b4a1a) drop-shadow(0 2px 2px rgba(0,0,0,0.95)) drop-shadow(0 0 12px rgba(255,220,80,1)) drop-shadow(0 0 20px rgba(255,200,60,0.8)) brightness(1.4)',
+            WebkitTextStroke: '0.3px rgba(255,240,180,0.7)',
           }}
         >
           BONUS
