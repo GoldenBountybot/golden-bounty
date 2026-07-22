@@ -101,11 +101,13 @@ export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBo
                   boxShadow: 'inset 0 0 10px rgba(0,0,0,0.5)',
                 }}
               >
-                {/* Big golden number */}
+                {/* Big golden number — padded so italic glyphs aren't clipped */}
                 <span
-                  className="text-[26px] font-black italic leading-none"
+                  className="inline-block text-[24px] font-black italic leading-none"
                   style={{
                     fontFamily: 'Rye, Georgia, serif',
+                    padding: '0 6px',
+                    overflow: 'visible',
                     background: 'linear-gradient(to bottom, #fff7d6 0%, #ffe9a8 22%, #f5c542 50%, #c8881e 80%, #8b5a2b 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
@@ -130,11 +132,11 @@ export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBo
                   FREE GAMES
                 </span>
 
-                {/* Bear wild symbol */}
+                {/* Bear wild symbol — dark background, no white bleed */}
                 <div
                   className="w-12 h-14 rounded-[5px] overflow-hidden flex items-center justify-center"
                   style={{
-                    background: 'linear-gradient(160deg,#3a2a12,#1a130a)',
+                    background: 'linear-gradient(160deg,#2a1c0c,#0a0603)',
                     border: '1px solid rgba(214,178,98,0.4)',
                   }}
                 >
@@ -142,7 +144,7 @@ export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBo
                     src={WILD_EXPAND_IMG}
                     alt="WILD"
                     className="w-full h-full object-cover"
-                    style={{ mixBlendMode: 'screen', filter: 'brightness(1.05) saturate(1.05) drop-shadow(0 0 3px rgba(255,200,80,0.5))' }}
+                    style={{ filter: 'brightness(1) saturate(1) drop-shadow(0 0 3px rgba(255,200,80,0.5))' }}
                     draggable={false}
                   />
                 </div>
