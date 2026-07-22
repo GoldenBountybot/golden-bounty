@@ -172,9 +172,9 @@ export default function BigBrownMachine() {
           </div>
         </div>
 
-        {/* Bonus menu — 8/12/16/24 free spin offers */}
+        {/* Bonus menu — 8/12/16/24 free spin offers (overlays the board) */}
         {showBonusMenu && (
-          <div className="absolute top-full right-0 mt-1 z-40 rounded-[10px] py-1.5 px-1.5 flex flex-col gap-1" style={{ background: 'rgba(5,12,28,0.97)', border: '1.5px solid rgba(214,178,98,0.5)', boxShadow: '0 8px 22px rgba(0,0,0,0.7)' }}>
+          <div className="absolute right-0 z-50 w-[180px] rounded-[12px] py-2 px-1.5 flex flex-col gap-1" style={{ top: 'calc(100% + 6px)', background: 'rgba(5,12,28,0.97)', border: '1.5px solid rgba(214,178,98,0.5)', boxShadow: '0 8px 22px rgba(0,0,0,0.7)' }}>
             {Object.entries(bonusCosts).map(([games, cost]) => (
               <button
                 key={games}
