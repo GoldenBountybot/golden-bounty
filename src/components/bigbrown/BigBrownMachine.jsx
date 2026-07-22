@@ -65,7 +65,7 @@ export default function BigBrownMachine() {
   return (
     <div
       className="relative w-full max-w-md mx-auto min-h-screen flex flex-col overflow-hidden"
-      style={{ background: FOREST_BG }}
+      style={{ background: FOREST_BG, isolation: 'isolate' }}
     >
       {showInfo && <BigBrownInfo bet={bet} onClose={() => setShowInfo(false)} />}
 
@@ -87,7 +87,7 @@ export default function BigBrownMachine() {
           stacking context) */}
       <div className="relative pt-2 pb-1 text-center">
         <img
-          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/234a7ff76_generated_image.png"
+          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f423d208b_generated_image.png"
           alt="BIG BROWN"
           className="mx-auto w-[78%] max-w-[300px] object-contain select-none"
           style={{ mixBlendMode: 'screen', filter: 'contrast(1.5) brightness(1.08) saturate(1.15) drop-shadow(0 0 10px rgba(214,178,98,0.3))' }}
