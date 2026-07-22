@@ -133,7 +133,7 @@ export default function PayMethod() {
   };
 
   const networks = view === 'usdt' ? payData.usdt : view === 'crypto' ? payData.crypto : [];
-  const methodLabel = view === 'usdt' ? 'USDT Deposit' : view === 'crypto' ? 'Crypto Deposit' : view === 'tonkeeper' ? 'Ton Wallet Deposit' : 'Binance Pay Deposit';
+  const methodLabel = view === 'usdt' ? 'USDT Deposit' : view === 'crypto' ? 'Crypto Deposit' : view === 'tonkeeper' ? 'Ton Wallet Deposit' : view === 'trust' ? 'Trust Wallet Pay' : 'Binance Pay Deposit';
 
   return (
     <div className="relative min-h-screen bg-[#0b0b0d] pb-10">
