@@ -151,7 +151,7 @@ export default function BigBrownMachine() {
                           <div
                             key={key}
                             className="relative rounded-[4px] overflow-hidden"
-                            style={{ aspectRatio: '3 / 4', opacity: stopped ? 1 : 0, transition: 'opacity 0.18s ease-out' }}
+                            style={{ aspectRatio: '3 / 4', opacity: stopped ? 1 : 0 }}
                           >
                             {stopped ? (
                               <div className="w-full h-full" style={{ animation: 'bbSymbolDrop 0.34s ease-out both' }}>
