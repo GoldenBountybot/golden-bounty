@@ -120,7 +120,8 @@ export default function BigBrownMachine() {
                           className="relative rounded-[4px] overflow-hidden"
                           style={{
                             aspectRatio: '3 / 4',
-                            animation: stopped ? `bbLand 0.34s cubic-bezier(0.25,0.9,0.3,1) both` : 'none',
+                            animation: stopped ? `bbLand 0.38s cubic-bezier(0.25,0.9,0.3,1) both` : 'none',
+                            animationDelay: stopped ? `${row * 0.07}s` : '0s',
                           }}
                         >
                           {stopped ? (
