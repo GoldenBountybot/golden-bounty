@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -28,10 +29,14 @@ import { TonConnectUIProvider } from '@tonconnect/ui-react';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const [videoDone, setVideoDone] = useState(false);
+  const loading = isLoadingPublicSettings || isLoadingAuth;
 
-  // Show loading spinner while checking app public settings or auth
-  if (isLoadingPublicSettings || isLoadingAuth) {
-    return <AppLoadingVideo />;
+  // Show the intro video until both the app has finished loading AND the
+  // video has played through at least once. While still loading, the video
+  // loops; once loading is done, the next natural end proceeds into the app.
+  if (loading || !videoDone) {
+    return <AppLoadingVideo keepLooping={loading} onFinished={() => setVideoDone(true)} />;
   }
 
   // Handle authentication errors
