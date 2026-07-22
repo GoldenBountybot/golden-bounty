@@ -73,7 +73,7 @@ export default function BigBrownSymbol({ sym, highlight = false, expand = false 
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
-            filter: 'drop-shadow(0 1px 0 #6b4a1a) drop-shadow(0 2px 2px rgba(0,0,0,0.95)) drop-shadow(0 0 9px rgba(255,220,120,0.9))',
+            filter: 'drop-shadow(0 1px 0 #6b4a1a) drop-shadow(0 2px 2px rgba(0,0,0,0.95)) drop-shadow(0 0 12px rgba(255,230,140,1)) drop-shadow(0 0 20px rgba(255,210,80,0.9)) brightness(1.5) saturate(1.3)',
             WebkitTextStroke: '0.4px rgba(120,80,30,0.55)',
           }}
         >
