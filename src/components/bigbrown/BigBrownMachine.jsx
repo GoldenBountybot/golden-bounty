@@ -154,7 +154,9 @@ export default function BigBrownMachine() {
                             style={{ aspectRatio: '3 / 4', opacity: stopped ? 1 : 0, transition: 'opacity 0.18s ease-out' }}
                           >
                             {stopped ? (
-                              <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
+                              <div className="w-full h-full" style={{ animation: 'bbSymbolDrop 0.34s ease-out both' }}>
+                                <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
+                              </div>
                             ) : (
                               <div className="w-full h-full" style={{ background: '#02060d' }} />
                             )}

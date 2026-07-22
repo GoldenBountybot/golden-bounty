@@ -406,6 +406,14 @@
   100% { transform: translateY(-33.333%); }
 }
 
+/* Big Brown — smooth symbol drop when a reel stops landing */
+@keyframes bbSymbolDrop {
+  0%   { transform: translateY(-42%); opacity: 0; }
+  55%  { transform: translateY(5%);  opacity: 1; }
+  78%  { transform: translateY(-2%); }
+  100% { transform: translateY(0%);  opacity: 1; }
+}
+
 /* Big Brown — symbols dropping down from the top during spin */
 @keyframes bbReelFall {
   0%   { transform: translateY(-66%); }
