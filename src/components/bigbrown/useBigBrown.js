@@ -47,8 +47,8 @@ export function useBigBrown() {
     finalGrid.forEach((reel, ri) => reel.forEach((s, row) => { if (s === 'scatter') scPos.add(`${ri}-${row}`); }));
     setScatterPositions(scPos);
 
-    const { wins, scatterCount } = evaluateWins(expanded, bet);
-    const totalWin = wins.reduce((sum, w) => sum + w.pay, 0);
+    const { wins, scatterCount, scatterWin } = evaluateWins(expanded, bet);
+    const totalWin = wins.reduce((sum, w) => sum + w.pay, 0) + scatterWin;
 
     const wpos = new Set();
     wins.forEach(w => {

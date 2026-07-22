@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Info } from 'lucide-react';
 import BigBrownSymbol from './BigBrownSymbol';
+import BigBrownInfo from './BigBrownInfo';
 import { useBigBrown } from './useBigBrown';
 
 // Big Brown slot machine — 6x4 grid, 4096 ways, expanding wilds, free spins.
@@ -7,6 +9,7 @@ import { useBigBrown } from './useBigBrown';
 const FOREST_BG = 'radial-gradient(ellipse at 50% 20%, #1a3359 0%, #0a1a33 45%, #00122e 100%)';
 
 export default function BigBrownMachine() {
+  const [showInfo, setShowInfo] = useState(false);
   const g = useBigBrown();
   const {
     grid, balance, bet, betIndex, spinning, stoppedReels,
@@ -22,6 +25,7 @@ export default function BigBrownMachine() {
       className="relative w-full max-w-2xl mx-auto pb-4 min-h-screen flex flex-col"
       style={{ background: FOREST_BG }}
     >
+      {showInfo && <BigBrownInfo bet={bet} onClose={() => setShowInfo(false)} />}
       {/* Moon glow */}
       <div
         className="absolute top-8 right-8 w-20 h-20 rounded-full pointer-events-none"
@@ -30,6 +34,15 @@ export default function BigBrownMachine() {
           filter: 'blur(2px)',
         }}
       />
+
+      {/* Info button */}
+      <button
+        onClick={() => setShowInfo(true)}
+        className="absolute top-2 left-2 z-20 w-8 h-8 rounded-full flex items-center justify-center"
+        style={{ border: '1px solid rgba(214,178,98,0.5)', background: 'rgba(0,18,46,0.7)' }}
+      >
+        <Info className="w-4 h-4 text-amber-300" />
+      </button>
 
       {/* Logo */}
       <div className="relative pt-3 pb-2 text-center">

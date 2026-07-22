@@ -1,10 +1,10 @@
 // Big Brown — 6x4 · 4096 WAYS forest-wildlife slot.
-// Original implementation inspired by Endorphina's publicly described mechanics
-// (expanding wilds, spirit-bear multipliers, scatter-triggered free spins).
+// Paytable & mechanics per Endorphina's publicly documented rules.
+// Base-symbol pays are per-way × (bet/20). Scatter pays total-bet × multiplier.
 
 export const REEL_ROWS = [4, 4, 4, 4, 4, 4];
 export const WAYS = 4096;
-export const BETS = [0.10, 0.25, 0.50, 1.00, 2.00];
+export const BETS = [0.50, 1.00, 2.00, 5.00, 12.50];
 
 // Reels where wilds may land (0-indexed): reels 2,3,4,5 → indices 1,2,3,4.
 export const WILD_REELS = new Set([1, 2, 3, 4]);
@@ -27,21 +27,25 @@ const IMG = {
   '9':  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e5f443649_generated_image.png',
 };
 
+// Pay values are multipliers of betUnit (= bet / 20).
+// Derived from the reference paytable at €0.50 bet (betUnit = 0.025):
+//   payout = pay × ways × betUnit  (base symbols)
+//   payout = pay × bet             (scatter — total bet, not per-way)
 export const SYMBOLS = {
-  scatter: { id: 'scatter', label: 'BONUS', type: 'scatter', img: IMG.scatter, pay: { 3: 2, 4: 5, 5: 10, 6: 25 } },
-  spirit:  { id: 'spirit',  label: 'SPIRIT BEAR', type: 'spirit', img: IMG.spirit, pay: { 3: 5, 4: 10, 5: 25, 6: 50 }, mult: 2 },
-  brown:   { id: 'brown',   label: 'WILD', type: 'wild', img: IMG.brown, pay: { 3: 5, 4: 10, 5: 25, 6: 50 } },
-  buffalo: { id: 'buffalo', label: 'BUFFALO', type: 'high', img: IMG.buffalo, pay: { 3: 3, 4: 8, 5: 15, 6: 30 } },
-  eagle:   { id: 'eagle',   label: 'EAGLE', type: 'high', img: IMG.eagle, pay: { 3: 2, 4: 5, 5: 10, 6: 20 } },
-  cougar:  { id: 'cougar',  label: 'COUGAR', type: 'high', img: IMG.cougar, pay: { 3: 2, 4: 4, 5: 8, 6: 15 } },
-  wolf:    { id: 'wolf',    label: 'WOLF', type: 'high', img: IMG.wolf, pay: { 3: 2, 4: 4, 5: 8, 6: 15 } },
-  deer:    { id: 'deer',    label: 'DEER', type: 'mid', img: IMG.deer, pay: { 3: 1, 4: 3, 5: 6, 6: 12 } },
-  A: { id: 'A', label: 'A', type: 'low', img: IMG.A, pay: { 3: 1, 4: 2, 5: 4, 6: 8 } },
-  K: { id: 'K', label: 'K', type: 'low', img: IMG.K, pay: { 3: 1, 4: 2, 5: 3, 6: 6 } },
-  Q: { id: 'Q', label: 'Q', type: 'low', img: IMG.Q, pay: { 3: 0.5, 4: 1, 5: 2, 6: 4 } },
-  J: { id: 'J', label: 'J', type: 'low', img: IMG.J, pay: { 3: 0.5, 4: 1, 5: 2, 6: 4 } },
-  '10': { id: '10', label: '10', type: 'low', img: IMG['10'], pay: { 3: 0.5, 4: 1, 5: 2, 6: 4 } },
-  '9':  { id: '9',  label: '9',  type: 'low', img: IMG['9'],  pay: { 3: 0.5, 4: 1, 5: 2, 6: 4 } },
+  scatter: { id: 'scatter', label: 'BONUS', type: 'scatter', img: IMG.scatter, pay: { 3: 1, 4: 5, 5: 25, 6: 50 } },
+  spirit:  { id: 'spirit',  label: 'RAGING BEAR', type: 'spirit', img: IMG.spirit, pay: { 3: 20, 4: 30, 5: 40, 6: 50 }, mult: 2 },
+  brown:   { id: 'brown',   label: 'WILD', type: 'wild', img: IMG.brown, pay: { 3: 20, 4: 30, 5: 40, 6: 50 } },
+  buffalo: { id: 'buffalo', label: 'BUFFALO', type: 'high', img: IMG.buffalo, pay: { 3: 30, 4: 40, 5: 50, 6: 60 } },
+  eagle:   { id: 'eagle',   label: 'EAGLE', type: 'high', img: IMG.eagle, pay: { 3: 20, 4: 30, 5: 40, 6: 50 } },
+  cougar:  { id: 'cougar',  label: 'COUGAR', type: 'high', img: IMG.cougar, pay: { 3: 20, 4: 30, 5: 40, 6: 50 } },
+  wolf:    { id: 'wolf',    label: 'WOLF', type: 'high', img: IMG.wolf, pay: { 3: 12, 4: 20, 5: 30, 6: 40 } },
+  deer:    { id: 'deer',    label: 'DEER', type: 'mid', img: IMG.deer, pay: { 3: 12, 4: 20, 5: 30, 6: 40 } },
+  A: { id: 'A', label: 'A', type: 'low', img: IMG.A, pay: { 3: 10, 4: 12, 5: 20, 6: 30 } },
+  K: { id: 'K', label: 'K', type: 'low', img: IMG.K, pay: { 3: 10, 4: 12, 5: 20, 6: 30 } },
+  Q: { id: 'Q', label: 'Q', type: 'low', img: IMG.Q, pay: { 3: 8, 4: 10, 5: 12, 6: 20 } },
+  J: { id: 'J', label: 'J', type: 'low', img: IMG.J, pay: { 3: 8, 4: 10, 5: 12, 6: 20 } },
+  '10': { id: '10', label: '10', type: 'low', img: IMG['10'], pay: { 3: 6, 4: 8, 5: 10, 6: 12 } },
+  '9':  { id: '9',  label: '9',  type: 'low', img: IMG['9'],  pay: { 3: 6, 4: 8, 5: 10, 6: 12 } },
 };
 
 export function getSymbolImg(id) {
@@ -89,7 +93,7 @@ export function buildGrid() {
 }
 
 // Expand wilds: on reels 1-4, any brown/spirit wild fills the whole reel.
-// Spirit takes priority if both appear (they shouldn't share a reel by design).
+// Spirit (Raging Bear) takes priority if both appear (they can't share a reel by design).
 export function expandWilds(grid) {
   return grid.map((reel, ri) => {
     if (!WILD_REELS.has(ri)) return reel;
@@ -102,7 +106,8 @@ export function expandWilds(grid) {
 }
 
 // Ways-to-win evaluation. Wild (brown/spirit) substitutes for all base symbols.
-// Spirit wild reels multiply a win by 2 each (multiplicatively).
+// Spirit (Raging Bear) wild reels multiply a win by 2 each (multiplicatively).
+// Scatter pays total-bet × multiplier (not per-way).
 export function evaluateWins(grid, bet) {
   const betUnit = bet / 20;
   const wins = [];
@@ -141,10 +146,22 @@ export function evaluateWins(grid, bet) {
   let scatterCount = 0;
   grid.forEach(reel => reel.forEach(s => { if (s === 'scatter') scatterCount++; }));
 
-  return { wins, scatterCount };
+  // Scatter pays total bet × multiplier (not per-way).
+  let scatterWin = 0;
+  if (scatterCount >= 3) {
+    scatterWin = (SYMBOLS.scatter.pay[scatterCount] || 0) * bet;
+  }
+
+  return { wins, scatterCount, scatterWin };
 }
 
 // Scatter free-spin award table: 3→8, 4→12, 5→16, 6→24.
 export function freeSpinsForScatters(count) {
   return ({ 3: 8, 4: 12, 5: 16, 6: 24 })[count] || 0;
+}
+
+// Bonus Pop buy cost = total bet × multiplier (per the reference: cost scales with bet).
+export const BONUS_POP_COSTS = { 8: 50, 12: 75, 16: 100, 24: 150 };
+export function bonusPopCost(bet, games = 8) {
+  return bet * (BONUS_POP_COSTS[games] || 50);
 }
