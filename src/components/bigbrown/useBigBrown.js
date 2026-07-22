@@ -129,8 +129,8 @@ export function useBigBrown() {
       finalGrid[wr][Math.floor(Math.random() * 4)] = Math.random() < 0.25 ? 'spirit' : 'brown';
     }
 
-    const baseGap = turbo ? 150 : 250;
-    const slowGap = turbo ? 850 : 1250;
+    const baseGap = turbo ? 420 : 680;
+    const slowGap = turbo ? 1100 : 1600;
 
     let stoppedScatter = 0;
     const stopReel = (i, slow) => {
