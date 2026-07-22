@@ -169,13 +169,17 @@ export default function BigBrownMachine() {
                           }}
                           draggable={false}
                         />
-                        {/* WILD label — plain golden text, no button/plaque background */}
+                        {/* WILD label — 3D metallic gold serif (matches reference) */}
                         <span
-                          className="absolute left-1/2 bottom-1 -translate-x-1/2 z-30 text-[13px] font-black italic tracking-[0.15em] leading-none"
+                          className="absolute left-1/2 bottom-1 -translate-x-1/2 z-30 text-[16px] font-black italic tracking-[0.12em] leading-none select-none"
                           style={{
                             fontFamily: 'Rye, Georgia, serif',
-                            color: '#f9d45e',
-                            textShadow: '0 0 8px rgba(255,200,80,0.85), 0 1px 2px rgba(0,0,0,0.95)',
+                            background: 'linear-gradient(to bottom, #fff7d6 0%, #ffe9a8 18%, #f5c542 45%, #c8881e 72%, #8b5a2b 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                            filter: 'drop-shadow(0 1px 0 #6b4a1a) drop-shadow(0 2px 2px rgba(0,0,0,0.95)) drop-shadow(0 0 9px rgba(255,200,80,0.8))',
+                            WebkitTextStroke: '0.4px rgba(120,80,30,0.55)',
                           }}
                         >
                           WILD
