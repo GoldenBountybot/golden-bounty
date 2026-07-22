@@ -260,6 +260,11 @@ export default function Mines() {
           </div>
         </WesternFrame>
 
+        {/* Message — below the grid, above the bet button */}
+        <WesternFrame className="py-2 text-center">
+          <span className="text-xs text-amber-200" style={W}>{message}</span>
+        </WesternFrame>
+
         {/* Bet button — below the board */}
         {phase === 'idle' && (
           <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40 relative" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/67ff4e03b_generated_image.png') center / cover, linear-gradient(to bottom, #f5c542, #c8881e)", border: '1px solid rgba(245,210,120,0.9)', boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 3px 10px rgba(200,136,30,0.45)', color: '#2a1a06', ...W }}>
@@ -354,11 +359,6 @@ export default function Mines() {
             </div>
           </WesternFrame>
         )}
-
-        {/* Message */}
-        <WesternFrame className="py-2 text-center">
-          <span className="text-xs text-amber-200" style={W}>{message}</span>
-        </WesternFrame>
 
         {/* Action buttons */}
         {phase === 'playing' && (
