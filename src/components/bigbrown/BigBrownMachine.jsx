@@ -169,10 +169,17 @@ export default function BigBrownMachine() {
                           }}
                           draggable={false}
                         />
-                        {/* HTML WILD plaque — always legible regardless of image crop */}
-                        <div className="absolute left-1/2 bottom-1 -translate-x-1/2 z-30 px-2 py-0.5 rounded-[3px]" style={{ background: 'linear-gradient(to bottom,#ffe9a8,#f5c542 50%,#c8881e)', border: '1px solid rgba(255,255,255,0.65)', boxShadow: '0 0 8px rgba(255,200,80,0.8)' }}>
-                          <span className="text-[10px] font-black italic tracking-wider text-[#3a2408] leading-none" style={{ fontFamily: 'Rye, Georgia, serif' }}>WILD</span>
-                        </div>
+                        {/* WILD label — plain golden text, no button/plaque background */}
+                        <span
+                          className="absolute left-1/2 bottom-1 -translate-x-1/2 z-30 text-[13px] font-black italic tracking-[0.15em] leading-none"
+                          style={{
+                            fontFamily: 'Rye, Georgia, serif',
+                            color: '#f9d45e',
+                            textShadow: '0 0 8px rgba(255,200,80,0.85), 0 1px 2px rgba(0,0,0,0.95)',
+                          }}
+                        >
+                          WILD
+                        </span>
                         {wildType === 'spirit' && (
                           <span
                             className="absolute top-1 right-1 px-1.5 py-0.5 rounded-full text-[9px] font-black italic"
