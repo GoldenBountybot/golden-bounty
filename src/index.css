@@ -395,14 +395,25 @@
   100% { transform: translateY(0%); }
 }
 @keyframes bbLand {
-  0%   { transform: translateY(-14%); }
-  55%  { transform: translateY(4%); }
-  78%  { transform: translateY(-2%); }
+  0%   { transform: translateY(-48%); }
+  52%  { transform: translateY(5%); }
+  74%  { transform: translateY(-3%); }
+  90%  { transform: translateY(1%); }
   100% { transform: translateY(0%); }
 }
 @keyframes bbPlaceholderScroll {
   0%   { transform: translateY(0%); }
   100% { transform: translateY(-33.333%); }
+}
+
+/* Big Brown — symbols dropping down from the top during spin */
+@keyframes bbReelFall {
+  0%   { transform: translateY(-66%); }
+  100% { transform: translateY(0%); }
+}
+@keyframes bbFallStreak {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 28px; }
 }
 
 /* Plinko — ball bounce on peg impact */
