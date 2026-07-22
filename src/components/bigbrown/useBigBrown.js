@@ -117,8 +117,8 @@ export function useBigBrown() {
 
     let finalGrid = buildGrid();
 
-    // RTP bias: force a win or a clean loss.
-    const wantWin = Math.random() < (rtpRef.current / 100);
+    // RTP bias: force a win or a clean loss (reduced for Big Brown).
+    const wantWin = Math.random() < (rtpRef.current / 100) * 0.72;
     if (wantWin) {
       // Clear any natural wilds first so at most one wild exists on the board,
       // then place a single wild on reel 1 for a guaranteed 3-of-a-kind.
