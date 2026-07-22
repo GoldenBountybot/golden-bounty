@@ -83,7 +83,7 @@ export default function BigBrownMachine() {
       </button>
 
       {/* Title + Bonus Pop — single row, banner left, bonus emblem right */}
-      <div className="relative flex items-center justify-between px-3 pt-1">
+      <div className="relative flex items-center justify-between pl-6 pr-3 pt-1">
         <img
           src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f423d208b_generated_image.png"
           alt="BIG BROWN"
@@ -102,7 +102,7 @@ export default function BigBrownMachine() {
       </div>
 
       {/* Reel area — gnarled branch frame */}
-      <div className="relative px-3 flex-1 flex flex-col justify-center z-10">
+      <div className="relative px-3 flex-1 flex flex-col justify-center z-10 -mt-2">
         <div
           className="relative rounded-[10px] overflow-hidden"
           style={{
