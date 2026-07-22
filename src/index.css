@@ -395,8 +395,8 @@
   100% { transform: translateY(0%); }
 }
 @keyframes bbLand {
-  0%   { transform: translateY(-72%); opacity: 0; }
-  20%  { opacity: 1; }
+  0%   { transform: translateY(-85%); opacity: 0; }
+  16%  { opacity: 1; }
   100% { transform: translateY(0%); opacity: 1; }
 }
 @keyframes bbPlaceholderScroll {
