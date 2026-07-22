@@ -103,37 +103,71 @@ export default function BigBrownMachine() {
         </p>
       </div>
 
-      {/* BONUS POP — Western banner in a gilt-wood frame, right side */}
-      <div className="relative z-10 flex justify-end pr-3 mt-1 mb-2">
+      {/* BONUS POP — circular gold emblem + red price badge, right side */}
+      <div className="relative z-10 flex justify-end pr-4 mt-1 mb-2">
         <div
           onClick={() => { if (!spinning && freeSpins === 0) setShowBonusMenu(s => !s); }}
-          className={`relative rounded-full flex items-center cursor-pointer transition-transform active:scale-95 ${(spinning || freeSpins > 0) ? 'opacity-40 pointer-events-none' : ''}`}
-          style={{
-            padding: 4,
-            background: BRANCH_FRAME,
-            boxShadow: '0 0 12px rgba(255,200,80,0.35), inset 0 0 0 1.5px rgba(90,58,26,0.6), inset 0 0 0 2.5px rgba(20,12,5,0.7), 0 3px 10px rgba(0,0,0,0.6)',
-          }}
+          className={`relative flex flex-col items-center cursor-pointer transition-transform active:scale-95 ${(spinning || freeSpins > 0) ? 'opacity-40 pointer-events-none' : ''}`}
         >
-          {/* Inner banner — gold gradient, NOT a button look */}
+          {/* Circular golden emblem */}
           <div
-            className="rounded-full flex items-center gap-1.5 px-3 py-1"
+            className="relative rounded-full flex items-center justify-center"
             style={{
-              background: 'radial-gradient(circle at 35% 30%, #fff7d6, #ffe9a8 18%, #f5c542 45%, #c8881e 78%, #8b5a2b 100%)',
-              border: '1.5px solid rgba(255,234,160,0.9)',
-              boxShadow: 'inset 0 -2px 4px rgba(120,80,20,0.6), inset 0 2px 3px rgba(255,250,200,0.5)',
+              width: 62,
+              height: 62,
+              padding: 4,
+              background: 'radial-gradient(circle at 35% 30%, #fff2c0 0%, #f5c542 35%, #c8881e 70%, #8b5a2b 100%)',
+              boxShadow: '0 0 12px rgba(255,200,80,0.45), inset 0 2px 3px rgba(255,250,200,0.6), inset 0 -3px 5px rgba(90,58,20,0.7), 0 3px 10px rgba(0,0,0,0.6)',
+            }}
+          >
+            {/* Inner embossed gold disc with claw-mark rays */}
+            <div
+              className="relative rounded-full flex flex-col items-center justify-center overflow-hidden"
+              style={{
+                width: '100%',
+                height: '100%',
+                background: 'radial-gradient(circle at 40% 30%, #ffe9a8 0%, #f5c542 45%, #c8881e 85%, #a86a1e 100%)',
+                border: '1.5px solid rgba(255,234,160,0.85)',
+                boxShadow: 'inset 0 -2px 4px rgba(120,80,20,0.7), inset 0 2px 3px rgba(255,250,200,0.45)',
+              }}
+            >
+              {/* Faint embossed rays / claw marks */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  backgroundImage: 'repeating-conic-gradient(from 0deg, rgba(120,80,20,0.18) 0deg, transparent 8deg, rgba(120,80,20,0.18) 16deg)',
+                  opacity: 0.5,
+                }}
+              />
+              <span
+                className="relative text-[10px] font-black italic leading-none tracking-wide"
+                style={{ fontFamily: 'Rye, Georgia, serif', color: '#fff7d6', textShadow: '0 1px 0 #8b5a2b, 0 2px 2px rgba(0,0,0,0.5), 0 -1px 0 rgba(255,245,200,0.4)' }}
+              >
+                BONUS
+              </span>
+              <span
+                className="relative text-[10px] font-black italic leading-none tracking-wide mt-0.5"
+                style={{ fontFamily: 'Rye, Georgia, serif', color: '#fff7d6', textShadow: '0 1px 0 #8b5a2b, 0 2px 2px rgba(0,0,0,0.5), 0 -1px 0 rgba(255,245,200,0.4)' }}
+              >
+                POP
+              </span>
+            </div>
+          </div>
+
+          {/* Red price badge */}
+          <div
+            className="relative -mt-1.5 z-10 rounded-full px-2.5 py-0.5"
+            style={{
+              background: 'radial-gradient(circle at 35% 30%, #e8321a, #c21807 55%, #8b0000 100%)',
+              border: '1.5px solid rgba(255,180,150,0.7)',
+              boxShadow: '0 0 8px rgba(194,24,7,0.7), inset 0 1px 1px rgba(255,200,180,0.4), inset 0 -1px 2px rgba(80,0,0,0.6)',
             }}
           >
             <span
-              className="text-[9px] font-black italic leading-none tracking-wide"
-              style={{ fontFamily: 'Rye, Georgia, serif', color: '#3a2408', textShadow: '0 1px 0 rgba(255,245,200,0.5)' }}
+              className="text-[10px] font-black leading-none tabular-nums"
+              style={{ fontFamily: 'Georgia, serif', color: '#fff', textShadow: '0 1px 1px rgba(80,0,0,0.8)' }}
             >
-              BONUS POP
-            </span>
-            <span
-              className="text-[8px] leading-none"
-              style={{ color: '#6b4a1a' }}
-            >
-              ⌄
+              {fmt(bonusCost)}
             </span>
           </div>
         </div>
