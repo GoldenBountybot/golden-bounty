@@ -9,7 +9,7 @@ import { WAYS, BETS, WILD_EXPAND_IMG, randomSymbol } from '@/lib/bigBrownEngine'
 
 // Big Brown slot machine — 6x4 grid, 4096 ways, expanding wilds, free spins.
 // Night-forest design matching the reference screenshot.
-const FOREST_BG = 'radial-gradient(ellipse at 50% 15%, #0d2847 0%, #071a33 40%, #02091a 100%)';
+const FOREST_BG = "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9a6ce937b_generated_image.png') center / cover, radial-gradient(ellipse at 50% 15%, #0d2847 0%, #071a33 40%, #02091a 100%)";
 
 // Spinning reel strip — a tall vertical column of random symbols that scrolls
 // downward while a reel is spinning (Wild Bounty "showdown" style). The strip
