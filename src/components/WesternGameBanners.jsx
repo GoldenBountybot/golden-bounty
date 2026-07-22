@@ -27,6 +27,24 @@ const BANNERS = [
     accent: '#d98a3a',
   },
   {
+    title: 'Golden Stack',
+    subtitle: 'Lock & Earn Daily',
+    desc: 'Lock your balance in the Golden Stack vault and earn up to 2.00% profit every single day for 30 days — your gold keeps growing while you play. Claim your profit anytime, then withdraw once the lock ends.',
+    image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c6e6b2403_generated_image.png',
+    link: '/dashboard?tab=stack',
+    accent: '#f5c542',
+    stack: true,
+  },
+  {
+    title: 'Golden Stack Vault',
+    subtitle: 'Daily Gold Profits',
+    desc: 'Stake any amount from $50 up and watch your balance compound. The longer it stays locked, the more daily gold you harvest — guaranteed returns, zero risk, paid straight to your wallet.',
+    image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c6e6b2403_generated_image.png',
+    link: '/dashboard?tab=stack',
+    accent: '#f0b438',
+    stack: true,
+  },
+  {
     title: 'Plinko Drop',
     subtitle: 'Drop & Win',
     image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e448825ee_generated_image.png',
@@ -92,9 +110,19 @@ export default function WesternGameBanners() {
                 {/* decorative gilt rule */}
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="block h-px w-8" style={{ background: `linear-gradient(to right, transparent, ${b.accent})` }} />
-                  <span style={{ color: b.accent, fontFamily: 'Smokum, Rye, Georgia, serif' }} className="text-[9px] tracking-[0.3em] uppercase">Featured</span>
+                  <span style={{ color: b.accent, fontFamily: 'Smokum, Rye, Georgia, serif' }} className="text-[9px] tracking-[0.3em] uppercase">{b.stack ? 'Staking' : 'Featured'}</span>
                   <span className="block h-px w-8" style={{ background: `linear-gradient(to left, transparent, ${b.accent})` }} />
                 </div>
+                {b.stack && (
+                  <svg viewBox="0 0 48 48" className="w-9 h-9 mb-1" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6)) drop-shadow(0 0 6px rgba(245,210,120,0.5))' }}>
+                    <ellipse cx="24" cy="13" rx="13" ry="5" fill="#c8881e" stroke="#f5c542" strokeWidth="1.5" />
+                    <ellipse cx="24" cy="13" rx="8" ry="3" fill="none" stroke="#f7e3a8" strokeWidth="1" opacity="0.7" />
+                    <rect x="11" y="18" width="26" height="6" rx="3" fill="#e6a23c" stroke="#f5c542" strokeWidth="1.5" />
+                    <rect x="11" y="25" width="26" height="6" rx="3" fill="#d98a3a" stroke="#f5c542" strokeWidth="1.5" />
+                    <rect x="11" y="32" width="26" height="6" rx="3" fill="#c8881e" stroke="#f5c542" strokeWidth="1.5" />
+                    <path d="M22 35h4v2h-4z" fill="#3a2a10" />
+                  </svg>
+                )}
                 <h2
                   className="text-xl sm:text-2xl italic leading-tight"
                   style={{
@@ -110,6 +138,11 @@ export default function WesternGameBanners() {
                     {b.subtitle}
                   </p>
                 )}
+                {b.desc && (
+                  <p className="mt-1.5 max-w-md text-[9px] sm:text-[10px] leading-relaxed italic px-2" style={{ fontFamily: 'Georgia, serif', color: 'rgba(245,225,170,0.78)' }}>
+                    {b.desc}
+                  </p>
+                )}
                 <span
                   className="inline-flex items-center gap-1 mt-2.5 px-4 py-1.5 italic text-xs font-black"
                   style={{
@@ -122,7 +155,7 @@ export default function WesternGameBanners() {
                     textShadow: '0 1px 1px rgba(255,240,200,0.4)',
                   }}
                 >
-                  Play Now <ChevronRight className="w-3.5 h-3.5" />
+                  {b.stack ? 'Stack Now' : 'Play Now'} <ChevronRight className="w-3.5 h-3.5" />
                 </span>
               </div>
             </div>
