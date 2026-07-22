@@ -55,6 +55,7 @@ export default function BigBrownMachine() {
     lastWin, message, winningPositions, expandedReels, scatterPositions,
     freeSpins, turbo, autoSpin,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
+    cancelFreeSpinStart,
     anticipation, bonusCost, bonusCosts, buyBonus,
     spin, setBetIndex, setTurbo, setAutoSpin,
   } = g;
@@ -245,7 +246,7 @@ export default function BigBrownMachine() {
 
             {/* Free spin start overlay */}
             {showFreeSpinStart && (
-              <BigBrownFreeSpinStart count={awardedFreeSpins} onStart={startFreeSpins} />
+              <BigBrownFreeSpinStart count={awardedFreeSpins} onStart={startFreeSpins} onCancel={cancelFreeSpinStart} />
             )}
           </div>
 

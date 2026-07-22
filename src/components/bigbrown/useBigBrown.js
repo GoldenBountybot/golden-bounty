@@ -29,6 +29,7 @@ export function useBigBrown() {
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
 
   const timers = useRef([]);
+  const lastBonusPurchase = useRef(null); // { cost, games } when banner came from Bonus Pop
   const bet = BETS[betIndex];
 
   useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
@@ -200,8 +201,25 @@ export function useBigBrown() {
   const startFreeSpins = useCallback(() => {
     setShowFreeSpinStart(false);
     setFreeSpinsActive(true);
+    lastBonusPurchase.current = null;
     spin();
   }, [spin]);
+
+  // Cancel the FreeSpinStart banner without playing — refunds Bonus Pop cost,
+  // or simply forfeits the scatter-awarded free spins.
+  const cancelFreeSpinStart = useCallback(() => {
+    if (lastBonusPurchase.current) {
+      const { cost, games } = lastBonusPurchase.current;
+      setBalance(b => b + cost);
+      setFreeSpins(f => Math.max(0, f - games));
+      lastBonusPurchase.current = null;
+      setMessage('Bonus cancelled — refunded');
+    } else {
+      setFreeSpins(f => Math.max(0, f - awardedFreeSpins));
+      setMessage('Free games cancelled');
+    }
+    setShowFreeSpinStart(false);
+  }, [awardedFreeSpins, setBalance]);
 
   const bonusCosts = {
     8: bonusPopCost(bet, 8),
@@ -222,6 +240,7 @@ export function useBigBrown() {
     setBalance(b => b - cost);
     setAwardedFreeSpins(games);
     setFreeSpins(games);
+    lastBonusPurchase.current = { cost, games };
     setShowFreeSpinStart(true);
     setMessage(`BONUS POP · ${games} FREE GAMES`);
   }, [spinning, showFreeSpinStart, freeSpins, balance, bet, setBalance]);
@@ -240,6 +259,7 @@ export function useBigBrown() {
     lastWin, message, winningPositions, expandedReels, scatterPositions,
     freeSpins, turbo, autoSpin,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
+    cancelFreeSpinStart,
     anticipation,
     spin, setBetIndex, setTurbo, setAutoSpin, reset,
     bonusCost, bonusCosts, buyBonus,

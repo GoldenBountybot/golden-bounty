@@ -93,6 +93,35 @@ export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBo
             boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.35), inset 0 0 0 3px rgba(20,14,6,0.85), inset 0 0 0 4px rgba(190,140,55,0.5), 0 10px 26px rgba(0,0,0,0.8)',
           }}
         >
+          {/* Header row — BACK button to close the menu without buying */}
+          <div className="flex items-center justify-between px-1 pb-2">
+            <span
+              className="text-[10px] font-black italic tracking-[0.2em]"
+              style={{ fontFamily: 'Rye, Georgia, serif', color: '#daa520', textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}
+            >
+              BONUS POP
+            </span>
+            <button
+              onClick={() => setShowBonusMenu(false)}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-[5px] active:scale-95 transition-transform"
+              style={{
+                background: 'linear-gradient(to bottom, #8b4513 0%, #6b3a14 60%, #4a280a 100%)',
+                border: '1.5px solid rgba(255,234,160,0.7)',
+                boxShadow: 'inset 0 1px 2px rgba(255,200,140,0.3), inset 0 -1px 2px rgba(0,0,0,0.5)',
+              }}
+            >
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffe9a8" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              <span
+                className="text-[9px] font-black italic tracking-[0.18em] leading-none"
+                style={{ color: '#ffe9a8', fontFamily: 'Rye, Georgia, serif' }}
+              >
+                BACK
+              </span>
+            </button>
+          </div>
+
           {/* Inner dark forest cavity */}
           <div
             className="rounded-[6px] p-2.5 grid grid-cols-2 gap-2"

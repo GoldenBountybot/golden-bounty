@@ -68,7 +68,7 @@ const PineTree = ({ style }) => (
   </svg>
 );
 
-export default function BigBrownFreeSpinStart({ count, onStart }) {
+export default function BigBrownFreeSpinStart({ count, onStart, onCancel }) {
   return (
     <div
       onClick={onStart}
@@ -78,6 +78,28 @@ export default function BigBrownFreeSpinStart({ count, onStart }) {
       className="absolute inset-0 z-40 flex flex-col items-center justify-center cursor-pointer active:scale-[0.99] transition-transform overflow-hidden"
       style={{ background: 'radial-gradient(ellipse at center, rgba(40,30,10,0.94), rgba(8,6,2,0.98))' }}
     >
+      {/* BACK button — dismiss without purchasing (refunds Bonus Pop) */}
+      {onCancel && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onCancel(); }}
+          className="absolute top-3 left-3 z-50 flex items-center gap-1 px-3 py-1.5 rounded-[6px] active:scale-95 transition-transform"
+          style={{
+            background: 'linear-gradient(to bottom, #8b4513 0%, #6b3a14 60%, #4a280a 100%)',
+            border: '1.5px solid rgba(255,234,160,0.7)',
+            boxShadow: 'inset 0 1px 2px rgba(255,200,140,0.3), inset 0 -1px 2px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.6)',
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffe9a8" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          <span
+            className="text-[10px] font-black italic tracking-[0.18em] leading-none"
+            style={{ color: '#ffe9a8', fontFamily: 'Rye, Georgia, serif' }}
+          >
+            BACK
+          </span>
+        </button>
+      )}
       {/* Pine foliage behind the plaque */}
       <PineTree style={{ width: 120, height: 200, top: '30%', left: '8%' }} />
       <PineTree style={{ width: 100, height: 170, top: '34%', right: '6%' }} />
