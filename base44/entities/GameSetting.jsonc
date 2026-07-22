@@ -14,6 +14,11 @@
       "default": 50,
       "description": "Winning chance percentage 0-100 the game biases toward"
     },
+    "demo_rtp": {
+      "type": "number",
+      "default": 50,
+      "description": "Winning chance percentage 0-100 used while Demo balance mode is active"
+    },
     "enabled": {
       "type": "boolean",
       "default": true
