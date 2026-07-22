@@ -4,7 +4,7 @@ import CasinoGameCard from '@/components/CasinoGameCard';
 import WesternGameBanners from '@/components/WesternGameBanners';
 import BottomNav from '@/components/BottomNav';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
-import { Gamepad2, Wallet } from 'lucide-react';
+import { Gamepad2, Wallet, FlaskConical } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
@@ -27,7 +27,7 @@ const CATEGORIES = ['All', 'Slots', 'Cards', 'Table', 'Arcade'];
 export default function Home() {
   const [cat, setCat] = useState('All');
   const { toast } = useToast();
-  const { balance } = useCasinoBalance();
+  const { balance, demoMode, setDemoMode } = useCasinoBalance();
   const filtered = cat === 'All' ? GAMES : GAMES.filter(g => g.category === cat);
   const playable = GAMES.filter(g => !g.coming).length;
 
@@ -52,16 +52,34 @@ export default function Home() {
             </div>
           </div>
 
-          <Link
-            to="/dashboard"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 self-end rounded-[8px] transition-colors"
-            style={{ border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)', marginRight: 0 }}
-          >
-            <Wallet className="w-4 h-4 text-amber-400" />
-            <span className="text-xs font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
-              ${balance.toFixed(2)}
-            </span>
-          </Link>
+          <div className="flex flex-col items-end gap-1.5 self-end mr-0">
+            <button
+              onClick={() => {
+                const next = !demoMode;
+                setDemoMode(next);
+                toast({ title: next ? 'Demo Mode ON · $1000 practice balance' : 'Demo Mode OFF · real balance restored' });
+              }}
+              title={demoMode ? 'Demo mode is ON' : 'Enable demo mode'}
+              className="flex items-center gap-1 px-2 py-1 rounded-[6px] transition-all active:scale-95"
+              style={{
+                border: demoMode ? '1px solid rgba(74,222,128,0.75)' : '1px solid rgba(214,178,98,0.45)',
+                background: demoMode ? 'rgba(34,197,94,0.18)' : 'rgba(20,17,13,0.6)',
+              }}
+            >
+              <FlaskConical className={`w-3 h-3 ${demoMode ? 'text-emerald-300' : 'text-amber-400'}`} />
+              <span className="text-[10px] font-black italic tracking-wide" style={{ fontFamily: 'Georgia, serif', color: demoMode ? '#bbf7d0' : '#e8c878' }}>DEMO</span>
+            </button>
+            <Link
+              to="/dashboard"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] transition-colors"
+              style={{ border: demoMode ? '1px solid rgba(74,222,128,0.6)' : '1px solid rgba(214,178,98,0.45)', background: demoMode ? 'rgba(34,197,94,0.12)' : 'rgba(20,17,13,0.6)' }}
+            >
+              <Wallet className="w-4 h-4 text-amber-400" />
+              <span className="text-xs font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
+                ${balance.toFixed(2)}
+              </span>
+            </Link>
+          </div>
         </div>
       </header>
 

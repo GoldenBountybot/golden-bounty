@@ -35,7 +35,7 @@ const defaultClaim = {
 };
 
 export function useCasinoAccount() {
-  const { balance, setBalance } = useCasinoBalance();
+  const { balance, setBalance, demoMode } = useCasinoBalance();
   const [userId, setUserId] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
   const [settings, setSettings] = useState([]);
@@ -90,7 +90,9 @@ export function useCasinoAccount() {
   const depositCfg = cfg('deposit');
 
   // Deposit creates a pending request — no instant credit. Admin must approve.
+  // Demo balance cannot be deposited or withdrawn.
   const deposit = async (amount) => {
+    if (demoMode) return false;
     const n = Number(amount);
     if (!n || n <= 0 || !userId) return;
     try {
@@ -103,6 +105,7 @@ export function useCasinoAccount() {
   };
 
   const withdraw = (amount) => {
+    if (demoMode) return false;
     const n = Number(amount);
     if (!n || n <= 0 || n > balance) return false;
     setBalance((b) => b - n);

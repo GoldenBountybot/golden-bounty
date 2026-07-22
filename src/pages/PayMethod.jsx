@@ -5,6 +5,7 @@ import WesternFrame from '@/components/wildbounty/WesternFrame';
 import WesternBackdrop from '@/components/WesternBackdrop';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
+import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { Bitcoin, Wallet, Copy, Check, ArrowLeft, AlertTriangle } from 'lucide-react';
 import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
 import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
@@ -108,6 +109,7 @@ export default function PayMethod() {
   const params = new URLSearchParams(window.location.search);
   const amount = Number(params.get('amount') || 0);
   const { toast } = useToast();
+  const { demoMode } = useCasinoBalance();
   const [view, setView] = useState('choose'); // 'choose' | 'usdt' | 'crypto' | 'binance'
   const [payData, setPayData] = useState({ binance: null, usdt: USDT_NETWORKS, crypto: CRYPTO_NETWORKS });
 
@@ -154,7 +156,14 @@ export default function PayMethod() {
       </header>
 
       <main className="relative z-10 max-w-md mx-auto px-4 py-5 flex flex-col gap-4">
-        {amount <= 0 ? (
+        {demoMode ? (
+          <WesternFrame variant="glass" className="p-5 flex flex-col items-center gap-3 text-center">
+            <AlertTriangle className="w-8 h-8 text-amber-400" />
+            <p className="text-amber-100 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>Demo Mode is active.</p>
+            <p className="text-amber-100/60 text-xs italic">Deposits are disabled while using the practice balance. Turn off Demo from the home page to deposit real funds.</p>
+            <button onClick={() => window.location.href = '/'} className="px-4 py-2 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>Back to Home</button>
+          </WesternFrame>
+        ) : amount <= 0 ? (
           <WesternFrame variant="glass" className="p-5 flex flex-col items-center gap-3 text-center">
             <AlertTriangle className="w-8 h-8 text-amber-400" />
             <p className="text-amber-100 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>No deposit amount selected.</p>

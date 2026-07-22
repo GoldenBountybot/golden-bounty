@@ -21,8 +21,25 @@ let persistTimer = null;
 let persisting = false;
 const listeners = new Set();
 
+// Demo mode: a local-only balance used to try every game without touching the
+// real wallet. Starts at $1000 each time demo is turned on; gameplay mutates it
+// in memory (no backend persist). Turning demo off restores the real balance.
+const DEMO_KEY = 'casino_demo_mode';
+const DEMO_BAL_KEY = 'casino_demo_balance';
+const DEMO_START = 1000;
+let demoMode = (() => { try { return localStorage.getItem(DEMO_KEY) === '1'; } catch { return false; } })();
+let demoBalance = (() => { try { const v = parseFloat(localStorage.getItem(DEMO_BAL_KEY)); return isFinite(v) && v > 0 ? v : DEMO_START; } catch { return DEMO_START; } })();
+const setDemoCache = (v) => { try { localStorage.setItem(DEMO_BAL_KEY, String(v ?? 0)); } catch {} };
+
 const notify = () => listeners.forEach((l) => l());
 const setCache = (v) => { try { localStorage.setItem(CACHE_KEY, String(v ?? 0)); } catch {} };
+
+function setDemoMode(on) {
+  demoMode = !!on;
+  try { localStorage.setItem(DEMO_KEY, demoMode ? '1' : '0'); } catch {}
+  if (demoMode) { demoBalance = DEMO_START; setDemoCache(DEMO_START); }
+  notify();
+}
 
 async function loadBalance() {
   try {
@@ -99,6 +116,17 @@ export function useCasinoBalance() {
   }, []);
 
   const setBalance = useCallback((updater) => {
+    // In demo mode, mutate the in-memory demo balance only — never touch the
+    // real wallet or push to the backend.
+    if (demoMode) {
+      const prev = demoBalance;
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      const v = isFinite(next) ? Number(next) : 0;
+      demoBalance = v;
+      setDemoCache(v);
+      notify();
+      return;
+    }
     const prev = balance;
     const next = typeof updater === 'function' ? updater(prev) : updater;
     const v = isFinite(next) ? Number(next) : 0;
@@ -110,8 +138,9 @@ export function useCasinoBalance() {
   }, []);
 
   const reset = useCallback(() => setBalance(0), [setBalance]);
+  const toggleDemo = useCallback((on) => setDemoMode(on), []);
 
-  return { balance, setBalance, reset };
+  return { balance: demoMode ? demoBalance : balance, setBalance, reset, demoMode, setDemoMode: toggleDemo };
 }
 
 export async function reloadBalance() { await loadBalance(); }

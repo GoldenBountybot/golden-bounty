@@ -5,7 +5,8 @@ import WesternFrame from '@/components/wildbounty/WesternFrame';
 import WesternBackdrop from '@/components/WesternBackdrop';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
-import { Wallet, ArrowLeft, Send } from 'lucide-react';
+import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import { Wallet, ArrowLeft, Send, AlertTriangle } from 'lucide-react';
 
 const FONT = 'Rye, Georgia, serif';
 
@@ -44,6 +45,7 @@ export default function Withdraw() {
   const params = new URLSearchParams(window.location.search);
   const amount = Number(params.get('amount') || 0);
   const { toast } = useToast();
+  const { demoMode } = useCasinoBalance();
   const [view, setView] = useState('choose'); // 'choose' | 'binance' | 'usdt'
   const [usdtNets, setUsdtNets] = useState(DEFAULT_USDT_NETS);
   const [selectedNet, setSelectedNet] = useState(null);
@@ -105,6 +107,15 @@ export default function Withdraw() {
       </header>
 
       <main className="relative z-10 max-w-md mx-auto px-4 py-5 flex flex-col gap-4">
+        {demoMode ? (
+          <WesternFrame variant="glass" className="p-5 flex flex-col items-center gap-3 text-center">
+            <AlertTriangle className="w-8 h-8 text-amber-400" />
+            <p className="text-amber-100 text-sm italic" style={{ fontFamily: FONT }}>Demo Mode is active.</p>
+            <p className="text-amber-100/60 text-xs italic">Withdrawals are disabled while using the practice balance. Turn off Demo from the home page to withdraw real funds.</p>
+            <button onClick={() => window.location.href = '/'} className="px-4 py-2 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic active:scale-95" style={{ fontFamily: FONT }}>Back to Home</button>
+          </WesternFrame>
+        ) : (
+        <>
         <WesternFrame glow variant="glass" className="p-4 flex items-center justify-between">
           <div>
             <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Withdrawing</p>
@@ -203,9 +214,11 @@ export default function Withdraw() {
                 <p className="text-[10px] text-amber-100/40 italic text-center">Funds sent after admin approves your request.</p>
               </WesternFrame>
             )}
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
+            </div>
+            )}
+            </>
+            )}
+            </main>
+            </div>
+            );
+            }
