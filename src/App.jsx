@@ -23,6 +23,7 @@ import Profile from './pages/Profile';
 import PayMethod from './pages/PayMethod';
 import Withdraw from './pages/Withdraw';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AppLoadingImage from '@/components/AppLoadingImage';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 
 const AuthenticatedApp = () => {
@@ -30,11 +31,7 @@ const AuthenticatedApp = () => {
   const loading = isLoadingPublicSettings || isLoadingAuth;
 
   if (loading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-stone-950">
-        <div className="w-10 h-10 rounded-full border-2 border-amber-500/30 border-t-amber-400 animate-spin" />
-      </div>
-    );
+    return <AppLoadingImage />;
   }
 
   // Handle authentication errors
