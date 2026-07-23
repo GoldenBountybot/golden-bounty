@@ -86,13 +86,13 @@ export default function ArgonautsMachine() {
       <GameHeader title="ARGONAUTS" balance={balance} />
 
       {/* Metallic title band */}
-      <div className="relative pt-0 pb-0 flex justify-center">
+      <div className="relative pt-0 pb-0 flex justify-center" style={{ marginTop: '-8px' }}>
         <img
           src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8ed43464_generated_image.png"
           alt="ARGONAUTS"
           draggable={false}
           className="select-none"
-          style={{ height: 'auto', width: 'min(82vw, 320px)', mixBlendMode: 'screen', objectFit: 'contain', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.4))' }}
+          style={{ height: 'auto', width: 'min(70vw, 270px)', mixBlendMode: 'screen', objectFit: 'contain', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.4))' }}
         />
       </div>
 
@@ -176,7 +176,7 @@ export default function ArgonautsMachine() {
       </div>
 
       {/* Control panel */}
-      <div className="relative px-3 pb-2">
+      <div className="relative px-3 pb-2" style={{ marginTop: '20px' }}>
         <div className="mx-auto max-w-md">
           <div className="flex items-center justify-between gap-2">
             {/* Left column: Turbo + Menu */}
