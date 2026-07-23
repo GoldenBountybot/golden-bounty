@@ -22,10 +22,10 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
         <span
           className="relative z-10 font-black tabular-nums italic"
           style={{
-            fontSize: '0.78rem',
+            fontSize: '0.64rem',
             fontFamily: 'Rye, Georgia, serif',
             color: '#FFD700',
-            WebkitTextStroke: '2.2px #000',
+            WebkitTextStroke: '1.8px #000',
             paintOrder: 'stroke fill',
             filter: 'drop-shadow(0 0 2px rgba(255,235,150,0.8))',
             letterSpacing: '0.01em',
