@@ -6,7 +6,7 @@ import { Address } from 'npm:@ton/core@0.60.1';
 // $ amount. Idempotent by tonapi event_id. The on-chain nanoTON value must match
 // the expectedNano the frontend sent (= $amount / live TON price), with a sanity
 // price check. Uses tonapi.io public endpoints — no secret needed.
-const ADMIN = 'UQCTtNPN9ZzlXWsiE-VHApcouD8tFHgBIcC3hD-GcQdDrgKN';
+const ADMIN = 'UQB5vp_yQ4L-EheVHn4df--zU1XDuRX_tMSCc7WEB-PGuGv6';
 
 function toRaw(addr) {
   try { return '0:' + Address.parse(addr).hash.toString('hex'); } catch { return ''; }

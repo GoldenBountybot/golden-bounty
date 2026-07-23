@@ -4,7 +4,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 // on the selected network, then records a completed Transaction. Idempotent by
 // tx hash. Uses public RPCs — no secret needed.
 const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-const ADMIN = '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570';
+const ADMIN = '0x2a62cd712863028804a5789629c23d842990aded';
 
 const NETWORKS = {
   bsc: {

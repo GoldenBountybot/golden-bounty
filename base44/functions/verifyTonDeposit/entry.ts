@@ -4,7 +4,7 @@ import { Address } from 'npm:@ton/core@0.60.1';
 // Verifies a USDT (Jetton) deposit on TON sent from the user's Tonkeeper wallet
 // to the admin wallet, then records a completed Transaction. Idempotent by the
 // tonapi event_id. Uses tonapi.io public endpoints — no secret needed.
-const ADMIN = 'UQCTtNPN9ZzlXWsiE-VHApcouD8tFHgBIcC3hD-GcQdDrgKN';
+const ADMIN = 'UQB5vp_yQ4L-EheVHn4df--zU1XDuRX_tMSCc7WEB-PGuGv6';
 const USDT_MASTER_RAW = '0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe';
 const DECIMALS = 6;
 

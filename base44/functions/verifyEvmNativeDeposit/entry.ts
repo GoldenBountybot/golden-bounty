@@ -5,7 +5,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 // amount. Idempotent by tx hash. The on-chain value must match the expectedWei
 // the frontend sent (= $amount / live price), and a sanity price check guards
 // against a manipulated/tiny amount. Public RPCs — no secret needed.
-const ADMIN = '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570';
+const ADMIN = '0x2a62cd712863028804a5789629c23d842990aded';
 
 const NETWORKS = {
   bsc: { rpc: 'https://bsc-dataseed.binance.org', bfSymbol: 'tBNBUSD', gtPair: 'bnb_usdt', decimals: 18, label: 'BSC · BNB' },
