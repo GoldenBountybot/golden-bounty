@@ -17,6 +17,7 @@ export function useArgonauts() {
   const [totalWin, setTotalWin] = useState(0);
   const [message, setMessage] = useState('ARGONAUTS · QUEST FOR THE GOLDEN FLEECE');
   const [winningPositions, setWinningPositions] = useState(new Set());
+  const [winningLines, setWinningLines] = useState([]);
   const [spinningReels, setSpinningReels] = useState(new Set([0, 1, 2, 3, 4]));
   const [freeSpins, setFreeSpins] = useState(0);
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
@@ -135,6 +136,7 @@ export function useArgonauts() {
     const positions = new Set();
     wins.forEach((w) => w.positions.forEach((p) => positions.add(p)));
     setWinningPositions(positions);
+    setWinningLines(wins.map((w) => ({ line: w.line, symbol: w.symbol, count: w.count, pay: w.pay })));
 
     const baseWin = lineWin + scatterPay;
 
@@ -205,6 +207,7 @@ export function useArgonauts() {
 
     setSpinning(true);
     setWinningPositions(new Set());
+    setWinningLines([]);
     setLastWin(0);
     setSpinningReels(new Set());
     if (riskActive && pendingWin > 0) setBalance((b) => b + pendingWin);
@@ -365,7 +368,7 @@ export function useArgonauts() {
 
   return {
     grid, balance, bet, betIndex, spinning, spinningReels,
-    lastWin, totalWin, message, winningPositions,
+    lastWin, totalWin, message, winningPositions, winningLines,
     freeSpins, freeSpinsActive, showFreeSpinStart, startFreeSpins,
     bonusActive, bonusSteps, bonusPrize, bonusExtra, finishBonus,
     autoSpin, turbo, setBetIndex, setTurbo, setAutoSpin,

@@ -180,7 +180,7 @@ export default function ArgonautsMachine() {
                 </div>
               );
             })}
-            <WinLineOverlay winningPositions={g.winningPositions} />
+            <WinLineOverlay winningLines={g.winningLines} />
           </div>
 
           {/* Status strip: free-game labels + message */}
