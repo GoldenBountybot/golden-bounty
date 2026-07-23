@@ -59,7 +59,7 @@ export const MAX_RISK_STEPS = 10;
 // triggers a hold-and-spin coin round: 3 spins, coins stick, any new coin
 // resets the counter to 3. Coin value = mult × bet (at $0.10 → $0.10…$1.50).
 export const VALUE_COIN_MULTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-export const VALUE_COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/520aadd49_generated_image.png';
+export const VALUE_COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/eb3dbe32a_generated_image.png';
 export const VALUE_COIN_CHANCE = 0.10;   // per reel, base game
 export const COIN_TRIGGER_REELS = 3;
 export const COIN_SPINS_START = 3;
