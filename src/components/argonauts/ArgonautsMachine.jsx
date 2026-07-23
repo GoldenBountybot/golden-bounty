@@ -150,13 +150,7 @@ export default function ArgonautsMachine() {
                     return (
                       <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', opacity: stopped ? 1 : 0 }}>
                         {stopped ? (
-                          <div
-                            className="w-full h-full"
-                            style={{
-                              animation: `argoDrop ${g.turbo ? 0.42 : 0.62}s cubic-bezier(0.22,1,0.36,1) both`,
-                              animationDelay: `${(ROWS - 1 - row) * (g.turbo ? 60 : 95)}ms`,
-                            }}
-                          >
+                          <div className="w-full h-full" style={{ animation: `bbSymbolDrop 0.34s ease-out both` }}>
                             <ArgoSymbolTile sym={sym} win={isWin} dim={g.winningPositions.size > 0 && !isWin} />
                           </div>
                         ) : (
