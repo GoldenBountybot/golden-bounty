@@ -4,8 +4,8 @@
 export const WALLETCONNECT_PROJECT_ID = 'da17bc578f57a7ecb96c1ae7f2eb988a';
 
 export const WALLETCONNECT_METADATA = {
-  name: 'VIP Slots',
-  description: 'VIP Slots — casino deposit',
-  url: typeof window !== 'undefined' ? window.location.origin : 'https://vip-slots.app',
+  name: 'Golden Bounty',
+  description: 'Golden Bounty — casino deposit',
+  url: typeof window !== 'undefined' ? window.location.origin : 'https://golden-bounty.base44.app',
   icons: [],
 };
