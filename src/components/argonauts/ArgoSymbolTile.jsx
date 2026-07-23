@@ -24,12 +24,9 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
           style={{
             fontSize: '0.66rem',
             fontFamily: 'Rye, Georgia, serif',
-            background: 'linear-gradient(180deg, #F8D970 0%, #E6B24A 42%, #B86C20 100%)',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            color: 'transparent',
-            WebkitTextStroke: '0.9px #000',
-            paintOrder: 'stroke fill',
+            color: '#FFD24A',
+            textShadow:
+              '1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000',
             letterSpacing: '0.01em',
           }}
         >
