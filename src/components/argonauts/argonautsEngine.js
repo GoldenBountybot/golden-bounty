@@ -54,6 +54,21 @@ export const BONUS_TRIGGER_COUNT = 6; // 6+ bonus symbols trigger Golden Fleece
 export const FREE_SPINS_AWARD = 8;
 export const MAX_RISK_STEPS = 10;
 
+// ---- Value Coin feature (Crown Coins style) ----
+// Value coins appear on reels in the base game. Landing coins on 3+ reels
+// triggers a hold-and-spin coin round: 3 spins, coins stick, any new coin
+// resets the counter to 3. Coin value = mult × bet (at $0.10 → $0.10…$1.50).
+export const VALUE_COIN_MULTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+export const VALUE_COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/09f3a23e1_generated_image.png';
+export const VALUE_COIN_CHANCE = 0.10;   // per reel, base game
+export const COIN_TRIGGER_REELS = 3;
+export const COIN_SPINS_START = 3;
+export const COIN_DROP_CHANCE = 0.12;    // per reel, per coin spin
+
+export function isValueCoin(key) { return typeof key === 'string' && key.startsWith('vc'); }
+export function valueCoinMult(key) { return Number(String(key).slice(2)) || 0; }
+export function valueCoinKey(mult) { return 'vc' + mult; }
+
 // Reel symbol weights.
 const BASE_WEIGHTS = {
   bow: 22, potion: 20, cup: 18, harp: 16,
@@ -89,6 +104,13 @@ export function reelWeights(reelIndex, freeSpins) {
 }
 
 export function generateReel(reelIndex, freeSpins) {
+  // Value coin — base game only, at most one per reel, low chance.
+  if (!freeSpins && Math.random() < VALUE_COIN_CHANCE) {
+    const mult = VALUE_COIN_MULTS[Math.floor(Math.random() * VALUE_COIN_MULTS.length)];
+    const w = reelWeights(reelIndex, freeSpins);
+    const coinRow = Math.floor(Math.random() * ROWS);
+    return [0, 1, 2].map((r) => (r === coinRow ? valueCoinKey(mult) : pickWeighted(w)));
+  }
   // Stacked wild chance — full-column wilds (higher in free spins).
   const stackChance = freeSpins ? 0.12 : 0.07;
   if (Math.random() < stackChance) return ['wild', 'wild', 'wild'];
@@ -105,12 +127,13 @@ export function evaluate(grid, lineBet, baseBet) {
   const wins = [];
   PAYLINES.forEach((line, li) => {
     const first = grid[0][line[0]];
+    if (isValueCoin(first) || first === 'scatter' || first === 'bonus') return;
     let paySym = first;
     if (paySym === 'wild') {
       paySym = null;
       for (let r = 0; r < REELS; r++) {
         const s = grid[r][line[r]];
-        if (s !== 'wild' && s !== 'scatter' && s !== 'bonus') { paySym = s; break; }
+        if (s !== 'wild' && s !== 'scatter' && s !== 'bonus' && !isValueCoin(s)) { paySym = s; break; }
       }
       if (!paySym) paySym = 'wild';
     }
@@ -118,6 +141,7 @@ export function evaluate(grid, lineBet, baseBet) {
     let count = 0;
     for (let r = 0; r < REELS; r++) {
       const s = grid[r][line[r]];
+      if (isValueCoin(s)) break;
       if (s === paySym || s === 'wild') count++;
       else break;
     }
@@ -198,6 +222,10 @@ export function resolveBonus(baseBet, triggerCount) {
 // random payline (used for RTP bias toward a winning spin).
 export function forceWinGrid() {
   const grid = generateGrid(false);
+  // clear any value coins so the forced line is clean
+  for (let r = 0; r < REELS; r++)
+    for (let row = 0; row < ROWS; row++)
+      if (isValueCoin(grid[r][row])) grid[r][row] = pickWeighted(reelWeights(r, false));
   const line = PAYLINES[Math.floor(Math.random() * PAYLINES.length)];
   const sym = ['jason', 'atlanta', 'lizard', 'dove', 'harp', 'cup'][Math.floor(Math.random() * 6)];
   for (let r = 0; r < 3; r++) {
@@ -206,6 +234,50 @@ export function forceWinGrid() {
     grid[r] = copy;
   }
   return grid;
+}
+
+// ---- Coin round helpers ----
+export function coinTriggered(grid) {
+  let reels = 0;
+  for (let r = 0; r < REELS; r++) if (grid[r].some(isValueCoin)) reels++;
+  return reels >= COIN_TRIGGER_REELS;
+}
+
+export function collectCoins(grid) {
+  const map = {};
+  for (let r = 0; r < REELS; r++)
+    for (let row = 0; row < ROWS; row++)
+      if (isValueCoin(grid[r][row])) map[`${r}-${row}`] = valueCoinMult(grid[r][row]);
+  return map;
+}
+
+export function spinCoinRound(stuck) {
+  const newStuck = { ...stuck };
+  const grid = Array.from({ length: REELS }, (_, r) =>
+    Array.from({ length: ROWS }, (_, row) => {
+      const k = `${r}-${row}`;
+      return newStuck[k] ? valueCoinKey(newStuck[k]) : pickWeighted(reelWeights(r, false));
+    })
+  );
+  let dropped = 0;
+  for (let r = 0; r < REELS; r++) {
+    if (Math.random() < COIN_DROP_CHANCE) {
+      const empty = [];
+      for (let row = 0; row < ROWS; row++) if (!newStuck[`${r}-${row}`]) empty.push(row);
+      if (empty.length) {
+        const row = empty[Math.floor(Math.random() * empty.length)];
+        const mult = VALUE_COIN_MULTS[Math.floor(Math.random() * VALUE_COIN_MULTS.length)];
+        newStuck[`${r}-${row}`] = mult;
+        grid[r][row] = valueCoinKey(mult);
+        dropped += 1;
+      }
+    }
+  }
+  return { grid, stuck: newStuck, dropped };
+}
+
+export function coinTotal(stuck, bet) {
+  return Object.values(stuck).reduce((a, m) => a + m * bet, 0);
 }
 
 export const BETS = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 45];

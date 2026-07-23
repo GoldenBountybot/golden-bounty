@@ -1,9 +1,41 @@
 import React from 'react';
-import { SYMBOLS } from './argonautsEngine';
+import { SYMBOLS, isValueCoin, valueCoinMult, VALUE_COIN_IMG } from './argonautsEngine';
 
-// A single symbol tile styled to match the screenshot: dark-blue cell, gold-rim,
-// large emoji glyph. Wild gets a fire glow + WILD label.
-export default function ArgoSymbolTile({ sym, spinning, win, dim = false, size = 'md' }) {
+// A single symbol tile. Value coins render as a gold coin with the dollar
+// amount (mult × bet) overlaid; stuck coins get a brighter glow.
+export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 0, stuck = false }) {
+  if (isValueCoin(sym)) {
+    const amount = valueCoinMult(sym) * bet;
+    return (
+      <div
+        className="relative flex items-center justify-center rounded-[7px] overflow-hidden"
+        style={{
+          width: '100%',
+          aspectRatio: '1 / 1',
+          background: 'radial-gradient(circle at 50% 40%, rgba(255,215,0,0.3), rgba(60,40,10,0.95) 75%)',
+          border: '2px solid #FFD700',
+          boxShadow: stuck
+            ? '0 0 20px rgba(255,215,0,0.95), 0 0 8px rgba(255,255,200,0.9), inset 0 0 12px rgba(255,235,150,0.6)'
+            : '0 0 10px rgba(255,215,0,0.6), inset 0 0 8px rgba(255,200,80,0.4)',
+          animation: spinning ? undefined : stuck ? 'ccFireFlicker 1.1s ease-in-out infinite' : undefined,
+        }}
+      >
+        <img src={VALUE_COIN_IMG} alt="value coin" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
+        <span
+          className="relative z-10 font-black tabular-nums"
+          style={{
+            color: '#3E2723',
+            fontSize: '0.85rem',
+            textShadow: '0 1px 1px rgba(255,235,150,0.8)',
+            fontFamily: 'Georgia, serif',
+          }}
+        >
+          ${amount.toFixed(2)}
+        </span>
+      </div>
+    );
+  }
+
   const meta = SYMBOLS[sym] || SYMBOLS.bow;
   const isWild = meta.kind === 'wild';
   const isScatter = meta.kind === 'scatter';

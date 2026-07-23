@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   REELS, ROWS, generateGrid, evaluate, resolveBonus, forceWinGrid,
   BETS, FREE_SPINS_AWARD, BONUS_TRIGGER_COUNT, MAX_RISK_STEPS,
+  coinTriggered, collectCoins, spinCoinRound, coinTotal, COIN_SPINS_START,
 } from './argonautsEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -13,7 +14,7 @@ export function useArgonauts() {
   const [betIndex, setBetIndex] = useState(3); // $1 default
   const [spinning, setSpinning] = useState(false);
   const [lastWin, setLastWin] = useState(0);
-  const [totalWin, setTotalWin] = useState(0);       // accumulates across free spins
+  const [totalWin, setTotalWin] = useState(0);
   const [message, setMessage] = useState('ARGONAUTS · QUEST FOR THE GOLDEN FLEECE');
   const [winningPositions, setWinningPositions] = useState(new Set());
   const [spinningReels, setSpinningReels] = useState(new Set([0, 1, 2, 3, 4]));
@@ -26,12 +27,17 @@ export function useArgonauts() {
   const [bonusExtra, setBonusExtra] = useState(false);
   const [autoSpin, setAutoSpin] = useState(false);
   const [turbo, setTurbo] = useState(false);
-  const [riskActive, setRiskActive] = useState(false);     // gamble prompt available
-  const [riskMode, setRiskMode] = useState(false);          // gamble in progress
+  const [riskActive, setRiskActive] = useState(false);
+  const [riskMode, setRiskMode] = useState(false);
   const [riskStep, setRiskStep] = useState(0);
-  const [riskHistory, setRiskHistory] = useState([]);        // ['red','black',...]
-  const [riskResult, setRiskResult] = useState(null);        // 'win'|'lose'|null
-  const [pendingWin, setPendingWin] = useState(0);           // win awaiting gamble decision
+  const [riskHistory, setRiskHistory] = useState([]);
+  const [riskResult, setRiskResult] = useState(null);
+  const [pendingWin, setPendingWin] = useState(0);
+
+  // Value-coin hold-and-spin round state
+  const [coinMode, setCoinMode] = useState(false);
+  const [coinSpins, setCoinSpins] = useState(0);
+  const [coinStuck, setCoinStuck] = useState({});
 
   const settings = useGameSettings('argonauts');
   const logActivity = useLogActivity('argonauts');
@@ -42,7 +48,85 @@ export function useArgonauts() {
   const bet = BETS[betIndex];
   const lineBet = bet / 10;
 
+  // refs to avoid stale closures in chained coin-spin timers
+  const betRef = useRef(bet); betRef.current = bet;
+  const turboRef = useRef(turbo); turboRef.current = turbo;
+  const coinModeRef = useRef(false);
+  const coinStuckRef = useRef({});
+  const coinSpinsRef = useRef(0);
+
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
+
+  // ---- Coin round ----
+  const endCoinRound = useCallback((stuck) => {
+    const total = coinTotal(stuck, betRef.current);
+    coinStuckRef.current = {};
+    coinSpinsRef.current = 0;
+    coinModeRef.current = false;
+    setCoinMode(false);
+    setCoinStuck({});
+    setCoinSpins(0);
+    setBalance((b) => b + total);
+    setLastWin(total);
+    setTotalWin((t) => t + total);
+    setMessage(`COIN FEATURE · WON $${total.toFixed(2)}`);
+    logActivity('argonauts', betRef.current, total, 'win', 0);
+  }, [setBalance, logActivity]);
+
+  const coinSpin = useCallback(() => {
+    if (!coinModeRef.current || Object.keys(coinStuckRef.current).length === 0) return;
+    setSpinning(true);
+    setSpinningReels(new Set());
+    setWinningPositions(new Set());
+    const { grid: newGrid, stuck: newStuck, dropped } = spinCoinRound(coinStuckRef.current);
+    const gap = turboRef.current ? 80 : 150;
+    const stopReel = (i) => {
+      const t = setTimeout(() => {
+        setGrid((prev) => { const next = prev.map((r) => [...r]); next[i] = newGrid[i]; return next; });
+        setSpinningReels((prev) => { const n = new Set(prev); n.add(i); return n; });
+        if (i < REELS - 1) stopReel(i + 1);
+        else {
+          const t2 = setTimeout(() => {
+            coinStuckRef.current = newStuck;
+            setCoinStuck(newStuck);
+            setSpinning(false);
+            setSpinningReels(new Set([0, 1, 2, 3, 4]));
+            if (dropped > 0) {
+              coinSpinsRef.current = COIN_SPINS_START;
+              setCoinSpins(COIN_SPINS_START);
+              setMessage(`COIN +${dropped} · 3 SPINS`);
+            } else {
+              const nc = coinSpinsRef.current - 1;
+              coinSpinsRef.current = nc;
+              setCoinSpins(nc);
+              if (nc <= 0) { endCoinRound(newStuck); return; }
+              setMessage(`${nc} SPINS LEFT`);
+            }
+            if (dropped > 0 || coinSpinsRef.current > 0) {
+              const t3 = setTimeout(() => coinSpin(), turboRef.current ? 600 : 1000);
+              timers.current.push(t3);
+            }
+          }, turboRef.current ? 120 : 250);
+          timers.current.push(t2);
+        }
+      }, gap * (i + 1));
+      timers.current.push(t);
+    };
+    stopReel(0);
+  }, [endCoinRound]);
+
+  const startCoinRound = useCallback((finalGrid) => {
+    const stuck = collectCoins(finalGrid);
+    coinStuckRef.current = stuck;
+    coinSpinsRef.current = COIN_SPINS_START;
+    coinModeRef.current = true;
+    setCoinStuck(stuck);
+    setCoinSpins(COIN_SPINS_START);
+    setCoinMode(true);
+    setWinningPositions(new Set());
+    const t = setTimeout(() => coinSpin(), turboRef.current ? 700 : 1100);
+    timers.current.push(t);
+  }, [coinSpin]);
 
   const settle = useCallback((finalGrid, usingFree) => {
     setGrid(finalGrid);
@@ -53,6 +137,22 @@ export function useArgonauts() {
     setWinningPositions(positions);
 
     const baseWin = lineWin + scatterPay;
+
+    // Value-coin hold-and-spin trigger (base game only)
+    const coinTrig = !usingFree && coinTriggered(finalGrid);
+    if (coinTrig) {
+      if (baseWin > 0) {
+        setBalance((b) => b + baseWin);
+        setLastWin(baseWin);
+        setTotalWin((t) => t + baseWin);
+      }
+      setMessage(baseWin > 0 ? `WIN $${baseWin.toFixed(2)} · COIN FEATURE!` : 'COIN FEATURE!');
+      setSpinning(false);
+      logActivity('argonauts', bet, baseWin, baseWin > 0 ? 'win' : 'loss');
+      startCoinRound(finalGrid);
+      return;
+    }
+
     let awardedFree = false;
     if (scatterCount >= 3) {
       awardedFree = true;
@@ -67,7 +167,6 @@ export function useArgonauts() {
         setBalance((b) => b + baseWin);
         setMessage(awardedFree ? `WIN $${baseWin.toFixed(2)} · +${FREE_SPINS_AWARD} FREE` : `WIN $${baseWin.toFixed(2)}`);
       } else {
-        // Hold the win as a gamble pot; credited on collect or next spin.
         setPendingWin(baseWin);
         setRiskActive(true);
         setMessage(awardedFree ? `WIN $${baseWin.toFixed(2)} · +${FREE_SPINS_AWARD} FREE` : `WIN $${baseWin.toFixed(2)} · TAKE / RISK?`);
@@ -77,7 +176,6 @@ export function useArgonauts() {
       if (!awardedFree) setMessage(usingFree ? 'FREE SPIN · NO WIN' : 'NO WIN · SPIN AGAIN');
     }
 
-    // Golden Fleece bonus
     if (bonusCount >= BONUS_TRIGGER_COUNT && !usingFree) {
       const t = setTimeout(() => {
         const { steps, total, extraJackpot } = resolveBonus(bet, bonusCount);
@@ -93,10 +191,10 @@ export function useArgonauts() {
     if (!usingFree && !awardedFree && bonusCount < BONUS_TRIGGER_COUNT) {
       logActivity('argonauts', bet, baseWin, baseWin > 0 ? 'win' : 'loss');
     }
-  }, [lineBet, bet, setBalance, logActivity]);
+  }, [lineBet, bet, setBalance, logActivity, startCoinRound]);
 
   const spin = useCallback(() => {
-    if (spinning) return;
+    if (spinning || coinModeRef.current) return;
     const usingFree = freeSpins > 0;
     if (!usingFree && balance < bet) {
       setMessage('Insufficient balance!');
@@ -109,7 +207,6 @@ export function useArgonauts() {
     setWinningPositions(new Set());
     setLastWin(0);
     setSpinningReels(new Set());
-    // Auto-collect any pending risk pot before starting a fresh spin.
     if (riskActive && pendingWin > 0) setBalance((b) => b + pendingWin);
     setPendingWin(0);
     setRiskActive(false);
@@ -121,7 +218,6 @@ export function useArgonauts() {
     }
     setMessage('Spinning...');
 
-    // RTP bias: decide outcome before evaluation.
     const wantWin = Math.random() < (rtpRef.current / 100);
     let finalGrid;
     if (usingFree) {
@@ -159,30 +255,30 @@ export function useArgonauts() {
       timers.current.push(t);
     };
     stopReel(0);
-  }, [spinning, balance, bet, freeSpins, turbo, lineBet, settle]);
+  }, [spinning, balance, bet, freeSpins, turbo, lineBet, settle, riskActive, pendingWin]);
 
   // Free spins auto-trigger
   useEffect(() => {
-    if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart && !bonusActive) {
+    if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart && !bonusActive && !coinMode) {
       const t = setTimeout(() => spin(), turbo ? 350 : 700);
       return () => clearTimeout(t);
     }
-    if (freeSpinsActive && freeSpins === 0 && !bonusActive) {
+    if (freeSpinsActive && freeSpins === 0 && !bonusActive && !coinMode) {
       setFreeSpinsActive(false);
       setMessage(`FREE SPINS ENDED · TOTAL $${totalWin.toFixed(2)}`);
       setSpinning(false);
       logActivity('argonauts', 0, totalWin, totalWin > 0 ? 'win' : 'loss', 0);
     }
-  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, bonusActive, turbo, spin, totalWin, logActivity]);
+  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, bonusActive, coinMode, turbo, spin, totalWin, logActivity]);
 
   // Auto spin
   useEffect(() => {
-    if (autoSpin && !spinning && !freeSpinsActive && !bonusActive && !riskActive && !showFreeSpinStart && freeSpins === 0 && balance >= bet) {
+    if (autoSpin && !spinning && !freeSpinsActive && !bonusActive && !riskActive && !showFreeSpinStart && !coinMode && freeSpins === 0 && balance >= bet) {
       const t = setTimeout(() => spin(), turbo ? 300 : 700);
       return () => clearTimeout(t);
     }
     if (autoSpin && balance < bet) setAutoSpin(false);
-  }, [autoSpin, spinning, freeSpinsActive, bonusActive, riskActive, showFreeSpinStart, freeSpins, balance, bet, turbo, spin]);
+  }, [autoSpin, spinning, freeSpinsActive, bonusActive, riskActive, showFreeSpinStart, coinMode, freeSpins, balance, bet, turbo, spin]);
 
   const startFreeSpins = useCallback(() => {
     setShowFreeSpinStart(false);
@@ -203,7 +299,7 @@ export function useArgonauts() {
     setBonusExtra(false);
   }, [bonusPrize, bonusExtra, setBalance, logActivity, bet]);
 
-  // Gamble (risk) feature — double or nothing on card color, up to MAX_RISK_STEPS.
+  // Gamble (risk) feature
   const startRisk = useCallback(() => {
     if (pendingWin <= 0) return;
     setRiskMode(true);
@@ -214,16 +310,13 @@ export function useArgonauts() {
   }, [pendingWin]);
 
   const riskPick = useCallback((color) => {
-    // red = hearts/diamonds, black = clubs/spades
     const drawn = Math.random() < 0.5 ? 'red' : 'black';
     const win = drawn === color;
     setRiskHistory((h) => [...h, drawn]);
     if (win) {
       setPendingWin((w) => w * 2);
       setRiskStep((s) => s + 1);
-      if (riskStep + 1 >= MAX_RISK_STEPS) {
-        setRiskResult('maxed');
-      }
+      if (riskStep + 1 >= MAX_RISK_STEPS) setRiskResult('maxed');
     } else {
       setRiskResult('lose');
     }
@@ -261,6 +354,12 @@ export function useArgonauts() {
     setFreeSpinsActive(false);
     setShowFreeSpinStart(false);
     setAutoSpin(false);
+    setCoinMode(false);
+    setCoinStuck({});
+    setCoinSpins(0);
+    coinModeRef.current = false;
+    coinStuckRef.current = {};
+    coinSpinsRef.current = 0;
     setMessage('Balance reset');
   };
 
@@ -272,6 +371,7 @@ export function useArgonauts() {
     autoSpin, turbo, setBetIndex, setTurbo, setAutoSpin,
     riskActive, riskMode, riskStep, riskHistory, riskResult, pendingWin,
     startRisk, riskPick, collectRisk, loseRisk,
+    coinMode, coinSpins, coinStuck,
     spin, reset,
   };
 }

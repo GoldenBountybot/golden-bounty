@@ -65,7 +65,7 @@ export default function ArgonautsMachine() {
   const [showRules, setShowRules] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
 
-  const spinDisabled = g.spinning || g.freeSpinsActive || g.bonusActive || g.riskMode;
+  const spinDisabled = g.spinning || g.freeSpinsActive || g.bonusActive || g.riskMode || g.coinMode;
 
   return (
     <div
@@ -132,6 +132,16 @@ export default function ArgonautsMachine() {
               </span>
             </div>
           )}
+          {g.coinMode && (
+            <div className="flex justify-center mb-2">
+              <span
+                className="px-3 py-1 rounded-full text-xs font-black tracking-wider animate-pulse"
+                style={{ border: '1.5px solid #FFD700', background: 'rgba(255,215,0,0.22)', color: '#FFD700', boxShadow: '0 0 14px rgba(255,215,0,0.6)' }}
+              >
+                🪙 COIN FEATURE · {g.coinSpins} SPINS
+              </span>
+            </div>
+          )}
 
           <div
             className="relative grid gap-1 p-1.5 rounded-[10px]"
@@ -149,11 +159,16 @@ export default function ArgonautsMachine() {
                   {reel.map((sym, row) => {
                     const key = `${ri}-${row}`;
                     const isWin = g.winningPositions.has(key);
+                    const stuckMult = g.coinMode ? g.coinStuck[key] : null;
                     return (
-                      <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', opacity: stopped ? 1 : 0 }}>
+                      <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', opacity: stopped || stuckMult ? 1 : 0, zIndex: stuckMult ? 20 : 'auto' }}>
                         {stopped ? (
                           <div className="w-full h-full" style={{ animation: `bbSymbolDrop 0.34s ease-out both` }}>
-                            <ArgoSymbolTile sym={sym} win={isWin} dim={g.winningPositions.size > 0 && !isWin} />
+                            <ArgoSymbolTile sym={sym} win={isWin} dim={g.winningPositions.size > 0 && !isWin} bet={g.bet} stuck={!!stuckMult} />
+                          </div>
+                        ) : stuckMult ? (
+                          <div className="w-full h-full">
+                            <ArgoSymbolTile sym={`vc${stuckMult}`} bet={g.bet} stuck />
                           </div>
                         ) : (
                           <div className="w-full h-full" style={{ background: 'rgba(12,8,30,0.92)' }} />
@@ -195,7 +210,7 @@ export default function ArgonautsMachine() {
 
             {/* Center: Minus + Spin + Plus */}
             <div className="flex items-center gap-2">
-              <IconButton onClick={() => g.setBetIndex(Math.max(g.betIndex - 1, 0))} disabled={g.spinning || g.betIndex <= 0} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
+              <IconButton onClick={() => g.setBetIndex(Math.max(g.betIndex - 1, 0))} disabled={g.spinning || g.coinMode || g.betIndex <= 0} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
               <button
                 onClick={g.spin}
                 disabled={spinDisabled}
@@ -214,7 +229,7 @@ export default function ArgonautsMachine() {
                   <Play className="w-7 h-7 text-white" fill="white" style={{ marginLeft: 3 }} />
                 )}
               </button>
-              <IconButton onClick={() => g.setBetIndex(Math.min(g.betIndex + 1, BETS.length - 1))} disabled={g.spinning || g.betIndex >= BETS.length - 1} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
+              <IconButton onClick={() => g.setBetIndex(Math.min(g.betIndex + 1, BETS.length - 1))} disabled={g.spinning || g.coinMode || g.betIndex >= BETS.length - 1} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
             </div>
 
             {/* Right column: Auto + Bet chip */}
