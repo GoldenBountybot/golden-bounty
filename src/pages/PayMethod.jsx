@@ -200,7 +200,7 @@ export default function PayMethod() {
                 </div>
               </button>
             ))}
-            <p className="text-[10px] text-amber-100/40 italic text-center mt-2">Minimum deposit $1.00 · Choose your preferred method</p>
+            <p className="text-[10px] text-amber-100/40 italic text-center mt-2">Minimum deposit $3.00 · Choose your preferred method</p>
           </div>
         )}
 
