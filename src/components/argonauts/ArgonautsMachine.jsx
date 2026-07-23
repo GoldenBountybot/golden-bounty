@@ -3,6 +3,7 @@ import { Zap, Menu, Plus, Minus, RotateCw, DollarSign, Play } from 'lucide-react
 import { useArgonauts } from './useArgonauts';
 import { REELS, ROWS, BETS, FREE_SPINS_AWARD, SYMBOLS } from './argonautsEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import GameHeader from '@/components/GameHeader';
 import ArgoSymbolTile from './ArgoSymbolTile';
 import WinLineOverlay from './WinLineOverlay';
 import ArgoOverlays from './ArgoOverlays';
@@ -81,6 +82,8 @@ export default function ArgonautsMachine() {
       {/* Coastal background */}
       <div className="absolute inset-0" style={{ backgroundImage: `url(${BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(7,13,30,0.25), rgba(7,13,30,0.55))' }} />
+
+      <GameHeader title="ARGONAUTS" balance={balance} />
 
       {/* Metallic title band */}
       <div className="relative pt-0 pb-0 flex justify-center">
