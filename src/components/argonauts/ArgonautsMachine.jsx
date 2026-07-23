@@ -5,6 +5,7 @@ import { REELS, ROWS, BETS, FREE_SPINS_AWARD, SYMBOLS } from './argonautsEngine'
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import ArgoSymbolTile from './ArgoSymbolTile';
 import WinLineOverlay from './WinLineOverlay';
+import Meander from './Meander';
 import ArgoOverlays from './ArgoOverlays';
 
 const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png';
@@ -82,8 +83,32 @@ export default function ArgonautsMachine() {
       <div className="absolute inset-0" style={{ backgroundImage: `url(${BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(7,13,30,0.25), rgba(7,13,30,0.55))' }} />
 
+      {/* Metallic title band */}
+      <div className="relative pt-3 pb-1 text-center">
+        <h1
+          className="select-none uppercase tracking-[0.15em]"
+          style={{
+            fontFamily: 'Georgia, serif',
+            fontSize: 'clamp(1.6rem, 6vw, 2.4rem)',
+            fontWeight: 900,
+            lineHeight: 1,
+            background: 'linear-gradient(to bottom, #FDFD5D 0%, #F5D040 18%, #E1A914 42%, #D68A0F 68%, #B8550B 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            WebkitTextStroke: '1.4px #A63B0A',
+            filter: 'drop-shadow(0 -1px 0 #FFFCE8) drop-shadow(0 2px 0 #7a2a07) drop-shadow(0 3px 2px rgba(0,0,0,0.55))',
+          }}
+        >
+          ARGONAUTS
+        </h1>
+        <div className="mt-1 mx-auto" style={{ maxWidth: 340 }}>
+          <Meander metallic height={16} />
+        </div>
+      </div>
+
       {/* Reel grid */}
-      <div className="relative flex-1 flex items-center justify-center px-3 py-2 mt-3">
+      <div className="relative flex-1 flex items-center justify-center px-3 py-2 mt-2">
         <div className="w-full max-w-md">
           {g.freeSpins > 0 && (
             <div className="flex justify-center mb-2">
