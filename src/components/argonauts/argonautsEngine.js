@@ -39,14 +39,14 @@ export const SYMBOL_META = Object.values(SYMBOLS);
 // Paytable: multipliers of line-bet, keyed by symbol id, [3, 4, 5].
 export const PAYTABLE = {
   wild:    [20, 60, 300],
-  jason:   [25, 75, 250],
-  atlanta: [15, 40, 125],
-  lizard:  [10, 30, 100],
-  dove:    [8, 25, 80],
-  harp:    [5, 15, 50],
-  cup:     [5, 12, 40],
-  potion:  [4, 10, 30],
-  bow:     [3, 8, 25],
+  jason:   [15, 50, 250],
+  atlanta: [5, 40, 200],
+  lizard:  [5, 30, 150],
+  dove:    [5, 25, 100],
+  harp:    [5, 10, 50],
+  cup:     [5, 10, 50],
+  potion:  [5, 10, 50],
+  bow:     [5, 10, 50],
 };
 
 export const SCATTER_PAY = 25;       // x base bet for 3 scatters

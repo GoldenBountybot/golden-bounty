@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SYMBOLS, PAYTABLE, FREE_SPINS_AWARD, BONUS_TRIGGER_COUNT, SCATTER_PAY } from './argonautsEngine';
 import FreeGamesBanner from './FreeGamesBanner';
+import ArgoPaytable from './ArgoPaytable';
 
 const COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b4e358bc4_generated_image.png';
 
@@ -130,32 +131,7 @@ export default function ArgoOverlays({ g, showPaytable, setShowPaytable }) {
       {/* Paytable overlay */}
       {showPaytable && (
         <Overlay onClose={() => setShowPaytable(false)}>
-          <div className="w-full max-w-md">
-            <h2 className="text-center text-lg font-black mb-3" style={{ fontFamily: 'Georgia, serif', color: '#f5d77a' }}>PAYTABLE</h2>
-            <div className="grid grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto pr-1">
-              {Object.values(SYMBOLS).filter(s => s.kind === 'high' || s.kind === 'low' || s.kind === 'wild').map(s => {
-                const pt = PAYTABLE[s.id];
-                return (
-                  <div key={s.id} className="flex items-center gap-2 p-2 rounded-[6px]" style={{ border: '1px solid rgba(214,178,98,0.25)', background: 'rgba(20,17,13,0.6)' }}>
-                    <span className="text-2xl">{s.emoji}</span>
-                    <div>
-                      <p className="text-[10px] text-amber-200/70" style={{ fontFamily: 'Georgia, serif' }}>{s.name}</p>
-                      <p className="text-[10px] tabular-nums text-yellow-100" style={{ fontFamily: 'Georgia, serif' }}>{pt[0]}× / {pt[1]}× / {pt[2]}× <span className="text-amber-200/50">line</span></p>
-                    </div>
-                  </div>
-                );
-              })}
-              <div className="col-span-2 p-2 rounded-[6px] text-center" style={{ border: '1px solid rgba(214,178,98,0.25)', background: 'rgba(20,17,13,0.6)' }}>
-                <span className="text-2xl">⛵</span>
-                <p className="text-[10px] text-amber-200/70 mt-1" style={{ fontFamily: 'Georgia, serif' }}>3 Scatters on reels 2–4 → {FREE_SPINS_AWARD} Free Spins · pays {SCATTER_PAY}× bet</p>
-              </div>
-              <div className="col-span-2 p-2 rounded-[6px] text-center" style={{ border: '1px solid rgba(214,178,98,0.25)', background: 'rgba(20,17,13,0.6)' }}>
-                <span className="text-2xl">🛡️</span>
-                <p className="text-[10px] text-amber-200/70 mt-1" style={{ fontFamily: 'Georgia, serif' }}>{BONUS_TRIGGER_COUNT}+ Bonus symbols → Golden Fleece Bonus (jackpots up to 5000×)</p>
-              </div>
-            </div>
-            <button onClick={() => setShowPaytable(false)} className="mt-3 w-full py-2 rounded-[8px] font-black" style={{ border: '1px solid rgba(214,178,98,0.5)', background: 'rgba(20,17,13,0.8)', color: '#e8c878' }}>CLOSE</button>
-          </div>
+          <ArgoPaytable bet={g.bet} onClose={() => setShowPaytable(false)} />
         </Overlay>
       )}
 
