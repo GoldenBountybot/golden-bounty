@@ -87,7 +87,7 @@ export function randomSymbol(reelIndex = -1) {
     return Math.random() < 0.18 ? 'spirit' : 'brown';
   }
   // Otherwise draw a non-wild symbol (scatter allowed on wild reels).
-  const pool = BASE_POOL.concat(['scatter', 'scatter']);
+  const pool = BASE_POOL.concat(['scatter']);
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
