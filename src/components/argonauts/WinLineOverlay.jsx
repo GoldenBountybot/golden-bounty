@@ -22,6 +22,7 @@ export default function WinLineOverlay({ winningPositions }) {
       className="absolute inset-0 w-full h-full pointer-events-none z-20"
       viewBox="0 0 500 300"
       preserveAspectRatio="none"
+      style={{ animation: 'argoWinLine 1.1s ease-out forwards' }}
     >
       {/* subtle glow */}
       <polyline points={points} fill="none" stroke="#FFFF00" strokeWidth="4" strokeOpacity="0.4" strokeLinejoin="round" strokeLinecap="round" style={{ vectorEffect: 'non-scaling-stroke' }} />
