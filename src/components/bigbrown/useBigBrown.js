@@ -147,11 +147,20 @@ export function useBigBrown() {
       }
     }
 
-    // In free spins, guarantee a single expanding wild on one of reels 2-5.
+    // In free spins, guarantee a single expanding wild on one of reels 2-5,
+    // and slightly boost the chance of matching symbols so the wild more often
+    // completes a winning way.
     if (usingFree) {
       finalGrid = clearWilds(finalGrid);
       const wr = 1 + Math.floor(Math.random() * 4);
       finalGrid[wr][Math.floor(Math.random() * 4)] = Math.random() < 0.25 ? 'spirit' : 'brown';
+      // ~55% chance to seed matching symbols on reels before the wild so the
+      // guaranteed wild lands into a 3+ of-a-kind way.
+      if (wr >= 2 && Math.random() < 0.55) {
+        const sym = ['A', 'K', 'Q', 'J', '10'][Math.floor(Math.random() * 5)];
+        finalGrid[0][Math.floor(Math.random() * 4)] = sym;
+        finalGrid[1][Math.floor(Math.random() * 4)] = sym;
+      }
     }
 
     const baseGap = turbo ? 300 : 460;
