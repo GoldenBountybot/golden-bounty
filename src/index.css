@@ -406,6 +406,14 @@
   100% { transform: translateY(-33.333%); }
 }
 
+/* Argonauts — smooth sequential symbol drop (bottom row first, then up) */
+@keyframes argoDrop {
+  0%   { transform: translateY(-62%) scale(1.04); opacity: 0; }
+  45%  { opacity: 1; }
+  78%  { transform: translateY(4%) scale(0.985); }
+  100% { transform: translateY(0%) scale(1); opacity: 1; }
+}
+
 /* Big Brown — smooth symbol drop when a reel stops landing */
 @keyframes bbSymbolDrop {
   0%   { transform: translateY(-38%); opacity: 0; }
