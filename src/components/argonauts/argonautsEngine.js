@@ -22,16 +22,16 @@ export const PAYLINES = [
 const IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776';
 export const SYMBOLS = {
   wild:    { id: 'wild',    emoji: '🐂', name: 'Wild Bull',     kind: 'wild',    image: `${IMG}/aa8365d9b_file_000000003078820b89250f27c56de62e.png` },
-  scatter: { id: 'scatter', emoji: '⛵', name: 'Argo Ship',     kind: 'scatter', image: `${IMG}/672cdd2d7_generated_image.png` },
+  scatter: { id: 'scatter', emoji: '⛵', name: 'Argo Ship',     kind: 'scatter', image: `${IMG}/58d0858d9_file_000000008fa0820bb5da9eef0fb09545.png` },
   bonus:   { id: 'bonus',   emoji: '🛡️', name: 'Golden Fleece', kind: 'bonus',   image: `${IMG}/1c288effb_file_00000000b92c820ba7b84e338f31f43a.png` },
-  jason:   { id: 'jason',   emoji: '⚔️', name: 'Jason',         kind: 'high',    image: `${IMG}/7c4d0ca26_generated_image.png` },
-  atlanta: { id: 'atlanta', emoji: '👸', name: 'Goddess',        kind: 'high',    image: `${IMG}/871aad4a0_generated_image.png` },
-  lizard:  { id: 'lizard',  emoji: '🦎', name: 'Serpent',       kind: 'high',    image: `${IMG}/814f5c88d_generated_image.png` },
+  jason:   { id: 'jason',   emoji: '⚔️', name: 'Jason',         kind: 'high',    image: `${IMG}/87ea31954_file_000000001b80820b8d6d3c9e756709e7.png` },
+  atlanta: { id: 'atlanta', emoji: '👸', name: 'Goddess',        kind: 'high',    image: `${IMG}/5e79860d9_file_000000004900820b9b740d0a7100cb38.png` },
+  lizard:  { id: 'lizard',  emoji: '🦎', name: 'Serpent',       kind: 'high',    image: `${IMG}/ad27ed152_file_00000000e8cc820b9c45251d35e5fbfb.png` },
   dove:    { id: 'dove',    emoji: '🕊️', name: 'Dove',          kind: 'high',    image: `${IMG}/8281d4090_file_00000000d4b0820baceab77e6055cfc7.png` },
-  harp:    { id: 'harp',    emoji: '🎵', name: 'Lyre',          kind: 'low',     image: `${IMG}/434a30fe9_generated_image.png` },
+  harp:    { id: 'harp',    emoji: '🎵', name: 'Lyre',          kind: 'low',     image: `${IMG}/46043deed_file_00000000d370820bb6e81b120d4d648b.png` },
   cup:     { id: 'cup',     emoji: '🏺', name: 'Amphora',       kind: 'low',     image: `${IMG}/a7c4a453e_file_00000000330c820bb7083c0ecb826172.png` },
   potion:  { id: 'potion',  emoji: '🧪', name: 'Potion',        kind: 'low',     image: `${IMG}/f3c47cc81_file_0000000019e481f8a4cdf17759a2b277.png` },
-  bow:     { id: 'bow',     emoji: '🎯', name: 'Bow',           kind: 'low',     image: `${IMG}/1db593797_generated_image.png` },
+  bow:     { id: 'bow',     emoji: '🎯', name: 'Bow',           kind: 'low',     image: `${IMG}/c3399d723_file_000000006180820b9453462a52494a1b.png` },
 };
 
 export const SYMBOL_META = Object.values(SYMBOLS);
