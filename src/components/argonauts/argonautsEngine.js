@@ -21,16 +21,16 @@ export const PAYLINES = [
 
 const IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776';
 export const SYMBOLS = {
-  wild:    { id: 'wild',    emoji: '🐂', name: 'Wild Bull',     kind: 'wild',    image: `${IMG}/34eff09c6_generated_image.png` },
+  wild:    { id: 'wild',    emoji: '🐂', name: 'Wild Bull',     kind: 'wild',    image: `${IMG}/aa8365d9b_file_000000003078820b89250f27c56de62e.png` },
   scatter: { id: 'scatter', emoji: '⛵', name: 'Argo Ship',     kind: 'scatter', image: `${IMG}/672cdd2d7_generated_image.png` },
-  bonus:   { id: 'bonus',   emoji: '🛡️', name: 'Golden Fleece', kind: 'bonus',   image: `${IMG}/08ade3689_generated_image.png` },
+  bonus:   { id: 'bonus',   emoji: '🛡️', name: 'Golden Fleece', kind: 'bonus',   image: `${IMG}/1c288effb_file_00000000b92c820ba7b84e338f31f43a.png` },
   jason:   { id: 'jason',   emoji: '⚔️', name: 'Jason',         kind: 'high',    image: `${IMG}/7c4d0ca26_generated_image.png` },
   atlanta: { id: 'atlanta', emoji: '👸', name: 'Goddess',        kind: 'high',    image: `${IMG}/871aad4a0_generated_image.png` },
   lizard:  { id: 'lizard',  emoji: '🦎', name: 'Serpent',       kind: 'high',    image: `${IMG}/814f5c88d_generated_image.png` },
-  dove:    { id: 'dove',    emoji: '🕊️', name: 'Dove',          kind: 'high',    image: `${IMG}/48e711f6d_generated_image.png` },
+  dove:    { id: 'dove',    emoji: '🕊️', name: 'Dove',          kind: 'high',    image: `${IMG}/8281d4090_file_00000000d4b0820baceab77e6055cfc7.png` },
   harp:    { id: 'harp',    emoji: '🎵', name: 'Lyre',          kind: 'low',     image: `${IMG}/434a30fe9_generated_image.png` },
-  cup:     { id: 'cup',     emoji: '🏺', name: 'Amphora',       kind: 'low',     image: `${IMG}/b159d5e6b_generated_image.png` },
-  potion:  { id: 'potion',  emoji: '🧪', name: 'Potion',        kind: 'low',     image: `${IMG}/a74d2a35c_generated_image.png` },
+  cup:     { id: 'cup',     emoji: '🏺', name: 'Amphora',       kind: 'low',     image: `${IMG}/a7c4a453e_file_00000000330c820bb7083c0ecb826172.png` },
+  potion:  { id: 'potion',  emoji: '🧪', name: 'Potion',        kind: 'low',     image: `${IMG}/f3c47cc81_file_0000000019e481f8a4cdf17759a2b277.png` },
   bow:     { id: 'bow',     emoji: '🎯', name: 'Bow',           kind: 'low',     image: `${IMG}/1db593797_generated_image.png` },
 };
 
