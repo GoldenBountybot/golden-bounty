@@ -4,8 +4,8 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { QRCodeSVG } from 'qrcode.react';
-import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, ChevronDown } from 'lucide-react';
-import { connectWalletConnect, hasWalletConnect, onWalletConnectUri, preloadWalletConnect } from '@/lib/walletConnect';
+import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, ChevronDown, LogOut } from 'lucide-react';
+import { connectWalletConnect, disconnectWalletConnect, hasWalletConnect, onWalletConnectUri, preloadWalletConnect } from '@/lib/walletConnect';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 
@@ -277,8 +277,26 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       </WesternFrame>
 
       {account && (
-        <div className="px-3 py-2 rounded-md border border-amber-700/40 bg-black/30 text-[11px] text-amber-100/80 font-mono break-all">
-          ✓ Connected: {account}
+        <div className="px-3 py-2 rounded-md border border-amber-700/40 bg-black/30 text-[11px] text-amber-100/80 font-mono break-all flex items-center justify-between gap-2">
+          <span className="break-all">✓ Connected: {account}</span>
+          {!busy && (
+            <button
+              onClick={async () => {
+                try { await disconnectWalletConnect(); } catch {}
+                providerRef.current = null;
+                accountRef.current = null;
+                wcUriRef.current = '';
+                setAccount(null);
+                setWcUri('');
+                setErrMsg('');
+                setStatus('idle');
+              }}
+              className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-md border border-rose-700/50 bg-rose-950/40 text-rose-200 text-[10px] font-bold italic active:scale-95"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              <LogOut className="w-3 h-3" /> Disconnect
+            </button>
+          )}
         </div>
       )}
 
