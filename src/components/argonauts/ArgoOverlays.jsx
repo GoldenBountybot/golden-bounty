@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SYMBOLS, PAYTABLE, FREE_SPINS_AWARD, BONUS_TRIGGER_COUNT, SCATTER_PAY } from './argonautsEngine';
+import FreeGamesBanner from './FreeGamesBanner';
 
 // Centered modal overlay over the game.
 function Overlay({ children, onClose }) {
@@ -64,17 +65,9 @@ export default function ArgoOverlays({ g, showPaytable, setShowPaytable }) {
         </Overlay>
       )}
 
-      {/* Free spins start overlay */}
+      {/* Free Games trigger banner */}
       {g.showFreeSpinStart && (
-        <Overlay onClose={null}>
-          <div className="text-center">
-            <div className="text-6xl mb-3">⛵</div>
-            <h2 className="text-2xl font-black mb-1" style={{ fontFamily: 'Georgia, serif', color: '#f5d77a' }}>FREE SPINS</h2>
-            <p className="text-lg text-yellow-100 mb-4" style={{ fontFamily: 'Georgia, serif' }}>{FREE_SPINS_AWARD} free games awarded!</p>
-            <p className="text-xs text-amber-200/60 mb-5" style={{ fontFamily: 'Georgia, serif' }}>Only Wild, Scatter, Bonus & top symbols appear</p>
-            <button onClick={g.startFreeSpins} className="px-8 py-3 rounded-[10px] font-black tracking-wider" style={{ border: '2px solid rgba(245,215,122,0.85)', background: 'linear-gradient(to bottom,#f5c542,#c8881e)', color: '#2a1a06' }}>START</button>
-          </div>
-        </Overlay>
+        <FreeGamesBanner count={FREE_SPINS_AWARD} onStart={g.startFreeSpins} />
       )}
 
       {/* Golden Fleece bonus overlay */}

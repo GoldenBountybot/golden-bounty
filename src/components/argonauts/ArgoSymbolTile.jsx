@@ -3,7 +3,7 @@ import { SYMBOLS } from './argonautsEngine';
 
 // A single symbol tile styled to match the screenshot: dark-blue cell, gold-rim,
 // large emoji glyph. Wild gets a fire glow + WILD label.
-export default function ArgoSymbolTile({ sym, spinning, win, size = 'md' }) {
+export default function ArgoSymbolTile({ sym, spinning, win, dim = false, size = 'md' }) {
   const meta = SYMBOLS[sym] || SYMBOLS.bow;
   const isWild = meta.kind === 'wild';
   const isScatter = meta.kind === 'scatter';
@@ -23,9 +23,10 @@ export default function ArgoSymbolTile({ sym, spinning, win, size = 'md' }) {
         background: bg,
         border: win ? '1.5px solid #FFD700' : '1px solid rgba(255,215,0,0.22)',
         boxShadow: win
-          ? '0 0 14px rgba(255,215,0,0.75), inset 0 0 10px rgba(255,215,0,0.25)'
+          ? '0 0 16px rgba(255,215,0,0.9), 0 0 6px rgba(255,255,160,0.8), inset 0 0 10px rgba(255,215,0,0.3)'
           : 'inset 0 0 10px rgba(0,0,0,0.55)',
-        filter: spinning ? 'blur(1.4px) brightness(0.82)' : 'none',
+        opacity: dim ? 0.32 : 1,
+        filter: spinning ? 'blur(1.4px) brightness(0.82)' : win ? 'brightness(1.15) saturate(1.15)' : 'none',
         animation: spinning ? 'ccReelSpin 0.16s linear infinite' : undefined,
       }}
     >

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Info, ArrowLeft, Zap, Menu, Plus, RotateCw, DollarSign, Play } from 'lucide-react';
 import { useArgonauts } from './useArgonauts';
-import { REELS, BETS } from './argonautsEngine';
+import { REELS, BETS, FREE_SPINS_AWARD } from './argonautsEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import ArgoSymbolTile from './ArgoSymbolTile';
+import WinLineOverlay from './WinLineOverlay';
 import Meander from './Meander';
 import ArgoOverlays from './ArgoOverlays';
 
@@ -105,7 +106,7 @@ export default function ArgonautsMachine() {
           )}
 
           <div
-            className="grid gap-1 p-1.5 rounded-[10px]"
+            className="relative grid gap-1 p-1.5 rounded-[10px]"
             style={{
               gridTemplateColumns: `repeat(${REELS}, 1fr)`,
               border: '2.5px solid #FFD700',
@@ -115,16 +116,34 @@ export default function ArgonautsMachine() {
           >
             {g.grid.map((reel, ri) => (
               <div key={ri} className="flex flex-col gap-1">
-                {reel.map((sym, row) => (
-                  <ArgoSymbolTile key={row} sym={sym} spinning={g.spinningReels.has(ri)} win={g.winningPositions.has(`${ri}-${row}`)} />
-                ))}
+                {reel.map((sym, row) => {
+                  const isWin = g.winningPositions.has(`${ri}-${row}`);
+                  return (
+                    <ArgoSymbolTile
+                      key={row}
+                      sym={sym}
+                      spinning={g.spinningReels.has(ri)}
+                      win={isWin}
+                      dim={g.winningPositions.size > 0 && !isWin}
+                    />
+                  );
+                })}
               </div>
             ))}
+            <WinLineOverlay winningPositions={g.winningPositions} />
           </div>
 
-          {/* Message strip */}
-          <div className="mt-2 text-center min-h-[20px]">
-            <p className="text-xs font-bold tracking-wide text-amber-50" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>{g.message}</p>
+          {/* Status strip: free-game labels + message */}
+          <div className="mt-2 relative">
+            {g.freeSpins > 0 && (
+              <div className="flex justify-between text-[10px] font-bold tracking-wide text-white" style={{ textShadow: '0 1px 2px #000' }}>
+                <span>FREE SPIN PAYS ${g.bet.toFixed(2)}</span>
+                <span>FREE GAME {FREE_SPINS_AWARD - g.freeSpins + 1} OF {FREE_SPINS_AWARD}</span>
+              </div>
+            )}
+            <div className="text-center min-h-[18px]">
+              <p className="text-xs font-bold tracking-wide text-amber-50" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>{g.message}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -199,7 +218,16 @@ export default function ArgonautsMachine() {
         </div>
         <div>
           <p className="text-[9px] tracking-widest text-white/60">LAST WIN</p>
-          <p className="text-sm font-bold tabular-nums text-yellow-200">${g.lastWin.toFixed(2)}</p>
+          <p
+            className="font-black tabular-nums"
+            style={{
+              fontSize: g.lastWin > 0 ? '1.5rem' : '0.875rem',
+              color: '#FFD700',
+              textShadow: g.lastWin > 0 ? '0 0 12px rgba(255,215,0,0.85), 0 1px 3px #000' : 'none',
+            }}
+          >
+            ${g.lastWin.toFixed(2)}
+          </p>
           {g.totalWin > 0 && <p className="text-[9px] tracking-widest text-white/60 mt-0.5">TOTAL</p>}
           {g.totalWin > 0 && <p className="text-sm font-bold tabular-nums text-yellow-200">${g.totalWin.toFixed(2)}</p>}
         </div>
