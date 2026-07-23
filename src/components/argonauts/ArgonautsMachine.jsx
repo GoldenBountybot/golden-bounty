@@ -5,7 +5,6 @@ import { REELS, ROWS, BETS, FREE_SPINS_AWARD, SYMBOLS } from './argonautsEngine'
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import ArgoSymbolTile from './ArgoSymbolTile';
 import WinLineOverlay from './WinLineOverlay';
-import Meander from './Meander';
 import ArgoOverlays from './ArgoOverlays';
 
 const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png';
@@ -84,31 +83,14 @@ export default function ArgonautsMachine() {
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(7,13,30,0.25), rgba(7,13,30,0.55))' }} />
 
       {/* Metallic title band */}
-      <div className="relative pt-3 pb-1 text-center">
-        <h1
-          className="select-none uppercase tracking-[0.14em] relative inline-block"
-          style={{
-            fontFamily: 'Georgia, "Times New Roman", serif',
-            fontSize: 'clamp(1.7rem, 6.2vw, 2.5rem)',
-            fontWeight: 700,
-            lineHeight: 1,
-            color: 'transparent',
-            background: 'linear-gradient(180deg, #FFFCE8 0%, #FDFD5D 12%, #F5D040 30%, #E1A914 50%, #D68A0F 72%, #B8550B 90%, #8E3A08 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            WebkitTextStroke: '1.6px #A63B0A',
-            paintOrder: 'stroke fill',
-            filter:
-              'drop-shadow(0 1.5px 0 #7a2a07) drop-shadow(0 2.5px 0 #5e1f04) drop-shadow(0 4px 3px rgba(0,0,0,0.6))',
-            textShadow: '0 -1px 0 rgba(255,252,232,0.85)',
-          }}
-        >
-          ARGONAUTS
-        </h1>
-        <div className="mt-1.5 mx-auto" style={{ maxWidth: 340 }}>
-          <Meander metallic height={17} />
-        </div>
+      <div className="relative pt-2 pb-1 flex justify-center">
+        <img
+          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8ed43464_generated_image.png"
+          alt="ARGONAUTS"
+          draggable={false}
+          className="select-none"
+          style={{ height: 'auto', width: 'min(86vw, 380px)', mixBlendMode: 'screen', objectFit: 'contain', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.4))' }}
+        />
       </div>
 
       {/* Reel grid */}
