@@ -16,7 +16,7 @@ export function useArgonauts() {
   const [totalWin, setTotalWin] = useState(0);       // accumulates across free spins
   const [message, setMessage] = useState('ARGONAUTS · QUEST FOR THE GOLDEN FLEECE');
   const [winningPositions, setWinningPositions] = useState(new Set());
-  const [spinningReels, setSpinningReels] = useState(new Set());
+  const [spinningReels, setSpinningReels] = useState(new Set([0, 1, 2, 3, 4]));
   const [freeSpins, setFreeSpins] = useState(0);
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
   const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
@@ -46,7 +46,7 @@ export function useArgonauts() {
 
   const settle = useCallback((finalGrid, usingFree) => {
     setGrid(finalGrid);
-    setSpinningReels(new Set());
+    setSpinningReels(new Set([0, 1, 2, 3, 4]));
     const { wins, scatterCount, scatterPay, bonusCount, lineWin } = evaluate(finalGrid, lineBet, bet);
     const positions = new Set();
     wins.forEach((w) => w.positions.forEach((p) => positions.add(p)));
