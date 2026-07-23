@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SYMBOLS, PAYTABLE, FREE_SPINS_AWARD, BONUS_TRIGGER_COUNT, SCATTER_PAY } from './argonautsEngine';
 import FreeGamesBanner from './FreeGamesBanner';
 import ArgoPaytable from './ArgoPaytable';
+import ArgoRules from './ArgoRules';
 
 const COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b4e358bc4_generated_image.png';
 
@@ -19,7 +20,7 @@ function Overlay({ children, onClose }) {
   );
 }
 
-export default function ArgoOverlays({ g, showPaytable, setShowPaytable }) {
+export default function ArgoOverlays({ g, showPaytable, setShowPaytable, showRules, setShowRules }) {
   const [bonusStepIndex, setBonusStepIndex] = useState(0);
 
   useEffect(() => {
@@ -125,6 +126,13 @@ export default function ArgoOverlays({ g, showPaytable, setShowPaytable }) {
               <button onClick={g.finishBonus} className="mt-4 px-6 py-2 rounded-[8px] font-black" style={{ border: '2px solid rgba(245,215,122,0.85)', background: 'linear-gradient(to bottom,#f5c542,#c8881e)', color: '#2a1a06' }}>COLLECT ${g.bonusPrize.toFixed(2)}</button>
             )}
           </div>
+        </Overlay>
+      )}
+
+      {/* Rules + Paylines overlay */}
+      {showRules && (
+        <Overlay onClose={() => setShowRules(false)}>
+          <ArgoRules onClose={() => setShowRules(false)} />
         </Overlay>
       )}
 

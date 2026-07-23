@@ -62,6 +62,7 @@ export default function ArgonautsMachine() {
   const g = useArgonauts();
   const { balance } = useCasinoBalance();
   const [showPaytable, setShowPaytable] = useState(false);
+  const [showRules, setShowRules] = useState(false);
 
   const spinDisabled = g.spinning || g.freeSpinsActive || g.bonusActive || g.riskMode;
 
@@ -78,7 +79,7 @@ export default function ArgonautsMachine() {
       <header className="relative px-3 pt-3">
         <div className="flex items-center justify-between">
           <button
-            onClick={() => setShowPaytable(true)}
+            onClick={() => setShowRules(true)}
             title="Info"
             className="flex items-center justify-center rounded-full"
             style={{ width: 34, height: 34, border: '1.5px solid rgba(255,255,255,0.85)', color: '#fff', background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(6px)' }}
@@ -269,7 +270,7 @@ export default function ArgonautsMachine() {
       </div>
 
       {/* Overlays */}
-      <ArgoOverlays g={g} showPaytable={showPaytable} setShowPaytable={setShowPaytable} />
+      <ArgoOverlays g={g} showPaytable={showPaytable} setShowPaytable={setShowPaytable} showRules={showRules} setShowRules={setShowRules} />
     </div>
   );
 }
