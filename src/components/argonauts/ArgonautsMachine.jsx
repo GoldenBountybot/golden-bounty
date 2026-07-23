@@ -181,7 +181,6 @@ export default function ArgonautsMachine() {
                   <Play className="w-7 h-7 text-white" fill="white" style={{ marginLeft: 3 }} />
                 )}
               </button>
-              <span className="mt-1 text-[10px] font-bold tracking-[0.2em] text-white/90">{g.freeSpinsActive ? 'FREE SPIN' : 'PLACE YOUR BET'}</span>
             </div>
 
             {/* Right controls */}
