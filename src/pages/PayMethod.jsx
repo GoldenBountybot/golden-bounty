@@ -9,6 +9,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { Bitcoin, Wallet, Copy, Check, ArrowLeft, AlertTriangle } from 'lucide-react';
 import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
 import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
+import TxIdSubmit from '@/components/wallet/TxIdSubmit';
 
 const LOGOS = {
   bitcoin: 'https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400',
@@ -219,6 +220,10 @@ export default function PayMethod() {
               </WesternFrame>
             ))}
           </div>
+        )}
+
+        {(view === 'usdt' || view === 'crypto') && (
+          <TxIdSubmit amount={amount} method={view} networks={networks} />
         )}
 
         {view === 'binance' && (
