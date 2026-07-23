@@ -45,7 +45,7 @@ export default function Withdraw() {
   const params = new URLSearchParams(window.location.search);
   const amount = Number(params.get('amount') || 0);
   const { toast } = useToast();
-  const { demoMode } = useCasinoBalance();
+  const { demoMode, wagerRemaining, maxWithdrawable } = useCasinoBalance();
   const [view, setView] = useState('choose'); // 'choose' | 'binance' | 'usdt'
   const [usdtNets, setUsdtNets] = useState(DEFAULT_USDT_NETS);
   const [selectedNet, setSelectedNet] = useState(null);
@@ -69,6 +69,16 @@ export default function Withdraw() {
     try {
       const user = await base44.auth.me().catch(() => null);
       if (!user) { toast({ title: 'Please log in first' }); setSubmitting(false); return; }
+      if (amount > maxWithdrawable) {
+        toast({
+          title: 'Wagering requirement not met',
+          description: wagerRemaining > 0
+            ? `Play through or stack $${wagerRemaining.toFixed(2)} of your deposit before withdrawing.`
+            : 'Only winnings above your locked deposit can be withdrawn.',
+        });
+        setSubmitting(false);
+        return;
+      }
       await base44.entities.Transaction.create({
         user_id: user.id,
         user_email: user.email,
@@ -143,6 +153,14 @@ export default function Withdraw() {
               </button>
             ))}
             <p className="text-[10px] text-amber-100/40 italic text-center mt-2">Choose your preferred withdrawal method · Approved by admin</p>
+            {wagerRemaining > 0 && (
+              <WesternFrame variant="glass" className="p-3 flex flex-col gap-1 text-center">
+                <p className="text-[11px] text-amber-200 italic" style={{ fontFamily: FONT }}>Deposit play-through required</p>
+                <p className="text-[10px] text-amber-100/70 italic">
+                  ${wagerRemaining.toFixed(2)} of your deposit must be played in games or stacked before withdrawal. Withdrawable now: <span className="text-amber-200 font-bold">${maxWithdrawable.toFixed(2)}</span>.
+                </p>
+              </WesternFrame>
+            )}
           </div>
         )}
 

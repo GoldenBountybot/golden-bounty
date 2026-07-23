@@ -14,6 +14,14 @@ const CACHE_KEY = 'casino_balance_cache';
 let balance = (() => { try { return parseFloat(localStorage.getItem(CACHE_KEY)) || 0; } catch { return 0; } })();
 let committedBalance = balance;   // last backend-confirmed balance
 let uncommittedDelta = 0;   // local gameplay delta not yet pushed to backend
+// Wagering requirement: deposited funds that must be played through (bet in
+// games) or stacked before they can be withdrawn. Decremented by game bets and
+// stacking (any balance decrease counts as wagering); incremented when a
+// deposit is credited. Tracked the same delta-commit way as balance so it
+// persists to the user record and survives refresh.
+let committedWager = 0;
+let uncommittedWagerDelta = 0;
+let wagerRemaining = 0;
 let userId = null;
 let loaded = false;
 let loadingPromise = null;
@@ -49,12 +57,17 @@ async function loadBalance() {
     committedBalance = isFinite(b) ? b : 0;
     balance = committedBalance + uncommittedDelta;
     setCache(balance);
+    const w = Number(me?.wager_remaining ?? 0);
+    committedWager = isFinite(w) ? w : 0;
+    wagerRemaining = committedWager + uncommittedWagerDelta;
   } catch {
     // not logged in: fall back to cached value
     let s = 0;
     try { s = parseFloat(localStorage.getItem(CACHE_KEY)) || 0; } catch {}
     committedBalance = s;
     balance = s + uncommittedDelta;
+    committedWager = 0;
+    wagerRemaining = uncommittedWagerDelta;
     userId = null;
   }
   loaded = true;
@@ -65,23 +78,31 @@ async function loadBalance() {
 // balance first (which may include an admin-approved deposit) and add our delta
 // on top — so admin credits are never overwritten by gameplay.
 async function flushPersist() {
-  if (!userId || persisting || uncommittedDelta === 0) return;
+  if (!userId || persisting || (uncommittedDelta === 0 && uncommittedWagerDelta === 0)) return;
   persisting = true;
   const d = uncommittedDelta;
+  const wd = uncommittedWagerDelta;
   uncommittedDelta = 0;
+  uncommittedWagerDelta = 0;
   const committedBefore = committedBalance;
+  const wagerBefore = committedWager;
   try {
     const me = await base44.auth.me();
     const B = Number(me?.balance ?? committedBefore);
+    const W = Number(me?.wager_remaining ?? wagerBefore);
     const newBackend = B + d;
-    await base44.auth.updateMe({ balance: newBackend });
+    const newWager = Math.max(0, W + wd);
+    await base44.auth.updateMe({ balance: newBackend, wager_remaining: newWager });
     committedBalance = newBackend;
+    committedWager = newWager;
     balance = newBackend + uncommittedDelta;
+    wagerRemaining = newWager + uncommittedWagerDelta;
     setCache(balance);
     notify();
   } catch {
-    // restore delta to retry later
+    // restore deltas to retry later
     uncommittedDelta += d;
+    uncommittedWagerDelta += wd;
   }
   persisting = false;
 }
@@ -130,6 +151,17 @@ export function useCasinoBalance() {
     const prev = balance;
     const next = typeof updater === 'function' ? updater(prev) : updater;
     const v = isFinite(next) ? Number(next) : 0;
+    // Any balance decrease is a wager (game bet or stacking) — reduce the
+    // remaining play-through requirement accordingly (win or lose, the bet
+    // volume counts). Free spins don't decrease the balance, so they don't
+    // count, which is the intended behavior.
+    if (v < prev) {
+      const dec = Math.min(prev - v, wagerRemaining);
+      if (dec > 0) {
+        uncommittedWagerDelta -= dec;
+        wagerRemaining = committedWager + uncommittedWagerDelta;
+      }
+    }
     uncommittedDelta += v - prev;
     balance = v;
     setCache(v);
@@ -140,7 +172,30 @@ export function useCasinoBalance() {
   const reset = useCallback(() => setBalance(0), [setBalance]);
   const toggleDemo = useCallback((on) => setDemoMode(on), []);
 
-  return { balance: demoMode ? demoBalance : balance, setBalance, reset, demoMode, setDemoMode: toggleDemo };
+  const wRemaining = demoMode ? 0 : wagerRemaining;
+  const maxWithdrawable = demoMode ? 0 : Math.max(0, balance - wagerRemaining);
+
+  return {
+    balance: demoMode ? demoBalance : balance,
+    setBalance,
+    reset,
+    demoMode,
+    setDemoMode: toggleDemo,
+    wagerRemaining: wRemaining,
+    maxWithdrawable,
+  };
 }
 
 export async function reloadBalance() { await loadBalance(); }
+
+// Mark a freshly-credited deposit as needing play-through before withdrawal.
+// Called by the wallet deposit flows when a deposit is confirmed & credited.
+export function addWagerRequirement(amount) {
+  if (demoMode) return;
+  const n = Number(amount);
+  if (!n || n <= 0) return;
+  uncommittedWagerDelta += n;
+  wagerRemaining = committedWager + uncommittedWagerDelta;
+  notify();
+  schedulePersist();
+}

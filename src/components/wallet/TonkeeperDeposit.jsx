@@ -8,6 +8,7 @@ import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, LogOut } from 'lucide-react';
 import { TON_USDT_DECIMALS, TON_ADMIN, getUserJettonWallet } from '@/lib/tonConfig';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
+import { addWagerRequirement } from '@/lib/useCasinoBalance';
 
 // Jetton transfer op code: transfer#0f8a7ea5
 const JETTON_TRANSFER_OP = 0x0f8a7ea5;
@@ -98,7 +99,12 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
         : { userWallet: account.address, amount };
       const res = await base44.functions.invoke(fn, verifyPayload);
       if (res?.data?.ok) {
-        if (!res.data.already) setBalance((b) => b + Number(res.data.amount || amount));
+        if (!res.data.already) {
+          const credited = Number(res.data.amount || amount);
+          setBalance((b) => b + credited);
+          // Deposited funds must be played through or stacked before withdrawal.
+          addWagerRequirement(credited);
+        }
         setStatus('done');
         toast({ title: 'Deposit successful', description: `$${Number(res.data.amount || amount).toFixed(2)} has been added to your balance.` });
         setTimeout(() => onDone?.(), 1200);

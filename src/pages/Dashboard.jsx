@@ -68,6 +68,15 @@ export default function Dashboard() {
     const n = Number(wdAmt);
     if (!n || n <= 0) { toast({ title: 'Enter a valid amount' }); return; }
     if (n > acct.balance) { toast({ title: 'Insufficient balance' }); return; }
+    if (n > acct.maxWithdrawable) {
+      toast({
+        title: 'Wagering requirement not met',
+        description: acct.wagerRemaining > 0
+          ? `Play through or stack $${acct.wagerRemaining.toFixed(2)} of your deposit before withdrawing.`
+          : 'Only winnings above your locked deposit can be withdrawn.',
+      });
+      return;
+    }
     window.location.href = `/withdraw?amount=${encodeURIComponent(n)}`;
     setWdAmt('');
   };
@@ -179,6 +188,11 @@ export default function Dashboard() {
                 <button onClick={doWithdraw} className="px-3 py-1.5 rounded-md text-xs font-bold italic" style={{ border: '1px solid rgba(245,210,120,0.9)', background: 'linear-gradient(to bottom, #e0556a, #a02338)', color: '#fff', fontFamily: 'Rye, Georgia, serif' }}>Withdraw</button>
               </div>
               <p className="text-[9px] text-amber-100/40 italic">Withdraw creates a request — funds sent after admin approval.</p>
+              {acct.wagerRemaining > 0 && (
+                <p className="text-[10px] text-amber-300/80 italic">
+                  Locked deposit: ${acct.wagerRemaining.toFixed(2)} — play it through or stack it before withdrawing. Withdrawable now: ${acct.maxWithdrawable.toFixed(2)}.
+                </p>
+              )}
             </WesternFrame>
 
             {/* Deposit & Withdraw history */}

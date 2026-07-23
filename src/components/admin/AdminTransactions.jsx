@@ -41,7 +41,12 @@ export default function AdminTransactions() {
         status: 'completed', method: 'manual', note: form.note,
       });
       const next = credit ? userBal(u.id) + amt : Math.max(0, userBal(u.id) - amt);
-      await base44.entities.User.update(u.id, { balance: next });
+      // Only real deposits carry a play-through (wagering) requirement.
+      const update = { balance: next };
+      if (form.type === 'deposit') {
+        update.wager_remaining = (Number(u.wager_remaining ?? 0)) + amt;
+      }
+      await base44.entities.User.update(u.id, update);
       setForm({ user_id: '', amount: '', type: 'deposit', note: '' });
       toast({ title: 'Transaction applied' });
       load();
@@ -57,7 +62,12 @@ export default function AdminTransactions() {
         const credit = tx.type === 'deposit' || tx.type === 'bonus';
         const amt = Number(tx.amount) || 0;
         const next = credit ? cur + amt : Math.max(0, cur - amt);
-        await base44.entities.User.update(tx.user_id, { balance: next });
+        // Only real deposits carry a play-through (wagering) requirement.
+        const update = { balance: next };
+        if (tx.type === 'deposit') {
+          update.wager_remaining = (Number(u?.wager_remaining ?? 0)) + amt;
+        }
+        await base44.entities.User.update(tx.user_id, update);
       }
       await base44.entities.Transaction.update(tx.id, { status });
       toast({ title: `Marked ${status}` });

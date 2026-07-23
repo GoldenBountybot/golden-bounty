@@ -35,7 +35,7 @@ const defaultClaim = {
 };
 
 export function useCasinoAccount() {
-  const { balance, setBalance, demoMode } = useCasinoBalance();
+  const { balance, setBalance, demoMode, wagerRemaining, maxWithdrawable } = useCasinoBalance();
   const [userId, setUserId] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
   const [settings, setSettings] = useState([]);
@@ -145,7 +145,7 @@ export function useCasinoAccount() {
   };
 
   return {
-    balance, deposit, withdraw,
+    balance, deposit, withdraw, wagerRemaining, maxWithdrawable,
     bonuses: {
       signup: { amount: signupCfg.amount, active: signupCfg.active, claimed: claim.signupClaimed, claim: claimSignup },
       daily: { amount: dailyCfg.amount, active: dailyCfg.active, claimed: claim.dailyLast === todayStr(), claim: claimDaily },

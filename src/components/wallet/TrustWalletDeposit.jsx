@@ -8,6 +8,7 @@ import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, 
 import { connectWalletConnect, disconnectWalletConnect, hasWalletConnect, onWalletConnectUri, preloadWalletConnect } from '@/lib/walletConnect';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
+import { addWagerRequirement } from '@/lib/useCasinoBalance';
 
 function toHexAmount(usd, decimals) {
   const factor = Math.pow(10, decimals);
@@ -148,7 +149,12 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     setStatus('verifying');
     const res = await base44.functions.invoke(fn, payload);
     if (res?.data?.ok) {
-      if (!res.data.already) setBalance((b) => b + Number(res.data.amount || amt));
+      if (!res.data.already) {
+        const credited = Number(res.data.amount || amt);
+        setBalance((b) => b + credited);
+        // Deposited funds must be played through or stacked before withdrawal.
+        addWagerRequirement(credited);
+      }
       setStatus('done');
       toast({ title: 'Deposit successful', description: `$${Number(res.data.amount || amt).toFixed(2)} has been added to your balance.` });
       setTimeout(() => onDone?.(), 1200);
