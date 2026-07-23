@@ -83,7 +83,7 @@ export default function ArgonautsMachine() {
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(7,13,30,0.25), rgba(7,13,30,0.55))' }} />
 
       {/* Metallic title band */}
-      <div className="relative pt-2 pb-1 flex justify-center">
+      <div className="relative pt-1 pb-0 flex justify-center">
         <img
           src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8ed43464_generated_image.png"
           alt="ARGONAUTS"
@@ -94,7 +94,7 @@ export default function ArgonautsMachine() {
       </div>
 
       {/* Reel grid */}
-      <div className="relative flex-1 flex items-center justify-center px-3 py-1 mt-0">
+      <div className="relative flex-1 flex items-start justify-center px-3 py-1 mt-0">
         <div className="w-full max-w-md">
           {g.freeSpins > 0 && (
             <div className="flex justify-center mb-2">
