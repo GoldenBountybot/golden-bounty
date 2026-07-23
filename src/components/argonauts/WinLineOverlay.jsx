@@ -23,16 +23,10 @@ export default function WinLineOverlay({ winningPositions }) {
       viewBox="0 0 500 300"
       preserveAspectRatio="none"
     >
-      {/* outer bloom */}
-      <polyline points={points} fill="none" stroke="#FFFF00" strokeWidth="11" strokeOpacity="0.22" strokeLinejoin="round" strokeLinecap="round" style={{ vectorEffect: 'non-scaling-stroke' }} />
-      {/* mid glow */}
-      <polyline points={points} fill="none" stroke="#FDFD00" strokeWidth="6" strokeOpacity="0.55" strokeLinejoin="round" strokeLinecap="round" style={{ vectorEffect: 'non-scaling-stroke' }} />
-      {/* bright core */}
-      <polyline points={points} fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeOpacity="0.95" strokeLinejoin="round" strokeLinecap="round" style={{ vectorEffect: 'non-scaling-stroke' }} />
-      {/* pulse nodes at each winning center */}
-      {cells.map((c, i) => (
-        <circle key={i} cx={c.col * 100 + 50} cy={c.row * 100 + 50} r="7" fill="#FFFF00" opacity="0.7" style={{ vectorEffect: 'non-scaling-stroke', animation: 'ccPulse 0.9s ease-in-out infinite' }} />
-      ))}
+      {/* subtle glow */}
+      <polyline points={points} fill="none" stroke="#FFFF00" strokeWidth="4" strokeOpacity="0.4" strokeLinejoin="round" strokeLinecap="round" style={{ vectorEffect: 'non-scaling-stroke' }} />
+      {/* thin bright core */}
+      <polyline points={points} fill="none" stroke="#FFFFFF" strokeWidth="1.4" strokeOpacity="0.95" strokeLinejoin="round" strokeLinecap="round" style={{ vectorEffect: 'non-scaling-stroke' }} />
     </svg>
   );
 }
