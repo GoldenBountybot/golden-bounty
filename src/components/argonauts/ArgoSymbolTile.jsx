@@ -20,14 +20,18 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
       >
         <img src={VALUE_COIN_IMG} alt="value coin" className="absolute inset-0 w-full h-full object-cover" draggable={false} style={{ transform: 'scale(1.12)', mixBlendMode: 'screen' }} />
         <span
-          className="relative z-10 font-black tabular-nums italic"
+          className="relative z-10 tabular-nums italic"
           style={{
-            fontSize: '0.64rem',
+            fontSize: '0.66rem',
             fontFamily: 'Rye, Georgia, serif',
-            color: '#FFD700',
-            WebkitTextStroke: '1.8px #000',
+            background: 'linear-gradient(180deg, #F8D970 0%, #E6B24A 42%, #B86C20 100%)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            color: 'transparent',
+            WebkitTextStroke: '1.6px #2D1A0D',
             paintOrder: 'stroke fill',
-            filter: 'drop-shadow(0 0 2px rgba(255,235,150,0.8))',
+            textShadow: '0 1px 1px rgba(0,0,0,0.7), 0 0 2px rgba(0,0,0,0.45)',
+            filter: 'drop-shadow(0 -1px 0 rgba(255,243,200,0.55)) drop-shadow(0 1px 1px rgba(0,0,0,0.55))',
             letterSpacing: '0.01em',
           }}
         >
