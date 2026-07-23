@@ -22,11 +22,14 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
         <span
           className="relative z-10 font-black tabular-nums italic"
           style={{
-            fontSize: '0.82rem',
+            fontSize: '0.76rem',
             fontFamily: 'Rye, Georgia, serif',
-            color: '#FFD700',
-            WebkitTextStroke: '0.8px rgba(0,0,0,1)',
-            filter: 'drop-shadow(0 1px 1px rgba(0,0,0,1)) drop-shadow(0 0 3px rgba(255,235,150,0.9))',
+            background: 'linear-gradient(to bottom, #fff2b0 0%, #FFD700 45%, #f4b400 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: '#FFD700',
+            backgroundClip: 'text',
+            WebkitTextStroke: '0.7px #000',
+            filter: 'drop-shadow(0 1px 1px rgba(0,0,0,1))',
             letterSpacing: '0.01em',
           }}
         >
