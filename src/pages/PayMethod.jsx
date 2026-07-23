@@ -55,25 +55,26 @@ const METHODS = [
 ];
 
 const USDT_NETWORKS = [
-  { name: 'USDT TRX Network', logo: LOGOS.tron, symbol: '₮', color: '#26a17b', address: 'TMxeqrx8Fx1bUfuLaGQHZ6tct9rEiYo2tM' },
-  { name: 'USDT BEP 20', logo: LOGOS.bnb, symbol: '₮', color: '#f0b90b', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
-  { name: 'USDT ETH Network', logo: LOGOS.ethereum, symbol: '₮', color: '#627eea', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
-  { name: 'USDT POL Polygon Pos', logo: LOGOS.polygon, symbol: '₮', color: '#8247e5', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
-  { name: 'USDT SOL Solana Network', logo: LOGOS.solana, symbol: '₮', color: '#14f195', address: '7UTV9h1VHq2gxjEoCLyJSPhoiz1NAaEHAL8qwTzy4sAy' },
-  { name: 'USDT TON Network', logo: LOGOS.ton, symbol: '₮', color: '#0098ea', address: 'UQCTtNPN9ZzlXWsiE-VHApcouD8tFHgBIcC3hD-GcQdDrgKN' },
-  { name: 'USDT AVAX-C Chain', logo: LOGOS.avalanche, symbol: '₮', color: '#e84142', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
-  { name: 'USDT APT Aptos Network', logo: LOGOS.aptos, symbol: '₮', color: '#06f7c7', address: '0x6c0ab824258561892ea86cb25537a3fa2f98dac3807274857eceacde0f0cba40' },
+  { name: 'USDT TRX Network', logo: LOGOS.tron, symbol: '₮', color: '#26a17b', address: 'TLrv3EJEbGfEJgGbjQi3Yi1Yc88mn9mDxn' },
+  { name: 'USDT BEP 20', logo: LOGOS.bnb, symbol: '₮', color: '#f0b90b', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'USDT ETH Network', logo: LOGOS.ethereum, symbol: '₮', color: '#627eea', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'USDT POL Polygon Pos', logo: LOGOS.polygon, symbol: '₮', color: '#8247e5', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'USDT SOL Solana Network', logo: LOGOS.solana, symbol: '₮', color: '#14f195', address: 'ftmbTXAc6XWyT6ieXHLiEZ7zuJFDPVSAdvrvrTveniW' },
+  { name: 'USDT TON Network', logo: LOGOS.ton, symbol: '₮', color: '#0098ea', address: 'UQB5vp_yQ4L-EheVHn4df--zU1XDuRX_tMSCc7WEB-PGuGv6' },
+  { name: 'USDT AVAX-C Chain', logo: LOGOS.avalanche, symbol: '₮', color: '#e84142', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'USDT APT Aptos Network', logo: LOGOS.aptos, symbol: '₮', color: '#06f7c7', address: '0x5eed1ca335fec51a3b18c115c6ceb0f4c774f3bdaa943076d1f58024921501f4' },
 ];
 
 const CRYPTO_NETWORKS = [
-  { name: 'Bitcoin BTC Network', logo: LOGOS.bitcoin, symbol: '₿', color: '#f7931a', address: '143jQV14W9RZWWnvZzU4jC6L9tzLRpxc7F' },
-  { name: 'ETH ERC 20', logo: LOGOS.ethereum, symbol: 'Ξ', color: '#627eea', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
-  { name: 'BNB BNB Network', logo: LOGOS.bnb, symbol: 'B', color: '#f0b90b', address: '0xbe44b1608cd0a7e7f18166d18ad2c21a61bd6570' },
-  { name: 'TRX Trc 20', logo: LOGOS.tron, symbol: 'T', color: '#ef0027', address: 'TMxeqrx8Fx1bUfuLaGQHZ6tct9rEiYo2tM' },
-  { name: 'LTC Litcoin Network', logo: LOGOS.litecoin, symbol: 'Ł', color: '#345d9d', address: 'LeHorMXaYm2XbuXijJNfFZkoH44tVgGqRw' },
-  { name: 'Doge Dogecoin Network', logo: LOGOS.dogecoin, symbol: 'Ð', color: '#c2a634', address: 'DSZgcwAFzzU7B1aJWDdELm1EDVyUStdaQs' },
-  { name: 'Dot Polkadot Network', logo: LOGOS.polkadot, symbol: '●', color: '#e6007a', address: '12fvsuVa2wyjkVVJ3jF8KfEEbbby1tp85iTwXuJSM8iRgYjJ' },
-  { name: 'APT Aptos Network', logo: LOGOS.aptos, symbol: 'A', color: '#06f7c7', address: '0x6c0ab824258561892ea86cb25537a3fa2f98dac3807274857eceacde0f0cba40' },
+  { name: 'Bitcoin BTC Network', logo: LOGOS.bitcoin, symbol: '₿', color: '#f7931a', address: 'bc1q6j34j85jswe2xmnwvljjax4nemagfmak44glt0' },
+  { name: 'ETH ERC 20', logo: LOGOS.ethereum, symbol: 'Ξ', color: '#627eea', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'BNB BNB Network', logo: LOGOS.bnb, symbol: 'B', color: '#f0b90b', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'TRX Trc 20', logo: LOGOS.tron, symbol: 'T', color: '#ef0027', address: 'TLrv3EJEbGfEJgGbjQi3Yi1Yc88mn9mDxn' },
+  { name: 'LTC Litcoin Network', logo: LOGOS.litecoin, symbol: 'Ł', color: '#345d9d', address: 'ltc1qr3sxhe7uhy7230n67ydvyazj7xl3ktg2594xnq' },
+  { name: 'Doge Dogecoin Network', logo: LOGOS.dogecoin, symbol: 'Ð', color: '#c2a634', address: 'DRia2VvUFipNk5D31AvWd4b3W714hBdbtW' },
+  { name: 'Dot Polkadot Network', logo: LOGOS.polkadot, symbol: '●', color: '#e6007a', address: '12vChQ7pHT3wrgMUmHCjCwBy5ASEbHYEmL3paSjfmymDdngN' },
+  { name: 'APT Aptos Network', logo: LOGOS.aptos, symbol: 'A', color: '#06f7c7', address: '0x5eed1ca335fec51a3b18c115c6ceb0f4c774f3bdaa943076d1f58024921501f4' },
+  { name: 'TON Ton network', logo: LOGOS.ton, symbol: 'T', color: '#0098ea', address: 'UQB5vp_yQ4L-EheVHn4df--zU1XDuRX_tMSCc7WEB-PGuGv6' },
 ];
 
 function CopyAddr({ addr }) {

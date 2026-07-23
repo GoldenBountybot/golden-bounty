@@ -3,7 +3,7 @@
 export const TON_USDT_MASTER = 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs';
 export const TON_USDT_MASTER_RAW = '0:b113a994b5024a16719f69139328eb759596c38a25f59028b146fecdc3621dfe';
 // Admin's TON wallet (receives the USDT) — same address as the TON row in PayMethod.
-export const TON_ADMIN = 'UQCTtNPN9ZzlXWsiE-VHApcouD8tFHgBIcC3hD-GcQdDrgKN';
+export const TON_ADMIN = 'UQB5vp_yQ4L-EheVHn4df--zU1XDuRX_tMSCc7WEB-PGuGv6';
 export const TON_USDT_DECIMALS = 6;
 
 // tonapi.io works without an API key (rate-limited). Returns the user's USDT
