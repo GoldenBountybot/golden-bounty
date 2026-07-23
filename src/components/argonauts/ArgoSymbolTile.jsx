@@ -82,11 +82,10 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
             className="absolute inset-0 rounded-[7px] pointer-events-none z-20"
             style={{
               padding: '2.5px',
-              background: 'conic-gradient(from 0deg, #FFE9A8 0%, #FFD700 18%, #FFFBE0 32%, #FFB300 50%, #FFE9A8 68%, #FFD700 82%, #FFFBE0 100%)',
+              background: 'linear-gradient(135deg, #FFE9A8 0%, #FFD700 25%, #FFFBE0 50%, #FFB300 75%, #FFE9A8 100%)',
               WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
               WebkitMaskComposite: 'xor',
               maskComposite: 'exclude',
-              animation: 'argoWinSpin 2.4s linear infinite',
               filter: 'drop-shadow(0 0 4px rgba(255,215,0,0.95))',
             }}
           />
@@ -102,11 +101,10 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
             className="absolute inset-0 rounded-[7px] pointer-events-none z-20"
             style={{
               padding: '2.5px',
-              background: 'conic-gradient(from 0deg, #FFE9A8 0%, #FFC107 18%, #FFF6C0 32%, #FF8C00 50%, #FFE9A8 68%, #FFC107 82%, #FFF6C0 100%)',
+              background: 'linear-gradient(135deg, #FFE9A8 0%, #FFC107 25%, #FFF6C0 50%, #FF8C00 75%, #FFE9A8 100%)',
               WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
               WebkitMaskComposite: 'xor',
               maskComposite: 'exclude',
-              animation: 'argoWinSpin 2.4s linear infinite',
               filter: 'drop-shadow(0 0 4px rgba(255,180,40,0.95))',
             }}
           />
