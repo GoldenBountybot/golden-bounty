@@ -63,6 +63,7 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
           alt={meta.name}
           className="relative z-10 w-full h-full object-cover"
           draggable={false}
+          style={{ transform: 'scale(1.12)' }}
         />
       ) : (
         <span
