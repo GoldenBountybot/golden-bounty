@@ -8,7 +8,7 @@ import WinLineOverlay from './WinLineOverlay';
 import Meander from './Meander';
 import ArgoOverlays from './ArgoOverlays';
 
-const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/cca28e846_generated_image.png';
+const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png';
 
 // Spinning reel strip — tall vertical column of random symbols scrolling
 // seamlessly (Big Brown style). 4 blocks, last = first for a seamless loop.
