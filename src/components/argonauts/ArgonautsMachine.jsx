@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Info, ArrowLeft, Zap, Menu, Plus, Minus, RotateCw, DollarSign, Play } from 'lucide-react';
+import { Zap, Menu, Plus, Minus, RotateCw, DollarSign, Play } from 'lucide-react';
 import { useArgonauts } from './useArgonauts';
 import { REELS, ROWS, BETS, FREE_SPINS_AWARD, SYMBOLS } from './argonautsEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import ArgoSymbolTile from './ArgoSymbolTile';
 import WinLineOverlay from './WinLineOverlay';
-import Meander from './Meander';
 import ArgoOverlays from './ArgoOverlays';
 
 const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png';
@@ -83,51 +82,8 @@ export default function ArgonautsMachine() {
       <div className="absolute inset-0" style={{ backgroundImage: `url(${BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(7,13,30,0.25), rgba(7,13,30,0.55))' }} />
 
-      {/* Title row */}
-      <header className="relative px-3 pt-3">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => setShowRules(true)}
-            title="Info"
-            className="flex items-center justify-center rounded-full"
-            style={{ width: 34, height: 34, border: '1.5px solid rgba(255,255,255,0.85)', color: '#fff', background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(6px)' }}
-          >
-            <Info className="w-4 h-4" />
-          </button>
-
-          <h1
-            className="text-2xl sm:text-3xl tracking-[0.15em] font-black select-none"
-            style={{
-              fontFamily: 'Georgia, serif',
-              background: 'linear-gradient(to bottom, #FFD700 0%, #FF8C00 55%, #FF4500 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              WebkitTextStroke: '1.2px #1a0d2a',
-              filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.8))',
-            }}
-          >
-            ARGONAUTS
-          </h1>
-
-          <button
-            onClick={() => { window.location.href = '/'; }}
-            title="Lobby"
-            className="flex items-center justify-center rounded-full"
-            style={{ width: 34, height: 34, border: '1.5px solid rgba(255,255,255,0.85)', color: '#fff', background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(6px)' }}
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Greek meander border under the title */}
-        <div className="mt-1.5 mx-auto" style={{ maxWidth: 360 }}>
-          <Meander color="#FFD700" height={16} />
-        </div>
-      </header>
-
       {/* Reel grid */}
-      <div className="relative flex-1 flex items-center justify-center px-3 py-2 mt-12">
+      <div className="relative flex-1 flex items-center justify-center px-3 py-2 mt-3">
         <div className="w-full max-w-md">
           {g.freeSpins > 0 && (
             <div className="flex justify-center mb-2">
