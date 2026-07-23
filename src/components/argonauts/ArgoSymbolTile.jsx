@@ -18,7 +18,7 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
           animation: spinning ? undefined : stuck ? 'ccFireFlicker 1.1s ease-in-out infinite' : undefined,
         }}
       >
-        <img src={VALUE_COIN_IMG} alt="value coin" className="absolute inset-0 w-full h-full object-cover" draggable={false} style={{ transform: 'scale(1.15)' }} />
+        <img src={VALUE_COIN_IMG} alt="value coin" className="absolute inset-0 w-full h-full object-cover" draggable={false} style={{ transform: 'scale(1.4)' }} />
         {/* Golden western frame — covers the black background around the coin */}
         <div
           className="absolute inset-0 pointer-events-none rounded-[7px]"
