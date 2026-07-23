@@ -77,16 +77,44 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
         </span>
       )}
       {isScatter && (
-        <span
-          className="absolute inset-0 rounded-[7px] pointer-events-none z-20"
-          style={{ boxShadow: 'inset 0 0 0 2px rgba(255,215,0,0.9), 0 0 10px rgba(255,215,0,0.6)' }}
-        />
+        <>
+          <span
+            className="absolute inset-0 rounded-[7px] pointer-events-none z-20"
+            style={{
+              padding: '2.5px',
+              background: 'conic-gradient(from 0deg, #FFE9A8 0%, #FFD700 18%, #FFFBE0 32%, #FFB300 50%, #FFE9A8 68%, #FFD700 82%, #FFFBE0 100%)',
+              WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+              animation: 'argoWinSpin 2.4s linear infinite',
+              filter: 'drop-shadow(0 0 4px rgba(255,215,0,0.95))',
+            }}
+          />
+          <span
+            className="absolute inset-0 rounded-[7px] pointer-events-none z-10"
+            style={{ animation: 'argoGoldPulse 1.3s ease-in-out infinite' }}
+          />
+        </>
       )}
       {isBonus && (
-        <span
-          className="absolute inset-0 rounded-[7px] pointer-events-none z-20"
-          style={{ boxShadow: 'inset 0 0 0 2px rgba(255,140,0,0.95), 0 0 10px rgba(255,140,0,0.6)' }}
-        />
+        <>
+          <span
+            className="absolute inset-0 rounded-[7px] pointer-events-none z-20"
+            style={{
+              padding: '2.5px',
+              background: 'conic-gradient(from 0deg, #FFE9A8 0%, #FFC107 18%, #FFF6C0 32%, #FF8C00 50%, #FFE9A8 68%, #FFC107 82%, #FFF6C0 100%)',
+              WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+              animation: 'argoWinSpin 2.4s linear infinite',
+              filter: 'drop-shadow(0 0 4px rgba(255,180,40,0.95))',
+            }}
+          />
+          <span
+            className="absolute inset-0 rounded-[7px] pointer-events-none z-10"
+            style={{ animation: 'argoGoldPulse 1.3s ease-in-out infinite' }}
+          />
+        </>
       )}
       {win && (
         <span

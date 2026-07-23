@@ -443,6 +443,12 @@
   to   { transform: rotate(360deg); }
 }
 
+/* Argonauts — shiny golden glow pulse for scatter / bonus borders */
+@keyframes argoGoldPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(255,215,0,0.85), 0 0 16px rgba(255,200,80,0.55), inset 0 0 10px rgba(255,235,150,0.5); }
+  50%      { box-shadow: 0 0 16px rgba(255,235,80,1), 0 0 28px rgba(255,210,90,0.85), inset 0 0 16px rgba(255,245,180,0.85); }
+}
+
 @keyframes plinkoPegHit {
   0%   { box-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55); }
   30%  { box-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 13px rgba(255,238,150,0.9); }
