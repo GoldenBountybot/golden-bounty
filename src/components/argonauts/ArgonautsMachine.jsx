@@ -118,7 +118,7 @@ export default function ArgonautsMachine() {
       </header>
 
       {/* Reel grid */}
-      <div className="relative flex-1 flex items-center justify-center px-3 py-2 mt-6">
+      <div className="relative flex-1 flex items-center justify-center px-3 py-2 mt-12">
         <div className="w-full max-w-md">
           {g.freeSpins > 0 && (
             <div className="flex justify-center mb-2">
