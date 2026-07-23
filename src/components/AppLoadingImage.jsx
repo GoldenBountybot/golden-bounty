@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SPLASH_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5cc61204f_InShot_20260722_115033604.jpg';
+const SPLASH_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b1a2d7d3e_file_000000009ef4820baac5161c2e45158b.png';
 
 // Full-screen splash shown while the app boots. Covers the whole screen with
 // the branded image and centers a "loading" label on top.
