@@ -19,8 +19,26 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
         }}
       >
         <img src={VALUE_COIN_IMG} alt="value coin" className="absolute inset-0 w-full h-full object-cover" draggable={false} style={{ transform: 'scale(1.15)' }} />
+        {/* Golden western frame — covers the black background around the coin */}
+        <div
+          className="absolute inset-0 pointer-events-none rounded-[7px]"
+          style={{
+            zIndex: 20,
+            background: 'linear-gradient(135deg, #F3E5AB 0%, #D4AF37 40%, #B8860B 75%, #8B6914 100%)',
+            WebkitMaskImage: 'radial-gradient(circle at center, transparent 42%, #000 50%)',
+            maskImage: 'radial-gradient(circle at center, transparent 42%, #000 50%)',
+          }}
+        />
+        <div
+          className="absolute inset-0 pointer-events-none rounded-[7px]"
+          style={{
+            zIndex: 30,
+            border: '2.5px solid #D4AF37',
+            boxShadow: 'inset 0 0 0 1.5px #5a3c1a, inset 0 0 8px rgba(0,0,0,0.5)',
+          }}
+        />
         <span
-          className="relative z-10 font-black tabular-nums italic"
+          className="relative z-40 font-black tabular-nums italic"
           style={{
             fontSize: '0.78rem',
             fontFamily: 'Rye, Georgia, serif',
