@@ -89,12 +89,12 @@ export default function ArgonautsMachine() {
           alt="ARGONAUTS"
           draggable={false}
           className="select-none"
-          style={{ height: 'auto', width: 'min(86vw, 380px)', mixBlendMode: 'screen', objectFit: 'contain', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.4))' }}
+          style={{ height: 'auto', width: 'min(82vw, 320px)', mixBlendMode: 'screen', objectFit: 'contain', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.4))' }}
         />
       </div>
 
       {/* Reel grid */}
-      <div className="relative flex-1 flex items-start justify-center px-3 py-1 mt-0">
+      <div className="relative flex-1 flex items-start justify-center px-3 py-1" style={{ marginTop: '-8px' }}>
         <div className="w-full max-w-md">
           {g.freeSpins > 0 && (
             <div className="flex justify-center mb-2">
