@@ -12,7 +12,6 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
         style={{
           width: '100%',
           aspectRatio: '1 / 1',
-          background: 'radial-gradient(circle at 50% 40%, rgba(255,215,0,0.3), rgba(60,40,10,0.95) 75%)',
           border: '2px solid #FFD700',
           boxShadow: stuck
             ? '0 0 20px rgba(255,215,0,0.95), 0 0 8px rgba(255,255,200,0.9), inset 0 0 12px rgba(255,235,150,0.6)'
@@ -24,10 +23,13 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
         <span
           className="relative z-10 font-black tabular-nums"
           style={{
-            color: '#3E2723',
-            fontSize: '0.85rem',
-            textShadow: '0 1px 1px rgba(255,235,150,0.8)',
+            fontSize: '0.95rem',
             fontFamily: 'Georgia, serif',
+            background: 'linear-gradient(to bottom, #fff7d6 0%, #ffe9a8 22%, #FFD700 52%, #f5c542 72%, #c8881e 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            filter: 'drop-shadow(0 1px 1px rgba(120,80,30,0.9)) drop-shadow(0 0 4px rgba(255,235,150,0.95))',
           }}
         >
           ${amount.toFixed(2)}
