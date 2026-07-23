@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Info, ArrowLeft, Zap, Menu, Plus, RotateCw, DollarSign, Play } from 'lucide-react';
+import { Info, ArrowLeft, Zap, Menu, Plus, Minus, RotateCw, Play } from 'lucide-react';
 import { useArgonauts } from './useArgonauts';
 import { REELS, ROWS, BETS, FREE_SPINS_AWARD, SYMBOLS } from './argonautsEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -190,6 +190,7 @@ export default function ArgonautsMachine() {
             <div className="flex items-center gap-2">
               <IconButton onClick={() => g.setTurbo(!g.turbo)} active={g.turbo} disabled={g.spinning} title="Turbo"><Zap className="w-5 h-5" /></IconButton>
               <IconButton onClick={() => setShowPaytable(true)} title="Menu"><Menu className="w-5 h-5" /></IconButton>
+              <IconButton onClick={() => g.setBetIndex(Math.max(g.betIndex - 1, 0))} disabled={g.spinning || g.betIndex <= 0} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
             </div>
 
             {/* Center: circular spin */}
@@ -218,7 +219,6 @@ export default function ArgonautsMachine() {
             <div className="flex items-center gap-2">
               <IconButton onClick={() => g.setBetIndex(Math.min(g.betIndex + 1, BETS.length - 1))} disabled={g.spinning || g.betIndex >= BETS.length - 1} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
               <IconButton onClick={() => g.setAutoSpin(!g.autoSpin)} active={g.autoSpin} disabled={g.spinning} title="Auto spin"><RotateCw className="w-5 h-5" /></IconButton>
-              <IconButton onClick={() => g.setBetIndex(Math.max(g.betIndex - 1, 0))} disabled={g.spinning || g.betIndex <= 0} title="Bet"><DollarSign className="w-5 h-5" /></IconButton>
             </div>
           </div>
 
