@@ -12,24 +12,23 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
         style={{
           width: '100%',
           aspectRatio: '1 / 1',
-          border: '2px solid #FFD700',
           boxShadow: stuck
-            ? '0 0 20px rgba(255,215,0,0.95), 0 0 8px rgba(255,255,200,0.9), inset 0 0 12px rgba(255,235,150,0.6)'
-            : '0 0 10px rgba(255,215,0,0.6), inset 0 0 8px rgba(255,200,80,0.4)',
+            ? '0 0 22px rgba(253,184,19,0.95), 0 0 12px rgba(233,78,27,0.85), inset 0 0 12px rgba(255,235,150,0.6)'
+            : '0 0 16px rgba(253,184,19,0.8), 0 0 8px rgba(233,78,27,0.6)',
           animation: spinning ? undefined : stuck ? 'ccFireFlicker 1.1s ease-in-out infinite' : undefined,
         }}
       >
-        <img src={VALUE_COIN_IMG} alt="value coin" className="absolute inset-0 w-full h-full object-cover" draggable={false} style={{ transform: 'scale(1.45)' }} />
+        <img src={VALUE_COIN_IMG} alt="value coin" className="absolute inset-0 w-full h-full object-cover" draggable={false} style={{ transform: 'scale(1.35)' }} />
         <span
           className="relative z-10 font-black tabular-nums"
           style={{
-            fontSize: '0.95rem',
+            fontSize: '1rem',
             fontFamily: 'Georgia, serif',
-            background: 'linear-gradient(to bottom, #fff7d6 0%, #ffe9a8 22%, #FFD700 52%, #f5c542 72%, #c8881e 100%)',
+            background: 'linear-gradient(to bottom, #fff7d6 0%, #ffe9a8 18%, #FFD700 48%, #C5A059 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
-            filter: 'drop-shadow(0 1px 1px rgba(120,80,30,0.9)) drop-shadow(0 0 4px rgba(255,235,150,0.95))',
+            filter: 'drop-shadow(0 1px 1px rgba(80,50,10,0.95)) drop-shadow(0 0 5px rgba(255,235,150,1))',
           }}
         >
           ${amount.toFixed(2)}
