@@ -86,24 +86,28 @@ export default function ArgonautsMachine() {
       {/* Metallic title band */}
       <div className="relative pt-3 pb-1 text-center">
         <h1
-          className="select-none uppercase tracking-[0.15em]"
+          className="select-none uppercase tracking-[0.14em] relative inline-block"
           style={{
-            fontFamily: 'Georgia, serif',
-            fontSize: 'clamp(1.6rem, 6vw, 2.4rem)',
-            fontWeight: 900,
+            fontFamily: 'Georgia, "Times New Roman", serif',
+            fontSize: 'clamp(1.7rem, 6.2vw, 2.5rem)',
+            fontWeight: 700,
             lineHeight: 1,
-            background: 'linear-gradient(to bottom, #FDFD5D 0%, #F5D040 18%, #E1A914 42%, #D68A0F 68%, #B8550B 100%)',
+            color: 'transparent',
+            background: 'linear-gradient(180deg, #FFFCE8 0%, #FDFD5D 12%, #F5D040 30%, #E1A914 50%, #D68A0F 72%, #B8550B 90%, #8E3A08 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
-            WebkitTextStroke: '1.4px #A63B0A',
-            filter: 'drop-shadow(0 -1px 0 #FFFCE8) drop-shadow(0 2px 0 #7a2a07) drop-shadow(0 3px 2px rgba(0,0,0,0.55))',
+            WebkitTextStroke: '1.6px #A63B0A',
+            paintOrder: 'stroke fill',
+            filter:
+              'drop-shadow(0 1.5px 0 #7a2a07) drop-shadow(0 2.5px 0 #5e1f04) drop-shadow(0 4px 3px rgba(0,0,0,0.6))',
+            textShadow: '0 -1px 0 rgba(255,252,232,0.85)',
           }}
         >
           ARGONAUTS
         </h1>
-        <div className="mt-1 mx-auto" style={{ maxWidth: 340 }}>
-          <Meander metallic height={16} />
+        <div className="mt-1.5 mx-auto" style={{ maxWidth: 340 }}>
+          <Meander metallic height={17} />
         </div>
       </div>
 
