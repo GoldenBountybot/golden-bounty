@@ -104,7 +104,7 @@ export function useArgonauts() {
     setSpinningReels(new Set());
     setWinningPositions(new Set());
     const { grid: newGrid, stuck: newStuck, dropped } = spinCoinRound(coinStuckRef.current);
-    const gap = turboRef.current ? 80 : 150;
+    const baseGap = turboRef.current ? 300 : 460;
     const stopReel = (i) => {
       const t = setTimeout(() => {
         setGrid((prev) => { const next = prev.map((r) => [...r]); next[i] = newGrid[i]; return next; });
@@ -134,7 +134,7 @@ export function useArgonauts() {
           }, turboRef.current ? 120 : 250);
           timers.current.push(t2);
         }
-      }, gap * (i + 1));
+      }, baseGap);
       timers.current.push(t);
     };
     stopReel(0);
@@ -260,7 +260,7 @@ export function useArgonauts() {
       }
     }
 
-    const gap = turbo ? 110 : 200;
+    const baseGap = turbo ? 300 : 460;
     const stopReel = (i) => {
       const t = setTimeout(() => {
         setGrid((prev) => {
@@ -278,7 +278,7 @@ export function useArgonauts() {
           const t2 = setTimeout(() => settle(finalGrid, usingFree), turbo ? 150 : 320);
           timers.current.push(t2);
         }
-      }, gap * (i + 1));
+      }, baseGap);
       timers.current.push(t);
     };
     stopReel(0);
