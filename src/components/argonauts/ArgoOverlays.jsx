@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { SYMBOLS, PAYTABLE, FREE_SPINS_AWARD, BONUS_TRIGGER_COUNT, SCATTER_PAY } from './argonautsEngine';
 import FreeGamesBanner from './FreeGamesBanner';
 
+const COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b4e358bc4_generated_image.png';
+
 // Centered modal overlay over the game.
 function Overlay({ children, onClose }) {
   return (
@@ -70,20 +72,53 @@ export default function ArgoOverlays({ g, showPaytable, setShowPaytable }) {
         <FreeGamesBanner count={FREE_SPINS_AWARD} onStart={g.startFreeSpins} />
       )}
 
-      {/* Golden Fleece bonus overlay */}
+      {/* Golden Fleece bonus overlay — hold & spin coin round */}
       {g.bonusActive && (
         <Overlay onClose={null}>
           <div className="text-center w-full">
-            <div className="text-5xl mb-2">🛡️</div>
-            <h2 className="text-xl font-black mb-1" style={{ fontFamily: 'Georgia, serif', color: '#f5d77a' }}>GOLDEN FLEECE BONUS</h2>
-            <p className="text-xs text-amber-200/60 mb-3" style={{ fontFamily: 'Georgia, serif' }}>Hold & Spin · lock shields for prizes</p>
-            <div className="grid grid-cols-5 gap-1.5 max-w-[340px] mx-auto mb-3">
-              {(g.bonusSteps[bonusStepIndex] || Array(15).fill(null)).map((cell, i) => (
-                <div key={i} className="aspect-square rounded-[6px] flex items-center justify-center text-2xl transition-all" style={{ background: cell ? 'radial-gradient(circle, rgba(245,215,122,0.3), rgba(20,17,13,0.85))' : 'rgba(20,17,13,0.6)', border: cell ? '1px solid rgba(245,215,122,0.8)' : '1px solid rgba(214,178,98,0.2)', boxShadow: cell ? '0 0 8px rgba(245,215,122,0.4)' : 'none' }}>
-                  {cell ? (<div className="flex flex-col items-center"><span>{cell.emoji}</span>{cell.prize > 0 && <span className="text-[8px] text-yellow-200 font-black">{cell.prize}×</span>}</div>) : null}
+            <h2 className="text-lg font-black mb-2" style={{ fontFamily: 'Georgia, serif', color: '#f5d77a' }}>GOLDEN FLEECE BONUS</h2>
+
+            {/* Heart meter + jackpot tiers */}
+            <div className="flex items-center gap-1.5 mb-2">
+              <span className="text-red-500 text-lg">❤</span>
+              <div className="flex gap-1 flex-1">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="h-2 flex-1 rounded-[3px]" style={{ background: i === 0 ? 'linear-gradient(to right,#ef4444,#b91c1c)' : 'rgba(214,178,98,0.18)', border: '1px solid rgba(214,178,98,0.4)' }} />
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5 max-w-[340px] mx-auto mb-3">
+              {[
+                { k: 'ULTRA', v: 5000 * g.bet, c: '#a855f7', bg: 'rgba(88,28,135,0.85)' },
+                { k: 'MAX', v: 150 * g.bet, c: '#ef4444', bg: 'rgba(127,29,29,0.85)' },
+                { k: 'MID', v: 50 * g.bet, c: '#3b82f6', bg: 'rgba(30,58,138,0.85)' },
+                { k: 'MIN', v: 20 * g.bet, c: '#22c55e', bg: 'rgba(20,83,45,0.85)' },
+              ].map((t) => (
+                <div key={t.k} className="rounded-[5px] py-1 px-0.5" style={{ border: `1px solid ${t.c}`, background: t.bg }}>
+                  <p className="text-[8px] font-black tracking-wider" style={{ color: t.c }}>{t.k}</p>
+                  <p className="text-[10px] font-black tabular-nums text-white">€{t.v.toFixed(2)}</p>
                 </div>
               ))}
             </div>
+
+            {/* Coin grid */}
+            <div className="grid grid-cols-5 gap-1.5 max-w-[340px] mx-auto mb-3">
+              {(g.bonusSteps[bonusStepIndex] || Array(15).fill(null)).map((cell, i) => (
+                <div key={i} className="relative aspect-square rounded-[6px] flex items-center justify-center transition-all overflow-hidden" style={{ background: cell && cell.prize > 0 ? 'radial-gradient(circle, rgba(120,30,30,0.9), rgba(40,8,8,0.95))' : 'rgba(74,4,4,0.85)', border: cell && cell.prize > 0 ? '1px solid rgba(255,215,0,0.85)' : '1px solid rgba(214,178,98,0.25)', boxShadow: cell && cell.prize > 0 ? '0 0 10px rgba(255,215,0,0.55)' : 'none' }}>
+                  {cell && cell.prize > 0 ? (
+                    <>
+                      <img src={COIN_IMG} alt="coin" className="w-full h-full object-cover" draggable={false} />
+                      <span className="absolute inset-0 flex items-center justify-center font-black tabular-nums" style={{ fontSize: '11px', color: '#3E2723', textShadow: '0 1px 1px rgba(255,235,150,0.6)' }}>
+                        €{(cell.prize * g.bet).toFixed(2)}
+                      </span>
+                    </>
+                  ) : (
+                    <div className="w-[70%] h-[70%] rounded-full" style={{ border: '1px solid rgba(214,178,98,0.25)', background: 'radial-gradient(circle, rgba(60,10,10,0.6), transparent 70%)' }} />
+                  )}
+                </div>
+              ))}
+            </div>
+
             <p className="text-sm text-yellow-100" style={{ fontFamily: 'Georgia, serif' }}>Bonus Prize: <span className="font-black tabular-nums">${g.bonusPrize.toFixed(2)}</span>{g.bonusExtra && <span className="ml-2 text-yellow-300 animate-pulse">ULTRA JACKPOT!</span>}</p>
             {bonusStepIndex >= g.bonusSteps.length - 1 && (
               <button onClick={g.finishBonus} className="mt-4 px-6 py-2 rounded-[8px] font-black" style={{ border: '2px solid rgba(245,215,122,0.85)', background: 'linear-gradient(to bottom,#f5c542,#c8881e)', color: '#2a1a06' }}>COLLECT ${g.bonusPrize.toFixed(2)}</button>
