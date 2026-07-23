@@ -78,19 +78,15 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
       )}
       {isScatter && (
         <span
-          className="absolute bottom-0.5 inset-x-0 text-center font-black tracking-wider z-20"
-          style={{ fontSize: '7px', color: '#FFD700', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}
-        >
-          SCATTER
-        </span>
+          className="absolute inset-0 rounded-[7px] pointer-events-none z-20"
+          style={{ boxShadow: 'inset 0 0 0 2px rgba(255,215,0,0.9), 0 0 10px rgba(255,215,0,0.6)' }}
+        />
       )}
       {isBonus && (
         <span
-          className="absolute bottom-0.5 inset-x-0 text-center font-black tracking-wider z-20"
-          style={{ fontSize: '7px', color: '#FFD700', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}
-        >
-          BONUS
-        </span>
+          className="absolute inset-0 rounded-[7px] pointer-events-none z-20"
+          style={{ boxShadow: 'inset 0 0 0 2px rgba(255,140,0,0.95), 0 0 10px rgba(255,140,0,0.6)' }}
+        />
       )}
     </div>
   );
