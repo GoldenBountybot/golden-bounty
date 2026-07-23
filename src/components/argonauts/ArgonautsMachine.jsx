@@ -12,10 +12,11 @@ const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/cca2
 
 // Spinning reel strip — tall vertical column of random symbols scrolling
 // seamlessly (Big Brown style). 4 blocks, last = first for a seamless loop.
+const SPIN_IDS = Object.keys(SYMBOLS);
+
 const ArgoSpinStrip = React.memo(function ArgoSpinStrip({ reelIndex, turbo }) {
   const strip = React.useMemo(() => {
-    const ids = Object.keys(SYMBOLS);
-    const block = () => Array.from({ length: ROWS }, () => ids[Math.floor(Math.random() * ids.length)]);
+    const block = () => Array.from({ length: ROWS }, () => SPIN_IDS[Math.floor(Math.random() * SPIN_IDS.length)]);
     const b = block();
     return [...b, ...block(), ...block(), ...b];
   }, [reelIndex]);
@@ -28,7 +29,13 @@ const ArgoSpinStrip = React.memo(function ArgoSpinStrip({ reelIndex, turbo }) {
       >
         {strip.map((s, i) => (
           <div key={i} className="rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1' }}>
-            <ArgoSymbolTile sym={s} />
+            <img
+              src={SYMBOLS[s].image}
+              alt=""
+              draggable={false}
+              className="w-full h-full object-cover"
+              style={{ filter: 'blur(1.4px) brightness(0.82)', transform: 'scale(1.2)' }}
+            />
           </div>
         ))}
       </div>
