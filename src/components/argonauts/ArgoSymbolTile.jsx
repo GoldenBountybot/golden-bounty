@@ -88,6 +88,20 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
           style={{ boxShadow: 'inset 0 0 0 2px rgba(255,140,0,0.95), 0 0 10px rgba(255,140,0,0.6)' }}
         />
       )}
+      {win && (
+        <span
+          className="absolute inset-0 rounded-[7px] pointer-events-none z-30"
+          style={{
+            padding: '2px',
+            background: 'conic-gradient(from 0deg, rgba(255,215,0,0) 0%, #FFD700 25%, rgba(255,255,224,0.9) 40%, #FFD700 55%, rgba(255,215,0,0) 75%, #FFD700 90%, rgba(255,215,0,0) 100%)',
+            WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+            WebkitMaskComposite: 'xor',
+            maskComposite: 'exclude',
+            animation: 'argoWinSpin 1.1s linear infinite',
+            filter: 'drop-shadow(0 0 4px rgba(255,215,0,0.9))',
+          }}
+        />
+      )}
     </div>
   );
 }
