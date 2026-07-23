@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Info, ArrowLeft, Zap, Menu, Plus, RotateCw, DollarSign, Play } from 'lucide-react';
 import { useArgonauts } from './useArgonauts';
-import { REELS, BETS, FREE_SPINS_AWARD } from './argonautsEngine';
+import { REELS, ROWS, BETS, FREE_SPINS_AWARD, SYMBOLS } from './argonautsEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import ArgoSymbolTile from './ArgoSymbolTile';
 import WinLineOverlay from './WinLineOverlay';
@@ -9,6 +9,32 @@ import Meander from './Meander';
 import ArgoOverlays from './ArgoOverlays';
 
 const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/cca28e846_generated_image.png';
+
+// Spinning reel strip — tall vertical column of random symbols scrolling
+// seamlessly (Big Brown style). 4 blocks, last = first for a seamless loop.
+const ArgoSpinStrip = React.memo(function ArgoSpinStrip({ reelIndex, turbo }) {
+  const strip = React.useMemo(() => {
+    const ids = Object.keys(SYMBOLS);
+    const block = () => Array.from({ length: ROWS }, () => ids[Math.floor(Math.random() * ids.length)]);
+    const b = block();
+    return [...b, ...block(), ...block(), ...b];
+  }, [reelIndex]);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden rounded-[7px] pointer-events-none">
+      <div
+        className="flex flex-col gap-1 w-full"
+        style={{ animation: `reelFall ${turbo ? 0.4 : 0.6}s linear infinite`, willChange: 'transform' }}
+      >
+        {strip.map((s, i) => (
+          <div key={i} className="rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1' }}>
+            <ArgoSymbolTile sym={s} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
 
 function IconButton({ onClick, active, disabled, children, title }) {
   return (
@@ -114,22 +140,29 @@ export default function ArgonautsMachine() {
               background: 'rgba(26,13,74,0.4)',
             }}
           >
-            {g.grid.map((reel, ri) => (
-              <div key={ri} className="flex flex-col gap-1">
-                {reel.map((sym, row) => {
-                  const isWin = g.winningPositions.has(`${ri}-${row}`);
-                  return (
-                    <ArgoSymbolTile
-                      key={row}
-                      sym={sym}
-                      spinning={g.spinningReels.has(ri)}
-                      win={isWin}
-                      dim={g.winningPositions.size > 0 && !isWin}
-                    />
-                  );
-                })}
-              </div>
-            ))}
+            {g.grid.map((reel, ri) => {
+              const stopped = g.spinningReels.has(ri);
+              return (
+                <div key={ri} className="relative flex flex-col gap-1">
+                  {reel.map((sym, row) => {
+                    const key = `${ri}-${row}`;
+                    const isWin = g.winningPositions.has(key);
+                    return (
+                      <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', opacity: stopped ? 1 : 0 }}>
+                        {stopped ? (
+                          <div className="w-full h-full" style={{ animation: `bbSymbolDrop ${g.turbo ? 0.3 : 0.5}s ease-out both` }}>
+                            <ArgoSymbolTile sym={sym} win={isWin} dim={g.winningPositions.size > 0 && !isWin} />
+                          </div>
+                        ) : (
+                          <div className="w-full h-full" style={{ background: 'rgba(12,8,30,0.92)' }} />
+                        )}
+                      </div>
+                    );
+                  })}
+                  {!stopped && <ArgoSpinStrip reelIndex={ri} turbo={g.turbo} />}
+                </div>
+              );
+            })}
             <WinLineOverlay winningPositions={g.winningPositions} />
           </div>
 

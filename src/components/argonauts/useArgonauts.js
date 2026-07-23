@@ -108,6 +108,7 @@ export function useArgonauts() {
     setSpinning(true);
     setWinningPositions(new Set());
     setLastWin(0);
+    setSpinningReels(new Set());
     // Auto-collect any pending risk pot before starting a fresh spin.
     if (riskActive && pendingWin > 0) setBalance((b) => b + pendingWin);
     setPendingWin(0);
