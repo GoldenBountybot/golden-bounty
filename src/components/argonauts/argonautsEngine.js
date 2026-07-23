@@ -121,14 +121,16 @@ export function generateReel(reelIndex, freeSpins) {
     });
     return reel;
   }
-  // Stacked wild — variable height (1..3), stacked consecutively.
+  // Stacked wild / bonus — variable height (1..3), stacked consecutively.
+  // BONUS symbols may appear stacked, both in main game and Free Games.
   const stackChance = freeSpins ? 0.12 : 0.07;
   if (Math.random() < stackChance) {
     const height = 1 + Math.floor(Math.random() * ROWS); // 1..3
     const start = Math.floor(Math.random() * (ROWS - height + 1));
     const w = reelWeights(reelIndex, freeSpins);
     const reel = [0, 1, 2].map(() => pickWeighted(w));
-    for (let i = 0; i < height; i++) reel[start + i] = 'wild';
+    const stackSym = w.bonus && Math.random() < 0.45 ? 'bonus' : 'wild';
+    for (let i = 0; i < height; i++) reel[start + i] = stackSym;
     return reel;
   }
   const w = reelWeights(reelIndex, freeSpins);
@@ -196,7 +198,7 @@ export function evaluate(grid, lineBet, baseBet) {
 function makeBonusSymbol() {
   const roll = Math.random();
   if (roll < 0.08) return { type: 'fleece', emoji: '🐑', prize: [20, 50, 150][Math.floor(Math.random() * 3)] };
-  if (roll < 0.80) return { type: 'shield', emoji: '🛡️', prize: [1, 2, 3, 4, 5, 6, 8, 10, 12, 16][Math.floor(Math.random() * 10)] };
+  if (roll < 0.80) return { type: 'shield', emoji: '🛡️', prize: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16][Math.floor(Math.random() * 13)] };
   return { type: 'meander', emoji: '🌀', prize: 0 };
 }
 

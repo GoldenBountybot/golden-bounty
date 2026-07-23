@@ -8,6 +8,25 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 
+// ---- Risk (Gamble) card helpers ----
+const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+// Dealer is weighted toward higher cards so the gamble approximates 84% RTP.
+const DEALER_W = [2, 3, 3, 3, 3, 3, 3, 3, 4, 5, 5, 6, 7];
+const rankVal = (c) => (c === 'JOKER' ? 99 : RANKS.indexOf(c));
+function dealDealer() {
+  const total = DEALER_W.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total, idx = 0;
+  for (let i = 0; i < DEALER_W.length; i++) { r -= DEALER_W[i]; if (r <= 0) { idx = i; break; } }
+  return RANKS[idx];
+}
+function dealPlayerCard() {
+  if (Math.random() < 0.08) return 'JOKER'; // Joker beats all; Dealer never gets one
+  return RANKS[Math.floor(Math.random() * RANKS.length)];
+}
+function dealFour() {
+  return [dealPlayerCard(), dealPlayerCard(), dealPlayerCard(), dealPlayerCard()];
+}
+
 export function useArgonauts() {
   const [grid, setGrid] = useState(() => generateGrid(false));
   const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
@@ -34,6 +53,11 @@ export function useArgonauts() {
   const [riskHistory, setRiskHistory] = useState([]);
   const [riskResult, setRiskResult] = useState(null);
   const [pendingWin, setPendingWin] = useState(0);
+  // Card gamble state
+  const [dealerCard, setDealerCard] = useState(null);
+  const [playerCards, setPlayerCards] = useState([]);
+  const [revealedIdx, setRevealedIdx] = useState(null);
+  const [riskOutcome, setRiskOutcome] = useState(null);
 
   // Value-coin hold-and-spin round state
   const [coinMode, setCoinMode] = useState(false);
@@ -302,7 +326,7 @@ export function useArgonauts() {
     setBonusExtra(false);
   }, [bonusPrize, bonusExtra, setBalance, logActivity, bet]);
 
-  // Gamble (risk) feature
+  // Gamble (risk) feature — card based
   const startRisk = useCallback(() => {
     if (pendingWin <= 0) return;
     setRiskMode(true);
@@ -310,20 +334,43 @@ export function useArgonauts() {
     setRiskStep(0);
     setRiskHistory([]);
     setRiskResult(null);
+    setDealerCard(dealDealer());
+    setPlayerCards(dealFour());
+    setRevealedIdx(null);
+    setRiskOutcome(null);
   }, [pendingWin]);
 
-  const riskPick = useCallback((color) => {
-    const drawn = Math.random() < 0.5 ? 'red' : 'black';
-    const win = drawn === color;
-    setRiskHistory((h) => [...h, drawn]);
-    if (win) {
+  const riskPick = useCallback((idx) => {
+    if (riskResult || riskOutcome) return;
+    const card = playerCards[idx];
+    setRevealedIdx(idx);
+    setRiskHistory((h) => [...h, card]);
+    const pv = rankVal(card);
+    const dv = rankVal(dealerCard);
+    if (card === 'JOKER' || pv > dv) {
+      setRiskOutcome('win');
       setPendingWin((w) => w * 2);
-      setRiskStep((s) => s + 1);
-      if (riskStep + 1 >= MAX_RISK_STEPS) setRiskResult('maxed');
+      setRiskStep((s) => {
+        const ns = s + 1;
+        if (ns >= MAX_RISK_STEPS) setRiskResult('maxed');
+        return ns;
+      });
+    } else if (pv === dv) {
+      setRiskOutcome('draw');
     } else {
+      setRiskOutcome('lose');
       setRiskResult('lose');
     }
-  }, [riskStep]);
+  }, [riskResult, riskOutcome, playerCards, dealerCard]);
+
+  // Re-deal for the next attempt after a win or draw (pot unchanged on draw)
+  const riskContinue = useCallback(() => {
+    if (riskResult) return;
+    setDealerCard(dealDealer());
+    setPlayerCards(dealFour());
+    setRevealedIdx(null);
+    setRiskOutcome(null);
+  }, [riskResult]);
 
   const collectRisk = useCallback(() => {
     setBalance((b) => b + pendingWin);
@@ -334,6 +381,10 @@ export function useArgonauts() {
     setPendingWin(0);
     setRiskHistory([]);
     setRiskResult(null);
+    setDealerCard(null);
+    setPlayerCards([]);
+    setRevealedIdx(null);
+    setRiskOutcome(null);
     setSpinning(false);
     logActivity('argonauts', bet, pendingWin, 'win', 0);
   }, [pendingWin, setBalance, logActivity, bet]);
@@ -345,6 +396,10 @@ export function useArgonauts() {
     setPendingWin(0);
     setRiskHistory([]);
     setRiskResult(null);
+    setDealerCard(null);
+    setPlayerCards([]);
+    setRevealedIdx(null);
+    setRiskOutcome(null);
     setSpinning(false);
     logActivity('argonauts', bet, 0, 'loss', 0);
   }, [logActivity, bet]);
@@ -373,7 +428,8 @@ export function useArgonauts() {
     bonusActive, bonusSteps, bonusPrize, bonusExtra, finishBonus,
     autoSpin, turbo, setBetIndex, setTurbo, setAutoSpin,
     riskActive, riskMode, riskStep, riskHistory, riskResult, pendingWin,
-    startRisk, riskPick, collectRisk, loseRisk,
+    dealerCard, playerCards, revealedIdx, riskOutcome,
+    startRisk, riskPick, riskContinue, collectRisk, loseRisk,
     coinMode, coinSpins, coinStuck,
     spin, reset,
   };

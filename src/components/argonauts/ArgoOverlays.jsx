@@ -38,33 +38,78 @@ export default function ArgoOverlays({ g, showPaytable, setShowPaytable, showRul
 
   return (
     <>
-      {/* Risk (gamble) overlay */}
+      {/* Risk (gamble) overlay — card based */}
       {g.riskMode && (
         <Overlay onClose={null}>
           <div className="text-center">
-            <h2 className="text-xl font-black mb-1" style={{ fontFamily: 'Georgia, serif', color: '#f5d77a' }}>CLASSIC RISK GAME</h2>
-            <p className="text-xs text-amber-200/70 mb-3" style={{ fontFamily: 'Georgia, serif' }}>Guess the card color to double your winnings (up to 10×)</p>
-            <p className="text-[10px] text-amber-200/50 tracking-widest" style={{ fontFamily: 'Georgia, serif' }}>CURRENT POT</p>
-            <p className="text-3xl font-black tabular-nums text-yellow-100 mb-1" style={{ fontFamily: 'Georgia, serif' }}>${g.pendingWin.toFixed(2)}</p>
-            {g.riskStep > 0 && <p className="text-xs text-emerald-300 mb-3" style={{ fontFamily: 'Georgia, serif' }}>Step {g.riskStep} / 10</p>}
+            <h2 className="text-xl font-black mb-1" style={{ fontFamily: 'Georgia, serif', color: '#f5d77a' }}>RISK GAME</h2>
+            <p className="text-xs text-amber-200/70 mb-3" style={{ fontFamily: 'Georgia, serif' }}>Beat the Dealer's card to double your winnings (up to 10 attempts)</p>
+            <p className="text-[10px] text-amber-200/50 tracking-widest" style={{ fontFamily: 'Georgia, serif' }}>CURRENT WIN</p>
+            <p className="text-3xl font-black tabular-nums text-yellow-100 mb-2" style={{ fontFamily: 'Georgia, serif' }}>${g.pendingWin.toFixed(2)}</p>
+            <p className="text-xs text-amber-200/80 mb-3" style={{ fontFamily: 'Georgia, serif' }}>Attempt {Math.min(g.riskStep + 1, 10)} / 10</p>
+
+            {/* Dealer card */}
+            <div className="flex flex-col items-center mb-3">
+              <p className="text-[9px] tracking-widest text-amber-200/60 mb-1" style={{ fontFamily: 'Georgia, serif' }}>DEALER</p>
+              <div className="w-14 h-20 rounded-[6px] flex items-center justify-center font-black text-2xl" style={{ border: '1.5px solid rgba(255,215,0,0.7)', background: 'linear-gradient(to bottom,#fff7e0,#e9d9a6)', color: '#3a2a10', boxShadow: '0 0 10px rgba(255,215,0,0.4)' }}>
+                {g.dealerCard || '—'}
+              </div>
+            </div>
+
+            {/* Pick feedback */}
+            {g.riskOutcome && (
+              <p className="text-sm font-black mb-2" style={{ fontFamily: 'Georgia, serif', color: g.riskOutcome === 'win' ? '#86efac' : g.riskOutcome === 'draw' ? '#fcd34d' : '#fca5a5' }}>
+                {g.riskOutcome === 'win' ? `DOUBLE! $${g.pendingWin.toFixed(2)}` : g.riskOutcome === 'draw' ? 'DRAW · RETRY' : 'DEALER WINS'}
+              </p>
+            )}
+
+            {/* Player cards */}
+            <div className="flex justify-center gap-2 mb-3">
+              {g.playerCards.map((c, i) => {
+                const revealed = g.revealedIdx === i;
+                const isJoker = c === 'JOKER';
+                return (
+                  <button
+                    key={i}
+                    onClick={() => !g.riskOutcome && g.riskPick(i)}
+                    disabled={!!g.riskOutcome}
+                    className="w-14 h-20 rounded-[6px] flex items-center justify-center font-black text-xl transition-all active:scale-95 disabled:cursor-default"
+                    style={{
+                      border: revealed ? '1.5px solid rgba(255,215,0,0.9)' : '1.5px solid rgba(214,178,98,0.4)',
+                      background: revealed
+                        ? (isJoker ? 'linear-gradient(to bottom,#fde68a,#f59e0b)' : 'linear-gradient(to bottom,#fff7e0,#e9d9a6)')
+                        : 'linear-gradient(to bottom,#3a2a1a,#1c1408)',
+                      color: revealed ? '#3a2a10' : '#c9a85a',
+                      boxShadow: revealed ? '0 0 12px rgba(255,215,0,0.7)' : 'none',
+                    }}
+                  >
+                    {revealed ? (isJoker ? '★' : c) : '?'}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* History of picked cards */}
             {g.riskHistory.length > 0 && (
-              <div className="flex justify-center gap-1.5 mb-4">
+              <div className="flex justify-center gap-1 mb-3 flex-wrap">
                 {g.riskHistory.map((c, i) => (
-                  <span key={i} className={`w-7 h-10 rounded-[5px] flex items-center justify-center text-xs font-black ${c === 'red' ? 'bg-red-600/80 text-red-100' : 'bg-stone-800 text-stone-100'}`} style={{ border: '1px solid rgba(214,178,98,0.4)' }}>{c === 'red' ? '♥' : '♠'}</span>
+                  <span key={i} className="px-1.5 py-0.5 rounded-[4px] text-[10px] font-black" style={{ border: '1px solid rgba(214,178,98,0.4)', background: 'rgba(20,17,13,0.8)', color: c === 'JOKER' ? '#fcd34d' : '#e8c878' }}>{c === 'JOKER' ? '★' : c}</span>
                 ))}
               </div>
             )}
+
             {g.riskResult === 'lose' ? (
               <button onClick={g.loseRisk} className="px-6 py-2 rounded-[8px] font-black" style={{ border: '1px solid rgba(214,178,98,0.5)', background: 'rgba(20,17,13,0.8)', color: '#e8c878' }}>CONTINUE</button>
             ) : g.riskResult === 'maxed' ? (
               <button onClick={g.collectRisk} className="px-6 py-2 rounded-[8px] font-black" style={{ border: '1px solid rgba(245,215,122,0.7)', background: 'linear-gradient(to bottom,#f5c542,#c8881e)', color: '#2a1a06' }}>COLLECT ${g.pendingWin.toFixed(2)}</button>
+            ) : g.riskOutcome === 'win' ? (
+              <button onClick={g.riskContinue} className="px-6 py-2 rounded-[8px] font-black" style={{ border: '1px solid rgba(134,239,172,0.6)', background: 'linear-gradient(to bottom,#16a34a,#14532d)', color: '#dcfce7' }}>CONTINUE</button>
+            ) : g.riskOutcome === 'draw' ? (
+              <button onClick={g.riskContinue} className="px-6 py-2 rounded-[8px] font-black" style={{ border: '1px solid rgba(252,211,77,0.6)', background: 'rgba(20,17,13,0.8)', color: '#fcd34d' }}>RETRY</button>
             ) : (
-              <div className="flex justify-center gap-3">
-                <button onClick={() => g.riskPick('red')} className="flex-1 max-w-[140px] py-3 rounded-[8px] font-black text-base" style={{ border: '1px solid rgba(239,68,68,0.7)', background: 'linear-gradient(to bottom,#dc2626,#7f1d1d)', color: '#fee2e2' }}>RED ♥</button>
-                <button onClick={() => g.riskPick('black')} className="flex-1 max-w-[140px] py-3 rounded-[8px] font-black text-base" style={{ border: '1px solid rgba(120,113,108,0.8)', background: 'linear-gradient(to bottom,#44403c,#1c1917)', color: '#e7e5e4' }}>BLACK ♠</button>
-              </div>
+              <p className="text-xs text-amber-200/60" style={{ fontFamily: 'Georgia, serif' }}>Pick a card to beat the Dealer</p>
             )}
-            <div className="mt-4"><button onClick={g.collectRisk} className="text-xs underline text-amber-300/80" style={{ fontFamily: 'Georgia, serif' }}>Take winnings</button></div>
+            <div className="mt-4"><button onClick={g.collectRisk} className="text-xs underline text-amber-300/80" style={{ fontFamily: 'Georgia, serif' }}>TAKE WIN</button></div>
           </div>
         </Overlay>
       )}
