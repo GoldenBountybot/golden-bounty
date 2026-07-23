@@ -85,7 +85,7 @@ export default function BigBrownBonusPop({ balance, bonusCost, bonusCosts, buyBo
       {/* Bonus menu — 8/12/16/24 free spin offers (overlay over the board) */}
       {showBonusMenu && (
         <div
-          className="absolute left-1/2 -translate-x-1/2 z-50 w-[320px] rounded-[10px] p-2"
+          className="absolute right-0 z-50 w-[300px] max-w-[calc(100vw-24px)] rounded-[10px] p-2"
           style={{
             top: 'calc(100% + 8px)',
             background: PLAQUE_BG,
