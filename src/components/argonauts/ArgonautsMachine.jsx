@@ -150,10 +150,7 @@ export default function ArgonautsMachine() {
 
       {/* Control panel */}
       <div className="relative px-3 pb-2">
-        <div
-          className="rounded-[14px] p-3 mx-auto max-w-md"
-          style={{ background: 'rgba(7,13,30,0.55)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,215,0,0.3)', boxShadow: '0 -4px 20px rgba(0,0,0,0.4)' }}
-        >
+        <div className="mx-auto max-w-md">
           <div className="flex items-center justify-between gap-2">
             {/* Left controls */}
             <div className="flex items-center gap-2">
