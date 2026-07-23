@@ -51,6 +51,7 @@
     "status"
   ],
   "rls": {
+    "create": true,
     "read": {
       "$or": [
         {
