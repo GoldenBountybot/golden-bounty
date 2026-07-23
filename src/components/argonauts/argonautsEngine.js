@@ -104,16 +104,33 @@ export function reelWeights(reelIndex, freeSpins) {
 }
 
 export function generateReel(reelIndex, freeSpins) {
-  // Value coin — base game only, at most one per reel, low chance.
+  // Value coins — base game only. Variable count per reel (1..3),
+  // each coin a distinct multiplier, placed in random rows.
   if (!freeSpins && Math.random() < VALUE_COIN_CHANCE) {
-    const mult = VALUE_COIN_MULTS[Math.floor(Math.random() * VALUE_COIN_MULTS.length)];
     const w = reelWeights(reelIndex, freeSpins);
-    const coinRow = Math.floor(Math.random() * ROWS);
-    return [0, 1, 2].map((r) => (r === coinRow ? valueCoinKey(mult) : pickWeighted(w)));
+    const count = 1 + Math.floor(Math.random() * ROWS); // 1..3
+    const rows = [0, 1, 2].sort(() => Math.random() - 0.5).slice(0, count);
+    const reel = [0, 1, 2].map(() => pickWeighted(w));
+    const used = new Set();
+    rows.forEach((r) => {
+      let mult;
+      do { mult = VALUE_COIN_MULTS[Math.floor(Math.random() * VALUE_COIN_MULTS.length)]; }
+      while (used.has(mult) && used.size < VALUE_COIN_MULTS.length);
+      used.add(mult);
+      reel[r] = valueCoinKey(mult);
+    });
+    return reel;
   }
-  // Stacked wild chance — full-column wilds (higher in free spins).
+  // Stacked wild — variable height (1..3), stacked consecutively.
   const stackChance = freeSpins ? 0.12 : 0.07;
-  if (Math.random() < stackChance) return ['wild', 'wild', 'wild'];
+  if (Math.random() < stackChance) {
+    const height = 1 + Math.floor(Math.random() * ROWS); // 1..3
+    const start = Math.floor(Math.random() * (ROWS - height + 1));
+    const w = reelWeights(reelIndex, freeSpins);
+    const reel = [0, 1, 2].map(() => pickWeighted(w));
+    for (let i = 0; i < height; i++) reel[start + i] = 'wild';
+    return reel;
+  }
   const w = reelWeights(reelIndex, freeSpins);
   return [0, 1, 2].map(() => pickWeighted(w));
 }
