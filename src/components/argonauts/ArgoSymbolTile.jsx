@@ -36,22 +36,24 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, size =
           style={{ background: 'radial-gradient(circle at 50% 70%, rgba(255,90,0,0.35), transparent 65%)' }}
         />
       )}
-      <span
-        className="relative z-10"
-        style={{
-          fontSize: '2rem',
-          filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.7))',
-          transform: isWild ? 'scale(1.35)' : 'none',
-        }}
-      >
-        {meta.emoji}
-      </span>
-      {isWild && (
+      {meta.image ? (
+        <img
+          src={meta.image}
+          alt={meta.name}
+          className="relative z-10 w-full h-full object-cover"
+          draggable={false}
+          style={{ filter: spinning ? 'none' : win ? 'brightness(1.08)' : 'none' }}
+        />
+      ) : (
         <span
-          className="absolute bottom-0.5 inset-x-0 text-center font-black tracking-wider"
-          style={{ fontSize: '8px', color: '#FFD700', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}
+          className="relative z-10"
+          style={{
+            fontSize: '2rem',
+            filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.7))',
+            transform: isWild ? 'scale(1.35)' : 'none',
+          }}
         >
-          WILD
+          {meta.emoji}
         </span>
       )}
       {isScatter && (
