@@ -1,46 +1,6 @@
 import React from 'react';
 import { SYMBOLS, isValueCoin, valueCoinMult, VALUE_COIN_IMG } from './argonautsEngine';
 
-// Beveled gold plaque label (black field, gold frame + gilt text) for
-// SCATTER / BONUS markers — casino-style engraving.
-const OCTAGON = 'polygon(18% 0, 82% 0, 100% 50%, 82% 100%, 18% 100%, 0 50%)';
-function PlaqueLabel({ children }) {
-  return (
-    <div
-      className="absolute left-1/2 z-20"
-      style={{ bottom: 2, transform: 'translateX(-50%)', clipPath: OCTAGON, background: 'linear-gradient(180deg, #FFF6D5 0%, #D4AF37 45%, #8B4513 100%)' }}
-    >
-      <div
-        style={{
-          margin: '1px',
-          padding: '1px 4px',
-          clipPath: OCTAGON,
-          background: '#0A0A0A',
-          boxShadow: 'inset 0 1px 1px rgba(255,235,150,0.35)',
-        }}
-      >
-        <span
-          style={{
-            fontSize: '7px',
-            fontFamily: 'Georgia, serif',
-            fontWeight: 800,
-            letterSpacing: '0.06em',
-            background: 'linear-gradient(180deg, #FFF6D5 0%, #D4AF37 45%, #8B4513 100%)',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            color: 'transparent',
-            WebkitTextStroke: '0.4px #2D1A0D',
-            paintOrder: 'stroke fill',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {children}
-        </span>
-      </div>
-    </div>
-  );
-}
-
 // A single symbol tile. Value coins render as a gold coin with the dollar
 // amount (mult × bet) overlaid; stuck coins get a brighter glow.
 export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 0, stuck = false }) {
@@ -116,8 +76,22 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
           {meta.emoji}
         </span>
       )}
-      {isScatter && <PlaqueLabel>SCATTER</PlaqueLabel>}
-      {isBonus && <PlaqueLabel>BONUS</PlaqueLabel>}
+      {isScatter && (
+        <span
+          className="absolute bottom-0.5 inset-x-0 text-center font-black tracking-wider z-20"
+          style={{ fontSize: '7px', color: '#FFD700', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}
+        >
+          SCATTER
+        </span>
+      )}
+      {isBonus && (
+        <span
+          className="absolute bottom-0.5 inset-x-0 text-center font-black tracking-wider z-20"
+          style={{ fontSize: '7px', color: '#FFD700', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}
+        >
+          BONUS
+        </span>
+      )}
     </div>
   );
 }
