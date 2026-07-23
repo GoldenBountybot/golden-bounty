@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Info, ArrowLeft, Zap, Menu, Plus, Minus, RotateCw, Play } from 'lucide-react';
+import { Info, ArrowLeft, Zap, Menu, Plus, Minus, RotateCw, DollarSign, Play } from 'lucide-react';
 import { useArgonauts } from './useArgonauts';
 import { REELS, ROWS, BETS, FREE_SPINS_AWARD, SYMBOLS } from './argonautsEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -63,6 +63,7 @@ export default function ArgonautsMachine() {
   const { balance } = useCasinoBalance();
   const [showPaytable, setShowPaytable] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [showBetMenu, setShowBetMenu] = useState(false);
 
   const spinDisabled = g.spinning || g.freeSpinsActive || g.bonusActive || g.riskMode;
 
@@ -186,15 +187,15 @@ export default function ArgonautsMachine() {
       <div className="relative px-3 pb-2">
         <div className="mx-auto max-w-md">
           <div className="flex items-center justify-between gap-2">
-            {/* Left controls */}
+            {/* Left column: Turbo + Menu */}
             <div className="flex items-center gap-2">
               <IconButton onClick={() => g.setTurbo(!g.turbo)} active={g.turbo} disabled={g.spinning} title="Turbo"><Zap className="w-5 h-5" /></IconButton>
               <IconButton onClick={() => setShowPaytable(true)} title="Menu"><Menu className="w-5 h-5" /></IconButton>
-              <IconButton onClick={() => g.setBetIndex(Math.max(g.betIndex - 1, 0))} disabled={g.spinning || g.betIndex <= 0} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
             </div>
 
-            {/* Center: circular spin */}
-            <div className="flex flex-col items-center">
+            {/* Center: Minus + Spin + Plus */}
+            <div className="flex items-center gap-2">
+              <IconButton onClick={() => g.setBetIndex(Math.max(g.betIndex - 1, 0))} disabled={g.spinning || g.betIndex <= 0} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
               <button
                 onClick={g.spin}
                 disabled={spinDisabled}
@@ -213,14 +214,34 @@ export default function ArgonautsMachine() {
                   <Play className="w-7 h-7 text-white" fill="white" style={{ marginLeft: 3 }} />
                 )}
               </button>
+              <IconButton onClick={() => g.setBetIndex(Math.min(g.betIndex + 1, BETS.length - 1))} disabled={g.spinning || g.betIndex >= BETS.length - 1} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
             </div>
 
-            {/* Right controls */}
+            {/* Right column: Auto + Bet chip */}
             <div className="flex items-center gap-2">
-              <IconButton onClick={() => g.setBetIndex(Math.min(g.betIndex + 1, BETS.length - 1))} disabled={g.spinning || g.betIndex >= BETS.length - 1} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
               <IconButton onClick={() => g.setAutoSpin(!g.autoSpin)} active={g.autoSpin} disabled={g.spinning} title="Auto spin"><RotateCw className="w-5 h-5" /></IconButton>
+              <IconButton onClick={() => setShowBetMenu(s => !s)} active={showBetMenu} disabled={g.spinning} title="Bet menu"><DollarSign className="w-5 h-5" /></IconButton>
             </div>
           </div>
+
+          {/* Bet menu popover */}
+          {showBetMenu && (
+            <div className="mt-2 mx-auto max-w-[230px] rounded-[8px] p-1.5 flex flex-wrap gap-1 justify-center" style={{ background: 'rgba(7,13,30,0.96)', border: '1px solid rgba(255,215,0,0.4)', boxShadow: '0 6px 18px rgba(0,0,0,0.6)' }}>
+              {BETS.map((b) => {
+                const active = Math.abs(g.bet - b) < 0.001;
+                return (
+                  <button
+                    key={b}
+                    onClick={() => { g.setBetIndex(BETS.indexOf(b)); setShowBetMenu(false); }}
+                    className={`px-2.5 py-1 rounded text-[11px] font-bold tabular-nums ${active ? 'text-yellow-300' : 'text-white/70'}`}
+                    style={{ fontFamily: 'Georgia, serif', background: active ? 'rgba(255,215,0,0.15)' : 'rgba(0,0,0,0.4)', border: `1px solid ${active ? 'rgba(255,215,0,0.6)' : 'rgba(255,215,0,0.2)'}` }}
+                  >
+                    ${b.toFixed(2)}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Risk button when available */}
           {g.riskActive && !g.riskMode && (
