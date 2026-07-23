@@ -28,10 +28,8 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
             WebkitBackgroundClip: 'text',
             backgroundClip: 'text',
             color: 'transparent',
-            WebkitTextStroke: '1.6px #2D1A0D',
+            WebkitTextStroke: '0.9px #000',
             paintOrder: 'stroke fill',
-            textShadow: '0 1px 1px rgba(0,0,0,0.7), 0 0 2px rgba(0,0,0,0.45)',
-            filter: 'drop-shadow(0 -1px 0 rgba(255,243,200,0.55)) drop-shadow(0 1px 1px rgba(0,0,0,0.55))',
             letterSpacing: '0.01em',
           }}
         >
