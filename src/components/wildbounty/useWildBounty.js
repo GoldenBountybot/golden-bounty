@@ -223,7 +223,7 @@ export function useWildBounty() {
     let finalGrid = REEL_ROWS.map(r => buildReel(r));
     // RTP bias: decide win/loss for the spin before evaluation.
     // Reduced bias factor so forced matching symbol wins land less often.
-    const wantWin = Math.random() < (rtpRef.current / 100) * 0.3;
+    const wantWin = Math.random() < (rtpRef.current / 100) * 0.2;
     if (wantWin) {
       const X = 'A';
       finalGrid = finalGrid.map((reel, ri) => {
