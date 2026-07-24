@@ -59,13 +59,13 @@ export function getSymbolImg(id) {
 }
 
 // Weighted pool for non-wild reels. Scatter is rare; lows are common.
-// High-value animal + high-card weights halved to reduce match frequency.
+// High-value animal weights kept very low so high-value matches are rare.
 const BASE_POOL = [
   'buffalo',
-  'eagle', 'eagle',
-  'cougar', 'cougar',
-  'wolf', 'wolf',
-  'deer', 'deer', 'deer',
+  'eagle',
+  'cougar',
+  'wolf',
+  'deer', 'deer',
   'A', 'A', 'A', 'A',
   'K', 'K', 'K', 'K',
   'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q',

@@ -126,7 +126,7 @@ export function useBigBrown() {
     let finalGrid = buildGrid();
 
     // RTP bias: force a win or a clean loss (reduced for Big Brown).
-    const wantWin = Math.random() < (rtpRef.current / 100) * 0.4;
+    const wantWin = Math.random() < (rtpRef.current / 100) * 0.25;
     if (wantWin) {
       // Clear any natural wilds first so at most one wild exists on the board,
       // then place matching symbols on reels 0 & 2 and a single wild on either
@@ -154,9 +154,9 @@ export function useBigBrown() {
       finalGrid = clearWilds(finalGrid);
       const wr = 1 + Math.floor(Math.random() * 4);
       finalGrid[wr][Math.floor(Math.random() * 4)] = Math.random() < 0.25 ? 'spirit' : 'brown';
-      // ~55% chance to seed matching symbols on reels before the wild so the
+      // ~30% chance to seed matching symbols on reels before the wild so the
       // guaranteed wild lands into a 3+ of-a-kind way.
-      if (wr >= 2 && Math.random() < 0.55) {
+      if (wr >= 2 && Math.random() < 0.3) {
         const sym = ['A', 'K', 'Q', 'J', '10'][Math.floor(Math.random() * 5)];
         finalGrid[0][Math.floor(Math.random() * 4)] = sym;
         finalGrid[1][Math.floor(Math.random() * 4)] = sym;
