@@ -5,7 +5,7 @@ import { VALUE_COIN_IMG, VALUE_COIN_MULTS, ROWS } from './argonautsEngine';
 // (tall seamless column scrolling with `reelFall`), but slowed down so each
 // falling coin's dollar label stays readable. Stuck coins lock on top.
 export default function CoinReelStrip({ turbo, bet = 0 }) {
-  const period = turbo ? 0.7 : 1.0;
+  const period = turbo ? 1.1 : 1.5;
 
   const strip = useMemo(() => {
     const block = () =>
@@ -30,7 +30,7 @@ export default function CoinReelStrip({ turbo, bet = 0 }) {
               alt=""
               draggable={false}
               className="w-full h-full object-cover"
-              style={{ filter: 'blur(0.8px) brightness(0.86)', transform: 'scale(1.15)' }}
+              style={{ filter: 'blur(0.5px) brightness(0.9)', transform: 'scale(1.12)' }}
             />
             <span
               className="absolute inset-0 flex items-center justify-center tabular-nums italic pointer-events-none"
