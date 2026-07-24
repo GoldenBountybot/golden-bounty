@@ -31,6 +31,8 @@ const SEGMENTS = [
 // Prize weights — small prizes common, jackpot rare.
 const WEIGHTS = [12, 12, 10, 9, 8, 7, 5, 4, 3, 2.5, 2, 1.5, 1, 0.8, 0.6, 0.3, 0.15, 0.05];
 
+const FRAME_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/65654a2d4_generated_image.png';
+
 const N = SEGMENTS.length;
 const SEG_DEG = 360 / N;
 const COOLDOWN_MS = 24 * 60 * 60 * 1000;
@@ -117,8 +119,6 @@ export default function DailySpinWheel() {
   const ready = !lastSpin || elapsed >= COOLDOWN_MS;
   const remaining = Math.max(0, COOLDOWN_MS - elapsed);
 
-  const cx = 200, cy = 200, rOuter = 188, rInner = 62;
-
   const spin = async () => {
     if (spinning || !ready) return;
     if (!authed) return;
@@ -159,18 +159,6 @@ export default function DailySpinWheel() {
     }, 5200);
   };
 
-  // LED bulb ring positions
-  const bulbs = useMemo(() => {
-    const arr = [];
-    const count = 36;
-    for (let i = 0; i < count; i++) {
-      const ang = (i / count) * 360;
-      const p = polar(cx, cy, rOuter + 8, ang);
-      arr.push({ x: p.x, y: p.y, i });
-    }
-    return arr;
-  }, []);
-
   return (
     <section className="max-w-6xl mx-auto px-4 mt-6">
       <div className="relative overflow-hidden rounded-2xl p-4" style={{ background: 'radial-gradient(circle at 50% 30%, #241a08 0%, #0b0b0d 70%)', border: '1px solid rgba(214,178,98,0.25)', boxShadow: '0 0 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.4)' }}>
@@ -191,115 +179,78 @@ export default function DailySpinWheel() {
         </div>
 
         <div className="flex flex-col items-center">
-          <div className="relative" style={{ width: 'min(86vw, 420px)', aspectRatio: '1 / 1' }}>
-            <svg viewBox="-60 -60 520 520" className="w-full h-full" style={{ filter: 'drop-shadow(0 18px 30px rgba(0,0,0,0.7))' }}>
-              <defs>
-                <radialGradient id="goldFrame" cx="50%" cy="40%" r="70%">
-                  <stop offset="0%" stopColor="#FFE9A8" />
-                  <stop offset="45%" stopColor="#D4AF37" />
-                  <stop offset="75%" stopColor="#8B6914" />
-                  <stop offset="100%" stopColor="#5b3a06" />
-                </radialGradient>
-                <linearGradient id="hubGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6b4423" />
-                  <stop offset="100%" stopColor="#2a1808" />
-                </linearGradient>
-                <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="rgba(255,210,120,0.5)" />
-                  <stop offset="100%" stopColor="rgba(255,210,120,0)" />
-                </radialGradient>
-              </defs>
+          <div className="relative" style={{ width: 'min(90vw, 440px)', aspectRatio: '1 / 1' }}>
+            {/* Ornate 3D gold frame (fixed generated asset) */}
+            <img
+              src={FRAME_IMG}
+              alt=""
+              draggable={false}
+              className="absolute inset-0 w-full h-full object-cover select-none"
+              style={{ filter: 'drop-shadow(0 18px 30px rgba(0,0,0,0.75))' }}
+            />
 
-              {/* Outer ornate gold frame */}
-              <circle cx={cx} cy={cy} r={rOuter + 16} fill="url(#goldFrame)" />
-              <circle cx={cx} cy={cy} r={rOuter + 12} fill="none" stroke="#5b3a06" strokeWidth="1.5" />
-              <circle cx={cx} cy={cy} r={rOuter + 4} fill="none" stroke="rgba(255,240,180,0.5)" strokeWidth="1" />
-
-              {/* Scrollwork accents at top & base of frame */}
-              <g fill="#FFE9A8" opacity="0.9">
-                <circle cx={cx} cy={rOuter + 4} r="9" fill="url(#goldFrame)" />
-                <circle cx={cx} cy={cy + rOuter + 4} r="9" fill="url(#goldFrame)" />
-                <circle cx={cx - rOuter - 4} cy={cy} r="7" fill="url(#goldFrame)" />
-                <circle cx={cx + rOuter + 4} cy={cy} r="7" fill="url(#goldFrame)" />
-              </g>
-
-              {/* Filigree feet */}
-              <g fill="url(#goldFrame)" opacity="0.85">
-                <path d={`M ${cx-46} ${cy + rOuter + 22} q 22 24 46 0 q 8 -10 0 -16 q -23 14 -46 0 q -8 6 0 16 Z`} />
-              </g>
-
-              {/* LED bulb ring */}
-              {bulbs.map((b) => (
-                <circle
-                  key={b.i}
-                  cx={b.x} cy={b.y} r="3.4"
-                  fill="#FFFF00"
-                  style={{ animation: `lwLedPulse 1.5s ease-in-out ${((b.i % 6) * 0.16).toFixed(2)}s infinite`, transformOrigin: `${b.x}px ${b.y}px` }}
-                />
-              ))}
-
-              {/* Rotating wheel group */}
-              <g ref={wheelRef} style={{ transformOrigin: '200px 200px', transform: `rotate(${rotation}deg)`, transition: spinning ? 'transform 5s cubic-bezier(0.17,0.67,0.12,0.99)' : 'none' }}>
-                {/* Segments */}
+            {/* Rotating wheel — sized to sit in the frame's dark center */}
+            <div className="absolute" style={{ inset: '12%' }}>
+              <svg viewBox="0 0 200 200" className="w-full h-full" ref={wheelRef} style={{ transform: `rotate(${rotation}deg)`, transformOrigin: 'center', transition: spinning ? 'transform 5s cubic-bezier(0.17,0.67,0.12,0.99)' : 'none' }}>
+                <defs>
+                  <linearGradient id="hubGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6b4423" />
+                    <stop offset="100%" stopColor="#2a1808" />
+                  </linearGradient>
+                </defs>
                 {SEGMENTS.map((seg, i) => {
                   const start = i * SEG_DEG;
                   const end = (i + 1) * SEG_DEG;
                   const mid = start + SEG_DEG / 2;
-                  const lp = polar(cx, cy, rOuter - 14, mid);
+                  const lp = polar(100, 100, 86, mid);
                   return (
                     <g key={i}>
-                      <path d={arcPath(cx, cy, rOuter, rInner, start, end)} fill={seg.color} stroke="rgba(0,0,0,0.45)" strokeWidth="1" />
-                      {/* subtle inner sheen */}
-                      <path d={arcPath(cx, cy, rOuter, rOuter - 26, start, end)} fill="rgba(255,255,255,0.06)" />
-                      <path d={arcPath(cx, cy, rInner + 26, rInner, start, end)} fill="rgba(0,0,0,0.18)" />
-                      {/* value label, gold serif, rotated along segment */}
+                      <path d={arcPath(100, 100, 98, 32, start, end)} fill={seg.color} stroke="rgba(0,0,0,0.5)" strokeWidth="0.8" />
+                      <path d={arcPath(100, 100, 98, 80, start, end)} fill="rgba(255,255,255,0.06)" />
                       <text
                         x={lp.x} y={lp.y}
                         textAnchor="middle"
                         dominantBaseline="middle"
                         transform={`rotate(${mid} ${lp.x} ${lp.y})`}
                         fill="#FFD700"
-                        style={{ fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: seg.label.length >= 5 ? 12 : (seg.label.length >= 4 ? 14 : 16), letterSpacing: '-0.5px', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.9))' }}
+                        style={{ fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: seg.label.length >= 5 ? 10 : (seg.label.length >= 4 ? 12 : 14), letterSpacing: '-0.3px', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.9))' }}
                       >
                         {seg.label}
                       </text>
                     </g>
                   );
                 })}
-                {/* Inner gold ring */}
-                <circle cx={cx} cy={cy} r={rInner} fill="url(#hubGrad)" stroke="#D4AF37" strokeWidth="3" />
-                <circle cx={cx} cy={cy} r={rInner - 6} fill="none" stroke="rgba(255,240,180,0.35)" strokeWidth="1" />
-                <circle cx={cx} cy={cy} r={rInner + 6} fill="none" stroke="#5b3a06" strokeWidth="1.5" />
-              </g>
+                {/* Inner gold ring bordering the hub */}
+                <circle cx={100} cy={100} r={32} fill="url(#hubGrad)" stroke="#D4AF37" strokeWidth="3" />
+                <circle cx={100} cy={100} r={38} fill="none" stroke="rgba(255,240,180,0.3)" strokeWidth="1" />
+              </svg>
+            </div>
 
-              {/* Center hub (fixed) */}
-              <circle cx={cx} cy={cy} r={rInner - 2} fill="url(#centerGlow)" />
-              <g>
-                <g transform={`translate(${cx} ${cy - 24})`}>
-                  <CrownIcon />
-                </g>
-                <text x={cx} y={cy + 4} textAnchor="middle" fill="#FFD700" style={{ fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: 19, letterSpacing: '1px', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.8))' }}>SPIN</text>
-                <text x={cx} y={cy + 22} textAnchor="middle" fill="#E5C161" style={{ fontFamily: 'Georgia, serif', fontWeight: 800, fontSize: 11, letterSpacing: '2px' }}>TO WIN</text>
-              </g>
+            {/* Fixed center hub on top (does not spin) */}
+            <div className="absolute" style={{ left: '50%', top: '50%', width: '23%', aspectRatio: '1 / 1', transform: 'translate(-50%, -50%)', pointerEvents: 'none' }}>
+              <div className="w-full h-full rounded-full flex flex-col items-center justify-center"
+                style={{ background: 'radial-gradient(circle at 50% 35%, #7a4f28, #2a1808 80%)', border: '3px solid #D4AF37', boxShadow: '0 0 10px rgba(212,175,55,0.6), inset 0 0 12px rgba(0,0,0,0.6)' }}>
+                <div style={{ transform: 'translateY(-4px)' }}><CrownIcon /></div>
+                <span style={{ fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: 'clamp(11px, 3.4vw, 18px)', letterSpacing: '1px', color: '#FFD700', lineHeight: 1, textShadow: '0 1px 1px rgba(0,0,0,0.8)' }}>SPIN</span>
+                <span style={{ fontFamily: 'Georgia, serif', fontWeight: 800, fontSize: 'clamp(7px, 2vw, 10px)', letterSpacing: '2px', color: '#E5C161', lineHeight: 1, marginTop: 2 }}>TO WIN</span>
+              </div>
+            </div>
 
-              {/* Diamond embellishment at very top of the frame */}
-              <g>
-                <path d={`M ${cx} ${cy - rOuter - 22} L ${cx - 11} ${cy - rOuter - 33} L ${cx} ${cy - rOuter - 50} L ${cx + 11} ${cy - rOuter - 33} Z`} fill="url(#goldFrame)" stroke="#5b3a06" strokeWidth="1.4" />
-                <path d={`M ${cx} ${cy - rOuter - 22} L ${cx - 11} ${cy - rOuter - 33} L ${cx} ${cy - rOuter - 33} Z`} fill="rgba(255,255,255,0.35)" />
-              </g>
-              {/* Fixed downward gold pointer at top */}
-              <g>
-                <path d={`M ${cx} ${cy - rOuter + 6} L ${cx - 12} ${cy - rOuter - 12} L ${cx + 12} ${cy - rOuter - 12} Z`} fill="url(#goldFrame)" stroke="#5b3a06" strokeWidth="1.5" />
-                <circle cx={cx} cy={cy - rOuter - 12} r="5" fill="url(#goldFrame)" stroke="#5b3a06" strokeWidth="1" />
-              </g>
-              {/* Golden base with scrollwork */}
-              <g fill="url(#goldFrame)" stroke="#5b3a06" strokeWidth="1.2">
-                <path d={`M ${cx - 70} ${cy + rOuter + 18} q 16 -14 32 0 q 8 6 0 10 q -20 -6 -32 0 q -8 -4 0 -10 Z`} />
-                <path d={`M ${cx + 70} ${cy + rOuter + 18} q -16 -14 -32 0 q -8 6 0 10 q 20 -6 32 0 q 8 -4 0 -10 Z`} />
-                <rect x={cx - 30} y={cy + rOuter + 16} width="60" height="10" rx="4" />
-                <circle cx={cx} cy={cy + rOuter + 21} r="5" fill="url(#goldFrame)" />
-              </g>
-            </svg>
+            {/* Fixed downward gold pointer at top, pointing into the wheel */}
+            <div className="absolute left-1/2" style={{ top: '7.5%', transform: 'translateX(-50%)', pointerEvents: 'none' }}>
+              <svg width="26" height="34" viewBox="0 0 26 34">
+                <defs>
+                  <linearGradient id="ptr" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#FFE9A8" />
+                    <stop offset="50%" stopColor="#D4AF37" />
+                    <stop offset="100%" stopColor="#8B6914" />
+                  </linearGradient>
+                </defs>
+                <circle cx="13" cy="7" r="6" fill="url(#ptr)" stroke="#5b3a06" strokeWidth="1" />
+                <path d="M13 32 L3 10 L23 10 Z" fill="url(#ptr)" stroke="#5b3a06" strokeWidth="1.4" strokeLinejoin="round" />
+                <path d="M13 32 L8 12 L18 12 Z" fill="rgba(255,255,255,0.25)" />
+              </svg>
+            </div>
           </div>
 
           {/* Status + button */}
