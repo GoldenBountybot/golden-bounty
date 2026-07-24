@@ -8,7 +8,6 @@ import ArgoSymbolTile from './ArgoSymbolTile';
 import WinLineOverlay from './WinLineOverlay';
 import ArgoOverlays from './ArgoOverlays';
 import CoinRoundPlaceholder from './CoinRoundPlaceholder';
-import CoinDropStream from './CoinDropStream';
 
 const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png';
 // Palace-with-golden-coins backdrop, fades in during the coin free-spin round.
@@ -166,7 +165,6 @@ export default function ArgonautsMachine() {
                       return (
                         <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1' }}>
                           <CoinRoundPlaceholder pulsing={g.spinning} />
-                          {g.spinning && <CoinDropStream turbo={g.turbo} />}
                         </div>
                       );
                     })}

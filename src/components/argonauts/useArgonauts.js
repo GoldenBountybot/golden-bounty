@@ -131,10 +131,10 @@ export function useArgonauts() {
         setMessage(`${nc} SPINS LEFT`);
       }
       if (dropped.length > 0 || coinSpinsRef.current > 0) {
-        const t2 = setTimeout(() => coinSpin(), turboRef.current ? 360 : 560);
+        const t2 = setTimeout(() => coinSpin(), turboRef.current ? 380 : 620);
         timers.current.push(t2);
       }
-    }, turboRef.current ? 420 : 680);
+    }, turboRef.current ? 300 : 520);
     timers.current.push(t);
   }, [endCoinRound]);
 
