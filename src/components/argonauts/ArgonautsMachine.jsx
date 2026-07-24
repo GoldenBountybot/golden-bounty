@@ -86,18 +86,18 @@ export default function ArgonautsMachine() {
       <GameHeader title="ARGONAUTS" balance={balance} />
 
       {/* Metallic title band */}
-      <div className="relative pt-0 pb-0 flex justify-center" style={{ marginTop: '-8px' }}>
+      <div className="relative pt-0 pb-0 flex justify-center" style={{ marginTop: '-18px' }}>
         <img
           src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8ed43464_generated_image.png"
           alt="ARGONAUTS"
           draggable={false}
           className="select-none"
-          style={{ height: 'auto', width: 'min(70vw, 270px)', mixBlendMode: 'screen', objectFit: 'contain', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.4))' }}
+          style={{ height: 'auto', width: 'min(62vw, 240px)', mixBlendMode: 'screen', objectFit: 'contain', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.4))' }}
         />
       </div>
 
       {/* Reel grid */}
-      <div className="relative flex-1 flex items-start justify-center px-3 py-0" style={{ marginTop: '-24px' }}>
+      <div className="relative flex-1 flex items-start justify-center px-3 py-0" style={{ marginTop: '-36px' }}>
         <div className="w-full max-w-md">
           {g.freeSpins > 0 && (
             <div className="flex justify-center mb-2">
@@ -176,7 +176,7 @@ export default function ArgonautsMachine() {
       </div>
 
       {/* Control panel */}
-      <div className="relative px-3 pb-2" style={{ marginTop: '20px' }}>
+      <div className="relative px-3 pb-2" style={{ marginTop: '40px' }}>
         <div className="mx-auto max-w-md">
           <div className="flex items-center justify-between gap-2">
             {/* Left column: Turbo + Menu */}
