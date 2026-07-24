@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { SYMBOLS, PAYTABLE, FREE_SPINS_AWARD, BONUS_TRIGGER_COUNT, SCATTER_PAY } from './argonautsEngine';
-import FreeGamesBanner from './FreeGamesBanner';
 import GoldenFleeceBanner from './GoldenFleeceBanner';
 import CoinWinBanner from './CoinWinBanner';
 import ArgoPaytable from './ArgoPaytable';
@@ -114,11 +113,6 @@ export default function ArgoOverlays({ g, showPaytable, setShowPaytable, showRul
             <div className="mt-4"><button onClick={g.collectRisk} className="text-xs underline text-amber-300/80" style={{ fontFamily: 'Georgia, serif' }}>TAKE WIN</button></div>
           </div>
         </Overlay>
-      )}
-
-      {/* Free Games trigger banner */}
-      {g.showFreeSpinStart && (
-        <FreeGamesBanner count={FREE_SPINS_AWARD} onStart={g.startFreeSpins} />
       )}
 
       {/* Golden Fleece coin-feature trigger banner — click to start coin spins */}

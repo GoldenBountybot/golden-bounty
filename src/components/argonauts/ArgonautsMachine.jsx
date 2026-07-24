@@ -7,6 +7,7 @@ import GameHeader from '@/components/GameHeader';
 import ArgoSymbolTile from './ArgoSymbolTile';
 import WinLineOverlay from './WinLineOverlay';
 import ArgoOverlays from './ArgoOverlays';
+import FreeGamesBanner from './FreeGamesBanner';
 
 const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png';
 // Palace-with-golden-coins backdrop, fades in during the coin free-spin round.
@@ -123,7 +124,10 @@ export default function ArgonautsMachine() {
 
       {/* Reel grid */}
       <div className="relative flex-1 flex items-start justify-center px-3 py-0" style={{ marginTop: '-48px' }}>
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md relative">
+          {g.showFreeSpinStart && (
+            <FreeGamesBanner count={FREE_SPINS_AWARD} onStart={g.startFreeSpins} />
+          )}
           {g.freeSpins > 0 && (
             <div className="flex justify-center mb-2">
               <span
