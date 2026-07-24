@@ -5,7 +5,7 @@ import { VALUE_COIN_IMG, VALUE_COIN_MULTS } from './argonautsEngine';
 // to the bottom of the cell, then the next coin enters. GPU-driven
 // transform (not `top`) for a perfectly smooth, jank-free fall.
 export default function CoinDropStream({ turbo, bet = 0 }) {
-  const period = turbo ? 0.5 : 0.78; // seconds per single coin fall
+  const period = turbo ? 0.42 : 0.62; // seconds per single coin fall
 
   const coin = useMemo(() => {
     let mult;
@@ -27,7 +27,7 @@ export default function CoinDropStream({ turbo, bet = 0 }) {
           width: '78%',
           aspectRatio: '1 / 1',
           transform: 'translateX(-50%)',
-          animation: `coinFallY ${period}s linear infinite`,
+          animation: `coinFallY ${period}s cubic-bezier(0.22, 0.61, 0.36, 1) infinite`,
           willChange: 'transform',
         }}
       >
