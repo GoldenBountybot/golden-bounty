@@ -60,7 +60,7 @@ export const MAX_RISK_STEPS = 10;
 // resets the counter to 3. Coin value = mult × bet (at $0.10 → $0.10…$1.50).
 export const VALUE_COIN_MULTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 export const VALUE_COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5e1ba97ff_file_000000008624820bb05d279226f89912.png';
-export const VALUE_COIN_CHANCE = 0.12;   // per reel, base game
+export const VALUE_COIN_CHANCE = 0.06;   // per reel, base game
 export const COIN_TRIGGER_COUNT = 5;     // 5+ value coins (bonus symbols count) triggers coin round
 export const COIN_SPINS_START = 3;
 export const COIN_DROP_CHANCE = 0.12;    // per reel, per coin spin
@@ -72,7 +72,7 @@ export function valueCoinKey(mult) { return 'vc' + mult; }
 // Reel symbol weights.
 const BASE_WEIGHTS = {
   bow: 16, potion: 16, cup: 16, harp: 16,
-  dove: 13, lizard: 12, atlanta: 10, jason: 8,
+  dove: 8, lizard: 8, atlanta: 6, jason: 5,
   wild: 3, bonus: 2,
 };
 const FREE_WEIGHTS = {
