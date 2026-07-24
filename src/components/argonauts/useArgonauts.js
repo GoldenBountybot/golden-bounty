@@ -260,7 +260,7 @@ export function useArgonauts() {
       }
     }
 
-    const baseGap = turbo ? 300 : 460;
+    const baseGap = turbo ? 220 : 360;
     const stopReel = (i) => {
       const t = setTimeout(() => {
         setGrid((prev) => {
@@ -275,7 +275,7 @@ export function useArgonauts() {
         });
         if (i < REELS - 1) stopReel(i + 1);
         else {
-          const t2 = setTimeout(() => settle(finalGrid, usingFree), turbo ? 150 : 320);
+          const t2 = setTimeout(() => settle(finalGrid, usingFree), turbo ? 120 : 240);
           timers.current.push(t2);
         }
       }, baseGap);
