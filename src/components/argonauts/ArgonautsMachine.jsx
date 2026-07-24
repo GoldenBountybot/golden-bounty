@@ -153,12 +153,21 @@ export default function ArgonautsMachine() {
               gridTemplateColumns: `repeat(${REELS}, 1fr)`,
               border: '4px solid transparent',
               borderRadius: '12px',
-              boxShadow: '0 0 0 1px rgba(60,35,12,0.9), 0 0 18px rgba(0,0,0,0.6), 0 0 24px rgba(255,215,0,0.4), inset 0 0 0 2px rgba(255,215,0,0.55), inset 0 0 22px rgba(0,0,0,0.6)',
+              boxShadow: '0 0 0 1px rgba(60,35,12,0.9), 0 0 18px rgba(0,0,0,0.6), 0 0 24px rgba(255,215,0,0.4), inset 0 0 0 2px rgba(255,215,0,0.55)',
               background: g.coinMode
                 ? 'linear-gradient(135deg, #FFD700, #B8860B) padding-box'
-                : 'linear-gradient(rgba(26,13,74,0.4), rgba(26,13,74,0.4)) padding-box, linear-gradient(135deg, #C9A04A 0%, #FFE9A8 20%, #8a5a10 45%, #C9A04A 70%, #5b3a06 100%) border-box, repeating-linear-gradient(90deg, rgba(43,24,8,0.10) 0 3px, transparent 3px 9px) padding-box',
+                : 'transparent',
             }}
           >
+            {!g.coinMode && (
+              <div className="absolute inset-0 rounded-[12px] pointer-events-none" style={{
+                padding: 4,
+                background: 'linear-gradient(135deg, #C9A04A 0%, #FFE9A8 20%, #8a5a10 45%, #C9A04A 70%, #5b3a06 100%)',
+                WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+                WebkitMaskComposite: 'xor',
+                maskComposite: 'exclude',
+              }} />
+            )}
             {g.showFreeSpinStart && (
               <FreeGamesBanner count={FREE_SPINS_AWARD} onStart={g.startFreeSpins} />
             )}
@@ -230,10 +239,17 @@ export default function ArgonautsMachine() {
             style={{
               border: '3px solid transparent',
               borderRadius: '10px',
-              boxShadow: '0 0 0 1px rgba(60,35,12,0.9), 0 0 14px rgba(0,0,0,0.55), inset 0 0 0 2px rgba(60,35,12,0.7), inset 0 0 10px rgba(0,0,0,0.25)',
-              background: 'linear-gradient(135deg, rgba(90,55,26,0.22) 0%, rgba(60,35,12,0.12) 50%, rgba(90,55,26,0.22) 100%) padding-box, linear-gradient(135deg, #C9A04A 0%, #FFE9A8 20%, #8a5a10 45%, #C9A04A 70%, #5b3a06 100%) border-box, repeating-linear-gradient(90deg, rgba(43,24,8,0.10) 0 3px, transparent 3px 9px) padding-box',
+              boxShadow: '0 0 0 1px rgba(60,35,12,0.9), 0 0 14px rgba(0,0,0,0.55)',
+              background: 'transparent',
             }}
           >
+            <div className="absolute inset-0 rounded-[10px] pointer-events-none" style={{
+              padding: 3,
+              background: 'linear-gradient(135deg, #C9A04A 0%, #FFE9A8 20%, #8a5a10 45%, #C9A04A 70%, #5b3a06 100%)',
+              WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+            }} />
             {g.freeSpins > 0 && (
               <div className="flex justify-between text-[11px] font-black tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif', color: '#FFD700', textShadow: '0 1px 0 #b8860b, 0 2px 0 #8a5a10, 0 3px 0 #5b3a06, 0 4px 1px rgba(0,0,0,0.7), 0 0 16px rgba(255,235,80,0.95), 0 0 26px rgba(255,200,40,0.7)' }}>
                 <span>FREE SPIN PAYS ${g.bet.toFixed(2)}</span>
