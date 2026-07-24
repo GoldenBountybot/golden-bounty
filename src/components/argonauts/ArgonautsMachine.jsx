@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Zap, Menu, Plus, Minus, RotateCw, DollarSign, Play } from 'lucide-react';
 import { useArgonauts } from './useArgonauts';
 import { REELS, ROWS, BETS, FREE_SPINS_AWARD, SYMBOLS } from './argonautsEngine';
@@ -7,8 +7,6 @@ import GameHeader from '@/components/GameHeader';
 import ArgoSymbolTile from './ArgoSymbolTile';
 import WinLineOverlay from './WinLineOverlay';
 import ArgoOverlays from './ArgoOverlays';
-import CoinRoundPlaceholder from './CoinRoundPlaceholder';
-import CoinReelStrip from './CoinReelStrip';
 
 const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png';
 // Palace-with-golden-coins backdrop, fades in during the coin free-spin round.
@@ -77,6 +75,18 @@ export default function ArgonautsMachine() {
   const [showBetMenu, setShowBetMenu] = useState(false);
 
   const spinDisabled = g.spinning || g.freeSpinsActive || g.bonusActive || g.riskMode || g.coinMode;
+
+  // Coin free-spin display grid: identical to the main board (regular symbols
+  // on every cell), so the coin round looks like the base game. Stuck coins
+  // are overlaid on top of their cells and never spin.
+  const coinDisplayGrid = useMemo(() => {
+    if (!g.coinMode) return g.grid;
+    const ids = Object.keys(SYMBOLS);
+    const rnd = () => ids[Math.floor(Math.random() * ids.length)];
+    return g.grid.map((reel) =>
+      reel.map((sym) => (!sym || String(sym).startsWith('vc')) ? rnd() : sym)
+    );
+  }, [g.grid, g.coinMode]);
 
   return (
     <div
@@ -150,15 +160,10 @@ export default function ArgonautsMachine() {
               if (g.coinMode) {
                 return (
                   <div key={ri} className="relative flex flex-col gap-1">
-                    {/* Scrolling coin reel — falls exactly like the main spin board */}
-                    {g.spinning && (
-                      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 5 }}>
-                        <CoinReelStrip turbo={g.turbo} bet={g.bet} />
-                      </div>
-                    )}
-                    {reel.map((_, row) => {
+                    {coinDisplayGrid[ri].map((sym, row) => {
                       const key = `${ri}-${row}`;
                       const mult = g.coinStuck[key];
+                      // Stuck coin — stays put on top of the spinning reel
                       if (mult) {
                         const justDropped = g.coinDropped && g.coinDropped.has(key);
                         return (
@@ -169,12 +174,20 @@ export default function ArgonautsMachine() {
                           </div>
                         );
                       }
+                      // Empty cell — renders exactly like the main board
                       return (
-                        <div key={key} className="relative rounded-[7px]" style={{ aspectRatio: '1 / 1', zIndex: 10, background: 'transparent' }}>
-                          {!g.spinning && <CoinRoundPlaceholder pulsing={false} />}
+                        <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', opacity: g.spinning ? 0 : 1 }}>
+                          {g.spinning ? (
+                            <div className="w-full h-full" style={{ background: 'rgba(12,8,30,0.92)' }} />
+                          ) : (
+                            <div className="w-full h-full" style={{ animation: 'bbSymbolDrop 0.34s ease-out both' }}>
+                              <ArgoSymbolTile sym={sym} bet={g.bet} />
+                            </div>
+                          )}
                         </div>
                       );
                     })}
+                    {g.spinning && <ArgoSpinStrip reelIndex={ri} turbo={g.turbo} />}
                   </div>
                 );
               }
