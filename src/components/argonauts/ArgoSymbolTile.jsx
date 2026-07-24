@@ -3,7 +3,7 @@ import { SYMBOLS, isValueCoin, valueCoinMult, VALUE_COIN_IMG } from './argonauts
 
 // A single symbol tile. Value coins render as a gold coin with the dollar
 // amount (mult × bet) overlaid; stuck coins get a brighter glow.
-export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 0, stuck = false }) {
+function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 0, stuck = false }) {
   if (isValueCoin(sym)) {
     const amount = valueCoinMult(sym) * bet;
     return (
@@ -43,7 +43,7 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
 
   return (
     <div
-      className="relative flex items-center justify-center transition-all duration-300"
+      className="relative flex items-center justify-center transition-opacity duration-200"
       style={{
         width: '100%',
         aspectRatio: '1 / 1',
@@ -131,3 +131,5 @@ export default function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 
     </div>
   );
 }
+
+export default React.memo(ArgoSymbolTile);

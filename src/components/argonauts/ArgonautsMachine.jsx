@@ -37,7 +37,7 @@ const ArgoSpinStrip = React.memo(function ArgoSpinStrip({ reelIndex, turbo }) {
               alt=""
               draggable={false}
               className="w-full h-full object-cover"
-              style={{ filter: 'blur(1.4px) brightness(0.82)', transform: 'scale(1.2)' }}
+              style={{ filter: 'blur(0.6px) brightness(0.85)' }}
             />
           </div>
         ))}
