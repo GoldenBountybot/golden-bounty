@@ -3,7 +3,7 @@ import { SYMBOLS } from '@/lib/bigBrownEngine';
 
 // Renders a single Big Brown symbol tile — realistic wildlife/portrait image
 // on a dark forest-themed background with golden frame + glow for wins.
-export default function BigBrownSymbol({ sym, highlight = false, expand = false }) {
+function BigBrownSymbol({ sym, highlight = false, expand = false }) {
   const def = SYMBOLS[sym];
   const img = def ? def.img : null;
   const type = def ? def.type : 'low';
@@ -83,3 +83,5 @@ export default function BigBrownSymbol({ sym, highlight = false, expand = false 
     </div>
   );
 }
+
+export default React.memo(BigBrownSymbol);

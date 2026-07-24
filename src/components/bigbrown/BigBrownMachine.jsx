@@ -5,7 +5,7 @@ import BigBrownInfo from './BigBrownInfo';
 import BigBrownFreeSpinStart from './BigBrownFreeSpinStart';
 import BigBrownBonusPop from './BigBrownBonusPop';
 import { useBigBrown } from './useBigBrown';
-import { WAYS, BETS, WILD_EXPAND_IMG, randomSymbol } from '@/lib/bigBrownEngine';
+import { WAYS, BETS, WILD_EXPAND_IMG, randomSymbol, SYMBOLS } from '@/lib/bigBrownEngine';
 
 // Big Brown slot machine — 6x4 grid, 4096 ways, expanding wilds, free spins.
 // Night-forest design matching the reference screenshot.
@@ -23,19 +23,35 @@ const SpinStrip = React.memo(function SpinStrip({ reelIndex, turbo }) {
   }, [reelIndex]);
 
   return (
-    <div className="absolute inset-0 overflow-hidden rounded-[4px] pointer-events-none">
+    <div
+      className="absolute inset-0 overflow-hidden rounded-[4px] pointer-events-none"
+      style={{ willChange: 'transform', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
+    >
       <div
         className="flex flex-col gap-1 w-full"
         style={{
-          animation: `reelFall ${turbo ? 0.4 : 0.6}s linear infinite`,
+          animation: `reelFall ${turbo ? 0.35 : 0.5}s linear infinite`,
           willChange: 'transform',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
         }}
       >
-        {strip.map((s, i) => (
-          <div key={i} className="rounded-[4px] overflow-hidden" style={{ aspectRatio: '3 / 4' }}>
-            <BigBrownSymbol sym={s} />
-          </div>
-        ))}
+        {strip.map((s, i) => {
+          const def = SYMBOLS[s];
+          return (
+            <div key={i} className="rounded-[4px] overflow-hidden" style={{ aspectRatio: '3 / 4', background: '#0a0703' }}>
+              {def && def.img && (
+                <img
+                  src={def.img}
+                  alt=""
+                  className="w-full h-full object-cover"
+                  draggable={false}
+                  style={{ filter: 'blur(1.1px) brightness(0.85)' }}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -145,7 +161,7 @@ export default function BigBrownMachine() {
                             style={{ aspectRatio: '3 / 4', opacity: stopped ? 1 : 0 }}
                           >
                             {stopped ? (
-                              <div className="w-full h-full" style={{ animation: `bbSymbolDrop ${anticipation ? 0.6 : 0.34}s ease-out both` }}>
+                              <div className="w-full h-full" style={{ animation: `bbSymbolDrop ${anticipation ? 0.6 : 0.34}s ease-out both`, willChange: 'transform', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}>
                                 <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
                               </div>
                             ) : (
