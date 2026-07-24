@@ -6,8 +6,8 @@ export const REEL_ROWS = [4, 4, 4, 4, 4, 4];
 export const WAYS = 4096;
 export const BETS = [0.50, 1.00, 2.00, 5.00, 12.50];
 
-// Reels where wilds may land (0-indexed): reels 2,3,4,5 → indices 1,2,3,4.
-export const WILD_REELS = new Set([1, 2, 3, 4]);
+// Reels where wilds may land (0-indexed): reels 1,2,3,4,5 → indices 0,1,2,3,4.
+export const WILD_REELS = new Set([0, 1, 2, 3, 4]);
 
 // Full-height (4-cell) wild graphic shown when a wild reel expands.
 // Bear-only image (black bg, dropped via mix-blend-mode:screen). The WILD
@@ -74,9 +74,9 @@ const BASE_POOL = [
 ];
 
 // Wild reels use the base pool plus a reel-specific chance to inject a wild
-// (brown/spirit). Reels 1 & 2 (2nd/3rd lines) get a much lower wild chance
-// than reels 3 & 4. At most one wild is kept per spin via capWildsToOne.
-const WILD_CHANCE = { 1: 0.002, 2: 0.008, 3: 0.06, 4: 0.06 };
+// (brown/spirit). The 1st column (reel 0) takes the chance removed from the
+// 3rd column (reel 2). At most one wild is kept per spin via capWildsToOne.
+const WILD_CHANCE = { 0: 0.004, 1: 0.002, 2: 0.004, 3: 0.06, 4: 0.06 };
 
 export function randomSymbol(reelIndex = -1) {
   if (!WILD_REELS.has(reelIndex)) {
