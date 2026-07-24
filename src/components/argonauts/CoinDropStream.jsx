@@ -5,10 +5,10 @@ import { VALUE_COIN_IMG, VALUE_COIN_MULTS } from './argonautsEngine';
 // to the bottom of the cell, then the next coin enters. GPU-driven
 // transform (not `top`) for a perfectly smooth, jank-free fall.
 export default function CoinDropStream({ turbo, bet = 0, rowIndex = 0 }) {
-  const period = turbo ? 0.42 : 0.62; // seconds per single coin fall
-  // Stagger each row so coins cascade one-by-one down the column instead of
-  // all three falling at the same time.
-  const stagger = rowIndex * (period / 3);
+  const period = turbo ? 0.42 : 0.62; // seconds per full column cascade
+  // Positive delay per row: coin drops through row 0 first, then row 1, then
+  // row 2 — a smooth top-to-bottom cascade (main-game reel feel).
+  const delay = rowIndex * (period / 3);
 
   const coin = useMemo(() => {
     let mult;
@@ -30,8 +30,9 @@ export default function CoinDropStream({ turbo, bet = 0, rowIndex = 0 }) {
           width: '78%',
           aspectRatio: '1 / 1',
           transform: 'translateX(-50%)',
-          animation: `coinFallY ${period}s linear ${-stagger}s infinite`,
-          willChange: 'transform',
+          opacity: 0,
+          animation: `coinFallY ${period}s linear ${delay}s infinite`,
+          willChange: 'transform, opacity',
         }}
       >
         <div className="relative w-full h-full" style={{ transform: `translateX(${coin.dx}px)` }}>
