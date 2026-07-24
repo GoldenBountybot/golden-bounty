@@ -6,19 +6,23 @@ const BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/
 // land during the base game. The whole banner is clickable to start the free
 // spins. During an existing free-spin session the banner is skipped and the
 // awarded spins are simply added (handled in useArgonauts).
+// Uses screen blend mode so the image's dark background drops out and the
+// game backdrop remains visible behind it.
 export default function FreeGamesBanner({ count = 8, onStart }) {
   return (
     <div
       onClick={onStart}
-      className="absolute inset-0 z-40 flex items-center justify-center cursor-pointer"
-      style={{ background: 'rgba(0,0,5,0.85)', backdropFilter: 'blur(3px)' }}
+      className="absolute inset-0 z-40 flex items-start justify-center cursor-pointer pt-12"
     >
-      <div className="relative" style={{ width: 'min(94vw, 420px)' }}>
+      <div
+        className="relative transition-transform active:scale-95"
+        style={{ width: 'min(94vw, 420px)', mixBlendMode: 'screen' }}
+      >
         <img
           src={BANNER}
           alt={`${count} Free Games`}
           draggable={false}
-          className="w-full select-none transition-transform active:scale-95"
+          className="w-full select-none"
           style={{ filter: 'drop-shadow(0 0 22px rgba(255,180,40,0.55))' }}
         />
       </div>
