@@ -168,6 +168,37 @@ export default function ArgonautsMachine() {
                 <span>FREE GAME {FREE_SPINS_AWARD - g.freeSpins + 1} OF {FREE_SPINS_AWARD}</span>
               </div>
             )}
+            {g.coinMode && (
+              <div className="flex items-center justify-center gap-2 mb-1">
+                {[3, 2, 1].map((n) => {
+                  const active = g.coinSpins === n;
+                  return (
+                    <span
+                      key={n}
+                      className="flex items-center justify-center rounded-full font-black tabular-nums transition-all"
+                      style={{
+                        width: active ? 30 : 22,
+                        height: active ? 30 : 22,
+                        fontSize: active ? '0.95rem' : '0.72rem',
+                        fontFamily: 'Georgia, serif',
+                        color: active ? '#2a1a06' : 'rgba(255,235,150,0.55)',
+                        border: `1.5px solid ${active ? '#FFD700' : 'rgba(255,215,0,0.3)'}`,
+                        background: active
+                          ? 'radial-gradient(circle, #FFE9A8, #FFD700 60%, #C59A4D)'
+                          : 'rgba(20,17,13,0.7)',
+                        boxShadow: active ? '0 0 14px rgba(255,215,0,0.85)' : 'none',
+                        transform: active ? 'scale(1.08)' : 'scale(1)',
+                      }}
+                    >
+                      {n}
+                    </span>
+                  );
+                })}
+                <span className="ml-1 text-[10px] font-bold tracking-widest text-yellow-200/80" style={{ fontFamily: 'Georgia, serif', textShadow: '0 1px 2px #000' }}>
+                  SPIN{g.coinSpins !== 1 ? 'S' : ''} LEFT
+                </span>
+              </div>
+            )}
             <div className="text-center min-h-[18px]">
               <p className="text-xs font-bold tracking-wide text-amber-50" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>{g.message}</p>
             </div>

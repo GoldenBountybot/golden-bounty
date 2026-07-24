@@ -61,7 +61,7 @@ export const MAX_RISK_STEPS = 10;
 export const VALUE_COIN_MULTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 export const VALUE_COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5e1ba97ff_file_000000008624820bb05d279226f89912.png';
 export const VALUE_COIN_CHANCE = 0.10;   // per reel, base game
-export const COIN_TRIGGER_REELS = 3;
+export const COIN_TRIGGER_COUNT = 5;     // 5+ value coins (bonus symbols count) triggers coin round
 export const COIN_SPINS_START = 3;
 export const COIN_DROP_CHANCE = 0.12;    // per reel, per coin spin
 
@@ -256,17 +256,32 @@ export function forceWinGrid() {
 }
 
 // ---- Coin round helpers ----
+// Trigger: 5+ value coins landed. Bonus symbols count as value coins toward
+// the trigger (e.g. 5 coins + 1 bonus = 6 → triggers), but at least one real
+// value coin must be present (a pure-bonus grid stays a Golden Fleece bonus).
 export function coinTriggered(grid) {
-  let reels = 0;
-  for (let r = 0; r < REELS; r++) if (grid[r].some(isValueCoin)) reels++;
-  return reels >= COIN_TRIGGER_REELS;
+  let coinCount = 0;
+  let bonusCount = 0;
+  for (let r = 0; r < REELS; r++)
+    for (let row = 0; row < ROWS; row++) {
+      if (isValueCoin(grid[r][row])) coinCount++;
+      else if (grid[r][row] === 'bonus') bonusCount++;
+    }
+  return coinCount > 0 && coinCount + bonusCount >= COIN_TRIGGER_COUNT;
 }
 
 export function collectCoins(grid) {
   const map = {};
   for (let r = 0; r < REELS; r++)
-    for (let row = 0; row < ROWS; row++)
-      if (isValueCoin(grid[r][row])) map[`${r}-${row}`] = valueCoinMult(grid[r][row]);
+    for (let row = 0; row < ROWS; row++) {
+      if (isValueCoin(grid[r][row])) {
+        map[`${r}-${row}`] = valueCoinMult(grid[r][row]);
+      } else if (grid[r][row] === 'bonus') {
+        // bonus symbol becomes a value coin with a random multiplier
+        const mult = VALUE_COIN_MULTS[Math.floor(Math.random() * VALUE_COIN_MULTS.length)];
+        map[`${r}-${row}`] = mult;
+      }
+    }
   return map;
 }
 

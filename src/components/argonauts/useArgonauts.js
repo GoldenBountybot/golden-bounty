@@ -63,6 +63,8 @@ export function useArgonauts() {
   const [coinMode, setCoinMode] = useState(false);
   const [coinSpins, setCoinSpins] = useState(0);
   const [coinStuck, setCoinStuck] = useState({});
+  const [showCoinBanner, setShowCoinBanner] = useState(false);
+  const [coinTriggerCount, setCoinTriggerCount] = useState(0);
 
   const settings = useGameSettings('argonauts');
   const logActivity = useLogActivity('argonauts');
@@ -148,8 +150,17 @@ export function useArgonauts() {
     setCoinStuck(stuck);
     setCoinSpins(COIN_SPINS_START);
     setCoinMode(true);
+    setCoinTriggerCount(Object.keys(stuck).length);
     setWinningPositions(new Set());
-    const t = setTimeout(() => coinSpin(), turboRef.current ? 700 : 1100);
+    // Show the Golden Fleece trigger banner; clicking it starts the spins.
+    setShowCoinBanner(true);
+    setMessage('COIN FEATURE · TAP TO START');
+  }, []);
+
+  // Called when the player taps the trigger banner — begins the first coin spin.
+  const beginCoinSpins = useCallback(() => {
+    setShowCoinBanner(false);
+    const t = setTimeout(() => coinSpin(), turboRef.current ? 400 : 600);
     timers.current.push(t);
   }, [coinSpin]);
 
@@ -415,6 +426,8 @@ export function useArgonauts() {
     setCoinMode(false);
     setCoinStuck({});
     setCoinSpins(0);
+    setShowCoinBanner(false);
+    setCoinTriggerCount(0);
     coinModeRef.current = false;
     coinStuckRef.current = {};
     coinSpinsRef.current = 0;
@@ -430,7 +443,7 @@ export function useArgonauts() {
     riskActive, riskMode, riskStep, riskHistory, riskResult, pendingWin,
     dealerCard, playerCards, revealedIdx, riskOutcome,
     startRisk, riskPick, riskContinue, collectRisk, loseRisk,
-    coinMode, coinSpins, coinStuck,
+    coinMode, coinSpins, coinStuck, showCoinBanner, coinTriggerCount, beginCoinSpins,
     spin, reset,
   };
 }
