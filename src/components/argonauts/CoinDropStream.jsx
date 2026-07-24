@@ -6,7 +6,7 @@ import { VALUE_COIN_IMG, VALUE_COIN_MULTS } from './argonautsEngine';
 // the previous one exits. The final one lands and sticks (handled by parent).
 export default function CoinDropStream({ turbo, bet = 0 }) {
   const period = turbo ? 0.36 : 0.56; // seconds per single coin fall
-  const COUNT = 4; // staggered coins in flight
+  const COUNT = 1; // one coin per cell at a time
 
   // Random values for each falling coin.
   const coins = useMemo(
