@@ -5,26 +5,27 @@ import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 
-// 18 prize segments — matching the reference wheel (NOT 19 or 20).
+// 18 prize segments — exact match to the reference wheel.
+// Top (under pointer) = 1000$ gold, then clockwise per the image.
 const SEGMENTS = [
-  { label: '0.05$', value: 0.05, color: '#4B0082' }, // purple
-  { label: '0.10$', value: 0.10, color: '#228B22' }, // green
-  { label: '0.25$', value: 0.25, color: '#1C3A5E' }, // blue
-  { label: '0.50$', value: 0.50, color: '#8B1A1A' }, // dark red
-  { label: '0.75$', value: 0.75, color: '#8B4513' }, // brown
-  { label: '1$',    value: 1,    color: '#1B5E20' }, // dark green
-  { label: '2.5$',  value: 2.5,  color: '#4B0082' }, // purple
-  { label: '5$',    value: 5,    color: '#C62828' }, // red
-  { label: '10$',   value: 10,   color: '#8B4513' }, // brown
-  { label: '25$',   value: 25,   color: '#228B22' }, // green
-  { label: '50$',   value: 50,   color: '#1C3A5E' }, // blue
-  { label: '100$',  value: 100,  color: '#8B1A1A' }, // dark red
-  { label: '150$',  value: 150,  color: '#1B5E20' }, // dark green
-  { label: '200$',  value: 200,  color: '#0D47A1' }, // deep blue
-  { label: '250$',  value: 250,  color: '#228B22' }, // green
-  { label: '500$',  value: 500,  color: '#D4AF37' }, // gold
-  { label: '750$',  value: 750,  color: '#4B0082' }, // purple
-  { label: '1000$', value: 1000, color: '#C62828' }, // red
+  { label: '1000$', value: 1000, color: '#D4AF37' }, // gold (top)
+  { label: '0.05$', value: 0.05, color: '#00008B' }, // dark blue
+  { label: '0.10$', value: 0.10, color: '#800080' }, // purple
+  { label: '0.25$', value: 0.25, color: '#006400' }, // green
+  { label: '0.50$', value: 0.50, color: '#00008B' }, // dark blue
+  { label: '0.75$', value: 0.75, color: '#800080' }, // purple
+  { label: '1$',    value: 1,    color: '#8B0000' }, // dark red
+  { label: '2.5$',  value: 2.5,  color: '#006400' }, // green
+  { label: '5$',    value: 5,    color: '#00008B' }, // dark blue
+  { label: '10$',   value: 10,   color: '#D4AF37' }, // gold
+  { label: '25$',   value: 25,   color: '#8B0000' }, // dark red
+  { label: '50$',   value: 50,   color: '#800080' }, // purple
+  { label: '100$',  value: 100,  color: '#006400' }, // green
+  { label: '150$',  value: 150,  color: '#00008B' }, // dark blue
+  { label: '200$',  value: 200,  color: '#D4AF37' }, // gold
+  { label: '250$',  value: 250,  color: '#8B0000' }, // dark red
+  { label: '500$',  value: 500,  color: '#800080' }, // purple
+  { label: '750$',  value: 750,  color: '#006400' }, // green
 ];
 
 // Prize weights — small prizes common, jackpot rare.
@@ -172,7 +173,9 @@ export default function DailySpinWheel() {
 
   return (
     <section className="max-w-6xl mx-auto px-4 mt-6">
-      <div className="rounded-2xl p-4" style={{ background: 'linear-gradient(160deg, #1a1208, #0b0b0d 70%)', border: '1px solid rgba(214,178,98,0.25)', boxShadow: '0 0 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.4)' }}>
+      <div className="relative overflow-hidden rounded-2xl p-4" style={{ background: 'radial-gradient(circle at 50% 30%, #241a08 0%, #0b0b0d 70%)', border: '1px solid rgba(214,178,98,0.25)', boxShadow: '0 0 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.4)' }}>
+        {/* dark bokeh golden lights */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 18% 20%, rgba(212,175,55,0.18), transparent 12%), radial-gradient(circle at 82% 25%, rgba(212,175,55,0.14), transparent 10%), radial-gradient(circle at 25% 80%, rgba(212,175,55,0.12), transparent 14%), radial-gradient(circle at 75% 78%, rgba(212,175,55,0.10), transparent 12%)' }} />
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-full" style={{ background: 'radial-gradient(circle, #f5c542, #8B6914)', boxShadow: '0 0 10px rgba(245,197,66,0.6)' }}>
@@ -189,7 +192,7 @@ export default function DailySpinWheel() {
 
         <div className="flex flex-col items-center">
           <div className="relative" style={{ width: 'min(86vw, 420px)', aspectRatio: '1 / 1' }}>
-            <svg viewBox="0 0 400 400" className="w-full h-full" style={{ filter: 'drop-shadow(0 18px 30px rgba(0,0,0,0.7))' }}>
+            <svg viewBox="-60 -60 520 520" className="w-full h-full" style={{ filter: 'drop-shadow(0 18px 30px rgba(0,0,0,0.7))' }}>
               <defs>
                 <radialGradient id="goldFrame" cx="50%" cy="40%" r="70%">
                   <stop offset="0%" stopColor="#FFE9A8" />
@@ -229,9 +232,9 @@ export default function DailySpinWheel() {
               {bulbs.map((b) => (
                 <circle
                   key={b.i}
-                  cx={b.x} cy={b.y} r="3.2"
-                  fill="#FFFACD"
-                  style={{ animation: `lwLedPulse 1.6s ease-in-out ${((b.i % 6) * 0.18).toFixed(2)}s infinite`, transformOrigin: `${b.x}px ${b.y}px` }}
+                  cx={b.x} cy={b.y} r="3.4"
+                  fill="#FFFF00"
+                  style={{ animation: `lwLedPulse 1.5s ease-in-out ${((b.i % 6) * 0.16).toFixed(2)}s infinite`, transformOrigin: `${b.x}px ${b.y}px` }}
                 />
               ))}
 
@@ -256,7 +259,7 @@ export default function DailySpinWheel() {
                         dominantBaseline="middle"
                         transform={`rotate(${mid} ${lp.x} ${lp.y})`}
                         fill="#FFD700"
-                        style={{ fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: i < 6 ? 13 : (i < 11 ? 14 : 16), filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.9))' }}
+                        style={{ fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: seg.label.length >= 5 ? 12 : (seg.label.length >= 4 ? 14 : 16), letterSpacing: '-0.5px', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.9))' }}
                       >
                         {seg.label}
                       </text>
@@ -279,10 +282,22 @@ export default function DailySpinWheel() {
                 <text x={cx} y={cy + 22} textAnchor="middle" fill="#E5C161" style={{ fontFamily: 'Georgia, serif', fontWeight: 800, fontSize: 11, letterSpacing: '2px' }}>TO WIN</text>
               </g>
 
+              {/* Diamond embellishment at very top of the frame */}
+              <g>
+                <path d={`M ${cx} ${cy - rOuter - 22} L ${cx - 11} ${cy - rOuter - 33} L ${cx} ${cy - rOuter - 50} L ${cx + 11} ${cy - rOuter - 33} Z`} fill="url(#goldFrame)" stroke="#5b3a06" strokeWidth="1.4" />
+                <path d={`M ${cx} ${cy - rOuter - 22} L ${cx - 11} ${cy - rOuter - 33} L ${cx} ${cy - rOuter - 33} Z`} fill="rgba(255,255,255,0.35)" />
+              </g>
               {/* Fixed downward gold pointer at top */}
               <g>
-                <path d={`M ${cx} ${cy - rOuter - 2} L ${cx - 13} ${cy - rOuter - 30} L ${cx + 13} ${cy - rOuter - 30} Z`} fill="url(#goldFrame)" stroke="#5b3a06" strokeWidth="1.5" />
-                <circle cx={cx} cy={cy - rOuter - 30} r="6" fill="url(#goldFrame)" stroke="#5b3a06" strokeWidth="1" />
+                <path d={`M ${cx} ${cy - rOuter + 6} L ${cx - 12} ${cy - rOuter - 12} L ${cx + 12} ${cy - rOuter - 12} Z`} fill="url(#goldFrame)" stroke="#5b3a06" strokeWidth="1.5" />
+                <circle cx={cx} cy={cy - rOuter - 12} r="5" fill="url(#goldFrame)" stroke="#5b3a06" strokeWidth="1" />
+              </g>
+              {/* Golden base with scrollwork */}
+              <g fill="url(#goldFrame)" stroke="#5b3a06" strokeWidth="1.2">
+                <path d={`M ${cx - 70} ${cy + rOuter + 18} q 16 -14 32 0 q 8 6 0 10 q -20 -6 -32 0 q -8 -4 0 -10 Z`} />
+                <path d={`M ${cx + 70} ${cy + rOuter + 18} q -16 -14 -32 0 q -8 6 0 10 q 20 -6 32 0 q 8 -4 0 -10 Z`} />
+                <rect x={cx - 30} y={cy + rOuter + 16} width="60" height="10" rx="4" />
+                <circle cx={cx} cy={cy + rOuter + 21} r="5" fill="url(#goldFrame)" />
               </g>
             </svg>
           </div>
