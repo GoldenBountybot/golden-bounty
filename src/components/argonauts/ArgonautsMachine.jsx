@@ -221,8 +221,17 @@ export default function ArgonautsMachine() {
             <WinLineOverlay winningLines={g.winningLines} />
           </div>
 
-          {/* Status strip: free-game labels + message — Rye golden 3D text, no background so game backdrop shows through */}
-          <div className="mt-2 relative px-3 py-2">
+          {/* Status strip: free-game labels + message — Rye golden 3D text inside a stylish western wooden frame, transparent center so game backdrop shows through */}
+          <div
+            className="mt-2 relative rounded-[8px] px-3 py-2"
+            style={{
+              border: '3px solid transparent',
+              borderImage: 'linear-gradient(135deg, #C9A04A 0%, #FFE9A8 20%, #8a5a10 45%, #C9A04A 70%, #5b3a06 100%) 1',
+              boxShadow: '0 0 0 1px rgba(60,35,12,0.9), 0 0 14px rgba(0,0,0,0.55), inset 0 0 0 2px rgba(60,35,12,0.7), inset 0 0 10px rgba(0,0,0,0.25)',
+              background: 'linear-gradient(135deg, rgba(90,55,26,0.22) 0%, rgba(60,35,12,0.12) 50%, rgba(90,55,26,0.22) 100%)',
+              backgroundImage: 'repeating-linear-gradient(90deg, rgba(43,24,8,0.10) 0 3px, transparent 3px 9px)',
+            }}
+          >
             {g.freeSpins > 0 && (
               <div className="flex justify-between text-[11px] font-black tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif', color: '#FFD700', textShadow: '0 1px 0 #b8860b, 0 2px 0 #8a5a10, 0 3px 0 #5b3a06, 0 4px 1px rgba(0,0,0,0.7), 0 0 16px rgba(255,235,80,0.95), 0 0 26px rgba(255,200,40,0.7)' }}>
                 <span>FREE SPIN PAYS ${g.bet.toFixed(2)}</span>
