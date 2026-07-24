@@ -4,11 +4,13 @@ import { VALUE_COIN_IMG, VALUE_COIN_MULTS } from './argonautsEngine';
 // Coins fall ONE BY ONE through the cell: a single coin drops from the top
 // to the bottom of the cell, then the next coin enters. GPU-driven
 // transform (not `top`) for a perfectly smooth, jank-free fall.
-export default function CoinDropStream({ turbo, bet = 0, rowIndex = 0 }) {
-  const period = turbo ? 0.42 : 0.62; // seconds per full column cascade
-  // Positive delay per row: coin drops through row 0 first, then row 1, then
-  // row 2 — a smooth top-to-bottom cascade (main-game reel feel).
-  const delay = rowIndex * (period / 3);
+export default function CoinDropStream({ turbo, bet = 0, rowIndex = 0, reelIndex = 0 }) {
+  // One full cycle spans 9 slots (3 columns × 3 rows). Each empty cell is
+  // assigned a unique slot in column-major order: column 0 cascades first
+  // (row 0 → 1 → 2), then column 1, then column 2 — never all at once.
+  const period = turbo ? 0.66 : 0.96;
+  const slot = period / 9;
+  const delay = (reelIndex * 3 + rowIndex) * slot;
 
   const coin = useMemo(() => {
     let mult;
