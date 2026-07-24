@@ -21,7 +21,7 @@ const IMG = {
   brown:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/31ddcdcb0_generated_image.png',
   spirit:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/31ddcdcb0_generated_image.png',
   buffalo: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d5e8a8396_generated_image.png',
-  eagle:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7d8561976_generated_image.png',
+  eagle:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/049e21afd_file_00000000263c820eb39538b113dcdcdc.png',
   cougar:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/678cbc6de_generated_image.png',
   wolf:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d03f81032_generated_image.png',
   deer:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/75af4c854_generated_image.png',
