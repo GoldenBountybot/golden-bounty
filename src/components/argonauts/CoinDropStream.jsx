@@ -30,7 +30,7 @@ export default function CoinDropStream({ turbo, bet = 0, rowIndex = 0 }) {
           width: '78%',
           aspectRatio: '1 / 1',
           transform: 'translateX(-50%)',
-          animation: `coinFallY ${period}s cubic-bezier(0.22, 0.61, 0.36, 1) ${-stagger}s infinite`,
+          animation: `coinFallY ${period}s linear ${-stagger}s infinite`,
           willChange: 'transform',
         }}
       >
