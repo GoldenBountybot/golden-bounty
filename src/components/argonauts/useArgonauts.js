@@ -270,7 +270,7 @@ export function useArgonauts() {
     }
     setMessage('Spinning...');
 
-    const wantWin = Math.random() < (rtpRef.current / 100);
+    const wantWin = Math.random() < (rtpRef.current / 200);
     let finalGrid;
     if (usingFree) {
       finalGrid = generateGrid(true);
