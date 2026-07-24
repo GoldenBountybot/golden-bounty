@@ -1,157 +1,108 @@
 import React from 'react';
 
-const COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3fc0a87e0_generated_image.png';
+// Full-scene background (street at night, ornate gold frame, coin cluster,
+// light burst) generated to match the reference 100%.
+const BANNER_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2921f28f1_generated_image.png';
 
 // "YOU WON THE GOLDEN FLEECE BONUS GAME!" trigger banner — 100% match to the
-// reference design: a dark radial-gradient backdrop, a 3x3 cluster of gold
-// laurel coins (some showing currency values), a central metallic purple
-// "15X = ULTRA" label, and a "TAP ANYWHERE TO CONTINUE" prompt.
-// 15X ULTRA is shown always (hardcoded per request).
+// reference: the generated ornate gold-framed coin scene as background, with a
+// metallic gold header, a metallic purple "15X= ULTRA" central label, and a
+// dark maroon ribbon footer "TAP ANYWHERE TO CONTINUE". 15X ULTRA is shown
+// always (hardcoded per request). Tapping anywhere starts the coin spins.
 export default function GoldenFleeceBanner({ count = 6, onStart }) {
-  // Overlapping coin cluster (3x3-ish) — absolute positions, slight overlap.
-  // Center area reserved for the "15X = ULTRA" label.
-  const coins = [
-    { x: 4,   y: 4,   s: 78, val: '$0.10', r: -6 },
-    { x: 92,  y: 0,   s: 86, val: null,   r: 5 },
-    { x: 180, y: 6,   s: 80, val: '$0.20', r: 8 },
-    { x: 18,  y: 74,  s: 84, val: null,   r: -4 },
-    { x: 196, y: 78,  s: 82, val: '$0.30', r: 7 },
-    { x: 8,   y: 148, s: 80, val: '$0.20', r: 6 },
-    { x: 96,  y: 156, s: 86, val: null,   r: -8 },
-    { x: 186, y: 150, s: 78, val: '$0.10', r: 4 },
-  ];
-
   return (
     <div
       className="absolute inset-0 z-50 flex items-center justify-center"
       onClick={onStart}
-      style={{
-        background: 'radial-gradient(circle at 50% 50%, rgba(40,28,8,0.82), rgba(4,3,2,0.94))',
-        backdropFilter: 'blur(6px)',
-        cursor: 'pointer',
-      }}
+      style={{ background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(3px)', cursor: 'pointer' }}
     >
-      <div className="relative text-center select-none px-6">
-        {/* Heading */}
-        <h2
-          className="font-black uppercase leading-tight tracking-wide"
-          style={{
-            fontFamily: 'Georgia, "Times New Roman", serif',
-            fontSize: 'clamp(1rem, 4.2vw, 1.5rem)',
-            background: 'linear-gradient(to bottom, #FFE9A8 0%, #FFD700 35%, #C06000 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            WebkitTextStroke: '1.2px #201000',
-            filter: 'drop-shadow(0 4px 5px rgba(0,0,0,0.95))',
-          }}
-        >
-          You Won The Golden Fleece Bonus Game!
-        </h2>
+      <div className="relative text-center select-none" style={{ width: 'min(96vw, 420px)' }}>
+        {/* Full-scene background */}
+        <img
+          src={BANNER_BG}
+          alt="Golden Fleece Bonus"
+          draggable={false}
+          className="w-full h-auto rounded-[14px]"
+          style={{ filter: 'drop-shadow(0 8px 22px rgba(0,0,0,0.85))' }}
+        />
 
-        {/* Coin cluster */}
-        <div className="relative my-4 mx-auto" style={{ width: 268, height: 236, maxWidth: '88vw' }}>
-          {/* glow */}
-          <div
-            className="absolute inset-0"
+        {/* Text overlays */}
+        <div className="absolute inset-0 flex flex-col items-center justify-between py-[7%] px-[10%] pointer-events-none">
+          {/* Header */}
+          <h2
+            className="font-black uppercase leading-tight tracking-wide w-full text-center"
             style={{
-              background: 'radial-gradient(circle at 50% 50%, rgba(255,200,80,0.48), transparent 66%)',
-              filter: 'blur(14px)',
+              fontFamily: 'Georgia, "Times New Roman", serif',
+              fontSize: 'clamp(0.78rem, 4.4vw, 1.15rem)',
+              background: 'linear-gradient(to bottom, #FFEFD5 0%, #FFD700 35%, #B8860B 75%, #5C4033 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              WebkitTextStroke: '1px #1A1110',
+              filter: 'drop-shadow(0 3px 4px rgba(0,0,0,0.95))',
             }}
-          />
-          <div className="relative w-full h-full">
-            {coins.map((c, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full"
-                style={{
-                  left: c.x,
-                  top: c.y,
-                  width: c.s,
-                  height: c.s,
-                  transform: `rotate(${c.r}deg)`,
-                  border: '3px solid #EBC05F',
-                  boxShadow:
-                    '0 4px 10px rgba(0,0,0,0.55), 0 0 14px rgba(235,192,95,0.7), inset 0 0 12px rgba(255,245,180,0.5), inset 0 -4px 8px rgba(120,80,20,0.65)',
-                  background: '#1a1206',
-                  overflow: 'hidden',
-                }}
-              >
-                <img
-                  src={COIN_IMG}
-                  alt=""
-                  draggable={false}
-                  className="w-full h-full object-cover"
-                />
-                {c.val && (
-                  <span
-                    className="absolute inset-0 flex items-center justify-center font-black tabular-nums"
-                    style={{
-                      fontFamily: 'Georgia, serif',
-                      fontSize: '0.82rem',
-                      color: '#3a2208',
-                      textShadow: '0 1px 0 rgba(255,235,150,0.7), 0 -1px 0 rgba(0,0,0,0.35)',
-                      transform: `rotate(${-c.r}deg)`,
-                    }}
-                  >
-                    {c.val}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
+          >
+            You Won The Golden Fleece Bonus Game!
+          </h2>
 
-          {/* central metallic purple label */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+          {/* Central 15X= ULTRA */}
+          <div className="flex flex-col items-center justify-center">
             <span
               className="font-black leading-none"
               style={{
                 fontFamily: 'Georgia, "Times New Roman", serif',
-                fontSize: 'clamp(2.2rem, 11vw, 3.4rem)',
-                background: 'linear-gradient(to bottom, #E1D5F3 0%, #A070D0 45%, #503080 100%)',
+                fontSize: 'clamp(2.6rem, 15vw, 4.6rem)',
+                background: 'linear-gradient(to bottom, #E1D5F3 0%, #9370DB 45%, #6A0DAD 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                WebkitTextStroke: '1.4px #201000',
-                filter: 'drop-shadow(0 0 10px rgba(160,112,208,0.85)) drop-shadow(0 5px 5px rgba(0,0,0,0.95))',
+                WebkitTextStroke: '1.6px #1A1110',
+                filter:
+                  'drop-shadow(0 0 12px rgba(147,112,219,0.9)) drop-shadow(0 6px 6px rgba(0,0,0,0.95))',
               }}
             >
               15X=
             </span>
             <span
-              className="font-black tracking-[0.18em] leading-none -mt-1"
+              className="font-black tracking-[0.16em] leading-none -mt-1"
               style={{
                 fontFamily: 'Georgia, "Times New Roman", serif',
-                fontSize: 'clamp(1.1rem, 5.6vw, 1.7rem)',
-                background: 'linear-gradient(to bottom, #E1D5F3 0%, #A070D0 45%, #503080 100%)',
+                fontSize: 'clamp(1.4rem, 7.2vw, 2.3rem)',
+                background: 'linear-gradient(to bottom, #E1D5F3 0%, #9370DB 45%, #6A0DAD 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                WebkitTextStroke: '1px #201000',
-                filter: 'drop-shadow(0 0 8px rgba(160,112,208,0.8)) drop-shadow(0 4px 4px rgba(0,0,0,0.95))',
+                WebkitTextStroke: '1.2px #1A1110',
+                filter:
+                  'drop-shadow(0 0 10px rgba(147,112,219,0.85)) drop-shadow(0 5px 5px rgba(0,0,0,0.95))',
               }}
             >
               ULTRA
             </span>
           </div>
-        </div>
 
-        {/* Tap anywhere to continue */}
-        <p
-          className="font-bold uppercase tracking-[0.25em]"
-          style={{
-            fontFamily: 'Georgia, "Times New Roman", serif',
-            fontSize: 'clamp(0.62rem, 2.6vw, 0.8rem)',
-            background: 'linear-gradient(to bottom, #FFE9A8 0%, #FFD700 40%, #C06000 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            WebkitTextStroke: '0.6px #201000',
-            filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.9))',
-          }}
-        >
-          Tap Anywhere To Continue
-        </p>
+          {/* Footer ribbon */}
+          <div
+            className="w-full rounded-[6px] py-1.5"
+            style={{
+              border: '2px solid #FFD700',
+              boxShadow: 'inset 0 0 0 1px #B8860B, 0 2px 6px rgba(0,0,0,0.6)',
+              background: 'linear-gradient(to bottom, #2a1410, #1A1110)',
+            }}
+          >
+            <p
+              className="font-bold uppercase tracking-[0.22em] text-center"
+              style={{
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                fontSize: 'clamp(0.6rem, 3vw, 0.82rem)',
+                color: '#FFEFD5',
+                textShadow: '0 0 8px rgba(255,215,0,0.6), 0 1px 2px #000',
+              }}
+            >
+              Tap Anywhere To Continue
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
