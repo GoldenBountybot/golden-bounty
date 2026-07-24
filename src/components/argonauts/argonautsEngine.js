@@ -71,8 +71,8 @@ export function valueCoinKey(mult) { return 'vc' + mult; }
 
 // Reel symbol weights.
 const BASE_WEIGHTS = {
-  bow: 16, potion: 16, cup: 16, harp: 16,
-  dove: 8, lizard: 8, atlanta: 6, jason: 5,
+  bow: 18, potion: 18, cup: 18, harp: 18,
+  dove: 4, lizard: 4, atlanta: 3, jason: 2,
   wild: 3, bonus: 2,
 };
 const FREE_WEIGHTS = {
@@ -246,7 +246,7 @@ export function forceWinGrid() {
     for (let row = 0; row < ROWS; row++)
       if (isValueCoin(grid[r][row])) grid[r][row] = pickWeighted(reelWeights(r, false));
   const line = PAYLINES[Math.floor(Math.random() * PAYLINES.length)];
-  const sym = ['jason', 'atlanta', 'lizard', 'dove', 'harp', 'cup'][Math.floor(Math.random() * 6)];
+  const sym = ['harp', 'cup', 'potion', 'bow', 'harp', 'cup', 'dove', 'lizard'][Math.floor(Math.random() * 8)];
   for (let r = 0; r < 3; r++) {
     const copy = [...grid[r]];
     copy[line[r]] = sym;
