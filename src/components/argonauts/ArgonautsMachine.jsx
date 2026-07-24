@@ -151,9 +151,11 @@ export default function ArgonautsMachine() {
             className="relative grid gap-1 p-1.5 rounded-[10px]"
             style={{
               gridTemplateColumns: `repeat(${REELS}, 1fr)`,
-              border: '2.5px solid #FFD700',
-              boxShadow: '0 0 24px rgba(255,215,0,0.4), inset 0 0 22px rgba(0,0,0,0.6)',
+              border: '4px solid transparent',
+              borderImage: 'linear-gradient(135deg, #C9A04A 0%, #FFE9A8 20%, #8a5a10 45%, #C9A04A 70%, #5b3a06 100%) 1',
+              boxShadow: '0 0 0 1px rgba(60,35,12,0.9), 0 0 18px rgba(0,0,0,0.6), 0 0 24px rgba(255,215,0,0.4), inset 0 0 0 2px rgba(255,215,0,0.55), inset 0 0 22px rgba(0,0,0,0.6)',
               background: g.coinMode ? 'linear-gradient(135deg, #FFD700, #B8860B)' : 'rgba(26,13,74,0.4)',
+              backgroundImage: g.coinMode ? 'linear-gradient(135deg, #FFD700, #B8860B)' : 'rgba(26,13,74,0.4), repeating-linear-gradient(90deg, rgba(43,24,8,0.10) 0 3px, transparent 3px 9px)',
             }}
           >
             {g.showFreeSpinStart && (
