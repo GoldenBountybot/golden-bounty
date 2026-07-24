@@ -221,10 +221,18 @@ export default function ArgonautsMachine() {
             <WinLineOverlay winningLines={g.winningLines} />
           </div>
 
-          {/* Status strip: free-game labels + message */}
-          <div className="mt-2 relative">
+          {/* Status strip: free-game labels + message — Rye golden 3D text in a premium western wooden frame */}
+          <div
+            className="mt-2 relative rounded-[8px] px-3 py-2"
+            style={{
+              background: 'linear-gradient(135deg, #5b3a1a 0%, #7a4a22 35%, #3d2812 70%, #2a1a0a 100%)',
+              border: '3px solid #C9A04A',
+              boxShadow: '0 0 14px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,235,150,0.35), inset 0 0 14px rgba(0,0,0,0.55)',
+              backgroundImage: `linear-gradient(135deg, #5b3a1a 0%, #7a4a22 35%, #3d2812 70%, #2a1a0a 100%), repeating-linear-gradient(90deg, rgba(0,0,0,0.08) 0 2px, transparent 2px 6px)`,
+            }}
+          >
             {g.freeSpins > 0 && (
-              <div className="flex justify-between text-[10px] font-bold tracking-wide text-white" style={{ textShadow: '0 1px 2px #000' }}>
+              <div className="flex justify-between text-[11px] font-black tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif', color: '#FFD700', textShadow: '0 1px 0 #8a5a10, 0 2px 0 #6b4408, 0 3px 1px rgba(0,0,0,0.6), 0 0 10px rgba(255,215,0,0.5)' }}>
                 <span>FREE SPIN PAYS ${g.bet.toFixed(2)}</span>
                 <span>FREE GAME {FREE_SPINS_AWARD - g.freeSpins + 1} OF {FREE_SPINS_AWARD}</span>
               </div>
@@ -241,7 +249,7 @@ export default function ArgonautsMachine() {
                         width: active ? 30 : 22,
                         height: active ? 30 : 22,
                         fontSize: active ? '0.95rem' : '0.72rem',
-                        fontFamily: 'Georgia, serif',
+                        fontFamily: 'Rye, Georgia, serif',
                         color: active ? '#2a1a06' : 'rgba(255,235,150,0.55)',
                         border: `1.5px solid ${active ? '#FFD700' : 'rgba(255,215,0,0.3)'}`,
                         background: active
@@ -255,13 +263,13 @@ export default function ArgonautsMachine() {
                     </span>
                   );
                 })}
-                <span className="ml-1 text-[10px] font-bold tracking-widest text-yellow-200/80" style={{ fontFamily: 'Georgia, serif', textShadow: '0 1px 2px #000' }}>
+                <span className="ml-1 text-[11px] font-black tracking-widest" style={{ fontFamily: 'Rye, Georgia, serif', color: '#FFD700', textShadow: '0 1px 0 #8a5a10, 0 2px 0 #6b4408, 0 3px 1px rgba(0,0,0,0.6), 0 0 10px rgba(255,215,0,0.5)' }}>
                   SPIN{g.coinSpins !== 1 ? 'S' : ''} LEFT
                 </span>
               </div>
             )}
             <div className="text-center min-h-[18px]">
-              <p className="text-xs font-bold tracking-wide text-amber-50" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>{g.message}</p>
+              <p className="text-xs font-black tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif', color: '#FFD700', textShadow: '0 1px 0 #8a5a10, 0 2px 0 #6b4408, 0 3px 1px rgba(0,0,0,0.6), 0 0 10px rgba(255,215,0,0.5)' }}>{g.message}</p>
             </div>
           </div>
         </div>
