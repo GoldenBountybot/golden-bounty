@@ -160,7 +160,7 @@ export default function DailySpinWheel() {
         });
       } catch {}
       toast({ title: `You won $${prize.toFixed(2)}! 🎉` });
-    }, 5200);
+    }, 5400);
   };
 
   return (
@@ -206,7 +206,7 @@ export default function DailySpinWheel() {
               style={{
                 transform: `rotate(${rotation}deg)`,
                 transformOrigin: 'center',
-                transition: spinning ? 'transform 5s cubic-bezier(0.17,0.67,0.12,0.99)' : 'none',
+                transition: 'transform 5.2s cubic-bezier(0.17,0.67,0.12,0.99)',
                 WebkitMaskImage: `radial-gradient(circle closest-side, transparent 0% ${HUB_PCT}%, #000 ${HUB_PCT + 0.5}% ${SEG_PCT}%, transparent ${SEG_PCT + 0.5}%)`,
                 maskImage: `radial-gradient(circle closest-side, transparent 0% ${HUB_PCT}%, #000 ${HUB_PCT + 0.5}% ${SEG_PCT}%, transparent ${SEG_PCT + 0.5}%)`,
                 WebkitMaskRepeat: 'no-repeat',
@@ -215,6 +215,17 @@ export default function DailySpinWheel() {
                 maskSize: '100% 100%',
               }}
             />
+
+            {/* Result reveal — only the selected prize is shown, at the top */}
+            {won && !spinning && (
+              <div className="absolute inset-0 z-20 flex items-start justify-center" style={{ pointerEvents: 'none', paddingTop: '5%' }}>
+                <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 50% 16%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.62) 62%)' }} />
+                <div className="relative px-6 py-3 rounded-2xl text-center" style={{ background: 'linear-gradient(to bottom, #f5c542, #c8881e)', border: '2px solid #FFE9A8', boxShadow: '0 0 28px rgba(245,197,66,0.95), 0 8px 20px rgba(0,0,0,0.6)', animation: 'saWinPop 0.5s ease-out both' }}>
+                  <div className="text-[10px] font-black tracking-[3px]" style={{ color: '#3a1a06' }}>YOU WON</div>
+                  <div className="text-3xl font-black italic leading-none mt-1" style={{ fontFamily: 'Georgia, serif', color: '#3a1a06', textShadow: '0 1px 0 rgba(255,255,255,0.45)' }}>${won.value.toFixed(2)}</div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Status + button */}
