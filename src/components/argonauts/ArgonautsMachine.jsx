@@ -156,7 +156,7 @@ export default function ArgonautsMachine() {
                         const justDropped = g.coinDropped && g.coinDropped.has(key);
                         return (
                           <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', zIndex: 20, background: '#4D0505' }}>
-                            <div className="w-full h-full" style={justDropped ? { animation: 'bbSymbolDrop 0.5s ease-out both' } : undefined}>
+                            <div className="w-full h-full" style={justDropped ? { animation: 'ccReelLand 0.45s ease-out both' } : undefined}>
                               <ArgoSymbolTile sym={`vc${mult}`} bet={g.bet} stuck />
                             </div>
                           </div>
