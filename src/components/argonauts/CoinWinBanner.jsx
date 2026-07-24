@@ -51,16 +51,18 @@ export default function CoinWinBanner({ total, coins, bet, onDismiss }) {
           className="w-full select-none"
           style={{ filter: 'drop-shadow(0 0 18px rgba(255,180,40,0.7))', mixBlendMode: 'screen' }}
         />
-        <div className="absolute inset-x-0 flex items-center justify-center" style={{ top: '47%' }}>
+        <div className="absolute inset-x-0 flex items-center justify-center" style={{ top: '46%' }}>
           <span
-            className="font-black tabular-nums"
+            className="font-black tabular-nums rounded-full px-5 py-1"
             style={{
               fontFamily: 'Rye, Georgia, serif',
-              fontSize: '1.9rem',
+              fontSize: '1.55rem',
               color: '#FFD24A',
-              textShadow:
-                '2px 2px 0 #8B0000, -2px -2px 0 #8B0000, 2px -2px 0 #8B0000, -2px 2px 0 #8B0000, 1px 1px 0 #000, 0 0 14px rgba(255,200,40,0.95)',
-              WebkitTextStroke: '1px #8B0000',
+              background: 'rgba(0,0,0,0.82)',
+              border: '1.5px solid #FFD24A',
+              textShadow: '0 0 8px rgba(255,200,40,0.95)',
+              boxShadow: '0 0 14px rgba(255,200,40,0.5)',
+              letterSpacing: '0.02em',
             }}
           >
             ${total.toFixed(2)}
