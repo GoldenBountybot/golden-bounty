@@ -49,7 +49,7 @@ export default function CoinWinBanner({ total, coins, bet, onDismiss }) {
           alt="Bonus Game Winnings"
           draggable={false}
           className="w-full select-none"
-          style={{ filter: 'drop-shadow(0 0 18px rgba(255,180,40,0.7))' }}
+          style={{ filter: 'drop-shadow(0 0 18px rgba(255,180,40,0.7))', mixBlendMode: 'screen' }}
         />
         <div className="absolute inset-x-0 flex items-center justify-center" style={{ top: '47%' }}>
           <span
@@ -59,7 +59,8 @@ export default function CoinWinBanner({ total, coins, bet, onDismiss }) {
               fontSize: '1.9rem',
               color: '#FFD24A',
               textShadow:
-                '2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 14px rgba(255,200,40,0.9)',
+                '2px 2px 0 #8B0000, -2px -2px 0 #8B0000, 2px -2px 0 #8B0000, -2px 2px 0 #8B0000, 1px 1px 0 #000, 0 0 14px rgba(255,200,40,0.95)',
+              WebkitTextStroke: '1px #8B0000',
             }}
           >
             ${total.toFixed(2)}
