@@ -67,6 +67,7 @@ export function useArgonauts() {
   const [showCoinBanner, setShowCoinBanner] = useState(false);
   const [coinTriggerCount, setCoinTriggerCount] = useState(0);
   const [coinDropped, setCoinDropped] = useState(new Set());
+  const [coinDroppingReels, setCoinDroppingReels] = useState(new Set());
 
   const settings = useGameSettings('argonauts');
   const logActivity = useLogActivity('argonauts');
@@ -111,14 +112,19 @@ export function useArgonauts() {
     setSpinning(true);
     setWinningPositions(new Set());
     setCoinDropped(new Set());
-    // Brief drop window, then reveal only newly landed value coins at once.
+    // Compute this drop upfront so we know which reels to animate as a
+    // falling-coin stream before the stuck coin locks in.
+    const { grid: newGrid, stuck: newStuck, dropped } = spinCoinRound(coinStuckRef.current);
+    const droppingReels = new Set(dropped.map((d) => Number(d.split('-')[0])));
+    setCoinDroppingReels(droppingReels);
+    // Falling-coin stream window, then lock the stuck coin in.
     const t = setTimeout(() => {
-      const { grid: newGrid, stuck: newStuck, dropped } = spinCoinRound(coinStuckRef.current);
       coinStuckRef.current = newStuck;
       setCoinStuck(newStuck);
       setCoinDropped(new Set(dropped));
       setGrid(newGrid);
       setSpinning(false);
+      setCoinDroppingReels(new Set());
       if (dropped.length > 0) {
         coinSpinsRef.current = COIN_SPINS_START;
         setCoinSpins(COIN_SPINS_START);
@@ -433,6 +439,7 @@ export function useArgonauts() {
     setCoinStuck({});
     setCoinSpins(0);
     setCoinDropped(new Set());
+    setCoinDroppingReels(new Set());
     setShowCoinBanner(false);
     setCoinTriggerCount(0);
     coinModeRef.current = false;
@@ -450,7 +457,7 @@ export function useArgonauts() {
     riskActive, riskMode, riskStep, riskHistory, riskResult, pendingWin,
     dealerCard, playerCards, revealedIdx, riskOutcome,
     startRisk, riskPick, riskContinue, collectRisk, loseRisk,
-    coinMode, coinSpins, coinStuck, coinDropped, showCoinBanner, coinTriggerCount, beginCoinSpins,
+    coinMode, coinSpins, coinStuck, coinDropped, coinDroppingReels, showCoinBanner, coinTriggerCount, beginCoinSpins,
     spin, reset,
   };
 }
