@@ -1,16 +1,16 @@
 import React, { useMemo } from 'react';
-import { VALUE_COIN_IMG, VALUE_COIN_MULTS, valueCoinKey } from './argonautsEngine';
+import { VALUE_COIN_IMG, VALUE_COIN_MULTS } from './argonautsEngine';
 
 // Rapid vertical stream of falling coins shown inside an empty coin-round
 // cell while a reel is dropping. Many coins — each with its own dollar
 // value overlaid — appear to fall at speed; the final one lands and sticks
 // (handled by the parent revealing the stuck tile).
-// 3 identical coin blocks → seamless -33%→0 loop (one cell per cycle).
+// 3 IDENTICAL coin blocks → seamless -33%→0 loop (one block per cycle).
 export default function CoinDropStream({ turbo, bet = 0 }) {
-  // Random multipliers for the falling coins so each shows a live value.
-  const mults = useMemo(
+  // A single 3-coin block, repeated 3× so the loop reset is invisible.
+  const block = useMemo(
     () =>
-      Array.from({ length: 9 }, () =>
+      Array.from({ length: 3 }, () =>
         VALUE_COIN_MULTS[Math.floor(Math.random() * VALUE_COIN_MULTS.length)]
       ),
     []
@@ -56,7 +56,7 @@ export default function CoinDropStream({ turbo, bet = 0 }) {
       >
         {[0, 1, 2].map((i) => (
           <React.Fragment key={i}>
-            {mults.slice(i * 3, i * 3 + 3).map((m, j) => renderCoin(m, `${i}-${j}`))}
+            {block.map((m, j) => renderCoin(m, `${i}-${j}`))}
           </React.Fragment>
         ))}
       </div>
