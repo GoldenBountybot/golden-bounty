@@ -128,10 +128,11 @@ export default function ArgonautsMachine() {
           {g.freeSpins > 0 && (
             <div className="flex justify-center mb-2">
               <span
-                className="px-3 py-1 rounded-full text-xs font-black tracking-wider animate-pulse"
+                className="px-3 py-1 rounded-full text-xs font-black tracking-wider animate-pulse inline-flex items-center gap-1.5"
                 style={{ border: '1.5px solid #FFD700', background: 'rgba(255,215,0,0.2)', color: '#FFD700', boxShadow: '0 0 12px rgba(255,215,0,0.5)' }}
               >
-                ⛵ {g.freeSpins} FREE SPINS
+                <img src={SYMBOLS.scatter.image} alt="scatter" draggable={false} className="w-4 h-4 object-contain" />
+                {g.freeSpins} FREE SPINS
               </span>
             </div>
           )}
