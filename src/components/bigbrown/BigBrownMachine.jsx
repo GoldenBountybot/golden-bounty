@@ -5,45 +5,35 @@ import BigBrownInfo from './BigBrownInfo';
 import BigBrownFreeSpinStart from './BigBrownFreeSpinStart';
 import BigBrownBonusPop from './BigBrownBonusPop';
 import { useBigBrown } from './useBigBrown';
-import { WAYS, BETS, WILD_EXPAND_IMG, SYMBOLS, randomSymbol } from '@/lib/bigBrownEngine';
+import { WAYS, BETS, WILD_EXPAND_IMG, randomSymbol } from '@/lib/bigBrownEngine';
 
 // Big Brown slot machine — 6x4 grid, 4096 ways, expanding wilds, free spins.
 // Night-forest design matching the reference screenshot.
 const FOREST_BG = "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9a6ce937b_generated_image.png') center / cover, radial-gradient(ellipse at 50% 15%, #0d2847 0%, #071a33 40%, #02091a 100%)";
 
-// Spinning reel strip — a lightweight GPU-composited blur band that scrolls
-// downward while a reel is spinning. Uses plain images (no per-tile filters /
-// frames) and a single blurred container so 6 reels spinning at once stays
-// smooth instead of janking. Two identical blocks make reelFall seamless.
+// Spinning reel strip — a tall vertical column of random symbols that scrolls
+// downward while a reel is spinning (Wild Bounty "showdown" style). The strip
+// is 4 blocks tall where the last block equals the first, so the -75%→0%
+// reelFall loop is seamless. Blurred for a motion feel.
 const SpinStrip = React.memo(function SpinStrip({ reelIndex, turbo }) {
   const strip = React.useMemo(() => {
     const block = () => Array.from({ length: 4 }, () => randomSymbol(reelIndex));
     const b = block();
-    return [...b, block(), block(), b]; // 4 blocks, first==last for -75% loop
+    return [...b, ...block(), ...block(), ...b];
   }, [reelIndex]);
 
   return (
-    <div
-      className="absolute inset-0 overflow-hidden rounded-[4px] pointer-events-none"
-      style={{ transform: 'translateZ(0)' }}
-    >
+    <div className="absolute inset-0 overflow-hidden rounded-[4px] pointer-events-none">
       <div
         className="flex flex-col gap-1 w-full"
         style={{
-          animation: `reelFall ${turbo ? 0.34 : 0.52}s linear infinite`,
+          animation: `reelFall ${turbo ? 0.4 : 0.6}s linear infinite`,
           willChange: 'transform',
-          transform: 'translateZ(0)',
-          backfaceVisibility: 'hidden',
         }}
       >
         {strip.map((s, i) => (
-          <div key={i} style={{ aspectRatio: '3 / 4' }}>
-            <img
-              src={SYMBOLS[s] && SYMBOLS[s].img}
-              alt=""
-              className="w-full h-full object-cover"
-              draggable={false}
-            />
+          <div key={i} className="rounded-[4px] overflow-hidden" style={{ aspectRatio: '3 / 4' }}>
+            <BigBrownSymbol sym={s} />
           </div>
         ))}
       </div>
@@ -155,7 +145,7 @@ export default function BigBrownMachine() {
                             style={{ aspectRatio: '3 / 4', opacity: stopped ? 1 : 0 }}
                           >
                             {stopped ? (
-                              <div className="w-full h-full" style={{ animation: `bbSymbolDrop ${anticipation ? 0.55 : 0.3}s ease-out both`, willChange: 'transform', transform: 'translateZ(0)' }}>
+                              <div className="w-full h-full" style={{ animation: `bbSymbolDrop ${anticipation ? 0.6 : 0.34}s ease-out both` }}>
                                 <BigBrownSymbol sym={sym} highlight={isWin} expand={expanded} />
                               </div>
                             ) : (

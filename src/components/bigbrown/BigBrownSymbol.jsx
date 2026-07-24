@@ -41,7 +41,7 @@ export default function BigBrownSymbol({ sym, highlight = false, expand = false 
               ? 'brightness(1.1) drop-shadow(0 0 4px rgba(255,200,80,0.5))'
               : isScatter
               ? 'brightness(1.7) saturate(1.6) sepia(0.18) drop-shadow(0 0 6px rgba(255,200,90,0.6))'
-              : 'none',
+              : 'drop-shadow(0 1px 2px rgba(0,0,0,0.6))',
           }}
           draggable={false}
         />
