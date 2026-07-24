@@ -68,6 +68,7 @@ export function useArgonauts() {
   const [coinTriggerCount, setCoinTriggerCount] = useState(0);
   const [coinDropped, setCoinDropped] = useState(new Set());
   const [coinDroppingReels, setCoinDroppingReels] = useState(new Set());
+  const [coinWin, setCoinWin] = useState(null);
 
   const settings = useGameSettings('argonauts');
   const logActivity = useLogActivity('argonauts');
@@ -90,6 +91,7 @@ export function useArgonauts() {
   // ---- Coin round ----
   const endCoinRound = useCallback((stuck) => {
     const total = coinTotal(stuck, betRef.current);
+    setCoinWin({ total, coins: { ...stuck }, bet: betRef.current });
     coinStuckRef.current = {};
     coinSpinsRef.current = 0;
     coinModeRef.current = false;
@@ -427,6 +429,8 @@ export function useArgonauts() {
     logActivity('argonauts', bet, 0, 'loss', 0);
   }, [logActivity, bet]);
 
+  const dismissCoinWin = useCallback(() => setCoinWin(null), []);
+
   const reset = () => {
     resetBalance();
     setLastWin(0);
@@ -442,6 +446,7 @@ export function useArgonauts() {
     setCoinDroppingReels(new Set());
     setShowCoinBanner(false);
     setCoinTriggerCount(0);
+    setCoinWin(null);
     coinModeRef.current = false;
     coinStuckRef.current = {};
     coinSpinsRef.current = 0;
@@ -458,6 +463,7 @@ export function useArgonauts() {
     dealerCard, playerCards, revealedIdx, riskOutcome,
     startRisk, riskPick, riskContinue, collectRisk, loseRisk,
     coinMode, coinSpins, coinStuck, coinDropped, coinDroppingReels, showCoinBanner, coinTriggerCount, beginCoinSpins,
+    coinWin, dismissCoinWin,
     spin, reset,
   };
 }

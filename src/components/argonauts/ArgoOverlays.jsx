@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SYMBOLS, PAYTABLE, FREE_SPINS_AWARD, BONUS_TRIGGER_COUNT, SCATTER_PAY } from './argonautsEngine';
 import FreeGamesBanner from './FreeGamesBanner';
 import GoldenFleeceBanner from './GoldenFleeceBanner';
+import CoinWinBanner from './CoinWinBanner';
 import ArgoPaytable from './ArgoPaytable';
 import ArgoRules from './ArgoRules';
 
@@ -192,6 +193,16 @@ export default function ArgoOverlays({ g, showPaytable, setShowPaytable, showRul
         <Overlay onClose={() => setShowPaytable(false)}>
           <ArgoPaytable bet={g.bet} onClose={() => setShowPaytable(false)} />
         </Overlay>
+      )}
+
+      {/* Coin free-spin end — total win banner with winning coins behind */}
+      {g.coinWin && (
+        <CoinWinBanner
+          total={g.coinWin.total}
+          coins={g.coinWin.coins}
+          bet={g.coinWin.bet}
+          onDismiss={g.dismissCoinWin}
+        />
       )}
 
     </>
