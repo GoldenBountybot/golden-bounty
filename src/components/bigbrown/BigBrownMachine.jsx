@@ -30,11 +30,10 @@ const SpinStrip = React.memo(function SpinStrip({ reelIndex, turbo }) {
       <div
         className="flex flex-col gap-1 w-full"
         style={{
-          animation: `reelFall ${turbo ? 0.32 : 0.5}s linear infinite`,
+          animation: `reelFall ${turbo ? 0.34 : 0.52}s linear infinite`,
           willChange: 'transform',
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
-          filter: 'blur(2.5px) brightness(0.8)',
         }}
       >
         {strip.map((s, i) => (
