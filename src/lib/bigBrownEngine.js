@@ -77,20 +77,33 @@ const BASE_POOL = [
 // Wild reels use the base pool plus a reel-specific chance to inject a wild
 // (brown/spirit). The 1st column (reel 0) takes the chance removed from the
 // 3rd column (reel 2). At most one wild is kept per spin via capWildsToOne.
-const WILD_CHANCE = { 0: 0.004, 1: 0.001, 2: 0.004, 3: 0.06, 4: 0.06 };
+const WILD_CHANCE = { 0: 0.002, 1: 0.0005, 2: 0.002, 3: 0.03, 4: 0.03 };
+
+// High-value animal symbols are gated: even when the pool picks one, it is
+// downgraded to a low card most of the time so high-value matches stay rare.
+const HIGH_VALUE_IDS = new Set(['buffalo', 'eagle', 'cougar', 'wolf']);
+const HIGH_VALUE_KEEP_CHANCE = 0.35;
 
 export function randomSymbol(reelIndex = -1) {
   if (!WILD_REELS.has(reelIndex)) {
-    return BASE_POOL[Math.floor(Math.random() * BASE_POOL.length)];
+    const s = BASE_POOL[Math.floor(Math.random() * BASE_POOL.length)];
+    if (HIGH_VALUE_IDS.has(s) && Math.random() > HIGH_VALUE_KEEP_CHANCE) {
+      return ['A', 'K', 'Q', 'J', '10', '9'][Math.floor(Math.random() * 6)];
+    }
+    return s;
   }
-  const chance = WILD_CHANCE[reelIndex] || 0.03;
+  const chance = WILD_CHANCE[reelIndex] || 0.015;
   if (Math.random() < chance) {
     return Math.random() < 0.18 ? 'spirit' : 'brown';
   }
   // Otherwise draw a non-wild symbol (scatter rare on wild reels).
   const pool = BASE_POOL.slice();
   if (Math.random() < 0.4) pool.push('scatter');
-  return pool[Math.floor(Math.random() * pool.length)];
+  const s = pool[Math.floor(Math.random() * pool.length)];
+  if (HIGH_VALUE_IDS.has(s) && Math.random() > HIGH_VALUE_KEEP_CHANCE) {
+    return ['A', 'K', 'Q', 'J', '10', '9'][Math.floor(Math.random() * 6)];
+  }
+  return s;
 }
 
 export function buildReel(rows, reelIndex) {
