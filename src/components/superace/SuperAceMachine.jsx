@@ -301,6 +301,27 @@ export default function SuperAceMachine() {
       playComboWin(comboCount);
       await sleep(turboRef.current ? 380 : 560);
 
+      // Multiplier gate: each extra cascade is increasingly unlikely to chain,
+      // so higher multipliers (2×,3×,5×) trigger far less often.
+      const stopChance = [0, 0.55, 0.8, 0.92][Math.min(comboCount, 3)] || 0.97;
+      if (Math.random() < stopChance) {
+        // shatter the winning cells and end the round without further cascades
+        const shatterSet = new Set(ev.winCells);
+        setShatterCells(shatterSet);
+        await sleep(turboRef.current ? 280 : 340);
+        g = cascade(g, ev.winCells, new Set());
+        setGrid(g.map((c) => ({ ...c })));
+        setWinningCells(new Set());
+        setShatterCells(new Set());
+        setFlipCells(new Set());
+        setFloatWin(null);
+        setNewCells(shatterSet);
+        playCascade();
+        await sleep(turboRef.current ? 220 : 400);
+        setNewCells(new Set());
+        break;
+      }
+
       // When a Golden Wild is active this spin, normal wilds never appear:
       // golden cards just shatter like ordinary winners.
       let gw = goldenWildIdxRef.current != null ? new Set() : ev.goldenToWild;
