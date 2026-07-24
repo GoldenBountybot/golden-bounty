@@ -8,17 +8,17 @@ const COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b663777
 // "15X = ULTRA" label, and a "TAP ANYWHERE TO CONTINUE" prompt.
 // 15X ULTRA is shown always (hardcoded per request).
 export default function GoldenFleeceBanner({ count = 6, onStart }) {
-  // 3x3 coin grid — center cell reserved for the "15X = ULTRA" label.
+  // Overlapping coin cluster (3x3-ish) — absolute positions, slight overlap.
+  // Center area reserved for the "15X = ULTRA" label.
   const coins = [
-    { val: '$0.10', r: -6 },
-    { val: null,   r: 4 },
-    { val: '$0.20', r: 8 },
-    { val: null,   r: -3 },
-    { val: null,   r: 0 }, // center — covered by label
-    { val: '$0.30', r: 6 },
-    { val: '$0.20', r: 5 },
-    { val: null,   r: -7 },
-    { val: '$0.10', r: 3 },
+    { x: 4,   y: 4,   s: 78, val: '$0.10', r: -6 },
+    { x: 92,  y: 0,   s: 86, val: null,   r: 5 },
+    { x: 180, y: 6,   s: 80, val: '$0.20', r: 8 },
+    { x: 18,  y: 74,  s: 84, val: null,   r: -4 },
+    { x: 196, y: 78,  s: 82, val: '$0.30', r: 7 },
+    { x: 8,   y: 148, s: 80, val: '$0.20', r: 6 },
+    { x: 96,  y: 156, s: 86, val: null,   r: -8 },
+    { x: 186, y: 150, s: 78, val: '$0.10', r: 4 },
   ];
 
   return (
@@ -50,27 +50,30 @@ export default function GoldenFleeceBanner({ count = 6, onStart }) {
         </h2>
 
         {/* Coin cluster */}
-        <div className="relative my-5 mx-auto" style={{ width: 300, maxWidth: '82vw' }}>
+        <div className="relative my-4 mx-auto" style={{ width: 268, height: 236, maxWidth: '88vw' }}>
           {/* glow */}
           <div
             className="absolute inset-0"
             style={{
-              background: 'radial-gradient(circle at 50% 50%, rgba(255,200,80,0.42), transparent 68%)',
-              filter: 'blur(12px)',
+              background: 'radial-gradient(circle at 50% 50%, rgba(255,200,80,0.48), transparent 66%)',
+              filter: 'blur(14px)',
             }}
           />
-          <div className="relative grid grid-cols-3 gap-1.5">
+          <div className="relative w-full h-full">
             {coins.map((c, i) => (
               <div
                 key={i}
-                className="relative rounded-full"
+                className="absolute rounded-full"
                 style={{
-                  aspectRatio: '1 / 1',
+                  left: c.x,
+                  top: c.y,
+                  width: c.s,
+                  height: c.s,
                   transform: `rotate(${c.r}deg)`,
-                  border: '2.5px solid #EBC05F',
+                  border: '3px solid #EBC05F',
                   boxShadow:
-                    '0 0 14px rgba(235,192,95,0.85), inset 0 0 10px rgba(255,245,180,0.55), inset 0 -3px 6px rgba(120,80,20,0.6)',
-                  background: 'radial-gradient(circle at 38% 30%, #FFF7C0, #EBC05F 58%, #8B4513 100%)',
+                    '0 4px 10px rgba(0,0,0,0.55), 0 0 14px rgba(235,192,95,0.7), inset 0 0 12px rgba(255,245,180,0.5), inset 0 -4px 8px rgba(120,80,20,0.65)',
+                  background: '#1a1206',
                   overflow: 'hidden',
                 }}
               >
@@ -79,16 +82,15 @@ export default function GoldenFleeceBanner({ count = 6, onStart }) {
                   alt=""
                   draggable={false}
                   className="w-full h-full object-cover"
-                  style={{ mixBlendMode: 'screen', opacity: 0.96 }}
                 />
                 {c.val && (
                   <span
                     className="absolute inset-0 flex items-center justify-center font-black tabular-nums"
                     style={{
                       fontFamily: 'Georgia, serif',
-                      fontSize: '0.78rem',
+                      fontSize: '0.82rem',
                       color: '#3a2208',
-                      textShadow: '0 1px 0 rgba(255,235,150,0.6), 0 -1px 0 rgba(0,0,0,0.3)',
+                      textShadow: '0 1px 0 rgba(255,235,150,0.7), 0 -1px 0 rgba(0,0,0,0.35)',
                       transform: `rotate(${-c.r}deg)`,
                     }}
                   >
@@ -100,7 +102,7 @@ export default function GoldenFleeceBanner({ count = 6, onStart }) {
           </div>
 
           {/* central metallic purple label */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
             <span
               className="font-black leading-none"
               style={{
