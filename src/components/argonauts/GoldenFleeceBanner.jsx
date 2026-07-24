@@ -14,7 +14,7 @@ export default function GoldenFleeceBanner({ count = 6, onStart }) {
     <div
       className="absolute inset-0 z-50 flex items-center justify-center"
       onClick={onStart}
-      style={{ background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(3px)', cursor: 'pointer' }}
+      style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)', cursor: 'pointer' }}
     >
       <div className="relative text-center select-none" style={{ width: 'min(96vw, 420px)' }}>
         {/* Full-scene background */}
