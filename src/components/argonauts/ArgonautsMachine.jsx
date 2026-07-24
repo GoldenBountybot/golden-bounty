@@ -25,7 +25,7 @@ const ArgoSpinStrip = React.memo(function ArgoSpinStrip({ reelIndex, turbo }) {
     <div className="absolute inset-0 overflow-hidden rounded-[7px] pointer-events-none">
       <div
         className="flex flex-col gap-1 w-full"
-        style={{ animation: `argoReelSpin ${turbo ? 0.22 : 0.34}s linear infinite`, willChange: 'transform' }}
+        style={{ animation: `reelFall ${turbo ? 0.4 : 0.6}s linear infinite`, willChange: 'transform' }}
       >
         {strip.map((s, i) => (
           <div key={i} className="rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1' }}>
@@ -34,7 +34,7 @@ const ArgoSpinStrip = React.memo(function ArgoSpinStrip({ reelIndex, turbo }) {
               alt=""
               draggable={false}
               className="w-full h-full object-cover"
-              style={{ filter: 'blur(0.9px) brightness(0.86)', transform: 'scale(1.2)' }}
+              style={{ filter: 'blur(1.4px) brightness(0.82)', transform: 'scale(1.2)' }}
             />
           </div>
         ))}
@@ -140,7 +140,7 @@ export default function ArgonautsMachine() {
                     return (
                       <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', opacity: stopped || stuckMult ? 1 : 0, zIndex: stuckMult ? 20 : 'auto' }}>
                         {stopped ? (
-                          <div className="w-full h-full" style={{ animation: `argoSymbolLand ${g.turbo ? 0.22 : 0.3}s cubic-bezier(0.22, 0.9, 0.3, 1) both` }}>
+                          <div className="w-full h-full" style={{ animation: `bbSymbolDrop 0.34s ease-out both` }}>
                             <ArgoSymbolTile sym={sym} win={isWin} dim={g.winningPositions.size > 0 && !isWin} bet={g.bet} stuck={!!stuckMult} />
                           </div>
                         ) : stuckMult ? (

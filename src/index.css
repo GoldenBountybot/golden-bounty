@@ -413,20 +413,6 @@
   100% { transform: translateY(0%);  opacity: 1; }
 }
 
-/* Argonauts — continuous, seamless reel scroll (one block height per loop) */
-@keyframes argoReelSpin {
-  0%   { transform: translateY(0%); }
-  100% { transform: translateY(-25%); }
-}
-
-/* Argonauts — natural symbol landing: quick drop with a tiny settle bounce */
-@keyframes argoSymbolLand {
-  0%   { transform: translateY(-26%) scaleY(1.06); opacity: 0.4; }
-  55%  { transform: translateY(2%)  scaleY(0.97); opacity: 1; }
-  78%  { transform: translateY(-1.2%) scaleY(1.01); }
-  100% { transform: translateY(0%)   scaleY(1); opacity: 1; }
-}
-
 /* Big Brown — symbols dropping down from the top during spin */
 @keyframes bbReelFall {
   0%   { transform: translateY(-66%); }
