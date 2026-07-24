@@ -1,18 +1,18 @@
 import React, { useMemo } from 'react';
 import { VALUE_COIN_IMG, VALUE_COIN_MULTS, ROWS } from './argonautsEngine';
 
-// Column-level scrolling strip of value coins — mirrors the main reel strip
-// (ArgoSpinStrip): a tall seamless column of coins that scrolls downward with
-// the shared `reelFall` animation, so empty coin-round cells look exactly like
-// the base-game reels while stuck coins stay locked on top.
-export default function CoinReelStrip({ turbo, bet = 0 }) {
+// Column-level scrolling strip of value coins — mirrors ArgoSpinStrip exactly:
+// a tall seamless column of blurred coin images scrolling downward with the
+// shared `reelFall` animation. No per-item text/shadow (spinning symbols on the
+// main board are plain blurred images too), so it stays GPU-smooth. Dollar
+// labels live only on the locked stuck coins, like the main game.
+export default function CoinReelStrip({ turbo }) {
   const period = turbo ? 0.4 : 0.6;
 
   const strip = useMemo(() => {
     const block = () =>
       Array.from({ length: ROWS }, () => ({
         mult: VALUE_COIN_MULTS[Math.floor(Math.random() * VALUE_COIN_MULTS.length)],
-        dx: (Math.random() - 0.5) * 8,
       }));
     const b = block();
     // Last block repeats the first for a seamless loop (same trick as ArgoSpinStrip).
@@ -27,29 +27,13 @@ export default function CoinReelStrip({ turbo, bet = 0 }) {
       >
         {strip.map((c, i) => (
           <div key={i} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', background: '#3a0404' }}>
-            <div className="relative w-full h-full" style={{ transform: `translateX(${c.dx}px)` }}>
-              <img
-                src={VALUE_COIN_IMG}
-                alt=""
-                draggable={false}
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ mixBlendMode: 'screen', transform: 'scale(1.12)', filter: 'blur(1.4px) brightness(0.82) drop-shadow(0 0 6px rgba(255,210,80,0.6))' }}
-              />
-              <span
-                className="absolute inset-0 flex items-center justify-center tabular-nums italic pointer-events-none"
-                style={{
-                  fontSize: '0.66rem',
-                  fontFamily: 'Rye, Georgia, serif',
-                  color: '#FFD24A',
-                  textShadow:
-                    '1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000',
-                  letterSpacing: '0.01em',
-                  zIndex: 10,
-                }}
-              >
-                ${(c.mult * bet).toFixed(2)}
-              </span>
-            </div>
+            <img
+              src={VALUE_COIN_IMG}
+              alt=""
+              draggable={false}
+              className="w-full h-full object-cover"
+              style={{ filter: 'blur(1.4px) brightness(0.82)', transform: 'scale(1.2)' }}
+            />
           </div>
         ))}
       </div>
