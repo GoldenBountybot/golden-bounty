@@ -39,7 +39,7 @@ const SEG_PCT = 86;
 
 const N = SEGMENTS.length;
 const SEG_DEG = 360 / N;
-const COOLDOWN_MS = 24 * 60 * 60 * 1000;
+const COOLDOWN_MS = 0; // testing — no cooldown
 const LS_KEY = (uid) => `daily_spin_last_${uid || 'anon'}`;
 
 function pickWeightedIndex() {
