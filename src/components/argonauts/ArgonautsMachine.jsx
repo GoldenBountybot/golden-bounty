@@ -226,13 +226,12 @@ export default function ArgonautsMachine() {
 
           {/* Status strip: free-game labels + message — Rye golden 3D text inside a stylish western wooden frame, transparent center so game backdrop shows through */}
           <div
-            className="mt-2 relative rounded-[8px] px-3 py-2"
+            className="mt-2 relative rounded-[10px] px-3 py-2"
             style={{
               border: '3px solid transparent',
-              borderImage: 'linear-gradient(135deg, #C9A04A 0%, #FFE9A8 20%, #8a5a10 45%, #C9A04A 70%, #5b3a06 100%) 1',
+              borderRadius: '10px',
               boxShadow: '0 0 0 1px rgba(60,35,12,0.9), 0 0 14px rgba(0,0,0,0.55), inset 0 0 0 2px rgba(60,35,12,0.7), inset 0 0 10px rgba(0,0,0,0.25)',
-              background: 'linear-gradient(135deg, rgba(90,55,26,0.22) 0%, rgba(60,35,12,0.12) 50%, rgba(90,55,26,0.22) 100%)',
-              backgroundImage: 'repeating-linear-gradient(90deg, rgba(43,24,8,0.10) 0 3px, transparent 3px 9px)',
+              background: 'linear-gradient(135deg, rgba(90,55,26,0.22) 0%, rgba(60,35,12,0.12) 50%, rgba(90,55,26,0.22) 100%) padding-box, linear-gradient(135deg, #C9A04A 0%, #FFE9A8 20%, #8a5a10 45%, #C9A04A 70%, #5b3a06 100%) border-box, repeating-linear-gradient(90deg, rgba(43,24,8,0.10) 0 3px, transparent 3px 9px) padding-box',
             }}
           >
             {g.freeSpins > 0 && (
