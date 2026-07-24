@@ -165,10 +165,10 @@ export default function ArgonautsMachine() {
                       }
                       return (
                         <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1' }}>
-                          {g.coinDroppingReels && g.coinDroppingReels.has(ri) ? (
+                          {g.spinning ? (
                             <CoinDropStream turbo={g.turbo} />
                           ) : (
-                            <CoinRoundPlaceholder pulsing={g.spinning} />
+                            <CoinRoundPlaceholder pulsing={false} />
                           )}
                         </div>
                       );
