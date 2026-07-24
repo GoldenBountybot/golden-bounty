@@ -124,10 +124,7 @@ export default function ArgonautsMachine() {
 
       {/* Reel grid */}
       <div className="relative flex-1 flex items-start justify-center px-3 py-0" style={{ marginTop: '-48px' }}>
-        <div className="w-full max-w-md relative">
-          {g.showFreeSpinStart && (
-            <FreeGamesBanner count={FREE_SPINS_AWARD} onStart={g.startFreeSpins} />
-          )}
+        <div className="w-full max-w-md">
           {g.freeSpins > 0 && (
             <div className="flex justify-center mb-2">
               <span
@@ -158,6 +155,9 @@ export default function ArgonautsMachine() {
               background: g.coinMode ? 'linear-gradient(135deg, #FFD700, #B8860B)' : 'rgba(26,13,74,0.4)',
             }}
           >
+            {g.showFreeSpinStart && (
+              <FreeGamesBanner count={FREE_SPINS_AWARD} onStart={g.startFreeSpins} />
+            )}
             {g.grid.map((reel, ri) => {
               // ---- Coin hold-and-spin round: locked coins + empty ornate
               // placeholders; only new value coins drop, no other symbols. ----

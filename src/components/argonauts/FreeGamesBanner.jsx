@@ -12,17 +12,17 @@ export default function FreeGamesBanner({ count = 8, onStart }) {
   return (
     <div
       onClick={onStart}
-      className="absolute inset-0 z-40 flex items-start justify-center cursor-pointer pt-12"
+      className="absolute inset-0 z-40 flex items-center justify-center cursor-pointer"
     >
       <div
-        className="relative transition-transform active:scale-95"
-        style={{ width: 'min(94vw, 420px)', mixBlendMode: 'screen' }}
+        className="relative w-full h-full transition-transform active:scale-95"
+        style={{ mixBlendMode: 'screen' }}
       >
         <img
           src={BANNER}
           alt={`${count} Free Games`}
           draggable={false}
-          className="w-full select-none"
+          className="w-full h-full object-contain select-none"
           style={{ filter: 'drop-shadow(0 0 22px rgba(255,180,40,0.55))' }}
         />
       </div>
