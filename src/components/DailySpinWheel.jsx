@@ -1,46 +1,43 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Crown, Clock } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 
-// 18 prize segments — exact match to the reference wheel.
-// Top (under pointer) = 1000$ gold, then clockwise per the image.
+// 18 prize segments — exact match to the reference wheel (top = 1000$ gold, then clockwise).
 const SEGMENTS = [
-  { label: '1000$', value: 1000, color: '#D4AF37' }, // gold (top)
-  { label: '0.05$', value: 0.05, color: '#00008B' }, // dark blue
-  { label: '0.10$', value: 0.10, color: '#800080' }, // purple
-  { label: '0.25$', value: 0.25, color: '#006400' }, // green
-  { label: '0.50$', value: 0.50, color: '#00008B' }, // dark blue
-  { label: '0.75$', value: 0.75, color: '#800080' }, // purple
-  { label: '1$',    value: 1,    color: '#8B0000' }, // dark red
-  { label: '2.5$',  value: 2.5,  color: '#006400' }, // green
-  { label: '5$',    value: 5,    color: '#00008B' }, // dark blue
-  { label: '10$',   value: 10,   color: '#D4AF37' }, // gold
-  { label: '25$',   value: 25,   color: '#8B0000' }, // dark red
-  { label: '50$',   value: 50,   color: '#800080' }, // purple
-  { label: '100$',  value: 100,  color: '#006400' }, // green
-  { label: '150$',  value: 150,  color: '#00008B' }, // dark blue
-  { label: '200$',  value: 200,  color: '#D4AF37' }, // gold
-  { label: '250$',  value: 250,  color: '#8B0000' }, // dark red
-  { label: '500$',  value: 500,  color: '#800080' }, // purple
-  { label: '750$',  value: 750,  color: '#006400' }, // green
+  { label: '1000$', value: 1000, color: '#D4AF37' },
+  { label: '0.05$', value: 0.05, color: '#00008B' },
+  { label: '0.10$', value: 0.10, color: '#800080' },
+  { label: '0.25$', value: 0.25, color: '#006400' },
+  { label: '0.50$', value: 0.50, color: '#00008B' },
+  { label: '0.75$', value: 0.75, color: '#800080' },
+  { label: '1$',    value: 1,    color: '#8B0000' },
+  { label: '2.5$',  value: 2.5,  color: '#006400' },
+  { label: '5$',    value: 5,    color: '#00008B' },
+  { label: '10$',   value: 10,   color: '#D4AF37' },
+  { label: '25$',   value: 25,   color: '#8B0000' },
+  { label: '50$',   value: 50,   color: '#800080' },
+  { label: '100$',  value: 100,  color: '#006400' },
+  { label: '150$',  value: 150,  color: '#00008B' },
+  { label: '200$',  value: 200,  color: '#D4AF37' },
+  { label: '250$',  value: 250,  color: '#8B0000' },
+  { label: '500$',  value: 500,  color: '#800080' },
+  { label: '750$',  value: 750,  color: '#006400' },
 ];
 
-// Prize weights — small prizes common, jackpot rare.
 const WEIGHTS = [12, 12, 10, 9, 8, 7, 5, 4, 3, 2.5, 2, 1.5, 1, 0.8, 0.6, 0.3, 0.15, 0.05];
-
-const REF_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/12d6027dc_file_0000000083348206ae1cbb95601fc9c3.png';
-// Mask radii (as % of closest-side = half the element width).
-// HUB_PCT = inner hub circle radius; SEG_PCT = outer segment-ring radius.
-const HUB_PCT = 19;
-const SEG_PCT = 86;
 
 const N = SEGMENTS.length;
 const SEG_DEG = 360 / N;
 const COOLDOWN_MS = 0; // testing — no cooldown
 const LS_KEY = (uid) => `daily_spin_last_${uid || 'anon'}`;
+
+const R_OUT = 90;   // outer segment radius
+const R_IN = 54;    // inner segment radius (hub edge)
+const R_LABEL = 72; // label radius
+const CX = 100, CY = 100;
 
 function pickWeightedIndex() {
   const total = WEIGHTS.reduce((a, b) => a + b, 0);
@@ -52,7 +49,6 @@ function pickWeightedIndex() {
   return 0;
 }
 
-// Polar → cartesian for SVG arcs.
 function polar(cx, cy, r, angleDeg) {
   const a = (angleDeg - 90) * Math.PI / 180;
   return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
@@ -91,7 +87,6 @@ export default function DailySpinWheel() {
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [won, setWon] = useState(null);
-  const wheelRef = useRef(null);
 
   useEffect(() => {
     let mounted = true;
@@ -112,7 +107,6 @@ export default function DailySpinWheel() {
     return () => { mounted = false; };
   }, []);
 
-  // countdown ticker
   useEffect(() => {
     if (!lastSpin) return;
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -130,15 +124,12 @@ export default function DailySpinWheel() {
     setWon(null);
 
     const winIdx = pickWeightedIndex();
-    // segment i center angle (clockwise from top) = i*SEG_DEG + SEG_DEG/2
     const center = winIdx * SEG_DEG + SEG_DEG / 2;
-    // bring that center to the top (0°): rotate wheel by (360 - center)
     const fullSpins = 6 + Math.floor(Math.random() * 3);
-    const jitter = (Math.random() - 0.5) * (SEG_DEG * 0.5); // land near center, not exactly
+    const jitter = (Math.random() - 0.5) * (SEG_DEG * 0.45);
     const target = rotation + fullSpins * 360 + ((360 - center) - (rotation % 360)) + jitter;
     setRotation(target);
 
-    // wait for the CSS transition to finish
     setTimeout(async () => {
       const prize = SEGMENTS[winIdx].value;
       setBalance((b) => b + prize);
@@ -146,7 +137,6 @@ export default function DailySpinWheel() {
       try { localStorage.setItem(LS_KEY(userId), String(Date.now())); } catch {}
       setWon({ idx: winIdx, value: prize });
       setSpinning(false);
-      // log as a completed bonus transaction
       try {
         const me = await base44.auth.me();
         await base44.entities.Transaction.create({
@@ -163,10 +153,11 @@ export default function DailySpinWheel() {
     }, 5400);
   };
 
+  const stopped = won && !spinning;
+
   return (
     <section className="max-w-6xl mx-auto px-4 mt-6">
       <div className="relative overflow-hidden rounded-2xl p-4" style={{ background: 'radial-gradient(circle at 50% 30%, #241a08 0%, #0b0b0d 70%)', border: '1px solid rgba(214,178,98,0.25)', boxShadow: '0 0 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.4)' }}>
-        {/* dark bokeh golden lights */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 18% 20%, rgba(212,175,55,0.18), transparent 12%), radial-gradient(circle at 82% 25%, rgba(212,175,55,0.14), transparent 10%), radial-gradient(circle at 25% 80%, rgba(212,175,55,0.12), transparent 14%), radial-gradient(circle at 75% 78%, rgba(212,175,55,0.10), transparent 12%)' }} />
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -184,48 +175,81 @@ export default function DailySpinWheel() {
 
         <div className="flex flex-col items-center">
           <div className="relative" style={{ width: 'min(90vw, 440px)', aspectRatio: '1 / 1' }}>
-            {/* Layer A — fixed full reference image: ornate frame, base, pointer, hub.
-                This is the 100%-faithful backdrop; nothing here moves. */}
-            <img
-              src={REF_IMG}
-              alt="Daily Spin Wheel"
-              draggable={false}
-              className="absolute inset-0 w-full h-full object-contain select-none"
-              style={{ filter: 'drop-shadow(0 18px 30px rgba(0,0,0,0.75))' }}
-            />
-            {/* Layer B — the SAME image, masked to the segment ring only (hub +
-                outer frame are masked out), and rotated. At rest it aligns
-                pixel-perfect with Layer A; when spinning only the segments turn
-                while the frame, base, pointer and hub stay still. */}
-            <img
-              src={REF_IMG}
-              alt=""
-              draggable={false}
-              aria-hidden
-              className="absolute inset-0 w-full h-full object-contain select-none"
-              style={{
-                transform: `rotate(${rotation}deg)`,
-                transformOrigin: 'center',
-                transition: 'transform 5.2s cubic-bezier(0.17,0.67,0.12,0.99)',
-                WebkitMaskImage: `radial-gradient(circle closest-side, transparent 0% ${HUB_PCT}%, #000 ${HUB_PCT + 0.5}% ${SEG_PCT}%, transparent ${SEG_PCT + 0.5}%)`,
-                maskImage: `radial-gradient(circle closest-side, transparent 0% ${HUB_PCT}%, #000 ${HUB_PCT + 0.5}% ${SEG_PCT}%, transparent ${SEG_PCT + 0.5}%)`,
-                WebkitMaskRepeat: 'no-repeat',
-                maskRepeat: 'no-repeat',
-                WebkitMaskSize: '100% 100%',
-                maskSize: '100% 100%',
-              }}
-            />
+            <svg viewBox="0 0 200 200" className="w-full h-full select-none" style={{ filter: 'drop-shadow(0 18px 30px rgba(0,0,0,0.75))' }}>
+              <defs>
+                <radialGradient id="dswHub" cx="50%" cy="42%" r="60%">
+                  <stop offset="0%" stopColor="#ffe9a8" />
+                  <stop offset="55%" stopColor="#f5c542" />
+                  <stop offset="100%" stopColor="#8B6914" />
+                </radialGradient>
+                <linearGradient id="dswGold" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#ffe9a8" />
+                  <stop offset="50%" stopColor="#f5c542" />
+                  <stop offset="100%" stopColor="#8B6914" />
+                </linearGradient>
+                <radialGradient id="dswVeil" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#000" stopOpacity="0" />
+                  <stop offset="100%" stopColor="#000" stopOpacity="0.55" />
+                </radialGradient>
+              </defs>
 
-            {/* Result reveal — only the selected prize is shown, at the top */}
-            {won && !spinning && (
-              <div className="absolute inset-0 z-20 flex items-start justify-center" style={{ pointerEvents: 'none', paddingTop: '5%' }}>
-                <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 50% 16%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.62) 62%)' }} />
-                <div className="relative px-6 py-3 rounded-2xl text-center" style={{ background: 'linear-gradient(to bottom, #f5c542, #c8881e)', border: '2px solid #FFE9A8', boxShadow: '0 0 28px rgba(245,197,66,0.95), 0 8px 20px rgba(0,0,0,0.6)', animation: 'saWinPop 0.5s ease-out both' }}>
-                  <div className="text-[10px] font-black tracking-[3px]" style={{ color: '#3a1a06' }}>YOU WON</div>
-                  <div className="text-3xl font-black italic leading-none mt-1" style={{ fontFamily: 'Georgia, serif', color: '#3a1a06', textShadow: '0 1px 0 rgba(255,255,255,0.45)' }}>${won.value.toFixed(2)}</div>
-                </div>
-              </div>
-            )}
+              {/* outer ornate frame */}
+              <circle cx={CX} cy={CY} r="98" fill="none" stroke="url(#dswGold)" strokeWidth="5" />
+              <circle cx={CX} cy={CY} r="93" fill="#0b0b0d" stroke="#5a3e12" strokeWidth="0.8" />
+              {/* jewel dots around the frame */}
+              {SEGMENTS.map((_, i) => {
+                const a = (i * SEG_DEG - 90) * Math.PI / 180;
+                const x = CX + 95.5 * Math.cos(a);
+                const y = CY + 95.5 * Math.sin(a);
+                return <circle key={`j${i}`} cx={x} cy={y} r="1.3" fill="#ffe9a8" opacity="0.85" />;
+              })}
+
+              {/* rotating segments + labels */}
+              <g style={{ transform: `rotate(${rotation}deg)`, transformOrigin: '100px 100px', transition: 'transform 5.2s cubic-bezier(0.17,0.67,0.12,0.99)', opacity: stopped ? 0.28 : 1 }}>
+                {SEGMENTS.map((seg, i) => {
+                  const start = i * SEG_DEG;
+                  const end = (i + 1) * SEG_DEG;
+                  const mid = i * SEG_DEG + SEG_DEG / 2;
+                  const lp = polar(CX, CY, R_LABEL, mid);
+                  return (
+                    <g key={`s${i}`}>
+                      <path d={arcPath(CX, CY, R_OUT, R_IN, start, end)} fill={seg.color} stroke="#1a1208" strokeWidth="0.6" />
+                      <text x={lp.x} y={lp.y} fill="#fff" fontSize={seg.label.length > 4 ? '6.2' : '7'} fontFamily="Georgia, serif" fontWeight="800" fontStyle="italic" textAnchor="middle" dominantBaseline="middle" transform={`rotate(${mid} ${lp.x} ${lp.y})`} style={{ textShadow: '0 1px 1px rgba(0,0,0,0.7)' }}>
+                        {seg.label}
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+
+              {/* winning highlight at top — only the selected segment stays bright */}
+              {stopped && (
+                <g style={{ filter: 'drop-shadow(0 0 5px rgba(255,233,168,0.95))' }}>
+                  <path d={arcPath(CX, CY, R_OUT, R_IN, -SEG_DEG / 2, SEG_DEG / 2)} fill={SEGMENTS[won.idx].color} stroke="#ffe9a8" strokeWidth="1.4" />
+                  {(() => {
+                    const lp = polar(CX, CY, R_LABEL, 0);
+                    return (
+                      <text x={lp.x} y={lp.y} fill="#fff" fontSize="7" fontFamily="Georgia, serif" fontWeight="800" fontStyle="italic" textAnchor="middle" dominantBaseline="middle" style={{ textShadow: '0 1px 1px rgba(0,0,0,0.7)' }}>
+                        {SEGMENTS[won.idx].label}
+                      </text>
+                    );
+                  })()}
+                </g>
+              )}
+
+              {/* hub */}
+              <circle cx={CX} cy={CY} r={R_IN} fill="url(#dswHub)" stroke="#8B6914" strokeWidth="2" />
+              <circle cx={CX} cy={CY} r={R_IN - 4} fill="none" stroke="rgba(58,26,6,0.5)" strokeWidth="0.8" />
+              {/* crown in hub */}
+              <g transform={`translate(${CX - 11} ${CY - 7})`}>
+                <path d="M2 12 L4 3 L9 8 L11 1 L13 8 L18 3 L20 12 Z" fill="#ffd700" stroke="#8B6914" strokeWidth="0.6" strokeLinejoin="round" />
+                <rect x="2" y="12" width="18" height="2.4" rx="0.6" fill="#e5c161" stroke="#8B6914" strokeWidth="0.5" />
+              </g>
+
+              {/* pointer at top */}
+              <polygon points="100,4 92,22 108,22" fill="url(#dswGold)" stroke="#8B6914" strokeWidth="0.8" />
+              <circle cx="100" cy="4" r="2.2" fill="#ffe9a8" stroke="#8B6914" strokeWidth="0.5" />
+            </svg>
           </div>
 
           {/* Status + button */}
@@ -253,30 +277,14 @@ export default function DailySpinWheel() {
                 </span>
               </div>
             )}
-            {won && !spinning && (
-              <p className="text-sm font-black italic animate-pulse" style={{ fontFamily: 'Georgia, serif', color: '#fde68a' }}>
-                🎉 You won ${won.value.toFixed(2)}! Come back tomorrow.
+            {stopped && (
+              <p className="text-base font-black italic animate-pulse" style={{ fontFamily: 'Georgia, serif', color: '#fde68a' }}>
+                🎉 You won ${won.value.toFixed(2)}!
               </p>
             )}
           </div>
         </div>
       </div>
     </section>
-  );
-}
-
-// Inline ornate crown for the hub.
-function CrownIcon() {
-  return (
-    <svg width="40" height="26" viewBox="0 0 40 26" fill="none">
-      <path d="M4 20 L7 8 L14 14 L20 4 L26 14 L33 8 L36 20 Z" fill="#FFD700" stroke="#8B6914" strokeWidth="1.2" strokeLinejoin="round" />
-      <rect x="4" y="20" width="32" height="4" rx="1" fill="#E5C161" stroke="#8B6914" strokeWidth="1" />
-      <circle cx="7" cy="8" r="2.4" fill="#FFD700" stroke="#8B6914" strokeWidth="0.8" />
-      <circle cx="20" cy="4" r="2.6" fill="#FFD700" stroke="#8B6914" strokeWidth="0.8" />
-      <circle cx="33" cy="8" r="2.4" fill="#FFD700" stroke="#8B6914" strokeWidth="0.8" />
-      <circle cx="12" cy="22" r="1.4" fill="#8B1A1A" />
-      <circle cx="20" cy="22" r="1.4" fill="#1C3A5E" />
-      <circle cx="28" cy="22" r="1.4" fill="#228B22" />
-    </svg>
   );
 }
