@@ -7,6 +7,7 @@ import GameHeader from '@/components/GameHeader';
 import ArgoSymbolTile from './ArgoSymbolTile';
 import WinLineOverlay from './WinLineOverlay';
 import ArgoOverlays from './ArgoOverlays';
+import CoinRoundPlaceholder from './CoinRoundPlaceholder';
 
 const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png';
 // Palace-with-golden-coins backdrop, fades in during the coin free-spin round.
@@ -139,26 +140,48 @@ export default function ArgonautsMachine() {
               gridTemplateColumns: `repeat(${REELS}, 1fr)`,
               border: '2.5px solid #FFD700',
               boxShadow: '0 0 24px rgba(255,215,0,0.4), inset 0 0 22px rgba(0,0,0,0.6)',
-              background: 'rgba(26,13,74,0.4)',
+              background: g.coinMode ? 'linear-gradient(135deg, #FFD700, #B8860B)' : 'rgba(26,13,74,0.4)',
             }}
           >
             {g.grid.map((reel, ri) => {
+              // ---- Coin hold-and-spin round: locked coins + empty ornate
+              // placeholders; only new value coins drop, no other symbols. ----
+              if (g.coinMode) {
+                return (
+                  <div key={ri} className="relative flex flex-col gap-1">
+                    {reel.map((_, row) => {
+                      const key = `${ri}-${row}`;
+                      const mult = g.coinStuck[key];
+                      if (mult) {
+                        const justDropped = g.coinDropped && g.coinDropped.has(key);
+                        return (
+                          <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', zIndex: 20, background: '#4D0505' }}>
+                            <div className="w-full h-full" style={justDropped ? { animation: 'bbSymbolDrop 0.5s ease-out both' } : undefined}>
+                              <ArgoSymbolTile sym={`vc${mult}`} bet={g.bet} stuck />
+                            </div>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1' }}>
+                          <CoinRoundPlaceholder pulsing={g.spinning} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              }
               const stopped = g.spinningReels.has(ri);
               return (
                 <div key={ri} className="relative flex flex-col gap-1">
                   {reel.map((sym, row) => {
                     const key = `${ri}-${row}`;
                     const isWin = g.winningPositions.has(key);
-                    const stuckMult = g.coinMode ? g.coinStuck[key] : null;
                     return (
-                      <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', opacity: stopped || stuckMult ? 1 : 0, zIndex: stuckMult ? 20 : 'auto' }}>
+                      <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', opacity: stopped ? 1 : 0 }}>
                         {stopped ? (
                           <div className="w-full h-full" style={{ animation: `bbSymbolDrop 0.34s ease-out both` }}>
-                            <ArgoSymbolTile sym={sym} win={isWin} dim={g.winningPositions.size > 0 && !isWin} bet={g.bet} stuck={!!stuckMult} />
-                          </div>
-                        ) : stuckMult ? (
-                          <div className="w-full h-full">
-                            <ArgoSymbolTile sym={`vc${stuckMult}`} bet={g.bet} stuck />
+                            <ArgoSymbolTile sym={sym} win={isWin} dim={g.winningPositions.size > 0 && !isWin} bet={g.bet} />
                           </div>
                         ) : (
                           <div className="w-full h-full" style={{ background: 'rgba(12,8,30,0.92)' }} />

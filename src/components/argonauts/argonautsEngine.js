@@ -288,13 +288,15 @@ export function collectCoins(grid) {
 
 export function spinCoinRound(stuck) {
   const newStuck = { ...stuck };
+  // Empty (non-stuck) cells are null — no regular symbols appear in the coin
+  // round; only value coins drop. The UI renders a dark ornate placeholder.
   const grid = Array.from({ length: REELS }, (_, r) =>
     Array.from({ length: ROWS }, (_, row) => {
       const k = `${r}-${row}`;
-      return newStuck[k] ? valueCoinKey(newStuck[k]) : pickWeighted(reelWeights(r, false));
+      return newStuck[k] ? valueCoinKey(newStuck[k]) : null;
     })
   );
-  let dropped = 0;
+  const dropped = [];
   for (let r = 0; r < REELS; r++) {
     if (Math.random() < COIN_DROP_CHANCE) {
       const empty = [];
@@ -304,7 +306,7 @@ export function spinCoinRound(stuck) {
         const mult = VALUE_COIN_MULTS[Math.floor(Math.random() * VALUE_COIN_MULTS.length)];
         newStuck[`${r}-${row}`] = mult;
         grid[r][row] = valueCoinKey(mult);
-        dropped += 1;
+        dropped.push(`${r}-${row}`);
       }
     }
   }

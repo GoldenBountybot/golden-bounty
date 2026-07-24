@@ -3,6 +3,7 @@ import {
   REELS, ROWS, generateGrid, evaluate, resolveBonus, forceWinGrid,
   BETS, FREE_SPINS_AWARD, BONUS_TRIGGER_COUNT, MAX_RISK_STEPS,
   coinTriggered, collectCoins, spinCoinRound, coinTotal, COIN_SPINS_START,
+  valueCoinKey,
 } from './argonautsEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -65,6 +66,7 @@ export function useArgonauts() {
   const [coinStuck, setCoinStuck] = useState({});
   const [showCoinBanner, setShowCoinBanner] = useState(false);
   const [coinTriggerCount, setCoinTriggerCount] = useState(0);
+  const [coinDropped, setCoinDropped] = useState(new Set());
 
   const settings = useGameSettings('argonauts');
   const logActivity = useLogActivity('argonauts');
@@ -93,53 +95,47 @@ export function useArgonauts() {
     setCoinMode(false);
     setCoinStuck({});
     setCoinSpins(0);
+    setCoinDropped(new Set());
     setBalance((b) => b + total);
     setLastWin(total);
     setTotalWin((t) => t + total);
     setMessage(`COIN FEATURE · WON $${total.toFixed(2)}`);
+    // Restore a normal symbol board so the maroon coin grid doesn't linger.
+    setGrid(generateGrid(false));
+    setSpinningReels(new Set([0, 1, 2, 3, 4]));
     logActivity('argonauts', betRef.current, total, 'win', 0);
   }, [setBalance, logActivity]);
 
   const coinSpin = useCallback(() => {
     if (!coinModeRef.current || Object.keys(coinStuckRef.current).length === 0) return;
     setSpinning(true);
-    setSpinningReels(new Set());
     setWinningPositions(new Set());
-    const { grid: newGrid, stuck: newStuck, dropped } = spinCoinRound(coinStuckRef.current);
-    const baseGap = turboRef.current ? 300 : 460;
-    const stopReel = (i) => {
-      const t = setTimeout(() => {
-        setGrid((prev) => { const next = prev.map((r) => [...r]); next[i] = newGrid[i]; return next; });
-        setSpinningReels((prev) => { const n = new Set(prev); n.add(i); return n; });
-        if (i < REELS - 1) stopReel(i + 1);
-        else {
-          const t2 = setTimeout(() => {
-            coinStuckRef.current = newStuck;
-            setCoinStuck(newStuck);
-            setSpinning(false);
-            setSpinningReels(new Set([0, 1, 2, 3, 4]));
-            if (dropped > 0) {
-              coinSpinsRef.current = COIN_SPINS_START;
-              setCoinSpins(COIN_SPINS_START);
-              setMessage(`COIN +${dropped} · 3 SPINS`);
-            } else {
-              const nc = coinSpinsRef.current - 1;
-              coinSpinsRef.current = nc;
-              setCoinSpins(nc);
-              if (nc <= 0) { endCoinRound(newStuck); return; }
-              setMessage(`${nc} SPINS LEFT`);
-            }
-            if (dropped > 0 || coinSpinsRef.current > 0) {
-              const t3 = setTimeout(() => coinSpin(), turboRef.current ? 600 : 1000);
-              timers.current.push(t3);
-            }
-          }, turboRef.current ? 120 : 250);
-          timers.current.push(t2);
-        }
-      }, baseGap);
-      timers.current.push(t);
-    };
-    stopReel(0);
+    setCoinDropped(new Set());
+    // Brief drop window, then reveal only newly landed value coins at once.
+    const t = setTimeout(() => {
+      const { grid: newGrid, stuck: newStuck, dropped } = spinCoinRound(coinStuckRef.current);
+      coinStuckRef.current = newStuck;
+      setCoinStuck(newStuck);
+      setCoinDropped(new Set(dropped));
+      setGrid(newGrid);
+      setSpinning(false);
+      if (dropped.length > 0) {
+        coinSpinsRef.current = COIN_SPINS_START;
+        setCoinSpins(COIN_SPINS_START);
+        setMessage(`COIN +${dropped.length} · 3 SPINS`);
+      } else {
+        const nc = coinSpinsRef.current - 1;
+        coinSpinsRef.current = nc;
+        setCoinSpins(nc);
+        if (nc <= 0) { endCoinRound(newStuck); return; }
+        setMessage(`${nc} SPINS LEFT`);
+      }
+      if (dropped.length > 0 || coinSpinsRef.current > 0) {
+        const t2 = setTimeout(() => coinSpin(), turboRef.current ? 700 : 1100);
+        timers.current.push(t2);
+      }
+    }, turboRef.current ? 500 : 850);
+    timers.current.push(t);
   }, [endCoinRound]);
 
   const startCoinRound = useCallback((finalGrid) => {
@@ -150,8 +146,18 @@ export function useArgonauts() {
     setCoinStuck(stuck);
     setCoinSpins(COIN_SPINS_START);
     setCoinMode(true);
+    setCoinDropped(new Set());
     setCoinTriggerCount(Object.keys(stuck).length);
     setWinningPositions(new Set());
+    // Build the coin-mode board: locked coins stay; all other cells are empty
+    // placeholders (null) — no regular symbols in the coin round.
+    const coinGrid = Array.from({ length: REELS }, (_, r) =>
+      Array.from({ length: ROWS }, (_, row) => {
+        const k = `${r}-${row}`;
+        return stuck[k] ? valueCoinKey(stuck[k]) : null;
+      })
+    );
+    setGrid(coinGrid);
     // Show the Golden Fleece trigger banner; clicking it starts the spins.
     setShowCoinBanner(true);
     setMessage('COIN FEATURE · TAP TO START');
@@ -426,6 +432,7 @@ export function useArgonauts() {
     setCoinMode(false);
     setCoinStuck({});
     setCoinSpins(0);
+    setCoinDropped(new Set());
     setShowCoinBanner(false);
     setCoinTriggerCount(0);
     coinModeRef.current = false;
@@ -443,7 +450,7 @@ export function useArgonauts() {
     riskActive, riskMode, riskStep, riskHistory, riskResult, pendingWin,
     dealerCard, playerCards, revealedIdx, riskOutcome,
     startRisk, riskPick, riskContinue, collectRisk, loseRisk,
-    coinMode, coinSpins, coinStuck, showCoinBanner, coinTriggerCount, beginCoinSpins,
+    coinMode, coinSpins, coinStuck, coinDropped, showCoinBanner, coinTriggerCount, beginCoinSpins,
     spin, reset,
   };
 }
