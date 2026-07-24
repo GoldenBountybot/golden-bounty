@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CasinoGameCard from '@/components/CasinoGameCard';
 import WesternGameBanners from '@/components/WesternGameBanners';
-import DailySpinWheel from '@/components/DailySpinWheel';
 import BottomNav from '@/components/BottomNav';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
 import { Wallet, FlaskConical } from 'lucide-react';
@@ -90,9 +89,6 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-4 pt-5">
         <WesternGameBanners />
       </div>
-
-      {/* Daily free spin wheel — once per 24 hours */}
-      <DailySpinWheel />
 
       {/* Category tabs */}
       <div className="max-w-6xl mx-auto px-4 mt-6">
