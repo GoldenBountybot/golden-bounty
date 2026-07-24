@@ -1,13 +1,11 @@
 import React, { useMemo } from 'react';
 import { VALUE_COIN_IMG, VALUE_COIN_MULTS, ROWS } from './argonautsEngine';
 
-// Column-level scrolling strip of value coins — mirrors ArgoSpinStrip exactly:
-// a tall seamless column of blurred coin images scrolling downward with the
-// shared `reelFall` animation. No per-item text/shadow (spinning symbols on the
-// main board are plain blurred images too), so it stays GPU-smooth. Dollar
-// labels live only on the locked stuck coins, like the main game.
-export default function CoinReelStrip({ turbo }) {
-  const period = turbo ? 0.4 : 0.6;
+// Column-level scrolling strip of value coins — mirrors ArgoSpinStrip structure
+// (tall seamless column scrolling with `reelFall`), but slowed down so each
+// falling coin's dollar label stays readable. Stuck coins lock on top.
+export default function CoinReelStrip({ turbo, bet = 0 }) {
+  const period = turbo ? 0.7 : 1.0;
 
   const strip = useMemo(() => {
     const block = () =>
@@ -32,8 +30,22 @@ export default function CoinReelStrip({ turbo }) {
               alt=""
               draggable={false}
               className="w-full h-full object-cover"
-              style={{ filter: 'blur(1.4px) brightness(0.82)', transform: 'scale(1.2)' }}
+              style={{ filter: 'blur(0.8px) brightness(0.86)', transform: 'scale(1.15)' }}
             />
+            <span
+              className="absolute inset-0 flex items-center justify-center tabular-nums italic pointer-events-none"
+              style={{
+                fontSize: '0.66rem',
+                fontFamily: 'Rye, Georgia, serif',
+                color: '#FFD24A',
+                textShadow:
+                  '1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000',
+                letterSpacing: '0.01em',
+                zIndex: 10,
+              }}
+            >
+              ${(c.mult * bet).toFixed(2)}
+            </span>
           </div>
         ))}
       </div>
