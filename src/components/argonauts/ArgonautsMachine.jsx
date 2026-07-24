@@ -221,18 +221,10 @@ export default function ArgonautsMachine() {
             <WinLineOverlay winningLines={g.winningLines} />
           </div>
 
-          {/* Status strip: free-game labels + message — Rye golden 3D text in a premium western wooden frame */}
-          <div
-            className="mt-2 relative rounded-[8px] px-3 py-2"
-            style={{
-              background: 'linear-gradient(135deg, #5b3a1a 0%, #7a4a22 35%, #3d2812 70%, #2a1a0a 100%)',
-              border: '3px solid #C9A04A',
-              boxShadow: '0 0 14px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,235,150,0.35), inset 0 0 14px rgba(0,0,0,0.55)',
-              backgroundImage: `linear-gradient(135deg, #5b3a1a 0%, #7a4a22 35%, #3d2812 70%, #2a1a0a 100%), repeating-linear-gradient(90deg, rgba(0,0,0,0.08) 0 2px, transparent 2px 6px)`,
-            }}
-          >
+          {/* Status strip: free-game labels + message — Rye golden 3D text, no background so game backdrop shows through */}
+          <div className="mt-2 relative px-3 py-2">
             {g.freeSpins > 0 && (
-              <div className="flex justify-between text-[11px] font-black tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif', color: '#FFD700', textShadow: '0 1px 0 #8a5a10, 0 2px 0 #6b4408, 0 3px 1px rgba(0,0,0,0.6), 0 0 10px rgba(255,215,0,0.5)' }}>
+              <div className="flex justify-between text-[11px] font-black tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif', color: '#FFD700', textShadow: '0 1px 0 #b8860b, 0 2px 0 #8a5a10, 0 3px 0 #5b3a06, 0 4px 1px rgba(0,0,0,0.7), 0 0 16px rgba(255,235,80,0.95), 0 0 26px rgba(255,200,40,0.7)' }}>
                 <span>FREE SPIN PAYS ${g.bet.toFixed(2)}</span>
                 <span>FREE GAME {FREE_SPINS_AWARD - g.freeSpins + 1} OF {FREE_SPINS_AWARD}</span>
               </div>
@@ -250,12 +242,12 @@ export default function ArgonautsMachine() {
                         height: active ? 30 : 22,
                         fontSize: active ? '0.95rem' : '0.72rem',
                         fontFamily: 'Rye, Georgia, serif',
-                        color: active ? '#2a1a06' : 'rgba(255,235,150,0.55)',
-                        border: `1.5px solid ${active ? '#FFD700' : 'rgba(255,215,0,0.3)'}`,
+                        color: active ? '#2a1a06' : 'rgba(255,235,150,0.7)',
+                        border: `1.5px solid ${active ? '#FFD700' : 'rgba(255,215,0,0.45)'}`,
                         background: active
                           ? 'radial-gradient(circle, #FFE9A8, #FFD700 60%, #C59A4D)'
-                          : 'rgba(20,17,13,0.7)',
-                        boxShadow: active ? '0 0 14px rgba(255,215,0,0.85)' : 'none',
+                          : 'transparent',
+                        boxShadow: active ? '0 0 16px rgba(255,215,0,0.95)' : 'none',
                         transform: active ? 'scale(1.08)' : 'scale(1)',
                       }}
                     >
@@ -263,13 +255,13 @@ export default function ArgonautsMachine() {
                     </span>
                   );
                 })}
-                <span className="ml-1 text-[11px] font-black tracking-widest" style={{ fontFamily: 'Rye, Georgia, serif', color: '#FFD700', textShadow: '0 1px 0 #8a5a10, 0 2px 0 #6b4408, 0 3px 1px rgba(0,0,0,0.6), 0 0 10px rgba(255,215,0,0.5)' }}>
+                <span className="ml-1 text-[11px] font-black tracking-widest" style={{ fontFamily: 'Rye, Georgia, serif', color: '#FFD700', textShadow: '0 1px 0 #b8860b, 0 2px 0 #8a5a10, 0 3px 0 #5b3a06, 0 4px 1px rgba(0,0,0,0.7), 0 0 16px rgba(255,235,80,0.95), 0 0 26px rgba(255,200,40,0.7)' }}>
                   SPIN{g.coinSpins !== 1 ? 'S' : ''} LEFT
                 </span>
               </div>
             )}
             <div className="text-center min-h-[18px]">
-              <p className="text-xs font-black tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif', color: '#FFD700', textShadow: '0 1px 0 #8a5a10, 0 2px 0 #6b4408, 0 3px 1px rgba(0,0,0,0.6), 0 0 10px rgba(255,215,0,0.5)' }}>{g.message}</p>
+              <p className="text-xs font-black tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif', color: '#FFD700', textShadow: '0 1px 0 #b8860b, 0 2px 0 #8a5a10, 0 3px 0 #5b3a06, 0 4px 1px rgba(0,0,0,0.7), 0 0 16px rgba(255,235,80,0.95), 0 0 26px rgba(255,200,40,0.7)' }}>{g.message}</p>
             </div>
           </div>
         </div>
