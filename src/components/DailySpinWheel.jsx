@@ -31,7 +31,11 @@ const SEGMENTS = [
 // Prize weights — small prizes common, jackpot rare.
 const WEIGHTS = [12, 12, 10, 9, 8, 7, 5, 4, 3, 2.5, 2, 1.5, 1, 0.8, 0.6, 0.3, 0.15, 0.05];
 
-const FRAME_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/65654a2d4_generated_image.png';
+const REF_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/12d6027dc_file_0000000083348206ae1cbb95601fc9c3.png';
+// Mask radii (as % of closest-side = half the element width).
+// HUB_PCT = inner hub circle radius; SEG_PCT = outer segment-ring radius.
+const HUB_PCT = 19;
+const SEG_PCT = 86;
 
 const N = SEGMENTS.length;
 const SEG_DEG = 360 / N;
@@ -180,77 +184,37 @@ export default function DailySpinWheel() {
 
         <div className="flex flex-col items-center">
           <div className="relative" style={{ width: 'min(90vw, 440px)', aspectRatio: '1 / 1' }}>
-            {/* Ornate 3D gold frame (fixed generated asset) */}
+            {/* Layer A — fixed full reference image: ornate frame, base, pointer, hub.
+                This is the 100%-faithful backdrop; nothing here moves. */}
             <img
-              src={FRAME_IMG}
-              alt=""
+              src={REF_IMG}
+              alt="Daily Spin Wheel"
               draggable={false}
-              className="absolute inset-0 w-full h-full object-cover select-none"
+              className="absolute inset-0 w-full h-full object-contain select-none"
               style={{ filter: 'drop-shadow(0 18px 30px rgba(0,0,0,0.75))' }}
             />
-
-            {/* Rotating wheel — sized to sit in the frame's dark center */}
-            <div className="absolute" style={{ inset: '12%' }}>
-              <svg viewBox="0 0 200 200" className="w-full h-full" ref={wheelRef} style={{ transform: `rotate(${rotation}deg)`, transformOrigin: 'center', transition: spinning ? 'transform 5s cubic-bezier(0.17,0.67,0.12,0.99)' : 'none' }}>
-                <defs>
-                  <linearGradient id="hubGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#6b4423" />
-                    <stop offset="100%" stopColor="#2a1808" />
-                  </linearGradient>
-                </defs>
-                {SEGMENTS.map((seg, i) => {
-                  const start = i * SEG_DEG;
-                  const end = (i + 1) * SEG_DEG;
-                  const mid = start + SEG_DEG / 2;
-                  const lp = polar(100, 100, 86, mid);
-                  return (
-                    <g key={i}>
-                      <path d={arcPath(100, 100, 98, 32, start, end)} fill={seg.color} stroke="rgba(0,0,0,0.5)" strokeWidth="0.8" />
-                      <path d={arcPath(100, 100, 98, 80, start, end)} fill="rgba(255,255,255,0.06)" />
-                      <text
-                        x={lp.x} y={lp.y}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        transform={`rotate(${mid} ${lp.x} ${lp.y})`}
-                        fill="#FFD700"
-                        style={{ fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: seg.label.length >= 5 ? 10 : (seg.label.length >= 4 ? 12 : 14), letterSpacing: '-0.3px', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.9))' }}
-                      >
-                        {seg.label}
-                      </text>
-                    </g>
-                  );
-                })}
-                {/* Inner gold ring bordering the hub */}
-                <circle cx={100} cy={100} r={32} fill="url(#hubGrad)" stroke="#D4AF37" strokeWidth="3" />
-                <circle cx={100} cy={100} r={38} fill="none" stroke="rgba(255,240,180,0.3)" strokeWidth="1" />
-              </svg>
-            </div>
-
-            {/* Fixed center hub on top (does not spin) */}
-            <div className="absolute" style={{ left: '50%', top: '50%', width: '23%', aspectRatio: '1 / 1', transform: 'translate(-50%, -50%)', pointerEvents: 'none' }}>
-              <div className="w-full h-full rounded-full flex flex-col items-center justify-center"
-                style={{ background: 'radial-gradient(circle at 50% 35%, #7a4f28, #2a1808 80%)', border: '3px solid #D4AF37', boxShadow: '0 0 10px rgba(212,175,55,0.6), inset 0 0 12px rgba(0,0,0,0.6)' }}>
-                <div style={{ transform: 'translateY(-4px)' }}><CrownIcon /></div>
-                <span style={{ fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: 'clamp(11px, 3.4vw, 18px)', letterSpacing: '1px', color: '#FFD700', lineHeight: 1, textShadow: '0 1px 1px rgba(0,0,0,0.8)' }}>SPIN</span>
-                <span style={{ fontFamily: 'Georgia, serif', fontWeight: 800, fontSize: 'clamp(7px, 2vw, 10px)', letterSpacing: '2px', color: '#E5C161', lineHeight: 1, marginTop: 2 }}>TO WIN</span>
-              </div>
-            </div>
-
-            {/* Fixed downward gold pointer at top, pointing into the wheel */}
-            <div className="absolute left-1/2" style={{ top: '7.5%', transform: 'translateX(-50%)', pointerEvents: 'none' }}>
-              <svg width="26" height="34" viewBox="0 0 26 34">
-                <defs>
-                  <linearGradient id="ptr" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FFE9A8" />
-                    <stop offset="50%" stopColor="#D4AF37" />
-                    <stop offset="100%" stopColor="#8B6914" />
-                  </linearGradient>
-                </defs>
-                <circle cx="13" cy="7" r="6" fill="url(#ptr)" stroke="#5b3a06" strokeWidth="1" />
-                <path d="M13 32 L3 10 L23 10 Z" fill="url(#ptr)" stroke="#5b3a06" strokeWidth="1.4" strokeLinejoin="round" />
-                <path d="M13 32 L8 12 L18 12 Z" fill="rgba(255,255,255,0.25)" />
-              </svg>
-            </div>
+            {/* Layer B — the SAME image, masked to the segment ring only (hub +
+                outer frame are masked out), and rotated. At rest it aligns
+                pixel-perfect with Layer A; when spinning only the segments turn
+                while the frame, base, pointer and hub stay still. */}
+            <img
+              src={REF_IMG}
+              alt=""
+              draggable={false}
+              aria-hidden
+              className="absolute inset-0 w-full h-full object-contain select-none"
+              style={{
+                transform: `rotate(${rotation}deg)`,
+                transformOrigin: 'center',
+                transition: spinning ? 'transform 5s cubic-bezier(0.17,0.67,0.12,0.99)' : 'none',
+                WebkitMaskImage: `radial-gradient(circle closest-side, transparent 0% ${HUB_PCT}%, #000 ${HUB_PCT + 0.5}% ${SEG_PCT}%, transparent ${SEG_PCT + 0.5}%)`,
+                maskImage: `radial-gradient(circle closest-side, transparent 0% ${HUB_PCT}%, #000 ${HUB_PCT + 0.5}% ${SEG_PCT}%, transparent ${SEG_PCT + 0.5}%)`,
+                WebkitMaskRepeat: 'no-repeat',
+                maskRepeat: 'no-repeat',
+                WebkitMaskSize: '100% 100%',
+                maskSize: '100% 100%',
+              }}
+            />
           </div>
 
           {/* Status + button */}
