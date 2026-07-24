@@ -457,10 +457,10 @@
 }
 
 /* Argonauts coin round — a single coin drops from the top of the cell to the
-   bottom, staggered so coins fall one by one in a continuous stream. */
-@keyframes singleCoinFall {
-  0%   { top: -100%; }
-  100% { top: 100%; }
+   bottom via GPU transform for a smooth, jank-free fall. */
+@keyframes coinFallY {
+  0%   { transform: translate(-50%, -100%); }
+  100% { transform: translate(-50%, 100%); }
 }
 
 @keyframes plinkoPegHit {
