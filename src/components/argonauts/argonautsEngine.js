@@ -71,13 +71,13 @@ export function valueCoinKey(mult) { return 'vc' + mult; }
 
 // Reel symbol weights.
 const BASE_WEIGHTS = {
-  bow: 22, potion: 20, cup: 18, harp: 16,
-  dove: 12, lizard: 10, atlanta: 8, jason: 6,
-  wild: 6, bonus: 5,
+  bow: 24, potion: 22, cup: 20, harp: 18,
+  dove: 14, lizard: 12, atlanta: 10, jason: 8,
+  wild: 7, bonus: 2,
 };
 const FREE_WEIGHTS = {
-  jason: 20, atlanta: 16, lizard: 14, dove: 12,
-  wild: 10, bonus: 8, scatter: 6,
+  jason: 22, atlanta: 18, lizard: 16, dove: 14,
+  wild: 12, bonus: 3, scatter: 6,
 };
 
 function pickWeighted(weights) {
@@ -129,7 +129,7 @@ export function generateReel(reelIndex, freeSpins) {
     const start = Math.floor(Math.random() * (ROWS - height + 1));
     const w = reelWeights(reelIndex, freeSpins);
     const reel = [0, 1, 2].map(() => pickWeighted(w));
-    const stackSym = w.bonus && Math.random() < 0.45 ? 'bonus' : 'wild';
+    const stackSym = w.bonus && Math.random() < 0.15 ? 'bonus' : 'wild';
     for (let i = 0; i < height; i++) reel[start + i] = stackSym;
     return reel;
   }
