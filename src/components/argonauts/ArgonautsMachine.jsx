@@ -8,7 +8,7 @@ import ArgoSymbolTile from './ArgoSymbolTile';
 import WinLineOverlay from './WinLineOverlay';
 import ArgoOverlays from './ArgoOverlays';
 import CoinRoundPlaceholder from './CoinRoundPlaceholder';
-import CoinDropStream from './CoinDropStream';
+import CoinReelStrip from './CoinReelStrip';
 
 const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png';
 // Palace-with-golden-coins backdrop, fades in during the coin free-spin round.
@@ -150,6 +150,12 @@ export default function ArgonautsMachine() {
               if (g.coinMode) {
                 return (
                   <div key={ri} className="relative flex flex-col gap-1">
+                    {/* Scrolling coin reel — falls exactly like the main spin board */}
+                    {g.spinning && (
+                      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 5 }}>
+                        <CoinReelStrip turbo={g.turbo} bet={g.bet} />
+                      </div>
+                    )}
                     {reel.map((_, row) => {
                       const key = `${ri}-${row}`;
                       const mult = g.coinStuck[key];
@@ -164,12 +170,8 @@ export default function ArgonautsMachine() {
                         );
                       }
                       return (
-                        <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1' }}>
-                          {g.spinning ? (
-                            <CoinDropStream turbo={g.turbo} bet={g.bet} rowIndex={row} />
-                          ) : (
-                            <CoinRoundPlaceholder pulsing={false} />
-                          )}
+                        <div key={key} className="relative rounded-[7px]" style={{ aspectRatio: '1 / 1', zIndex: 10, background: 'transparent' }}>
+                          {!g.spinning && <CoinRoundPlaceholder pulsing={false} />}
                         </div>
                       );
                     })}
