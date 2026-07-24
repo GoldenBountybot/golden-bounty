@@ -166,7 +166,7 @@ export default function ArgonautsMachine() {
                       return (
                         <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1' }}>
                           {g.spinning ? (
-                            <CoinDropStream turbo={g.turbo} />
+                            <CoinDropStream turbo={g.turbo} bet={g.bet} />
                           ) : (
                             <CoinRoundPlaceholder pulsing={false} />
                           )}
