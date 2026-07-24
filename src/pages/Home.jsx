@@ -4,7 +4,7 @@ import CasinoGameCard from '@/components/CasinoGameCard';
 import WesternGameBanners from '@/components/WesternGameBanners';
 import BottomNav from '@/components/BottomNav';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
-import { Wallet, FlaskConical } from 'lucide-react';
+import { Wallet, FlaskConical, Gift } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
@@ -88,6 +88,35 @@ export default function Home() {
       {/* Premium Western game banners */}
       <div className="max-w-6xl mx-auto px-4 pt-5">
         <WesternGameBanners />
+      </div>
+
+      {/* Daily Free Spin */}
+      <div className="max-w-6xl mx-auto px-4 mt-4">
+        <Link
+          to="/free-spin"
+          className="flex items-center justify-between gap-3 rounded-xl px-4 py-3 transition-all active:scale-[0.98] hover:brightness-110"
+          style={{
+            border: '1px solid rgba(214,178,98,0.7)',
+            background: 'linear-gradient(135deg, rgba(122,79,23,0.55), rgba(20,17,13,0.85))',
+            boxShadow: '0 4px 14px rgba(200,136,30,0.25), inset 0 1px 0 rgba(255,240,200,0.12)',
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className="flex items-center justify-center w-11 h-11 rounded-full shrink-0"
+              style={{ background: 'radial-gradient(circle at 35% 30%, #f3d77a, #c8932e 55%, #7a4f17)', boxShadow: '0 0 12px rgba(255,190,40,0.6)' }}
+            >
+              <Gift className="w-6 h-6 text-stone-900" />
+            </span>
+            <div>
+              <p className="text-sm font-black italic text-yellow-300" style={{ fontFamily: 'Rye, Georgia, serif' }}>Daily Free Spin</p>
+              <p className="text-[11px] text-amber-100/65 italic" style={{ fontFamily: 'Georgia, serif' }}>Spin the golden wheel every 24h · win up to $1000</p>
+            </div>
+          </div>
+          <span className="text-xs font-black italic px-3 py-1.5 rounded-md shrink-0" style={{ background: 'linear-gradient(to bottom,#f5c542,#c8881e)', color: '#2a1a06' }}>
+            SPIN →
+          </span>
+        </Link>
       </div>
 
       {/* Category tabs */}
