@@ -9,6 +9,8 @@ import WinLineOverlay from './WinLineOverlay';
 import ArgoOverlays from './ArgoOverlays';
 
 const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png';
+// Palace-with-golden-coins backdrop, fades in during the coin free-spin round.
+const COIN_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2a63f4def_generated_image.png';
 
 // Spinning reel strip — tall vertical column of random symbols scrolling
 // seamlessly (Big Brown style). 4 blocks, last = first for a seamless loop.
@@ -81,6 +83,17 @@ export default function ArgonautsMachine() {
     >
       {/* Coastal background */}
       <div className="absolute inset-0" style={{ backgroundImage: `url(${BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+      {/* Coin free-spin palace backdrop — slow crossfade */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url(${COIN_BG})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: g.coinMode ? 1 : 0,
+          transition: 'opacity 2.4s ease-in-out',
+        }}
+      />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(7,13,30,0.25), rgba(7,13,30,0.55))' }} />
 
       <GameHeader title="ARGONAUTS" balance={balance} />

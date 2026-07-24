@@ -267,7 +267,8 @@ export function coinTriggered(grid) {
       if (isValueCoin(grid[r][row])) coinCount++;
       else if (grid[r][row] === 'bonus') bonusCount++;
     }
-  return coinCount > 0 && coinCount + bonusCount >= COIN_TRIGGER_COUNT;
+  // 6+ value coins triggers; OR 5 value coins + 1-2 bonus symbols.
+  return coinCount >= 5 && coinCount + bonusCount >= 6;
 }
 
 export function collectCoins(grid) {
