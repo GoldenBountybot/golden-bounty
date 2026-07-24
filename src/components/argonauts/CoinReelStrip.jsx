@@ -23,7 +23,7 @@ export default function CoinReelStrip({ turbo, bet = 0 }) {
     <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ borderRadius: 7 }}>
       <div
         className="flex flex-col gap-1 w-full"
-        style={{ animation: `reelFall ${period}s linear infinite`, willChange: 'transform' }}
+        style={{ animation: `reelFall ${period}s linear infinite`, willChange: 'transform', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
       >
         {strip.map((c, i) => (
           <div key={i} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', background: '#3a0404' }}>
@@ -33,7 +33,7 @@ export default function CoinReelStrip({ turbo, bet = 0 }) {
                 alt=""
                 draggable={false}
                 className="absolute inset-0 w-full h-full object-cover"
-                style={{ mixBlendMode: 'screen', transform: 'scale(1.12)', filter: 'blur(1.4px) brightness(0.82) drop-shadow(0 0 6px rgba(255,210,80,0.6))' }}
+                style={{ mixBlendMode: 'screen', transform: 'translateZ(0) scale(1.12)', filter: 'blur(1px) brightness(0.85)' }}
               />
               <span
                 className="absolute inset-0 flex items-center justify-center tabular-nums italic pointer-events-none"
