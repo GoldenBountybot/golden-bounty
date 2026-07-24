@@ -71,9 +71,9 @@ export function valueCoinKey(mult) { return 'vc' + mult; }
 
 // Reel symbol weights.
 const BASE_WEIGHTS = {
-  bow: 24, potion: 22, cup: 20, harp: 18,
-  dove: 14, lizard: 12, atlanta: 10, jason: 8,
-  wild: 7, bonus: 2,
+  bow: 16, potion: 16, cup: 16, harp: 16,
+  dove: 13, lizard: 12, atlanta: 10, jason: 8,
+  wild: 3, bonus: 2,
 };
 const FREE_WEIGHTS = {
   jason: 22, atlanta: 18, lizard: 16, dove: 14,
@@ -98,7 +98,7 @@ export function reelWeights(reelIndex, freeSpins) {
     return w;
   }
   const w = { ...BASE_WEIGHTS };
-  if (reelIndex >= 1 && reelIndex <= 3) w.scatter = 30; // TEMP high — for testing
+  if (reelIndex >= 1 && reelIndex <= 3) w.scatter = 10;
   else delete w.scatter;
   return w;
 }
