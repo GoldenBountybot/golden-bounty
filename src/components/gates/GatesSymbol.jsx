@@ -3,17 +3,17 @@ import { isMult, multValue } from '@/lib/gatesEngine';
 
 // AI-generated symbol images matching the real Gates of Olympus game screenshots
 const SYM_IMG = {
-  zeus:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ba9815625_generated_image.png',
-  crown:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b1c1b896b_generated_image.png',
-  hourglass: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a531f20a5_generated_image.png',
-  ring:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a92486c68_generated_image.png',
-  goblet:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/40924552d_generated_image.png',
-  red:       'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7b192055f_generated_image.png',
-  blue:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0cee14214_generated_image.png',
-  green:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5aa7bcf38_generated_image.png',
-  yellow:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1d7396065_generated_image.png',
-  scatter:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11bef3572_generated_image.png',
-  mult:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1c3004410_generated_image.png',
+  zeus:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/89262e8a1_generated_image.png',
+  crown:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d64a06a9a_generated_image.png',
+  hourglass: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8eac3e6da_generated_image.png',
+  ring:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c1b6cefea_generated_image.png',
+  goblet:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3efdd43c0_generated_image.png',
+  red:       'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1a5985b1f_generated_image.png',
+  blue:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/cb5a74fad_generated_image.png',
+  green:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6efdb2008_generated_image.png',
+  yellow:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/dd2299e17_generated_image.png',
+  scatter:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f62b86258_generated_image.png',
+  mult:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/138a9cee6_generated_image.png',
 };
 
 export { SYM_IMG };
