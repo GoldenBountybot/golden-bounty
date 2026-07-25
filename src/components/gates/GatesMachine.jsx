@@ -106,9 +106,9 @@ export default function GatesMachine() {
         {/* Outer golden border */}
         <div className="relative rounded-[10px]"
           style={{
-            border: '5px solid transparent',
-            background: 'linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0)) padding-box, linear-gradient(145deg,#f8d840,#c8880a 35%,#a06010 65%,#f8d840 100%) border-box',
-            boxShadow: '0 0 0 2px #7a4a08, 0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(200,136,10,0.3)',
+            border: '3px solid #d4a93a',
+            background: 'transparent',
+            boxShadow: '0 0 0 1px #7a4a08, 0 0 0 4px #f8d840, 0 0 0 5px #7a4a08, 0 4px 18px rgba(0,0,0,0.7), 0 0 26px rgba(200,136,10,0.28)',
           }}>
           {/* Inner reel area */}
           <div className="relative rounded-[6px] overflow-hidden"
