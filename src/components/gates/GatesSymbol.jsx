@@ -39,20 +39,8 @@ export default function GatesSymbol({ sym, highlight }) {
 
   const img = SYM_IMG[sym];
   return (
-    <div
-      className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
-      style={{
-        border: highlight ? '2px solid #ffe070' : 'none',
-        boxShadow: highlight
-          ? '0 0 0 2px rgba(255,235,120,0.9), 0 0 22px rgba(255,220,90,1), inset 0 0 18px rgba(255,230,120,0.6)'
-          : 'none',
-        background: highlight
-          ? 'radial-gradient(circle at center, rgba(255,215,90,0.28), rgba(255,180,40,0.10) 60%, transparent 78%)'
-          : 'transparent',
-        animation: highlight ? 'gatesWinGlow 0.7s ease-in-out infinite' : 'none',
-        transition: 'box-shadow 0.15s, border 0.15s, background 0.15s',
-      }}
-    >
+    <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
+      style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
       {img ? (
         <img src={img} alt={sym} className="w-full h-full object-cover" style={{ imageRendering: 'auto', mixBlendMode: 'lighten', filter: 'saturate(1.25) contrast(1.12) brightness(1.05)' }} />
       ) : (

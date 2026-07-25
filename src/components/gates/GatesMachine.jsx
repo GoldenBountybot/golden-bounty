@@ -45,7 +45,7 @@ export default function GatesMachine() {
       }, c * gap));
     }
     return () => { revealTimers.current.forEach(clearTimeout); };
-  }, [dropTick, g.spinning, g.turbo]);
+  }, [dropTick, g.turbo]);
 
   useEffect(() => () => { revealTimers.current.forEach(clearTimeout); }, []);
 
@@ -125,15 +125,21 @@ export default function GatesMachine() {
                       const winKey = `${c}-${r}`;
                       const isWin = winPositions.has(winKey);
                       return (
-                        <div key={key} className="relative rounded-[5px] overflow-hidden"
-                          style={{ aspectRatio: '1 / 0.78', opacity: stopped ? 1 : 0 }}>
+                        <div key={key} className="relative rounded-[5px]"
+                          style={{ aspectRatio: '1 / 0.78', opacity: stopped ? 1 : 0,
+                            border: '1.5px solid rgba(248,200,70,0.85)',
+                            boxShadow: isWin
+                              ? '0 0 0 2px rgba(255,235,120,0.95), 0 0 14px rgba(255,210,80,0.95)'
+                              : '0 0 4px rgba(248,190,60,0.25), inset 0 0 4px rgba(248,200,70,0.12)',
+                            animation: isWin ? 'gatesWinGlow 0.7s ease-in-out infinite' : 'none',
+                            transition: 'box-shadow 0.15s' }}>
                           {stopped ? (
                             <div className="relative w-full h-full"
-                              style={{ animation: `gatesDrop ${g.turbo ? 0.18 : 0.26}s ease-out both`, background: isWin ? 'rgba(255,180,20,0.12)' : 'transparent' }}>
+                              style={{ animation: `gatesDrop ${g.turbo ? 0.18 : 0.26}s ease-out both` }}>
                               <GatesSymbol sym={sym} highlight={isWin} />
                             </div>
                           ) : (
-                            <div className="w-full h-full" style={{ background: 'transparent' }} />
+                            <div className="w-full h-full" />
                           )}
                         </div>
                       );
