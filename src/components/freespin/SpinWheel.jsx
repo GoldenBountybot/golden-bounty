@@ -14,11 +14,12 @@ const WHEEL_IMG =
   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png';
 
 // Board placement within the frame, measured from the uploaded frame image
-// (1024×1024). The central matte-black circle's center is at (50.9%, 40.0%)
-// and its diameter is ~43.5% of the frame width.
-const BOARD_DIAM_FRAC = 0.435;   // board diameter
-const CENTER_X_FRAC = 0.509;     // circle center X
-const CENTER_Y_FRAC = 0.400;     // circle center Y
+// (1024×1024). The central matte-black circle's center is at (50.5%, 39.5%)
+// and its diameter is ~45.6% of the frame width (covers the full matte disk
+// up to the inner gold rim, so no black ring shows around the wheel).
+const BOARD_DIAM_FRAC = 0.456;   // board diameter = matte disk diameter
+const CENTER_X_FRAC = 0.505;     // matte circle center X
+const CENTER_Y_FRAC = 0.395;     // matte circle center Y
 
 export default function SpinWheel({ rotation, onRest, size = 340 }) {
   const boardPx = size * BOARD_DIAM_FRAC;
