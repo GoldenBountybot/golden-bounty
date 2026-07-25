@@ -54,12 +54,13 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
         </filter>
       </svg>
 
-      {/* Ornate Western frame + stand (preserves its natural aspect ratio) */}
+      {/* Ornate Western frame + stand — black center dropped so the casino
+          background shows through the frame opening behind the wheel. */}
       <img
         src={FRAME_IMG}
         alt="Ornate Western wheel frame"
         draggable={false}
-        style={{ width: '100%', height: 'auto', display: 'block' }}
+        style={{ width: '100%', height: 'auto', display: 'block', filter: 'url(#dropBlackBg)' }}
       />
 
       {/* Golden fleur-de-lis shield pointer — tip touches the wheel's top rim */}
