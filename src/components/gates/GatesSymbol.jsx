@@ -11,12 +11,12 @@ import { isMult, multValue } from '@/lib/gatesEngine';
 // have no background at all either.
 
 export const SYM_IMG = {
-  zeus:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/648d41867_generated_image.png',
-  crown:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8e65a415f_generated_image.png',
-  hourglass: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/30a75b74c_generated_image.png',
-  ring:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3fabcf9fc_generated_image.png',
-  goblet:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ebe894863_generated_image.png',
-  scatter:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fcd8f59d4_generated_image.png',
+  zeus:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9a3355fd7_generated_image.png',
+  crown:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d9d5e2a37_generated_image.png',
+  hourglass: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4b5bbb735_generated_image.png',
+  ring:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/77051f4d5_generated_image.png',
+  goblet:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a65f8531a_generated_image.png',
+  scatter:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9212f063d_generated_image.png',
   red:       'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f4ca4aa86_generated_image.png',
   blue:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/08bca9467_generated_image.png',
   green:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/788a2d51a_generated_image.png',
