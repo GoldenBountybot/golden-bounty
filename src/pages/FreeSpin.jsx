@@ -130,7 +130,7 @@ export default function FreeSpin() {
   }, [setBalance]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/40 to-stone-950" style={W}>
+    <div className="min-h-screen relative" style={{ ...W, backgroundImage: 'linear-gradient(rgba(10,8,6,0.72), rgba(10,8,6,0.82)), url(https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1200&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Header */}
       <header className="sticky top-0 z-30 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <div className="max-w-md mx-auto px-3 py-3 flex items-center justify-between">
