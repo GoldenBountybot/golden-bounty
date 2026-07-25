@@ -62,7 +62,7 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
           width: POINTER_W,
           height: 'auto',
           transform: 'translateX(-50%)',
-          zIndex: 6,
+          zIndex: 20,
           mixBlendMode: 'screen',
           pointerEvents: 'none',
         }}
@@ -82,6 +82,7 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
           borderRadius: '50%',
           overflow: 'hidden',
           boxShadow: 'inset 0 0 10px rgba(0,0,0,0.6)',
+          zIndex: 1,
         }}
         onTransitionEnd={(e) => {
           if (e.propertyName === 'transform' && onRest) onRest();
