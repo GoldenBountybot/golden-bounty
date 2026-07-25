@@ -260,15 +260,20 @@ export default function Mines() {
           </div>
         </WesternFrame>
 
-        {/* Message — below the grid, above the bet button */}
-        <WesternFrame className="py-2 text-center">
-          <span className="text-xs text-amber-200" style={W}>{message}</span>
-        </WesternFrame>
+        {/* Message — dark charcoal plaque, muted gold text */}
+        <div className="w-full rounded-xl py-3 text-center" style={{ background: '#1a1a1a', border: '1px solid #b8860b', boxShadow: '0 2px 6px rgba(0,0,0,0.5)' }}>
+          <span className="text-sm" style={{ color: '#c5a059', ...W }}>{message}</span>
+        </div>
 
-        {/* Bet button — below the board */}
+        {/* Bet button — wood grain with ornate gold flourishes at each end */}
         {phase === 'idle' && (
-          <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40 relative" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/67ff4e03b_generated_image.png') center / cover, linear-gradient(to bottom, #f5c542, #c8881e)", border: '1px solid rgba(245,210,120,0.9)', boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 3px 10px rgba(200,136,30,0.45)', color: '#2a1a06', ...W }}>
-            <Pickaxe className="w-5 h-5 relative" /> <span className="relative" style={{ color: '#f5c542', textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>BET ${bet.toFixed(2)} · {mines} MINES</span>
+          <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40 relative overflow-hidden" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/67ff4e03b_generated_image.png') center / cover, linear-gradient(to bottom, #4a2c1f, #2a160c)", border: '1px solid #b8860b', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.35), 0 4px 12px rgba(0,0,0,0.6)', ...W }}>
+            {/* ornate gold flourish — left */}
+            <GoldFlourish side="left" />
+            <Pickaxe className="w-5 h-5 relative" style={{ color: '#c5a059', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.6))' }} />
+            <span className="relative" style={{ color: '#c5a059', textShadow: '0 1px 2px rgba(0,0,0,0.75)' }}>BET ${bet.toFixed(2)} · {mines} MINES</span>
+            {/* ornate gold flourish — right */}
+            <GoldFlourish side="right" />
           </button>
         )}
 
@@ -415,5 +420,38 @@ function GoldBar() {
     >
       <span className="text-[9px] tracking-widest text-[#5a3a0a]" style={{ fontFamily: 'Rye, Georgia, serif' }}>GOLD</span>
     </div>
+  );
+}
+
+// Ornate carved-gold scroll flourish that frames each end of the bet button.
+function GoldFlourish({ side = 'left' }) {
+  const flip = side === 'right' ? 'scaleX(-1)' : 'none';
+  return (
+    <svg
+      width="34"
+      height="40"
+      viewBox="0 0 34 40"
+      style={{ position: 'absolute', top: '50%', transform: `translateY(-50%) ${flip}`, [side]: 0, pointerEvents: 'none', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))' }}
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id={`gf-${side}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#f3d77a" />
+          <stop offset="45%" stopColor="#c5a059" />
+          <stop offset="100%" stopColor="#7a4f17" />
+        </linearGradient>
+      </defs>
+      <g fill={`url(#gf-${side})`} stroke="#7a4f17" strokeWidth="0.6">
+        {/* central scroll bracket */}
+        <path d="M4 20 C4 10, 14 6, 20 10 C26 14, 26 26, 20 30 C14 34, 4 30, 4 20 Z" />
+        {/* inner curl */}
+        <path d="M9 20 C9 14, 16 12, 20 16 C24 20, 22 26, 18 27 C14 28, 11 25, 11 21 C11 18, 14 17, 16 18" fill="none" stroke="#7a4f17" strokeWidth="1.1" />
+        {/* leaf tip */}
+        <path d="M22 6 C26 2, 32 4, 33 9 C31 7, 26 7, 22 10 Z" />
+        <path d="M22 34 C26 38, 32 36, 33 31 C31 33, 26 33, 22 30 Z" />
+        {/* end bead */}
+        <circle cx="6" cy="20" r="2.4" />
+      </g>
+    </svg>
   );
 }
