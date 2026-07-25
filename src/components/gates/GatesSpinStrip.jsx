@@ -32,14 +32,14 @@ export default React.memo(function GatesSpinStrip({ turbo }) {
         {strip.map((s, i) => {
           const img = SYM_IMG[s];
           return (
-            <div key={i} className="rounded-[5px] overflow-hidden" style={{ aspectRatio: '1 / 1', background: 'rgba(0,0,0,0.18)' }}>
+            <div key={i} className="rounded-[5px] overflow-hidden" style={{ aspectRatio: '1 / 0.82', background: 'transparent' }}>
               {img && (
                 <img
                   src={img}
                   alt=""
                   className="w-full h-full object-contain"
                   draggable={false}
-                  style={{ filter: 'blur(1.1px) brightness(0.8)' }}
+                  style={{ filter: 'blur(1.1px) brightness(0.8)', mixBlendMode: 'screen' }}
                 />
               )}
             </div>

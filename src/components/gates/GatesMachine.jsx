@@ -126,14 +126,14 @@ export default function GatesMachine() {
                       const isWin = winPositions.has(winKey);
                       return (
                         <div key={key} className="relative rounded-[5px] overflow-hidden"
-                          style={{ aspectRatio: '1 / 1', opacity: stopped ? 1 : 0 }}>
+                          style={{ aspectRatio: '1 / 0.82', opacity: stopped ? 1 : 0 }}>
                           {stopped ? (
                             <div className="w-full h-full"
-                              style={{ animation: `bbSymbolDrop ${g.turbo ? 0.18 : 0.24}s ease-out both`, willChange: 'transform', transform: 'translateZ(0)', background: isWin ? 'rgba(255,180,20,0.12)' : 'rgba(0,0,0,0.18)' }}>
+                              style={{ animation: `bbSymbolDrop ${g.turbo ? 0.18 : 0.24}s ease-out both`, willChange: 'transform', transform: 'translateZ(0)', background: isWin ? 'rgba(255,180,20,0.12)' : 'transparent' }}>
                               <GatesSymbol sym={sym} highlight={isWin} />
                             </div>
                           ) : (
-                            <div className="w-full h-full" style={{ background: 'rgba(0,0,0,0.18)' }} />
+                            <div className="w-full h-full" style={{ background: 'transparent' }} />
                           )}
                         </div>
                       );
