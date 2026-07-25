@@ -21,7 +21,7 @@ const FILTER_SVG = (
       {/* alpha = 3 - R - G - B  → pure/near-white → ~0, gold & wood → high */}
       <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -1 -1 -1 0 3" />
       <feComponentTransfer>
-        <feFuncA type="table" tableValues="0 1 1 0" />
+        <feFuncA type="table" tableValues="0 0 0 1 1" />
       </feComponentTransfer>
     </filter>
   </svg>
@@ -45,7 +45,14 @@ export default function WoodFrame({ variant = 'msg', className = '', style, chil
           backgroundPosition: 'center',
           filter: 'url(#wfDropBg)',
           borderRadius: 6,
-          clipPath: 'inset(3px)',
+          WebkitMaskImage: 'linear-gradient(#000,#000)',
+          WebkitMaskSize: 'calc(100% - 10px) calc(100% - 10px)',
+          WebkitMaskPosition: 'center',
+          WebkitMaskRepeat: 'no-repeat',
+          maskImage: 'linear-gradient(#000,#000)',
+          maskSize: 'calc(100% - 10px) calc(100% - 10px)',
+          maskPosition: 'center',
+          maskRepeat: 'no-repeat',
         }}
       />
       {/* Content layer — sits above the frame, unfiltered */}
