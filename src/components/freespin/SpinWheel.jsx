@@ -29,7 +29,7 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
   // Pointer — a beautiful ornate Western gold finial image (transparent PNG),
   // point-down, seated on the wheel's top edge.
   const POINTER_IMG =
-    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e612e41a3_generated_image.png';
+    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4847a8ed1_generated_image.png';
   const pointerW = boardPx * 0.46;
   const pointerLeft = leftPx;
   const pointerTop = topPx - pointerW * 0.92; // tip dips onto the wheel rim
