@@ -64,7 +64,7 @@ export default function GatesMachine() {
       </div>
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
-      <div className="relative shrink-0 mx-auto" style={{ width: '88%', maxWidth: 340 }}>
+      <div className="relative shrink-0 w-full">
         {/* Outer golden border */}
         <div className="relative rounded-[10px] overflow-hidden"
           style={{
@@ -83,7 +83,7 @@ export default function GatesMachine() {
                   const key = `${c}-${r}`;
                   const isWin = winPositions.has(key);
                   return (
-                    <div key={key} style={{ aspectRatio: '1/1', position: 'relative' }}>
+                    <div key={key} style={{ aspectRatio: '1.35/1', position: 'relative' }}>
                       <GatesSymbol sym={sym} highlight={isWin} />
                     </div>
                   );
