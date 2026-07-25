@@ -31,19 +31,29 @@ export const SYM_EMOJI = {
 
 function ArtSym({ sym, highlight }) {
   return (
-    <div className="w-full h-full flex items-center justify-center overflow-hidden">
+    <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+      {/* Soft per-symbol dark backing — gives the screen-blend image a dark
+          base so the symbol reads 100% clearly even over the bright Olympus
+          background. Translucent so the scene still peeks through at edges. */}
+      <div className="absolute inset-[6%] rounded-[14%]" style={{
+        background: highlight
+          ? 'radial-gradient(circle at 50% 45%, rgba(60,30,90,0.55), rgba(10,5,25,0.82) 70%)'
+          : 'radial-gradient(circle at 50% 45%, rgba(30,15,55,0.5), rgba(8,4,20,0.78) 70%)',
+        boxShadow: 'inset 0 0 0 1px rgba(255,220,140,0.12)',
+      }} />
       <img
         src={SYM_IMG[sym]}
         alt={sym}
         draggable={false}
         style={{
-          width: '96%',
-          height: '96%',
+          position: 'relative',
+          width: '88%',
+          height: '88%',
           objectFit: 'contain',
           mixBlendMode: 'screen',
           filter: highlight
-            ? 'brightness(1.4) drop-shadow(0 0 10px rgba(255,210,80,1)) drop-shadow(0 1px 3px rgba(0,0,0,0.9))'
-            : 'brightness(1.15) contrast(1.12) saturate(1.1) drop-shadow(0 2px 5px rgba(0,0,0,0.95)) drop-shadow(0 0 3px rgba(0,0,0,0.8)) drop-shadow(0 0 1px rgba(255,255,255,0.25))',
+            ? 'brightness(1.45) drop-shadow(0 0 10px rgba(255,210,80,1))'
+            : 'brightness(1.2) contrast(1.15) saturate(1.15)',
           transition: 'filter 0.15s',
         }}
       />

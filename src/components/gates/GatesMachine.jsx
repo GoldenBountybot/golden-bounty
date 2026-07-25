@@ -83,11 +83,8 @@ export default function GatesMachine() {
           <div className="relative rounded-[6px] overflow-hidden"
             style={{ background: 'transparent' }}>
 
-            {/* Dimming veil — lets the Olympus background show through faintly
-                while giving symbols a darker backdrop so they read clearly. */}
-            <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(15,5,35,0.28)' }} />
-
-            {/* 6×5 grid — no cell backgrounds, symbols float directly on the board */}
+            {/* 6×5 grid — symbols sit on soft per-cell dark backings; Olympus
+                background shows through the gaps. */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gridTemplateRows: 'repeat(5,1fr)', gap: '2px', padding: '4px' }}>
               {grid.map((reel, c) =>
                 reel.map((sym, r) => {
