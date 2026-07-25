@@ -1,20 +1,54 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { RotateCcw, Plus, Minus, AlignJustify, Info, X } from 'lucide-react';
 import GatesSymbol, { SYM_IMG } from './GatesSymbol';
+import GatesSpinStrip from './GatesSpinStrip';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS } from '@/lib/gatesEngine';
 
+const REELS = 6;
+const ROWS = 5;
 const fmt = (v) => `$${Number(v || 0).toFixed(2)}`;
 
 export default function GatesMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
   const [dropTick, setDropTick] = useState(0);
+  const [stoppedReels, setStoppedReels] = useState(() => new Set(Array.from({ length: REELS }, (_, i) => i)));
+  const revealTimers = useRef([]);
 
   const g = useGates();
 
   // re-trigger the reel-drop animation every time the grid changes
   useEffect(() => { setDropTick((t) => t + 1); }, [g.grid]);
+
+  // reset reels to spinning on spin start; reveal all on spin end
+  useEffect(() => {
+    revealTimers.current.forEach(clearTimeout);
+    revealTimers.current = [];
+    if (g.spinning) {
+      setStoppedReels(new Set());
+    } else {
+      setStoppedReels(new Set(Array.from({ length: REELS }, (_, i) => i)));
+    }
+  }, [g.spinning]);
+
+  // sequential column reveal (left → right) whenever a tumble grid arrives
+  useEffect(() => {
+    if (!g.spinning) return;
+    revealTimers.current.forEach(clearTimeout);
+    revealTimers.current = [];
+    setStoppedReels(new Set());
+    const gap = g.turbo ? 25 : 50;
+    for (let c = 0; c < REELS; c++) {
+      revealTimers.current.push(setTimeout(() => {
+        setStoppedReels((prev) => new Set([...prev, c]));
+      }, c * gap));
+    }
+    return () => { revealTimers.current.forEach(clearTimeout); };
+  }, [dropTick, g.spinning, g.turbo]);
+
+  useEffect(() => () => { revealTimers.current.forEach(clearTimeout); }, []);
+
   const {
     grid, balance, bet, spinning, lastWin, message, winPositions, winFlash,
     freeSpins, turbo, autoSpin, spinMult,
@@ -80,23 +114,34 @@ export default function GatesMachine() {
           <div className="relative rounded-[7px] overflow-hidden"
             style={{ background: 'transparent', minHeight: 0 }}>
 
-            {/* 6×5 grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gridTemplateRows: 'repeat(5,1fr)', gap: '3px', padding: '5px' }}>
-              {grid.map((reel, c) =>
-                reel.map((sym, r) => {
-                  const key = `${c}-${r}-${dropTick}`;
-                  const winKey = `${c}-${r}`;
-                  const isWin = winPositions.has(winKey);
-                  const dropDelay = c * 0.07 + r * 0.02;
-                  return (
-                    <div key={key} style={{ aspectRatio: '1/1', position: 'relative', borderRadius: '5px',
-                      background: isWin ? 'rgba(255,180,20,0.12)' : 'rgba(0,0,0,0.18)',
-                      animation: `cascadeDrop 0.28s ease-out ${dropDelay}s both` }}>
-                      <GatesSymbol sym={sym} highlight={isWin} />
-                    </div>
-                  );
-                })
-              )}
+            {/* 6×5 grid — Big Brown style: per-reel scroll strip, sequential stop + drop */}
+            <div className="grid" style={{ gridTemplateColumns: 'repeat(6,1fr)', gap: '3px', padding: '5px' }}>
+              {grid.map((reel, c) => {
+                const stopped = stoppedReels.has(c);
+                return (
+                  <div key={c} className="relative flex flex-col gap-[3px]">
+                    {reel.map((sym, r) => {
+                      const key = `${c}-${r}-${dropTick}`;
+                      const winKey = `${c}-${r}`;
+                      const isWin = winPositions.has(winKey);
+                      return (
+                        <div key={key} className="relative rounded-[5px] overflow-hidden"
+                          style={{ aspectRatio: '1 / 1', opacity: stopped ? 1 : 0 }}>
+                          {stopped ? (
+                            <div className="w-full h-full"
+                              style={{ animation: `bbSymbolDrop ${g.turbo ? 0.18 : 0.24}s ease-out both`, willChange: 'transform', transform: 'translateZ(0)', background: isWin ? 'rgba(255,180,20,0.12)' : 'rgba(0,0,0,0.18)' }}>
+                              <GatesSymbol sym={sym} highlight={isWin} />
+                            </div>
+                          ) : (
+                            <div className="w-full h-full" style={{ background: 'rgba(0,0,0,0.18)' }} />
+                          )}
+                        </div>
+                      );
+                    })}
+                    {!stopped && <GatesSpinStrip turbo={g.turbo} />}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Win flash overlay on board */}
