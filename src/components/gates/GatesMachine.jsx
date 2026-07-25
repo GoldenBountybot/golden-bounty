@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { RotateCcw, Plus, Minus, AlignJustify, Info, X } from 'lucide-react';
-import GatesSymbol, { GatesSymbolFilter, SYM_IMG } from './GatesSymbol';
+import GatesSymbol, { SYM_EMOJI } from './GatesSymbol';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS } from '@/lib/gatesEngine';
 
@@ -26,7 +26,6 @@ export default function GatesMachine() {
     <div className="relative w-full max-w-md mx-auto flex flex-col overflow-hidden select-none"
       style={{ minHeight: '100dvh', background: '#3a1060' }}>
 
-      <GatesSymbolFilter />
       {showInfo && <GatesInfoPanel onClose={() => setShowInfo(false)} />}
 
       {/* ── HEADER TITLE BAR ── */}
@@ -303,16 +302,16 @@ function GatesInfoPanel({ onClose }) {
         </div>
         {rows.map(([sym, , ...pays]) => (
           <div key={sym} className="grid grid-cols-6 items-center py-1 text-center" style={{ borderBottom: '1px solid rgba(200,140,10,0.15)' }}>
-            <div className="flex items-center justify-center" style={{ height: 28 }}>
-              <img src={SYM_IMG[sym]} alt={sym} style={{ height: 26, width: 'auto', objectFit: 'contain', filter: 'url(#dropSymBg)' }} />
+            <div className="flex items-center justify-center" style={{ height: 28, fontSize: 20, lineHeight: 1 }}>
+              <span>{SYM_EMOJI[sym]}</span>
             </div>
             <div style={{ fontFamily: 'Georgia,serif', fontSize: '9px', color: '#a08050', fontWeight: 700 }}>{sym.toUpperCase()}</div>
             {pays.map((p, i) => <div key={i} style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#ffe060', fontWeight: 900 }}>×{p}</div>)}
           </div>
         ))}
         <div style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#c0a870', marginTop: 10 }}>
-          <img src={SYM_IMG.scatter} alt="scatter" style={{ height: 16, width: 'auto', verticalAlign: 'middle', filter: 'url(#dropSymBg)' }} /> 4+ Scatters → 15 Free Spins<br/>
-          <img src={SYM_IMG.mult} alt="mult" style={{ height: 16, width: 'auto', verticalAlign: 'middle', filter: 'url(#dropSymBg)' }} /> Multipliers: ×{MULTIPLIERS[0].v} – ×{MULTIPLIERS[MULTIPLIERS.length-1].v}
+          <span style={{ fontSize: 14, verticalAlign: 'middle' }}>{SYM_EMOJI.scatter}</span> 4+ Scatters → 15 Free Spins<br/>
+          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '50%', background: 'radial-gradient(circle,#bdf06a,#3aa814)', border: '1px solid #eaffd0', fontSize: 8, color: '#fffbe0', fontWeight: 900, verticalAlign: 'middle' }}>×N</span> Multipliers: ×{MULTIPLIERS[0].v} – ×{MULTIPLIERS[MULTIPLIERS.length-1].v}
         </div>
       </div>
     </div>
