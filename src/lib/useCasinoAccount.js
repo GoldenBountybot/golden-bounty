@@ -145,7 +145,7 @@ export function useCasinoAccount() {
   };
 
   return {
-    balance, deposit, withdraw, wagerRemaining, maxWithdrawable,
+    balance, deposit, withdraw, wagerRemaining, maxWithdrawable, demoMode,
     bonuses: {
       signup: { amount: signupCfg.amount, active: signupCfg.active, claimed: claim.signupClaimed, claim: claimSignup },
       daily: { amount: dailyCfg.amount, active: dailyCfg.active, claimed: claim.dailyLast === todayStr(), claim: claimDaily },

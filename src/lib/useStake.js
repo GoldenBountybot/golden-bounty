@@ -28,7 +28,7 @@ export function computeProfit(staked, stakedAt, lastClaim, rate = BASE_RATE) {
 }
 
 export function useStake() {
-  const { balance, setBalance } = useCasinoBalance();
+  const { balance, setBalance, demoMode } = useCasinoBalance();
   const [staked, setStaked] = useState(0);
   const [stakedAt, setStakedAt] = useState(null);
   const [lastClaim, setLastClaim] = useState(null);
@@ -89,6 +89,9 @@ export function useStake() {
 
   // lock more balance into the stack (restarts the 15-day timer on the total)
   const stake = useCallback(async (amount) => {
+    // Demo balance cannot be stacked — stacking is a real-wallet action that
+    // locks funds for 15 days and earns real profit.
+    if (demoMode) return false;
     const n = Number(amount);
     if (!n || n <= 0 || n > balance) return false;
     setBalance((b) => b - n);

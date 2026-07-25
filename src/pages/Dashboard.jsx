@@ -89,6 +89,7 @@ export default function Dashboard() {
   };
 
   const doStake = async (amount) => {
+    if (acct.demoMode) { toast({ title: 'Stacking is not available in Demo mode', description: 'Turn off Demo balance to lock real funds and earn profit.' }); return; }
     const n = Number(amount);
     if (!n || n <= 0) { toast({ title: 'Enter a valid amount' }); return; }
     const ok = await stake.stake(n);
@@ -296,12 +297,15 @@ export default function Dashboard() {
                 <h2 className="text-sm font-black italic" style={{ fontFamily: 'Rye, Georgia, serif' }}>Stack More</h2>
               </div>
               <p className="text-[10px] text-amber-100/50 italic">Available balance: ${acct.balance.toFixed(2)}</p>
+              {acct.demoMode && (
+                <p className="text-[10px] text-rose-300/80 italic">Demo balance cannot be stacked — turn off Demo mode to lock real funds.</p>
+              )}
               <div className="flex gap-1.5 flex-wrap">
                 {[50, 100, 500, 1000].map(a => (
                   <button
                     key={a}
                     onClick={() => doStake(a)}
-                    disabled={a > acct.balance}
+                    disabled={acct.demoMode || a > acct.balance}
                     className="px-3 py-1.5 rounded-md text-[11px] font-bold italic border disabled:opacity-40"
                     style={{
                       border: '1px solid rgba(190,140,55,0.7)',
@@ -314,10 +318,11 @@ export default function Dashboard() {
                 ))}
               </div>
               <div className="flex gap-1.5 justify-center">
-                <input type="number" value={stkAmt} onChange={e => setStkAmt(e.target.value)} placeholder="Amount to stack" className="w-32 px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-xs" />
+                <input type="number" value={stkAmt} onChange={e => setStkAmt(e.target.value)} placeholder="Amount to stack" disabled={acct.demoMode} className="w-32 px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-xs disabled:opacity-40" />
                 <button
                   onClick={() => doStake(stkAmt)}
-                  className="px-3 py-1.5 rounded-md text-xs font-bold italic"
+                  disabled={acct.demoMode}
+                  className="px-3 py-1.5 rounded-md text-xs font-bold italic disabled:opacity-40"
                   style={{
                     border: '1px solid rgba(245,210,120,0.9)',
                     background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
