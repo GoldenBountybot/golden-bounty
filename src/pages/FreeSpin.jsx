@@ -181,7 +181,7 @@ export default function FreeSpin() {
                   </div>
                   {result.held && (
                     <p className="text-[11px] italic leading-tight" style={{ color: '#f5d77a', fontFamily: 'Georgia, serif' }}>
-                      এই পরিমাণ আপনার wallet যুক্ত হবে যখন আপনি সমপরিমাণ ডিপোজিট করে Stack করবেন ২৪ ঘন্টার ভিতরে
+                      This amount will be added to your wallet once you deposit the same amount and Stack it
                     </p>
                   )}
                 </div>
