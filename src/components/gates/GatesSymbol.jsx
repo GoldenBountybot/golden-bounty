@@ -28,7 +28,7 @@ export default function GatesSymbol({ sym, highlight }) {
           boxShadow: 'none',
           background: 'transparent',
         }}>
-        <img src={SYM_IMG.mult} alt={`mult-${v}`} className="w-full h-full object-contain" style={{ filter: 'drop-shadow(0 0 4px rgba(100,220,50,0.6)) saturate(1.25) contrast(1.12) brightness(1.05)', mixBlendMode: 'screen' }} />
+        <img src={SYM_IMG.mult} alt={`mult-${v}`} className="w-full h-full object-contain" style={{ filter: 'url(#gatesLumaKey) saturate(1.25) contrast(1.12) brightness(1.05)' }} />
         <span className="absolute inset-0 flex items-center justify-center pointer-events-none"
           style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '10px', color: '#fffbe0', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>
           ×{v}
@@ -42,7 +42,7 @@ export default function GatesSymbol({ sym, highlight }) {
     <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
       style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
       {img ? (
-        <img src={img} alt={sym} className="w-full h-full object-contain" style={{ imageRendering: 'auto', mixBlendMode: 'screen', filter: 'saturate(1.25) contrast(1.12) brightness(1.05)' }} />
+        <img src={img} alt={sym} className="w-full h-full object-contain" style={{ imageRendering: 'auto', filter: 'url(#gatesLumaKey) saturate(1.25) contrast(1.12) brightness(1.05)' }} />
       ) : (
         <span style={{ fontSize: 24 }}>{sym}</span>
       )}

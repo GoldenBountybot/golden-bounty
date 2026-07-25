@@ -39,7 +39,7 @@ export default React.memo(function GatesSpinStrip({ turbo }) {
                   alt=""
                   className="w-full h-full object-contain"
                   draggable={false}
-                  style={{ filter: 'blur(1.1px) brightness(0.8)', mixBlendMode: 'screen' }}
+                  style={{ filter: 'url(#gatesLumaKey) blur(1.1px) brightness(0.8)' }}
                 />
               )}
             </div>
