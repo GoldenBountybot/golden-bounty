@@ -93,7 +93,6 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
           willChange: 'transform',
           borderRadius: '50%',
           overflow: 'hidden',
-          boxShadow: 'inset 0 0 10px rgba(0,0,0,0.6)',
           zIndex: 1,
         }}
         onTransitionEnd={(e) => {
@@ -110,6 +109,7 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
             display: 'block',
             objectFit: 'cover',
             borderRadius: '50%',
+            filter: 'url(#dropBlackBg)',
           }}
         />
       </div>
