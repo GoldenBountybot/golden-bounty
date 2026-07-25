@@ -18,9 +18,10 @@ export const FRAME_BTN_URL =
 const FILTER_SVG = (
   <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
     <filter id="wfDropBg" colorInterpolationFilters="sRGB">
-      <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
+      {/* alpha = 3 - R - G - B  → pure/near-white → ~0, gold & wood → high */}
+      <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -1 -1 -1 0 3" />
       <feComponentTransfer>
-        <feFuncA type="table" tableValues="1 1 1 1 1 0" />
+        <feFuncA type="table" tableValues="0 0 0 1 1" />
       </feComponentTransfer>
     </filter>
   </svg>
