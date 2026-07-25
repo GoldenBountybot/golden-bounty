@@ -81,7 +81,7 @@ export default function GatesMachine() {
           }}>
           {/* Inner reel area */}
           <div className="relative rounded-[7px] overflow-hidden"
-            style={{ background: 'linear-gradient(180deg,#2a0848 0%,#3a1060 40%,#280848 100%)' }}>
+            style={{ background: 'transparent' }}>
 
             {/* 6×5 grid — no cell backgrounds, symbols float directly on the board */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gridTemplateRows: 'repeat(5,1fr)', gap: '2px', padding: '4px' }}>
