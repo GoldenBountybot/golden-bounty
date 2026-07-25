@@ -29,7 +29,7 @@ export default function GatesOfOlympus() {
       }}
     >
       {/* Faded background overlay — keeps the Olympus scene faint so symbols pop */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(10,4,28,0.55), rgba(10,4,28,0.78))' }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(10,4,28,0.12), rgba(10,4,28,0.38))' }} />
       <div className="relative z-10">
         <GameHeader title="Gates of Olympus" balance={Number(balance || 0)} />
         <GatesMachine />
