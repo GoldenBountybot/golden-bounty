@@ -35,14 +35,10 @@ export default function GatesSymbol({ sym, highlight }) {
   const img = SYM_IMG[sym];
   return (
     <div
-      className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
+      className="w-full h-full flex items-center justify-center relative overflow-hidden"
       style={{
-        border: highlight ? '2px solid #ffd840' : 'none',
-        boxShadow: highlight
-          ? '0 0 0 2px rgba(255,200,60,0.5), 0 0 14px rgba(255,200,60,0.8), inset 0 0 10px rgba(255,210,80,0.3)'
-          : 'none',
-        background: highlight ? 'rgba(255,200,60,0.08)' : 'transparent',
-        transition: 'box-shadow 0.15s, border 0.15s',
+        filter: highlight ? 'drop-shadow(0 0 6px rgba(255,210,80,0.95))' : 'none',
+        transition: 'filter 0.15s',
       }}
     >
       {img ? (
