@@ -17,8 +17,7 @@ export default function WoodFrame({ variant = 'msg', className = '', style, chil
           position: 'absolute',
           inset: 0,
           borderRadius: 10,
-          background:
-            'linear-gradient(160deg, #4a2e16 0%, #3a2310 35%, #2a190b 70%, #1a0f06 100%)',
+          background: 'transparent',
           border: '2px solid #c5a059',
           boxShadow: [
             'inset 0 0 0 2px #6b4a1f',      // dark ring
