@@ -45,6 +45,7 @@ export default function WoodFrame({ variant = 'msg', className = '', style, chil
           backgroundPosition: 'center',
           filter: 'url(#wfDropBg)',
           borderRadius: 6,
+          clipPath: 'inset(3px)',
         }}
       />
       {/* Content layer — sits above the frame, unfiltered */}
