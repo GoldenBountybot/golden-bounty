@@ -18,6 +18,7 @@ import RocketCrash from './pages/RocketCrash';
 import CrownCoins from './pages/CrownCoins';
 import BigBrown from './pages/BigBrown';
 import Argonauts from './pages/Argonauts';
+import GatesOfOlympus from './pages/GatesOfOlympus';
 import FreeSpin from './pages/FreeSpin';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -86,6 +87,7 @@ const AuthenticatedApp = () => {
         <Route path="/games/crown-coins" element={<CrownCoins />} />
         <Route path="/games/big-brown" element={<BigBrown />} />
         <Route path="/games/argonauts" element={<Argonauts />} />
+        <Route path="/games/gates-of-olympus" element={<GatesOfOlympus />} />
         <Route path="/free-spin" element={<FreeSpin />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/pay" element={<PayMethod />} />
