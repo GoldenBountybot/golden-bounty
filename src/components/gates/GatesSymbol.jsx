@@ -35,11 +35,14 @@ function ArtSym({ sym, highlight }) {
       {/* Soft per-symbol dark backing — gives the screen-blend image a dark
           base so the symbol reads 100% clearly even over the bright Olympus
           background. Translucent so the scene still peeks through at edges. */}
-      <div className="absolute inset-[6%] rounded-[14%]" style={{
+      <div className="absolute inset-[3%] rounded-[16%]" style={{
         background: highlight
-          ? 'radial-gradient(circle at 50% 45%, rgba(60,30,90,0.55), rgba(10,5,25,0.82) 70%)'
-          : 'radial-gradient(circle at 50% 45%, rgba(30,15,55,0.5), rgba(8,4,20,0.78) 70%)',
-        boxShadow: 'inset 0 0 0 1px rgba(255,220,140,0.12)',
+          ? 'radial-gradient(circle at 50% 45%, rgba(70,40,110,0.6), rgba(12,6,28,0.86) 70%)'
+          : 'radial-gradient(circle at 50% 45%, rgba(34,18,62,0.52), rgba(8,4,20,0.8) 70%)',
+        boxShadow: highlight
+          ? 'inset 0 0 0 2px rgba(255,235,140,0.95), 0 0 10px rgba(255,205,80,0.85), inset 0 0 12px rgba(255,220,120,0.4)'
+          : 'inset 0 0 0 1.5px rgba(200,150,60,0.45)',
+        transition: 'box-shadow 0.2s, background 0.2s',
       }} />
       <img
         src={SYM_IMG[sym]}
@@ -47,14 +50,14 @@ function ArtSym({ sym, highlight }) {
         draggable={false}
         style={{
           position: 'relative',
-          width: '88%',
-          height: '88%',
+          width: '94%',
+          height: '94%',
           objectFit: 'contain',
           mixBlendMode: 'screen',
           filter: highlight
-            ? 'brightness(1.45) drop-shadow(0 0 10px rgba(255,210,80,1))'
-            : 'brightness(1.2) contrast(1.15) saturate(1.15)',
-          transition: 'filter 0.15s',
+            ? 'brightness(1.5) drop-shadow(0 0 12px rgba(255,215,90,1))'
+            : 'brightness(1.22) contrast(1.18) saturate(1.18)',
+          transition: 'filter 0.2s',
         }}
       />
     </div>
