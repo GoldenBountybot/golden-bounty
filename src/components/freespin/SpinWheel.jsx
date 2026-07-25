@@ -13,12 +13,10 @@ const FRAME_IMG =
 const WHEEL_IMG =
   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png';
 
-// Golden fleur-de-lis shield pointer — the user's original asset on a pure
-// black background. We render it with mix-blend-mode: screen so the black
-// background drops out completely (black → transparent) and the gold pointer
-// shows through with no rectangular backdrop.
+// Golden fleur-de-lis shield pointer — true transparent PNG (alpha), so it
+// renders crisp over both the gold frame and the wheel with no backdrop.
 const POINTER_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/664f53d7d_file_00000000bc488207a04754014a812972.png';
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fe697a757_generated_image.png';
 
 // Board placement within the frame, measured from the uploaded stand image
 // (1024×1024). The central circular opening's center is at (50.5%, 42.4%)
@@ -63,7 +61,6 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
           height: 'auto',
           transform: 'translateX(-50%)',
           zIndex: 20,
-          mixBlendMode: 'screen',
           pointerEvents: 'none',
         }}
       />
