@@ -136,18 +136,22 @@ export default function FreeSpin() {
       <GameHeader title="Daily Free Spin" balance={balance} />
 
       <main className="max-w-md mx-auto px-4 pt-6 pb-6 flex flex-col items-center">
-        {/* Result banner — western wooden frame (kept above the wheel) */}
-        {result && (
-          <WoodFrame variant="msg" className="mb-2 w-full max-w-xs mx-auto text-center animate-[saWinPop_0.5s_ease-out]"
-            style={{ boxShadow: '0 0 22px rgba(255,200,80,0.5)' }}>
-            <div className="flex items-center justify-center gap-2">
-              <Trophy className="w-5 h-5" style={{ color: '#c5a059' }} />
-              <span className="font-black italic text-lg" style={{ color: '#c5a059', textShadow: '0 1px 2px rgba(0,0,0,0.75)' }}>
-                {result.jackpot ? `JACKPOT! $${result.win.toFixed(2)}` : `You won $${result.win.toFixed(2)}!`}
-              </span>
+        {/* Reserved slot above the wheel — win message floats up into it */}
+        <div className="relative w-full max-w-xs mx-auto mb-2" style={{ height: 56 }}>
+          {result && (
+            <div className="absolute inset-0 flex items-center justify-center animate-[freeWinFloat_0.6s_ease-out]">
+              <WoodFrame variant="msg" className="w-full text-center"
+                style={{ boxShadow: '0 0 22px rgba(255,200,80,0.5)' }}>
+                <div className="flex items-center justify-center gap-2">
+                  <Trophy className="w-5 h-5" style={{ color: '#c5a059' }} />
+                  <span className="font-black italic text-lg" style={{ color: '#c5a059', textShadow: '0 1px 2px rgba(0,0,0,0.75)' }}>
+                    {result.jackpot ? `JACKPOT! $${result.win.toFixed(2)}` : `You won $${result.win.toFixed(2)}!`}
+                  </span>
+                </div>
+              </WoodFrame>
             </div>
-          </WoodFrame>
-        )}
+          )}
+        </div>
 
         {/* Wheel — transparent surroundings, floats on the page bg */}
         <SpinWheel segments={SEGMENTS} rotation={rotation} onRest={handleRest} size={340} />
