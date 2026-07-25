@@ -37,7 +37,7 @@ export default React.memo(function GatesSpinStrip({ turbo }) {
                 <img
                   src={img}
                   alt=""
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover"
                   draggable={false}
                   style={{ filter: 'blur(1.1px) brightness(0.8)', mixBlendMode: 'screen' }}
                 />

@@ -23,7 +23,7 @@ export default function GatesSymbol({ sym, highlight }) {
     const v = multValue(sym);
     return (
       <div className="w-full h-full flex items-center justify-center relative">
-        <img src={SYM_IMG.mult} alt={`mult-${v}`} className="w-full h-full object-contain" style={{ filter: 'drop-shadow(0 0 4px rgba(100,220,50,0.6))', mixBlendMode: 'screen' }} />
+        <img src={SYM_IMG.mult} alt={`mult-${v}`} className="w-full h-full object-cover" style={{ filter: 'drop-shadow(0 0 4px rgba(100,220,50,0.6))', mixBlendMode: 'screen' }} />
         <span className="absolute inset-0 flex items-center justify-center pointer-events-none"
           style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '10px', color: '#fffbe0', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>
           ×{v}
@@ -46,7 +46,7 @@ export default function GatesSymbol({ sym, highlight }) {
       }}
     >
       {img ? (
-        <img src={img} alt={sym} className="w-full h-full object-contain" style={{ imageRendering: 'auto', mixBlendMode: 'screen' }} />
+        <img src={img} alt={sym} className="w-full h-full object-cover" style={{ imageRendering: 'auto', mixBlendMode: 'screen' }} />
       ) : (
         <span style={{ fontSize: 24 }}>{sym}</span>
       )}
