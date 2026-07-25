@@ -13,13 +13,17 @@ const FRAME_IMG =
 const WHEEL_IMG =
   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png';
 
-// Board placement within the frame (fractions of the frame width).
-const BOARD_SIZE_FRAC = 0.56;   // board diameter
-const BOARD_TOP_FRAC = 0.18;    // top offset of the board from the frame's top
+// Board placement within the frame, measured from the uploaded frame image
+// (1024×1024). The central matte-black circle's center is at (50.9%, 40.0%)
+// and its diameter is ~43.5% of the frame width.
+const BOARD_DIAM_FRAC = 0.435;   // board diameter
+const CENTER_X_FRAC = 0.509;     // circle center X
+const CENTER_Y_FRAC = 0.400;     // circle center Y
 
 export default function SpinWheel({ rotation, onRest, size = 340 }) {
-  const boardPx = size * BOARD_SIZE_FRAC;
-  const topPx = size * BOARD_TOP_FRAC;
+  const boardPx = size * BOARD_DIAM_FRAC;
+  const leftPx = size * CENTER_X_FRAC;
+  const topPx = size * (CENTER_Y_FRAC - BOARD_DIAM_FRAC / 2);
 
   return (
     <div className="relative select-none mx-auto" style={{ width: size }}>
@@ -35,7 +39,7 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
       <div
         style={{
           position: 'absolute',
-          left: '50%',
+          left: leftPx,
           top: topPx,
           width: boardPx,
           height: boardPx,
