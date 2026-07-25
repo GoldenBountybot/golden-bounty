@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RotateCcw, Plus, Minus, AlignJustify, Info, X } from 'lucide-react';
 import GatesSymbol, { SYM_IMG } from './GatesSymbol';
 import { useGates } from './useGates';
@@ -9,8 +9,12 @@ const fmt = (v) => `$${Number(v || 0).toFixed(2)}`;
 export default function GatesMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
+  const [dropTick, setDropTick] = useState(0);
 
   const g = useGates();
+
+  // re-trigger the reel-drop animation every time the grid changes
+  useEffect(() => { setDropTick((t) => t + 1); }, [g.grid]);
   const {
     grid, balance, bet, spinning, lastWin, message, winPositions, winFlash,
     freeSpins, turbo, autoSpin, spinMult,
@@ -80,11 +84,14 @@ export default function GatesMachine() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gridTemplateRows: 'repeat(5,1fr)', gap: '3px', padding: '5px' }}>
               {grid.map((reel, c) =>
                 reel.map((sym, r) => {
-                  const key = `${c}-${r}`;
-                  const isWin = winPositions.has(key);
+                  const key = `${c}-${r}-${dropTick}`;
+                  const winKey = `${c}-${r}`;
+                  const isWin = winPositions.has(winKey);
+                  const dropDelay = c * 0.07 + r * 0.02;
                   return (
                     <div key={key} style={{ aspectRatio: '1/1', position: 'relative', borderRadius: '5px',
-                      background: isWin ? 'rgba(255,180,20,0.12)' : 'rgba(0,0,0,0.18)' }}>
+                      background: isWin ? 'rgba(255,180,20,0.12)' : 'rgba(0,0,0,0.18)',
+                      animation: `cascadeDrop 0.28s ease-out ${dropDelay}s both` }}>
                       <GatesSymbol sym={sym} highlight={isWin} />
                     </div>
                   );
@@ -228,16 +235,6 @@ export default function GatesMachine() {
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
             style={{ background: autoSpin ? 'rgba(80,200,120,0.3)' : 'rgba(0,0,0,0.35)', border: `1.5px solid ${autoSpin ? 'rgba(80,220,120,0.8)' : 'rgba(255,255,255,0.4)'}` }}>
             <RotateCcw className={`w-4 h-4 ${autoSpin ? 'text-emerald-300' : 'text-white/80'}`} />
-          </button>
-
-          {/* Center: spin button again (bottom bar) */}
-          <button onClick={spin} disabled={spinning}
-            className="rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-60"
-            style={{ width: 54, height: 54,
-              background: 'radial-gradient(circle at 35% 30%,#ffffff,#d0d4d8 55%,#9098a0 100%)',
-              border: '2.5px solid rgba(255,255,255,0.7)',
-              boxShadow: '0 3px 12px rgba(0,0,0,0.5)' }}>
-            <RotateCcw className={`w-6 h-6 text-slate-700 ${spinning ? 'animate-spin' : ''}`} strokeWidth={2.5} />
           </button>
 
           <button onClick={() => { const i = BETS.findIndex(b => Math.abs(bet-b)<0.001); setBet(BETS[Math.max(i-1, 0)]); }}
