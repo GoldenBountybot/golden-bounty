@@ -229,16 +229,6 @@ export default function GatesMachine() {
             <RotateCcw className={`w-4 h-4 ${autoSpin ? 'text-emerald-300' : 'text-white/80'}`} />
           </button>
 
-          {/* Center: spin button again (bottom bar) */}
-          <button onClick={spin} disabled={spinning}
-            className="rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-60"
-            style={{ width: 54, height: 54,
-              background: 'radial-gradient(circle at 35% 30%,#ffffff,#d0d4d8 55%,#9098a0 100%)',
-              border: '2.5px solid rgba(255,255,255,0.7)',
-              boxShadow: '0 3px 12px rgba(0,0,0,0.5)' }}>
-            <RotateCcw className={`w-6 h-6 text-slate-700 ${spinning ? 'animate-spin' : ''}`} strokeWidth={2.5} />
-          </button>
-
           <button onClick={() => { const i = BETS.findIndex(b => Math.abs(bet-b)<0.001); setBet(BETS[Math.max(i-1, 0)]); }}
             disabled={spinning}
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40"
