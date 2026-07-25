@@ -70,12 +70,11 @@ export default function SpinWheel({ rotation, onRest, size = 320 }) {
           alt="Daily free spin wheel"
           draggable={false}
           style={{
-            width: '104%',
-            height: '104%',
-            marginTop: '-2%',
-            marginLeft: '-2%',
+            width: '100%',
+            height: '100%',
             display: 'block',
             objectFit: 'cover',
+            borderRadius: '50%',
           }}
         />
       </div>
