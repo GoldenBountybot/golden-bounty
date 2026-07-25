@@ -46,11 +46,11 @@ export default function WoodFrame({ variant = 'msg', className = '', style, chil
           filter: 'url(#wfDropBg)',
           borderRadius: 6,
           WebkitMaskImage: 'linear-gradient(#000,#000)',
-          WebkitMaskSize: 'calc(100% - 10px) calc(100% - 10px)',
+          WebkitMaskSize: 'calc(100% - 26px) calc(100% - 26px)',
           WebkitMaskPosition: 'center',
           WebkitMaskRepeat: 'no-repeat',
           maskImage: 'linear-gradient(#000,#000)',
-          maskSize: 'calc(100% - 10px) calc(100% - 10px)',
+          maskSize: 'calc(100% - 26px) calc(100% - 26px)',
           maskPosition: 'center',
           maskRepeat: 'no-repeat',
         }}
