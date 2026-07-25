@@ -42,8 +42,8 @@ function ArtSym({ sym, highlight }) {
           objectFit: 'contain',
           mixBlendMode: 'screen',
           filter: highlight
-            ? 'brightness(1.35) drop-shadow(0 0 8px rgba(255,210,80,0.95))'
-            : 'brightness(1.1) drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 0 2px rgba(0,0,0,0.7))',
+            ? 'brightness(1.4) drop-shadow(0 0 10px rgba(255,210,80,1)) drop-shadow(0 1px 3px rgba(0,0,0,0.9))'
+            : 'brightness(1.15) contrast(1.12) saturate(1.1) drop-shadow(0 2px 5px rgba(0,0,0,0.95)) drop-shadow(0 0 3px rgba(0,0,0,0.8)) drop-shadow(0 0 1px rgba(255,255,255,0.25))',
           transition: 'filter 0.15s',
         }}
       />
