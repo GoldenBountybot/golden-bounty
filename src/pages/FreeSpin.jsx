@@ -117,7 +117,9 @@ export default function FreeSpin() {
     setError('');
     const prize = prizeForDay(spinCount);
     awardRef.current = prize;
-    const idx = segmentIndexForValue(prize.value);
+    // The wheel always visually stops on the $0.05 segment; the real prize is
+    // revealed by the win message, not the pointer.
+    const idx = segmentIndexForValue(0.05);
     const segAngle = 360 / SEGMENTS.length;
     const center = (idx + 0.5) * segAngle;         // uploaded board: seg idx center sits at (idx+0.5)*seg from the top divider
     const targetMod = (360 - center) % 360;        // rotation that puts it under the top pointer
