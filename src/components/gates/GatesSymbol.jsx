@@ -17,13 +17,10 @@ export const SYM_IMG = {
   ring:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2bd22adda_generated_image.png',
   goblet:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d8d665ebe_generated_image.png',
   scatter:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/875c0a005_generated_image.png',
-};
-
-const GEMS = {
-  red:    { c: '#ff4848', d: '#7a0a0a', g: '#8a0a0a' },
-  blue:   { c: '#48a8ff', d: '#0a3a8a', g: '#0a2a6a' },
-  green:  { c: '#48e070', d: '#0a6a2a', g: '#0a4a1a' },
-  yellow: { c: '#ffd648', d: '#8a6a0a', g: '#6a4a0a' },
+  red:       'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f4ca4aa86_generated_image.png',
+  blue:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/08bca9467_generated_image.png',
+  green:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/788a2d51a_generated_image.png',
+  yellow:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c46437541_generated_image.png',
 };
 
 // Kept for any external import compatibility (info panel emoji fallback).
@@ -31,24 +28,6 @@ export const SYM_EMOJI = {
   zeus: '⚡', crown: '👑', hourglass: '⏳', ring: '💍', goblet: '🏆',
   red: '🔴', blue: '🔵', green: '🟢', yellow: '🟡', scatter: '🌟',
 };
-
-function Gem({ color }) {
-  const g = GEMS[color] || GEMS.red;
-  return (
-    <div className="w-full h-full flex items-center justify-center">
-      <div
-        style={{
-          width: '64%',
-          aspectRatio: '1/1',
-          background: `radial-gradient(circle at 36% 28%, #ffffffcc 0%, ${g.c} 34%, ${g.d} 78%, ${g.g} 100%)`,
-          border: '1.5px solid rgba(255,255,255,0.55)',
-          boxShadow: 'inset 0 0 8px rgba(255,255,255,0.45), inset 0 0 14px rgba(0,0,0,0.4)',
-          clipPath: 'polygon(50% 0%, 100% 35%, 82% 100%, 18% 100%, 0% 35%)',
-        }}
-      />
-    </div>
-  );
-}
 
 function ArtSym({ sym, highlight }) {
   return (
@@ -96,7 +75,6 @@ export default function GatesSymbol({ sym, highlight }) {
   }
 
   if (SYM_IMG[sym]) return <ArtSym sym={sym} highlight={highlight} />;
-  if (GEMS[sym]) return <Gem color={sym} />;
   return (
     <div className="w-full h-full flex items-center justify-center" style={{ fontSize: 28 }}>
       <span>{SYM_EMOJI[sym] || sym}</span>
