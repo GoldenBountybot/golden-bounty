@@ -4,6 +4,7 @@ import { ChevronLeft, Gift, Clock, Coins, Sparkles, Trophy } from 'lucide-react'
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import SpinWheel from '@/components/freespin/SpinWheel';
+import WoodFrame, { msgFrameStyle, btnFrameStyle } from '@/components/freespin/WoodFrame';
 
 // Wheel segments in the uploaded board's clockwise order (segment 1 is the
 // first slice immediately clockwise of the top divider). Colors are kept for the
@@ -152,37 +153,37 @@ export default function FreeSpin() {
         {/* Wheel — transparent surroundings, floats on the page bg */}
         <SpinWheel segments={SEGMENTS} rotation={rotation} onRest={handleRest} size={340} />
 
-        {/* Result banner */}
+        {/* Result banner — western wooden frame */}
         {result && (
-          <div className="mt-6 w-full max-w-xs mx-auto rounded-xl px-4 py-3 text-center animate-[saWinPop_0.5s_ease-out]"
-            style={{ ...woodBtn, boxShadow: '0 0 22px rgba(255,200,80,0.7)' }}>
-            <div className="flex items-center justify-center gap-2">
-              <Trophy className="w-5 h-5" />
-              <span className="font-black italic text-lg text-stone-900">
+          <div className="mt-6 w-full max-w-xs mx-auto text-center animate-[saWinPop_0.5s_ease-out]"
+            style={{ ...msgFrameStyle, boxShadow: '0 0 22px rgba(255,200,80,0.5)' }}>
+            <div className="flex items-center justify-center gap-2 px-1 py-0.5">
+              <Trophy className="w-5 h-5" style={{ color: '#c5a059' }} />
+              <span className="font-black italic text-lg" style={{ color: '#c5a059', textShadow: '0 1px 2px rgba(0,0,0,0.75)' }}>
                 {result.jackpot ? `JACKPOT! $${result.win.toFixed(2)}` : `You won $${result.win.toFixed(2)}!`}
               </span>
             </div>
           </div>
         )}
 
-        {/* Spin / cooldown control */}
+        {/* Spin / cooldown control — western wooden frame */}
         <div className="mt-6 w-full max-w-xs">
           {available ? (
             <button
               onClick={handleSpin}
               disabled={spinning}
-              className="w-full py-3.5 rounded-xl text-base font-black italic tracking-widest disabled:opacity-60 active:scale-95 transition-transform flex items-center justify-center gap-2"
-              style={woodBtn}
+              className="w-full text-base font-black italic tracking-widest disabled:opacity-60 active:scale-95 transition-transform flex items-center justify-center gap-2"
+              style={{ ...btnFrameStyle, color: '#c5a059', textShadow: '0 1px 2px rgba(0,0,0,0.75)' }}
             >
               <Sparkles className="w-5 h-5" /> {spinning ? 'SPINNING…' : 'SPIN NOW'}
             </button>
           ) : (
-            <div className="w-full py-3.5 rounded-xl text-center" style={{ border: '1px solid rgba(190,140,55,0.6)', background: 'rgba(20,17,13,0.7)' }}>
-              <div className="flex items-center justify-center gap-2 text-amber-200/90">
-                <Clock className="w-4 h-4" />
-                <span className="text-xs font-bold italic tracking-wide">NEXT SPIN IN</span>
+            <div className="w-full text-center" style={{ ...msgFrameStyle }}>
+              <div className="flex items-center justify-center gap-2 px-1 pt-0.5">
+                <Clock className="w-4 h-4" style={{ color: '#c5a059' }} />
+                <span className="text-xs font-bold italic tracking-wide" style={{ color: '#c5a059' }}>NEXT SPIN IN</span>
               </div>
-              <div className="mt-1 text-2xl font-black tabular-nums text-yellow-300" style={{ textShadow: '0 0 10px rgba(255,200,80,0.6)' }}>
+              <div className="mt-0.5 mb-1 text-2xl font-black tabular-nums" style={{ color: '#f5d77a', textShadow: '0 0 10px rgba(255,200,80,0.6)' }}>
                 {remaining == null ? '—:—:—' : fmt(remaining)}
               </div>
             </div>
