@@ -10,7 +10,7 @@ const SYM_IMG = {
   goblet:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6e36c7c39_file_00000000613081fa82be73cb5f04d75b.png',
   red:       'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1a5985b1f_generated_image.png',
   blue:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/cb5a74fad_generated_image.png',
-  green:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7b2de1c28_file_00000000ace481fa859a1e16657b0a40.png',
+  green:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8372beff3_file_000000003ba081fab925bbd1fa109a95.png',
   yellow:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/dd2299e17_generated_image.png',
   scatter:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f62b86258_generated_image.png',
   mult:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/138a9cee6_generated_image.png',
