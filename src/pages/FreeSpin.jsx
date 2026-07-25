@@ -135,13 +135,10 @@ export default function FreeSpin() {
       {/* Header */}
       <GameHeader title="Daily Free Spin" balance={balance} />
 
-      <main className="max-w-md mx-auto px-4 pt-16 pb-6 flex flex-col items-center">
-        {/* Wheel — transparent surroundings, floats on the page bg */}
-        <SpinWheel segments={SEGMENTS} rotation={rotation} onRest={handleRest} size={340} />
-
-        {/* Result banner — western wooden frame */}
+      <main className="max-w-md mx-auto px-4 pt-40 pb-6 flex flex-col items-center">
+        {/* Result banner — western wooden frame (kept above the wheel) */}
         {result && (
-          <WoodFrame variant="msg" className="mt-6 w-full max-w-xs mx-auto text-center animate-[saWinPop_0.5s_ease-out]"
+          <WoodFrame variant="msg" className="mb-2 w-full max-w-xs mx-auto text-center animate-[saWinPop_0.5s_ease-out]"
             style={{ boxShadow: '0 0 22px rgba(255,200,80,0.5)' }}>
             <div className="flex items-center justify-center gap-2">
               <Trophy className="w-5 h-5" style={{ color: '#c5a059' }} />
@@ -151,6 +148,9 @@ export default function FreeSpin() {
             </div>
           </WoodFrame>
         )}
+
+        {/* Wheel — transparent surroundings, floats on the page bg */}
+        <SpinWheel segments={SEGMENTS} rotation={rotation} onRest={handleRest} size={340} />
 
         {/* Spin / cooldown control — western wooden frame */}
         <div className="mt-6 w-full max-w-xs">
