@@ -45,7 +45,9 @@ const DAILY_PRIZES = [
 ];
 
 function prizeForDay(spinCount) {
-  return DAILY_PRIZES[spinCount % DAILY_PRIZES.length];
+  // Day 5 onward — always $0.05 directly, the ladder does not cycle.
+  if (spinCount >= DAILY_PRIZES.length) return { value: 0.05, held: false };
+  return DAILY_PRIZES[spinCount];
 }
 
 function segmentIndexForValue(value) {
