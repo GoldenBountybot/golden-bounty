@@ -1,61 +1,36 @@
 import React from 'react';
 
-// Two AI-generated premium western wooden frames. The frame image is painted
-// on its own absolutely-positioned layer and run through an SVG luminance
-// filter that drops BOTH pure-black and pure-white backgrounds to transparent
-// (mid-tone wood + gold stay fully opaque), so the frame floats cleanly over
-// the casino background. Text/content sit on a separate relative layer above,
-// so they are never touched by the filter.
-
-export const FRAME_MSG_URL =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/314303958_generated_image.png';
-export const FRAME_BTN_URL =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0591f9662_generated_image.png';
-
-// Luminance → alpha table: frames are generated on a solid WHITE background,
-// so we drop only near-white (lum → 1) to transparent and keep the dark wood,
-// gold trim, and dark interior fully opaque.
-const FILTER_SVG = (
-  <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
-    <filter id="wfDropBg" colorInterpolationFilters="sRGB">
-      {/* alpha = 3 - R - G - B  → pure/near-white → ~0, gold & wood → high */}
-      <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -1 -1 -1 0 3" />
-      <feComponentTransfer>
-        <feFuncA type="table" tableValues="0 1 1 0" />
-      </feComponentTransfer>
-    </filter>
-  </svg>
-);
+// Pure-CSS western wooden plaque — no image asset, so there is no white
+// background or baked-in rim to leak through. Gold trim is built from inset
+// box-shadows; the wood face is a layered gradient. Content sits on a relative
+// layer above.
 
 export default function WoodFrame({ variant = 'msg', className = '', style, children }) {
-  const img = variant === 'btn' ? FRAME_BTN_URL : FRAME_MSG_URL;
-  const pad = variant === 'btn' ? '24px 28px' : '12px 28px';
+  const pad = variant === 'btn' ? '20px 26px' : '14px 26px';
+  const isBtn = variant === 'btn';
   return (
     <div className={`relative ${className}`} style={style}>
-      {FILTER_SVG}
-      {/* Frame layer — stretched to fill, background dropped via luminance filter */}
+      {/* Frame layer — CSS-only wood + gold trim, no white border possible */}
       <div
         aria-hidden="true"
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage: `url(${img})`,
-          backgroundSize: '100% 100%',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          filter: 'url(#wfDropBg)',
-          borderRadius: 6,
-          WebkitMaskImage: 'linear-gradient(#000,#000)',
-          WebkitMaskSize: 'calc(100% - 26px) calc(100% - 26px)',
-          WebkitMaskPosition: 'center',
-          WebkitMaskRepeat: 'no-repeat',
-          maskImage: 'linear-gradient(#000,#000)',
-          maskSize: 'calc(100% - 26px) calc(100% - 26px)',
-          maskPosition: 'center',
-          maskRepeat: 'no-repeat',
+          borderRadius: 10,
+          background:
+            'linear-gradient(160deg, #4a2e16 0%, #3a2310 35%, #2a190b 70%, #1a0f06 100%)',
+          border: '2px solid #c5a059',
+          boxShadow: [
+            'inset 0 0 0 2px #6b4a1f',      // dark ring
+            'inset 0 0 0 4px #c5a059',      // inner gold ring
+            'inset 0 0 0 5px #5a3a18',      // dark hairline
+            'inset 0 3px 8px rgba(0,0,0,0.65)',
+            'inset 0 -2px 6px rgba(0,0,0,0.55)',
+            `0 4px 16px rgba(0,0,0,0.55)${isBtn ? ', 0 0 18px rgba(255,200,80,0.35)' : ''}`,
+          ].join(', '),
         }}
       />
-      {/* Content layer — sits above the frame, unfiltered */}
+      {/* Content layer — sits above the frame */}
       <div className="relative" style={{ padding: pad }}>
         {children}
       </div>
