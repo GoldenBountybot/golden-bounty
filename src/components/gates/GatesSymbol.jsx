@@ -24,9 +24,9 @@ export default function GatesSymbol({ sym, highlight }) {
     return (
       <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
         style={{
-          border: '1px solid rgba(255,220,140,0.22)',
-          boxShadow: '0 0 6px rgba(120,255,90,0.10), inset 0 0 8px rgba(120,255,120,0.06)',
-          background: 'radial-gradient(circle at center, rgba(120,255,120,0.10), transparent 72%)',
+          border: 'none',
+          boxShadow: 'none',
+          background: 'transparent',
         }}>
         <img src={SYM_IMG.mult} alt={`mult-${v}`} className="w-full h-full object-cover" style={{ filter: 'drop-shadow(0 0 4px rgba(100,220,50,0.6)) saturate(1.25) contrast(1.12) brightness(1.05)', mixBlendMode: 'lighten' }} />
         <span className="absolute inset-0 flex items-center justify-center pointer-events-none"
@@ -42,13 +42,13 @@ export default function GatesSymbol({ sym, highlight }) {
     <div
       className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
       style={{
-        border: highlight ? '2px solid #ffe070' : '1px solid rgba(255,220,140,0.22)',
+        border: highlight ? '2px solid #ffe070' : 'none',
         boxShadow: highlight
           ? '0 0 0 2px rgba(255,235,120,0.9), 0 0 22px rgba(255,220,90,1), inset 0 0 18px rgba(255,230,120,0.6)'
-          : '0 0 6px rgba(255,200,90,0.08), inset 0 0 8px rgba(255,220,120,0.06)',
+          : 'none',
         background: highlight
           ? 'radial-gradient(circle at center, rgba(255,215,90,0.28), rgba(255,180,40,0.10) 60%, transparent 78%)'
-          : 'radial-gradient(circle at center, rgba(255,225,130,0.10), transparent 72%)',
+          : 'transparent',
         animation: highlight ? 'gatesWinGlow 0.7s ease-in-out infinite' : 'none',
         transition: 'box-shadow 0.15s, border 0.15s, background 0.15s',
       }}

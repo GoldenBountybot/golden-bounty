@@ -196,15 +196,6 @@ export default function GatesMachine() {
       <div className="relative shrink-0 flex-1 flex flex-col justify-between px-3 pb-2"
         style={{ background: 'transparent', minHeight: 180 }}>
 
-        {/* Temple pillars decorative */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {[6,22,38,54,70,86].map((x,i) => (
-            <div key={i} className="absolute bottom-0" style={{ left: `${x}%`, width: '7%', height: '65%',
-              background: 'linear-gradient(to right,rgba(255,255,255,0.12),rgba(255,255,255,0.22),rgba(255,255,255,0.12))',
-              border: '1px solid rgba(255,255,255,0.15)', borderRadius: '3px 3px 0 0' }} />
-          ))}
-        </div>
-
         {/* Top row: free spins badge + spin area + multiplier badge */}
         <div className="relative z-10 flex items-start justify-between pt-2 gap-2">
 
