@@ -17,10 +17,10 @@ export const SYM_IMG = {
   ring:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/77051f4d5_generated_image.png',
   goblet:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a65f8531a_generated_image.png',
   scatter:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9212f063d_generated_image.png',
-  red:       'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f4ca4aa86_generated_image.png',
-  blue:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/08bca9467_generated_image.png',
-  green:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/788a2d51a_generated_image.png',
-  yellow:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c46437541_generated_image.png',
+  red:       'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1584f0a60_generated_image.png',
+  blue:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b3fdc9cd5_generated_image.png',
+  green:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/77d142261_generated_image.png',
+  yellow:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bfe612d7b_generated_image.png',
 };
 
 // Kept for any external import compatibility (info panel emoji fallback).
