@@ -104,14 +104,14 @@ export default function GatesMachine() {
       {/* ── REEL BOARD ── golden frame with purple interior */}
       <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto' }}>
         {/* Outer golden border */}
-        <div className="relative rounded-[10px] overflow-hidden"
+        <div className="relative rounded-[10px]"
           style={{
-            padding: '5px',
-            background: 'linear-gradient(145deg,#f8d840,#c8880a 35%,#a06010 65%,#f8d840 100%)',
+            border: '5px solid transparent',
+            background: 'linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0)) padding-box, linear-gradient(145deg,#f8d840,#c8880a 35%,#a06010 65%,#f8d840 100%) border-box',
             boxShadow: '0 0 0 2px #7a4a08, 0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(200,136,10,0.3)',
           }}>
           {/* Inner reel area */}
-          <div className="relative rounded-[7px] overflow-hidden"
+          <div className="relative rounded-[6px] overflow-hidden"
             style={{ background: 'transparent', minHeight: 0 }}>
 
             {/* 6×5 grid — Big Brown style: per-reel scroll strip, sequential stop + drop */}
