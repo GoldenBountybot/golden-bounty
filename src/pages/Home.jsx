@@ -4,11 +4,12 @@ import CasinoGameCard from '@/components/CasinoGameCard';
 import WesternGameBanners from '@/components/WesternGameBanners';
 import BottomNav from '@/components/BottomNav';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
-import { Wallet, FlaskConical, Gift } from 'lucide-react';
+import { Wallet, FlaskConical } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
 const GAMES = [
+  { id: 'free-spin', title: 'Daily Free Spin', category: 'Arcade', desc: 'Spin every 24h · win $1000', accent: 'from-amber-500 to-yellow-700', tag: 'FREE', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png', path: '/free-spin' },
   { id: 'wild-bounty', title: 'Wild Bounty Showdown', category: 'Slots', desc: '3600 Ways · Cascade Wins', accent: 'from-amber-500 to-orange-700', tag: 'HOT', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/af2b94fcd_InShot_20260717_194156078.jpg' },
   { id: 'hi-lo', title: 'High or Low', category: 'Cards', desc: 'Guess the Next Card', accent: 'from-emerald-500 to-green-700' },
   { id: 'roulette', title: 'Golden Roulette', category: 'Table', desc: 'Place Your Bets', accent: 'from-yellow-500 to-amber-700', coming: true },
@@ -88,35 +89,6 @@ export default function Home() {
       {/* Premium Western game banners */}
       <div className="max-w-6xl mx-auto px-4 pt-5">
         <WesternGameBanners />
-      </div>
-
-      {/* Daily Free Spin */}
-      <div className="max-w-6xl mx-auto px-4 mt-4">
-        <Link
-          to="/free-spin"
-          className="flex items-center justify-between gap-3 rounded-xl px-4 py-3 transition-all active:scale-[0.98] hover:brightness-110"
-          style={{
-            border: '1px solid rgba(214,178,98,0.7)',
-            background: 'linear-gradient(135deg, rgba(122,79,23,0.55), rgba(20,17,13,0.85))',
-            boxShadow: '0 4px 14px rgba(200,136,30,0.25), inset 0 1px 0 rgba(255,240,200,0.12)',
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <span
-              className="flex items-center justify-center w-11 h-11 rounded-full shrink-0"
-              style={{ background: 'radial-gradient(circle at 35% 30%, #f3d77a, #c8932e 55%, #7a4f17)', boxShadow: '0 0 12px rgba(255,190,40,0.6)' }}
-            >
-              <Gift className="w-6 h-6 text-stone-900" />
-            </span>
-            <div>
-              <p className="text-sm font-black italic text-yellow-300" style={{ fontFamily: 'Rye, Georgia, serif' }}>Daily Free Spin</p>
-              <p className="text-[11px] text-amber-100/65 italic" style={{ fontFamily: 'Georgia, serif' }}>Spin the golden wheel every 24h · win up to $1000</p>
-            </div>
-          </div>
-          <span className="text-xs font-black italic px-3 py-1.5 rounded-md shrink-0" style={{ background: 'linear-gradient(to bottom,#f5c542,#c8881e)', color: '#2a1a06' }}>
-            SPIN →
-          </span>
-        </Link>
       </div>
 
       {/* Category tabs */}

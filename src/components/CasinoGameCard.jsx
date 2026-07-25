@@ -6,10 +6,11 @@ import { Lock, Play, Share2, Check } from 'lucide-react';
 export default function CasinoGameCard({ game }) {
   const [copied, setCopied] = useState(false);
 
+  const path = game.path || `/games/${game.id}`;
   const share = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const url = `${window.location.origin}/games/${game.id}`;
+    const url = `${window.location.origin}${path}`;
     try {
       navigator.clipboard?.writeText(url);
       setCopied(true);
@@ -79,5 +80,5 @@ export default function CasinoGameCard({ game }) {
   if (game.coming) {
     return <div className="cursor-default select-none">{inner}</div>;
   }
-  return <Link to={`/games/${game.id}`}>{inner}</Link>;
+  return <Link to={path}>{inner}</Link>;
 }
