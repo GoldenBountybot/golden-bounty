@@ -26,12 +26,14 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
   const leftPx = size * CENTER_X_FRAC;
   const topPx = size * (CENTER_Y_FRAC - BOARD_DIAM_FRAC / 2);
 
-  // Pointer cone — a gold metallic downward finial seated on the wheel's top
-  // edge, echoing the baroque gold scrollwork of the stand.
-  const coneW = boardPx * 0.18;
-  const coneH = boardPx * 0.26;
-  const coneLeft = leftPx;
-  const coneTop = topPx - coneH * 0.82; // tip dips onto the wheel's top rim
+  // Pointer — an iconic Western sheriff-star badge, point-down, seated on the
+  // wheel's top edge. 5-pointed star clip-path with a dark engraved inner star
+  // and a rivet, echoing the baroque gold of the stand.
+  const starSize = boardPx * 0.26;
+  const starLeft = leftPx;
+  const starTop = topPx - starSize * 0.86; // bottom point dips onto the wheel rim
+  const STAR_CLIP =
+    'polygon(50% 100%, 37.95% 66.58%, 2.45% 65.45%, 30.5% 43.67%, 20.61% 9.55%, 50% 29.5%, 79.39% 9.55%, 69.5% 43.67%, 97.55% 65.45%, 62.05% 66.58%)';
 
   return (
     <div className="relative select-none mx-auto" style={{ width: size }}>
@@ -43,41 +45,52 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
         style={{ width: '100%', height: 'auto', display: 'block' }}
       />
 
-      {/* Gold pointer cone — fixed at the top, points down into the wheel */}
+      {/* Western sheriff-star pointer — fixed at the top, points down into the wheel */}
       <div
         style={{
           position: 'absolute',
-          left: coneLeft,
-          top: coneTop,
-          width: coneW,
-          height: coneH,
+          left: starLeft,
+          top: starTop,
+          width: starSize,
+          height: starSize,
           transform: 'translateX(-50%)',
           zIndex: 5,
-          filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.55))',
+          filter: 'drop-shadow(0 3px 4px rgba(0,0,0,0.6))',
         }}
       >
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            clipPath: 'polygon(50% 100%, 8% 0%, 92% 0%)',
-            background:
-              'linear-gradient(150deg, #ffe9a8 0%, #f5c542 28%, #d4af37 50%, #8b6914 78%, #4a3505 100%)',
-            boxShadow: 'inset 0 1px 1px rgba(255,245,200,0.8), inset 0 -2px 4px rgba(0,0,0,0.45)',
-          }}
-        />
-        {/* small jewel cap at the base of the cone */}
+        {/* Outer gold star */}
         <div
           style={{
             position: 'absolute',
-            top: -coneW * 0.18,
+            inset: 0,
+            clipPath: STAR_CLIP,
+            background:
+              'linear-gradient(160deg, #fff2b8 0%, #f5c542 30%, #d4af37 52%, #8b6914 80%, #4a3505 100%)',
+            boxShadow: 'inset 0 1px 1px rgba(255,245,200,0.85), inset 0 -3px 5px rgba(0,0,0,0.5)',
+          }}
+        />
+        {/* Engraved inner star — darker, gives the badge depth */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: '24%',
+            clipPath: STAR_CLIP,
+            background: 'linear-gradient(155deg, #c8932e 0%, #a06f1a 45%, #5e3d12 100%)',
+            boxShadow: 'inset 0 1px 1px rgba(255,235,150,0.5), inset 0 -2px 3px rgba(0,0,0,0.55)',
+          }}
+        />
+        {/* Central rivet */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '42%',
             left: '50%',
-            transform: 'translateX(-50%)',
-            width: coneW * 0.5,
-            height: coneW * 0.5,
+            transform: 'translate(-50%,-50%)',
+            width: starSize * 0.16,
+            height: starSize * 0.16,
             borderRadius: '50%',
-            background: 'radial-gradient(circle at 35% 30%, #fff4d0, #f5c542 45%, #8b6914 80%, #4a3505)',
-            boxShadow: 'inset 0 1px 1px rgba(255,245,200,0.9), 0 0 6px rgba(255,200,80,0.5)',
+            background: 'radial-gradient(circle at 35% 30%, #fff4d0, #f5c542 45%, #7a4f17 85%)',
+            boxShadow: 'inset 0 1px 1px rgba(255,245,200,0.9), 0 0 5px rgba(255,200,80,0.6)',
           }}
         />
       </div>
