@@ -135,7 +135,7 @@ export default function FreeSpin() {
       {/* Header */}
       <GameHeader title="Daily Free Spin" balance={balance} />
 
-      <main className="max-w-md mx-auto px-4 pt-40 pb-6 flex flex-col items-center">
+      <main className="max-w-md mx-auto px-4 pt-6 pb-6 flex flex-col items-center">
         {/* Result banner — western wooden frame (kept above the wheel) */}
         {result && (
           <WoodFrame variant="msg" className="mb-2 w-full max-w-xs mx-auto text-center animate-[saWinPop_0.5s_ease-out]"
