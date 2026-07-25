@@ -38,7 +38,7 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
   // the topper crowns the frame and the shield sits over the gold rim.
   const POINTER_W = boardPx * 0.34;
   const pointerLeft = leftPx;
-  const pointerBottom = topPx + boardPx * 0.012; // tip dips just inside the rim
+  const pointerBottom = topPx + boardPx * 0.06; // tip dips onto the wheel face
 
   return (
     <div className="relative select-none mx-auto" style={{ width: size }}>
