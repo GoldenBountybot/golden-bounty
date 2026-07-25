@@ -33,7 +33,7 @@ const SEGMENTS = [
 // Weighted random — small prizes common, big/jackpot rare (matches SEGMENTS order).
 const WEIGHTS = [40, 40, 35, 30, 25, 22, 16, 12, 1, 10, 8, 5, 3, 2.5, 2, 1.5, 1, 1, 1];
 
-const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
+const COOLDOWN_MS = 0; // TEST MODE — no cooldown. Restore to 24 * 60 * 60 * 1000 (24h) for production.
 
 function pickIndex() {
   const total = WEIGHTS.reduce((a, b) => a + b, 0);
