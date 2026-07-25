@@ -142,7 +142,7 @@ export default function GatesMachine() {
 
       {/* ── BOTTOM PANEL — Olympus temple scene ── */}
       <div className="relative shrink-0 flex-1 flex flex-col justify-between px-3 pb-2"
-        style={{ background: 'linear-gradient(to bottom,#2a4878 0%,#4878b8 30%,#90b8e8 60%,#c8d8f0 80%,#e8e8e0 100%)', minHeight: 180 }}>
+        style={{ background: 'transparent', minHeight: 180 }}>
 
         {/* Temple pillars decorative */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
