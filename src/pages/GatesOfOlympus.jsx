@@ -13,13 +13,21 @@ export default function GatesOfOlympus() {
       <GameLoadingScreen
         title="Gates of Olympus"
         onDone={() => setReady(true)}
-        bgImage="https://images.unsplash.com/photo-1618005182384-a3710d5b9a35?auto=format&fit=crop&w=1200&q=70"
+        bgImage="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1f0dcd8e1_file_00000000534882308373132046ad84c6.png"
       />
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#3a1060' }}>
+    <div
+      className="min-h-screen"
+      style={{
+        backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1f0dcd8e1_file_00000000534882308373132046ad84c6.png'), linear-gradient(to bottom, #3a1060, #1a0530)",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       <GameHeader title="Gates of Olympus" balance={Number(balance || 0)} />
       <GatesMachine />
     </div>
