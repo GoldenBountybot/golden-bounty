@@ -8,18 +8,18 @@ import React from 'react';
 // the board inside the central circle; nudge them if the frame image differs.
 
 const FRAME_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/744c8ab1e_file_00000000708c81fba48880746f3e3b65.png';
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6f64aed99_file_00000000c4c881fa936f6d4b80af30a1.png';
 
 const WHEEL_IMG =
   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png';
 
-// Board placement within the frame, measured from the uploaded frame image
-// (1024×1024). The central matte-black circle's center is at (50.5%, 39.5%)
-// and its diameter is ~45.6% of the frame width (covers the full matte disk
-// up to the inner gold rim, so no black ring shows around the wheel).
-const BOARD_DIAM_FRAC = 0.456;   // board diameter = matte disk diameter
-const CENTER_X_FRAC = 0.505;     // matte circle center X
-const CENTER_Y_FRAC = 0.395;     // matte circle center Y
+// Board placement within the frame, measured from the uploaded stand image
+// (1024×1024). The central circular opening's center is at (50.5%, 42.4%)
+// and its diameter is ~54.7% of the frame width (fills the gold frame opening
+// up to the inner rim, so no black ring shows around the wheel).
+const BOARD_DIAM_FRAC = 0.547;   // board diameter = opening diameter
+const CENTER_X_FRAC = 0.505;     // opening center X
+const CENTER_Y_FRAC = 0.424;     // opening center Y
 
 export default function SpinWheel({ rotation, onRest, size = 340 }) {
   const boardPx = size * BOARD_DIAM_FRAC;
