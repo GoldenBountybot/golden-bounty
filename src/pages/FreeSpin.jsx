@@ -142,7 +142,10 @@ export default function FreeSpin() {
     } else {
       frac = 0.2 + Math.random() * 0.6;   // land inside, biased toward center
     }
-    const center = (idx + frac) * segAngle;        // uploaded board: seg idx center sits at (idx+0.5)*seg from the top divider
+    // The uploaded board's segment idx center sits at (idx-0.5)*segAngle from
+    // the top divider (segment 0 is immediately COUNTER-clockwise of the top
+    // divider), so frac=0.5 → segment center, frac=0/1 → a divider edge.
+    const center = (idx + frac - 1) * segAngle;
     const targetMod = (360 - center) % 360;        // rotation that puts it under the top pointer
     const currentMod = ((rotation % 360) + 360) % 360;
     const delta = (targetMod - currentMod + 360) % 360;
