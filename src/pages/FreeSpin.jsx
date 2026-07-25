@@ -121,7 +121,15 @@ export default function FreeSpin() {
     // revealed by the win message, not the pointer.
     const idx = segmentIndexForValue(0.05);
     const segAngle = 360 / SEGMENTS.length;
-    const center = (idx + 0.5) * segAngle;         // uploaded board: seg idx center sits at (idx+0.5)*seg from the top divider
+    // Mostly land near the segment center; ~30% of the time drift onto a
+    // divider line between two segments so the stop looks less mechanical.
+    let frac;
+    if (Math.random() < 0.3) {
+      frac = Math.random() < 0.5 ? 0 : 1; // land on a divider edge
+    } else {
+      frac = 0.2 + Math.random() * 0.6;   // land inside, biased toward center
+    }
+    const center = (idx + frac) * segAngle;        // uploaded board: seg idx center sits at (idx+0.5)*seg from the top divider
     const targetMod = (360 - center) % 360;        // rotation that puts it under the top pointer
     const currentMod = ((rotation % 360) + 360) % 360;
     const delta = (targetMod - currentMod + 360) % 360;
