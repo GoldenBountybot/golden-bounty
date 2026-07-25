@@ -53,7 +53,7 @@ export default function SpinWheel({ rotation, onRest, size = 320 }) {
       <div
         style={{
           transform: `rotate(${rotation}deg)`,
-          transition: 'transform 4.6s cubic-bezier(0.14,0.94,0.18,1)',
+          transition: 'transform 7s cubic-bezier(0.18,0.82,0.05,1)',
           willChange: 'transform',
           width: size,
           height: size,
