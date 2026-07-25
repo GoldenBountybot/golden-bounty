@@ -59,7 +59,7 @@ export default function SpinWheel({ rotation, onRest, size = 320 }) {
           height: size,
           borderRadius: '50%',
           overflow: 'hidden',
-          boxShadow: '0 0 0 3px #5e3d12, 0 10px 30px rgba(0,0,0,0.65)',
+          boxShadow: '0 0 0 3px #5e3d12',
         }}
         onTransitionEnd={(e) => {
           if (e.propertyName === 'transform' && onRest) onRest();
