@@ -31,19 +31,26 @@ const SEGMENTS = [
   { label: '1000$',  value: 1000,  color: '#c5a34d', gold: true },
 ];
 
-// Weighted random — small prizes common, big/jackpot rare (matches SEGMENTS order).
-const WEIGHTS = [40, 40, 35, 30, 25, 22, 16, 12, 1, 10, 8, 5, 3, 2.5, 2, 1.5, 1, 1, 1];
-
 const COOLDOWN_MS = 0; // TEST MODE — no cooldown. Restore to 24 * 60 * 60 * 1000 (24h) for production.
 
-function pickIndex() {
-  const total = WEIGHTS.reduce((a, b) => a + b, 0);
-  let r = Math.random() * total;
-  for (let i = 0; i < WEIGHTS.length; i++) {
-    r -= WEIGHTS[i];
-    if (r <= 0) return i;
-  }
-  return WEIGHTS.length - 1;
+// Deterministic daily streak prizes (Western bounty ladder). Direct prizes
+// credit to the balance instantly. "held" prizes do NOT credit yet — they are
+// stored as pending and only land in the wallet once the player deposits the
+// same amount and Stacks it within 24 hours. After day 4 the ladder cycles.
+const DAILY_PRIZES = [
+  { value: 0.05, held: false }, // Day 1
+  { value: 0.10, held: false }, // Day 2
+  { value: 100,  held: true },  // Day 3
+  { value: 50,   held: true },  // Day 4
+];
+
+function prizeForDay(spinCount) {
+  return DAILY_PRIZES[spinCount % DAILY_PRIZES.length];
+}
+
+function segmentIndexForValue(value) {
+  const i = SEGMENTS.findIndex((s) => Number(s.value) === Number(value));
+  return i === -1 ? 0 : i;
 }
 
 function fmt(ms) {
@@ -66,6 +73,7 @@ const woodBtn = {
 export default function FreeSpin() {
   const { balance, setBalance } = useCasinoBalance();
   const [lastSpinAt, setLastSpinAt] = useState(null); // null = still loading
+  const [spinCount, setSpinCount] = useState(0); // total daily spins done (drives the prize ladder)
   const [now, setNow] = useState(Date.now());
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -82,6 +90,8 @@ export default function FreeSpin() {
         if (!m) return;
         const v = Number(me?.last_daily_spin_at || 0);
         setLastSpinAt(isFinite(v) ? v : 0);
+        const c = Number(me?.daily_spin_count || 0);
+        setSpinCount(isFinite(c) ? c : 0);
       } catch {
         if (m) setLastSpinAt(0);
       }
@@ -103,8 +113,9 @@ export default function FreeSpin() {
     setSpinning(true);
     setResult(null);
     setError('');
-    const idx = pickIndex();
-    awardRef.current = SEGMENTS[idx];
+    const prize = prizeForDay(spinCount);
+    awardRef.current = prize;
+    const idx = segmentIndexForValue(prize.value);
     const segAngle = 360 / SEGMENTS.length;
     const center = (idx + 0.5) * segAngle;         // uploaded board: seg idx center sits at (idx+0.5)*seg from the top divider
     const targetMod = (360 - center) % 360;        // rotation that puts it under the top pointer
@@ -112,23 +123,38 @@ export default function FreeSpin() {
     const delta = (targetMod - currentMod + 360) % 360;
     const turns = 6;
     setRotation(rotation + turns * 360 + delta);
-  }, [spinning, available, rotation]);
+  }, [spinning, available, rotation, spinCount]);
 
   const handleRest = useCallback(async () => {
-    const seg = awardRef.current;
-    if (!seg) return;
-    const win = Number(seg.value) || 0;
-    setBalance((b) => b + win);
-    setResult({ ...seg, win });
+    const prize = awardRef.current;
+    if (!prize) return;
+    const win = Number(prize.value) || 0;
     const ts = Date.now();
+    const nextCount = spinCount + 1;
+    if (prize.held) {
+      // Held prize — does NOT credit yet. Stored as pending; it lands in the
+      // wallet only once the player deposits the same amount and Stacks it
+      // within 24 hours.
+      setResult({ ...prize, win, held: true, expires_at: ts + 24 * 60 * 60 * 1000 });
+    } else {
+      setBalance((b) => b + win);
+      setResult({ ...prize, win });
+    }
     setLastSpinAt(ts);
     setSpinning(false);
+    setSpinCount(nextCount);
     try {
-      await base44.auth.updateMe({ last_daily_spin_at: ts });
+      await base44.auth.updateMe({
+        last_daily_spin_at: ts,
+        daily_spin_count: nextCount,
+        pending_daily_prize: prize.held
+          ? { amount: win, expires_at: ts + 24 * 60 * 60 * 1000, spin_at: ts }
+          : null,
+      });
     } catch {
       /* cooldown persist is best-effort */
     }
-  }, [setBalance]);
+  }, [setBalance, spinCount]);
 
   return (
     <div className="min-h-screen relative" style={{ ...W, backgroundImage: 'linear-gradient(rgba(10,8,6,0.8), rgba(10,8,6,0.8)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bd52e9c49_file_00000000a50c8207b70a5b0acc15d3dc.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
@@ -137,16 +163,23 @@ export default function FreeSpin() {
 
       <main className="max-w-md mx-auto px-4 pt-6 pb-6 flex flex-col items-center">
         {/* Reserved slot above the wheel — win message floats up into it */}
-        <div className="relative w-full max-w-xs mx-auto mb-2" style={{ height: 56 }}>
+        <div className="relative w-full max-w-xs mx-auto mb-2" style={{ height: result?.held ? 108 : 56 }}>
           {result && (
             <div className="absolute inset-0 flex items-center justify-center animate-[freeWinFloat_0.6s_ease-out]">
               <WoodFrame variant="msg" className="w-full text-center"
                 style={{ boxShadow: '0 0 22px rgba(255,200,80,0.5)' }}>
-                <div className="flex items-center justify-center gap-2">
-                  <Trophy className="w-5 h-5" style={{ color: '#c5a059' }} />
-                  <span className="font-black italic text-lg" style={{ color: '#c5a059', textShadow: '0 1px 2px rgba(0,0,0,0.75)' }}>
-                    {result.jackpot ? `JACKPOT! $${result.win.toFixed(2)}` : `You won $${result.win.toFixed(2)}!`}
-                  </span>
+                <div className="flex flex-col items-center justify-center gap-1 px-2">
+                  <div className="flex items-center justify-center gap-2">
+                    <Trophy className="w-5 h-5" style={{ color: '#c5a059' }} />
+                    <span className="font-black italic text-base" style={{ color: '#c5a059', textShadow: '0 1px 2px rgba(0,0,0,0.75)' }}>
+                      {result.jackpot ? `JACKPOT! $${result.win.toFixed(2)}` : `You won $${result.win.toFixed(2)}!`}
+                    </span>
+                  </div>
+                  {result.held && (
+                    <p className="text-[11px] italic leading-tight" style={{ color: '#f5d77a', fontFamily: 'Georgia, serif' }}>
+                      এই পরিমাণ আপনার wallet যুক্ত হবে যখন আপনি সমপরিমাণ ডিপোজিট করে Stack করবেন ২৪ ঘন্টার ভিতরে
+                    </p>
+                  )}
                 </div>
               </WoodFrame>
             </div>
