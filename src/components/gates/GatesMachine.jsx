@@ -24,7 +24,14 @@ export default function GatesMachine() {
 
   return (
     <div className="relative w-full max-w-md mx-auto flex flex-col overflow-hidden select-none"
-      style={{ minHeight: '100dvh', background: '#3a1060' }}>
+      style={{
+        minHeight: '100dvh',
+        backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/80926c52e_file_00000000534882308373132046ad84c6.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: '#2a0848',
+      }}>
 
       {showInfo && <GatesInfoPanel onClose={() => setShowInfo(false)} />}
 
@@ -141,16 +148,7 @@ export default function GatesMachine() {
 
       {/* ── BOTTOM PANEL — Olympus temple scene ── */}
       <div className="relative shrink-0 flex-1 flex flex-col justify-between px-3 pb-2"
-        style={{ background: 'linear-gradient(to bottom,#2a4878 0%,#4878b8 30%,#90b8e8 60%,#c8d8f0 80%,#e8e8e0 100%)', minHeight: 180 }}>
-
-        {/* Temple pillars decorative */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {[6,22,38,54,70,86].map((x,i) => (
-            <div key={i} className="absolute bottom-0" style={{ left: `${x}%`, width: '7%', height: '65%',
-              background: 'linear-gradient(to right,rgba(255,255,255,0.12),rgba(255,255,255,0.22),rgba(255,255,255,0.12))',
-              border: '1px solid rgba(255,255,255,0.15)', borderRadius: '3px 3px 0 0' }} />
-          ))}
-        </div>
+        style={{ minHeight: 180, background: 'linear-gradient(to bottom,rgba(42,8,72,0) 0%,rgba(42,8,72,0.55) 45%,rgba(20,4,40,0.85) 100%)' }}>
 
         {/* Top row: free spins badge + spin area + multiplier badge */}
         <div className="relative z-10 flex items-start justify-between pt-2 gap-2">
@@ -245,11 +243,11 @@ export default function GatesMachine() {
 
         {/* Credit / Bet footer */}
         <div className="relative z-10 flex items-center justify-between pt-1">
-          <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: 'rgba(0,0,50,0.75)', fontWeight: 700 }}>
-            CREDIT <span style={{ color: '#c87010' }}>{fmt(balance)}</span>
+          <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: 'rgba(255,255,255,0.85)', fontWeight: 700 }}>
+            CREDIT <span style={{ color: '#ffe080' }}>{fmt(balance)}</span>
           </span>
-          <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: 'rgba(0,0,50,0.75)', fontWeight: 700 }}>
-            BET <span style={{ color: '#c87010' }}>{fmt(bet)}</span>
+          <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: 'rgba(255,255,255,0.85)', fontWeight: 700 }}>
+            BET <span style={{ color: '#ffe080' }}>{fmt(bet)}</span>
           </span>
         </div>
       </div>
