@@ -8,17 +8,19 @@ import React from 'react';
 // so they are never touched by the filter.
 
 export const FRAME_MSG_URL =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6cf5b3160_generated_image.png';
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/314303958_generated_image.png';
 export const FRAME_BTN_URL =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/018525478_generated_image.png';
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0591f9662_generated_image.png';
 
-// Luminance → alpha table: drop black (0) and white (1), keep the mid band.
+// Luminance → alpha table: frames are generated on a solid WHITE background,
+// so we drop only near-white (lum → 1) to transparent and keep the dark wood,
+// gold trim, and dark interior fully opaque.
 const FILTER_SVG = (
   <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
     <filter id="wfDropBg" colorInterpolationFilters="sRGB">
       <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
       <feComponentTransfer>
-        <feFuncA type="table" tableValues="0 1 1 1 1 0" />
+        <feFuncA type="table" tableValues="1 1 1 1 1 0" />
       </feComponentTransfer>
     </filter>
   </svg>
