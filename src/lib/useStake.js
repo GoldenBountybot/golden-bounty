@@ -28,7 +28,7 @@ export function computeProfit(staked, stakedAt, lastClaim, rate = BASE_RATE) {
 }
 
 export function useStake() {
-  const { balance, setBalance, demoMode } = useCasinoBalance();
+  const { balance, setBalance, addRealBalance, demoMode } = useCasinoBalance();
   const [staked, setStaked] = useState(0);
   const [stakedAt, setStakedAt] = useState(null);
   const [lastClaim, setLastClaim] = useState(null);
@@ -71,7 +71,9 @@ export function useStake() {
         const elapsed = (Date.now() - new Date(sat).getTime()) / DAY;
         if (elapsed >= LOCK_DAYS) {
           const profit = computeProfit(sa, sat, lc, r);
-          setBalance((b) => b + sa + profit);
+          // Unlock credits the REAL wallet (even in demo mode) — staked funds
+          // are real and must return to the main balance, not the demo balance.
+          addRealBalance(sa + profit);
           await base44.auth.updateMe({ staked_amount: 0, staked_at: null, last_profit_claim: null });
           sa = 0; sat = null; lc = null;
         }
@@ -83,7 +85,7 @@ export function useStake() {
       // not logged in
     }
     setLoaded(true);
-  }, [setBalance]);
+  }, [addRealBalance]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -110,14 +112,16 @@ export function useStake() {
   const claimProfit = useCallback(async () => {
     const p = computeProfit(staked, stakedAt, lastClaim, rate);
     if (p <= 0) return 0;
-    setBalance((b) => b + p);
+    // Profit credits the REAL wallet directly — even in demo mode the claimed
+    // stack profit lands in the main balance, not the demo balance.
+    addRealBalance(p);
     const now = new Date().toISOString();
     setLastClaim(now);
     try {
       await base44.auth.updateMe({ last_profit_claim: now });
     } catch { /* persisted on next retry */ }
     return p;
-  }, [staked, stakedAt, lastClaim, rate, setBalance]);
+  }, [staked, stakedAt, lastClaim, rate, addRealBalance]);
 
   // Auto-unlock once the 15 days have passed: staked + remaining profit
   // return to the playable balance so the user can withdraw or re-stack.
@@ -126,12 +130,13 @@ export function useStake() {
     const elapsed = (Date.now() - new Date(stakedAt).getTime()) / DAY;
     if (elapsed < LOCK_DAYS) return;
     const p = computeProfit(staked, stakedAt, lastClaim, rate);
-    setBalance((b) => b + staked + p);
+    // Unlock credits the REAL wallet (even in demo mode).
+    addRealBalance(staked + p);
     setStaked(0); setStakedAt(null); setLastClaim(null);
     try {
       await base44.auth.updateMe({ staked_amount: 0, staked_at: null, last_profit_claim: null });
     } catch { /* persisted on next retry */ }
-  }, [staked, stakedAt, lastClaim, rate, setBalance]);
+  }, [staked, stakedAt, lastClaim, rate, addRealBalance]);
   autoUnlockRef.current = autoUnlock;
 
   const elapsedDays = stakedAt ? (Date.now() - new Date(stakedAt).getTime()) / DAY : 0;

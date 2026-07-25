@@ -112,6 +112,19 @@ function schedulePersist() {
   persistTimer = setTimeout(flushPersist, 250);
 }
 
+// Credit the REAL wallet directly — used by Stack claim/unlock, which are
+// real-wallet actions and must credit the main balance even while Demo mode
+// is on (the real funds are preserved and become visible once demo is off).
+function addRealBalance(amount) {
+  const n = Number(amount);
+  if (!isFinite(n) || n === 0) return;
+  uncommittedDelta += n;
+  balance = committedBalance + uncommittedDelta;
+  setCache(balance);
+  notify();
+  schedulePersist();
+}
+
 export function useCasinoBalance() {
   const [, force] = useState(0);
   useEffect(() => {
@@ -178,6 +191,7 @@ export function useCasinoBalance() {
   return {
     balance: demoMode ? demoBalance : balance,
     setBalance,
+    addRealBalance,
     reset,
     demoMode,
     setDemoMode: toggleDemo,
