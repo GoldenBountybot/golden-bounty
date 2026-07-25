@@ -115,18 +115,18 @@ export default function GatesMachine() {
             style={{ background: 'transparent', minHeight: 0 }}>
 
             {/* 6×5 grid — Big Brown style: per-reel scroll strip, sequential stop + drop */}
-            <div className="grid" style={{ gridTemplateColumns: 'repeat(6,1fr)', gap: '2px', padding: '3px' }}>
+            <div className="grid" style={{ gridTemplateColumns: 'repeat(6,1fr)', gap: '2px', padding: '3px', height: 'clamp(210px, 33vh, 290px)' }}>
               {grid.map((reel, c) => {
                 const stopped = stoppedReels.has(c);
                 return (
-                  <div key={c} className="relative flex flex-col gap-[3px]">
+                  <div key={c} className="relative flex flex-col gap-[3px] h-full">
                     {reel.map((sym, r) => {
                       const key = `${c}-${r}-${dropTick}`;
                       const winKey = `${c}-${r}`;
                       const isWin = winPositions.has(winKey);
                       return (
-                        <div key={key} className="relative rounded-[5px]"
-                          style={{ aspectRatio: '1 / 0.78', opacity: stopped ? 1 : 0,
+                        <div key={key} className="relative rounded-[5px] flex-1 min-h-0"
+                          style={{ opacity: stopped ? 1 : 0,
                             border: '1.5px solid rgba(248,200,70,0.85)',
                             boxShadow: isWin
                               ? '0 0 0 2px rgba(255,235,120,0.95), 0 0 14px rgba(255,210,80,0.95)'
