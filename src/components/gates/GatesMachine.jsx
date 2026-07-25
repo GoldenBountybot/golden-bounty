@@ -75,12 +75,12 @@ export default function GatesMachine() {
         {/* Outer golden border */}
         <div className="relative rounded-[10px] overflow-hidden"
           style={{
-            padding: '4px',
-            background: 'linear-gradient(145deg,#f8d840,#c8880a 35%,#a06010 65%,#f8d840 100%)',
-            boxShadow: '0 0 0 2px #7a4a08, 0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(200,136,10,0.3)',
+            padding: 0,
+            border: '4px solid #c8880a',
+            boxShadow: '0 0 0 2px #7a4a08, 0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(200,136,10,0.3), inset 0 0 0 1px #f8d840',
           }}>
           {/* Inner reel area */}
-          <div className="relative rounded-[7px] overflow-hidden"
+          <div className="relative rounded-[6px] overflow-hidden"
             style={{ background: 'transparent' }}>
 
             {/* 6×5 grid — no cell backgrounds, symbols float directly on the board */}
