@@ -21,7 +21,7 @@ const FILTER_SVG = (
       {/* alpha = 3 - R - G - B  → pure/near-white → ~0, gold & wood → high */}
       <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -1 -1 -1 0 3" />
       <feComponentTransfer>
-        <feFuncA type="table" tableValues="0 0 0 1 1" />
+        <feFuncA type="table" tableValues="0 1 1 0" />
       </feComponentTransfer>
     </filter>
   </svg>
