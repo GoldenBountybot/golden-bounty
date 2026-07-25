@@ -24,7 +24,7 @@ export default function GatesMachine() {
 
   return (
     <div className="relative w-full max-w-md mx-auto flex flex-col overflow-hidden select-none"
-      style={{ minHeight: '100dvh', background: '#3a1060' }}>
+      style={{ minHeight: '100dvh', background: 'transparent' }}>
 
       {showInfo && <GatesInfoPanel onClose={() => setShowInfo(false)} />}
 
