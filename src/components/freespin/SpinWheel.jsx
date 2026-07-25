@@ -50,6 +50,7 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
           borderRadius: '50%',
           overflow: 'hidden',
           boxShadow: 'inset 0 0 10px rgba(0,0,0,0.6)',
+          zIndex: 2,
         }}
         onTransitionEnd={(e) => {
           if (e.propertyName === 'transform' && onRest) onRest();
@@ -68,6 +69,24 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
           }}
         />
       </div>
+
+      {/* Pointer cone — fixed at the top-center of the board, pointing down into the wheel */}
+      <div
+        style={{
+          position: 'absolute',
+          left: leftPx,
+          top: topPx,
+          width: 0,
+          height: 0,
+          borderLeft: `${size * 0.035}px solid transparent`,
+          borderRight: `${size * 0.035}px solid transparent`,
+          borderTop: `${size * 0.07}px solid #f5c542`,
+          transform: 'translateX(-50%)',
+          filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.7))',
+          zIndex: 3,
+          pointerEvents: 'none',
+        }}
+      />
     </div>
   );
 }
