@@ -134,17 +134,12 @@ export default function FreeSpin() {
     // pointer and the win message always agree.
     const idx = segmentIndexForValue(prize.value);
     const segAngle = 360 / SEGMENTS.length;
-    // Mostly land near the segment center; ~30% of the time drift onto a
-    // divider line between two segments so the stop looks less mechanical.
-    let frac;
-    if (Math.random() < 0.3) {
-      frac = Math.random() < 0.5 ? 0 : 1; // land on a divider edge
-    } else {
-      frac = 0.2 + Math.random() * 0.6;   // land inside, biased toward center
-    }
+    // Always land clearly inside the segment (never on a divider edge, which
+    // would confuse users about which prize they won).
+    const frac = 0.3 + Math.random() * 0.4; // 0.3–0.7, biased toward center
     // The uploaded board's segment idx center sits at (idx-0.5)*segAngle from
     // the top divider (segment 0 is immediately COUNTER-clockwise of the top
-    // divider), so frac=0.5 → segment center, frac=0/1 → a divider edge.
+    // divider), so frac=0.5 → segment center.
     const center = (idx + frac - 1) * segAngle;
     const targetMod = (360 - center) % 360;        // rotation that puts it under the top pointer
     const currentMod = ((rotation % 360) + 360) % 360;
