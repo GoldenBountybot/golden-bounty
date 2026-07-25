@@ -137,10 +137,11 @@ export default function FreeSpin() {
     // Always land clearly inside the segment (never on a divider edge, which
     // would confuse users about which prize they won).
     const frac = 0.3 + Math.random() * 0.4; // 0.3–0.7, biased toward center
-    // The uploaded board's segment idx center sits at (idx-0.5)*segAngle from
-    // the top divider (segment 0 is immediately COUNTER-clockwise of the top
-    // divider), so frac=0.5 → segment center.
-    const center = (idx + frac - 1) * segAngle;
+    // The uploaded board's segment idx is CENTERED at the top (12 o'clock) when
+    // rotation = idx*segAngle, i.e. segment 0 sits centered under the pointer
+    // at rotation 0. So frac=0.5 → segment center, and the whole [0.3–0.7]
+    // range stays inside the segment (no divider crossing).
+    const center = (idx + frac - 0.5) * segAngle;
     const targetMod = (360 - center) % 360;        // rotation that puts it under the top pointer
     const currentMod = ((rotation % 360) + 360) % 360;
     const delta = (targetMod - currentMod + 360) % 360;
