@@ -148,7 +148,7 @@ export default function FreeSpin() {
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 py-6 flex flex-col items-center">
+      <main className="max-w-md mx-auto px-4 pt-16 pb-6 flex flex-col items-center">
         {/* Wheel — transparent surroundings, floats on the page bg */}
         <SpinWheel segments={SEGMENTS} rotation={rotation} onRest={handleRest} size={340} />
 
