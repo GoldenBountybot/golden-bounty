@@ -42,6 +42,18 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
 
   return (
     <div className="relative select-none mx-auto" style={{ width: size }}>
+      {/* SVG filter: converts the pointer image's luminance to alpha so the
+          pure-black background becomes fully transparent while the gold
+          pointer stays fully opaque — lets it float on top of the frame. */}
+      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+        <filter id="dropBlackBg" colorInterpolationFilters="sRGB">
+          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
+          <feComponentTransfer>
+            <feFuncA type="linear" slope="1.5" intercept="-0.12" />
+          </feComponentTransfer>
+        </filter>
+      </svg>
+
       {/* Ornate Western frame + stand (preserves its natural aspect ratio) */}
       <img
         src={FRAME_IMG}
@@ -63,7 +75,7 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
           height: 'auto',
           transform: 'translateX(-50%)',
           zIndex: 20,
-          mixBlendMode: 'screen',
+          filter: 'url(#dropBlackBg)',
           pointerEvents: 'none',
         }}
       />
