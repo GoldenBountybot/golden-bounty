@@ -42,21 +42,21 @@ export default function GatesMachine() {
         </h2>
       </div>
 
-      {/* Reel area */}
-      <div className="relative px-3 flex-1 flex flex-col justify-center z-10">
+      {/* Reel area — board spans ~55% of the viewport height, tight square cells */}
+      <div className="relative px-3 z-10 flex justify-center" style={{ height: '55vh', minHeight: 300 }}>
         <div
-          className="relative rounded-[12px] overflow-hidden"
-          style={{ padding: 8, background: 'linear-gradient(145deg,#2a3a6a,#0a1530)', boxShadow: 'inset 0 0 0 2px rgba(214,178,98,0.55), inset 0 0 0 4px rgba(10,15,30,0.85), 0 4px 20px rgba(0,0,0,0.7)' }}
+          className="relative rounded-[12px] overflow-hidden h-full w-full"
+          style={{ padding: 7, background: 'linear-gradient(145deg,#2a3a6a,#0a1530)', boxShadow: 'inset 0 0 0 2px rgba(255,140,0,0.65), inset 0 0 0 4px rgba(10,15,30,0.85), 0 4px 22px rgba(0,0,0,0.7), 0 0 18px rgba(255,140,0,0.25)' }}
         >
-          <div className="relative rounded-[8px] overflow-hidden p-2" style={{ background: 'linear-gradient(to bottom,#050a1c,#0a1330)', boxShadow: 'inset 0 0 24px rgba(0,0,0,0.85)' }}>
-            <div className="grid gap-1.5" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+          <div className="relative rounded-[8px] overflow-hidden h-full w-full p-1.5" style={{ background: 'linear-gradient(to bottom,#1a0f2e,#0a0518)', boxShadow: 'inset 0 0 24px rgba(0,0,0,0.85)' }}>
+            <div className="grid gap-1 h-full" style={{ gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(5, 1fr)' }}>
               {grid.map((reel, c) => (
                 <div key={c} className="relative flex flex-col gap-1.5">
                   {reel.map((sym, r) => {
                     const key = `${c}-${r}`;
                     const isWin = winPositions.has(key);
                     return (
-                      <div key={key} className="relative rounded-[6px]" style={{ aspectRatio: '3 / 4' }}>
+                      <div key={key} className="relative rounded-[6px]" style={{ aspectRatio: '1 / 1', height: '100%' }}>
                         <GatesSymbol sym={sym} highlight={isWin} dropping={!spinning} />
                       </div>
                     );
