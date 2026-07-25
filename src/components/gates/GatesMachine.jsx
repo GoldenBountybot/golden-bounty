@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { RotateCcw, Plus, Minus, AlignJustify, Info, X } from 'lucide-react';
-import GatesSymbol from './GatesSymbol';
+import GatesSymbol, { SYM_IMG } from './GatesSymbol';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS } from '@/lib/gatesEngine';
 
@@ -24,14 +24,7 @@ export default function GatesMachine() {
 
   return (
     <div className="relative w-full max-w-md mx-auto flex flex-col overflow-hidden select-none"
-      style={{
-        minHeight: '100dvh',
-        backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/80926c52e_file_00000000534882308373132046ad84c6.png')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center top',
-        backgroundRepeat: 'no-repeat',
-        backgroundColor: '#2a0848',
-      }}>
+      style={{ minHeight: '100dvh', background: '#3a1060' }}>
 
       {showInfo && <GatesInfoPanel onClose={() => setShowInfo(false)} />}
 
@@ -71,27 +64,27 @@ export default function GatesMachine() {
       </div>
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
-      <div className="relative shrink-0 w-full">
+      <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto' }}>
         {/* Outer golden border */}
         <div className="relative rounded-[10px] overflow-hidden"
           style={{
-            padding: 0,
-            border: '4px solid #c8880a',
-            boxShadow: '0 0 0 2px #7a4a08, 0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(200,136,10,0.3), inset 0 0 0 1px #f8d840',
+            padding: '5px',
+            background: 'linear-gradient(145deg,#f8d840,#c8880a 35%,#a06010 65%,#f8d840 100%)',
+            boxShadow: '0 0 0 2px #7a4a08, 0 4px 20px rgba(0,0,0,0.8), 0 0 30px rgba(200,136,10,0.3)',
           }}>
           {/* Inner reel area */}
-          <div className="relative rounded-[6px] overflow-hidden"
-            style={{ background: 'transparent' }}>
+          <div className="relative rounded-[7px] overflow-hidden"
+            style={{ background: 'linear-gradient(180deg,#2a0848 0%,#3a1060 40%,#280848 100%)', minHeight: 0 }}>
 
-            {/* 6×5 grid — symbols sit on soft per-cell dark backings; Olympus
-                background shows through the gaps. */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gridTemplateRows: 'repeat(5,1fr)', gap: '2px', padding: '4px' }}>
+            {/* 6×5 grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gridTemplateRows: 'repeat(5,1fr)', gap: '3px', padding: '5px' }}>
               {grid.map((reel, c) =>
                 reel.map((sym, r) => {
                   const key = `${c}-${r}`;
                   const isWin = winPositions.has(key);
                   return (
-                    <div key={key} style={{ aspectRatio: '1.35/1', position: 'relative' }}>
+                    <div key={key} style={{ aspectRatio: '1/1', position: 'relative', borderRadius: '5px',
+                      background: isWin ? 'rgba(255,180,20,0.12)' : 'rgba(0,0,0,0.18)' }}>
                       <GatesSymbol sym={sym} highlight={isWin} />
                     </div>
                   );
@@ -149,7 +142,16 @@ export default function GatesMachine() {
 
       {/* ── BOTTOM PANEL — Olympus temple scene ── */}
       <div className="relative shrink-0 flex-1 flex flex-col justify-between px-3 pb-2"
-        style={{ minHeight: 180, background: 'linear-gradient(to bottom,rgba(42,8,72,0) 0%,rgba(42,8,72,0.55) 45%,rgba(20,4,40,0.85) 100%)' }}>
+        style={{ background: 'linear-gradient(to bottom,#2a4878 0%,#4878b8 30%,#90b8e8 60%,#c8d8f0 80%,#e8e8e0 100%)', minHeight: 180 }}>
+
+        {/* Temple pillars decorative */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {[6,22,38,54,70,86].map((x,i) => (
+            <div key={i} className="absolute bottom-0" style={{ left: `${x}%`, width: '7%', height: '65%',
+              background: 'linear-gradient(to right,rgba(255,255,255,0.12),rgba(255,255,255,0.22),rgba(255,255,255,0.12))',
+              border: '1px solid rgba(255,255,255,0.15)', borderRadius: '3px 3px 0 0' }} />
+          ))}
+        </div>
 
         {/* Top row: free spins badge + spin area + multiplier badge */}
         <div className="relative z-10 flex items-start justify-between pt-2 gap-2">
@@ -228,6 +230,16 @@ export default function GatesMachine() {
             <RotateCcw className={`w-4 h-4 ${autoSpin ? 'text-emerald-300' : 'text-white/80'}`} />
           </button>
 
+          {/* Center: spin button again (bottom bar) */}
+          <button onClick={spin} disabled={spinning}
+            className="rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-60"
+            style={{ width: 54, height: 54,
+              background: 'radial-gradient(circle at 35% 30%,#ffffff,#d0d4d8 55%,#9098a0 100%)',
+              border: '2.5px solid rgba(255,255,255,0.7)',
+              boxShadow: '0 3px 12px rgba(0,0,0,0.5)' }}>
+            <RotateCcw className={`w-6 h-6 text-slate-700 ${spinning ? 'animate-spin' : ''}`} strokeWidth={2.5} />
+          </button>
+
           <button onClick={() => { const i = BETS.findIndex(b => Math.abs(bet-b)<0.001); setBet(BETS[Math.max(i-1, 0)]); }}
             disabled={spinning}
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40"
@@ -244,11 +256,11 @@ export default function GatesMachine() {
 
         {/* Credit / Bet footer */}
         <div className="relative z-10 flex items-center justify-between pt-1">
-          <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: 'rgba(255,255,255,0.85)', fontWeight: 700 }}>
-            CREDIT <span style={{ color: '#ffe080' }}>{fmt(balance)}</span>
+          <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: 'rgba(0,0,50,0.75)', fontWeight: 700 }}>
+            CREDIT <span style={{ color: '#c87010' }}>{fmt(balance)}</span>
           </span>
-          <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: 'rgba(255,255,255,0.85)', fontWeight: 700 }}>
-            BET <span style={{ color: '#ffe080' }}>{fmt(bet)}</span>
+          <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: 'rgba(0,0,50,0.75)', fontWeight: 700 }}>
+            BET <span style={{ color: '#c87010' }}>{fmt(bet)}</span>
           </span>
         </div>
       </div>
@@ -301,18 +313,16 @@ function GatesInfoPanel({ onClose }) {
         </div>
         {rows.map(([sym, , ...pays]) => (
           <div key={sym} className="grid grid-cols-6 items-center py-1 text-center" style={{ borderBottom: '1px solid rgba(200,140,10,0.15)' }}>
-            <div className="flex items-center justify-center" style={{ height: 28, width: 28 }}>
-              <GatesSymbol sym={sym} />
+            <div className="flex items-center justify-center" style={{ height: 28 }}>
+              <img src={SYM_IMG[sym]} alt={sym} style={{ height: 26, width: 'auto', objectFit: 'contain' }} />
             </div>
             <div style={{ fontFamily: 'Georgia,serif', fontSize: '9px', color: '#a08050', fontWeight: 700 }}>{sym.toUpperCase()}</div>
             {pays.map((p, i) => <div key={i} style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#ffe060', fontWeight: 900 }}>×{p}</div>)}
           </div>
         ))}
-        <div style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#c0a870', marginTop: 10, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          <span style={{ display: 'inline-block', height: 18, width: 18 }}><GatesSymbol sym="scatter" /></span>
-          <span>4+ Scatters → 15 Free Spins</span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '50%', background: 'radial-gradient(circle,#bdf06a,#3aa814)', border: '1px solid #eaffd0', fontSize: 8, color: '#fffbe0', fontWeight: 900 }}>×N</span>
-          <span>Multipliers: ×{MULTIPLIERS[0].v} – ×{MULTIPLIERS[MULTIPLIERS.length-1].v}</span>
+        <div style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#c0a870', marginTop: 10 }}>
+          <img src={SYM_IMG.scatter} alt="scatter" style={{ height: 16, width: 'auto', verticalAlign: 'middle' }} /> 4+ Scatters → 15 Free Spins<br/>
+          <img src={SYM_IMG.mult} alt="mult" style={{ height: 16, width: 'auto', verticalAlign: 'middle' }} /> Multipliers: ×{MULTIPLIERS[0].v} – ×{MULTIPLIERS[MULTIPLIERS.length-1].v}
         </div>
       </div>
     </div>
