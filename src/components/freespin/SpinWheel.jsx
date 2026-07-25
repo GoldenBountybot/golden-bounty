@@ -48,21 +48,20 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
         style={{ width: '100%', height: 'auto', display: 'block' }}
       />
 
-      {/* Golden pointer tip — a simple downward cone marking the winning segment */}
-      <div
+      {/* Golden fleur-de-lis shield pointer — tip touches the wheel's top rim */}
+      <img
+        src={POINTER_IMG}
+        alt="Golden wheel pointer"
+        draggable={false}
         style={{
           position: 'absolute',
-          left: leftPx,
-          top: pointerBottom,
-          width: 0,
-          height: 0,
-          borderLeft: `${boardPx * 0.06}px solid transparent`,
-          borderRight: `${boardPx * 0.06}px solid transparent`,
-          borderTop: `${boardPx * 0.16}px solid #f5c542`,
+          left: pointerLeft,
+          bottom: `calc(100% - ${pointerBottom}px)`,
+          width: POINTER_W,
+          height: 'auto',
           transform: 'translateX(-50%)',
           zIndex: 20,
           pointerEvents: 'none',
-          filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.6))',
         }}
       />
 
