@@ -13,6 +13,11 @@ const FRAME_IMG =
 const WHEEL_IMG =
   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png';
 
+// Golden fleur-de-lis shield pointer (transparent background) — sits at the top
+// of the wheel, its tip touching the rim to mark the winning segment.
+const POINTER_IMG =
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1e2e27146_generated_image.png';
+
 // Board placement within the frame, measured from the uploaded stand image
 // (1024×1024). The central circular opening's center is at (50.5%, 42.4%)
 // and its diameter is ~54.7% of the frame width (fills the gold frame opening
@@ -26,14 +31,12 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
   const leftPx = size * CENTER_X_FRAC;
   const topPx = size * (CENTER_Y_FRAC - BOARD_DIAM_FRAC / 2);
 
-  // Pointer — an iconic Western sheriff-star badge, point-down, seated on the
-  // wheel's top edge. 5-pointed star clip-path with a dark engraved inner star
-  // and a rivet, echoing the baroque gold of the stand.
-  const starSize = boardPx * 0.26;
-  const starLeft = leftPx;
-  const starTop = topPx - starSize * 0.86; // bottom point dips onto the wheel rim
-  const STAR_CLIP =
-    'polygon(50% 100%, 37.95% 66.58%, 2.45% 65.45%, 30.5% 43.67%, 20.61% 9.55%, 50% 29.5%, 79.39% 9.55%, 69.5% 43.67%, 97.55% 65.45%, 62.05% 66.58%)';
+  // Pointer — the user's golden fleur-de-lis shield pointer (transparent bg),
+  // seated so its tip kisses the wheel's top rim. Width scaled to the board so
+  // the topper crowns the frame and the shield sits over the gold rim.
+  const POINTER_W = boardPx * 0.34;
+  const pointerLeft = leftPx;
+  const pointerBottom = topPx + boardPx * 0.012; // tip dips just inside the rim
 
   return (
     <div className="relative select-none mx-auto" style={{ width: size }}>
@@ -45,55 +48,23 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
         style={{ width: '100%', height: 'auto', display: 'block' }}
       />
 
-      {/* Western sheriff-star pointer — fixed at the top, points down into the wheel */}
-      <div
+      {/* Golden fleur-de-lis shield pointer — tip touches the wheel's top rim */}
+      <img
+        src={POINTER_IMG}
+        alt="Golden wheel pointer"
+        draggable={false}
         style={{
           position: 'absolute',
-          left: starLeft,
-          top: starTop,
-          width: starSize,
-          height: starSize,
+          left: pointerLeft,
+          bottom: `calc(100% - ${pointerBottom}px)`,
+          width: POINTER_W,
+          height: 'auto',
           transform: 'translateX(-50%)',
-          zIndex: 5,
-          filter: 'drop-shadow(0 3px 4px rgba(0,0,0,0.6))',
+          zIndex: 6,
+          filter: 'drop-shadow(0 3px 4px rgba(0,0,0,0.55))',
+          pointerEvents: 'none',
         }}
-      >
-        {/* Outer gold star */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            clipPath: STAR_CLIP,
-            background:
-              'linear-gradient(160deg, #fff2b8 0%, #f5c542 30%, #d4af37 52%, #8b6914 80%, #4a3505 100%)',
-            boxShadow: 'inset 0 1px 1px rgba(255,245,200,0.85), inset 0 -3px 5px rgba(0,0,0,0.5)',
-          }}
-        />
-        {/* Engraved inner star — darker, gives the badge depth */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: '24%',
-            clipPath: STAR_CLIP,
-            background: 'linear-gradient(155deg, #c8932e 0%, #a06f1a 45%, #5e3d12 100%)',
-            boxShadow: 'inset 0 1px 1px rgba(255,235,150,0.5), inset 0 -2px 3px rgba(0,0,0,0.55)',
-          }}
-        />
-        {/* Central rivet */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '42%',
-            left: '50%',
-            transform: 'translate(-50%,-50%)',
-            width: starSize * 0.16,
-            height: starSize * 0.16,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle at 35% 30%, #fff4d0, #f5c542 45%, #7a4f17 85%)',
-            boxShadow: 'inset 0 1px 1px rgba(255,245,200,0.9), 0 0 5px rgba(255,200,80,0.6)',
-          }}
-        />
-      </div>
+      />
 
       {/* Rotating board — centered horizontally, seated in the frame's black circle */}
       <div
