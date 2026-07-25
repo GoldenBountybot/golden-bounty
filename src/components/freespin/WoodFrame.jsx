@@ -28,7 +28,7 @@ const FILTER_SVG = (
 
 export default function WoodFrame({ variant = 'msg', className = '', style, children }) {
   const img = variant === 'btn' ? FRAME_BTN_URL : FRAME_MSG_URL;
-  const pad = variant === 'btn' ? '14px 26px' : '12px 28px';
+  const pad = variant === 'btn' ? '24px 28px' : '12px 28px';
   return (
     <div className={`relative ${className}`} style={style}>
       {FILTER_SVG}
