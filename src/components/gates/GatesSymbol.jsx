@@ -43,7 +43,7 @@ function ArtSym({ sym, highlight }) {
           mixBlendMode: 'screen',
           filter: highlight
             ? 'brightness(1.35) drop-shadow(0 0 8px rgba(255,210,80,0.95))'
-            : 'brightness(1.05)',
+            : 'brightness(1.1) drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 0 2px rgba(0,0,0,0.7))',
           transition: 'filter 0.15s',
         }}
       />
