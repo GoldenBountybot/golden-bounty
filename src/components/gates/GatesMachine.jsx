@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { RotateCcw, Plus, Minus, AlignJustify, Info, X } from 'lucide-react';
-import GatesSymbol from './GatesSymbol';
+import GatesSymbol, { SYM_IMG } from './GatesSymbol';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS } from '@/lib/gatesEngine';
 
@@ -311,16 +311,18 @@ function GatesInfoPanel({ onClose }) {
         <div className="grid grid-cols-6 text-center mb-1" style={{ fontFamily: 'Georgia,serif', fontSize: '9px', color: '#c0a050', fontWeight: 700 }}>
           <div></div><div></div><div>8+</div><div>12+</div><div>15+</div><div>20+</div>
         </div>
-        {rows.map(([sym, icon, ...pays]) => (
+        {rows.map(([sym, , ...pays]) => (
           <div key={sym} className="grid grid-cols-6 items-center py-1 text-center" style={{ borderBottom: '1px solid rgba(200,140,10,0.15)' }}>
-            <div style={{ fontSize: '18px' }}>{icon}</div>
+            <div className="flex items-center justify-center" style={{ height: 28 }}>
+              <img src={SYM_IMG[sym]} alt={sym} style={{ height: 26, width: 'auto', objectFit: 'contain' }} />
+            </div>
             <div style={{ fontFamily: 'Georgia,serif', fontSize: '9px', color: '#a08050', fontWeight: 700 }}>{sym.toUpperCase()}</div>
             {pays.map((p, i) => <div key={i} style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#ffe060', fontWeight: 900 }}>×{p}</div>)}
           </div>
         ))}
         <div style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#c0a870', marginTop: 10 }}>
-          🔱 4+ Scatters → 15 Free Spins<br/>
-          ⚡ Multipliers: ×{MULTIPLIERS[0].v} – ×{MULTIPLIERS[MULTIPLIERS.length-1].v}
+          <img src={SYM_IMG.scatter} alt="scatter" style={{ height: 16, width: 'auto', verticalAlign: 'middle' }} /> 4+ Scatters → 15 Free Spins<br/>
+          <img src={SYM_IMG.mult} alt="mult" style={{ height: 16, width: 'auto', verticalAlign: 'middle' }} /> Multipliers: ×{MULTIPLIERS[0].v} – ×{MULTIPLIERS[MULTIPLIERS.length-1].v}
         </div>
       </div>
     </div>
