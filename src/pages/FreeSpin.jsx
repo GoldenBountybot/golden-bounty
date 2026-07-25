@@ -44,7 +44,11 @@ const DAILY_PRIZES = [
   { value: 50,   held: true },  // Day 4
 ];
 
-function prizeForDay(spinCount) {
+function prizeForDay(spinCount, group) {
+  // "mask" group — every spin lands on $0.05 and credits directly, so this
+  // subset of users never sees the held-prize ladder and can't tell the same
+  // rule applies to everyone.
+  if (group === 'mask') return { value: 0.05, held: false };
   // Day 5 onward — always $0.05 directly, the ladder does not cycle.
   if (spinCount >= DAILY_PRIZES.length) return { value: 0.05, held: false };
   return DAILY_PRIZES[spinCount];
@@ -76,6 +80,7 @@ export default function FreeSpin() {
   const { balance, setBalance } = useCasinoBalance();
   const [lastSpinAt, setLastSpinAt] = useState(null); // null = still loading
   const [spinCount, setSpinCount] = useState(0); // total daily spins done (drives the prize ladder)
+  const [spinGroup, setSpinGroup] = useState(null); // 'mask' | 'ladder' — masks the uniform ladder
   const [now, setNow] = useState(Date.now());
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -94,6 +99,14 @@ export default function FreeSpin() {
         setLastSpinAt(isFinite(v) ? v : 0);
         const c = Number(me?.daily_spin_count || 0);
         setSpinCount(isFinite(c) ? c : 0);
+        // Assign a persistent per-user group on first visit. 'mask' users
+        // always get $0.05 directly so the ladder pattern stays hidden.
+        let g = me?.daily_spin_group;
+        if (g !== 'mask' && g !== 'ladder') {
+          g = Math.random() < 0.4 ? 'mask' : 'ladder';
+          base44.auth.updateMe({ daily_spin_group: g }).catch(() => {});
+        }
+        setSpinGroup(g);
       } catch {
         if (m) setLastSpinAt(0);
       }
@@ -115,11 +128,11 @@ export default function FreeSpin() {
     setSpinning(true);
     setResult(null);
     setError('');
-    const prize = prizeForDay(spinCount);
+    const prize = prizeForDay(spinCount, spinGroup);
     awardRef.current = prize;
-    // The wheel always visually stops on the $0.05 segment; the real prize is
-    // revealed by the win message, not the pointer.
-    const idx = segmentIndexForValue(0.05);
+    // The wheel visually stops on the segment matching the real prize, so the
+    // pointer and the win message always agree.
+    const idx = segmentIndexForValue(prize.value);
     const segAngle = 360 / SEGMENTS.length;
     // Mostly land near the segment center; ~30% of the time drift onto a
     // divider line between two segments so the stop looks less mechanical.
@@ -135,7 +148,7 @@ export default function FreeSpin() {
     const delta = (targetMod - currentMod + 360) % 360;
     const turns = 6;
     setRotation(rotation + turns * 360 + delta);
-  }, [spinning, available, rotation, spinCount]);
+  }, [spinning, available, rotation, spinCount, spinGroup]);
 
   const handleRest = useCallback(async () => {
     const prize = awardRef.current;
