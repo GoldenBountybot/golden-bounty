@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronLeft, Gift, Clock, Coins, Sparkles, Trophy } from 'lucide-react';
+import { Clock, Sparkles, Trophy } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import GameHeader from '@/components/GameHeader';
 import SpinWheel from '@/components/freespin/SpinWheel';
 import WoodFrame from '@/components/freespin/WoodFrame';
 
@@ -133,21 +133,7 @@ export default function FreeSpin() {
   return (
     <div className="min-h-screen relative" style={{ ...W, backgroundImage: 'linear-gradient(rgba(10,8,6,0.8), rgba(10,8,6,0.8)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bd52e9c49_file_00000000a50c8207b70a5b0acc15d3dc.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
-        <div className="max-w-md mx-auto px-3 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-1 text-amber-300">
-            <ChevronLeft className="w-6 h-6" strokeWidth={2.6} />
-          </Link>
-          <div className="flex items-center gap-2">
-            <Gift className="w-5 h-5 text-amber-400" />
-            <span className="font-black italic text-yellow-300 tracking-wider drop-shadow-[0_0_6px_rgba(255,200,0,0.6)]">DAILY FREE SPIN</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md" style={{ border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)' }}>
-            <Coins className="w-4 h-4 text-amber-400" />
-            <span className="text-xs font-black italic text-yellow-100 tabular-nums">${balance.toFixed(2)}</span>
-          </div>
-        </div>
-      </header>
+      <GameHeader title="Daily Free Spin" balance={balance} />
 
       <main className="max-w-md mx-auto px-4 pt-16 pb-6 flex flex-col items-center">
         {/* Wheel — transparent surroundings, floats on the page bg */}
