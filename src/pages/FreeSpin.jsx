@@ -5,31 +5,33 @@ import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import SpinWheel from '@/components/freespin/SpinWheel';
 
-// Wheel segments (clockwise from top) — match the reference wheel.
+// Wheel segments in the uploaded board's clockwise order (segment 1 is the
+// first slice immediately clockwise of the top divider). Colors are kept for the
+// result banner; the wheel itself is the uploaded image.
 const SEGMENTS = [
-  { label: '1000$', value: 1000, color: '#c5a34d', gold: true },
-  { label: '0.05$', value: 0.05, color: '#2c3e50' },
-  { label: '0.10$', value: 0.10, color: '#2c3e50' },
-  { label: '0.25$', value: 0.25, color: '#27ae60' },
-  { label: '0.50$', value: 0.50, color: '#2c3e50' },
-  { label: '0.75$', value: 0.75, color: '#e74c3c' },
-  { label: '1$',    value: 1,    color: '#27ae60' },
-  { label: '2.5$',  value: 2.5,  color: '#e74c3c' },
-  { label: '5$',    value: 5,    color: '#8e44ad' },
-  { label: '$$',    value: 2000, color: '#8e44ad', jackpot: true },
-  { label: '10$',   value: 10,   color: '#27ae60' },
-  { label: '25$',   value: 25,   color: '#2c3e50' },
-  { label: '50$',   value: 50,   color: '#8e44ad' },
-  { label: '100$',  value: 100,  color: '#27ae60' },
-  { label: '150$',  value: 150,  color: '#e74c3c' },
-  { label: '200$',  value: 200,  color: '#c5a34d', gold: true },
-  { label: '250$',  value: 250,  color: '#8e44ad' },
-  { label: '500$',  value: 500,  color: '#e74c3c' },
-  { label: '750$',  value: 750,  color: '#c5a34d', gold: true },
+  { label: '0.05$',  value: 0.05,  color: '#2c3e50' },
+  { label: '0.10$',  value: 0.10,  color: '#8e44ad' },
+  { label: '0.25$',  value: 0.25,  color: '#27ae60' },
+  { label: '0.50$',  value: 0.50,  color: '#2c3e50' },
+  { label: '0.75$',  value: 0.75,  color: '#e74c3c' },
+  { label: '1$',     value: 1,     color: '#c5a34d', gold: true },
+  { label: '2.5$',   value: 2.5,   color: '#27ae60' },
+  { label: '5$',     value: 5,     color: '#8e44ad' },
+  { label: '$$',     value: 2000,  color: '#2c3e50', jackpot: true },
+  { label: '10$',    value: 10,    color: '#2c3e50' },
+  { label: '25$',    value: 25,    color: '#27ae60' },
+  { label: '50$',    value: 50,    color: '#e74c3c' },
+  { label: '100$',   value: 100,   color: '#8e44ad' },
+  { label: '150$',   value: 150,   color: '#27ae60' },
+  { label: '200$',   value: 200,   color: '#c5a34d', gold: true },
+  { label: '250$',   value: 250,   color: '#2c3e50' },
+  { label: '500$',   value: 500,   color: '#e74c3c' },
+  { label: '750$',   value: 750,   color: '#8e44ad' },
+  { label: '1000$',  value: 1000,  color: '#c5a34d', gold: true },
 ];
 
-// Weighted random — small prizes common, big/jackpot rare.
-const WEIGHTS = [1, 40, 40, 35, 30, 25, 22, 16, 12, 1, 10, 8, 5, 3, 2.5, 2, 1.5, 1, 1];
+// Weighted random — small prizes common, big/jackpot rare (matches SEGMENTS order).
+const WEIGHTS = [40, 40, 35, 30, 25, 22, 16, 12, 1, 10, 8, 5, 3, 2.5, 2, 1.5, 1, 1, 1];
 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -103,7 +105,7 @@ export default function FreeSpin() {
     const idx = pickIndex();
     awardRef.current = SEGMENTS[idx];
     const segAngle = 360 / SEGMENTS.length;
-    const center = idx * segAngle;                 // segment center (clockwise from top)
+    const center = (idx + 0.5) * segAngle;         // uploaded board: seg idx center sits at (idx+0.5)*seg from the top divider
     const targetMod = (360 - center) % 360;        // rotation that puts it under the top pointer
     const currentMod = ((rotation % 360) + 360) % 360;
     const delta = (targetMod - currentMod + 360) % 360;
