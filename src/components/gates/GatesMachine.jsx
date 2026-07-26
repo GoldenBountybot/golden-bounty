@@ -252,6 +252,10 @@ export default function GatesMachine() {
                 borderRadius: 22,
                 boxShadow: spinning ? undefined : '0 2px 10px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.2)',
                 animation: spinning ? 'gatesSpinGlow 1s ease-in-out infinite' : 'none' }}>
+              <span style={{ width: 26, height: 26, borderRadius: 9,
+                border: '2px solid rgba(255,255,255,0.9)',
+                background: 'rgba(255,255,255,0.12)',
+                boxShadow: '0 0 8px rgba(255,255,255,0.35), inset 0 0 6px rgba(255,255,255,0.25)' }} />
             </button>
           </div>
 
