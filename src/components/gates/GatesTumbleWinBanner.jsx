@@ -55,7 +55,7 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
   return (
     <div key={winHistory?.length || 0}
       className="absolute z-40 pointer-events-none"
-      style={{ top: -42, left: '50%', transform: 'translateX(-50%)' }}>
+      style={{ top: -58, left: '50%', transform: 'translateX(-50%)' }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
         animation: 'freeWinFloat 0.5s ease-out both' }}>
         <span style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: 12,
