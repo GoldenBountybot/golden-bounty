@@ -182,7 +182,7 @@ export default function GatesMachine() {
       </div>
 
       {/* ── WIN AMOUNT BELOW BOARD ── */}
-      <div className="shrink-0 text-center py-1">
+      <div className="shrink-0 text-center py-0">
         {lastWin > 0 && !spinning ? (
           <>
             <div style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '20px', color: '#ffe060', textShadow: '0 0 14px rgba(255,200,0,0.9)', letterSpacing: '0.04em' }}>
@@ -204,7 +204,7 @@ export default function GatesMachine() {
         style={{ background: 'transparent' }}>
 
         {/* Top row: free spins badge + spin area + multiplier badge */}
-        <div className="relative z-10 flex items-center justify-between gap-2" style={{ marginTop: 8 }}>
+        <div className="relative z-10 flex items-center justify-between gap-2" style={{ marginTop: 0 }}>
 
           {freeSpinsActive ? (
             /* Free Spins Left badge — only while free spins are running */
