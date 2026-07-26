@@ -62,7 +62,7 @@ export function useGates() {
     const result = computeSpin(bet, wantWin, freeMode, runningMultRef.current);
     if (freeMode) runningMultRef.current = result.newRunningMult;
 
-    const tumbleGap = turbo ? 280 : 560;
+    const tumbleGap = turbo ? 660 : 1320;
     const firstGap = turbo ? 320 : 620;
     let acc = 0;
     let runningWin = 0;
@@ -88,7 +88,7 @@ export function useGates() {
     });
 
     // settle
-    acc += turbo ? 420 : 760;
+    acc += turbo ? 660 : 1320;
     timers.current.push(setTimeout(() => {
       const win = result.spinWin;
       if (win > 0) {
