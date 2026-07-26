@@ -81,18 +81,14 @@ export default function GatesMachine() {
 
       {showInfo && <GatesInfoPanel bet={bet} onClose={() => setShowInfo(false)} />}
 
-      {/* ── HEADER TITLE BAR ── */}
-      <div className="relative flex items-center justify-between px-3 pt-2 pb-1 shrink-0"
+      {/* ── GATES OF OLYMPUS TITLE BANNER ── sits just above the board border */}
+      <div className="relative flex items-center justify-center shrink-0 pt-2 pb-1"
         style={{ background: 'linear-gradient(to bottom,rgba(50,10,90,0.95),transparent)' }}>
-        {/* Gates of Olympus logo text */}
-        <div className="flex-1 flex items-center justify-center">
-          <span style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '18px', fontStyle: 'italic',
-            background: 'linear-gradient(to bottom,#fff8c0,#f5c042 40%,#c87018)', WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '0.06em',
-            filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.9))' }}>
-            GATES <span style={{ fontSize: '13px', verticalAlign: 'middle' }}>of</span> OLYMPUS
-          </span>
-        </div>
+        <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5a4c02bcc_file_000000003af0820bb4a62aa92952a91e.png"
+          alt="Gates of Olympus"
+          style={{ width: '78%', maxWidth: 320, height: 'auto', objectFit: 'contain',
+            mixBlendMode: 'screen',
+            filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.9))' }} />
       </div>
 
       {/* ── TUMBLE WIN BAR — sits between title and board ── */}
