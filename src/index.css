@@ -115,10 +115,9 @@
 }
 
 @keyframes gatesDrop {
-  0%   { transform: translateY(-130%); opacity: 0; }
-  42%  { opacity: 1; }
-  72%  { transform: translateY(7%); }
-  86%  { transform: translateY(-3%); }
+  0%   { transform: translateY(-58%); opacity: 0; }
+  45%  { opacity: 1; }
+  78%  { transform: translateY(4%); }
   100% { transform: translateY(0%); }
 }
 

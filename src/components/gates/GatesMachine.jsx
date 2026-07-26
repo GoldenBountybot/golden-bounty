@@ -3,7 +3,7 @@ import { RotateCcw, Plus, Minus, AlignJustify, Info, X } from 'lucide-react';
 import GatesSymbol, { SYM_IMG } from './GatesSymbol';
 import GatesSpinStrip from './GatesSpinStrip';
 import { useGates } from './useGates';
-import { BETS, SYMBOLS, MULTIPLIERS } from '@/lib/gatesEngine';
+import { BETS, SYMBOLS, MULTIPLIERS, isMult } from '@/lib/gatesEngine';
 
 const REELS = 6;
 const ROWS = 5;
@@ -138,7 +138,11 @@ export default function GatesMachine() {
                       const isShatter = shatter.has(winKey);
                       const isFresh = dropCells.has(winKey);
                       const isWin = !isShatter && winPositions.has(winKey);
-                      const animKey = isShatter ? `sh${shatterTick}` : isFresh ? `dr${dropTick}` : 'st';
+                      const symIsMult = isMult(sym);
+                      // multipliers never drop — they appear in place; regular
+                      // fresh symbols drop, but gentler than before.
+                      const dropAnim = isFresh && !symIsMult;
+                      const animKey = isShatter ? `sh${shatterTick}` : dropAnim ? `dr${dropTick}` : 'st';
                       return (
                         <div key={winKey} className="relative rounded-[5px] flex-1 min-h-0"
                           style={{ opacity: stopped ? 1 : 0,
@@ -150,7 +154,7 @@ export default function GatesMachine() {
                             <div key={animKey} className="relative w-full h-full"
                               style={{ animation: isShatter
                                 ? `shatterWin ${g.turbo ? 0.24 : 0.4}s ease-out forwards`
-                                : isFresh ? `gatesDrop ${g.turbo ? 0.22 : 0.34}s cubic-bezier(0.22,0.7,0.32,1) both` : 'none' }}>
+                                : dropAnim ? `gatesDrop ${g.turbo ? 0.18 : 0.26}s cubic-bezier(0.22,0.7,0.32,1) both` : 'none' }}>
                               <GatesSymbol sym={sym} highlight={isWin} />
                             </div>
                           ) : (
