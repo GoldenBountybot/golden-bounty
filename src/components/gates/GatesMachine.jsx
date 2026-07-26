@@ -10,9 +10,6 @@ const REELS = 6;
 const ROWS = 5;
 const fmt = (v) => `$${Number(v || 0).toFixed(2)}`;
 
-// Ornate gold frame (crown + filigree corners) wrapped around the reel board.
-const FRAME_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/05133e652_file_000000000d20820bb841b877686932fb.png';
-
 export default function GatesMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
@@ -100,22 +97,20 @@ export default function GatesMachine() {
       </div>
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
-      <div className="relative shrink-0 mx-0" style={{ flex: '0 0 auto', marginTop: 0 }}>
-        {/* Ornate gold frame around the reels */}
-        <div className="relative"
+      <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 0 }}>
+        {/* Outer golden border */}
+        <div className="relative rounded-[10px]"
           style={{
-            borderStyle: 'solid',
-            borderWidth: '38px',
-            borderImage: `url(${FRAME_URL}) 16% / 38px / 0 stretch`,
+            border: '3px solid #d4a93a',
             background: 'transparent',
-            boxShadow: '0 4px 18px rgba(0,0,0,0.7), 0 0 30px rgba(200,136,10,0.35)',
+            boxShadow: '0 0 0 1px #7a4a08, 0 0 0 4px #f8d840, 0 0 0 5px #7a4a08, 0 4px 18px rgba(0,0,0,0.7), 0 0 26px rgba(200,136,10,0.28)',
           }}>
           {/* Inner reel area */}
-          <div className="relative overflow-hidden"
+          <div className="relative rounded-[6px] overflow-hidden"
             style={{ background: 'linear-gradient(to bottom, rgba(52,26,96,0.42), rgba(74,38,132,0.42))', minHeight: 0 }}>
 
-            {/* 6×5 grid — fills the frame edge to edge */}
-            <div className="flex gap-[4px] p-0" style={{ height: 'clamp(255px, 45vh, 358px)' }}>
+            {/* 6×5 grid — Big Brown style: per-reel scroll strip, sequential stop + drop */}
+            <div className="flex gap-[4px] p-[5px]" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
               {grid.map((reel, c) => {
                 const stopped = stoppedReels.has(c);
                 return (
