@@ -136,8 +136,8 @@ export default function GatesMachine() {
                         <div key={winKey} className="relative rounded-[5px] flex-1 min-h-0"
                           style={{ opacity: stopped ? 1 : 0,
                             boxSizing: 'border-box',
-                            border: '1.5px solid transparent',
-                            boxShadow: 'none',
+                            border: '1.5px solid #c89a2a',
+                            boxShadow: 'inset 0 0 0 1px #7a4a08, inset 0 1px 2px rgba(255,228,140,0.55), inset 0 -1px 2px rgba(0,0,0,0.35)',
                             animation: isWin ? 'gatesWinGlow 0.55s linear infinite' : 'none',
                             transition: 'box-shadow 0.15s' }}>
                           {stopped ? (
