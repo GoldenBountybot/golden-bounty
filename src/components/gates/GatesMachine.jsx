@@ -86,7 +86,8 @@ export default function GatesMachine() {
           alt="Zeus"
           style={{ width: 'auto', height: 'clamp(190px, 30vh, 270px)', objectFit: 'contain',
             mixBlendMode: 'multiply',
-            filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.55))' }} />
+            filter: 'brightness(1.55) saturate(1.3) contrast(1.05) drop-shadow(0 3px 6px rgba(0,0,0,0.55))',
+            isolation: 'isolate' }} />
       </div>
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
