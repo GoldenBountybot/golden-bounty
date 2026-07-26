@@ -5,9 +5,15 @@ import { SYM_IMG } from './GatesSymbol';
 const STRIP_KEYS = ['zeus', 'crown', 'hourglass', 'ring', 'goblet', 'red', 'blue', 'green', 'yellow'];
 const randSym = () => STRIP_KEYS[Math.floor(Math.random() * STRIP_KEYS.length)];
 
-// Scrolling reel strip shown while a reel is spinning (Big Brown style).
+// Dark backdrop painted inside the strip's own (transform-isolated) stacking
+// context so that `mix-blend-mode: screen` has a non-black backdrop to remove
+// the pure-black symbol background against — independent of the page behind.
+const STRIP_BG = 'linear-gradient(to bottom, rgba(18,7,46,0.92), rgba(40,16,82,0.92))';
+
+// Scrolling reel strip shown while a reel is spinning.
 // The strip is built from 5-row blocks where the last block equals the first,
-// so the reelFall -75%→0% loop is seamless. Blurred for a motion feel.
+// so the reelFall -75%→0% loop is seamless. screen blend over the strip's own
+// dark bg removes each symbol's black background while keeping its colours.
 export default React.memo(function GatesSpinStrip({ turbo }) {
   const strip = React.useMemo(() => {
     const block = () => Array.from({ length: 5 }, randSym);
@@ -18,40 +24,31 @@ export default React.memo(function GatesSpinStrip({ turbo }) {
   return (
     <div
       className="absolute inset-0 overflow-hidden rounded-[5px] pointer-events-none"
-      style={{ willChange: 'transform', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
+      style={{ background: STRIP_BG }}
     >
       <div
-        className="flex flex-col gap-[3px] w-full"
+        className="flex flex-col gap-[3px] w-full relative"
         style={{
           animation: `reelFall ${turbo ? 0.32 : 0.45}s linear infinite`,
           willChange: 'transform',
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
+          background: STRIP_BG,
         }}
       >
         {strip.map((s, i) => {
           const img = SYM_IMG[s];
           return (
-            <div key={i} className="rounded-[5px] overflow-hidden" style={{ aspectRatio: '1 / 0.82', background: 'transparent' }}>
+            <div key={i} className="rounded-[5px] overflow-hidden" style={{ aspectRatio: '1 / 0.82' }}>
               {img && (
                 <div
                   className="w-full h-full"
                   style={{
                     backgroundImage: `url(${img})`,
-                    backgroundSize: 'contain',
+                    backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
-                    WebkitMaskImage: `url(${img})`,
-                    maskImage: `url(${img})`,
-                    WebkitMaskSize: 'contain',
-                    maskSize: 'contain',
-                    WebkitMaskPosition: 'center',
-                    maskPosition: 'center',
-                    WebkitMaskRepeat: 'no-repeat',
-                    maskRepeat: 'no-repeat',
-                    WebkitMaskMode: 'luminance',
-                    maskMode: 'luminance',
-                    filter: 'blur(1.1px) brightness(0.8)',
+                    mixBlendMode: 'screen',
                   }}
                 />
               )}
