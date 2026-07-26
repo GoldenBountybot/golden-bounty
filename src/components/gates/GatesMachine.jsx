@@ -262,7 +262,7 @@ export default function GatesMachine() {
             {/* Bet amount — shown directly under the spin button */}
             <span style={{ fontFamily: 'Georgia,serif', fontSize: '13px', fontWeight: 900, color: '#ffe060',
               textShadow: '0 1px 2px rgba(0,0,0,0.85)', letterSpacing: '0.02em' }}>
-              {fmt(bet)}
+              <span style={{ fontSize: '10px', letterSpacing: '0.08em' }}>BET </span>{fmt(bet)}
             </span>
           </div>
 
@@ -307,7 +307,7 @@ export default function GatesMachine() {
 
         {/* Credit footer */}
         <div className="relative z-10 flex items-center justify-center pt-1">
-          <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: 'rgba(0,0,50,0.75)', fontWeight: 700 }}>
+          <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: 'rgba(0,0,50,0.75)', fontWeight: 900, letterSpacing: '0.04em' }}>
             CREDIT <span style={{ color: '#c87010' }}>{fmt(balance)}</span>
           </span>
         </div>
