@@ -43,7 +43,7 @@ export default function GatesSymbol({ sym, highlight }) {
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
       mixBlendMode: 'screen',
-      transform: 'scale(1.2)',
+      transform: color === 'red' ? 'scale(1.34)' : 'scale(1.2)',
       transformOrigin: 'center center',
       filter: 'saturate(1.18) contrast(1.06)',
     };
