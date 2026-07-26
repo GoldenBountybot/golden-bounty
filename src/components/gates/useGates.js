@@ -29,6 +29,7 @@ export function useGates() {
   const [autoSpin, setAutoSpin] = useState(false);
   const [spinMult, setSpinMult] = useState(0); // running multiplier for display
   const [winFlash, setWinFlash] = useState(0); // tumble running win for display
+  const [winList, setWinList] = useState([]); // current tumble winners: {symbol,count,pay}[]
 
   const settings = useGameSettings('gates-of-olympus');
   const logActivity = useLogActivity();
@@ -63,6 +64,7 @@ export function useGates() {
     setLastWin(0);
     setSpinMult(0);
     setWinFlash(0);
+    setWinList([]);
     if (!usingFree) setBalance((b) => b - bet);
     if (usingFree) setFreeSpins((f) => f - 1);
     setMessage('Spinning…');
@@ -96,6 +98,7 @@ export function useGates() {
         runningWin += tb.win;
         if (tb.multipliers.length) multSeen += tb.multipliers.reduce((s, m) => s + m.value, 0);
         setWinFlash(runningWin);
+        if (tb.wins.length) setWinList(tb.wins);
         setSpinMult(freeMode ? (baseStart + multSeen) : multSeen);
       }, showAt));
       // winners shatter / blast away
@@ -194,7 +197,7 @@ export function useGates() {
 
   return {
     grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells,
-    freeSpins, turbo, autoSpin, spinMult, winFlash,
+    freeSpins, turbo, autoSpin, spinMult, winFlash, winList,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, reset,

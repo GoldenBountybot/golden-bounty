@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { RotateCcw, Plus, Minus, AlignJustify, Info, X } from 'lucide-react';
 import GatesSymbol, { SYM_IMG } from './GatesSymbol';
 import GatesSpinStrip from './GatesSpinStrip';
+import GatesWinBoard from './GatesWinBoard';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS, isMult } from '@/lib/gatesEngine';
 
@@ -63,7 +64,7 @@ export default function GatesMachine() {
 
   const {
     grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells, winFlash,
-    freeSpins, turbo, autoSpin, spinMult,
+    freeSpins, turbo, autoSpin, spinMult, winList,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin,
@@ -253,42 +254,8 @@ export default function GatesMachine() {
             </button>
           </div>
 
-          {/* Total multiplier — multiplier symbol image with running value */}
-          <div className="flex flex-col items-center shrink-0" style={{ minWidth: 72 }}>
-            <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 700, color: '#f8d840', letterSpacing: '0.06em', lineHeight: 1, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>TOTAL</span>
-            <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 700, color: '#f8d840', letterSpacing: '0.06em', lineHeight: 1, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>MULTIPLIER</span>
-            <div className="relative flex items-center justify-center mt-0.5"
-              style={{ width: 70, height: 70,
-                background: 'transparent' }}>
-              {/* true luminance mask: the image's own luminance becomes the alpha
-                  channel — the pure-black background turns fully transparent and
-                  the board shows through, while the bright artwork keeps its
-                  true colour (no wash-out). */}
-              <div className="absolute inset-0 rounded-[4px]"
-                style={{
-                  backgroundImage: `url(${SYM_IMG.mult})`,
-                  backgroundSize: '112%',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                  WebkitMaskImage: `url(${SYM_IMG.mult})`,
-                  WebkitMaskSize: '112%',
-                  WebkitMaskPosition: 'center',
-                  WebkitMaskRepeat: 'no-repeat',
-                  WebkitMaskMode: 'luminance',
-                  maskImage: `url(${SYM_IMG.mult})`,
-                  maskSize: '112%',
-                  maskPosition: 'center',
-                  maskRepeat: 'no-repeat',
-                  maskMode: 'luminance',
-                  filter: 'saturate(1.25) contrast(1.1)',
-                }} />
-              <span className="relative z-10 flex items-center justify-center pointer-events-none"
-                style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '17px',
-                  color: '#fffbe0', textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 0 8px rgba(200,40,0,0.9)', lineHeight: 1 }}>
-                ×{spinMult > 0 ? spinMult : 1}
-              </span>
-            </div>
-          </div>
+          {/* Win board — matched symbols with counts + running win amount */}
+          <GatesWinBoard wins={winList} amount={spinning ? winFlash : lastWin} />
         </div>
 
         {/* Bottom controls bar — moved up to sit closer to the spin button */}
