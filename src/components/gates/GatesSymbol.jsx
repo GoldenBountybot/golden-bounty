@@ -51,11 +51,15 @@ export default function GatesSymbol({ sym, highlight }) {
   }
 
   const img = SYM_IMG[sym];
+  const isScatter = sym === 'scatter';
+  const style = isScatter
+    ? { ...imgStyle(img), backgroundSize: '84%' }
+    : imgStyle(img);
   return (
     <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
       style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
       {img ? (
-        <div className="w-full h-full" style={imgStyle(img)} />
+        <div className="w-full h-full" style={style} />
       ) : (
         <span style={{ fontSize: 24 }}>{sym}</span>
       )}
