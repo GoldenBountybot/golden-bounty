@@ -45,12 +45,12 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
 
   if (!display) return null;
 
-  const label = display.phase === 'balance' ? 'BALANCE' : 'TUMBLE WIN';
+  const label = 'TUMBLE WIN';
   const value =
     display.phase === 'amount' ? fmt(display.amount) :
     display.phase === 'multiply' ? `${fmt(display.amount)} × ${display.mult}X` :
     display.phase === 'result' ? fmt(display.total) :
-    display.phase === 'balance' ? fmt(display.balTotal) : '';
+    display.phase === 'balance' ? `${fmt(display.total)} × ${display.mult}X` : '';
 
   return (
     <div key={winHistory?.length || 0}
