@@ -247,12 +247,13 @@ export default function GatesMachine() {
             <button onClick={spin} disabled={spinning}
               className="rounded-[22px] flex items-center justify-center active:scale-95 transition-transform"
               style={{ width: 68, height: 68,
-                background: 'radial-gradient(circle at 35% 30%,#ffffff,#eceef1 55%,#c4cad2 100%)',
-                border: '3px solid rgba(255,255,255,0.85)',
+                background: 'transparent',
+                border: '3px solid rgba(255,255,255,0.95)',
                 borderRadius: 22,
-                boxShadow: spinning ? undefined : '0 4px 16px rgba(0,0,0,0.6), 0 0 14px rgba(255,255,255,0.25)',
+                boxShadow: spinning ? undefined : '0 2px 10px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.2)',
                 animation: spinning ? 'gatesSpinGlow 1s ease-in-out infinite' : 'none' }}>
-              <RotateCcw className={`w-7 h-7 text-slate-700 ${reelsSpinning ? 'animate-spin' : ''}`} strokeWidth={2.5} />
+              <RotateCcw className={`w-7 h-7 text-white ${reelsSpinning ? 'animate-spin' : ''}`} strokeWidth={2.5}
+                style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.9))' }} />
             </button>
           </div>
 
