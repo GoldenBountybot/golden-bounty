@@ -3,6 +3,7 @@ import { RotateCcw, Plus, Minus, AlignJustify, Info, X } from 'lucide-react';
 import GatesSymbol, { SYM_IMG } from './GatesSymbol';
 import GatesSpinStrip from './GatesSpinStrip';
 import GatesWinBoard from './GatesWinBoard';
+import GatesOrnateFrame from './GatesOrnateFrame';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS, isMult, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 
@@ -105,6 +106,7 @@ export default function GatesMachine() {
             background: 'transparent',
             boxShadow: '0 0 0 1px #7a4a08, 0 0 0 4px #f8d840, 0 0 0 5px #7a4a08, 0 4px 18px rgba(0,0,0,0.7), 0 0 26px rgba(200,136,10,0.28)',
           }}>
+          <GatesOrnateFrame />
           {/* Inner reel area */}
           <div className="relative rounded-[6px] overflow-hidden"
             style={{ background: 'linear-gradient(to bottom, rgba(52,26,96,0.42), rgba(74,38,132,0.42))', minHeight: 0 }}>
