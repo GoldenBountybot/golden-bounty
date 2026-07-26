@@ -27,7 +27,7 @@ export default React.memo(function GatesSpinStrip({ turbo }) {
       style={{ background: STRIP_BG }}
     >
       <div
-        className="flex flex-col gap-[3px] w-full relative"
+        className="flex flex-col gap-[6px] w-full relative"
         style={{
           animation: `reelFall ${turbo ? 0.32 : 0.45}s linear infinite`,
           willChange: 'transform',
