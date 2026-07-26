@@ -258,18 +258,21 @@ export default function GatesMachine() {
             <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 700, color: '#f8d840', letterSpacing: '0.06em', lineHeight: 1, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>TOTAL</span>
             <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 700, color: '#f8d840', letterSpacing: '0.06em', lineHeight: 1, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>MULTIPLIER</span>
             <div className="relative flex items-center justify-center mt-0.5"
-              style={{ width: 70, height: 70 }}>
-              <div className="relative w-full h-full overflow-hidden rounded-[6px]"
+              style={{ width: 70, height: 70, border: '2px solid #f8e060', borderRadius: 6,
+                boxShadow: '0 0 12px rgba(200,160,0,0.8), inset 0 0 10px rgba(255,255,200,0.3)',
+                background: 'transparent', isolation: 'isolate' }}>
+              {/* luminance mask: screen blend drops the pure-black background,
+                  leaving only the multiplier artwork so the board shows through */}
+              <div className="absolute inset-0 rounded-[4px]"
                 style={{
                   backgroundImage: `url(${SYM_IMG.mult})`,
                   backgroundSize: '112%',
                   backgroundPosition: 'center',
                   backgroundRepeat: 'no-repeat',
-                  border: '2px solid #f8e060',
-                  boxShadow: '0 0 12px rgba(200,160,0,0.8), inset 0 0 10px rgba(255,255,200,0.3)',
-                  filter: 'saturate(1.18) contrast(1.06)',
+                  mixBlendMode: 'screen',
+                  filter: 'saturate(1.25) contrast(1.1)',
                 }} />
-              <span className="absolute inset-0 flex items-center justify-center pointer-events-none"
+              <span className="relative z-10 flex items-center justify-center pointer-events-none"
                 style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '17px',
                   color: '#fffbe0', textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 0 8px rgba(200,40,0,0.9)', lineHeight: 1 }}>
                 ×{spinMult > 0 ? spinMult : 1}
