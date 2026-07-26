@@ -262,7 +262,7 @@ export default function GatesMachine() {
             {/* Bet amount — shown directly under the spin button */}
             <span style={{ fontFamily: 'Georgia,serif', fontSize: '14px', fontWeight: 900, color: '#000000',
               textShadow: '0 1px 2px rgba(255,255,255,0.6)', letterSpacing: '0.02em' }}>
-              <span style={{ fontSize: '11px', letterSpacing: '0.08em' }}>BET </span>{fmt(bet)}
+              <span style={{ fontSize: '13px', letterSpacing: '0.08em', WebkitTextStroke: '1px #000' }}>BET </span>{fmt(bet)}
             </span>
           </div>
 
