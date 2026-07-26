@@ -70,8 +70,6 @@ export default function GatesMachine() {
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, buyFreeSpins,
   } = g;
 
-  const tumbleWin = spinning ? winFlash : lastWin;
-  const showTumbleBar = tumbleWin > 0;
   const allReelsStopped = stoppedReels.size >= REELS;
   const reelsSpinning = spinning && !allReelsStopped;
 
@@ -89,27 +87,6 @@ export default function GatesMachine() {
           style={{ width: '78%', maxWidth: 320, height: 'auto', objectFit: 'contain',
             mixBlendMode: 'screen',
             filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.9))' }} />
-      </div>
-
-      {/* ── TUMBLE WIN BAR — sits between title and board ── */}
-      <div className="shrink-0 mx-3 mb-1 rounded-[6px] overflow-hidden" style={{ minHeight: 32 }}>
-        {showTumbleBar ? (
-          <div className="flex items-center justify-center gap-2 py-1.5"
-            style={{ background: 'linear-gradient(to right,#1a0808,#3a0a0a,#1a0808)', border: '1px solid rgba(180,60,20,0.6)' }}>
-            <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: '#d08060', fontWeight: 700, letterSpacing: '0.12em' }}>TUMBLE WIN</span>
-            <span style={{ fontFamily: 'Georgia,serif', fontSize: '15px', fontWeight: 900, color: '#ffe080', textShadow: '0 0 10px rgba(255,200,80,0.8)' }}>{fmt(tumbleWin)}</span>
-            {spinMult > 1 && (
-              <span style={{ fontFamily: 'Georgia,serif', fontSize: '13px', color: '#ffd040', fontWeight: 900 }}>× {spinMult}</span>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center py-1.5"
-            style={{ background: 'linear-gradient(to right,#1a0808,#3a0a0a,#1a0808)', border: '1px solid rgba(180,60,20,0.4)' }}>
-            <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: '#a06040', fontWeight: 700, letterSpacing: '0.1em' }}>
-              {freeSpinsActive ? 'FREE SPINS' : 'SYMBOLS PAY ANYWHERE ON THE SCREEN'}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
