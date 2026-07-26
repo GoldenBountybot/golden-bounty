@@ -127,11 +127,9 @@ export default function GatesMachine() {
                       return (
                         <div key={key} className="relative rounded-[5px] flex-1 min-h-0"
                           style={{ opacity: stopped ? 1 : 0,
-                            border: isWin ? '2px solid rgba(255,150,30,0.95)' : 'none',
-                            boxShadow: isWin
-                              ? '0 0 0 1px rgba(255,120,0,0.9), 0 0 12px rgba(255,110,0,0.95), 0 0 24px rgba(255,160,30,0.7)'
-                              : 'none',
-                            animation: isWin ? 'gatesWinGlow 0.7s ease-in-out infinite' : 'none',
+                            border: isWin ? '1.5px solid rgba(255,200,60,0.95)' : 'none',
+                            boxShadow: 'none',
+                            animation: isWin ? 'gatesWinGlow 0.55s linear infinite' : 'none',
                             transition: 'box-shadow 0.15s' }}>
                           {stopped ? (
                             <div className="relative w-full h-full"
