@@ -35,7 +35,7 @@ export default function GatesMachine() {
     revealTimers.current.forEach(clearTimeout);
     revealTimers.current = [];
     setStoppedReels(new Set());
-    const gap = g.turbo ? 55 : 100;
+    const gap = g.turbo ? 40 : 70;
     for (let c = 0; c < REELS; c++) {
       revealTimers.current.push(setTimeout(() => {
         setStoppedReels((prev) => new Set([...prev, c]));
@@ -131,7 +131,7 @@ export default function GatesMachine() {
                             transition: 'box-shadow 0.15s' }}>
                           {stopped ? (
                             <div className="relative w-full h-full"
-                              style={{ animation: `gatesDrop ${g.turbo ? 0.22 : 0.34}s cubic-bezier(0.16,1,0.3,1) both` }}>
+                              style={{ animation: `gatesDrop ${g.turbo ? 0.22 : 0.4}s cubic-bezier(0.4,0,0.2,1) both` }}>
                               <GatesSymbol sym={sym} highlight={isWin} />
                             </div>
                           ) : (
