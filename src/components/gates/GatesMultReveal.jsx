@@ -64,9 +64,9 @@ export default function GatesMultReveal({ value, color, fresh, turbo }) {
       >
         <span
           style={{
-            fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: '14px',
-            color: '#ffffff', WebkitTextStroke: '1.3px #1a0a06',
-            textShadow: `0 0 6px ${c.glow}, 0 0 12px ${c.glow}, 0 1px 2px rgba(0,0,0,0.85)`,
+            fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: '15px',
+            color: '#ffd650', WebkitTextStroke: '1.2px #5a3a00',
+            textShadow: '0 0 6px rgba(255,200,60,0.95), 0 0 12px rgba(255,180,30,0.8), 0 1px 2px rgba(0,0,0,0.85)',
             letterSpacing: '-0.02em', lineHeight: 1, whiteSpace: 'nowrap',
           }}
         >×{value}</span>
