@@ -129,7 +129,7 @@ export default function GatesMachine() {
       {showInfo && <GatesInfoPanel bet={bet} onClose={() => setShowInfo(false)} />}
 
       {/* ── GATES OF OLYMPUS TITLE BANNER ── sits just above the board border */}
-      <div className="relative flex items-center justify-start shrink-0 pt-4 pb-0 pl-3"
+      <div className="relative flex items-center justify-start shrink-0 pt-12 pb-0 pl-3"
         style={{ background: 'linear-gradient(to bottom,rgba(50,10,90,0.95),transparent)', marginBottom: 6, zIndex: 20 }}>
         <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5a4c02bcc_file_000000003af0820bb4a62aa92952a91e.png"
           alt="Gates of Olympus"
