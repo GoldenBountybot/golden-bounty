@@ -51,6 +51,8 @@ export default function GatesSymbol({ sym, highlight }) {
       maskRepeat: 'no-repeat',
       maskMode: 'luminance',
       WebkitMaskSourceType: 'luminance',
+      transform: 'scale(1.16)',
+      transformOrigin: 'center center',
     };
     return (
       <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
