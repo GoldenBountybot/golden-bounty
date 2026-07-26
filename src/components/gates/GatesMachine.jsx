@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RotateCcw, Plus, Minus, AlignJustify, Info, X } from 'lucide-react';
 import GatesSymbol, { SYM_IMG } from './GatesSymbol';
+import GatesSpinStrip from './GatesSpinStrip';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS } from '@/lib/gatesEngine';
 
@@ -20,26 +21,28 @@ export default function GatesMachine() {
   // re-trigger the reel-drop animation every time the grid changes
   useEffect(() => { setDropTick((t) => t + 1); }, [g.grid]);
 
-  // keep previous symbols visible until the new grid arrives; ensure all stopped on spin end
+  // reset reels to spinning on spin start; reveal all on spin end
   useEffect(() => {
     revealTimers.current.forEach(clearTimeout);
     revealTimers.current = [];
-    if (!g.spinning) {
+    if (g.spinning) {
+      setStoppedReels(new Set());
+    } else {
       setStoppedReels(new Set(Array.from({ length: REELS }, (_, i) => i)));
     }
   }, [g.spinning]);
 
-  // per-column reveal: a whole column drops together smoothly, then the next column starts
+  // sequential column reveal (left → right) whenever a tumble grid arrives
   useEffect(() => {
     if (!g.spinning) return;
     revealTimers.current.forEach(clearTimeout);
     revealTimers.current = [];
     setStoppedReels(new Set());
-    const stagger = g.turbo ? 160 : 260;
+    const gap = g.turbo ? 25 : 50;
     for (let c = 0; c < REELS; c++) {
       revealTimers.current.push(setTimeout(() => {
         setStoppedReels((prev) => new Set([...prev, c]));
-      }, c * stagger));
+      }, c * gap));
     }
     return () => { revealTimers.current.forEach(clearTimeout); };
   }, [dropTick, g.turbo]);
@@ -123,7 +126,7 @@ export default function GatesMachine() {
                       const winKey = `${c}-${r}`;
                       const isWin = winPositions.has(winKey);
                       return (
-                        <div key={key} className="relative rounded-[5px] flex-1 min-h-0 overflow-hidden"
+                        <div key={key} className="relative rounded-[5px] flex-1 min-h-0"
                           style={{ opacity: stopped ? 1 : 0,
                             border: isWin ? '1.5px solid rgba(255,200,60,0.95)' : 'none',
                             boxShadow: 'none',
@@ -131,7 +134,7 @@ export default function GatesMachine() {
                             transition: 'box-shadow 0.15s' }}>
                           {stopped ? (
                             <div className="relative w-full h-full"
-                              style={{ animation: `gatesDrop ${g.turbo ? 0.16 : 0.26}s cubic-bezier(0.4,0,0.2,1) both` }}>
+                              style={{ animation: `gatesDrop ${g.turbo ? 0.18 : 0.26}s ease-out both` }}>
                               <GatesSymbol sym={sym} highlight={isWin} />
                             </div>
                           ) : (
@@ -140,6 +143,7 @@ export default function GatesMachine() {
                         </div>
                       );
                     })}
+                    {!stopped && <GatesSpinStrip turbo={g.turbo} />}
                   </div>
                   {c < REELS - 1 && (
                     <div className="self-stretch" style={{ width: 1, background: 'linear-gradient(to bottom, rgba(212,169,58,0.1), rgba(212,169,58,0.55), rgba(212,169,58,0.1))', boxShadow: '0 0 4px rgba(212,169,58,0.4)' }} />
