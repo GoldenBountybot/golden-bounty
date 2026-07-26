@@ -12,6 +12,7 @@ export function useGates() {
   const [lastWin, setLastWin] = useState(0);
   const [message, setMessage] = useState('GATES OF OLYMPUS · 8+ PAYS');
   const [winPositions, setWinPositions] = useState(new Set());
+  const [shatter, setShatter] = useState(new Set());
   const [freeSpins, setFreeSpins] = useState(0);
   const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
@@ -49,6 +50,7 @@ export function useGates() {
     timers.current = [];
     setSpinning(true);
     setWinPositions(new Set());
+    setShatter(new Set());
     setLastWin(0);
     setSpinMult(0);
     setWinFlash(0);
@@ -62,18 +64,21 @@ export function useGates() {
     const result = computeSpin(bet, wantWin, freeMode, runningMultRef.current);
     if (freeMode) runningMultRef.current = result.newRunningMult;
 
-    const tumbleGap = turbo ? 280 : 560;
-    const firstGap = turbo ? 320 : 620;
+    const hold = turbo ? 260 : 460;       // winners glow before shattering
+    const shatterDur = turbo ? 240 : 400;  // winners blast away
+    const firstGap = turbo ? 360 : 660;    // reels stop, first grid drops in
     let acc = 0;
     let runningWin = 0;
     let multSeen = 0; // sum of multipliers revealed so far across tumbles
     const baseStart = freeMode ? (result.newRunningMult - result.spinMultSum) : 0;
 
     result.tumbles.forEach((tb, i) => {
-      const showDelay = i === 0 ? firstGap : tumbleGap;
+      const showDelay = i === 0 ? firstGap : 0;
       acc += showDelay;
       const showAt = acc;
+      // show grid + highlight winners (fire glow)
       timers.current.push(setTimeout(() => {
+        setShatter(new Set());
         setGrid(tb.grid);
         setWinPositions(tb.winPositions);
         runningWin += tb.win;
@@ -81,9 +86,16 @@ export function useGates() {
         setWinFlash(runningWin);
         setSpinMult(freeMode ? (baseStart + multSeen) : multSeen);
       }, showAt));
+      // winners shatter / blast away
+      acc += hold;
+      timers.current.push(setTimeout(() => setShatter(tb.winPositions), acc));
+      // shatter done -> clear, new symbols drop on next tumble
+      acc += shatterDur;
       if (i < result.tumbles.length - 1) {
-        acc += turbo ? 320 : 560;
-        timers.current.push(setTimeout(() => setWinPositions(new Set()), acc));
+        timers.current.push(setTimeout(() => {
+          setShatter(new Set());
+          setWinPositions(new Set());
+        }, acc));
       }
     });
 
@@ -168,7 +180,7 @@ export function useGates() {
   };
 
   return {
-    grid, balance, bet, spinning, lastWin, message, winPositions,
+    grid, balance, bet, spinning, lastWin, message, winPositions, shatter,
     freeSpins, turbo, autoSpin, spinMult, winFlash,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,

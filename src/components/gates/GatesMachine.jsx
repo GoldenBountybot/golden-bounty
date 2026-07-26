@@ -50,7 +50,7 @@ export default function GatesMachine() {
   useEffect(() => () => { revealTimers.current.forEach(clearTimeout); }, []);
 
   const {
-    grid, balance, bet, spinning, lastWin, message, winPositions, winFlash,
+    grid, balance, bet, spinning, lastWin, message, winPositions, shatter, winFlash,
     freeSpins, turbo, autoSpin, spinMult,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,
@@ -124,7 +124,8 @@ export default function GatesMachine() {
                     {reel.map((sym, r) => {
                       const key = `${c}-${r}-${dropTick}`;
                       const winKey = `${c}-${r}`;
-                      const isWin = winPositions.has(winKey);
+                      const isShatter = shatter.has(winKey);
+                      const isWin = !isShatter && winPositions.has(winKey);
                       return (
                         <div key={key} className="relative rounded-[5px] flex-1 min-h-0"
                           style={{ opacity: stopped ? 1 : 0,
@@ -134,7 +135,9 @@ export default function GatesMachine() {
                             transition: 'box-shadow 0.15s' }}>
                           {stopped ? (
                             <div className="relative w-full h-full"
-                              style={{ animation: `gatesDrop ${g.turbo ? 0.18 : 0.26}s ease-out both` }}>
+                              style={{ animation: isShatter
+                                ? `shatterWin ${g.turbo ? 0.24 : 0.4}s ease-out forwards`
+                                : `gatesDrop ${g.turbo ? 0.18 : 0.26}s ease-out both` }}>
                               <GatesSymbol sym={sym} highlight={isWin} />
                             </div>
                           ) : (
