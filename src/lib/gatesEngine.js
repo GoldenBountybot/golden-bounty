@@ -61,7 +61,10 @@ function pickMult() {
   return 2;
 }
 export function pickSymbol(freeMode) {
-  const mChance = freeMode ? 0.07 : 0.045;
+  // Multiplier symbols are disabled in the base game for now — they must not
+  // appear/fall there until re-enabled (per user request). Free spins keep
+  // them, since accumulating multipliers are the core free-spin feature.
+  const mChance = freeMode ? 0.07 : 0;
   const sChance = freeMode ? 0.02 : 0.014;
   const r = Math.random();
   if (r < mChance) return `M${pickMult()}`;
