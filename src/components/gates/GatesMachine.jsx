@@ -7,6 +7,7 @@ import GatesOrnateFrame from './GatesOrnateFrame';
 import GatesFreeSpinBanner from './GatesFreeSpinBanner';
 import GatesMultReveal from './GatesMultReveal';
 import GatesBolt from './GatesBolt';
+import GatesMultBanner from './GatesMultBanner';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 
@@ -264,28 +265,32 @@ export default function GatesMachine() {
           {/* Win board — pinned to the LEFT edge */}
           <GatesWinBoard history={winHistory} amount={spinning ? winFlash : lastWin} />
 
-          {/* Center — spin button area */}
-          <div className="flex flex-col items-center gap-1.5">
-            {/* Main spin button */}
-            <button onClick={spin} disabled={spinning}
-              className="rounded-[22px] flex items-center justify-center active:scale-95 transition-transform"
-              style={{ width: 68, height: 68,
-                background: 'transparent',
-                border: '3px solid rgba(255,255,255,0.95)',
-                borderRadius: 22,
-                boxShadow: spinning ? undefined : '0 2px 10px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.2)',
-                animation: spinning ? 'gatesSpinGlow 1s ease-in-out infinite' : 'none' }}>
-              <span style={{ width: 26, height: 26, borderRadius: 9,
-                border: '2px solid rgba(255,255,255,0.9)',
-                background: 'rgba(255,255,255,0.12)',
-                boxShadow: '0 0 8px rgba(255,255,255,0.35), inset 0 0 6px rgba(255,255,255,0.25)' }} />
-            </button>
-            {/* Bet amount — shown directly under the spin button */}
-            <span style={{ fontFamily: 'Georgia,serif', fontSize: '14px', fontWeight: 900, color: '#000000',
-              textShadow: '0 1px 2px rgba(255,255,255,0.6)', letterSpacing: '0.02em' }}>
-              <span style={{ fontSize: '13px', letterSpacing: '0.08em', WebkitTextStroke: '1px #000' }}>BET </span>{fmt(bet)}
-            </span>
-          </div>
+          {/* Center — spin button (base game) OR total multiplier banner (free spins) */}
+          {freeSpinsActive ? (
+            <GatesMultBanner value={spinMult} />
+          ) : (
+            <div className="flex flex-col items-center gap-1.5">
+              {/* Main spin button */}
+              <button onClick={spin} disabled={spinning}
+                className="rounded-[22px] flex items-center justify-center active:scale-95 transition-transform"
+                style={{ width: 68, height: 68,
+                  background: 'transparent',
+                  border: '3px solid rgba(255,255,255,0.95)',
+                  borderRadius: 22,
+                  boxShadow: spinning ? undefined : '0 2px 10px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.2)',
+                  animation: spinning ? 'gatesSpinGlow 1s ease-in-out infinite' : 'none' }}>
+                <span style={{ width: 26, height: 26, borderRadius: 9,
+                  border: '2px solid rgba(255,255,255,0.9)',
+                  background: 'rgba(255,255,255,0.12)',
+                  boxShadow: '0 0 8px rgba(255,255,255,0.35), inset 0 0 6px rgba(255,255,255,0.25)' }} />
+              </button>
+              {/* Bet amount — shown directly under the spin button */}
+              <span style={{ fontFamily: 'Georgia,serif', fontSize: '14px', fontWeight: 900, color: '#000000',
+                textShadow: '0 1px 2px rgba(255,255,255,0.6)', letterSpacing: '0.02em' }}>
+                <span style={{ fontSize: '13px', letterSpacing: '0.08em', WebkitTextStroke: '1px #000' }}>BET </span>{fmt(bet)}
+              </span>
+            </div>
+          )}
 
           {/* Buy Free Spins / Free Spins Left — on the RIGHT of the spin button */}
           {freeSpinsActive ? (
