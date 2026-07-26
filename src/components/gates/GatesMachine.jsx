@@ -253,32 +253,27 @@ export default function GatesMachine() {
             </button>
           </div>
 
-          {/* Total multiplier badge — golden wings */}
+          {/* Total multiplier — multiplier symbol image with running value */}
           <div className="flex flex-col items-center shrink-0" style={{ minWidth: 72 }}>
             <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 700, color: '#f8d840', letterSpacing: '0.06em', lineHeight: 1, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>TOTAL</span>
             <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 700, color: '#f8d840', letterSpacing: '0.06em', lineHeight: 1, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>MULTIPLIER</span>
             <div className="relative flex items-center justify-center mt-0.5"
-              style={{ width: 68, height: 52 }}>
-              {/* Wings */}
-              <svg viewBox="0 0 100 60" className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
-                <path d="M44,30 C30,12 5,10 1,26 C12,22 28,26 40,32 Z" fill="#d4b010" opacity="0.9"/>
-                <path d="M44,30 C30,22 8,22 2,36 C14,30 30,32 42,36 Z" fill="#f8e040" opacity="0.6"/>
-                <path d="M56,30 C70,12 95,10 99,26 C88,22 72,26 60,32 Z" fill="#d4b010" opacity="0.9"/>
-                <path d="M56,30 C70,22 92,22 98,36 C86,30 70,32 58,36 Z" fill="#f8e040" opacity="0.6"/>
-              </svg>
-              <div className="relative z-10 rounded-full flex items-center justify-center"
-                style={{ width: 46, height: 46,
-                  background: freeSpinsActive
-                    ? 'radial-gradient(circle at 35% 30%,#c0b8f8,#7060e0 50%,#2818a8)'
-                    : 'radial-gradient(circle at 35% 30%,#f8e878,#d8a020 50%,#785010)',
-                  border: '2.5px solid #f8e060',
-                  boxShadow: '0 0 12px rgba(200,160,0,0.8), inset 0 0 10px rgba(255,255,200,0.3)' }}>
-                <span style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '14px',
-                  color: freeSpinsActive ? '#e0d8ff' : '#3a2408',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.5)', lineHeight: 1 }}>
-                  {spinMult > 0 ? `${spinMult}x` : freeSpinsActive ? '1x' : '1x'}
-                </span>
-              </div>
+              style={{ width: 70, height: 70 }}>
+              <div className="relative w-full h-full overflow-hidden rounded-[6px]"
+                style={{
+                  backgroundImage: `url(${SYM_IMG.mult})`,
+                  backgroundSize: '112%',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  border: '2px solid #f8e060',
+                  boxShadow: '0 0 12px rgba(200,160,0,0.8), inset 0 0 10px rgba(255,255,200,0.3)',
+                  filter: 'saturate(1.18) contrast(1.06)',
+                }} />
+              <span className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '17px',
+                  color: '#fffbe0', textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 0 8px rgba(200,40,0,0.9)', lineHeight: 1 }}>
+                ×{spinMult > 0 ? spinMult : 1}
+              </span>
             </div>
           </div>
         </div>
