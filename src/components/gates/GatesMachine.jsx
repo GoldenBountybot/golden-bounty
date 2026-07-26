@@ -79,7 +79,7 @@ export default function GatesMachine() {
     <div className="relative w-full max-w-md mx-auto flex flex-col overflow-hidden select-none"
       style={{ minHeight: '100dvh', background: 'transparent' }}>
 
-      {showInfo && <GatesInfoPanel onClose={() => setShowInfo(false)} />}
+      {showInfo && <GatesInfoPanel bet={bet} onClose={() => setShowInfo(false)} />}
 
       {/* ── HEADER TITLE BAR ── */}
       <div className="relative flex items-center justify-between px-3 pt-2 pb-1 shrink-0"
@@ -347,7 +347,7 @@ export default function GatesMachine() {
   );
 }
 
-function GatesInfoPanel({ onClose }) {
+function GatesInfoPanel({ bet, onClose }) {
   const rows = [
     ['zeus', '⚡', 2, 5, 10, 20],
     ['crown', '👑', 1.5, 3, 6, 12],
@@ -378,7 +378,7 @@ function GatesInfoPanel({ onClose }) {
               <img src={SYM_IMG[sym]} alt={sym} style={{ height: 26, width: 'auto', objectFit: 'contain' }} />
             </div>
             <div style={{ fontFamily: 'Georgia,serif', fontSize: '9px', color: '#a08050', fontWeight: 700 }}>{sym.toUpperCase()}</div>
-            {pays.map((p, i) => <div key={i} style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#ffe060', fontWeight: 900 }}>×{p}</div>)}
+            {pays.map((p, i) => <div key={i} style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#ffe060', fontWeight: 900 }}>{fmt(p * bet)}</div>)}
           </div>
         ))}
         <div style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#c0a870', marginTop: 10 }}>
