@@ -13,10 +13,7 @@ export default function GatesWinBoard({ wins, amount }) {
         background: 'linear-gradient(135deg,rgba(40,20,8,0.9),rgba(18,9,4,0.9))',
         border: '1.5px solid rgba(200,140,10,0.55)',
         boxShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-      <span style={{ fontFamily: 'Georgia,serif', fontSize: '8px', fontWeight: 700, color: '#c8a040', letterSpacing: '0.1em' }}>
-        WIN BOARD
-      </span>
-      <div className="w-full flex flex-col gap-0.5 mt-1" style={{ minHeight: 42 }}>
+      <div className="w-full flex flex-col gap-0.5" style={{ minHeight: 42 }}>
         {hasWins ? wins.map((w, i) => (
           <div key={i} className="flex items-center justify-between gap-1 w-full">
             <div className="flex items-center gap-1 min-w-0">
