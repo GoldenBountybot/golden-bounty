@@ -8,7 +8,9 @@ const randSym = () => STRIP_KEYS[Math.floor(Math.random() * STRIP_KEYS.length)];
 // Dark backdrop painted inside the strip's own (transform-isolated) stacking
 // context so that `mix-blend-mode: screen` has a non-black backdrop to remove
 // the pure-black symbol background against — independent of the page behind.
-const STRIP_BG = 'linear-gradient(to bottom, rgba(52,26,96,0.55), rgba(74,38,132,0.55))';
+// Transparent so the board's purple background shows through unchanged while
+// the reel spins — the background stays identical in both idle and spin states.
+const STRIP_BG = 'transparent';
 
 // Scrolling reel strip shown while a reel is spinning.
 // The strip is built from 5-row blocks where the last block equals the first,
