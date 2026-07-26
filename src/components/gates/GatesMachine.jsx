@@ -130,11 +130,11 @@ export default function GatesMachine() {
 
       {/* ── GATES OF OLYMPUS TITLE BANNER ── sits just above the board border */}
       <div className="relative flex items-center justify-center shrink-0"
-        style={{ background: 'transparent', marginTop: 4, marginBottom: -10, zIndex: 20, lineHeight: 0 }}>
+        style={{ background: 'transparent', marginTop: 2, marginBottom: -28, zIndex: 20, lineHeight: 0 }}>
         <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4ada8e43f_file_000000009d6c820683b5d0deb9bc731a.png"
           alt="Gates of Olympus"
           style={{ width: '52%', maxWidth: 240, height: 'auto', objectFit: 'contain',
-            display: 'block', transform: 'translateY(6px)',
+            display: 'block', transform: 'translateY(20px)',
             filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.9))' }} />
         {/* Zeus figure on the right side of the banner */}
         <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/84fd16eb6_file_00000000e474820ba9fd196f5f5c9f06.png"
