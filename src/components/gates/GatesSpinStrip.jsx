@@ -50,7 +50,17 @@ export default React.memo(function GatesSpinStrip({ turbo }) {
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
-                    mixBlendMode: 'screen',
+                    WebkitMaskImage: `url(${img})`,
+                    WebkitMaskSize: 'cover',
+                    WebkitMaskPosition: 'center',
+                    WebkitMaskRepeat: 'no-repeat',
+                    maskImage: `url(${img})`,
+                    maskSize: 'cover',
+                    maskPosition: 'center',
+                    maskRepeat: 'no-repeat',
+                    maskMode: 'luminance',
+                    WebkitMaskSourceType: 'luminance',
+                    filter: 'brightness(1.06) saturate(1.18) contrast(1.04)',
                   }}
                 />
               )}
