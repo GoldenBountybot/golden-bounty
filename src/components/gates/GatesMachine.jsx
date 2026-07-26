@@ -20,13 +20,11 @@ export default function GatesMachine() {
   // re-trigger the reel-drop animation every time the grid changes
   useEffect(() => { setDropTick((t) => t + 1); }, [g.grid]);
 
-  // reset reels to spinning on spin start; reveal all on spin end
+  // keep previous symbols visible until the new grid arrives; ensure all stopped on spin end
   useEffect(() => {
     revealTimers.current.forEach(clearTimeout);
     revealTimers.current = [];
-    if (g.spinning) {
-      setStoppedReels(new Set());
-    } else {
+    if (!g.spinning) {
       setStoppedReels(new Set(Array.from({ length: REELS }, (_, i) => i)));
     }
   }, [g.spinning]);
@@ -37,7 +35,7 @@ export default function GatesMachine() {
     revealTimers.current.forEach(clearTimeout);
     revealTimers.current = [];
     setStoppedReels(new Set());
-    const gap = g.turbo ? 25 : 50;
+    const gap = g.turbo ? 55 : 100;
     for (let c = 0; c < REELS; c++) {
       revealTimers.current.push(setTimeout(() => {
         setStoppedReels((prev) => new Set([...prev, c]));
@@ -125,7 +123,7 @@ export default function GatesMachine() {
                       const winKey = `${c}-${r}`;
                       const isWin = winPositions.has(winKey);
                       return (
-                        <div key={key} className="relative rounded-[5px] flex-1 min-h-0"
+                        <div key={key} className="relative rounded-[5px] flex-1 min-h-0 overflow-hidden"
                           style={{ opacity: stopped ? 1 : 0,
                             border: isWin ? '1.5px solid rgba(255,200,60,0.95)' : 'none',
                             boxShadow: 'none',
@@ -133,7 +131,7 @@ export default function GatesMachine() {
                             transition: 'box-shadow 0.15s' }}>
                           {stopped ? (
                             <div className="relative w-full h-full"
-                              style={{ animation: `gatesDrop ${g.turbo ? 0.24 : 0.36}s cubic-bezier(0.16,1,0.3,1) both` }}>
+                              style={{ animation: `gatesDrop ${g.turbo ? 0.22 : 0.34}s cubic-bezier(0.16,1,0.3,1) both` }}>
                               <GatesSymbol sym={sym} highlight={isWin} />
                             </div>
                           ) : (
