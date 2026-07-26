@@ -4,7 +4,7 @@ import GatesSymbol, { SYM_IMG } from './GatesSymbol';
 import GatesSpinStrip from './GatesSpinStrip';
 import GatesWinBoard from './GatesWinBoard';
 import { useGates } from './useGates';
-import GatesFrame from './GatesFrame';
+import { gatesFrameStyle } from './GatesFrame';
 import { BETS, SYMBOLS, MULTIPLIERS, isMult, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 
 const REELS = 6;
@@ -99,12 +99,10 @@ export default function GatesMachine() {
 
       {/* ── REEL BOARD ── ornate gold frame with purple interior */}
       <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 0 }}>
-        {/* Outer board container — ornate frame overlay sits around it */}
-        <div className="relative rounded-[8px]"
-          style={{ background: 'transparent' }}>
-          <GatesFrame inset={14} />
+        {/* Outer board container — ornate gold frame rendered as a border-image */}
+        <div className="relative" style={gatesFrameStyle}>
           {/* Inner reel area */}
-          <div className="relative rounded-[6px] overflow-hidden"
+          <div className="relative overflow-hidden"
             style={{ background: 'linear-gradient(to bottom, rgba(52,26,96,0.42), rgba(74,38,132,0.42))', minHeight: 0 }}>
 
             {/* 6×5 grid — Big Brown style: per-reel scroll strip, sequential stop + drop */}
