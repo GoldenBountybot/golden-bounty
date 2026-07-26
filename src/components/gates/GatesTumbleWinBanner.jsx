@@ -50,7 +50,7 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
     display.phase === 'amount' ? fmt(display.amount) :
     display.phase === 'multiply' ? `${fmt(display.amount)} × ${display.mult}X` :
     display.phase === 'result' ? fmt(display.total) :
-    display.phase === 'balance' ? `${fmt(display.total)} × ${display.mult}X` : '';
+    display.phase === 'balance' ? (display.mult > 0 ? `${fmt(display.total)} × ${display.mult}X` : fmt(display.total)) : '';
 
   return (
     <div key={winHistory?.length || 0}
