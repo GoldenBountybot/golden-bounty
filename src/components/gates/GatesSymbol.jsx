@@ -18,56 +18,34 @@ const SYM_IMG = {
 
 export { SYM_IMG };
 
-// Luminance mask: use the symbol's own brightness as alpha so its pure-black
-// background becomes fully transparent while the coloured symbol stays crisp
-// and opaque. Unlike mix-blend-mode: screen, this works on ANY board background
-// (light or dark) — symbols never wash out or fade.
-const maskStyle = (img) => ({
+// Render the symbol image directly (full opacity, true colours). The PNG's own
+// pure-black background fills the cell, so the symbol shows in its natural
+// colour with no alpha-keying artefacts — colours stay vivid and fully opaque.
+const imgStyle = (img) => ({
   backgroundImage: `url(${img})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
-  WebkitMaskImage: `url(${img})`,
-  WebkitMaskSize: 'cover',
-  WebkitMaskPosition: 'center',
-  WebkitMaskRepeat: 'no-repeat',
-  maskImage: `url(${img})`,
-  maskSize: 'cover',
-  maskPosition: 'center',
-  maskRepeat: 'no-repeat',
-  maskMode: 'luminance',
-  WebkitMaskSourceType: 'luminance',
-  filter: 'brightness(1.12) saturate(1.5) contrast(1.14)',
+  filter: 'saturate(1.18) contrast(1.06)',
 });
 
 export default function GatesSymbol({ sym, highlight }) {
   if (isMult(sym)) {
     const v = multValue(sym);
     const multUrl = SYM_IMG.mult;
-    // Luminance mask: use the symbol's own brightness as alpha so its pure-black
-    // background becomes transparent while the colours stay intact (no screen wash-out).
-    const maskStyle = {
+    const style = {
       backgroundImage: `url(${multUrl})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
-      WebkitMaskImage: `url(${multUrl})`,
-      WebkitMaskSize: 'cover',
-      WebkitMaskPosition: 'center',
-      WebkitMaskRepeat: 'no-repeat',
-      maskImage: `url(${multUrl})`,
-      maskSize: 'cover',
-      maskPosition: 'center',
-      maskRepeat: 'no-repeat',
-      maskMode: 'luminance',
-      WebkitMaskSourceType: 'luminance',
       transform: 'scale(1.16)',
       transformOrigin: 'center center',
+      filter: 'saturate(1.18) contrast(1.06)',
     };
     return (
       <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
         style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
-        <div className="w-full h-full" style={maskStyle} />
+        <div className="w-full h-full" style={style} />
         <span className="absolute inset-0 flex items-center justify-center pointer-events-none"
           style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '11px', color: '#fffbe0', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>
           ×{v}
@@ -81,7 +59,7 @@ export default function GatesSymbol({ sym, highlight }) {
     <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
       style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
       {img ? (
-        <div className="w-full h-full" style={maskStyle(img)} />
+        <div className="w-full h-full" style={imgStyle(img)} />
       ) : (
         <span style={{ fontSize: 24 }}>{sym}</span>
       )}
