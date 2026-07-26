@@ -89,7 +89,7 @@ export default function GatesMachine() {
       </div>
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
-      <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 0 }}>
+      <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 4 }}>
         {/* Outer golden border */}
         <div className="relative rounded-[10px]"
           style={{
