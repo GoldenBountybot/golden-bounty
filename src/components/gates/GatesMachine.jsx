@@ -259,7 +259,7 @@ export default function GatesMachine() {
         style={{ background: 'transparent' }}>
 
         {/* Top row: free spins badge + spin area + multiplier badge */}
-        <div className="relative z-10 flex items-center justify-between gap-2" style={{ marginTop: 38 }}>
+        <div className="relative z-10 flex items-center justify-between gap-2" style={{ marginTop: 60 }}>
 
           {/* Win board — pinned to the LEFT edge */}
           <GatesWinBoard history={winHistory} amount={spinning ? winFlash : lastWin} />
