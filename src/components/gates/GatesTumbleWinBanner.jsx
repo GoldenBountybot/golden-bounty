@@ -49,9 +49,9 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
       <div className="absolute z-40 pointer-events-none"
         style={{ top: -42, left: '50%', transform: 'translateX(-50%)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <span style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: 12,
+          <span style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: 15,
             color: '#ffd040', letterSpacing: '0.12em',
-            textShadow: '0 0 10px rgba(255,200,0,0.9), 0 1px 2px rgba(0,0,0,0.85)' }}>
+            textShadow: '0 0 10px rgba(255,200,0,0.9), 0 1px 2px rgba(0,0,0,0.85)', WebkitTextStroke: '0.5px #000' }}>
             WIN UP TO 5000X
           </span>
         </div>
