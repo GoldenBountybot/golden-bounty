@@ -8,6 +8,7 @@ import GatesFreeSpinBanner from './GatesFreeSpinBanner';
 import GatesMultReveal from './GatesMultReveal';
 import GatesBolt from './GatesBolt';
 import GatesMultBanner from './GatesMultBanner';
+import GatesTumbleWinBanner from './GatesTumbleWinBanner';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 
@@ -148,6 +149,7 @@ export default function GatesMachine() {
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
       <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 0 }}>
+        <GatesTumbleWinBanner winHistory={winHistory} balance={balance} winFlash={winFlash} />
         {/* Outer golden border */}
         <div className="relative rounded-[10px]"
           style={{
