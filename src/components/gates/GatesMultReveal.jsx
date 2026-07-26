@@ -64,12 +64,12 @@ export default function GatesMultReveal({ value, color, fresh, turbo }) {
       >
         <span
           style={{
-            fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: '17px',
-            color: '#ffd700',
-            textShadow: '0 0 3px #fffbe0, 0 0 8px #ffe566, 0 0 15px rgba(255,200,30,0.95), 1px 1px 1px rgba(90,50,0,0.95), 0 1px 2px rgba(0,0,0,0.9)',
-            letterSpacing: '-0.01em', lineHeight: 1, whiteSpace: 'nowrap',
+            fontFamily: 'Georgia, serif', fontWeight: 900, fontSize: '18px',
+            color: '#fff09a',
+            textShadow: '0 0 4px #ffffff, 0 0 10px #ffe566, 0 0 18px #ffd633, 0 0 28px rgba(255,180,0,0.95), 1px 1px 1px rgba(90,50,0,0.95), 0 1px 2px rgba(0,0,0,0.9)',
+            letterSpacing: '0.01em', lineHeight: 1, whiteSpace: 'nowrap',
           }}
-        >{value}×</span>
+        >{value}<span style={{ fontSize: '20px' }}>X</span></span>
       </div>
     </div>
   );
