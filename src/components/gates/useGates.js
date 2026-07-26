@@ -1,5 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { computeSpin, BETS, buildGrid, FREE_SPINS_AWARD } from '@/lib/gatesEngine';
+import { computeSpin, BETS, buildGrid, FREE_SPINS_AWARD, REELS, ROWS } from '@/lib/gatesEngine';
+
+// every board position `${c}-${r}` — used so the first spin drops all symbols
+const ALL_CELLS = (() => {
+  const s = new Set();
+  for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) s.add(`${c}-${r}`);
+  return s;
+})();
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -13,6 +20,7 @@ export function useGates() {
   const [message, setMessage] = useState('GATES OF OLYMPUS · 8+ PAYS');
   const [winPositions, setWinPositions] = useState(new Set());
   const [shatter, setShatter] = useState(new Set());
+  const [dropCells, setDropCells] = useState(new Set());
   const [freeSpins, setFreeSpins] = useState(0);
   const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
@@ -51,6 +59,7 @@ export function useGates() {
     setSpinning(true);
     setWinPositions(new Set());
     setShatter(new Set());
+    setDropCells(new Set());
     setLastWin(0);
     setSpinMult(0);
     setWinFlash(0);
@@ -72,15 +81,18 @@ export function useGates() {
     let multSeen = 0; // sum of multipliers revealed so far across tumbles
     const baseStart = freeMode ? (result.newRunningMult - result.spinMultSum) : 0;
 
+    let prevWinners = ALL_CELLS;
     result.tumbles.forEach((tb, i) => {
       const showDelay = i === 0 ? firstGap : 0;
       acc += showDelay;
       const showAt = acc;
-      // show grid + highlight winners (fire glow)
+      const fresh = i === 0 ? ALL_CELLS : prevWinners;
+      // show grid + highlight winners; only fresh (empty) cells drop in
       timers.current.push(setTimeout(() => {
         setShatter(new Set());
         setGrid(tb.grid);
         setWinPositions(tb.winPositions);
+        setDropCells(fresh);
         runningWin += tb.win;
         if (tb.multipliers.length) multSeen += tb.multipliers.reduce((s, m) => s + m.value, 0);
         setWinFlash(runningWin);
@@ -97,6 +109,7 @@ export function useGates() {
           setWinPositions(new Set());
         }, acc));
       }
+      prevWinners = tb.winPositions;
     });
 
     // settle
@@ -180,7 +193,7 @@ export function useGates() {
   };
 
   return {
-    grid, balance, bet, spinning, lastWin, message, winPositions, shatter,
+    grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells,
     freeSpins, turbo, autoSpin, spinMult, winFlash,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,

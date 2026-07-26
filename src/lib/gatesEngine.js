@@ -134,21 +134,14 @@ export function evaluate(grid, bet) {
 // Remove winning + scatter cells; keep multipliers and non-winning symbols;
 // refill the top of each column with new symbols.
 export function tumble(grid, winPositions, freeMode) {
-  const next = [];
-  for (let c = 0; c < REELS; c++) {
-    const kept = [];
-    for (let r = 0; r < ROWS; r++) {
-      const cell = grid[c][r];
-      if (isMult(cell)) kept.push(cell);
-      else if (cell === 'scatter') continue;
-      else if (winPositions.has(`${c}-${r}`)) continue;
-      else kept.push(cell);
-    }
-    const refill = [];
-    for (let i = 0; i < ROWS - kept.length; i++) refill.push(pickSymbol(freeMode));
-    next.push([...refill, ...kept]);
-  }
-  return next;
+  // In-place refill: winning + scatter cells are replaced exactly where they
+  // stood; multipliers and every other symbol keep their original positions.
+  return grid.map((reel, c) => reel.map((cell, r) => {
+    if (isMult(cell)) return cell;
+    if (winPositions.has(`${c}-${r}`)) return pickSymbol(freeMode);
+    if (cell === 'scatter') return pickSymbol(freeMode);
+    return cell;
+  }));
 }
 
 function forceWinGrid(freeMode) {

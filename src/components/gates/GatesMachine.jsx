@@ -13,28 +13,40 @@ export default function GatesMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
   const [dropTick, setDropTick] = useState(0);
+  const [shatterTick, setShatterTick] = useState(0);
   const [stoppedReels, setStoppedReels] = useState(() => new Set(Array.from({ length: REELS }, (_, i) => i)));
   const revealTimers = useRef([]);
+  const revealedRef = useRef(false);
 
   const g = useGates();
 
   // re-trigger the reel-drop animation every time the grid changes
   useEffect(() => { setDropTick((t) => t + 1); }, [g.grid]);
+  // bump shatter key whenever the shatter set changes so the blast replays
+  useEffect(() => { setShatterTick((t) => t + 1); }, [shatter]);
 
   // reset reels to spinning on spin start; reveal all on spin end
   useEffect(() => {
     revealTimers.current.forEach(clearTimeout);
     revealTimers.current = [];
     if (g.spinning) {
+      revealedRef.current = false;
       setStoppedReels(new Set());
     } else {
+      revealedRef.current = false;
       setStoppedReels(new Set(Array.from({ length: REELS }, (_, i) => i)));
     }
   }, [g.spinning]);
 
-  // sequential column reveal (left → right) whenever a tumble grid arrives
+  // sequential column reveal (left → right) only for the first spin result;
+  // tumbles keep all reels stopped and just refill the shattered cells.
   useEffect(() => {
     if (!g.spinning) return;
+    if (revealedRef.current) {
+      setStoppedReels(new Set(Array.from({ length: REELS }, (_, i) => i)));
+      return;
+    }
+    revealedRef.current = true;
     revealTimers.current.forEach(clearTimeout);
     revealTimers.current = [];
     setStoppedReels(new Set());
@@ -50,7 +62,7 @@ export default function GatesMachine() {
   useEffect(() => () => { revealTimers.current.forEach(clearTimeout); }, []);
 
   const {
-    grid, balance, bet, spinning, lastWin, message, winPositions, shatter, winFlash,
+    grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells, winFlash,
     freeSpins, turbo, autoSpin, spinMult,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,
@@ -122,22 +134,23 @@ export default function GatesMachine() {
                   <React.Fragment key={c}>
                   <div className="relative flex-1 flex flex-col gap-[6px] min-w-0">
                     {reel.map((sym, r) => {
-                      const key = `${c}-${r}-${dropTick}`;
                       const winKey = `${c}-${r}`;
                       const isShatter = shatter.has(winKey);
+                      const isFresh = dropCells.has(winKey);
                       const isWin = !isShatter && winPositions.has(winKey);
+                      const animKey = isShatter ? `sh${shatterTick}` : isFresh ? `dr${dropTick}` : 'st';
                       return (
-                        <div key={key} className="relative rounded-[5px] flex-1 min-h-0"
+                        <div key={winKey} className="relative rounded-[5px] flex-1 min-h-0"
                           style={{ opacity: stopped ? 1 : 0,
                             border: isWin ? '1.5px solid rgba(255,200,60,0.95)' : 'none',
                             boxShadow: 'none',
                             animation: isWin ? 'gatesWinGlow 0.55s linear infinite' : 'none',
                             transition: 'box-shadow 0.15s' }}>
                           {stopped ? (
-                            <div className="relative w-full h-full"
+                            <div key={animKey} className="relative w-full h-full"
                               style={{ animation: isShatter
                                 ? `shatterWin ${g.turbo ? 0.24 : 0.4}s ease-out forwards`
-                                : `gatesDrop ${g.turbo ? 0.18 : 0.26}s ease-out both` }}>
+                                : isFresh ? `gatesDrop ${g.turbo ? 0.18 : 0.26}s ease-out both` : 'none' }}>
                               <GatesSymbol sym={sym} highlight={isWin} />
                             </div>
                           ) : (
