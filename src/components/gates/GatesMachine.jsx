@@ -115,11 +115,12 @@ export default function GatesMachine() {
             style={{ background: 'linear-gradient(to bottom, rgba(18,7,46,0.82), rgba(40,16,82,0.82))', minHeight: 0 }}>
 
             {/* 6×5 grid — Big Brown style: per-reel scroll strip, sequential stop + drop */}
-            <div className="flex gap-[6px] p-[5px]" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
+            <div className="flex gap-[4px] p-[5px]" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
               {grid.map((reel, c) => {
                 const stopped = stoppedReels.has(c);
                 return (
-                  <div key={c} className="relative flex-1 flex flex-col gap-[6px] min-w-0">
+                  <React.Fragment key={c}>
+                  <div className="relative flex-1 flex flex-col gap-[6px] min-w-0">
                     {reel.map((sym, r) => {
                       const key = `${c}-${r}-${dropTick}`;
                       const winKey = `${c}-${r}`;
@@ -144,6 +145,10 @@ export default function GatesMachine() {
                     })}
                     {!stopped && <GatesSpinStrip turbo={g.turbo} />}
                   </div>
+                  {c < REELS - 1 && (
+                    <div className="self-stretch" style={{ width: 1, background: 'linear-gradient(to bottom, rgba(212,169,58,0.1), rgba(212,169,58,0.55), rgba(212,169,58,0.1))', boxShadow: '0 0 4px rgba(212,169,58,0.4)' }} />
+                  )}
+                  </React.Fragment>
                 );
               })}
             </div>
