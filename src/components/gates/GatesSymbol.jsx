@@ -54,32 +54,6 @@ export default function GatesSymbol({ sym, highlight }) {
     );
   }
 
-  if (sym === 'scatter') {
-    const img = SYM_IMG.scatter;
-    return (
-      <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
-        style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
-        <div className="w-full h-full" style={{
-          backgroundImage: `url(${img})`,
-          backgroundSize: 'contain',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          WebkitMaskImage: `url(${img})`,
-          maskImage: `url(${img})`,
-          WebkitMaskRepeat: 'no-repeat',
-          maskRepeat: 'no-repeat',
-          WebkitMaskSize: 'contain',
-          maskSize: 'contain',
-          WebkitMaskPosition: 'center',
-          maskPosition: 'center',
-          WebkitMaskMode: 'luminance',
-          maskMode: 'luminance',
-          filter: 'saturate(1.25) contrast(1.08) brightness(1.05)',
-        }} />
-      </div>
-    );
-  }
-
   const img = SYM_IMG[sym];
   return (
     <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
