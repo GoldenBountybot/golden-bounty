@@ -72,7 +72,7 @@ export default function GatesMachine() {
 
   const {
     grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells, winFlash,
-    freeSpins, turbo, autoSpin, spinMult, winList, scatterGlow,
+    freeSpins, turbo, autoSpin, spinMult, winList, winHistory, scatterGlow,
     showFreeSpinStart, freeSpinsActive, startFreeSpins,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, buyFreeSpins,
   } = g;
@@ -308,7 +308,7 @@ export default function GatesMachine() {
           </div>
 
           {/* Win board — matched symbols with counts + running win amount */}
-          <GatesWinBoard wins={winList} amount={spinning ? winFlash : lastWin} />
+          <GatesWinBoard history={winHistory} amount={spinning ? winFlash : lastWin} />
         </div>
 
         {/* Bottom controls bar — moved up to sit closer to the spin button */}

@@ -30,6 +30,7 @@ export function useGates() {
   const [spinMult, setSpinMult] = useState(0); // running multiplier for display
   const [winFlash, setWinFlash] = useState(0); // tumble running win for display
   const [winList, setWinList] = useState([]); // current tumble winners: {symbol,count,pay}[]
+  const [winHistory, setWinHistory] = useState([]); // per-tumble winners list across the whole spin
   const [scatterGlow, setScatterGlow] = useState(new Set()); // scatter cells glowing when 4+ land together
 
   const settings = useGameSettings('gates-of-olympus');
@@ -66,6 +67,7 @@ export function useGates() {
     setSpinMult(0);
     setWinFlash(0);
     setWinList([]);
+    setWinHistory([]);
     setScatterGlow(new Set());
     if (!usingFree) setBalance((b) => b - bet);
     if (usingFree) setFreeSpins((f) => f - 1);
@@ -101,7 +103,10 @@ export function useGates() {
         runningWin += tb.win;
         if (tb.multipliers.length) multSeen += tb.multipliers.reduce((s, m) => s + m.value, 0);
         setWinFlash(runningWin);
-        if (tb.wins.length) setWinList(tb.wins);
+        if (tb.wins.length) {
+          setWinList(tb.wins);
+          setWinHistory((h) => [...h, { wins: tb.wins, subtotal: tb.win, mult: tb.multipliers.length ? tb.multipliers.reduce((s, m) => s + m.value, 0) : 0 }]);
+        }
         const scatPos = new Set();
         for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) if (tb.grid[c][r] === 'scatter') scatPos.add(`${c}-${r}`);
         setScatterGlow(scatPos.size >= 4 ? scatPos : new Set());
@@ -223,7 +228,7 @@ export function useGates() {
 
   return {
     grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells,
-    freeSpins, turbo, autoSpin, spinMult, winFlash, winList, scatterGlow,
+    freeSpins, turbo, autoSpin, spinMult, winFlash, winList, winHistory, scatterGlow,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, reset, buyFreeSpins,
