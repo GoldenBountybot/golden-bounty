@@ -228,7 +228,7 @@ export default function GatesMachine() {
         style={{ background: 'transparent', minHeight: 180 }}>
 
         {/* Top row: free spins badge + spin area + multiplier badge */}
-        <div className="relative z-10 flex items-start justify-between pt-2 gap-2">
+        <div className="relative z-10 flex items-center justify-between gap-2" style={{ marginTop: 28 }}>
 
           {/* Free Spins Left badge */}
           <div className="flex flex-col items-center rounded-[8px] px-3 py-1.5 shrink-0"
