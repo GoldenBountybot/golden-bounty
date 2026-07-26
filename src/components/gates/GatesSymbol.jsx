@@ -23,7 +23,7 @@ export { SYM_IMG };
 // colour with no alpha-keying artefacts — colours stay vivid and fully opaque.
 const imgStyle = (img) => ({
   backgroundImage: `url(${img})`,
-  backgroundSize: 'cover',
+  backgroundSize: '112%',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
   filter: 'saturate(1.18) contrast(1.06)',
@@ -35,10 +35,10 @@ export default function GatesSymbol({ sym, highlight }) {
     const multUrl = SYM_IMG.mult;
     const style = {
       backgroundImage: `url(${multUrl})`,
-      backgroundSize: 'cover',
+      backgroundSize: '112%',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
-      transform: 'scale(1.16)',
+      transform: 'scale(1.2)',
       transformOrigin: 'center center',
       filter: 'saturate(1.18) contrast(1.06)',
     };

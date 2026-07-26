@@ -47,7 +47,7 @@ export default React.memo(function GatesSpinStrip({ turbo }) {
                   className="w-full h-full"
                   style={{
                     backgroundImage: `url(${img})`,
-                    backgroundSize: 'cover',
+                    backgroundSize: '112%',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
                     filter: 'saturate(1.18) contrast(1.06)',
