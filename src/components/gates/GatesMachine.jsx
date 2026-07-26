@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RotateCcw, Plus, Minus, AlignJustify, Info, X } from 'lucide-react';
 import GatesSymbol, { SYM_IMG } from './GatesSymbol';
-import GatesSpinStrip from './GatesSpinStrip';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS } from '@/lib/gatesEngine';
 
@@ -134,7 +133,7 @@ export default function GatesMachine() {
                             transition: 'box-shadow 0.15s' }}>
                           {stopped ? (
                             <div className="relative w-full h-full"
-                              style={{ animation: `gatesDrop ${g.turbo ? 0.18 : 0.26}s ease-out both` }}>
+                              style={{ animation: `gatesDrop ${g.turbo ? 0.24 : 0.36}s cubic-bezier(0.16,1,0.3,1) both` }}>
                               <GatesSymbol sym={sym} highlight={isWin} />
                             </div>
                           ) : (
@@ -143,7 +142,6 @@ export default function GatesMachine() {
                         </div>
                       );
                     })}
-                    {!stopped && <GatesSpinStrip turbo={g.turbo} />}
                   </div>
                   {c < REELS - 1 && (
                     <div className="self-stretch" style={{ width: 1, background: 'linear-gradient(to bottom, rgba(212,169,58,0.1), rgba(212,169,58,0.55), rgba(212,169,58,0.1))', boxShadow: '0 0 4px rgba(212,169,58,0.4)' }} />
