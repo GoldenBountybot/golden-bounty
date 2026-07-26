@@ -251,12 +251,6 @@ export default function GatesMachine() {
                 border: '3px solid rgba(255,255,255,0.7)', boxShadow: '0 4px 16px rgba(0,0,0,0.6), 0 0 20px rgba(255,255,255,0.25)' }}>
               <RotateCcw className={`w-7 h-7 text-slate-700 ${reelsSpinning ? 'animate-spin' : ''}`} strokeWidth={2.5} />
             </button>
-            {/* Plus bet button */}
-            <button onClick={() => { const i = BETS.findIndex(b => Math.abs(bet-b)<0.001); setBet(BETS[Math.min(i+1, BETS.length-1)]); }} disabled={spinning}
-              className="rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40"
-              style={{ width: 32, height: 32, background: 'rgba(200,200,200,0.2)', border: '1.5px solid rgba(255,255,255,0.5)' }}>
-              <Plus className="w-4 h-4 text-white" />
-            </button>
           </div>
 
           {/* Total multiplier badge — golden wings */}
@@ -289,8 +283,8 @@ export default function GatesMachine() {
           </div>
         </div>
 
-        {/* Bottom controls bar */}
-        <div className="relative z-10 flex items-center justify-between pt-2"
+        {/* Bottom controls bar — moved up to sit closer to the spin button */}
+        <div className="relative z-20 flex items-center justify-between pt-2 -mt-1"
           style={{ borderTop: '1px solid rgba(255,255,255,0.15)' }}>
           <button onClick={() => setShowInfo(true)}
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
@@ -309,6 +303,12 @@ export default function GatesMachine() {
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40"
             style={{ background: 'rgba(0,0,0,0.35)', border: '1.5px solid rgba(255,255,255,0.4)' }}>
             <Minus className="w-4 h-4 text-white/80" />
+          </button>
+
+          <button onClick={() => { const i = BETS.findIndex(b => Math.abs(bet-b)<0.001); setBet(BETS[Math.min(i+1, BETS.length-1)]); }} disabled={spinning}
+            className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40"
+            style={{ background: 'rgba(0,0,0,0.35)', border: '1.5px solid rgba(255,255,255,0.4)' }}>
+            <Plus className="w-4 h-4 text-white/80" />
           </button>
 
           <button onClick={() => setShowBetMenu(s => !s)}
