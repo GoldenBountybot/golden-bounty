@@ -8,7 +8,6 @@ import GatesFreeSpinBanner from './GatesFreeSpinBanner';
 import GatesMultReveal from './GatesMultReveal';
 import GatesBolt from './GatesBolt';
 import GatesMultBanner from './GatesMultBanner';
-import GatesTumbleWin from './GatesTumbleWin';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 
@@ -74,7 +73,7 @@ export default function GatesMachine() {
 
   const {
     grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells, winFlash,
-    freeSpins, turbo, autoSpin, spinMult, winList, winHistory, scatterGlow, tumbleWin,
+    freeSpins, turbo, autoSpin, spinMult, winList, winHistory, scatterGlow,
     showFreeSpinStart, freeSpinsActive, startFreeSpins,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, buyFreeSpins,
   } = g;
@@ -236,7 +235,6 @@ export default function GatesMachine() {
             )}
           </div>
         </div>
-        <GatesTumbleWin data={tumbleWin} turbo={turbo} />
       </div>
 
       {/* ── WIN AMOUNT BELOW BOARD ── */}
