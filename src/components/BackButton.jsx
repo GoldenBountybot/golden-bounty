@@ -13,7 +13,6 @@ export default function BackButton({ href = '/', label = 'Back', className = '' 
         background: 'rgba(20,17,13,0.7)',
         color: '#e8c878',
         fontFamily: 'Georgia, serif',
-        marginTop: 40,
       }}
     >
       <ArrowLeft className="w-4 h-4" />
