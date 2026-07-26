@@ -355,7 +355,7 @@ export default function GatesMachine() {
 
         {/* Credit footer */}
         <div className="relative z-10 flex items-center justify-center pt-1">
-          <span style={{ fontFamily: 'Georgia,serif', fontSize: '12px', color: '#000000', fontWeight: 900, letterSpacing: '0.04em' }}>
+          <span style={{ fontFamily: 'Georgia,serif', fontSize: '15px', color: '#000000', fontWeight: 900, letterSpacing: '0.04em', textShadow: '0 1px 2px rgba(255,255,255,0.6)' }}>
             CREDIT <span>{fmt(balance)}</span>
           </span>
         </div>
