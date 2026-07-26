@@ -34,12 +34,25 @@ export default React.memo(function GatesSpinStrip({ turbo }) {
           return (
             <div key={i} className="rounded-[5px] overflow-hidden" style={{ aspectRatio: '1 / 0.82', background: 'transparent' }}>
               {img && (
-                <img
-                  src={img}
-                  alt=""
-                  className="w-full h-full object-contain"
-                  draggable={false}
-                  style={{ filter: 'blur(1.1px) brightness(0.8)', mixBlendMode: 'screen' }}
+                <div
+                  className="w-full h-full"
+                  style={{
+                    backgroundImage: `url(${img})`,
+                    backgroundSize: 'contain',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    WebkitMaskImage: `url(${img})`,
+                    maskImage: `url(${img})`,
+                    WebkitMaskSize: 'contain',
+                    maskSize: 'contain',
+                    WebkitMaskPosition: 'center',
+                    maskPosition: 'center',
+                    WebkitMaskRepeat: 'no-repeat',
+                    maskRepeat: 'no-repeat',
+                    WebkitMaskMode: 'luminance',
+                    maskMode: 'luminance',
+                    filter: 'blur(1.1px) brightness(0.8)',
+                  }}
                 />
               )}
             </div>
