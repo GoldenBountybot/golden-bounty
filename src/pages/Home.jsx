@@ -12,8 +12,6 @@ const GAMES = [
   { id: 'free-spin', title: 'Daily Free Spin', category: 'Arcade', desc: 'Spin every 24h · win $1000', accent: 'from-amber-500 to-yellow-700', tag: 'FREE', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png', path: '/free-spin' },
   { id: 'wild-bounty', title: 'Wild Bounty Showdown', category: 'Slots', desc: '3600 Ways · Cascade Wins', accent: 'from-amber-500 to-orange-700', tag: 'HOT', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/af2b94fcd_InShot_20260717_194156078.jpg' },
   { id: 'hi-lo', title: 'High or Low', category: 'Cards', desc: 'Guess the Next Card', accent: 'from-emerald-500 to-green-700' },
-  { id: 'roulette', title: 'Golden Roulette', category: 'Table', desc: 'Place Your Bets', accent: 'from-yellow-500 to-amber-700', coming: true },
-  { id: 'blackjack', title: 'Blackjack 21', category: 'Cards', desc: 'Beat the Dealer', accent: 'from-slate-500 to-slate-800', coming: true },
   { id: 'plinko', title: 'Plinko Drop', category: 'Arcade', desc: 'Drop & Win', accent: 'from-pink-500 to-fuchsia-700', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/22ada4a2e_generated_image.png' },
   { id: 'fullhouse', title: 'JILI Super ACE', category: 'Cards', desc: 'Golden Wild · Free Spins', accent: 'from-amber-500 to-orange-700', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/199c00bd0_generated_image.png' },
   { id: 'mines', title: 'Mines', category: 'Arcade', desc: 'Find the Gems · Avoid the Mines', accent: 'from-cyan-500 to-blue-700', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/446327a76_mines.jpg' },
@@ -22,8 +20,6 @@ const GAMES = [
   { id: 'big-brown', title: 'Big Brown', category: 'Slots', desc: '4096 Ways · Expanding Wilds', accent: 'from-amber-700 to-stone-900', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a6f715d21_generated_image.png' },
   { id: 'argonauts', title: 'Argonauts', category: 'Slots', desc: '10 Lines · Free Spins · Bonus', accent: 'from-sky-500 to-indigo-800', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png' },
   { id: 'gates-of-olympus', title: 'Gates of Olympus', category: 'Slots', desc: '8+ Pays · Tumbles · ×500 Mult', accent: 'from-indigo-500 to-amber-700', tag: 'HOT', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2125c8cfd_generated_image.png' },
-  { id: 'dragon-tiger', title: 'Dragon Tiger', category: 'Cards', desc: 'Pick a Side', accent: 'from-red-600 to-orange-800', coming: true },
-  { id: 'sic-bo', title: 'Sic Bo', category: 'Table', desc: 'Dice of Fortune', accent: 'from-teal-500 to-emerald-800', coming: true },
 ];
 
 const CATEGORIES = ['All', 'Slots', 'Cards', 'Table', 'Arcade'];
