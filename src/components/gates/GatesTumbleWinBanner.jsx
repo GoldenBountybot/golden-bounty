@@ -43,7 +43,21 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
 
   useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
 
-  if (!display) return null;
+  // Persistent placeholder text shown whenever no win is being animated.
+  if (!display) {
+    return (
+      <div className="absolute z-40 pointer-events-none"
+        style={{ top: -58, left: '50%', transform: 'translateX(-50%)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <span style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: 12,
+            color: '#ffd040', letterSpacing: '0.12em',
+            textShadow: '0 0 10px rgba(255,200,0,0.9), 0 1px 2px rgba(0,0,0,0.85)' }}>
+            WIN UP TO 5000X
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   const label = 'TUMBLE WIN';
   const value =
