@@ -13,6 +13,12 @@ const REELS = 6;
 const ROWS = 5;
 const fmt = (v) => `$${Number(v || 0).toFixed(2)}`;
 
+// Lightning bolt — jagged (zigzag) like real sky lightning, blue, thick.
+const BOLT_PATH =
+  'M12 0 L4 95 L13 100 L3 205 L14 210 L5 325 L13 420 L11 325 L20 210 L9 205 L19 100 L10 95 L18 0 Z';
+const BOLT_GLOW = 'rgba(70,140,255,0.98)';
+const BOLT_STROKE = '#2f7dff';
+
 export default function GatesMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
@@ -21,6 +27,10 @@ export default function GatesMachine() {
   const [stoppedReels, setStoppedReels] = useState(() => new Set(Array.from({ length: REELS }, (_, i) => i)));
   const revealTimers = useRef([]);
   const revealedRef = useRef(false);
+  const machineRef = useRef(null);
+  const cellRefs = useRef({});
+  const struckRef = useRef(new Set());
+  const [bolts, setBolts] = useState({});
 
   const g = useGates();
 
@@ -65,6 +75,48 @@ export default function GatesMachine() {
 
   useEffect(() => () => { revealTimers.current.forEach(clearTimeout); }, []);
 
+  // Reset the "already struck" set whenever a new tumble's fresh cells arrive.
+  useEffect(() => { struckRef.current = new Set(); }, [dropCells]);
+
+  // Lightning: when a fresh multiplier symbol lands on a stopped reel, strike
+  // a bolt from the top of the machine (the banner / sky) down onto its cell.
+  // Rendered at the machine root so the reel area's overflow-hidden can't clip it.
+  useEffect(() => {
+    const root = machineRef.current;
+    if (!root) return;
+    const rootRect = root.getBoundingClientRect();
+    const fire = [];
+    for (let c = 0; c < REELS; c++) {
+      if (!stoppedReels.has(c)) continue;
+      for (let r = 0; r < ROWS; r++) {
+        const key = `${c}-${r}`;
+        if (struckRef.current.has(key)) continue;
+        if (!isMult(grid[c][r])) continue;
+        if (!dropCells.has(key)) continue;
+        const el = cellRefs.current[key];
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        fire.push({
+          key,
+          x: rect.left + rect.width / 2 - rootRect.left,
+          y: rect.top + rect.height / 2 - rootRect.top,
+        });
+      }
+    }
+    if (!fire.length) return;
+    fire.forEach((b) => struckRef.current.add(b.key));
+    setBolts((prev) => ({ ...prev, ...Object.fromEntries(fire.map((b) => [b.key, b])) }));
+    const dur = (turbo ? 420 : 700) + 120;
+    const t = setTimeout(() => {
+      setBolts((prev) => {
+        const copy = { ...prev };
+        fire.forEach((b) => delete copy[b.key]);
+        return copy;
+      });
+    }, dur);
+    return () => clearTimeout(t);
+  }, [stoppedReels, grid, dropCells, dropTick, turbo]);
+
   const {
     grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells, winFlash,
     freeSpins, turbo, autoSpin, spinMult, winList, scatterGlow,
@@ -76,7 +128,7 @@ export default function GatesMachine() {
   const reelsSpinning = spinning && !allReelsStopped;
 
   return (
-    <div className="relative w-full max-w-md mx-auto flex flex-col overflow-hidden select-none"
+    <div ref={machineRef} className="relative w-full max-w-md mx-auto flex flex-col overflow-hidden select-none"
       style={{ minHeight: '100dvh', background: 'transparent' }}>
 
       {showInfo && <GatesInfoPanel bet={bet} onClose={() => setShowInfo(false)} />}
@@ -132,7 +184,7 @@ export default function GatesMachine() {
                       const dropAnim = isFresh;
                       const animKey = isShatter ? `sh${shatterTick}` : dropAnim ? `dr${dropTick}` : 'st';
                       return (
-                        <div key={winKey} className="relative rounded-[5px] flex-1 min-h-0"
+                        <div key={winKey} ref={(el) => { cellRefs.current[winKey] = el; }} className="relative rounded-[5px] flex-1 min-h-0"
                           style={{ opacity: stopped ? 1 : 0,
                             boxSizing: 'border-box',
                             border: '1.5px solid transparent',
@@ -324,6 +376,26 @@ export default function GatesMachine() {
           })}
         </div>
       )}
+
+      {/* Lightning bolts — strike down from the banner (sky) onto fresh
+          multiplier symbols. Rendered at the machine root so they are not
+          clipped by the reel area's overflow-hidden. */}
+      {Object.values(bolts).map((b) => (
+        <svg
+          key={b.key}
+          style={{
+            position: 'absolute', left: b.x, top: 0, width: 24, height: b.y,
+            transform: 'translateX(-50%)', transformOrigin: 'top center',
+            pointerEvents: 'none', zIndex: 30, overflow: 'visible',
+            animation: `gatesLightning ${turbo ? 0.42 : 0.7}s ease-out forwards`,
+            filter: `drop-shadow(0 0 7px ${BOLT_GLOW}) drop-shadow(0 0 16px ${BOLT_GLOW}) drop-shadow(0 0 26px ${BOLT_GLOW})`,
+          }}
+          viewBox="0 0 24 420"
+          preserveAspectRatio="none"
+        >
+          <path d={BOLT_PATH} fill="#ffffff" stroke={BOLT_STROKE} strokeWidth="2" strokeLinejoin="round" />
+        </svg>
+      ))}
     </div>
   );
 }
