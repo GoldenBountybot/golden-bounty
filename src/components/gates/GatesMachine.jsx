@@ -4,6 +4,7 @@ import GatesSymbol, { SYM_IMG } from './GatesSymbol';
 import GatesSpinStrip from './GatesSpinStrip';
 import GatesWinBoard from './GatesWinBoard';
 import { useGates } from './useGates';
+import GatesFrame from './GatesFrame';
 import { BETS, SYMBOLS, MULTIPLIERS, isMult, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 
 const REELS = 6;
@@ -96,15 +97,12 @@ export default function GatesMachine() {
             filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.9))' }} />
       </div>
 
-      {/* ── REEL BOARD ── golden frame with purple interior */}
+      {/* ── REEL BOARD ── ornate gold frame with purple interior */}
       <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 0 }}>
-        {/* Outer golden border */}
-        <div className="relative rounded-[10px]"
-          style={{
-            border: '3px solid #d4a93a',
-            background: 'transparent',
-            boxShadow: '0 0 0 1px #7a4a08, 0 0 0 4px #f8d840, 0 0 0 5px #7a4a08, 0 4px 18px rgba(0,0,0,0.7), 0 0 26px rgba(200,136,10,0.28)',
-          }}>
+        {/* Outer board container — ornate frame overlay sits around it */}
+        <div className="relative rounded-[8px]"
+          style={{ background: 'transparent' }}>
+          <GatesFrame inset={14} />
           {/* Inner reel area */}
           <div className="relative rounded-[6px] overflow-hidden"
             style={{ background: 'linear-gradient(to bottom, rgba(52,26,96,0.42), rgba(74,38,132,0.42))', minHeight: 0 }}>
