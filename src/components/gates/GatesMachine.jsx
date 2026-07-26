@@ -145,14 +145,6 @@ export default function GatesMachine() {
             filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.9))' }} />
       </div>
 
-      {/* ── DECORATIVE BANNER ── small ornate banner between title and board */}
-      <div className="relative flex items-center justify-center shrink-0" style={{ marginBottom: 2, zIndex: 15 }}>
-        <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/efc36ebf2_file_000000009d6c820683b5d0deb9bc731a.png"
-          alt="Olympus banner"
-          style={{ width: '30%', height: 'auto', objectFit: 'contain',
-            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.8))' }} />
-      </div>
-
       {/* ── REEL BOARD ── golden frame with purple interior */}
       <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 0 }}>
         {/* Outer golden border */}
