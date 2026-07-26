@@ -258,9 +258,8 @@ export default function GatesMachine() {
             <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 700, color: '#f8d840', letterSpacing: '0.06em', lineHeight: 1, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>TOTAL</span>
             <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 700, color: '#f8d840', letterSpacing: '0.06em', lineHeight: 1, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>MULTIPLIER</span>
             <div className="relative flex items-center justify-center mt-0.5"
-              style={{ width: 70, height: 70, border: '2px solid #f8e060', borderRadius: 6,
-                boxShadow: '0 0 12px rgba(200,160,0,0.8), inset 0 0 10px rgba(255,255,200,0.3)',
-                background: 'transparent', isolation: 'isolate' }}>
+              style={{ width: 70, height: 70,
+                background: 'transparent' }}>
               {/* true luminance mask: the image's own luminance becomes the alpha
                   channel — the pure-black background turns fully transparent and
                   the board shows through, while the bright artwork keeps its
