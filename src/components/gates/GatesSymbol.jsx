@@ -1,5 +1,5 @@
 import React from 'react';
-import { isMult, multValue } from '@/lib/gatesEngine';
+import { isMult, multValue, multColor } from '@/lib/gatesEngine';
 
 // AI-generated symbol images matching the real Gates of Olympus game screenshots
 const SYM_IMG = {
@@ -14,6 +14,9 @@ const SYM_IMG = {
   yellow:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3829a472c_file_000000000e088230b3afc17f467dd494.png',
   scatter:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e121379a7_file_000000008b68820baaa63ab2e653d35f.png',
   mult:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/05d1b7bd2_file_00000000bf888230ad3b50315b7d1792.png',
+  mult_blue: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d7806105b_file_00000000c01481f886567f0ea4c79c5e.png',
+  mult_pink: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1b3f46fa4_file_000000006288820bb1867ae53a90b18e.png',
+  mult_red:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/744c32f73_file_000000009458820bb0170dc02a86f11c.png',
 };
 
 export { SYM_IMG };
@@ -32,12 +35,14 @@ const imgStyle = (img) => ({
 export default function GatesSymbol({ sym, highlight }) {
   if (isMult(sym)) {
     const v = multValue(sym);
-    const multUrl = SYM_IMG.mult;
+    const color = multColor(v);
+    const multUrl = SYM_IMG[`mult_${color}`] || SYM_IMG.mult;
     const style = {
       backgroundImage: `url(${multUrl})`,
       backgroundSize: '112%',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
+      mixBlendMode: 'screen',
       transform: 'scale(1.2)',
       transformOrigin: 'center center',
       filter: 'saturate(1.18) contrast(1.06)',

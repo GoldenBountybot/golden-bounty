@@ -382,8 +382,13 @@ function GatesInfoPanel({ bet, onClose }) {
           </div>
         ))}
         <div style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#c0a870', marginTop: 10 }}>
-          <img src={SYM_IMG.scatter} alt="scatter" style={{ height: 16, width: 'auto', verticalAlign: 'middle' }} /> 4+ Scatters → 15 Free Spins<br/>
-          <img src={SYM_IMG.mult} alt="mult" style={{ height: 16, width: 'auto', verticalAlign: 'middle' }} /> Multipliers: ×{MULTIPLIERS[0].v} – ×{MULTIPLIERS[MULTIPLIERS.length-1].v}
+          <img src={SYM_IMG.scatter} alt="scatter" style={{ height: 16, width: 'auto', verticalAlign: 'middle' }} /> 4+ Scatters → 15 Free Spins
+          <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div><img src={SYM_IMG.mult} alt="green" style={{ height: 15, width: 'auto', verticalAlign: 'middle', mixBlendMode: 'screen' }} /> Green: ×2 – ×5</div>
+            <div><img src={SYM_IMG.mult_blue} alt="blue" style={{ height: 15, width: 'auto', verticalAlign: 'middle', mixBlendMode: 'screen' }} /> Blue: ×10 – ×25</div>
+            <div><img src={SYM_IMG.mult_pink} alt="pink" style={{ height: 15, width: 'auto', verticalAlign: 'middle', mixBlendMode: 'screen' }} /> Pink: ×50 – ×100</div>
+            <div><img src={SYM_IMG.mult_red} alt="red" style={{ height: 15, width: 'auto', verticalAlign: 'middle', mixBlendMode: 'screen' }} /> Red: ×250 – ×500</div>
+          </div>
         </div>
       </div>
     </div>

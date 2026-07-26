@@ -83,6 +83,18 @@ export function multValue(cell) {
   return isFinite(v) ? v : 0;
 }
 
+// Value (multiplier) symbols come in 4 colour tiers. The colour is derived from
+// the multiplier value: green = low (common) … red = huge (very rare). Because
+// pickMult() already weights small values far more than large ones, tying
+// colour to value gives the requested drop hierarchy
+// (green > blue > pink > red) for free.
+export function multColor(v) {
+  if (v <= 5) return 'green';
+  if (v <= 25) return 'blue';
+  if (v <= 100) return 'pink';
+  return 'red';
+}
+
 export function buildGrid(freeMode) {
   const g = [];
   for (let c = 0; c < REELS; c++) {
