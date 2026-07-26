@@ -50,9 +50,8 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
         style={{ top: -30, left: '50%', transform: 'translateX(-50%)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: 16,
-            color: '#ffd040', letterSpacing: '0.12em', fontStyle: 'italic',
-            textShadow: '0 0 10px rgba(255,200,0,0.9), 0 1px 2px rgba(0,0,0,0.85)',
-            WebkitTextStroke: '1.2px #000' }}>
+            color: '#ffe060', letterSpacing: '0.04em',
+            textShadow: '0 0 14px rgba(255,200,0,0.9), 0 1px 2px rgba(0,0,0,0.8)' }}>
             WIN UP TO 5000X
           </span>
         </div>
