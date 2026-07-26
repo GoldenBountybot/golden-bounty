@@ -124,7 +124,7 @@ export default function GatesMachine() {
           }}>
           {/* Inner reel area */}
           <div className="relative rounded-[6px] overflow-hidden"
-            style={{ background: 'linear-gradient(to bottom, rgba(18,7,46,0.82), rgba(40,16,82,0.82))', minHeight: 0 }}>
+            style={{ background: 'linear-gradient(to bottom, rgba(52,26,96,0.42), rgba(74,38,132,0.42))', minHeight: 0 }}>
 
             {/* 6×5 grid — Big Brown style: per-reel scroll strip, sequential stop + drop */}
             <div className="flex gap-[4px] p-[5px]" style={{ height: 'clamp(240px, 42vh, 340px)' }}>

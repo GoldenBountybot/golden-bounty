@@ -18,15 +18,16 @@ const SYM_IMG = {
 
 export { SYM_IMG };
 
-// screen blend (no filter, so no stacking isolation) over the dark board:
-// pure-black background becomes the board colour (invisible), while the
-// symbol's own colours stay almost intact. cover => symbols fill the cell.
+// screen blend over the board: pure-black background becomes the board colour
+// (invisible), while the symbol's own colours stay intact. cover => symbols
+// fill the cell. filter lifts brightness/saturation so symbols read crisp.
 const screenStyle = (img) => ({
   backgroundImage: `url(${img})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
   mixBlendMode: 'screen',
+  filter: 'brightness(1.14) saturate(1.32) contrast(1.08)',
 });
 
 export default function GatesSymbol({ sym, highlight }) {
