@@ -75,6 +75,16 @@ export default function GatesMachine() {
 
   useEffect(() => () => { revealTimers.current.forEach(clearTimeout); }, []);
 
+  const {
+    grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells, winFlash,
+    freeSpins, turbo, autoSpin, spinMult, winList, scatterGlow,
+    showFreeSpinStart, freeSpinsActive, startFreeSpins,
+    spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, buyFreeSpins,
+  } = g;
+
+  const allReelsStopped = stoppedReels.size >= REELS;
+  const reelsSpinning = spinning && !allReelsStopped;
+
   // Reset the "already struck" set whenever a new tumble's fresh cells arrive.
   useEffect(() => { struckRef.current = new Set(); }, [dropCells]);
 
@@ -116,16 +126,6 @@ export default function GatesMachine() {
     }, dur);
     return () => clearTimeout(t);
   }, [stoppedReels, grid, dropCells, dropTick, turbo]);
-
-  const {
-    grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells, winFlash,
-    freeSpins, turbo, autoSpin, spinMult, winList, scatterGlow,
-    showFreeSpinStart, freeSpinsActive, startFreeSpins,
-    spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, buyFreeSpins,
-  } = g;
-
-  const allReelsStopped = stoppedReels.size >= REELS;
-  const reelsSpinning = spinning && !allReelsStopped;
 
   return (
     <div ref={machineRef} className="relative w-full max-w-md mx-auto flex flex-col overflow-hidden select-none"
