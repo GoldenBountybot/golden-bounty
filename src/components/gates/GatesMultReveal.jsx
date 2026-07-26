@@ -20,9 +20,12 @@ const BOLT_PATH =
 export default function GatesMultReveal({ value, color, fresh, turbo }) {
   if (!value || value <= 0) return null;
   const c = COLORS[color] || COLORS.green;
-  const boltDur = turbo ? 0.2 : 0.32;
-  const revealDelay = turbo ? 0.18 : 0.3;
-  const revealDur = turbo ? 0.2 : 0.32;
+  // Lightning is always electric blue so the strike reads clearly.
+  const boltGlow = 'rgba(70,140,255,0.98)';
+  const boltStroke = '#2f7dff';
+  const boltDur = turbo ? 0.42 : 0.7;
+  const revealDelay = turbo ? 0.4 : 0.66;
+  const revealDur = turbo ? 0.24 : 0.34;
 
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 14, overflow: 'visible' }}>
@@ -37,17 +40,17 @@ export default function GatesMultReveal({ value, color, fresh, turbo }) {
               width: 24, height: 420, transform: 'translateX(-50%)',
               transformOrigin: 'bottom center', pointerEvents: 'none',
               animation: `gatesLightning ${boltDur}s ease-out forwards`,
-              filter: `drop-shadow(0 0 5px ${c.glow}) drop-shadow(0 0 12px ${c.glow})`,
+              filter: `drop-shadow(0 0 6px ${boltGlow}) drop-shadow(0 0 14px ${boltGlow})`,
             }}
             viewBox="0 0 24 420" preserveAspectRatio="none"
           >
-            <path d={BOLT_PATH} fill="#ffffff" stroke={c.stroke} strokeWidth="1.2" strokeLinejoin="round" />
+            <path d={BOLT_PATH} fill="#e8f2ff" stroke={boltStroke} strokeWidth="1.4" strokeLinejoin="round" />
           </svg>
           {/* Bright flash on the cell when the bolt lands */}
           <div
             style={{
               position: 'absolute', inset: 0, borderRadius: 5,
-              background: `radial-gradient(circle at center, ${c.glow} 0%, rgba(255,255,255,0.35) 45%, transparent 72%)`,
+              background: `radial-gradient(circle at center, ${boltGlow} 0%, rgba(200,225,255,0.4) 45%, transparent 72%)`,
               animation: `gatesLightFlash ${boltDur}s ease-out forwards`,
             }}
           />

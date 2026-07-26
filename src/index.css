@@ -157,8 +157,8 @@
 /* Gates multiplier reveal — lightning bolt strikes down onto a value symbol */
 @keyframes gatesLightning {
   0%   { opacity: 0; transform: translateX(-50%) scaleY(0.08); }
-  18%  { opacity: 1; transform: translateX(-50%) scaleY(1); }
-  55%  { opacity: 0.9; transform: translateX(-50%) scaleY(1.03); }
+  14%  { opacity: 1; transform: translateX(-50%) scaleY(1); }
+  70%  { opacity: 1; transform: translateX(-50%) scaleY(1.03); }
   100% { opacity: 0; transform: translateX(-50%) scaleY(1); }
 }
 @keyframes gatesLightFlash {
