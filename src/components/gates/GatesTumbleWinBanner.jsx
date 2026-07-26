@@ -22,23 +22,23 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
     const entry = winHistory[idx];
     const amount = Number(entry.subtotal) || 0;
     const mult = Number(entry.mult) || 0;
+    const total = mult > 0 ? amount * mult : amount;
+    const balTotal = (Number(balance) || 0) + (Number(winFlash) || 0);
 
     timers.current.forEach(clearTimeout);
     timers.current = [];
 
-    // Only show the banner when a multiplier landed on this tumble.
-    if (mult <= 0) {
-      setDisplay(null);
-      return;
+    if (mult > 0) {
+      setDisplay({ amount, mult, total, balTotal, phase: 'amount' });
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'multiply' }), 650));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'result' }), 1500));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'balance' }), 2300));
+      timers.current.push(setTimeout(() => setDisplay(null), 3300));
+    } else {
+      setDisplay({ amount, mult: 0, total: amount, balTotal, phase: 'amount' });
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult: 0, total: amount, balTotal, phase: 'balance' }), 850));
+      timers.current.push(setTimeout(() => setDisplay(null), 1900));
     }
-
-    const total = amount * mult;
-    const balTotal = (Number(balance) || 0) + (Number(winFlash) || 0);
-    setDisplay({ amount, mult, total, balTotal, phase: 'amount' });
-    timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'multiply' }), 650));
-    timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'result' }), 1500));
-    timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'balance' }), 2300));
-    timers.current.push(setTimeout(() => setDisplay(null), 3300));
   }, [winHistory, balance, winFlash]);
 
   useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
