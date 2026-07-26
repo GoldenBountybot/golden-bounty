@@ -84,6 +84,7 @@ export function useGates() {
     const baseStart = freeMode ? (result.newRunningMult - result.spinMultSum) : 0;
 
     let prevWinners = ALL_CELLS;
+    const lastIdx = result.tumbles.length - 1;
     result.tumbles.forEach((tb, i) => {
       const showDelay = i === 0 ? firstGap : 0;
       acc += showDelay;
@@ -101,22 +102,25 @@ export function useGates() {
         if (tb.wins.length) setWinList(tb.wins);
         setSpinMult(freeMode ? (baseStart + multSeen) : multSeen);
       }, showAt));
-      // winners shatter / blast away
-      acc += hold;
-      timers.current.push(setTimeout(() => setShatter(tb.winPositions), acc));
-      // shatter done -> clear, new symbols drop on next tumble
-      acc += shatterDur;
-      if (i < result.tumbles.length - 1) {
-        timers.current.push(setTimeout(() => {
-          setShatter(new Set());
-          setWinPositions(new Set());
-        }, acc));
+      // winners glow, then shatter away. The final tumble has no winners, so
+      // it skips the glow/shatter wait and settles as soon as its symbols
+      // finish dropping — the next spin is ready immediately after the drop.
+      if (tb.win > 0) {
+        acc += hold;
+        timers.current.push(setTimeout(() => setShatter(tb.winPositions), acc));
+        acc += shatterDur;
+        if (i < lastIdx) {
+          timers.current.push(setTimeout(() => {
+            setShatter(new Set());
+            setWinPositions(new Set());
+          }, acc));
+        }
       }
       prevWinners = tb.winPositions;
     });
 
-    // settle
-    acc += turbo ? 420 : 760;
+    // settle — right after the final drop has landed
+    acc += turbo ? 200 : 320;
     timers.current.push(setTimeout(() => {
       const win = result.spinWin;
       if (win > 0) {
