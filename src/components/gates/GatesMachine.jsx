@@ -129,8 +129,8 @@ export default function GatesMachine() {
       {showInfo && <GatesInfoPanel bet={bet} onClose={() => setShowInfo(false)} />}
 
       {/* ── GATES OF OLYMPUS TITLE BANNER ── sits just above the board border */}
-      <div className="relative flex items-center justify-start shrink-0 pt-10 pb-0 pl-3"
-        style={{ background: 'linear-gradient(to bottom,rgba(50,10,90,0.95),transparent)', marginBottom: 0, zIndex: 20 }}>
+      <div className="relative flex items-center justify-start shrink-0 pt-4 pb-0 pl-3"
+        style={{ background: 'linear-gradient(to bottom,rgba(50,10,90,0.95),transparent)', marginBottom: -14, zIndex: 20 }}>
         <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5a4c02bcc_file_000000003af0820bb4a62aa92952a91e.png"
           alt="Gates of Olympus"
           style={{ width: '60%', maxWidth: 240, height: 'auto', objectFit: 'contain',
@@ -139,7 +139,7 @@ export default function GatesMachine() {
         <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/84fd16eb6_file_00000000e474820ba9fd196f5f5c9f06.png"
           alt="Zeus"
           className="pointer-events-none select-none"
-          style={{ position: 'absolute', right: '2%', bottom: 8, width: '58%', maxWidth: 220,
+          style={{ position: 'absolute', right: '12%', bottom: 8, width: '58%', maxWidth: 220,
             height: 'auto', objectFit: 'contain',
             clipPath: 'inset(0 0 6px 0)',
             filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.9))' }} />
