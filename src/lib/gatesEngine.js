@@ -63,12 +63,12 @@ function pickMult() {
   for (const m of MULTIPLIERS) { if ((r -= m.w) < 0) return m.v; }
   return 2;
 }
-export function pickSymbol(freeMode) {
-  // Multiplier symbols are disabled in the base game for now — they must not
-  // appear/fall there until re-enabled (per user request). Free spins keep
-  // them, since accumulating multipliers are the core free-spin feature.
-  // Value (multiplier) symbols drop in the base game too, but very rarely.
-  const mChance = freeMode ? 0.07 : 0.012;
+export function pickSymbol(freeMode, allowMult = true) {
+  // Value (multiplier) symbols drop rarely in the base game and more often
+  // during free spins. `allowMult` lets a spin cap them to a single value
+  // symbol per spin (base game) — once one has landed, no more are generated
+  // for the rest of that spin's tumbles.
+  const mChance = allowMult ? (freeMode ? 0.07 : 0.012) : 0;
   const sChance = freeMode ? 0.02 : 0.014;
   const r = Math.random();
   if (r < mChance) return `M${pickMult()}`;
@@ -95,11 +95,11 @@ export function multColor(v) {
   return 'red';
 }
 
-export function buildGrid(freeMode) {
+export function buildGrid(freeMode, allowMult = true) {
   const g = [];
   for (let c = 0; c < REELS; c++) {
     const reel = [];
-    for (let r = 0; r < ROWS; r++) reel.push(pickSymbol(freeMode));
+    for (let r = 0; r < ROWS; r++) reel.push(pickSymbol(freeMode, allowMult));
     g.push(reel);
   }
   return g;
@@ -152,19 +152,19 @@ export function evaluate(grid, bet) {
 
 // Remove winning + scatter cells; keep multipliers and non-winning symbols;
 // refill the top of each column with new symbols.
-export function tumble(grid, winPositions, freeMode) {
+export function tumble(grid, winPositions, freeMode, allowMult = true) {
   // In-place refill: winning + scatter cells are replaced exactly where they
   // stood; multipliers and every other symbol keep their original positions.
   return grid.map((reel, c) => reel.map((cell, r) => {
     if (isMult(cell)) return cell;
-    if (winPositions.has(`${c}-${r}`)) return pickSymbol(freeMode);
-    if (cell === 'scatter') return pickSymbol(freeMode);
+    if (winPositions.has(`${c}-${r}`)) return pickSymbol(freeMode, allowMult);
+    if (cell === 'scatter') return pickSymbol(freeMode, allowMult);
     return cell;
   }));
 }
 
-function forceWinGrid(freeMode) {
-  const g = buildGrid(freeMode);
+function forceWinGrid(freeMode, allowMult = true) {
+  const g = buildGrid(freeMode, allowMult);
   const sym = weightedPick(NORMAL_POOL, NORMAL_TOTAL);
   const n = 8 + rand(4);
   const used = new Set();
@@ -176,8 +176,8 @@ function forceWinGrid(freeMode) {
   return g;
 }
 
-function forceLossGrid(freeMode) {
-  let g = buildGrid(freeMode);
+function forceLossGrid(freeMode, allowMult = true) {
+  let g = buildGrid(freeMode, allowMult);
   let attempts = 0;
   while (attempts < 10) {
     const ev = evaluate(g, 1);
@@ -197,8 +197,28 @@ function forceLossGrid(freeMode) {
 }
 
 // Compute the full tumble sequence + totals for one spin.
+function gridHasMult(grid) {
+  for (const reel of grid) for (const cell of reel) if (isMult(cell)) return true;
+  return false;
+}
+
+// Base game: keep at most `max` value (multiplier) symbols in the starting grid
+// so a single spin never lands two value symbols at once (e.g. green + blue).
+function capMults(grid, max) {
+  let count = 0;
+  return grid.map(reel => reel.map(cell => {
+    if (isMult(cell)) {
+      count++;
+      return count > max ? weightedPick(NORMAL_POOL, NORMAL_TOTAL) : cell;
+    }
+    return cell;
+  }));
+}
+
 export function computeSpin(bet, wantWin, freeMode, runningMult) {
-  let grid = wantWin ? forceWinGrid(freeMode) : forceLossGrid(freeMode);
+  let grid = wantWin ? forceWinGrid(freeMode, true) : forceLossGrid(freeMode, true);
+  if (!freeMode) grid = capMults(grid, 1);
+  let spinHasMult = freeMode ? false : gridHasMult(grid);
   const tumbles = [];
   let totalWin = 0;
   let spinMultSum = 0;
@@ -218,7 +238,8 @@ export function computeSpin(bet, wantWin, freeMode, runningMult) {
     spinMultSum += ev.multipliers.reduce((s, m) => s + m.value, 0);
     scatterMax = Math.max(scatterMax, ev.scatterCount);
     if (ev.win === 0) break;
-    grid = tumble(grid, ev.winPositions, freeMode);
+    grid = tumble(grid, ev.winPositions, freeMode, freeMode ? true : !spinHasMult);
+    if (!freeMode && gridHasMult(grid)) spinHasMult = true;
     t++;
   }
   const triggeredFree = scatterMax >= 4;
