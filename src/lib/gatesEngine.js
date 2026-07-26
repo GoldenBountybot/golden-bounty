@@ -34,9 +34,11 @@ export const PAY = {
 
 export const MULTIPLIERS = [
   { v: 2, w: 22 }, { v: 3, w: 18 }, { v: 4, w: 15 }, { v: 5, w: 13 },
-  { v: 6, w: 10 }, { v: 8, w: 8 }, { v: 10, w: 7 }, { v: 12, w: 5 },
-  { v: 15, w: 4 }, { v: 20, w: 3 }, { v: 25, w: 2.5 }, { v: 50, w: 2 },
-  { v: 100, w: 1.5 }, { v: 250, w: 0.8 }, { v: 500, w: 0.4 },
+  { v: 6, w: 10 }, { v: 8, w: 8 }, { v: 10, w: 7 },
+  // Values above 10× are extremely rare — combined drop rate 0.005%.
+  { v: 12, w: 0.00121 }, { v: 15, w: 0.00097 }, { v: 20, w: 0.00073 },
+  { v: 25, w: 0.00061 }, { v: 50, w: 0.00048 }, { v: 100, w: 0.00036 },
+  { v: 250, w: 0.00019 }, { v: 500, w: 0.0001 },
 ];
 
 const NORMAL_POOL = [
