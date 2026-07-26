@@ -18,26 +18,15 @@ const SYM_IMG = {
 
 export { SYM_IMG };
 
-// Build the inline style for a luminance-masked symbol background.
-// The same image is used as both the background and its own luminance mask:
-// bright symbol pixels stay opaque, the black background (luminance ~0)
-// becomes fully transparent — backdrop-independent, no blend mode needed.
-const maskedStyle = (img, extraFilter = 'saturate(1.25) contrast(1.12) brightness(1.05)') => ({
+// screen blend (no filter, so no stacking isolation) over the dark board:
+// pure-black background becomes the board colour (invisible), while the
+// symbol's own colours stay almost intact. cover => symbols fill the cell.
+const screenStyle = (img) => ({
   backgroundImage: `url(${img})`,
-  backgroundSize: 'contain',
+  backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
-  WebkitMaskImage: `url(${img})`,
-  maskImage: `url(${img})`,
-  WebkitMaskSize: 'contain',
-  maskSize: 'contain',
-  WebkitMaskPosition: 'center',
-  maskPosition: 'center',
-  WebkitMaskRepeat: 'no-repeat',
-  maskRepeat: 'no-repeat',
-  WebkitMaskMode: 'luminance',
-  maskMode: 'luminance',
-  filter: extraFilter,
+  mixBlendMode: 'screen',
 });
 
 export default function GatesSymbol({ sym, highlight }) {
@@ -46,9 +35,9 @@ export default function GatesSymbol({ sym, highlight }) {
     return (
       <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
         style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
-        <div className="w-full h-full" style={maskedStyle(SYM_IMG.mult, 'drop-shadow(0 0 4px rgba(100,220,50,0.6)) saturate(1.25) contrast(1.12) brightness(1.05)')} />
+        <div className="w-full h-full" style={screenStyle(SYM_IMG.mult)} />
         <span className="absolute inset-0 flex items-center justify-center pointer-events-none"
-          style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '10px', color: '#fffbe0', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>
+          style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '11px', color: '#fffbe0', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>
           ×{v}
         </span>
       </div>
@@ -60,7 +49,7 @@ export default function GatesSymbol({ sym, highlight }) {
     <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
       style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
       {img ? (
-        <div className="w-full h-full" style={maskedStyle(img)} />
+        <div className="w-full h-full" style={screenStyle(img)} />
       ) : (
         <span style={{ fontSize: 24 }}>{sym}</span>
       )}
