@@ -252,8 +252,6 @@ export default function GatesMachine() {
                 borderRadius: 22,
                 boxShadow: spinning ? undefined : '0 2px 10px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.2)',
                 animation: spinning ? 'gatesSpinGlow 1s ease-in-out infinite' : 'none' }}>
-              <RotateCcw className={`w-7 h-7 text-white ${reelsSpinning ? 'animate-spin' : ''}`} strokeWidth={2.5}
-                style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.9))' }} />
             </button>
           </div>
 
