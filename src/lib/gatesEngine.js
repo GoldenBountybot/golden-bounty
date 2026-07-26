@@ -34,11 +34,9 @@ export const PAY = {
 
 export const MULTIPLIERS = [
   { v: 2, w: 22 }, { v: 3, w: 18 }, { v: 4, w: 15 }, { v: 5, w: 13 },
-  { v: 6, w: 10 }, { v: 8, w: 8 }, { v: 10, w: 7 },
-  // Anything above 10× is extremely rare (~0.001% of multiplier drops combined).
-  { v: 12, w: 0.0003 }, { v: 15, w: 0.0002 }, { v: 20, w: 0.0001 },
-  { v: 25, w: 0.0001 }, { v: 50, w: 0.00008 }, { v: 100, w: 0.00005 },
-  { v: 250, w: 0.00003 }, { v: 500, w: 0.00002 },
+  { v: 6, w: 10 }, { v: 8, w: 8 }, { v: 10, w: 7 }, { v: 12, w: 5 },
+  { v: 15, w: 4 }, { v: 20, w: 3 }, { v: 25, w: 2.5 }, { v: 50, w: 2 },
+  { v: 100, w: 1.5 }, { v: 250, w: 0.8 }, { v: 500, w: 0.4 },
 ];
 
 const NORMAL_POOL = [
@@ -71,7 +69,7 @@ export function pickSymbol(freeMode, allowMult = true) {
   // during free spins. `allowMult` lets a spin cap them to a single value
   // symbol per spin (base game) — once one has landed, no more are generated
   // for the rest of that spin's tumbles.
-  const mChance = allowMult ? (freeMode ? 0.035 : 0.005) : 0;
+  const mChance = allowMult ? (freeMode ? 0.07 : 0.012) : 0;
   const sChance = freeMode ? 0.02 : 0.014;
   const r = Math.random();
   if (r < mChance) return `M${pickMult()}`;
