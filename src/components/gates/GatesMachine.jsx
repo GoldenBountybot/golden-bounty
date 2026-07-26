@@ -64,19 +64,6 @@ export default function GatesMachine() {
     <div className="relative w-full max-w-md mx-auto flex flex-col overflow-hidden select-none"
       style={{ minHeight: '100dvh', background: 'transparent' }}>
 
-      {/* Luminance keyer — turns the black background of symbol images into true
-          alpha transparency so the gate/sky shows through; colored gems stay opaque. */}
-      <svg aria-hidden="true" className="absolute" style={{ position: 'absolute', width: 0, height: 0, pointerEvents: 'none' }}>
-        <defs>
-          <filter id="gatesLumaKey" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.299 0.587 0.114 0 0" />
-            <feComponentTransfer>
-              <feFuncA type="linear" slope="7" intercept="-1.2" />
-            </feComponentTransfer>
-          </filter>
-        </defs>
-      </svg>
-
       {showInfo && <GatesInfoPanel onClose={() => setShowInfo(false)} />}
 
       {/* ── HEADER TITLE BAR ── */}
