@@ -4,7 +4,7 @@ import { isMult, multValue } from '@/lib/gatesEngine';
 // AI-generated symbol images matching the real Gates of Olympus game screenshots
 const SYM_IMG = {
   zeus:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/89262e8a1_generated_image.png',
-  crown:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d64a06a9a_generated_image.png',
+  crown:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a4332bd7e_file_0000000095bc8207a1c24e7d2fa722cf.png',
   hourglass: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/df587b23a_file_00000000197081fab54f2a6479676a79.png',
   ring:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c1b6cefea_generated_image.png',
   goblet:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6e36c7c39_file_00000000613081fa82be73cb5f04d75b.png',
