@@ -133,7 +133,7 @@ export default function GatesMachine() {
         style={{ background: 'transparent', marginBottom: 0, zIndex: 20 }}>
         <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4ada8e43f_file_000000009d6c820683b5d0deb9bc731a.png"
           alt="Gates of Olympus"
-          style={{ width: '96%', maxWidth: 380, height: 'auto', objectFit: 'contain',
+          style={{ width: '32%', maxWidth: 130, height: 'auto', objectFit: 'contain',
             display: 'block',
             filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.9))' }} />
         {/* Zeus figure on the right side of the banner */}
