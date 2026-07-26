@@ -100,7 +100,7 @@ export default function GatesMachine() {
       </div>
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
-      <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 0 }}>
+      <div className="relative shrink-0 mx-0" style={{ flex: '0 0 auto', marginTop: 0 }}>
         {/* Ornate gold frame around the reels */}
         <div className="relative"
           style={{
@@ -115,7 +115,7 @@ export default function GatesMachine() {
             style={{ background: 'linear-gradient(to bottom, rgba(52,26,96,0.42), rgba(74,38,132,0.42))', minHeight: 0 }}>
 
             {/* 6×5 grid — fills the frame edge to edge */}
-            <div className="flex gap-[4px] p-0" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
+            <div className="flex gap-[4px] p-0" style={{ height: 'clamp(255px, 45vh, 358px)' }}>
               {grid.map((reel, c) => {
                 const stopped = stoppedReels.has(c);
                 return (
