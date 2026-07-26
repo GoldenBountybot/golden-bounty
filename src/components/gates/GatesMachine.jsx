@@ -261,15 +261,26 @@ export default function GatesMachine() {
               style={{ width: 70, height: 70, border: '2px solid #f8e060', borderRadius: 6,
                 boxShadow: '0 0 12px rgba(200,160,0,0.8), inset 0 0 10px rgba(255,255,200,0.3)',
                 background: 'transparent', isolation: 'isolate' }}>
-              {/* luminance mask: screen blend drops the pure-black background,
-                  leaving only the multiplier artwork so the board shows through */}
+              {/* true luminance mask: the image's own luminance becomes the alpha
+                  channel — the pure-black background turns fully transparent and
+                  the board shows through, while the bright artwork keeps its
+                  true colour (no wash-out). */}
               <div className="absolute inset-0 rounded-[4px]"
                 style={{
                   backgroundImage: `url(${SYM_IMG.mult})`,
                   backgroundSize: '112%',
                   backgroundPosition: 'center',
                   backgroundRepeat: 'no-repeat',
-                  mixBlendMode: 'screen',
+                  WebkitMaskImage: `url(${SYM_IMG.mult})`,
+                  WebkitMaskSize: '112%',
+                  WebkitMaskPosition: 'center',
+                  WebkitMaskRepeat: 'no-repeat',
+                  WebkitMaskMode: 'luminance',
+                  maskImage: `url(${SYM_IMG.mult})`,
+                  maskSize: '112%',
+                  maskPosition: 'center',
+                  maskRepeat: 'no-repeat',
+                  maskMode: 'luminance',
                   filter: 'saturate(1.25) contrast(1.1)',
                 }} />
               <span className="relative z-10 flex items-center justify-center pointer-events-none"
