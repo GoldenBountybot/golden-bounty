@@ -116,7 +116,7 @@ export default function GatesMachine() {
       </div>
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
-      <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto' }}>
+      <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 'auto' }}>
         {/* Outer golden border */}
         <div className="relative rounded-[10px]"
           style={{
@@ -224,11 +224,11 @@ export default function GatesMachine() {
       </div>
 
       {/* ── BOTTOM PANEL — Olympus temple scene ── */}
-      <div className="relative shrink-0 flex-1 flex flex-col px-3 pb-2"
-        style={{ background: 'transparent', minHeight: 180 }}>
+      <div className="relative shrink-0 flex flex-col px-3 pb-2"
+        style={{ background: 'transparent' }}>
 
         {/* Top row: free spins badge + spin area + multiplier badge */}
-        <div className="relative z-10 flex items-center justify-between gap-2" style={{ marginTop: 'auto' }}>
+        <div className="relative z-10 flex items-center justify-between gap-2" style={{ marginTop: 8 }}>
 
           {/* Free Spins Left badge */}
           <div className="flex flex-col items-center rounded-[8px] px-3 py-1.5 shrink-0"
