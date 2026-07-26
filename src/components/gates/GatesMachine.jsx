@@ -23,7 +23,7 @@ export default function GatesMachine() {
   // re-trigger the reel-drop animation every time the grid changes
   useEffect(() => { setDropTick((t) => t + 1); }, [g.grid]);
   // bump shatter key whenever the shatter set changes so the blast replays
-  useEffect(() => { setShatterTick((t) => t + 1); }, [shatter]);
+  useEffect(() => { setShatterTick((t) => t + 1); }, [g.shatter]);
 
   // reset reels to spinning on spin start; reveal all on spin end
   useEffect(() => {
