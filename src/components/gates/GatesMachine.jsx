@@ -67,7 +67,7 @@ export default function GatesMachine() {
     freeSpins, turbo, autoSpin, spinMult, winList,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,
-    spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin,
+    spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, buyFreeSpins,
   } = g;
 
   const tumbleWin = spinning ? winFlash : lastWin;
@@ -233,15 +233,28 @@ export default function GatesMachine() {
         {/* Top row: free spins badge + spin area + multiplier badge */}
         <div className="relative z-10 flex items-center justify-between gap-2" style={{ marginTop: 8 }}>
 
-          {/* Free Spins Left badge */}
-          <div className="flex flex-col items-center rounded-[8px] px-3 py-1.5 shrink-0"
-            style={{ background: 'linear-gradient(135deg,#4a3000,#8a6010,#4a3000)', border: '2px solid #c8980a',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.5)', minWidth: 72 }}>
-            <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 700, color: '#c8a040', letterSpacing: '0.08em' }}>FREE SPINS</span>
-            <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 700, color: '#c8a040', letterSpacing: '0.08em' }}>LEFT</span>
-            <span style={{ fontFamily: 'Georgia,serif', fontSize: '26px', fontWeight: 900, color: '#ffe060', lineHeight: 1.1,
-              textShadow: '0 0 10px rgba(255,200,0,0.7)' }}>{freeSpins}</span>
-          </div>
+          {freeSpinsActive ? (
+            /* Free Spins Left badge — only while free spins are running */
+            <div className="flex flex-col items-center rounded-[8px] px-3 py-1.5 shrink-0"
+              style={{ background: 'linear-gradient(135deg,#4a3000,#8a6010,#4a3000)', border: '2px solid #c8980a',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.5)', minWidth: 72 }}>
+              <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 700, color: '#c8a040', letterSpacing: '0.08em' }}>FREE SPINS</span>
+              <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 700, color: '#c8a040', letterSpacing: '0.08em' }}>LEFT</span>
+              <span style={{ fontFamily: 'Georgia,serif', fontSize: '26px', fontWeight: 900, color: '#ffe060', lineHeight: 1.1,
+                textShadow: '0 0 10px rgba(255,200,0,0.7)' }}>{freeSpins}</span>
+            </div>
+          ) : (
+            /* Buy Free Spins banner — shown whenever free spins are not active */
+            <button onClick={buyFreeSpins} disabled={spinning}
+              className="flex flex-col items-center rounded-[8px] px-2 py-1.5 shrink-0 active:scale-95 transition-transform disabled:opacity-50"
+              style={{ background: 'linear-gradient(135deg,#3a1052,#7a30a0,#3a1052)', border: '2px solid #b070e0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.5)', minWidth: 72 }}>
+              <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 900, color: '#e0c0ff', letterSpacing: '0.06em' }}>BUY FREE</span>
+              <span style={{ fontFamily: 'Georgia,serif', fontSize: '9px', fontWeight: 900, color: '#e0c0ff', letterSpacing: '0.06em' }}>SPINS</span>
+              <span style={{ fontFamily: 'Georgia,serif', fontSize: '13px', fontWeight: 900, color: '#ffe080', lineHeight: 1.1,
+                textShadow: '0 0 8px rgba(255,200,0,0.7)' }}>{fmt(bet * 100)}</span>
+            </button>
+          )}
 
           {/* Center — spin button area */}
           <div className="flex flex-col items-center gap-1.5 flex-1">

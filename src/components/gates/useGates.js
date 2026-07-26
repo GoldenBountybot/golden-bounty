@@ -188,6 +188,22 @@ export function useGates() {
     setMessage('Free spins cancelled');
   }, [awardedFreeSpins]);
 
+  // Buy bonus — pay 100× current bet to trigger the free spins round instantly.
+  const buyFreeSpins = useCallback(() => {
+    if (spinning) return;
+    if (freeSpins > 0) return;
+    const cost = Math.round(bet * 100 * 100) / 100;
+    if (balance < cost) {
+      setMessage('Insufficient balance');
+      return;
+    }
+    setBalance((b) => b - cost);
+    setAwardedFreeSpins(FREE_SPINS_AWARD);
+    setFreeSpins((f) => f + FREE_SPINS_AWARD);
+    setShowFreeSpinStart(true);
+    setMessage(`BUY · ${FREE_SPINS_AWARD} FREE SPINS · -$${cost.toFixed(2)}`);
+  }, [spinning, freeSpins, bet, balance, setBalance]);
+
   const reset = () => {
     resetBalance();
     setLastWin(0);
@@ -204,6 +220,6 @@ export function useGates() {
     freeSpins, turbo, autoSpin, spinMult, winFlash, winList,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,
-    spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, reset,
+    spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, reset, buyFreeSpins,
   };
 }
