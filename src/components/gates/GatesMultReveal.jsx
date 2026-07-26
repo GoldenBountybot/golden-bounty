@@ -10,7 +10,7 @@ const COLORS = {
 
 // Lightning bolt SVG path (asymmetric classic bolt, bottom → top).
 const BOLT_PATH =
-  'M13 420 L5 250 L11 240 L7 120 L14 110 L10 0 L18 110 L12 120 L16 240 L13 420 Z';
+  'M12 0 L4 95 L13 100 L3 205 L14 210 L5 325 L13 420 L11 325 L20 210 L9 205 L19 100 L10 95 L18 0 Z';
 
 // Reveal overlay for multiplier (value) symbols.
 // Flow: the orb drops in normally (handled by the cell's gatesDrop) → a bolt
@@ -40,11 +40,11 @@ export default function GatesMultReveal({ value, color, fresh, turbo }) {
               width: 24, height: 420, transform: 'translateX(-50%)',
               transformOrigin: 'bottom center', pointerEvents: 'none',
               animation: `gatesLightning ${boltDur}s ease-out forwards`,
-              filter: `drop-shadow(0 0 6px ${boltGlow}) drop-shadow(0 0 14px ${boltGlow})`,
+              filter: `drop-shadow(0 0 7px ${boltGlow}) drop-shadow(0 0 16px ${boltGlow}) drop-shadow(0 0 26px ${boltGlow})`,
             }}
             viewBox="0 0 24 420" preserveAspectRatio="none"
           >
-            <path d={BOLT_PATH} fill="#e8f2ff" stroke={boltStroke} strokeWidth="1.4" strokeLinejoin="round" />
+            <path d={BOLT_PATH} fill="#ffffff" stroke={boltStroke} strokeWidth="2" strokeLinejoin="round" />
           </svg>
           {/* Bright flash on the cell when the bolt lands */}
           <div
