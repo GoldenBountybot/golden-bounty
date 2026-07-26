@@ -32,10 +32,29 @@ const screenStyle = (img) => ({
 export default function GatesSymbol({ sym, highlight }) {
   if (isMult(sym)) {
     const v = multValue(sym);
+    const multUrl = SYM_IMG.mult;
+    // Luminance mask: use the symbol's own brightness as alpha so its pure-black
+    // background becomes transparent while the colours stay intact (no screen wash-out).
+    const maskStyle = {
+      backgroundImage: `url(${multUrl})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      WebkitMaskImage: `url(${multUrl})`,
+      WebkitMaskSize: 'cover',
+      WebkitMaskPosition: 'center',
+      WebkitMaskRepeat: 'no-repeat',
+      maskImage: `url(${multUrl})`,
+      maskSize: 'cover',
+      maskPosition: 'center',
+      maskRepeat: 'no-repeat',
+      maskMode: 'luminance',
+      WebkitMaskSourceType: 'luminance',
+    };
     return (
       <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
         style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
-        <div className="w-full h-full" style={screenStyle(SYM_IMG.mult)} />
+        <div className="w-full h-full" style={maskStyle} />
         <span className="absolute inset-0 flex items-center justify-center pointer-events-none"
           style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '11px', color: '#fffbe0', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>
           ×{v}
