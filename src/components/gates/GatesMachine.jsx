@@ -224,11 +224,11 @@ export default function GatesMachine() {
       </div>
 
       {/* ── BOTTOM PANEL — Olympus temple scene ── */}
-      <div className="relative shrink-0 flex-1 flex flex-col justify-between px-3 pb-2"
+      <div className="relative shrink-0 flex-1 flex flex-col px-3 pb-2"
         style={{ background: 'transparent', minHeight: 180 }}>
 
         {/* Top row: free spins badge + spin area + multiplier badge */}
-        <div className="relative z-10 flex items-center justify-between gap-2" style={{ marginTop: 28 }}>
+        <div className="relative z-10 flex items-center justify-between gap-2" style={{ marginTop: 'auto' }}>
 
           {/* Free Spins Left badge */}
           <div className="flex flex-col items-center rounded-[8px] px-3 py-1.5 shrink-0"
@@ -284,8 +284,8 @@ export default function GatesMachine() {
         </div>
 
         {/* Bottom controls bar — moved up to sit closer to the spin button */}
-        <div className="relative z-20 flex items-center justify-between pt-2 -mt-1"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.15)' }}>
+        <div className="relative z-20 flex items-center justify-between pt-2"
+          style={{ marginTop: 6, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
           <button onClick={() => setShowInfo(true)}
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
             style={{ background: 'rgba(0,0,0,0.35)', border: '1.5px solid rgba(255,255,255,0.4)' }}>
