@@ -221,17 +221,6 @@ export default function GatesMachine() {
               })}
             </div>
 
-            {/* Win flash overlay on board */}
-            {lastWin > 0 && !spinning && (
-              <div className="absolute inset-0 flex items-end justify-center pb-4 pointer-events-none">
-                <div className="px-5 py-1 rounded-full" style={{ background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,200,60,0.5)' }}>
-                  <span style={{ fontFamily: 'Georgia,serif', fontSize: '14px', fontWeight: 900, color: '#ffe060', textShadow: '0 0 10px rgba(255,200,0,0.8)' }}>
-                    WIN {fmt(lastWin)}
-                  </span>
-                </div>
-              </div>
-            )}
-
             {/* Free spin start banner */}
             {showFreeSpinStart && (
               <GatesFreeSpinBanner onStart={startFreeSpins} />
