@@ -172,6 +172,13 @@
   100% { opacity: 1; transform: scale(1); }
 }
 
+/* Tumble Win — label floats up above the reel board on a winning tumble */
+@keyframes gatesTumbleFloat {
+  0%   { transform: translateY(28px) scale(0.8); opacity: 0; }
+  60%  { transform: translateY(-3px) scale(1.05); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
 @keyframes shatterWin {
   0%   { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1.5) saturate(1.5) drop-shadow(0 0 6px rgba(255,200,40,0.9)); }
   32%  { transform: scale(0.92) rotate(3deg); opacity: 0.95; filter: brightness(2.4) saturate(2) drop-shadow(0 0 12px rgba(255,220,80,1)); }

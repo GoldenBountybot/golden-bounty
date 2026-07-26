@@ -32,6 +32,7 @@ export function useGates() {
   const [winList, setWinList] = useState([]); // current tumble winners: {symbol,count,pay}[]
   const [winHistory, setWinHistory] = useState([]); // per-tumble winners list across the whole spin
   const [scatterGlow, setScatterGlow] = useState(new Set()); // scatter cells glowing when 4+ land together
+  const [tumbleWin, setTumbleWin] = useState(null); // per-tumble {win, mult, key} for the floating banner
 
   const settings = useGameSettings('gates-of-olympus');
   const logActivity = useLogActivity();
@@ -69,6 +70,7 @@ export function useGates() {
     setWinList([]);
     setWinHistory([]);
     setScatterGlow(new Set());
+    setTumbleWin(null);
     if (!usingFree) setBalance((b) => b - bet);
     if (usingFree) setFreeSpins((f) => f - 1);
     setMessage('Spinning…');
@@ -104,6 +106,10 @@ export function useGates() {
         // Multipliers only count on a winning tumble (matches the engine rule).
         if (tb.win > 0 && tb.multipliers.length) multSeen += tb.multipliers.reduce((s, m) => s + m.value, 0);
         setWinFlash(runningWin);
+        if (tb.win > 0) {
+          const m = tb.multipliers.length ? tb.multipliers.reduce((s, mm) => s + mm.value, 0) : 0;
+          setTumbleWin({ win: tb.win, mult: m, key: `${i}-${Date.now()}` });
+        }
         if (tb.wins.length) {
           setWinList(tb.wins);
           setWinHistory((h) => [...h, { wins: tb.wins, subtotal: tb.win, mult: tb.multipliers.length ? tb.multipliers.reduce((s, m) => s + m.value, 0) : 0 }]);
@@ -229,7 +235,7 @@ export function useGates() {
 
   return {
     grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells,
-    freeSpins, turbo, autoSpin, spinMult, winFlash, winList, winHistory, scatterGlow,
+    freeSpins, turbo, autoSpin, spinMult, winFlash, winList, winHistory, scatterGlow, tumbleWin,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, reset, buyFreeSpins,
