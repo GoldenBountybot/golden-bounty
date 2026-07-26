@@ -114,8 +114,8 @@ export default function GatesMachine() {
           <div className="relative overflow-hidden"
             style={{ background: 'linear-gradient(to bottom, rgba(52,26,96,0.42), rgba(74,38,132,0.42))', minHeight: 0 }}>
 
-            {/* 6×5 grid — Big Brown style: per-reel scroll strip, sequential stop + drop */}
-            <div className="flex gap-[4px] p-[5px]" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
+            {/* 6×5 grid — fills the frame edge to edge */}
+            <div className="flex gap-[4px] p-0" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
               {grid.map((reel, c) => {
                 const stopped = stoppedReels.has(c);
                 return (
