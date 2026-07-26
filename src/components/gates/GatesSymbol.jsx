@@ -3,16 +3,16 @@ import { isMult, multValue } from '@/lib/gatesEngine';
 
 // AI-generated symbol images matching the real Gates of Olympus game screenshots
 const SYM_IMG = {
-  zeus:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/89262e8a1_generated_image.png',
+  zeus:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4948c7cf4_file_00000000e1408207955e20cec7981d33.png',
   crown:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a4332bd7e_file_0000000095bc8207a1c24e7d2fa722cf.png',
-  hourglass: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/df587b23a_file_00000000197081fab54f2a6479676a79.png',
-  ring:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c1b6cefea_generated_image.png',
-  goblet:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6e36c7c39_file_00000000613081fa82be73cb5f04d75b.png',
-  red:       'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1a5985b1f_generated_image.png',
-  blue:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/cb5a74fad_generated_image.png',
-  green:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8372beff3_file_000000003ba081fab925bbd1fa109a95.png',
-  yellow:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/dd2299e17_generated_image.png',
-  scatter:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f62b86258_generated_image.png',
+  hourglass: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/be9cc5ec1_file_000000000bd08207a5a1b4e77ea10f33.png',
+  ring:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/73a72a368_file_0000000013888230a3cd720eb1652b16.png',
+  goblet:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/03fca0540_file_00000000fc488207a16c5e1464febce2.png',
+  red:       'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b9b6c1bde_file_00000000004c8207b95b7bf99154cb6d.png',
+  blue:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a3a411a0b_file_0000000004448207843751971532abdf.png',
+  green:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d3a4e2228_file_000000009bc08207a95209fcf33e096b.png',
+  yellow:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3829a472c_file_000000000e088230b3afc17f467dd494.png',
+  scatter:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fbae605ef_file_00000000b9808207b8b4c2abccaa2254.png',
   mult:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/138a9cee6_generated_image.png',
 };
 
