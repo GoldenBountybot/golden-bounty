@@ -150,7 +150,7 @@ export default function GatesMachine() {
                             <div key={animKey} className="relative w-full h-full"
                               style={{ animation: isShatter
                                 ? `shatterWin ${g.turbo ? 0.24 : 0.4}s ease-out forwards`
-                                : isFresh ? `gatesDrop ${g.turbo ? 0.18 : 0.26}s ease-out both` : 'none' }}>
+                                : isFresh ? `gatesDrop ${g.turbo ? 0.22 : 0.34}s cubic-bezier(0.22,0.7,0.32,1) both` : 'none' }}>
                               <GatesSymbol sym={sym} highlight={isWin} />
                             </div>
                           ) : (

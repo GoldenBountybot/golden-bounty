@@ -115,8 +115,11 @@
 }
 
 @keyframes gatesDrop {
-  0%   { top: -42%; }
-  100% { top: 0%; }
+  0%   { transform: translateY(-130%); opacity: 0; }
+  42%  { opacity: 1; }
+  72%  { transform: translateY(7%); }
+  86%  { transform: translateY(-3%); }
+  100% { transform: translateY(0%); }
 }
 
 /* Gates of Olympus — pulsing golden glow on a winning symbol */
