@@ -142,10 +142,11 @@ export default function GatesMachine() {
                       const isFresh = dropCells.has(winKey);
                       const isWin = !isShatter && winPositions.has(winKey);
                       const symIsMult = isMult(sym);
-                      // multipliers never drop — they appear in place; regular
-                      // fresh symbols drop, but gentler than before.
+                      // value (multiplier) symbols drop only very slightly;
+                      // regular fresh symbols drop with the full gatesDrop.
+                      const isMultDrop = isFresh && symIsMult;
                       const dropAnim = isFresh && !symIsMult;
-                      const animKey = isShatter ? `sh${shatterTick}` : dropAnim ? `dr${dropTick}` : 'st';
+                      const animKey = isShatter ? `sh${shatterTick}` : isMultDrop ? `md${dropTick}` : dropAnim ? `dr${dropTick}` : 'st';
                       return (
                         <div key={winKey} className="relative rounded-[5px] flex-1 min-h-0"
                           style={{ opacity: stopped ? 1 : 0,
@@ -157,6 +158,7 @@ export default function GatesMachine() {
                             <div key={animKey} className="relative w-full h-full"
                               style={{ animation: isShatter
                                 ? `shatterWin ${g.turbo ? 0.24 : 0.4}s ease-out forwards`
+                                : isMultDrop ? `gatesMultDrop ${g.turbo ? 0.18 : 0.3}s ease-out both`
                                 : dropAnim ? `gatesDrop ${g.turbo ? 0.18 : 0.26}s cubic-bezier(0.22,0.7,0.32,1) both` : 'none' }}>
                               <GatesSymbol sym={sym} highlight={isWin} />
                             </div>
