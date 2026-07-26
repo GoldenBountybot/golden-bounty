@@ -68,7 +68,7 @@ export function pickSymbol(freeMode, allowMult = true) {
   // during free spins. `allowMult` lets a spin cap them to a single value
   // symbol per spin (base game) — once one has landed, no more are generated
   // for the rest of that spin's tumbles.
-  const mChance = allowMult ? (freeMode ? 0.07 : 0.012) : 0;
+  const mChance = allowMult ? (freeMode ? 0.05 : 0.005) : 0;
   const sChance = freeMode ? 0.02 : 0.014;
   const r = Math.random();
   if (r < mChance) return `M${pickMult()}`;
