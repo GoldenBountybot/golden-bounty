@@ -109,9 +109,9 @@ export default function GatesMachine() {
             alt="" aria-hidden="true"
             className="absolute inset-0 w-full h-full pointer-events-none rounded-[10px]"
             style={{ mixBlendMode: 'screen', objectFit: 'fill' }} />
-          {/* Inner reel area */}
+          {/* Inner reel area — opaque so the ornate frame shows only around the border, not through the board */}
           <div className="relative rounded-[6px] overflow-hidden"
-            style={{ zIndex: 10, background: 'linear-gradient(to bottom, rgba(52,26,96,0.42), rgba(74,38,132,0.42))', minHeight: 0 }}>
+            style={{ zIndex: 10, background: 'linear-gradient(to bottom, #2a1750, #3a2378)', minHeight: 0 }}>
 
             {/* 6×5 grid — Big Brown style: per-reel scroll strip, sequential stop + drop */}
             <div className="flex gap-[4px] p-[5px]" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
