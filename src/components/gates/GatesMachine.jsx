@@ -6,18 +6,13 @@ import GatesWinBoard from './GatesWinBoard';
 import GatesOrnateFrame from './GatesOrnateFrame';
 import GatesFreeSpinBanner from './GatesFreeSpinBanner';
 import GatesMultReveal from './GatesMultReveal';
+import GatesBolt from './GatesBolt';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 
 const REELS = 6;
 const ROWS = 5;
 const fmt = (v) => `$${Number(v || 0).toFixed(2)}`;
-
-// Lightning bolt — jagged (zigzag) like real sky lightning, blue, thick.
-const BOLT_PATH =
-  'M12 0 L4 95 L13 100 L3 205 L14 210 L5 325 L13 420 L11 325 L20 210 L9 205 L19 100 L10 95 L18 0 Z';
-const BOLT_GLOW = 'rgba(70,140,255,0.98)';
-const BOLT_STROKE = '#2f7dff';
 
 export default function GatesMachine() {
   const [showInfo, setShowInfo] = useState(false);
@@ -381,20 +376,7 @@ export default function GatesMachine() {
           multiplier symbols. Rendered at the machine root so they are not
           clipped by the reel area's overflow-hidden. */}
       {Object.values(bolts).map((b) => (
-        <svg
-          key={b.key}
-          style={{
-            position: 'absolute', left: b.x, top: 0, width: 24, height: b.y,
-            transform: 'translateX(-50%)', transformOrigin: 'top center',
-            pointerEvents: 'none', zIndex: 30, overflow: 'visible',
-            animation: `gatesLightning ${turbo ? 0.42 : 0.7}s ease-out forwards`,
-            filter: `drop-shadow(0 0 7px ${BOLT_GLOW}) drop-shadow(0 0 16px ${BOLT_GLOW}) drop-shadow(0 0 26px ${BOLT_GLOW})`,
-          }}
-          viewBox="0 0 24 420"
-          preserveAspectRatio="none"
-        >
-          <path d={BOLT_PATH} fill="#ffffff" stroke={BOLT_STROKE} strokeWidth="2" strokeLinejoin="round" />
-        </svg>
+        <GatesBolt key={b.key} x={b.x} y={b.y} turbo={turbo} />
       ))}
     </div>
   );
