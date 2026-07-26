@@ -238,7 +238,12 @@ export function computeSpin(bet, wantWin, freeMode, runningMult) {
       win: ev.win,
     });
     totalWin += ev.win;
-    spinMultSum += ev.multipliers.reduce((s, m) => s + m.value, 0);
+    // Multiplier symbols only count when that tumble actually produced a win.
+    // A multiplier landing in a no-win tumble (incl. the final settling tumble)
+    // is ignored.
+    if (ev.win > 0) {
+      spinMultSum += ev.multipliers.reduce((s, m) => s + m.value, 0);
+    }
     scatterMax = Math.max(scatterMax, ev.scatterCount);
     if (ev.win === 0) break;
     grid = tumble(grid, ev.winPositions, freeMode, freeMode ? true : !spinHasMult);

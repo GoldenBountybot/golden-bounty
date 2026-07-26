@@ -101,7 +101,8 @@ export function useGates() {
         setWinPositions(tb.winPositions);
         setDropCells(fresh);
         runningWin += tb.win;
-        if (tb.multipliers.length) multSeen += tb.multipliers.reduce((s, m) => s + m.value, 0);
+        // Multipliers only count on a winning tumble (matches the engine rule).
+        if (tb.win > 0 && tb.multipliers.length) multSeen += tb.multipliers.reduce((s, m) => s + m.value, 0);
         setWinFlash(runningWin);
         if (tb.wins.length) {
           setWinList(tb.wins);
