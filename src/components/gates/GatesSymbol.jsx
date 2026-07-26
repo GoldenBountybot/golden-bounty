@@ -12,7 +12,7 @@ const SYM_IMG = {
   blue:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a3a411a0b_file_0000000004448207843751971532abdf.png',
   green:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d3a4e2228_file_000000009bc08207a95209fcf33e096b.png',
   yellow:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3829a472c_file_000000000e088230b3afc17f467dd494.png',
-  scatter:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/086630206_file_00000000bf888230ad3b50315b7d1792.png',
+  scatter:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e121379a7_file_000000008b68820baaa63ab2e653d35f.png',
   mult:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/138a9cee6_generated_image.png',
 };
 
@@ -50,6 +50,32 @@ export default function GatesSymbol({ sym, highlight }) {
           style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '11px', color: '#fffbe0', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>
           ×{v}
         </span>
+      </div>
+    );
+  }
+
+  if (sym === 'scatter') {
+    const img = SYM_IMG.scatter;
+    return (
+      <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
+        style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
+        <div className="w-full h-full" style={{
+          backgroundImage: `url(${img})`,
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          WebkitMaskImage: `url(${img})`,
+          maskImage: `url(${img})`,
+          WebkitMaskRepeat: 'no-repeat',
+          maskRepeat: 'no-repeat',
+          WebkitMaskSize: 'contain',
+          maskSize: 'contain',
+          WebkitMaskPosition: 'center',
+          maskPosition: 'center',
+          WebkitMaskMode: 'luminance',
+          maskMode: 'luminance',
+          filter: 'saturate(1.25) contrast(1.08) brightness(1.05)',
+        }} />
       </div>
     );
   }
