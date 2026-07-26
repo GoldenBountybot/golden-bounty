@@ -45,7 +45,10 @@ const NORMAL_POOL = [
 const NORMAL_TOTAL = NORMAL_POOL.reduce((s, [, w]) => s + w, 0);
 
 export const FREE_SPINS_AWARD = 15;
-export const BETS = [0.25, 0.5, 1, 2, 5, 10, 25, 50, 100];
+export const BETS = [0.10, 0.20, 0.50, 1, 2, 5, 10, 25, 50, 100, 250, 500];
+export const MIN_BET = 0.10;
+export const MAX_BET = 500;
+export const BET_STEP = 0.10;
 
 const rand = (n) => Math.floor(Math.random() * n);
 

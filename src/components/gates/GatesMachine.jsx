@@ -4,7 +4,7 @@ import GatesSymbol, { SYM_IMG } from './GatesSymbol';
 import GatesSpinStrip from './GatesSpinStrip';
 import GatesWinBoard from './GatesWinBoard';
 import { useGates } from './useGates';
-import { BETS, SYMBOLS, MULTIPLIERS, isMult } from '@/lib/gatesEngine';
+import { BETS, SYMBOLS, MULTIPLIERS, isMult, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 
 const REELS = 6;
 const ROWS = 5;
@@ -259,6 +259,11 @@ export default function GatesMachine() {
                 background: 'rgba(255,255,255,0.12)',
                 boxShadow: '0 0 8px rgba(255,255,255,0.35), inset 0 0 6px rgba(255,255,255,0.25)' }} />
             </button>
+            {/* Bet amount — shown directly under the spin button */}
+            <span style={{ fontFamily: 'Georgia,serif', fontSize: '13px', fontWeight: 900, color: '#ffe060',
+              textShadow: '0 1px 2px rgba(0,0,0,0.85)', letterSpacing: '0.02em' }}>
+              {fmt(bet)}
+            </span>
           </div>
 
           {/* Win board — matched symbols with counts + running win amount */}
@@ -280,14 +285,14 @@ export default function GatesMachine() {
             <RotateCcw className={`w-4 h-4 ${autoSpin ? 'text-emerald-300' : 'text-white/80'}`} />
           </button>
 
-          <button onClick={() => { const i = BETS.findIndex(b => Math.abs(bet-b)<0.001); setBet(BETS[Math.max(i-1, 0)]); }}
+          <button onClick={() => setBet(Math.max(MIN_BET, Math.round((bet - BET_STEP) * 100) / 100))}
             disabled={spinning}
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40"
             style={{ background: 'rgba(0,0,0,0.35)', border: '1.5px solid rgba(255,255,255,0.4)' }}>
             <Minus className="w-4 h-4 text-white/80" />
           </button>
 
-          <button onClick={() => { const i = BETS.findIndex(b => Math.abs(bet-b)<0.001); setBet(BETS[Math.min(i+1, BETS.length-1)]); }} disabled={spinning}
+          <button onClick={() => setBet(Math.min(MAX_BET, Math.round((bet + BET_STEP) * 100) / 100))} disabled={spinning}
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40"
             style={{ background: 'rgba(0,0,0,0.35)', border: '1.5px solid rgba(255,255,255,0.4)' }}>
             <Plus className="w-4 h-4 text-white/80" />
@@ -300,13 +305,10 @@ export default function GatesMachine() {
           </button>
         </div>
 
-        {/* Credit / Bet footer */}
-        <div className="relative z-10 flex items-center justify-between pt-1">
+        {/* Credit footer */}
+        <div className="relative z-10 flex items-center justify-center pt-1">
           <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: 'rgba(0,0,50,0.75)', fontWeight: 700 }}>
             CREDIT <span style={{ color: '#c87010' }}>{fmt(balance)}</span>
-          </span>
-          <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: 'rgba(0,0,50,0.75)', fontWeight: 700 }}>
-            BET <span style={{ color: '#c87010' }}>{fmt(bet)}</span>
           </span>
         </div>
       </div>
