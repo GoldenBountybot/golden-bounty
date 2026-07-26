@@ -37,7 +37,7 @@ const maskStyle = (img) => ({
   maskRepeat: 'no-repeat',
   maskMode: 'luminance',
   WebkitMaskSourceType: 'luminance',
-  filter: 'brightness(1.06) saturate(1.18) contrast(1.04)',
+  filter: 'brightness(1.12) saturate(1.5) contrast(1.14)',
 });
 
 export default function GatesSymbol({ sym, highlight }) {
