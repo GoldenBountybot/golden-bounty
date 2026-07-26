@@ -30,6 +30,7 @@ export function useGates() {
   const [spinMult, setSpinMult] = useState(0); // running multiplier for display
   const [winFlash, setWinFlash] = useState(0); // tumble running win for display
   const [winList, setWinList] = useState([]); // current tumble winners: {symbol,count,pay}[]
+  const [scatterGlow, setScatterGlow] = useState(new Set()); // scatter cells glowing when 4+ land together
 
   const settings = useGameSettings('gates-of-olympus');
   const logActivity = useLogActivity();
@@ -65,6 +66,7 @@ export function useGates() {
     setSpinMult(0);
     setWinFlash(0);
     setWinList([]);
+    setScatterGlow(new Set());
     if (!usingFree) setBalance((b) => b - bet);
     if (usingFree) setFreeSpins((f) => f - 1);
     setMessage('Spinning…');
@@ -100,6 +102,9 @@ export function useGates() {
         if (tb.multipliers.length) multSeen += tb.multipliers.reduce((s, m) => s + m.value, 0);
         setWinFlash(runningWin);
         if (tb.wins.length) setWinList(tb.wins);
+        const scatPos = new Set();
+        for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) if (tb.grid[c][r] === 'scatter') scatPos.add(`${c}-${r}`);
+        setScatterGlow(scatPos.size >= 4 ? scatPos : new Set());
         setSpinMult(freeMode ? (baseStart + multSeen) : multSeen);
       }, showAt));
       // winners glow, then shatter away. The final tumble has no winners, so
@@ -146,6 +151,7 @@ export function useGates() {
           setMessage(`RETRIGGER · +${FREE_SPINS_AWARD} FREE SPINS`);
         }
       }
+      setScatterGlow(new Set());
       setSpinning(false);
       logActivity('gates-of-olympus', bet, win, win > 0 ? 'win' : 'loss', result.effectiveMult || 0);
     }, acc));
@@ -217,7 +223,7 @@ export function useGates() {
 
   return {
     grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells,
-    freeSpins, turbo, autoSpin, spinMult, winFlash, winList,
+    freeSpins, turbo, autoSpin, spinMult, winFlash, winList, scatterGlow,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, reset, buyFreeSpins,

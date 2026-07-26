@@ -4,6 +4,7 @@ import GatesSymbol, { SYM_IMG } from './GatesSymbol';
 import GatesSpinStrip from './GatesSpinStrip';
 import GatesWinBoard from './GatesWinBoard';
 import GatesOrnateFrame from './GatesOrnateFrame';
+import GatesFreeSpinBanner from './GatesFreeSpinBanner';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, MULTIPLIERS, isMult, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 
@@ -65,9 +66,8 @@ export default function GatesMachine() {
 
   const {
     grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells, winFlash,
-    freeSpins, turbo, autoSpin, spinMult, winList,
-    showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
-    cancelFreeSpinStart,
+    freeSpins, turbo, autoSpin, spinMult, winList, scatterGlow,
+    showFreeSpinStart, freeSpinsActive, startFreeSpins,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, buyFreeSpins,
   } = g;
 
@@ -123,6 +123,7 @@ export default function GatesMachine() {
                       const isShatter = shatter.has(winKey);
                       const isFresh = dropCells.has(winKey);
                       const isWin = !isShatter && winPositions.has(winKey);
+                      const isScatterGlow = scatterGlow.has(winKey);
                       const symIsMult = isMult(sym);
                       // value (multiplier) symbols drop only very slightly;
                       // regular fresh symbols drop with the full gatesDrop.
@@ -139,11 +140,12 @@ export default function GatesMachine() {
                             transition: 'box-shadow 0.15s' }}>
                           {stopped ? (
                             <div key={animKey} className="relative w-full h-full"
-                              style={{ animation: isShatter
+                              style={{ animation: isScatterGlow ? 'gatesScatterGlow 0.9s ease-in-out infinite'
+                                : isShatter
                                 ? `shatterWin ${g.turbo ? 0.24 : 0.4}s ease-out forwards`
                                 : isMultDrop ? `gatesMultDrop ${g.turbo ? 0.18 : 0.3}s ease-out both`
                                 : dropAnim ? `gatesDrop ${g.turbo ? 0.18 : 0.26}s cubic-bezier(0.22,0.7,0.32,1) both` : 'none' }}>
-                              <GatesSymbol sym={sym} highlight={isWin} />
+                              <GatesSymbol sym={sym} highlight={isWin || isScatterGlow} />
                             </div>
                           ) : (
                             <div className="w-full h-full" />
@@ -172,20 +174,9 @@ export default function GatesMachine() {
               </div>
             )}
 
-            {/* Free spin start overlay */}
+            {/* Free spin start banner */}
             {showFreeSpinStart && (
-              <div className="absolute inset-0 z-30 flex flex-col items-center justify-center"
-                style={{ background: 'rgba(20,5,40,0.9)' }}>
-                <button onClick={cancelFreeSpinStart} className="absolute top-2 right-2"><X className="w-5 h-5 text-amber-200/70" /></button>
-                <div className="text-5xl mb-2">⚡</div>
-                <div style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '22px', color: '#ffe080', textShadow: '0 0 20px rgba(255,200,80,1)' }}>FREE SPINS!</div>
-                <div style={{ fontFamily: 'Georgia,serif', fontSize: '14px', color: '#ffcc60', marginTop: '4px' }}>{awardedFreeSpins} Games Awarded</div>
-                <button onClick={startFreeSpins}
-                  className="mt-4 px-8 py-2 rounded-full font-black active:scale-95 transition-transform"
-                  style={{ fontFamily: 'Georgia,serif', color: '#2a1a06', background: 'linear-gradient(to bottom,#f8d840,#c8880a)', border: '2px solid #ffe880', fontSize: '15px', boxShadow: '0 0 20px rgba(255,200,80,0.6)' }}>
-                  START
-                </button>
-              </div>
+              <GatesFreeSpinBanner onStart={startFreeSpins} />
             )}
           </div>
         </div>
