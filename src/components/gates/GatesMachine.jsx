@@ -12,11 +12,7 @@ export default function GatesMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
   const [dropTick, setDropTick] = useState(0);
-  const [stoppedCells, setStoppedCells] = useState(() => {
-    const s = new Set();
-    for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) s.add(`${c}-${r}`);
-    return s;
-  });
+  const [stoppedReels, setStoppedReels] = useState(() => new Set(Array.from({ length: REELS }, (_, i) => i)));
   const revealTimers = useRef([]);
 
   const g = useGates();
@@ -29,28 +25,21 @@ export default function GatesMachine() {
     revealTimers.current.forEach(clearTimeout);
     revealTimers.current = [];
     if (!g.spinning) {
-      const s = new Set();
-      for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) s.add(`${c}-${r}`);
-      setStoppedCells(s);
+      setStoppedReels(new Set(Array.from({ length: REELS }, (_, i) => i)));
     }
   }, [g.spinning]);
 
-  // per-cell reveal: column by column (left → right), within each column bottom → top
+  // per-column reveal: a whole column drops together smoothly, then the next column starts
   useEffect(() => {
     if (!g.spinning) return;
     revealTimers.current.forEach(clearTimeout);
     revealTimers.current = [];
-    setStoppedCells(new Set());
-    const stagger = g.turbo ? 16 : 35;
-    let idx = 0;
+    setStoppedReels(new Set());
+    const stagger = g.turbo ? 160 : 260;
     for (let c = 0; c < REELS; c++) {
-      for (let r = ROWS - 1; r >= 0; r--) {
-        const cellKey = `${c}-${r}`;
-        revealTimers.current.push(setTimeout(() => {
-          setStoppedCells((prev) => new Set([...prev, cellKey]));
-        }, idx * stagger));
-        idx++;
-      }
+      revealTimers.current.push(setTimeout(() => {
+        setStoppedReels((prev) => new Set([...prev, c]));
+      }, c * stagger));
     }
     return () => { revealTimers.current.forEach(clearTimeout); };
   }, [dropTick, g.turbo]);
@@ -125,6 +114,7 @@ export default function GatesMachine() {
             {/* 6×5 grid — Big Brown style: per-reel scroll strip, sequential stop + drop */}
             <div className="flex gap-[4px] p-[5px]" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
               {grid.map((reel, c) => {
+                const stopped = stoppedReels.has(c);
                 return (
                   <React.Fragment key={c}>
                   <div className="relative flex-1 flex flex-col gap-[6px] min-w-0">
@@ -132,7 +122,6 @@ export default function GatesMachine() {
                       const key = `${c}-${r}-${dropTick}`;
                       const winKey = `${c}-${r}`;
                       const isWin = winPositions.has(winKey);
-                      const stopped = stoppedCells.has(`${c}-${r}`);
                       return (
                         <div key={key} className="relative rounded-[5px] flex-1 min-h-0 overflow-hidden"
                           style={{ opacity: stopped ? 1 : 0,
@@ -142,7 +131,7 @@ export default function GatesMachine() {
                             transition: 'box-shadow 0.15s' }}>
                           {stopped ? (
                             <div className="relative w-full h-full"
-                              style={{ animation: `gatesDrop ${g.turbo ? 0.16 : 0.28}s cubic-bezier(0.4,0,0.2,1) both` }}>
+                              style={{ animation: `gatesDrop ${g.turbo ? 0.16 : 0.26}s cubic-bezier(0.4,0,0.2,1) both` }}>
                               <GatesSymbol sym={sym} highlight={isWin} />
                             </div>
                           ) : (
