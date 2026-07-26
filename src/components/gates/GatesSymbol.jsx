@@ -18,16 +18,26 @@ const SYM_IMG = {
 
 export { SYM_IMG };
 
-// screen blend over the board: pure-black background becomes the board colour
-// (invisible), while the symbol's own colours stay intact. cover => symbols
-// fill the cell. filter lifts brightness/saturation so symbols read crisp.
-const screenStyle = (img) => ({
+// Luminance mask: use the symbol's own brightness as alpha so its pure-black
+// background becomes fully transparent while the coloured symbol stays crisp
+// and opaque. Unlike mix-blend-mode: screen, this works on ANY board background
+// (light or dark) — symbols never wash out or fade.
+const maskStyle = (img) => ({
   backgroundImage: `url(${img})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
-  mixBlendMode: 'screen',
-  filter: 'brightness(1.14) saturate(1.32) contrast(1.08)',
+  WebkitMaskImage: `url(${img})`,
+  WebkitMaskSize: 'cover',
+  WebkitMaskPosition: 'center',
+  WebkitMaskRepeat: 'no-repeat',
+  maskImage: `url(${img})`,
+  maskSize: 'cover',
+  maskPosition: 'center',
+  maskRepeat: 'no-repeat',
+  maskMode: 'luminance',
+  WebkitMaskSourceType: 'luminance',
+  filter: 'brightness(1.06) saturate(1.18) contrast(1.04)',
 });
 
 export default function GatesSymbol({ sym, highlight }) {
@@ -71,7 +81,7 @@ export default function GatesSymbol({ sym, highlight }) {
     <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
       style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
       {img ? (
-        <div className="w-full h-full" style={screenStyle(img)} />
+        <div className="w-full h-full" style={maskStyle(img)} />
       ) : (
         <span style={{ fontSize: 24 }}>{sym}</span>
       )}
