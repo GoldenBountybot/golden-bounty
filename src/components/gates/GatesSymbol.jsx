@@ -46,10 +46,6 @@ export default function GatesSymbol({ sym, highlight }) {
       <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
         style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
         <div className="w-full h-full" style={style} />
-        <span className="absolute inset-0 flex items-center justify-center pointer-events-none"
-          style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '11px', color: '#fffbe0', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>
-          ×{v}
-        </span>
       </div>
     );
   }
