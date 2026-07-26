@@ -35,19 +35,11 @@ export default function GatesSymbol({ sym, highlight }) {
     return (
       <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
         style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
-        <div className="flex items-center justify-center"
-          style={{
-            width: '86%', height: '86%', borderRadius: '50%',
-            background: 'radial-gradient(circle at 36% 28%, #fff6c0 0%, #ffd24a 26%, #f0a018 52%, #b85410 78%, #6e2c08 100%)',
-            border: '2px solid #ffe880',
-            boxShadow: '0 0 10px rgba(255,170,30,0.9), 0 0 20px rgba(230,90,10,0.55), inset 0 0 12px rgba(255,250,200,0.55)',
-          }}>
-          <span style={{
-            fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: 'clamp(13px, 3.6vw, 18px)',
-            color: '#fff8d8', textShadow: '0 1px 0 rgba(120,50,0,0.9), 0 0 8px rgba(255,200,40,0.8)' }}>
-            ×{v}
-          </span>
-        </div>
+        <div className="w-full h-full" style={screenStyle(SYM_IMG.mult)} />
+        <span className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '11px', color: '#fffbe0', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>
+          ×{v}
+        </span>
       </div>
     );
   }
