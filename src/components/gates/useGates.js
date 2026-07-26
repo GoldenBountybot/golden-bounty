@@ -73,8 +73,8 @@ export function useGates() {
     const result = computeSpin(bet, wantWin, freeMode, runningMultRef.current);
     if (freeMode) runningMultRef.current = result.newRunningMult;
 
-    const hold = turbo ? 260 : 460;       // winners glow before shattering
-    const shatterDur = turbo ? 240 : 400;  // winners blast away
+    const hold = turbo ? 520 : 950;        // winners glow long enough to read which matched
+    const shatterDur = turbo ? 240 : 420;  // winners blast away
     const firstGap = turbo ? 360 : 660;    // reels stop, first grid drops in
     let acc = 0;
     let runningWin = 0;
