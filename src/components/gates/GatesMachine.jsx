@@ -218,7 +218,7 @@ export default function GatesMachine() {
             )}
           </>
         ) : (
-          <div style={{ fontFamily: 'Georgia,serif', fontSize: '13px', fontWeight: 700, color: '#c0a060', minHeight: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ fontFamily: 'Georgia,serif', fontSize: '14px', fontWeight: 900, color: '#ffd650', minHeight: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', textShadow: '0 0 10px rgba(255,200,0,0.85), 0 1px 2px rgba(0,0,0,0.8)' }}>
             {message}
           </div>
         )}
