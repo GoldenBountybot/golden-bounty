@@ -42,10 +42,18 @@ export default function GatesSymbol({ sym, highlight }) {
       backgroundSize: '112%',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
-      mixBlendMode: 'screen',
+      WebkitMaskImage: `url(${multUrl})`,
+      WebkitMaskSize: '112%',
+      WebkitMaskPosition: 'center',
+      WebkitMaskRepeat: 'no-repeat',
+      maskImage: `url(${multUrl})`,
+      maskSize: '112%',
+      maskPosition: 'center',
+      maskRepeat: 'no-repeat',
+      maskMode: 'luminance',
       transform: color === 'red' ? 'scale(1.34)' : 'scale(1.2)',
       transformOrigin: 'center center',
-      filter: 'saturate(1.18) contrast(1.06)',
+      filter: 'saturate(1.25) contrast(1.08)',
     };
     return (
       <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
