@@ -90,7 +90,7 @@ export default function GatesMachine() {
         <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/84fd16eb6_file_00000000e474820ba9fd196f5f5c9f06.png"
           alt="Zeus"
           className="pointer-events-none select-none"
-          style={{ position: 'absolute', right: 0, bottom: -6, width: '38%', maxWidth: 150,
+          style={{ position: 'absolute', right: 0, bottom: 14, width: '38%', maxWidth: 150,
             height: 'auto', objectFit: 'contain',
             filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.9))' }} />
       </div>
