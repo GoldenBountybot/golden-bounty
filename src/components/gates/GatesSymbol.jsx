@@ -37,21 +37,16 @@ export default function GatesSymbol({ sym, highlight }) {
     const v = multValue(sym);
     const color = multColor(v);
     const multUrl = SYM_IMG[`mult_${color}`] || SYM_IMG.mult;
+    // Render as a solid, fully opaque image (like the normal symbols) so the
+    // red & pink value symbols read clearly instead of as a faint glow.
+    const size = color === 'red' ? '118%' : color === 'pink' ? '116%' : '112%';
+    const scale = color === 'red' ? 1.4 : color === 'pink' ? 1.2 : 1.12;
     const style = {
       backgroundImage: `url(${multUrl})`,
-      backgroundSize: '112%',
+      backgroundSize: size,
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
-      WebkitMaskImage: `url(${multUrl})`,
-      WebkitMaskSize: '112%',
-      WebkitMaskPosition: 'center',
-      WebkitMaskRepeat: 'no-repeat',
-      maskImage: `url(${multUrl})`,
-      maskSize: '112%',
-      maskPosition: 'center',
-      maskRepeat: 'no-repeat',
-      maskMode: 'luminance',
-      transform: color === 'red' ? 'scale(1.34)' : 'scale(1.2)',
+      transform: `scale(${scale})`,
       transformOrigin: 'center center',
       filter: 'saturate(1.25) contrast(1.08)',
     };
