@@ -71,6 +71,8 @@ export default function GatesMachine() {
 
   const tumbleWin = spinning ? winFlash : lastWin;
   const showTumbleBar = tumbleWin > 0;
+  const allReelsStopped = stoppedReels.size >= REELS;
+  const reelsSpinning = spinning && !allReelsStopped;
 
   return (
     <div className="relative w-full max-w-md mx-auto flex flex-col overflow-hidden select-none"
@@ -243,11 +245,11 @@ export default function GatesMachine() {
             {/* Main spin button */}
             <button onClick={spin} disabled={spinning}
               className="rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-60"
-              style={{ width: 68, height: 68, background: spinning
+              style={{ width: 68, height: 68, background: reelsSpinning
                 ? 'radial-gradient(circle,#555,#333)'
                 : 'radial-gradient(circle at 35% 30%,#ffffff,#d8dce0 55%,#a0a8b0 100%)',
                 border: '3px solid rgba(255,255,255,0.7)', boxShadow: '0 4px 16px rgba(0,0,0,0.6), 0 0 20px rgba(255,255,255,0.25)' }}>
-              <RotateCcw className={`w-7 h-7 text-slate-700 ${spinning ? 'animate-spin' : ''}`} strokeWidth={2.5} />
+              <RotateCcw className={`w-7 h-7 text-slate-700 ${reelsSpinning ? 'animate-spin' : ''}`} strokeWidth={2.5} />
             </button>
             {/* Plus bet button */}
             <button onClick={() => { const i = BETS.findIndex(b => Math.abs(bet-b)<0.001); setBet(BETS[Math.min(i+1, BETS.length-1)]); }} disabled={spinning}
