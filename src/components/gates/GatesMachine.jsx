@@ -5,8 +5,9 @@ import GatesSpinStrip from './GatesSpinStrip';
 import GatesWinBoard from './GatesWinBoard';
 import GatesOrnateFrame from './GatesOrnateFrame';
 import GatesFreeSpinBanner from './GatesFreeSpinBanner';
+import GatesMultReveal from './GatesMultReveal';
 import { useGates } from './useGates';
-import { BETS, SYMBOLS, MULTIPLIERS, isMult, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
+import { BETS, SYMBOLS, MULTIPLIERS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 
 const REELS = 6;
 const ROWS = 5;
@@ -125,11 +126,11 @@ export default function GatesMachine() {
                       const isWin = !isShatter && winPositions.has(winKey);
                       const isScatterGlow = scatterGlow.has(winKey);
                       const symIsMult = isMult(sym);
-                      // value (multiplier) symbols drop only very slightly;
-                      // regular fresh symbols drop with the full gatesDrop.
-                      const isMultDrop = isFresh && symIsMult;
-                      const dropAnim = isFresh && !symIsMult;
-                      const animKey = isShatter ? `sh${shatterTick}` : isMultDrop ? `md${dropTick}` : dropAnim ? `dr${dropTick}` : 'st';
+                      // value (multiplier) symbols drop normally like any
+                      // other fresh symbol; the lightning reveal is handled by
+                      // the GatesMultReveal overlay.
+                      const dropAnim = isFresh;
+                      const animKey = isShatter ? `sh${shatterTick}` : dropAnim ? `dr${dropTick}` : 'st';
                       return (
                         <div key={winKey} className="relative rounded-[5px] flex-1 min-h-0"
                           style={{ opacity: stopped ? 1 : 0,
@@ -143,9 +144,15 @@ export default function GatesMachine() {
                               style={{ animation: isScatterGlow ? 'gatesScatterGlow 0.9s ease-in-out infinite'
                                 : isShatter
                                 ? `shatterWin ${g.turbo ? 0.24 : 0.4}s ease-out forwards`
-                                : isMultDrop ? `gatesMultDrop ${g.turbo ? 0.18 : 0.3}s ease-out both`
                                 : dropAnim ? `gatesDrop ${g.turbo ? 0.18 : 0.26}s cubic-bezier(0.22,0.7,0.32,1) both` : 'none' }}>
                               <GatesSymbol sym={sym} highlight={isWin || isScatterGlow} />
+                              {symIsMult && (
+                                <GatesMultReveal
+                                  value={multValue(sym)}
+                                  color={multColor(multValue(sym))}
+                                  fresh={isFresh}
+                                  turbo={g.turbo} />
+                              )}
                             </div>
                           ) : (
                             <div className="w-full h-full" />

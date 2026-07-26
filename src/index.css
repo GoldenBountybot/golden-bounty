@@ -154,6 +154,24 @@
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
+/* Gates multiplier reveal — lightning bolt strikes down onto a value symbol */
+@keyframes gatesLightning {
+  0%   { opacity: 0; transform: translateX(-50%) scaleY(0.08); }
+  18%  { opacity: 1; transform: translateX(-50%) scaleY(1); }
+  55%  { opacity: 0.9; transform: translateX(-50%) scaleY(1.03); }
+  100% { opacity: 0; transform: translateX(-50%) scaleY(1); }
+}
+@keyframes gatesLightFlash {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes gatesMultReveal {
+  0%   { opacity: 0; transform: scale(0.2); }
+  55%  { opacity: 1; transform: scale(1.4); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 @keyframes shatterWin {
   0%   { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1.5) saturate(1.5) drop-shadow(0 0 6px rgba(255,200,40,0.9)); }
   32%  { transform: scale(0.92) rotate(3deg); opacity: 0.95; filter: brightness(2.4) saturate(2) drop-shadow(0 0 12px rgba(255,220,80,1)); }

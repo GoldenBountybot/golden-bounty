@@ -33,9 +33,10 @@ export const PAY = {
 };
 
 export const MULTIPLIERS = [
-  { v: 2, w: 30 }, { v: 3, w: 20 }, { v: 5, w: 15 }, { v: 10, w: 12 },
-  { v: 15, w: 8 }, { v: 25, w: 6 }, { v: 50, w: 5 }, { v: 100, w: 4 },
-  { v: 250, w: 2 }, { v: 500, w: 1 },
+  { v: 2, w: 22 }, { v: 3, w: 18 }, { v: 4, w: 15 }, { v: 5, w: 13 },
+  { v: 6, w: 10 }, { v: 8, w: 8 }, { v: 10, w: 7 }, { v: 12, w: 5 },
+  { v: 15, w: 4 }, { v: 20, w: 3 }, { v: 25, w: 2.5 }, { v: 50, w: 2 },
+  { v: 100, w: 1.5 }, { v: 250, w: 0.8 }, { v: 500, w: 0.4 },
 ];
 
 const NORMAL_POOL = [
@@ -88,10 +89,12 @@ export function multValue(cell) {
 // pickMult() already weights small values far more than large ones, tying
 // colour to value gives the requested drop hierarchy
 // (green > blue > pink > red) for free.
+// Colour tiers (per spec): green = 1x–50x, blue = 100x only,
+// pink = 250x only, red = 500x only.
 export function multColor(v) {
-  if (v <= 5) return 'green';
-  if (v <= 25) return 'blue';
-  if (v <= 100) return 'pink';
+  if (v <= 50) return 'green';
+  if (v < 250) return 'blue';
+  if (v < 500) return 'pink';
   return 'red';
 }
 
