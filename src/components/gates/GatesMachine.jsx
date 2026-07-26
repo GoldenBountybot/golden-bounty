@@ -82,12 +82,10 @@ export default function GatesMachine() {
       {/* ── GATES OF OLYMPUS TITLE BANNER ── sits just above the board border */}
       <div className="relative flex items-end justify-center shrink-0 pt-2 pb-0"
         style={{ background: 'linear-gradient(to bottom,rgba(50,10,90,0.6),transparent)', marginBottom: -26, zIndex: 20 }}>
-        <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f58bc749b_InShot_20260726_170441029.gif"
+        <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/022c6fd09_generated_image.png"
           alt="Zeus"
           style={{ width: 'auto', height: 'clamp(190px, 30vh, 270px)', objectFit: 'contain',
-            mixBlendMode: 'multiply',
-            filter: 'brightness(1.55) saturate(1.3) contrast(1.05) drop-shadow(0 3px 6px rgba(0,0,0,0.55))',
-            isolation: 'isolate' }} />
+            filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.55))' }} />
       </div>
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
