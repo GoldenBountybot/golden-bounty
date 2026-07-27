@@ -98,7 +98,7 @@ export default function MultiplierStrip({ className = '' }) {
   return (
     <div className={`absolute inset-0 pointer-events-none ${className}`}>
       {/* Left side, following the left-downward curve */}
-      <ArcWord label="X512"  centerA={CENTERS['512']}  size="0.68rem" red={false} nudgeX={-2} nudgeY={3} />
+      <ArcWord label="X512"  centerA={CENTERS['512']}  size="0.68rem" red={false} nudgeX={-4} nudgeY={3} />
       <ArcWord label="X1024" centerA={CENTERS['1024']} size="0.68rem" red={true} nudgeX={-2} />
       {/* Centre — X1 stays upright and unchanged */}
       <span style={x1Style}>X1</span>
