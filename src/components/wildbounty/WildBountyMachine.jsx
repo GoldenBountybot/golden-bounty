@@ -36,6 +36,11 @@ export default function WildBountyMachine() {
       <div
         className="relative mx-0 my-0"
         style={{
+          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c1acaec26_file_000000001de88211868a1e08115c5695.png)',
+          backgroundSize: '108% 100%',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          boxShadow: '0 18px 52px rgba(0,0,0,0.85)',
           paddingTop: '7%',
           paddingBottom: '13%',
           paddingLeft: '0%',
