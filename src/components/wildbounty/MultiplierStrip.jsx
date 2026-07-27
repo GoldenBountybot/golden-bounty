@@ -13,7 +13,7 @@ import React from 'react';
 
 const CX = 150;   // arc centre x (width units)
 const RX = 130;   // horizontal radius
-const CY = 25;    // arc centre y (height units) — sits above the board
+const CY = 17;    // arc centre y (height units) — sits above the board
 const RY = 39;    // vertical radius
 const W = 300, H = 100;
 
@@ -91,7 +91,7 @@ export default function MultiplierStrip({ className = '' }) {
   const x1Style = {
     ...metallicStyle('1.95rem', false),
     left: '50%',
-    top: '64%',
+    top: '56%',
     transform: 'translate(-50%, -50%)',
   };
 
