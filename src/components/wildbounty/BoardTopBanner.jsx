@@ -15,10 +15,17 @@ import React, { useEffect, useRef, useState } from 'react';
 const BANNER_IMG =
   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/34377a521_file_00000000ce28820b9b425fc57f1c795e.png';
 
-// Pixels whose brightest channel is below this value are background → alpha 0.
-// Dark-brown wood (#4A2D1B) peaks at 74; 70 erases the remaining dark halo
-// right up to the wood's darkest grain, leaving only genuine art opaque.
-const BG_THRESHOLD = 70;
+// Chroma + value key. The source art sits on solid black, but compression
+// leaves a grey halo around it whose luminance overlaps the dark-brown wood
+// (#4A2D1B) — so a pure luminance cut cannot separate them.
+//
+// Instead we key by colourfulness: pixels that are both dark AND nearly grey
+// (low saturation) are background/halo → alpha 0. The dark wood is dark but
+// highly saturated (R≠G≠B), so it stays fully opaque. Bright low-saturation
+// pixels (metal highlights) are kept via the value ceiling.
+const BG_VALUE_FLOOR = 26;   // pure/near-black → always transparent
+const SAT_FLOOR = 0.16;       // (max-min)/max below this = greyish
+const GREY_VALUE_CEIL = 132;  // only treat as halo if also darker than this
 
 export default function BoardTopBanner({ className = '' }) {
   const [src, setSrc] = useState(null);
@@ -42,8 +49,14 @@ export default function BoardTopBanner({ className = '' }) {
         for (let i = 0; i < px.length; i += 4) {
           const r = px[i], g = px[i + 1], b = px[i + 2];
           const max = r > g ? (r > b ? r : b) : (g > b ? g : b);
-          if (max < BG_THRESHOLD) {
-            px[i + 3] = 0; // alpha 0 → fully transparent
+          const min = r < g ? (r < b ? r : b) : (g < b ? g : b);
+          if (max < BG_VALUE_FLOOR) {
+            px[i + 3] = 0; // pure black background
+          } else {
+            const sat = max === 0 ? 0 : (max - min) / max;
+            if (sat < SAT_FLOOR && max < GREY_VALUE_CEIL) {
+              px[i + 3] = 0; // grey halo (dark + desaturated)
+            }
           }
         }
         ctx.putImageData(data, 0, 0);
