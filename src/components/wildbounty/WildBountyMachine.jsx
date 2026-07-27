@@ -28,7 +28,7 @@ export default function WildBountyMachine() {
         }}
       >
 {/* Decorative steer-skull banner on top of the board (black bg keyed out) */}
-<div className="flex justify-center mx-1 -mb-4 relative z-20">
+<div className="flex justify-center mx-1 -mt-20 -mb-2 relative z-20">
   <BoardTopBanner />
 </div>
 
