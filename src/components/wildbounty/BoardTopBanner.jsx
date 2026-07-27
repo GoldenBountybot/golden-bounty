@@ -5,7 +5,7 @@ import React from 'react';
 // mix-blend-mode: screen makes pure black fully transparent (black adds no
 // light under screen math) with zero alpha fringe / halo, while boosting
 // contrast + saturation keeps the gold/wood colors vivid and clear.
-const BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/16d198493_file_00000000ce28820b9b425fc57f1c795e.png';
+const BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4ac18429a_file_000000006e6481fa9ba283c788d4cc07.png';
 
 export default function BoardTopBanner({ className = '' }) {
   return (
@@ -17,7 +17,7 @@ export default function BoardTopBanner({ className = '' }) {
         draggable={false}
         style={{
           mixBlendMode: 'screen',
-          filter: 'brightness(1.15) contrast(1.55) saturate(1.6)',
+          filter: 'brightness(1.1) contrast(2.1) saturate(1.7)',
         }}
       />
     </div>
