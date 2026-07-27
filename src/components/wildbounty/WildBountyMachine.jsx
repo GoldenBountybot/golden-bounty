@@ -2,7 +2,6 @@ import React from 'react';
 import { useWildBounty } from './useWildBounty';
 import { REEL_ROWS } from './symbols';
 import Reel from './Reel';
-import ControlPanel from './ControlPanel';
 import FreeSpinStart from './FreeSpinStart';
 import FlyingMultiplier from './FlyingMultiplier';
 
@@ -53,26 +52,6 @@ export default function WildBountyMachine() {
           ★ FREE SPINS: {g.freeSpins} ★
         </div>
       )}
-
-      {/* Controls — chocolate dock covers the image's baked control row */}
-      <div
-        className="absolute inset-x-0 bottom-0 z-20 px-2 pb-2 pt-6"
-        style={{ top: '64%', background: 'linear-gradient(to bottom, rgba(42,28,18,0) 0%, rgba(42,28,18,0.85) 22%, #2a1c12 45%)' }}
-      >
-        <ControlPanel
-          balance={g.balance}
-          bet={g.bet}
-          win={g.lastWin}
-          betIndex={g.betIndex}
-          setBetIndex={g.setBetIndex}
-          spinning={g.spinning}
-          spin={g.spin}
-          turbo={g.turbo}
-          setTurbo={g.setTurbo}
-          autoSpin={g.autoSpin}
-          setAutoSpin={g.setAutoSpin}
-        />
-      </div>
 
       {g.showFreeSpinStart && !g.spinning && (
         <FreeSpinStart count={g.freeSpins} onStart={g.startFreeSpins} />
