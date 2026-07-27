@@ -77,7 +77,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
         </>
       )}
       <div
-        className="flex flex-col w-full gap-1"
+        className="flex flex-col w-full"
         style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s ease-out' : 'reelLand 0.4s ease-out') : 'none', willChange: spinning ? 'transform' : 'auto', filter: spinning ? (anticipationGlow ? 'blur(3px) saturate(1.1)' : 'blur(1.5px)') : 'none', transition: 'filter 0.3s ease' }}
       >
         {strip.map((sym, i) => {
