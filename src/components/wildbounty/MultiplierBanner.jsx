@@ -5,7 +5,7 @@ const BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637
 
 export default function MultiplierBanner() {
   return (
-    <div className="relative w-full mx-auto" style={{ maxWidth: '86%' }}>
+    <div className="relative w-full mx-auto">
       <img
         src={BANNER_IMG}
         alt="Multiplier banner"
