@@ -24,7 +24,7 @@ export default function ControlPanel({ betIndex, setBetIndex, spinning, spin, tu
     <div className="px-3 py-3">
       <div className="relative flex items-center justify-between w-full max-w-md mx-auto">
         {/* Left group: Turbo + Minus */}
-        <div className="flex items-center gap-3 sm:gap-5">
+        <div className="flex items-center gap-3 sm:gap-5 pl-6 sm:pl-10">
           <button onClick={() => setTurbo(t => !t)} className="flex flex-col items-center gap-1">
             <span
               className="w-9 h-9 rounded-full flex items-center justify-center transition-transform active:scale-95"
