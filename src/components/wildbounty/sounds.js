@@ -271,7 +271,6 @@ export const sfx = {
     tone({ freq: 880, sweepTo: 1320, type: 'triangle', dur: 0.3, gain: VOL * 0.35 });
   },
   loss() {
-    // descending dull buzz
-    tone({ freq: 300, sweepTo: 110, type: 'sawtooth', dur: 0.55, gain: VOL * 0.4 });
+    // Loss sound disabled per request.
   },
 };
