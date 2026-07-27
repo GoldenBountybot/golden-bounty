@@ -344,6 +344,7 @@ export default function CrownCoinsMachine() {
           setStuckView(new Array(9).fill(null));
           setRoyalWin(total);
           setShowRoyalBanner(true);
+          clearPendingRound('crown-coins');
         }
         return;
       }
@@ -449,6 +450,30 @@ export default function CrownCoinsMachine() {
     }, settleAt);
     timers.current.push(tEnd);
   }, [spinning, bet, balance, rtp, turbo, setBalance, logActivity, toast]);
+
+  // Recover an interrupted round on mount: credit the pending win and, if the
+  // player was inside a free-spin round, restore the stuck coins + remaining
+  // spins and resume automatically.
+  useEffect(() => {
+    const r = getPendingRound('crown-coins');
+    if (!r) return;
+    clearPendingRound('crown-coins');
+    const win = Number(r.win) || 0;
+    if (win > 0) setBalance(b => b + win);
+    const state = r.state;
+    if (state && state.freeSpins > 0) {
+      stuckRef.current = (state.stuck && state.stuck.length === 9)
+        ? [...state.stuck]
+        : new Array(9).fill(null);
+      setStuckView(stuckRef.current);
+      freeSpinsRef.current = state.freeSpins;
+      setFreeSpins(state.freeSpins);
+      setShowRoyalBanner(false);
+      const t = setTimeout(() => doSpin(), 600);
+      timers.current.push(t);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const toggleAuto = () => {
     const next = !autoSpin;
