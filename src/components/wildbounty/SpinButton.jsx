@@ -14,11 +14,11 @@ export default function SpinButton({ spinning, onClick, disabled }) {
       className="relative flex items-center justify-center disabled:opacity-90"
     >
       <span
-        className="relative w-20 h-20 rounded-full flex items-center justify-center overflow-hidden transition-transform active:scale-95"
+        className="relative w-[5.5rem] h-[5.5rem] rounded-full flex items-center justify-center overflow-hidden transition-transform active:scale-95"
         style={{
           boxShadow: spinning
-            ? '0 0 0 3px rgba(255,215,0,0.9), 0 0 22px 6px rgba(255,215,0,0.85), 0 0 40px 14px rgba(255,180,40,0.5), 0 4px 12px rgba(0,0,0,0.7)'
-            : '0 0 0 2px rgba(197,160,89,0.6), 0 0 14px rgba(255,180,40,0.3), 0 4px 12px rgba(0,0,0,0.7)',
+            ? '0 0 22px 6px rgba(255,215,0,0.85), 0 0 40px 14px rgba(255,180,40,0.5), 0 4px 12px rgba(0,0,0,0.7)'
+            : '0 0 14px rgba(255,180,40,0.3), 0 4px 12px rgba(0,0,0,0.7)',
           transition: 'box-shadow 0.3s ease',
         }}
       >
