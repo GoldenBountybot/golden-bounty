@@ -8,6 +8,7 @@ import {
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
+import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
 
 // ---- Risk (Gamble) card helpers ----
 const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -72,6 +73,13 @@ export function useArgonauts() {
 
   const settings = useGameSettings('argonauts');
   const logActivity = useLogActivity('argonauts');
+  usePendingRoundRecovery('argonauts', setBalance, (state) => {
+    if (state && state.freeSpinsActive && state.freeSpins > 0) {
+      setFreeSpins(state.freeSpins);
+      setFreeSpinsActive(true);
+      setMessage(`FREE SPINS RESUMED · ${state.freeSpins} LEFT`);
+    }
+  });
   const rtpRef = useRef(50);
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
 
@@ -179,6 +187,7 @@ export function useArgonauts() {
   }, [coinSpin]);
 
   const settle = useCallback((finalGrid, usingFree) => {
+    clearPendingRound('argonauts');
     setGrid(finalGrid);
     setSpinningReels(new Set([0, 1, 2, 3, 4]));
     const { wins, scatterCount, scatterPay, bonusCount, lineWin } = evaluate(finalGrid, lineBet, bet);
@@ -283,6 +292,21 @@ export function useArgonauts() {
         finalGrid = generateGrid(false);
         attempts++;
       }
+    }
+
+    // Persist the already-determined outcome so a mid-spin exit can be
+    // recovered on return. Cleared at settle.
+    {
+      const _ev = evaluate(finalGrid, lineBet, bet);
+      const _baseWin = _ev.lineWin + _ev.scatterPay;
+      savePendingRound('argonauts', {
+        win: _baseWin,
+        bet,
+        state: {
+          freeSpins: usingFree ? Math.max(0, freeSpins - 1) : 0,
+          freeSpinsActive: usingFree,
+        },
+      });
     }
 
     const baseGap = turbo ? 300 : 460;

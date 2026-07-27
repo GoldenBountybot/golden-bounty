@@ -3,6 +3,7 @@ import { REEL_ROWS, buildReel, evaluateWins, MULTIPLIERS, BETS, randomSymbol, SY
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
+import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
 import { sfx } from './sounds';
 
 // Preload the uploaded spin sound so it's ready on first spin.
@@ -36,10 +37,19 @@ export function useWildBounty() {
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
+  usePendingRoundRecovery('wild-bounty', setBalance, (state) => {
+    if (state && state.freeSpinsActive && state.freeSpins > 0) {
+      setFreeSpins(state.freeSpins);
+      setFreeSpinsActive(true);
+      setMultIndex(3);
+      setMessage(`FREE SPINS RESUMED · ${state.freeSpins} LEFT`);
+    }
+  });
   const rtpRef = useRef(50);
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
 
   const timers = useRef([]);
+  const pendingStateRef = useRef(null);
   const bet = BETS[betIndex];
 
   useEffect(() => () => { timers.current.forEach(clearTimeout); timers.current.forEach(clearInterval); }, []);
@@ -144,7 +154,9 @@ export function useWildBounty() {
       const shatterPos = new Set([...wpos].filter(p => !convertSet.has(p)));
 
       setWinningPositions(wpos);
-      setBalance(b => b + stepWin);
+      // Credit the whole round at the end (see chain-end branch), not per
+      // cascade, so a mid-cascade exit can be recovered exactly.
+      savePendingRound('wild-bounty', { win: newTotal, bet, state: pendingStateRef.current });
       setLastWin(newTotal);
       setMultIndex(newMult);
       setFlyingMult({ value: MULTIPLIERS[newMult], key: Date.now(), slow: cascadeCount >= 1 ? 1.6 : 1.2 });
@@ -175,9 +187,14 @@ export function useWildBounty() {
       }, 1000 * slow);
       timers.current.push(cascadeT);
     } else {
-      // No more wins — end the chain
+      // No more wins — end the chain. Credit the accumulated round total now
+      // (cascades only displayed running totals before this) and clear the
+      // pending round so recovery never double-pays.
       sfx.winStop();
       setCascadeSlow(1);
+      if (totalWin > 0) setBalance(b => b + totalWin);
+      clearPendingRound('wild-bounty');
+      pendingStateRef.current = null;
       if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
       if (!wasFree) setMultIndex(0);
       if (awarded) {
@@ -226,6 +243,10 @@ export function useWildBounty() {
     if (usingFree) setFreeSpins(f => f - 1);
     // Each free spin (re)starts at 8x; normal spins start at 1x.
     setMultIndex(usingFree ? 3 : 0);
+    // Snapshot the free-spins round state for recovery; the running win is
+    // updated each cascade and the whole total is credited at chain end.
+    pendingStateRef.current = { freeSpins: usingFree ? Math.max(0, freeSpins - 1) : 0, freeSpinsActive: usingFree };
+    savePendingRound('wild-bounty', { win: 0, bet, state: pendingStateRef.current });
     setMessage('Spinning...');
 
     let finalGrid = REEL_ROWS.map(r => buildReel(r));

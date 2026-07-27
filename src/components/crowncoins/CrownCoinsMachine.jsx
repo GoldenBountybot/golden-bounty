@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
+import { savePendingRound, clearPendingRound, getPendingRound } from '@/lib/pendingRound';
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
 
@@ -204,6 +205,7 @@ export default function CrownCoinsMachine() {
   const [stuckView, setStuckView] = useState(new Array(9).fill(null));
   const timers = useRef([]);
   const autoRef = useRef(false);
+  const preBonusRef = useRef(null);
   const reelsRef = useRef(null);
   const bannerRef = useRef(null);
   const [flyCoins, setFlyCoins] = useState([]);
@@ -249,6 +251,38 @@ export default function CrownCoinsMachine() {
       [resultGrid[1], resultGrid[4], resultGrid[7]],
       [resultGrid[2], resultGrid[5], resultGrid[8]],
     ];
+
+    // Pre-compute the full settle outcome now so a mid-spin exit can be
+    // recovered exactly. The bonus re-roll is deterministic from this point.
+    let preWin = 0;
+    preBonusRef.current = null;
+    let preTriggered = false;
+    let postFreeSpins = 0;
+    if (isFree) {
+      postFreeSpins = freeDropped > 0 ? 3 : freeSpinsRef.current - 1;
+    } else {
+      const { totalMul, coins, scatterMul } = evaluateGrid(resultGrid);
+      preWin = totalMul * (bet / 5) + scatterMul * bet;
+      if (coins >= 3) { preBonusRef.current = runBonus(bet, rtp); preWin += preBonusRef.current.total; }
+      preTriggered = isFreeSpinTrigger(resultGrid);
+      postFreeSpins = preTriggered ? 3 : 0;
+      if (preTriggered) {
+        // Free spins start with the two triggering side value coins stuck.
+        const stuck = new Array(9).fill(null);
+        [0, 3, 6].forEach(i => { if (isValueCoin(resultGrid[i])) stuck[i] = resultGrid[i]; });
+        [2, 5, 8].forEach(i => { if (isValueCoin(resultGrid[i])) stuck[i] = resultGrid[i]; });
+        stuckRef.current = stuck;
+        setStuckView(stuck);
+      }
+    }
+    savePendingRound('crown-coins', {
+      win: preWin,
+      bet,
+      state: {
+        stuck: [...stuckRef.current],
+        freeSpins: postFreeSpins,
+      },
+    });
 
     // Anticipation: a value coin in the first reel + a Crown Coin in the
     // center → the third reel drops in slow motion with golden side glow.
@@ -352,15 +386,16 @@ export default function CrownCoinsMachine() {
       }
       setWinMask(mask);
 
-      let bonusResult = null;
-      if (coins >= 3) {
-        bonusResult = runBonus(bet, rtp);
-        win += bonusResult.total;
-      }
+      let bonusResult = preBonusRef.current;
+      if (bonusResult) win += bonusResult.total;
 
       if (win > 0) setBalance(b => b + win);
       setLastWin(win);
       setSpinning(false);
+      // Base game fully settled and no free-spin round started — clear the
+      // pending record so recovery never double-pays. (On a trigger the round
+      // continues; the saved stuck + freeSpins stays for recovery.)
+      if (freeSpinsRef.current === 0) clearPendingRound('crown-coins');
 
       // Show the win amount on the first winning symbol (red stylized font).
       // Skip during free-spin triggers (coins stick) and bonus-only wins.

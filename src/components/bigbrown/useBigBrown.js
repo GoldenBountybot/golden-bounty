@@ -26,7 +26,16 @@ export function useBigBrown() {
 
   const settings = useGameSettings('big-brown');
   const logActivity = useLogActivity();
-  usePendingRoundRecovery('big-brown', setBalance);
+  usePendingRoundRecovery('big-brown', setBalance, (state) => {
+    // Restore an in-progress free spins round so the player resumes exactly
+    // where they left off. The free-spins auto-trigger effect will spin the
+    // next free spin automatically.
+    if (state && state.freeSpinsActive && state.freeSpins > 0) {
+      setFreeSpins(state.freeSpins);
+      setFreeSpinsActive(true);
+      setMessage(`FREE GAMES RESUMED · ${state.freeSpins} LEFT`);
+    }
+  });
   const rtpRef = useRef(50);
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
   const minBet = settings.minBet || BETS[0];
@@ -171,7 +180,14 @@ export function useBigBrown() {
     const _expanded = expandWilds(finalGrid);
     const _ev = evaluateWins(_expanded, bet);
     const _totalWin = _ev.wins.reduce((s, w) => s + w.pay, 0) + _ev.scatterWin;
-    savePendingRound('big-brown', { win: _totalWin, bet });
+    savePendingRound('big-brown', {
+      win: _totalWin,
+      bet,
+      state: {
+        freeSpins: usingFree ? Math.max(0, freeSpins - 1) : 0,
+        freeSpinsActive: usingFree,
+      },
+    });
 
     const baseGap = turbo ? 300 : 460;
     const slowGap = turbo ? 850 : 1200;

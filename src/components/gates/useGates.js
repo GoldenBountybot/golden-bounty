@@ -36,7 +36,18 @@ export function useGates() {
 
   const settings = useGameSettings('gates-of-olympus');
   const logActivity = useLogActivity();
-  usePendingRoundRecovery('gates-of-olympus', setBalance);
+  usePendingRoundRecovery('gates-of-olympus', setBalance, (state) => {
+    // Restore an in-progress free spins round so the player resumes exactly
+    // where they left off. The free-spins auto-trigger effect will spin the
+    // next free spin automatically.
+    if (state && state.freeSpinsActive && state.freeSpins > 0) {
+      setFreeSpins(state.freeSpins);
+      setFreeSpinsActive(true);
+      runningMultRef.current = state.runningMult || 0;
+      setSpinMult(state.runningMult || 0);
+      setMessage(`FREE SPINS RESUMED · ${state.freeSpins} LEFT`);
+    }
+  });
   const rtpRef = useRef(50);
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
   const minBet = settings.minBet || BETS[0];
@@ -81,9 +92,19 @@ export function useGates() {
     const wantWin = Math.random() < (usingFree ? baseChance + 0.12 : baseChance);
     const freeMode = usingFree;
     const result = computeSpin(bet, wantWin, freeMode, runningMultRef.current);
-    // Persist this spin's already-determined outcome so a mid-spin exit can be
-    // recovered (win credited) on return. Cleared at settle.
-    savePendingRound('gates-of-olympus', { win: result.spinWin, bet });
+    // Persist this spin's already-determined outcome plus the in-progress free
+    // spins round state, so a mid-spin exit can be fully recovered on return:
+    // the pending win is credited AND the free spins round resumes where it
+    // left off. Cleared at settle.
+    savePendingRound('gates-of-olympus', {
+      win: result.spinWin,
+      bet,
+      state: {
+        freeSpins: usingFree ? Math.max(0, freeSpins - 1) : 0,
+        freeSpinsActive: usingFree,
+        runningMult: freeMode ? result.newRunningMult : 0,
+      },
+    });
     if (freeMode) runningMultRef.current = result.newRunningMult;
 
     const hold = turbo ? 520 : 950;        // winners glow long enough to read which matched

@@ -1,20 +1,21 @@
 import { useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 
-// Pending round recovery.
+// Pending round / state recovery.
 //
 // When a player starts a spin, the bet is deducted immediately and persisted to
 // the backend (useCasinoBalance), but the win is only credited later via a
 // setTimeout after the reel/tumble animation finishes. If the player leaves the
-// game mid-spin, that timer is cancelled on unmount and the win is never paid —
-// the player silently loses the bet.
+// game mid-spin (refresh, close, navigate away), that timer is cancelled on
+// unmount and the win is never paid — the player silently loses the bet.
 //
-// To fix this, each spin-based game saves the *already-determined* round outcome
-// the instant the spin starts (the RNG runs upfront). If the game later mounts
-// and finds an unsettled round, the stored win is credited to the balance (the
-// bet was already deducted, so this makes the player whole). A normally
-// completed spin clears its pending record at settle time, so recovery never
-// double-pays.
+// To fix this, each spin-based game saves a snapshot the instant the spin
+// starts: the already-determined win plus any in-progress round state (free
+// spins remaining, running multiplier, etc.). On the next mount, the snapshot
+// is replayed — the win is credited and, if the player was inside a multi-spin
+// round (free spins / bonus), that round is restored so they continue from
+// exactly where they left off. A normally completed spin clears its pending
+// record at settle time, so recovery never double-pays.
 //
 // Crash/Aviator is excluded by design — its round is server-driven and live.
 
@@ -28,6 +29,8 @@ function writeAll(obj) {
   try { localStorage.setItem(KEY, JSON.stringify(obj)); } catch {}
 }
 
+// Save a round snapshot. `payload` should include at least { win, bet } and may
+// include any extra `state` field needed to resume the round (freeSpins, etc.).
 export function savePendingRound(gameId, payload) {
   const all = readAll();
   all[gameId] = { ...payload, ts: Date.now() };
@@ -47,9 +50,12 @@ export function getPendingRound(gameId) {
   return r;
 }
 
-// On mount, if an interrupted round's outcome was persisted, credit its win to
-// the balance and notify the player. Runs once per mount.
-export function usePendingRoundRecovery(gameId, setBalance) {
+// On mount, if an interrupted round's snapshot was persisted, replay it:
+// 1. credit the pending win to the balance
+// 2. hand the saved `state` (if any) to onRestoreState so the game can resume
+//    its in-progress round (free spins, bonus, etc.)
+// `setBalance` is required; `onRestoreState` is optional.
+export function usePendingRoundRecovery(gameId, setBalance, onRestoreState) {
   const { toast } = useToast();
   useEffect(() => {
     const r = getPendingRound(gameId);
@@ -62,6 +68,9 @@ export function usePendingRoundRecovery(gameId, setBalance) {
         title: 'Round restored',
         description: `Your previous spin won $${win.toFixed(2)} — credited to your balance.`,
       });
+    }
+    if (onRestoreState && r.state) {
+      onRestoreState(r.state);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameId]);
