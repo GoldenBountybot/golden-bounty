@@ -195,8 +195,11 @@ export default function Profile() {
               <UserIcon className="w-9 h-9 text-stone-950" />
             )}
           </div>
-          <h2 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Rye, Georgia, serif' }}>
+          <h2 className="flex items-center gap-1.5 text-base font-black italic text-amber-200" style={{ fontFamily: 'Rye, Georgia, serif' }}>
             {profile?.username || profile?.full_name || 'Player'}
+            <button onClick={() => setEditOpen(o => !o)} className="text-amber-300/80 hover:text-amber-100 transition-colors" title="Edit profile">
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
           </h2>
           <p className="text-[11px] text-amber-100/70">{profile?.email}</p>
 
@@ -206,9 +209,6 @@ export default function Profile() {
             <span className="text-[11px] font-mono tracking-wider text-amber-100/90 select-all">{uid || '—'}</span>
             <button onClick={() => copy(uid, 'User ID')} className="ml-0.5 text-amber-300/70 hover:text-amber-200 transition-colors" title="Copy User ID">
               <Copy className="w-3 h-3" />
-            </button>
-            <button onClick={() => setEditOpen(o => !o)} className="text-amber-300/80 hover:text-amber-100 transition-colors" title="Edit profile">
-              <Pencil className="w-3 h-3" />
             </button>
           </div>
 
