@@ -16,7 +16,7 @@ export default function WildBountyMachine() {
 
   return (
     <div
-      className="w-full max-w-5xl mx-auto rounded-2xl relative p-[3px]"
+      className="w-full mx-auto rounded-2xl relative p-[3px]"
       style={{
         background: 'linear-gradient(145deg, #e0b34a, #7a4f17 38%, #c8932e 68%, #5e3d12)',
         boxShadow: '0 0 0 2px #2e1d0a, 0 0 0 4px rgba(200,150,60,0.4), 0 16px 48px rgba(0,0,0,0.75)',
@@ -49,10 +49,10 @@ export default function WildBountyMachine() {
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           boxShadow: '0 18px 52px rgba(0,0,0,0.85)',
-          paddingTop: '9%',
-          paddingBottom: '9%',
-          paddingLeft: '6%',
-          paddingRight: '6%',
+          paddingTop: '15%',
+          paddingBottom: '15%',
+          paddingLeft: '2%',
+          paddingRight: '2%',
         }}
       >
 
