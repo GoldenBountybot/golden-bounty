@@ -33,9 +33,9 @@ const IMG = {
 
 // Per-symbol zoom so each image fills its cell with minimal black padding.
 const SCALE = {
-  bandit: 1.06, revolver: 1, whiskey: 1.06, hat: 1.06,
-  scatter: 1.18, wild: 1.18,
-  A: 1.22, K: 1.12, Q: 1.12, J: 1.04,
+  bandit: 1.16, revolver: 1.1, whiskey: 1.16, hat: 1.16,
+  scatter: 1.28, wild: 1.28,
+  A: 1.32, K: 1.24, Q: 1.24, J: 1.16,
 };
 
 // Card letters styled like worn wooden tiles
