@@ -42,21 +42,19 @@ export default function WildBountyMachine() {
 
       {/* Reel board — bronze western frame (web asset) around symbols */}
       <div
-        className="relative px-3 py-3 mx-0 my-0 rounded-2xl"
+        className="relative mx-0 my-0 rounded-2xl"
         style={{
-          backgroundImage:
-            'linear-gradient(rgba(20,14,8,0.3), rgba(20,14,8,0.4)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a416f3da8_generated_image.png)',
-          backgroundSize: 'cover, cover',
-          backgroundPosition: 'center, center',
-          backgroundRepeat: 'no-repeat, no-repeat',
-          boxShadow: '0 0 0 7px rgba(74,48,18,0.9), 0 0 0 11px rgba(200,150,60,0.6), 0 0 0 14px rgba(46,30,12,0.85), 0 0 0 16px rgba(120,80,30,0.5), 0 18px 52px rgba(0,0,0,0.85)',
+          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c1acaec26_file_000000001de88211868a1e08115c5695.png)',
+          backgroundSize: '100% 100%',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          boxShadow: '0 18px 52px rgba(0,0,0,0.85)',
+          paddingTop: '9%',
+          paddingBottom: '9%',
+          paddingLeft: '6%',
+          paddingRight: '6%',
         }}
       >
-        {/* Copper frame rivets */}
-        <span className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
-        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
-        <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
-        <span className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
 
 
         {/* Grid — 24 cells (3-4-5-5-4-3), centered diamond */}
@@ -91,13 +89,14 @@ export default function WildBountyMachine() {
           FEATURE BUY
         </button>
 
-        {/* Win / message banner */}
-        <PlaqueBanner glow className="mt-2 mx-1 py-1 text-center">
-          <span className="font-black italic text-lg text-yellow-300 drop-shadow-[0_0_6px_rgba(255,200,0,0.7)]" style={{ fontFamily: 'Rye, Georgia, serif' }}>
-            {g.message}
-          </span>
-        </PlaqueBanner>
       </div>
+
+      {/* Win / message banner */}
+      <PlaqueBanner glow className="mt-2 mx-1 py-1 text-center">
+        <span className="font-black italic text-lg text-yellow-300 drop-shadow-[0_0_6px_rgba(255,200,0,0.7)]" style={{ fontFamily: 'Rye, Georgia, serif' }}>
+          {g.message}
+        </span>
+      </PlaqueBanner>
 
       {/* Free spins badge */}
       {g.freeSpins > 0 && (
