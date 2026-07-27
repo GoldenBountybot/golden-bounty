@@ -139,8 +139,12 @@ export default function Profile() {
       <main className="relative z-10 max-w-md mx-auto px-4 py-4 flex flex-col gap-3">
         {/* Identity + uid + VIP */}
         <WesternFrame glow variant="glass" className="p-3 flex flex-col items-center gap-1.5">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-md">
-            <UserIcon className="w-5 h-5 text-stone-950" />
+          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-500/60 shadow-md bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+            ) : (
+              <UserIcon className="w-7 h-7 text-stone-950" />
+            )}
           </div>
           <h2 className="text-sm font-black italic text-amber-200" style={{ fontFamily: 'Rye, Georgia, serif' }}>
             {profile?.username || profile?.full_name || 'Player'}

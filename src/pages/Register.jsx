@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, Mail, Lock, Loader2, Phone } from "lucide-react";
+import { UserPlus, Mail, Lock, Loader2, Phone, User as UserIcon } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
@@ -15,6 +15,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [gender, setGender] = useState("male");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
@@ -46,7 +47,13 @@ export default function Register() {
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
         const uid = Math.floor(1000000000 + Math.random() * 9000000000).toString();
-        try { await base44.auth.updateMe({ uid, phone }); } catch { /* profile fields optional */ }
+        // Assign a unique anime avatar based on the chosen gender.
+        let avatar_url = "";
+        try {
+          const r = await base44.functions.invoke("assignAvatar", { gender });
+          avatar_url = r?.data?.image_url || "";
+        } catch { /* avatar assignment is optional */ }
+        try { await base44.auth.updateMe({ uid, phone, gender, avatar_url }); } catch { /* profile fields optional */ }
       }
       window.location.href = "/";
     } catch (err) {
@@ -196,6 +203,25 @@ export default function Register() {
               onChange={(e) => setPhone(e.target.value)}
               className="pl-10 h-9"
             />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label>Gender</Label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setGender("male")}
+              className={`flex items-center justify-center gap-1.5 h-9 rounded-md border text-sm font-medium transition-colors ${gender === "male" ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:bg-accent"}`}
+            >
+              <UserIcon className="w-4 h-4" /> Male
+            </button>
+            <button
+              type="button"
+              onClick={() => setGender("female")}
+              className={`flex items-center justify-center gap-1.5 h-9 rounded-md border text-sm font-medium transition-colors ${gender === "female" ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:bg-accent"}`}
+            >
+              <UserIcon className="w-4 h-4" /> Female
+            </button>
           </div>
         </div>
         <div className="space-y-2">

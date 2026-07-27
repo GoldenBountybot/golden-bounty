@@ -1,0 +1,44 @@
+{
+  "name": "Avatar",
+  "type": "object",
+  "properties": {
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female"
+      ],
+      "description": "Which gender pool this anime avatar belongs to"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "AI-generated anime avatar image URL"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "User id this avatar was assigned to at signup. Empty/null means still available."
+    }
+  },
+  "required": [
+    "gender",
+    "image_url"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": true,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
