@@ -19,16 +19,7 @@ export default function MultiplierBanner({ multIndex }) {
         alt="Multiplier banner"
         className="w-full h-auto block select-none"
         draggable={false}
-        style={{
-          WebkitMaskImage: `url(${BANNER_IMG})`,
-          maskImage: `url(${BANNER_IMG})`,
-          WebkitMaskRepeat: 'no-repeat',
-          maskRepeat: 'no-repeat',
-          WebkitMaskSize: '100% 100%',
-          maskSize: '100% 100%',
-          maskMode: 'luminance',
-          WebkitMaskMode: 'luminance',
-        }}
+        style={{ mixBlendMode: 'screen' }}
       />
 
       {/* Multiplier ladder — overlaid on the wooden banner (lower portion) */}
