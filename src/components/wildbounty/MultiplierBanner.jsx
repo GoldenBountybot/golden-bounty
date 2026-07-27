@@ -5,25 +5,15 @@ const BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637
 
 export default function MultiplierBanner() {
   return (
-    <div
-      className="relative w-full mx-auto"
-      style={{ isolation: 'isolate' }}
-    >
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 60% 70% at 50% 45%, rgba(10,6,3,0.92) 0%, rgba(10,6,3,0.55) 55%, rgba(10,6,3,0) 100%)',
-        }}
-      />
+    <div className="relative w-full mx-auto">
       <img
         src={BANNER_IMG}
         alt="Multiplier banner"
-        className="relative w-full h-auto block select-none"
+        className="w-full h-auto block select-none"
         draggable={false}
         style={{
           mixBlendMode: 'screen',
-          filter: 'brightness(1.2) contrast(1.5) saturate(1.6)',
+          filter: 'brightness(1.35) contrast(1.7) saturate(1.8)',
         }}
       />
     </div>
