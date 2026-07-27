@@ -4,12 +4,11 @@ import { REEL_ROWS } from './symbols';
 import Reel from './Reel';
 
 import ControlPanel from './ControlPanel';
-import { Boxes, Coins, Trophy } from 'lucide-react';
 import FreeSpinStart from './FreeSpinStart';
 import FlyingMultiplier from './FlyingMultiplier';
 import WesternFrame from './WesternFrame';
 import PlaqueBanner from './PlaqueBanner';
-import WesternStatBanner from './WesternStatBanner';
+import InfoBar from './InfoBar';
 import BoardTopBanner from './BoardTopBanner';
 
 export default function WildBountyMachine() {
@@ -90,11 +89,7 @@ export default function WildBountyMachine() {
       )}
 
       {/* Stats bar */}
-      <div className="flex gap-2 px-2">
-        <WesternStatBanner icon={Boxes} label="BALANCE" value={`$${g.balance.toFixed(2)}`} />
-        <WesternStatBanner icon={Coins} label="BET" value={`$${g.bet.toFixed(2)}`} />
-        <WesternStatBanner icon={Trophy} label="WIN" value={`$${g.lastWin.toFixed(2)}`} />
-      </div>
+      <InfoBar balance={g.balance} bet={g.bet} win={g.lastWin} />
 
       {/* Controls */}
       <ControlPanel
