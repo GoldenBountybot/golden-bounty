@@ -12,7 +12,7 @@ import React from 'react';
 // in pixels.
 
 const CX = 150;   // arc centre x (width units)
-const RX = 130;   // horizontal radius
+const RX = 116;   // horizontal radius
 const CY = 17;    // arc centre y (height units) — sits above the board
 const RY = 39;    // vertical radius
 const W = 300, H = 100;
@@ -22,8 +22,8 @@ const GAP_W   = 0.12;  // small gap between the two words on a side
 
 // Centre angle (radians) for each warped multiplier along the arc.
 const CENTERS = {
-  '512':  -0.86,
-  '1024': -0.40,
+  '512':  -0.66,
+  '1024': -0.30,
   '2':     0.40,
   '4':     0.62,
 };
@@ -98,8 +98,8 @@ export default function MultiplierStrip({ className = '' }) {
   return (
     <div className={`absolute inset-0 pointer-events-none ${className}`}>
       {/* Left side, following the left-downward curve */}
-      <ArcWord label="X512"  centerA={CENTERS['512']}  size="0.78rem" red={false} />
-      <ArcWord label="X1024" centerA={CENTERS['1024']} size="0.78rem" red={true} />
+      <ArcWord label="X512"  centerA={CENTERS['512']}  size="0.68rem" red={false} />
+      <ArcWord label="X1024" centerA={CENTERS['1024']} size="0.68rem" red={true} />
       {/* Centre — X1 stays upright and unchanged */}
       <span style={x1Style}>X1</span>
       {/* Right side, following the right-downward curve */}
