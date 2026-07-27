@@ -2,7 +2,7 @@ import React from 'react';
 import { useWildBounty } from './useWildBounty';
 import { REEL_ROWS } from './symbols';
 import Reel from './Reel';
-import MultiplierBanner from './MultiplierBanner';
+
 import ControlPanel from './ControlPanel';
 import { Boxes, Coins, Trophy } from 'lucide-react';
 import FreeSpinStart from './FreeSpinStart';
@@ -26,12 +26,7 @@ export default function WildBountyMachine() {
           backgroundPosition: 'center',
         }}
       >
-      {/* Multiplier banner — mounted onto the board's top border */}
-      <div className="flex justify-center mx-1 -mb-24">
-        <MultiplierBanner multIndex={g.multIndex} />
-      </div>
-
-      {/* Reel board — bronze western frame (web asset) around symbols */}
+{/* Reel board — bronze western frame (web asset) around symbols */}
       <div
         className="relative mx-0 my-0"
         style={{
