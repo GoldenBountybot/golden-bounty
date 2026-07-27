@@ -21,7 +21,7 @@ export default function WildBountyMachine() {
       <div
         className="flex flex-col gap-2 overflow-hidden relative"
         style={{
-          backgroundImage: 'linear-gradient(rgba(30,20,12,0.92), rgba(20,14,8,0.95)), url(https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&q=80)',
+          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c01e29ada_file_00000000280c82079d653a476e87cc9f.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
