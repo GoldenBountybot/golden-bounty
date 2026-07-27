@@ -30,10 +30,10 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
 
     if (mult > 0) {
       setDisplay({ amount, mult, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'multiply' }), 650));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'result' }), 1500));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'balance' }), 2300));
-      timers.current.push(setTimeout(() => setDisplay(null), 3300));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'multiply' }), 1000));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'result' }), 2400));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'balance' }), 3400));
+      timers.current.push(setTimeout(() => setDisplay(null), 4400));
     } else {
       setDisplay({ amount, mult: 0, total: amount, balTotal, phase: 'amount' });
       timers.current.push(setTimeout(() => setDisplay({ amount, mult: 0, total: amount, balTotal, phase: 'balance' }), 850));

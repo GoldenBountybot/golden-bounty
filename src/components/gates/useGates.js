@@ -73,8 +73,10 @@ export function useGates() {
     if (usingFree) setFreeSpins((f) => f - 1);
     setMessage('Spinning…');
 
-    // RTP-biased forced win/loss gate.
-    const wantWin = Math.random() < (rtpRef.current / 100) * 0.42;
+    // RTP-biased forced win/loss gate. Free spins get a slightly higher chance
+    // of landing 8+ matching symbols so the bonus round feels more rewarding.
+    const baseChance = (rtpRef.current / 100) * 0.42;
+    const wantWin = Math.random() < (usingFree ? baseChance + 0.12 : baseChance);
     const freeMode = usingFree;
     const result = computeSpin(bet, wantWin, freeMode, runningMultRef.current);
     if (freeMode) runningMultRef.current = result.newRunningMult;
