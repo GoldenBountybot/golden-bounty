@@ -17,7 +17,7 @@ const CY = 17;    // arc centre y (height units) — sits above the board
 const RY = 39;    // vertical radius
 const W = 300, H = 100;
 
-const CHAR_W = 0.085;  // angular width per normal character (radians)
+const CHAR_W = 0.06;  // angular width per normal character (radians)
 const GAP_W   = 0.12;  // small gap between the two words on a side
 
 // Centre angle (radians) for each warped multiplier along the arc.
