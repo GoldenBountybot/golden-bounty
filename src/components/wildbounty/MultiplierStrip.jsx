@@ -103,8 +103,8 @@ export default function MultiplierStrip({ className = '' }) {
       {/* Centre — X1 stays upright and unchanged */}
       <span style={x1Style}>X1</span>
       {/* Right side, following the right-downward curve */}
-      <ArcWord label="X2" centerA={CENTERS['2']} size="1.0rem" red={false} />
-      <ArcWord label="X4" centerA={CENTERS['4']} size="1.0rem" red={false} />
+      <ArcWord label="X2" centerA={CENTERS['2']} size="1.0rem" red={false} nudgeY={4} />
+      <ArcWord label="X4" centerA={CENTERS['4']} size="1.0rem" red={false} nudgeY={4} />
     </div>
   );
 }
