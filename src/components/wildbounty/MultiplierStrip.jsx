@@ -3,28 +3,29 @@ import React from 'react';
 // Arc-text multiplier strip overlaid on the BoardTopBanner wooden plaque.
 //
 // Each individual character of X512, X1024, X2 and X4 is placed on an
-// elliptical arc — the banner's sagging U-curve (centre low, ends high) —
-// and rotated to the arc tangent, giving true per-letter "warp text" that
-// follows the wooden board's top edge. The central X1 stays upright,
-// large and unchanged.
+// elliptical arc (the banner's sagging U-curve: centre low, ends high) and
+// rotated to the arc tangent — true "warp text" instead of whole-word
+// rotation. The central X1 stays upright and unchanged.
 //
-// Coordinates are normalised: width 300 units, height 100 units (matching
-// the banner's ~3:1 aspect), so the ellipse maps to a clear arc in pixels.
+// Coordinate system is normalised: width 300 units, height 100 units
+// (matching the banner's ~3:1 aspect), so the ellipse maps to a gentle arc
+// in pixels.
 
 const CX = 150;   // arc centre x (width units)
-const RX = 138;   // horizontal radius
-const CY = 8;     // arc centre y (height units) — sits above the board
-const RY = 68;    // vertical radius  → centre low (top ~76%), edges high (top ~51%)
+const RX = 130;   // horizontal radius
+const CY = 25;    // arc centre y (height units) — sits above the board
+const RY = 39;    // vertical radius
 const W = 300, H = 100;
 
-const CHAR_W = 0.105;  // angular width per character (radians) — even spacing
+const CHAR_W = 0.085;  // angular width per normal character (radians)
+const GAP_W   = 0.12;  // small gap between the two words on a side
 
 // Centre angle (radians) for each warped multiplier along the arc.
 const CENTERS = {
-  '512':  -0.88,
-  '1024': -0.45,
-  '2':     0.45,
-  '4':     0.88,
+  '512':  -0.86,
+  '1024': -0.40,
+  '2':     0.40,
+  '4':     0.86,
 };
 
 function metallicStyle(size, red) {
@@ -41,19 +42,19 @@ function metallicStyle(size, red) {
     WebkitBackgroundClip: 'text',
     backgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
-    WebkitTextStroke: '0.5px rgba(58,36,16,0.65)',
+    WebkitTextStroke: '0.4px rgba(70,45,18,0.55)',
     textShadow:
-      '0 1px 0 rgba(255,250,220,0.9),' +
-      '0 -1px 0 rgba(58,36,16,0.95),' +
-      '1px 0 0 rgba(255,245,200,0.5),' +
-      '-1px 0 0 rgba(58,36,16,0.5),' +
-      '0 2px 2px rgba(0,0,0,0.85),' +
-      '0 4px 6px rgba(0,0,0,0.6)',
-    filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.6))',
+      '0 1px 0 rgba(255,250,220,0.85),' +
+      '0 -1px 0 rgba(70,45,18,0.9),' +
+      '1px 0 0 rgba(255,245,200,0.45),' +
+      '-1px 0 0 rgba(70,45,18,0.45),' +
+      '0 2px 2px rgba(0,0,0,0.8),' +
+      '0 4px 6px rgba(0,0,0,0.55)',
+    filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.55))',
     whiteSpace: 'nowrap',
     position: 'absolute',
     transformOrigin: 'center center',
-    zIndex: 6,
+    zIndex: 5,
   };
 }
 
@@ -80,31 +81,30 @@ function ArcWord({ label, centerA, size, red }) {
           transform: `translate(-50%, -50%) rotate(${rotDeg}deg)`,
         }}
       >
-        {ch}
+        {ch === 'X' ? 'X' : ch}
       </span>
     );
   });
 }
 
 export default function MultiplierStrip({ className = '' }) {
-  // Centre X1 — upright, large, unchanged, at the lowest point of the arc.
   const x1Style = {
-    ...metallicStyle('1.9rem', false),
+    ...metallicStyle('1.95rem', false),
     left: '50%',
-    top: '76%',
+    top: '64%',
     transform: 'translate(-50%, -50%)',
   };
 
   return (
     <div className={`absolute inset-0 pointer-events-none ${className}`}>
-      {/* Left side — follows the left-downward curve */}
-      <ArcWord label="X512"  centerA={CENTERS['512']}  size="0.95rem" red={false} />
-      <ArcWord label="X1024" centerA={CENTERS['1024']} size="0.95rem" red={true} />
+      {/* Left side, following the left-downward curve */}
+      <ArcWord label="X512"  centerA={CENTERS['512']}  size="1.0rem"  red={false} />
+      <ArcWord label="X1024" centerA={CENTERS['1024']} size="1.0rem"  red={true} />
       {/* Centre — X1 stays upright and unchanged */}
       <span style={x1Style}>X1</span>
-      {/* Right side — follows the right-downward curve */}
-      <ArcWord label="X2" centerA={CENTERS['2']} size="0.95rem" red={false} />
-      <ArcWord label="X4" centerA={CENTERS['4']} size="0.95rem" red={false} />
+      {/* Right side, following the right-downward curve */}
+      <ArcWord label="X2" centerA={CENTERS['2']} size="1.0rem" red={false} />
+      <ArcWord label="X4" centerA={CENTERS['4']} size="1.0rem" red={false} />
     </div>
   );
 }
