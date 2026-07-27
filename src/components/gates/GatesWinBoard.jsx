@@ -18,10 +18,10 @@ export default function GatesWinBoard({ history, amount }) {
       <div className="w-full flex flex-col gap-1 overflow-y-auto"
         style={{ minHeight: 46, maxHeight: 104 }}>
         {has ? history.map((t, i) => (
-          <div key={i} className="flex flex-col gap-0.5 w-full pb-1"
+          <div key={i} className="flex items-center justify-between gap-2 w-full pb-1"
             style={{ borderBottom: i < history.length - 1 ? '1px dashed rgba(200,140,10,0.22)' : 'none' }}>
-            {/* Matched symbols with counts */}
-            <div className="flex items-center gap-1 flex-wrap">
+            {/* Matched symbols with counts — left side */}
+            <div className="flex items-center gap-1 flex-wrap flex-1 min-w-0">
               {t.wins.map((w, j) => (
                 <div key={j} className="flex items-center gap-0.5">
                   <img src={SYM_IMG[w.symbol]} alt={w.symbol}
@@ -30,11 +30,11 @@ export default function GatesWinBoard({ history, amount }) {
                 </div>
               ))}
             </div>
-            {/* Win amount for this tumble, beside any multiplier */}
-            <div className="flex items-center justify-between w-full">
-              <span style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#ff9040', fontWeight: 800 }}>
-                {t.mult > 0 ? `×${t.mult}` : ''}
-              </span>
+            {/* Win amount (and any multiplier) — right side, same line */}
+            <div className="flex items-center gap-1 shrink-0">
+              {t.mult > 0 && (
+                <span style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#ff9040', fontWeight: 800 }}>×{t.mult}</span>
+              )}
               <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: '#ffd060', fontWeight: 900,
                 textShadow: '0 0 5px rgba(255,200,0,0.5)' }}>
                 {fmt(t.subtotal)}
