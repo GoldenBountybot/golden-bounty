@@ -81,7 +81,7 @@ export default function BoardTopBanner({ className = '' }) {
           alt=""
           className="block w-full h-auto select-none"
           draggable={false}
-          style={{ filter: 'saturate(1.2) contrast(1.08)' }}
+          style={{ filter: 'saturate(1.55) contrast(1.18) brightness(1.12)' }}
         />
       ) : (
         <div className="w-full aspect-[3/1]" />
