@@ -56,9 +56,8 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
 
   return (
     <div
-      className={`relative overflow-hidden transition-transform
-        ${highlighted && !shattering ? 'z-10 scale-[1.18] ring-2 ring-yellow-300' : ''}`}
-      style={{ aspectRatio: '1 / 1', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s ease-out forwards` : undefined, zIndex: shattering ? 20 : (highlighted && !shattering ? 10 : undefined), filter: highlighted && !shattering ? 'brightness(1.8) sepia(0.4) saturate(1.8) hue-rotate(-5deg) drop-shadow(0 0 12px rgba(255,200,0,1))' : undefined }}
+      className={`relative overflow-hidden transition-transform`}
+      style={{ aspectRatio: '1 / 1', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s ease-out forwards` : undefined, zIndex: shattering ? 20 : undefined }}
     >
       {decorFrame && img ? (
         <>
@@ -113,15 +112,6 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
 
       {/* Scatter label is part of the symbol image now */}
 
-      {/* Golden glow tint before blast */}
-      {highlighted && !shattering && (
-        <span className="absolute inset-0 bg-gradient-to-br from-yellow-300/60 via-amber-400/30 to-yellow-300/60 mix-blend-overlay pointer-events-none" />
-      )}
-
-      {/* Winning reticle highlight */}
-      {highlighted && !shattering && (
-        <span className="absolute inset-0 rounded-md ring-4 ring-yellow-300 animate-pulse shadow-[0_0_20px_rgba(255,200,0,1)] pointer-events-none" />
-      )}
     </div>
   );
 }
