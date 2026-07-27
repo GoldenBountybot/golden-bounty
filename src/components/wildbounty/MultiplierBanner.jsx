@@ -12,8 +12,7 @@ export default function MultiplierBanner() {
         className="w-full h-auto block select-none"
         draggable={false}
         style={{
-          mixBlendMode: 'screen',
-          filter: 'brightness(1.25) contrast(1.45) saturate(1.5) drop-shadow(0 2px 6px rgba(0,0,0,0.65))',
+          filter: 'brightness(1.08) contrast(1.18) saturate(1.25) drop-shadow(0 4px 10px rgba(0,0,0,0.85))',
         }}
       />
     </div>
