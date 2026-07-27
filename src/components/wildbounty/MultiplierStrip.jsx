@@ -22,9 +22,9 @@ const GAP_W   = 0.12;  // small gap between the two words on a side
 
 // Centre angle (radians) for each warped multiplier along the arc.
 const CENTERS = {
-  '512':  -0.66,
-  '1024': -0.30,
-  '2':     0.40,
+  '512':  -0.62,
+  '1024': -0.28,
+  '2':     0.28,
   '4':     0.62,
 };
 
@@ -97,14 +97,14 @@ export default function MultiplierStrip({ className = '' }) {
 
   return (
     <div className={`absolute inset-0 pointer-events-none ${className}`}>
-      {/* Left side, following the left-downward curve */}
-      <ArcWord label="X512"  centerA={CENTERS['512']}  size="0.68rem" red={false} nudgeX={-4} nudgeY={3} />
-      <ArcWord label="X1024" centerA={CENTERS['1024']} size="0.6rem" red={true} nudgeX={-5} nudgeY={3} charW={0.04} />
+      {/* Left side, following the left-upward curve */}
+      <ArcWord label="X512"  centerA={CENTERS['512']}  size="0.72rem" red={false} />
+      <ArcWord label="X1024" centerA={CENTERS['1024']} size="0.64rem" red={true} charW={0.045} />
       {/* Centre — X1 stays upright and unchanged */}
       <span style={x1Style}>X1</span>
-      {/* Right side, following the right-downward curve */}
-      <ArcWord label="X2" centerA={CENTERS['2']} size="1.0rem" red={false} nudgeY={4} />
-      <ArcWord label="X4" centerA={CENTERS['4']} size="1.0rem" red={false} nudgeY={4} />
+      {/* Right side, following the right-upward curve */}
+      <ArcWord label="X2" centerA={CENTERS['2']} size="1.0rem" red={false} />
+      <ArcWord label="X4" centerA={CENTERS['4']} size="1.0rem" red={false} />
     </div>
   );
 }
