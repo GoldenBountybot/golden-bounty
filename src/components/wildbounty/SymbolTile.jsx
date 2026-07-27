@@ -38,6 +38,9 @@ const SCALE = {
   A: 1.32, K: 1.24, Q: 1.24, J: 1.16,
 };
 
+// Decorative western frame shown behind randomly selected symbols in rows 3-4.
+const FRAME_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/779f97a01_file_000000008b6081fab70937ee49f1af71.png';
+
 // Card letters styled like worn wooden tiles
 const CARD_STYLE = {
   A: { bg: 'from-yellow-600 to-amber-800', text: 'text-yellow-50' },
@@ -46,7 +49,7 @@ const CARD_STYLE = {
   J: { bg: 'from-blue-600 to-blue-900', text: 'text-blue-50' },
 };
 
-function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam, bulletHit, slow = 1 }) {
+function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam, bulletHit, slow = 1, decorFrame = false }) {
   const isCard = ['A', 'K', 'Q', 'J'].includes(symbolId);
   const img = IMG[symbolId];
   const isSpecial = symbolId === 'scatter' || symbolId === 'wild';
@@ -59,7 +62,23 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
         ${highlighted && !shattering ? 'z-10 scale-[1.18] ring-2 ring-yellow-300' : ''}`}
       style={{ aspectRatio: '1 / 1', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s ease-out forwards` : undefined, zIndex: shattering ? 20 : (highlighted && !shattering ? 10 : undefined), filter: highlighted && !shattering ? 'brightness(1.8) sepia(0.4) saturate(1.8) hue-rotate(-5deg) drop-shadow(0 0 12px rgba(255,200,0,1))' : undefined }}
     >
-      {img ? (
+      {decorFrame && img ? (
+        <>
+          <img
+            src={FRAME_URL}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ zIndex: 0 }}
+          />
+          <img
+            src={img}
+            alt={symbolId}
+            loading="lazy"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 object-contain"
+            style={{ width: '56%', height: '56%', zIndex: 5 }}
+          />
+        </>
+      ) : img ? (
         <img
           src={img}
           alt={symbolId}
