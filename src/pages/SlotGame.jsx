@@ -12,7 +12,13 @@ export default function SlotGame() {
   const { balance } = useCasinoBalance();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/40 to-stone-950">
+    <div
+      className="min-h-screen bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage:
+          'linear-gradient(rgba(15,11,8,0.55), rgba(15,11,8,0.7)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c01e29ada_file_00000000280c82079d653a476e87cc9f.png)',
+      }}
+    >
       {!loaded && <GameLoadingScreen onDone={() => setLoaded(true)} />}
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <GameTitleBar
