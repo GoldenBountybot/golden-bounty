@@ -95,21 +95,6 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
         </div>
       )}
 
-      {/* Subtle golden beam on landed scatter */}
-      {symbolId === 'scatter' && scatterBeam && (
-        <span
-          className="absolute inset-x-2 pointer-events-none z-30"
-          style={{
-            top: '-18%',
-            bottom: '-18%',
-            background:
-              'linear-gradient(to bottom, rgba(255,215,0,0) 0%, rgba(255,215,0,0.4) 35%, rgba(255,240,180,0.55) 50%, rgba(255,215,0,0.4) 65%, rgba(255,215,0,0) 100%)',
-            filter: 'blur(3px)',
-            boxShadow: '0 0 14px rgba(255,200,80,0.7)',
-          }}
-        />
-      )}
-
       {/* Scatter label is part of the symbol image now */}
 
     </div>
