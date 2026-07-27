@@ -95,8 +95,8 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
         </div>
       )}
 
-      {/* Subtle golden beam on landed wild & scatter */}
-      {(symbolId === 'scatter' || symbolId === 'wild') && scatterBeam && (
+      {/* Subtle golden beam on landed scatter */}
+      {symbolId === 'scatter' && scatterBeam && (
         <span
           className="absolute inset-x-2 pointer-events-none z-30"
           style={{
