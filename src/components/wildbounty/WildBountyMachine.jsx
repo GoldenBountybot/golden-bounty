@@ -10,6 +10,7 @@ import FlyingMultiplier from './FlyingMultiplier';
 import WesternFrame from './WesternFrame';
 import PlaqueBanner from './PlaqueBanner';
 import WesternStatBanner from './WesternStatBanner';
+import BoardTopBanner from './BoardTopBanner';
 
 export default function WildBountyMachine() {
   const g = useWildBounty();
@@ -26,6 +27,11 @@ export default function WildBountyMachine() {
           backgroundPosition: 'center',
         }}
       >
+{/* Decorative steer-skull banner on top of the board (black bg keyed out) */}
+<div className="flex justify-center mx-1 -mb-20 relative z-20">
+  <BoardTopBanner />
+</div>
+
 {/* Reel board — bronze western frame (web asset) around symbols */}
       <div
         className="relative mx-0 my-0"
