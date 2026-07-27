@@ -16,8 +16,9 @@ const BANNER_IMG =
   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/34377a521_file_00000000ce28820b9b425fc57f1c795e.png';
 
 // Pixels whose brightest channel is below this value are background → alpha 0.
-// Dark-brown wood (#4A2D1B) peaks at 74, so 26 removes black + halo, keeps wood.
-const BG_THRESHOLD = 26;
+// Dark-brown wood (#4A2D1B) peaks at 74, so 60 strips the dark-grey halo much
+// further while still preserving the darkest wood grain.
+const BG_THRESHOLD = 60;
 
 export default function BoardTopBanner({ className = '' }) {
   const [src, setSrc] = useState(null);
