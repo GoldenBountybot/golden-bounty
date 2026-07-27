@@ -22,85 +22,88 @@ export default function ControlPanel({ betIndex, setBetIndex, spinning, spin, tu
 
   return (
     <div className="px-3 py-3">
-      <div className="flex items-center justify-center gap-4 sm:gap-6">
-        {/* Turbo */}
-        <button onClick={() => setTurbo(t => !t)} className="flex flex-col items-center gap-1">
-          <span
-            className="w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95"
-            style={outline('#ffd700', turbo)}
-          >
-            <Zap
-              className="w-5 h-5"
-              style={{ color: '#ffd700' }}
-              fill={turbo ? '#ffd700' : 'none'}
-              strokeWidth={2.2}
-            />
-          </span>
-          <span className="text-[9px] font-bold tracking-wide" style={{ color: '#ffd700' }}>TURBO</span>
-        </button>
+      <div className="relative flex items-center justify-between w-full max-w-md mx-auto">
+        {/* Left group: Turbo + Minus */}
+        <div className="flex items-center gap-3 sm:gap-5">
+          <button onClick={() => setTurbo(t => !t)} className="flex flex-col items-center gap-1">
+            <span
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-transform active:scale-95"
+              style={outline('#ffd700', turbo)}
+            >
+              <Zap
+                className="w-4 h-4"
+                style={{ color: '#ffd700' }}
+                fill={turbo ? '#ffd700' : 'none'}
+                strokeWidth={2.2}
+              />
+            </span>
+            <span className="text-[8px] font-bold tracking-wide" style={{ color: '#ffd700' }}>TURBO</span>
+          </button>
 
-        {/* Bet down */}
-        <button onClick={() => changeBet(-1)} disabled={spinning} className="disabled:opacity-40">
-          <span
-            className="w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95"
-            style={{
-              border: '1.5px solid rgba(197,160,89,0.9)',
-              background: 'rgba(40,28,16,0.5)',
-            }}
-          >
-            <Minus className="w-5 h-5" style={{ color: '#e8d8b8' }} strokeWidth={2.4} />
-          </span>
-        </button>
+          <button onClick={() => changeBet(-1)} disabled={spinning} className="disabled:opacity-40">
+            <span
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95"
+              style={{
+                border: '1.5px solid rgba(197,160,89,0.9)',
+                background: 'rgba(40,28,16,0.5)',
+              }}
+            >
+              <Minus className="w-4 h-4" style={{ color: '#e8d8b8' }} strokeWidth={2.4} />
+            </span>
+          </button>
+        </div>
 
-        {/* Spin — wooden medallion with gold chasing arrows (rotates + glows on click) */}
-        <SpinButton spinning={spinning} onClick={spin} disabled={spinning} />
+        {/* Spin — absolutely centered wooden medallion */}
+        <div className="absolute left-1/2 -translate-x-1/2">
+          <SpinButton spinning={spinning} onClick={spin} disabled={spinning} />
+        </div>
 
-        {/* Bet up */}
-        <button onClick={() => changeBet(1)} disabled={spinning} className="disabled:opacity-40">
-          <span
-            className="w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95"
-            style={{
-              border: '1.5px solid rgba(197,160,89,0.9)',
-              background: 'rgba(40,28,16,0.5)',
-            }}
-          >
-            <Plus className="w-5 h-5" style={{ color: '#e8d8b8' }} strokeWidth={2.4} />
-          </span>
-        </button>
+        {/* Right group: Plus + Auto + Menu */}
+        <div className="flex items-center gap-3 sm:gap-5">
+          <button onClick={() => changeBet(1)} disabled={spinning} className="disabled:opacity-40">
+            <span
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95"
+              style={{
+                border: '1.5px solid rgba(197,160,89,0.9)',
+                background: 'rgba(40,28,16,0.5)',
+              }}
+            >
+              <Plus className="w-4 h-4" style={{ color: '#e8d8b8' }} strokeWidth={2.4} />
+            </span>
+          </button>
 
-        {/* Auto */}
-        <button
-          onClick={() => setAutoSpin(a => !a)}
-          disabled={spinning && !autoSpin}
-          className="flex flex-col items-center gap-1 disabled:opacity-60"
-        >
-          <span
-            className="w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95"
-            style={outline('#4ade80', autoSpin)}
+          <button
+            onClick={() => setAutoSpin(a => !a)}
+            disabled={spinning && !autoSpin}
+            className="flex flex-col items-center gap-1 disabled:opacity-60"
           >
-            <Play
-              className="w-5 h-5"
-              style={{ color: autoSpin ? '#4ade80' : '#ffd700' }}
-              fill="currentColor"
-              strokeWidth={2.2}
-            />
-          </span>
-          <span className="text-[9px] font-bold tracking-wide" style={{ color: autoSpin ? '#4ade80' : '#ffd700' }}>AUTO</span>
-        </button>
+            <span
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-transform active:scale-95"
+              style={outline('#4ade80', autoSpin)}
+            >
+              <Play
+                className="w-4 h-4"
+                style={{ color: autoSpin ? '#4ade80' : '#ffd700' }}
+                fill="currentColor"
+                strokeWidth={2.2}
+              />
+            </span>
+            <span className="text-[8px] font-bold tracking-wide" style={{ color: autoSpin ? '#4ade80' : '#ffd700' }}>AUTO</span>
+          </button>
 
-        {/* Menu — bottom-right hamburger icon */}
-        <Link to="/dashboard" className="flex flex-col items-center gap-1 ml-1">
-          <span
-            className="w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95"
-            style={{
-              border: '2px solid rgba(197,160,89,0.9)',
-              background: 'rgba(40,28,16,0.5)',
-            }}
-          >
-            <Menu className="w-5 h-5" style={{ color: '#ffffff' }} strokeWidth={2.6} />
-          </span>
-          <span className="text-[9px] font-bold tracking-wide" style={{ color: '#e8d8b8' }}>MENU</span>
-        </Link>
+          <Link to="/dashboard" className="flex flex-col items-center gap-1">
+            <span
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-transform active:scale-95"
+              style={{
+                border: '2px solid rgba(197,160,89,0.9)',
+                background: 'rgba(40,28,16,0.5)',
+              }}
+            >
+              <Menu className="w-4 h-4" style={{ color: '#ffffff' }} strokeWidth={2.6} />
+            </span>
+            <span className="text-[8px] font-bold tracking-wide" style={{ color: '#e8d8b8' }}>MENU</span>
+          </Link>
+        </div>
       </div>
     </div>
   );
