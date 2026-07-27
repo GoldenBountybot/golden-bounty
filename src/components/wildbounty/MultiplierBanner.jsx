@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Bull-skull + wooden banner image acts as the multiplier banner backdrop.
-const BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/471a90f2c_file_000000006e6481fa9ba283c788d4cc07.png';
+const BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4ac18429a_file_000000006e6481fa9ba283c788d4cc07.png';
 
 export default function MultiplierBanner() {
   return (
