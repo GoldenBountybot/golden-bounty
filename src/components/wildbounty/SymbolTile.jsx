@@ -35,7 +35,7 @@ const IMG = {
 const SCALE = {
   bandit: 1.06, revolver: 1, whiskey: 1.06, hat: 1.06,
   scatter: 1.18, wild: 1.18,
-  A: 1.12, K: 1.12, Q: 1.12, J: 1.12,
+  A: 1.12, K: 1.12, Q: 1.12, J: 1.04,
 };
 
 // Card letters styled like worn wooden tiles
