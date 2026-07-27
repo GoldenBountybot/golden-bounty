@@ -64,7 +64,7 @@ export function useGates() {
     setShatter(new Set());
     setDropCells(new Set());
     setLastWin(0);
-    setSpinMult(0);
+    if (!usingFree) setSpinMult(0);
     setWinFlash(0);
     setWinList([]);
     setWinHistory([]);
