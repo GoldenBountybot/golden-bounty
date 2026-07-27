@@ -60,7 +60,7 @@ function metallicStyle(size, red) {
 
 // Render a single warped multiplier: each character on the arc at the
 // multiplier's centre angle, evenly spaced, rotated to the tangent.
-function ArcWord({ label, centerA, size, red }) {
+function ArcWord({ label, centerA, size, red, nudgeX = 0, nudgeY = 0 }) {
   const chars = label.split('');
   const n = chars.length;
   const start = centerA - ((n - 1) / 2) * CHAR_W;
@@ -68,8 +68,8 @@ function ArcWord({ label, centerA, size, red }) {
     const a = start + i * CHAR_W;
     const x = CX + RX * Math.sin(a);
     const y = CY + RY * Math.cos(a);
-    const leftPct = (x / W) * 100;
-    const topPct = (y / H) * 100;
+    const leftPct = (x / W) * 100 + nudgeX;
+    const topPct = (y / H) * 100 + nudgeY;
     const rotDeg = -a * (180 / Math.PI);
     return (
       <span
@@ -98,8 +98,8 @@ export default function MultiplierStrip({ className = '' }) {
   return (
     <div className={`absolute inset-0 pointer-events-none ${className}`}>
       {/* Left side, following the left-downward curve */}
-      <ArcWord label="X512"  centerA={CENTERS['512']}  size="0.68rem" red={false} />
-      <ArcWord label="X1024" centerA={CENTERS['1024']} size="0.68rem" red={true} />
+      <ArcWord label="X512"  centerA={CENTERS['512']}  size="0.68rem" red={false} nudgeX={-2} nudgeY={3} />
+      <ArcWord label="X1024" centerA={CENTERS['1024']} size="0.68rem" red={true} nudgeX={-2} />
       {/* Centre — X1 stays upright and unchanged */}
       <span style={x1Style}>X1</span>
       {/* Right side, following the right-downward curve */}
