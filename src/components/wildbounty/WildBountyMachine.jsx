@@ -4,6 +4,7 @@ import { REEL_ROWS } from './symbols';
 import Reel from './Reel';
 
 import ControlPanel from './ControlPanel';
+import MultiplierBanner from './MultiplierBanner';
 import { Boxes, Coins, Trophy } from 'lucide-react';
 import FreeSpinStart from './FreeSpinStart';
 import FlyingMultiplier from './FlyingMultiplier';
@@ -26,9 +27,14 @@ export default function WildBountyMachine() {
           backgroundPosition: 'center',
         }}
       >
+{/* Multiplier banner — mounted above the board, black bg keyed out */}
+<div className="flex justify-center mx-1 -mb-16 relative z-30">
+  <MultiplierBanner />
+</div>
+
 {/* Reel board — bronze western frame (web asset) around symbols */}
-      <div
-        className="relative mx-0 my-0"
+<div
+  className="relative mx-0 my-0"
         style={{
           backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c1acaec26_file_000000001de88211868a1e08115c5695.png)',
           backgroundSize: '108% 100%',
