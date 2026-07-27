@@ -32,14 +32,16 @@ export const PAY = {
   yellow: [0.25, 0.5, 1, 2],
 };
 
-export const MULTIPLIERS = [
-  { v: 2, w: 22 }, { v: 3, w: 18 }, { v: 4, w: 15 }, { v: 5, w: 13 },
-  { v: 6, w: 10 }, { v: 8, w: 8 }, { v: 10, w: 7 },
-  // Values above 10× are extremely rare — combined drop rate 0.005%.
-  { v: 12, w: 0.00121 }, { v: 15, w: 0.00097 }, { v: 20, w: 0.00073 },
-  { v: 25, w: 0.00061 }, { v: 50, w: 0.00048 }, { v: 100, w: 0.00036 },
-  { v: 250, w: 0.00019 }, { v: 500, w: 0.0001 },
+// Multiplier symbol tiers. A tier is chosen by weight, then a random value
+// within that tier's range is picked — so any × value in the range can land.
+// Green is common; blue/pink/red are increasingly rare (combined ≈ 0.005%).
+export const MULT_TIERS = [
+  { color: 'green', min: 1,   max: 9,   weight: 93 },
+  { color: 'blue',  min: 10,  max: 50,  weight: 0.004 },
+  { color: 'pink',  min: 51,  max: 100, weight: 0.0008 },
+  { color: 'red',   min: 101, max: 500, weight: 0.0002 },
 ];
+const MULT_TIER_TOTAL = MULT_TIERS.reduce((s, t) => s + t.weight, 0);
 
 const NORMAL_POOL = [
   ['zeus', 5], ['crown', 7], ['hourglass', 9], ['ring', 10], ['goblet', 12],
@@ -61,10 +63,13 @@ function weightedPick(pool, total) {
   return pool[pool.length - 1][0];
 }
 function pickMult() {
-  const total = MULTIPLIERS.reduce((s, m) => s + m.w, 0);
-  let r = Math.random() * total;
-  for (const m of MULTIPLIERS) { if ((r -= m.w) < 0) return m.v; }
-  return 2;
+  let r = Math.random() * MULT_TIER_TOTAL;
+  for (const t of MULT_TIERS) {
+    if ((r -= t.weight) < 0) {
+      return t.min + Math.floor(Math.random() * (t.max - t.min + 1));
+    }
+  }
+  return 1;
 }
 export function pickSymbol(freeMode, allowMult = true) {
   // Value (multiplier) symbols drop rarely in the base game and more often
@@ -94,9 +99,9 @@ export function multValue(cell) {
 // Colour tiers (per spec): green = 1x–50x, blue = 100x only,
 // pink = 250x only, red = 500x only.
 export function multColor(v) {
-  if (v <= 50) return 'green';
-  if (v < 250) return 'blue';
-  if (v < 500) return 'pink';
+  if (v <= 9) return 'green';
+  if (v <= 50) return 'blue';
+  if (v <= 100) return 'pink';
   return 'red';
 }
 

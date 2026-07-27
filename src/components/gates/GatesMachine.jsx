@@ -10,7 +10,7 @@ import GatesBolt from './GatesBolt';
 import GatesMultBanner from './GatesMultBanner';
 import GatesTumbleWinBanner from './GatesTumbleWinBanner';
 import { useGates } from './useGates';
-import { BETS, SYMBOLS, MULTIPLIERS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
+import { BETS, SYMBOLS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 
 const REELS = 6;
 const ROWS = 5;
@@ -415,10 +415,10 @@ function GatesInfoPanel({ bet, onClose }) {
         <div style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#c0a870', marginTop: 10 }}>
           <img src={SYM_IMG.scatter} alt="scatter" style={{ height: 16, width: 'auto', verticalAlign: 'middle' }} /> 4+ Scatters → 15 Free Spins
           <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <div><img src={SYM_IMG.mult} alt="green" style={{ height: 15, width: 'auto', verticalAlign: 'middle', mixBlendMode: 'screen' }} /> Green: ×2 – ×5</div>
-            <div><img src={SYM_IMG.mult_blue} alt="blue" style={{ height: 15, width: 'auto', verticalAlign: 'middle', mixBlendMode: 'screen' }} /> Blue: ×10 – ×25</div>
-            <div><img src={SYM_IMG.mult_pink} alt="pink" style={{ height: 15, width: 'auto', verticalAlign: 'middle', mixBlendMode: 'screen' }} /> Pink: ×50 – ×100</div>
-            <div><img src={SYM_IMG.mult_red} alt="red" style={{ height: 15, width: 'auto', verticalAlign: 'middle', mixBlendMode: 'screen' }} /> Red: ×250 – ×500</div>
+            <div><img src={SYM_IMG.mult} alt="green" style={{ height: 15, width: 'auto', verticalAlign: 'middle', mixBlendMode: 'screen' }} /> Green: ×1 – ×9</div>
+            <div><img src={SYM_IMG.mult_blue} alt="blue" style={{ height: 15, width: 'auto', verticalAlign: 'middle', mixBlendMode: 'screen' }} /> Blue: ×10 – ×50</div>
+            <div><img src={SYM_IMG.mult_pink} alt="pink" style={{ height: 15, width: 'auto', verticalAlign: 'middle', mixBlendMode: 'screen' }} /> Pink: ×51 – ×100</div>
+            <div><img src={SYM_IMG.mult_red} alt="red" style={{ height: 15, width: 'auto', verticalAlign: 'middle', mixBlendMode: 'screen' }} /> Red: ×101 – ×500</div>
           </div>
         </div>
       </div>
