@@ -36,8 +36,8 @@ export default function WildBountyMachine() {
         className="relative mx-0 my-0 rounded-2xl"
         style={{
           backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c1acaec26_file_000000001de88211868a1e08115c5695.png)',
-          backgroundSize: '125% 100%',
-          backgroundPosition: 'center',
+          backgroundSize: '100% 100%',
+          backgroundPosition: 'center top',
           backgroundRepeat: 'no-repeat',
           boxShadow: '0 18px 52px rgba(0,0,0,0.85)',
           paddingTop: '13%',
