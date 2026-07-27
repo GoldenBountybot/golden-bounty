@@ -36,14 +36,15 @@ function GoldText({ value, size, red = false, rot = 0, left, top }) {
 // left%, top%, rotation for each multiplier along the drooping banner curve
 // (center low, edges high — like a hanging plaque). Left items tilt clockwise,
 // right items counter-clockwise, following the curve.
-// Order left→right: X512, X1024 (red), X1, X2, X4 — along a smooth shallow
-// drooping banner curve (center low, edges high), tightly spaced.
+// Order left→right: X512, X1024 (red), X1, X2, X4 — along the banner's
+// sagging U-arc (center low, ends high). Inner gaps are tighter, outer gaps
+// wider, exactly as in the reference.
 const ITEMS = [
-  { v: 512,  left: 32, top: 42, size: '0.9rem',  red: false, rot: 18 },
-  { v: 1024, left: 41, top: 50, size: '1.0rem',  red: true,  rot: 9 },
-  { v: 1,    left: 50, top: 58, size: '1.9rem',  red: false, rot: 0 },
-  { v: 2,    left: 59, top: 50, size: '1.0rem',  red: false, rot: -9 },
-  { v: 4,    left: 68, top: 42, size: '0.9rem',  red: false, rot: -18 },
+  { v: 512,  left: 23, top: 46, size: '1.0rem',  red: false, rot: 16 },
+  { v: 1024, left: 39, top: 54, size: '1.05rem', red: true,  rot: 8 },
+  { v: 1,    left: 50, top: 64, size: '1.95rem', red: false, rot: 0 },
+  { v: 2,    left: 61, top: 54, size: '1.05rem', red: false, rot: -8 },
+  { v: 4,    left: 77, top: 46, size: '1.0rem',  red: false, rot: -16 },
 ];
 
 export default function MultiplierStrip({ className = '' }) {
