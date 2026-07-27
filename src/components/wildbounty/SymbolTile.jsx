@@ -33,7 +33,7 @@ const IMG = {
 
 // Per-symbol zoom so each image fills its cell with minimal black padding.
 const SCALE = {
-  bandit: 1.16, revolver: 1.1, whiskey: 1.16, hat: 1.16,
+  bandit: 1.16, revolver: 1.1, whiskey: 1.16, hat: 1.22,
   scatter: 1.28, wild: 1.28,
   A: 1.32, K: 1.24, Q: 1.24, J: 1.16,
 };
@@ -53,8 +53,6 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   const isCard = ['A', 'K', 'Q', 'J'].includes(symbolId);
   const img = IMG[symbolId];
   const isSpecial = symbolId === 'scatter' || symbolId === 'wild';
-  const holes = useBulletHoles();
-  const showHoles = (highlighted || bulletHit) && !shattering && !isSpecial;
 
   return (
     <div
@@ -119,39 +117,6 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
       {highlighted && !shattering && (
         <span className="absolute inset-0 bg-gradient-to-br from-yellow-300/60 via-amber-400/30 to-yellow-300/60 mix-blend-overlay pointer-events-none" />
       )}
-
-      {/* Bullet holes — looks like the symbol was shot before it shatters */}
-      {showHoles && holes.map((h, i) => (
-        <span
-          key={i}
-          className="absolute pointer-events-none z-30"
-          style={{
-            left: `${h.x}%`,
-            top: `${h.y}%`,
-            width: `${h.size}px`,
-            height: `${h.size}px`,
-            transform: `translate(-50%, -50%) rotate(${h.rot}deg)`,
-          }}
-        >
-          {/* dark puncture with scorched rim + star cracks */}
-          <span
-            className="absolute inset-0 rounded-full"
-            style={{
-              background: 'radial-gradient(circle at 50% 50%, #0a0a0a 0%, #1a1208 38%, rgba(40,28,10,0.85) 60%, transparent 72%)',
-              boxShadow: '0 0 0 1px rgba(80,55,20,0.6), 0 0 3px rgba(0,0,0,0.8)',
-            }}
-          />
-          <span
-            className="absolute inset-0"
-            style={{
-              backgroundImage:
-                'linear-gradient(90deg, transparent 46%, rgba(30,20,8,0.7) 48%, rgba(30,20,8,0.7) 52%, transparent 54%), linear-gradient(0deg, transparent 46%, rgba(30,20,8,0.7) 48%, rgba(30,20,8,0.7) 52%, transparent 54%)',
-              transform: 'scale(2.4)',
-              filter: 'blur(0.4px)',
-            }}
-          />
-        </span>
-      ))}
 
       {/* Winning reticle highlight */}
       {highlighted && !shattering && (
