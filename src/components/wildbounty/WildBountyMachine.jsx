@@ -89,19 +89,21 @@ export default function WildBountyMachine() {
       )}
 
       {/* Stats bar */}
-      <InfoBar balance={g.balance} bet={g.bet} win={g.lastWin} />
+      <div className="-mt-3">
+        <InfoBar balance={g.balance} bet={g.bet} win={g.lastWin} />
 
-      {/* Controls */}
-      <ControlPanel
-        betIndex={g.betIndex}
-        setBetIndex={g.setBetIndex}
-        spinning={g.spinning}
-        spin={g.spin}
-        turbo={g.turbo}
-        setTurbo={g.setTurbo}
-        autoSpin={g.autoSpin}
-        setAutoSpin={g.setAutoSpin}
-      />
+        {/* Controls */}
+        <ControlPanel
+          betIndex={g.betIndex}
+          setBetIndex={g.setBetIndex}
+          spinning={g.spinning}
+          spin={g.spin}
+          turbo={g.turbo}
+          setTurbo={g.setTurbo}
+          autoSpin={g.autoSpin}
+          setAutoSpin={g.setAutoSpin}
+        />
+      </div>
 
       {g.showFreeSpinStart && !g.spinning && (
         <FreeSpinStart count={g.freeSpins} onStart={g.startFreeSpins} />
