@@ -16,17 +16,8 @@ export default function WildBountyMachine() {
 
   return (
     <div
-      className="w-full mx-auto rounded-2xl relative p-[3px]"
-      style={{
-        background: 'linear-gradient(145deg, #e0b34a, #7a4f17 38%, #c8932e 68%, #5e3d12)',
-        boxShadow: '0 0 0 2px #2e1d0a, 0 0 0 4px rgba(200,150,60,0.4), 0 16px 48px rgba(0,0,0,0.75)',
-      }}
+      className="w-full mx-auto relative"
     >
-      {/* corner studs */}
-      <span className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-      <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-      <span className="absolute bottom-1.5 left-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-      <span className="absolute bottom-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
       <div
         className="flex flex-col gap-2 rounded-[13px] overflow-hidden relative"
         style={{
@@ -51,8 +42,8 @@ export default function WildBountyMachine() {
           boxShadow: '0 18px 52px rgba(0,0,0,0.85)',
           paddingTop: '15%',
           paddingBottom: '15%',
-          paddingLeft: '2%',
-          paddingRight: '2%',
+          paddingLeft: '0%',
+          paddingRight: '0%',
         }}
       >
 
