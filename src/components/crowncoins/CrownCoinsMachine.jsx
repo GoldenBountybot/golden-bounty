@@ -469,6 +469,10 @@ export default function CrownCoinsMachine() {
       freeSpinsRef.current = state.freeSpins;
       setFreeSpins(state.freeSpins);
       setShowRoyalBanner(false);
+      // Re-save a round-only snapshot (win already credited) so a second
+      // refresh in the 600ms gap before doSpin fires still recovers the round.
+      savePendingRound('crown-coins', { win: 0, bet, state: { stuck: [...stuckRef.current], freeSpins: state.freeSpins } });
+      try { base44.analytics.track({ eventName: 'crown_coins_round_resumed', properties: { freeSpins: state.freeSpins, credited: win } }); } catch {}
       const t = setTimeout(() => doSpin(), 600);
       timers.current.push(t);
     }

@@ -61,16 +61,34 @@ export function usePendingRoundRecovery(gameId, setBalance, onRestoreState) {
     const r = getPendingRound(gameId);
     if (!r) return;
     clearPendingRound(gameId);
+    // When resuming an in-progress free-spins round, re-save a "round-only"
+    // snapshot (win already credited) so a second refresh during the 750ms
+    // gap before the auto-spin fires still recovers the remaining spins. The
+    // resumed spin's own savePendingRound overwrites this once it starts.
+    const resumingRound = !!(r.state && r.state.freeSpinsActive && r.state.freeSpins > 0);
+    if (resumingRound) {
+      savePendingRound(gameId, { win: 0, bet: r.bet || 0, state: r.state });
+    }
     const win = Number(r.win) || 0;
+    const hasState = !!(r.state && r.state.freeSpinsActive && r.state.freeSpins > 0);
     if (win > 0) {
       setBalance((b) => b + win);
+    }
+    if (onRestoreState && r.state) {
+      onRestoreState(r.state);
+    }
+    // Always confirm to the player that the interrupted round was recovered —
+    // crediting the win and/or resuming an in-progress free-spins round.
+    if (hasState) {
+      toast({
+        title: 'Round resumed',
+        description: `Restored your free spins round — ${r.state.freeSpins} spin(s) left${win > 0 ? ` · $${win.toFixed(2)} credited` : ''}.`,
+      });
+    } else if (win > 0) {
       toast({
         title: 'Round restored',
         description: `Your previous spin won $${win.toFixed(2)} — credited to your balance.`,
       });
-    }
-    if (onRestoreState && r.state) {
-      onRestoreState(r.state);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameId]);
