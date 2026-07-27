@@ -39,10 +39,7 @@ export default function SpinButton({ spinning, onClick, disabled }) {
       <span
         className="relative w-[5.5rem] h-[5.5rem] rounded-full flex items-center justify-center overflow-hidden transition-transform active:scale-95"
         style={{
-          boxShadow: spinning || coasting
-            ? '0 0 22px 6px rgba(255,215,0,0.85), 0 0 40px 14px rgba(255,180,40,0.5), 0 4px 12px rgba(0,0,0,0.7)'
-            : '0 0 14px rgba(255,180,40,0.3), 0 4px 12px rgba(0,0,0,0.7)',
-          transition: 'box-shadow 0.3s ease',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.7)',
         }}
       >
         <img
@@ -53,8 +50,8 @@ export default function SpinButton({ spinning, onClick, disabled }) {
           style={{
             animation: anim,
             filter: spinning || coasting
-              ? 'brightness(1.25) saturate(1.45) drop-shadow(0 0 6px rgba(255,215,0,0.85))'
-              : 'none',
+              ? 'brightness(1.55) saturate(1.6) drop-shadow(0 0 14px rgba(255,225,120,0.95)) drop-shadow(0 0 28px rgba(255,200,60,0.75))'
+              : 'brightness(1.05) drop-shadow(0 0 4px rgba(255,190,70,0.4))',
             transition: 'filter 0.3s ease',
           }}
         />
