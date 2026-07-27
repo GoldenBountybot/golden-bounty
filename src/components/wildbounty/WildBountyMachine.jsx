@@ -1,66 +1,182 @@
 import React from 'react';
 import { useWildBounty } from './useWildBounty';
-import { REEL_ROWS } from './symbols';
+import { REEL_ROWS, MULTIPLIERS } from './symbols';
 import Reel from './Reel';
-import MultiplierBanner from './MultiplierBanner';
 import ControlPanel from './ControlPanel';
-import { Boxes, Coins, Trophy } from 'lucide-react';
 import FreeSpinStart from './FreeSpinStart';
 import FlyingMultiplier from './FlyingMultiplier';
-import WesternFrame from './WesternFrame';
-import PlaqueBanner from './PlaqueBanner';
-import WesternStatBanner from './WesternStatBanner';
+
+// ── Chocolate wood plank texture (dark-brown horizontal planks) ──
+const CHOC_WOOD = {
+  backgroundColor: '#3D2B1F',
+  backgroundImage: [
+    'repeating-linear-gradient(180deg, rgba(0,0,0,0.26) 0px, rgba(0,0,0,0.26) 2px, transparent 2px, transparent 44px)',
+    'repeating-linear-gradient(90deg, rgba(255,210,150,0.045) 0px, rgba(255,210,150,0.045) 1px, transparent 1px, transparent 8px)',
+    'linear-gradient(90deg, rgba(0,0,0,0.4), rgba(0,0,0,0) 14%, rgba(0,0,0,0) 86%, rgba(0,0,0,0.4))',
+    'linear-gradient(180deg, #4a3424, #3D2B1F 30%, #34241a 70%, #2a1c12)',
+  ].join(', '),
+};
+
+// Gold metallic edge (dark → gold → dark layered border)
+const GOLD_EDGE = '0 0 0 2px #2a1c12, 0 0 0 4px #C5A059, 0 0 0 5px #2a1c12, 0 6px 18px rgba(0,0,0,0.7)';
+
+const WESTERN = { fontFamily: "'Rye','Smokum',Georgia,serif" };
+
+function WaysPlaque({ side }) {
+  return (
+    <div
+      className={`absolute top-1/2 -translate-y-1/2 ${side === 'left' ? 'left-1' : 'right-1'} px-1.5 py-2 rounded-md text-center`}
+      style={{
+        ...CHOC_WOOD,
+        boxShadow: '0 0 0 2px #2a1c12, 0 0 0 3px #C5A059, 0 0 0 4px #2a1c12, 0 3px 8px rgba(0,0,0,0.6)',
+        writingMode: 'vertical-rl',
+        textOrientation: 'mixed',
+      }}
+    >
+      <span className="block text-[8px] font-black italic tracking-wider text-amber-300" style={WESTERN}>
+        3600
+      </span>
+      <span className="block text-[8px] font-black italic tracking-wider text-amber-100" style={WESTERN}>
+        WAYS
+      </span>
+    </div>
+  );
+}
+
+function MultiplierRibbon({ multIndex }) {
+  const start = Math.max(0, multIndex - 2);
+  const end = Math.min(MULTIPLIERS.length, start + 5);
+  const view = MULTIPLIERS.slice(start, end);
+  const active = MULTIPLIERS[multIndex];
+
+  return (
+    <div className="relative">
+      <div
+        className="relative flex items-center justify-center gap-3 sm:gap-5 px-9 py-2 rounded-t-[30px]"
+        style={{ ...CHOC_WOOD, borderBottom: '3px solid #1a1109', boxShadow: GOLD_EDGE }}
+      >
+        {view.map((m, i) => {
+          const realIndex = start + i;
+          const isActive = realIndex === multIndex;
+          const isRed = m >= 512;
+          return (
+            <span
+              key={realIndex}
+              className="font-black italic transition-all"
+              style={{
+                ...WESTERN,
+                fontSize: isActive ? '18px' : '13px',
+                color: isRed ? '#B33025' : isActive ? '#E6D080' : '#9a7a3a',
+                textShadow: isActive
+                  ? isRed
+                    ? '0 0 10px rgba(179,48,37,0.9), 0 1px 2px rgba(0,0,0,0.8)'
+                    : '0 0 10px rgba(230,208,128,0.9), 0 1px 2px rgba(0,0,0,0.8)'
+                  : '0 1px 2px rgba(0,0,0,0.7)',
+                transform: isActive ? 'scale(1.18)' : 'none',
+              }}
+            >
+              x{m}
+            </span>
+          );
+        })}
+
+        {/* gold studs along the arch */}
+        {['left-2', 'right-2'].map((p) => (
+          <span key={p} className={`absolute top-1.5 ${p} w-1.5 h-1.5 rounded-full`} style={{ background: 'radial-gradient(circle at 35% 30%, #ffe9a8, #C5A059 60%, #6b4a18)', boxShadow: '0 0 4px rgba(255,210,120,0.9)' }} />
+        ))}
+      </div>
+
+      <WaysPlaque side="left" />
+      <WaysPlaque side="right" />
+
+      {/* big active multiplier floating above when > 1 */}
+      {multIndex > 0 && (
+        <div className="absolute inset-x-0 -top-7 flex items-center justify-center pointer-events-none">
+          <span className="font-black italic text-3xl sm:text-4xl" style={{ ...WESTERN, color: '#E6D080', textShadow: '0 0 14px rgba(230,208,128,0.95), 0 2px 3px rgba(0,0,0,0.85)', animation: 'multBurst 0.5s ease-out' }}>
+            x{active}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FeatureBuyPlaque() {
+  return (
+    <button
+      className="absolute right-1 top-1/2 -translate-y-1/2 z-20 px-1.5 py-2 rounded-md"
+      style={{
+        ...CHOC_WOOD,
+        boxShadow: '0 0 0 2px #A9A9A9, 0 0 0 3px #C5A059, 0 0 0 4px #2a1c12, 0 3px 8px rgba(0,0,0,0.6)',
+        writingMode: 'vertical-rl',
+        textOrientation: 'mixed',
+      }}
+      title="Feature Buy"
+    >
+      <span className="block text-[8px] font-black italic tracking-widest text-yellow-400" style={WESTERN}>
+        FEATURE BUY
+      </span>
+    </button>
+  );
+}
+
+function WildHorseshoeRibbon({ message, lastWin }) {
+  return (
+    <div
+      className="relative flex items-center gap-2 px-3 py-2 rounded-b-[18px]"
+      style={{ ...CHOC_WOOD, borderTop: '3px solid #1a1109', boxShadow: GOLD_EDGE }}
+    >
+      {/* horseshoe at top center */}
+      <span
+        className="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full flex items-center justify-center"
+        style={{ background: 'radial-gradient(circle at 35% 30%, #ffe9a8, #C5A059 55%, #6b4a18)', boxShadow: '0 0 8px rgba(230,208,128,0.8), 0 2px 4px rgba(0,0,0,0.6)' }}
+      >
+        <span className="text-[11px] font-black text-stone-900" style={WESTERN}>U</span>
+      </span>
+
+      {/* WILD portrait — circular frame with cowgirl */}
+      <div
+        className="relative w-12 h-12 shrink-0 rounded-full overflow-hidden"
+        style={{ boxShadow: '0 0 0 2px #2a1c12, 0 0 0 4px #C5A059, 0 0 0 5px #2a1c12, 0 2px 6px rgba(0,0,0,0.6)' }}
+      >
+        <div className="w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(to bottom, #6b4a2a, #3D2B1F)' }}>
+          <span className="text-xl">🤠</span>
+        </div>
+        <span className="absolute bottom-0 inset-x-0 text-center text-[7px] font-black italic tracking-widest text-amber-300 bg-black/60" style={WESTERN}>
+          WILD
+        </span>
+      </div>
+
+      {/* text + win */}
+      <div className="flex-1 min-w-0 flex flex-col leading-tight">
+        <span className="text-[9px] font-black italic tracking-wider text-amber-200" style={{ ...WESTERN, textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>
+          WITH GOLD FRAMED SYMBOL
+        </span>
+        <span className="text-[10px] font-bold italic text-amber-100/80 truncate" style={WESTERN}>
+          {lastWin > 0 ? `WIN $${lastWin.toFixed(2)}` : message}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export default function WildBountyMachine() {
   const g = useWildBounty();
 
   return (
-    <div
-      className="w-full max-w-5xl mx-auto rounded-2xl relative p-[3px]"
-      style={{
-        background: 'linear-gradient(145deg, #e0b34a, #7a4f17 38%, #c8932e 68%, #5e3d12)',
-        boxShadow: '0 0 0 2px #2e1d0a, 0 0 0 4px rgba(200,150,60,0.4), 0 16px 48px rgba(0,0,0,0.75)',
-      }}
-    >
-      {/* corner studs */}
-      <span className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-      <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-      <span className="absolute bottom-1.5 left-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-      <span className="absolute bottom-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
+    <div className="w-full max-w-md mx-auto relative">
+      {/* Top arched multiplier ribbon + 3600 WAYS */}
+      <MultiplierRibbon multIndex={g.multIndex} />
+
+      {/* Board body — chocolate wood, symbols in the middle */}
       <div
-        className="flex flex-col gap-2 rounded-[13px] overflow-hidden relative"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(30,20,12,0.92), rgba(20,14,8,0.95)), url(https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&q=80)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
+        className="relative px-2 py-3"
+        style={{ ...CHOC_WOOD, boxShadow: '0 0 0 2px #2a1c12, 0 0 0 4px #C5A059, 0 0 0 5px #2a1c12, 0 8px 20px rgba(0,0,0,0.7)' }}
       >
-      {/* Multiplier banner */}
-      <div className="pt-0.5 px-2">
-        <MultiplierBanner multIndex={g.multIndex} />
-      </div>
+        <FeatureBuyPlaque />
 
-      {/* Reel board — bronze western frame (web asset) around symbols */}
-      <div
-        className="relative px-3 py-3 mx-0 my-0 rounded-2xl"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(20,14,8,0.3), rgba(20,14,8,0.4)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a416f3da8_generated_image.png)',
-          backgroundSize: 'cover, cover',
-          backgroundPosition: 'center, center',
-          backgroundRepeat: 'no-repeat, no-repeat',
-          boxShadow: '0 0 0 7px rgba(74,48,18,0.9), 0 0 0 11px rgba(200,150,60,0.6), 0 0 0 14px rgba(46,30,12,0.85), 0 0 0 16px rgba(120,80,30,0.5), 0 18px 52px rgba(0,0,0,0.85)',
-        }}
-      >
-        {/* Copper frame rivets */}
-        <span className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
-        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
-        <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
-        <span className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
-
-
-        {/* Grid — 24 cells (3-4-5-5-4-3), centered diamond */}
-        <div className="grid grid-cols-6 gap-0 px-0 items-center mt-0 mb-0">
+        {/* 6 reels — diamond grid 3-4-5-5-4-3, centered */}
+        <div className="grid grid-cols-6 gap-0.5 items-center">
           {g.grid.map((reel, ri) => (
             <Reel
               key={ri}
@@ -82,41 +198,22 @@ export default function WildBountyMachine() {
           ))}
         </div>
 
-        {/* FEATURE BUY — wooden plaque on the right */}
-        <button
-          className="absolute -right-2 top-1/2 -translate-y-1/2 rounded-md bg-gradient-to-b from-amber-700 to-amber-950 border border-amber-500/50 px-1.5 py-2 text-[8px] font-bold italic text-amber-100 tracking-wider shadow-md writing-mode-vertical"
-          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', fontFamily: 'Rye, Georgia, serif' }}
-          title="Feature Buy"
-        >
-          FEATURE BUY
-        </button>
-
-        {/* Win / message banner */}
-        <PlaqueBanner glow className="mt-2 mx-1 py-1 text-center">
-          <span className="font-black italic text-lg text-yellow-300 drop-shadow-[0_0_6px_rgba(255,200,0,0.7)]" style={{ fontFamily: 'Rye, Georgia, serif' }}>
-            {g.message}
-          </span>
-        </PlaqueBanner>
-      </div>
-
-      {/* Free spins badge */}
-      {g.freeSpins > 0 && (
-        <WesternFrame glow className="flex items-center justify-center gap-1.5 py-1 mx-2">
-          <span className="text-xs font-bold italic text-amber-200 tracking-[0.15em]" style={{ fontFamily: 'Rye, Georgia, serif' }}>
+        {/* Free spins badge overlay */}
+        {g.freeSpins > 0 && (
+          <div className="absolute top-1 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-md text-[10px] font-black italic tracking-widest text-yellow-300" style={{ ...CHOC_WOOD, boxShadow: '0 0 0 1px #C5A059', ...WESTERN }}>
             ★ FREE SPINS: {g.freeSpins} ★
-          </span>
-        </WesternFrame>
-      )}
-
-      {/* Stats bar */}
-      <div className="flex gap-2 px-2">
-        <WesternStatBanner icon={Boxes} label="BALANCE" value={`$${g.balance.toFixed(2)}`} />
-        <WesternStatBanner icon={Coins} label="BET" value={`$${g.bet.toFixed(2)}`} />
-        <WesternStatBanner icon={Trophy} label="WIN" value={`$${g.lastWin.toFixed(2)}`} />
+          </div>
+        )}
       </div>
+
+      {/* Bottom horseshoe + WILD ribbon */}
+      <WildHorseshoeRibbon message={g.message} lastWin={g.lastWin} />
 
       {/* Controls */}
       <ControlPanel
+        balance={g.balance}
+        bet={g.bet}
+        win={g.lastWin}
         betIndex={g.betIndex}
         setBetIndex={g.setBetIndex}
         spinning={g.spinning}
@@ -139,7 +236,6 @@ export default function WildBountyMachine() {
           onComplete={g.clearFlyingMult}
         />
       )}
-      </div>
     </div>
   );
 }
