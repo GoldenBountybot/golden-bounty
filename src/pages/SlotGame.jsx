@@ -7,7 +7,7 @@ import GameLoadingScreen from "@/components/wildbounty/GameLoadingScreen";
 // horseshoe ribbon) looks exactly like the original. Only the functional
 // reels and controls are overlaid on top.
 const BG_URL =
-  "https://media.base44.com/images/public/6a5698edffaa42a5b6637776/44a9620cb_file_00000000d61882118b320ab415d2553b.png";
+  "https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b47b352e1_file_00000000fae88211b33082a7d85b10ed.png";
 
 export default function SlotGame() {
   const [loaded, setLoaded] = useState(false);
