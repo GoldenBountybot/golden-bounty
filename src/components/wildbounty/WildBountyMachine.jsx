@@ -40,8 +40,8 @@ export default function WildBountyMachine() {
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           boxShadow: '0 18px 52px rgba(0,0,0,0.85)',
-          paddingTop: '8%',
-          paddingBottom: '16%',
+          paddingTop: '4%',
+          paddingBottom: '20%',
           paddingLeft: '0%',
           paddingRight: '0%',
         }}
