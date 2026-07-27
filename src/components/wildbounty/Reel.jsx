@@ -42,12 +42,14 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
   // decorative western frame behind the symbol. Re-rolled each settled board.
   const framedRows = useMemo(() => {
     if (spinning) return new Set();
+    // Only the two center reels (5-row) hold the middle two lines of the board.
+    if (reelIndex !== 2 && reelIndex !== 3) return new Set();
     const s = new Set();
     symbols.forEach((_, i) => {
       if ((i === 2 || i === 3) && Math.random() < 0.5) s.add(i);
     });
     return s;
-  }, [spinning, symbols]);
+  }, [spinning, symbols, reelIndex]);
 
   return (
     <div className="relative w-full overflow-hidden rounded-md" style={{ aspectRatio: '1 / ' + rowCount }}>
