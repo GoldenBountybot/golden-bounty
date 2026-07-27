@@ -23,12 +23,12 @@ const BANNER_IMG =
 // (low saturation) are background/halo → alpha 0. The dark wood is dark but
 // highly saturated (R≠G≠B), so it stays fully opaque. Bright low-saturation
 // pixels (metal highlights) are kept via the value ceiling.
-const BG_VALUE_FLOOR = 30;   // pure/near-black → always transparent
-const SAT_FLOOR = 0.24;       // (max-min)/max below this = greyish
-const GREY_VALUE_CEIL = 150;  // only treat as halo if also darker than this
+const BG_VALUE_FLOOR = 38;   // pure/near-black → always transparent
+const SAT_FLOOR = 0.33;       // (max-min)/max below this = greyish
+const GREY_VALUE_CEIL = 205;  // only treat as halo if also darker than this
 // Soft glow that survives the hard key (slightly coloured dark fringe) is
 // faded out by scaling its alpha down with how desaturated it is.
-const FEATHER_VALUE_CEIL = 120;
+const FEATHER_VALUE_CEIL = 170;
 
 export default function BoardTopBanner({ className = '' }) {
   const [src, setSrc] = useState(null);
@@ -99,7 +99,7 @@ export default function BoardTopBanner({ className = '' }) {
           alt=""
           className="block w-full h-auto select-none"
           draggable={false}
-          style={{ filter: 'saturate(1.55) contrast(1.18) brightness(1.05)' }}
+          style={{ filter: 'saturate(1.65) contrast(1.22) brightness(1.02)' }}
         />
       ) : (
         <div className="w-full aspect-[3/1]" />
