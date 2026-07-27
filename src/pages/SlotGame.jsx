@@ -18,8 +18,8 @@ export default function SlotGame() {
       style={{
         height: "100dvh",
         backgroundImage: `url(${BG_URL})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center center",
+        backgroundSize: "100% auto",
+        backgroundPosition: "center bottom",
         backgroundRepeat: "no-repeat",
         backgroundColor: "#1a120b",
       }}
