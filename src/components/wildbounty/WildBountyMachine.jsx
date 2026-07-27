@@ -22,7 +22,7 @@ export default function WildBountyMachine() {
       <div
         className="flex flex-col gap-2 overflow-hidden relative"
         style={{
-          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c01e29ada_file_00000000280c82079d653a476e87cc9f.png)',
+          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/25cab1181_file_00000000b50c8230a0ebee9ef44b2ebe.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
