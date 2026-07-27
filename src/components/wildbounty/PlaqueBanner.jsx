@@ -15,14 +15,8 @@ export default function PlaqueBanner({ children, className = '', style = {}, glo
         className="block w-full h-auto select-none pointer-events-none"
         draggable={false}
         style={{
-          WebkitMaskImage: `url(${BANNER_URL})`,
-          maskImage: `url(${BANNER_URL})`,
-          WebkitMaskRepeat: 'no-repeat',
-          maskRepeat: 'no-repeat',
-          WebkitMaskSize: '100% 100%',
-          maskSize: '100% 100%',
-          maskMode: 'luminance',
-          WebkitMaskMode: 'luminance',
+          mixBlendMode: 'screen',
+          filter: 'brightness(1.08) saturate(1.1)',
         }}
       />
       <div className="absolute inset-0 flex items-center justify-center px-[14%]">
