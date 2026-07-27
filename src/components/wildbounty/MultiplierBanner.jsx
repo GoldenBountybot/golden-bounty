@@ -13,12 +13,13 @@ export default function MultiplierBanner({ multIndex }) {
   const view = MULTIPLIERS.slice(start, end);
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full mx-auto" style={{ maxWidth: '86%' }}>
       <img
         src={BANNER_IMG}
         alt="Multiplier banner"
         className="w-full h-auto block select-none"
         draggable={false}
+        style={{ mixBlendMode: 'screen' }}
       />
 
       {/* Multiplier ladder — overlaid on the wooden banner (lower portion) */}

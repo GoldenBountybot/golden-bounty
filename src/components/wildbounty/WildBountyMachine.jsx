@@ -26,8 +26,8 @@ export default function WildBountyMachine() {
           backgroundPosition: 'center',
         }}
       >
-      {/* Multiplier banner */}
-      <div className="pt-0.5 px-2">
+      {/* Multiplier banner — flush against the board's top border */}
+      <div className="flex justify-center px-2 -mb-2">
         <MultiplierBanner multIndex={g.multIndex} />
       </div>
 
