@@ -37,20 +37,22 @@ function metallicStyle(size, red) {
     lineHeight: 1,
     color: 'transparent',
     background: red
-      ? 'linear-gradient(180deg,#ffc0a8 0%,#e0553a 38%,#a62b1a 64%,#5a1208 100%)'
-      : 'linear-gradient(180deg,#fff8da 0%,#f3dd82 34%,#cda23c 60%,#7a4f1e 100%)',
+      ? 'linear-gradient(180deg,#ff7a4a 0%,#d63a2a 30%,#a82218 58%,#5a120a 100%)'
+      : 'linear-gradient(180deg,#fff5c0 0%,#e8c468 26%,#b8862e 52%,#6b4a24 78%,#3d2814 100%)',
     WebkitBackgroundClip: 'text',
     backgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
-    WebkitTextStroke: '0.4px rgba(70,45,18,0.55)',
+    WebkitTextStroke: '0.6px rgba(40,24,10,0.85)',
     textShadow:
-      '0 1px 0 rgba(255,250,220,0.85),' +
-      '0 -1px 0 rgba(70,45,18,0.9),' +
-      '1px 0 0 rgba(255,245,200,0.45),' +
-      '-1px 0 0 rgba(70,45,18,0.45),' +
-      '0 2px 2px rgba(0,0,0,0.8),' +
-      '0 4px 6px rgba(0,0,0,0.55)',
-    filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.55))',
+      '0 1px 0 rgba(255,248,200,0.95),' +
+      '0 -1px 0 rgba(50,30,12,1),' +
+      '1px 1px 0 rgba(255,240,180,0.6),' +
+      '-1px -1px 0 rgba(40,24,10,0.8),' +
+      '1px 0 2px rgba(255,235,160,0.5),' +
+      '0 2px 2px rgba(0,0,0,0.85),' +
+      '0 3px 5px rgba(0,0,0,0.7),' +
+      '0 5px 8px rgba(0,0,0,0.5)',
+    filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.65))',
     whiteSpace: 'nowrap',
     position: 'absolute',
     transformOrigin: 'center center',
