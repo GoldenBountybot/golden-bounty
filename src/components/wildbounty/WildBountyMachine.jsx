@@ -19,7 +19,7 @@ export default function WildBountyMachine() {
       className="w-full mx-auto relative"
     >
       <div
-        className="flex flex-col gap-2 rounded-[13px] overflow-hidden relative"
+        className="flex flex-col gap-2 overflow-hidden relative"
         style={{
           backgroundImage: 'linear-gradient(rgba(30,20,12,0.92), rgba(20,14,8,0.95)), url(https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&q=80)',
           backgroundSize: 'cover',
@@ -33,7 +33,7 @@ export default function WildBountyMachine() {
 
       {/* Reel board — bronze western frame (web asset) around symbols */}
       <div
-        className="relative mx-0 my-0 rounded-2xl"
+        className="relative mx-0 my-0"
         style={{
           backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c1acaec26_file_000000001de88211868a1e08115c5695.png)',
           backgroundSize: '100% 100%',
