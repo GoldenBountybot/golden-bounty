@@ -1,6 +1,7 @@
 import React from 'react';
-import { Zap, Minus, Plus, Play, RotateCw } from 'lucide-react';
+import { Zap, Minus, Plus, Play } from 'lucide-react';
 import { BETS } from './symbols';
+import SpinButton from './SpinButton';
 
 // Control bar matching the reference:
 //  - Turbo / Auto : thin circular outlines with coloured icon + label
@@ -50,36 +51,8 @@ export default function ControlPanel({ betIndex, setBetIndex, spinning, spin, tu
           </span>
         </button>
 
-        {/* Spin — large wood-grain circle with interlocking arrows */}
-        <button onClick={spin} disabled={spinning} className="relative flex items-center justify-center disabled:opacity-90">
-          <span
-            className="w-20 h-20 rounded-full flex items-center justify-center relative transition-transform active:scale-95"
-            style={{
-              background: 'radial-gradient(circle at 35% 30%, #7F5E40 0%, #4B3621 55%, #2E1B0E 100%)',
-              border: '3px solid rgba(197,160,89,0.85)',
-              boxShadow:
-                'inset 0 2px 4px rgba(255,220,140,0.25), inset 0 -4px 8px rgba(0,0,0,0.6), 0 0 18px rgba(255,180,40,0.4), 0 4px 12px rgba(0,0,0,0.7)',
-            }}
-          >
-            {/* faint embossed bull-skull in the center of the wood */}
-            <span
-              className="absolute inset-0 rounded-full pointer-events-none"
-              style={{
-                opacity: 0.09,
-                backgroundImage:
-                  'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c970620bf_file_0000000037f88207a4992e01551e3e21.png)',
-                backgroundSize: '58%',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-              }}
-            />
-            <RotateCw
-              className={`w-9 h-9 relative ${spinning ? 'animate-spin' : ''}`}
-              style={{ color: '#f2f2f2', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.6))' }}
-              strokeWidth={2.6}
-            />
-          </span>
-        </button>
+        {/* Spin — wooden medallion with gold chasing arrows (rotates + glows on click) */}
+        <SpinButton spinning={spinning} onClick={spin} disabled={spinning} />
 
         {/* Bet up */}
         <button onClick={() => changeBet(1)} disabled={spinning} className="disabled:opacity-40">
