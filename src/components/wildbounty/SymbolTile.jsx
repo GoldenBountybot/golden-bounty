@@ -74,8 +74,8 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             src={img}
             alt={symbolId}
             loading="lazy"
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 object-contain"
-            style={{ width: '56%', height: '56%', zIndex: 5 }}
+            className="w-full h-full object-cover"
+            style={{ transform: `scale(${SCALE[symbolId] || 1})`, zIndex: 5 }}
           />
         </>
       ) : img ? (
