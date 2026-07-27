@@ -33,13 +33,15 @@ function GoldText({ value, size, red = false, rot = 0, left, top }) {
   );
 }
 
-// left%, top%, rotation for each multiplier along the arch.
+// left%, top%, rotation for each multiplier along the drooping banner curve
+// (center low, edges high — like a hanging plaque). Left items tilt clockwise,
+// right items counter-clockwise, following the curve.
 const ITEMS = [
-  { v: 1024, left: 16, top: 74, size: '0.85rem', red: true, rot: -22 },
-  { v: 512,  left: 30, top: 58, size: '1.0rem',  rot: -11 },
-  { v: 1,    left: 50, top: 46, size: '1.85rem', rot: 0 },
-  { v: 2,    left: 70, top: 58, size: '1.0rem',  rot: 11 },
-  { v: 4,    left: 84, top: 74, size: '0.85rem', rot: 22 },
+  { v: 1024, left: 26, top: 40, size: '0.85rem', red: true, rot: 20 },
+  { v: 512,  left: 38, top: 51, size: '1.05rem', rot: 10 },
+  { v: 1,    left: 50, top: 60, size: '1.85rem', rot: 0 },
+  { v: 2,    left: 62, top: 51, size: '1.05rem', rot: -10 },
+  { v: 4,    left: 74, top: 40, size: '0.85rem', rot: -20 },
 ];
 
 export default function MultiplierStrip({ className = '' }) {
