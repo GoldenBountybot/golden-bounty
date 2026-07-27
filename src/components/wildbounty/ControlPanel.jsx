@@ -22,7 +22,7 @@ export default function ControlPanel({ betIndex, setBetIndex, spinning, spin, tu
 
   return (
     <div className="px-3 py-3">
-      <div className="flex items-center justify-center gap-5 sm:gap-8">
+      <div className="flex items-center justify-center gap-4 sm:gap-6">
         {/* Turbo */}
         <button onClick={() => setTurbo(t => !t)} className="flex flex-col items-center gap-1">
           <span
@@ -53,9 +53,7 @@ export default function ControlPanel({ betIndex, setBetIndex, spinning, spin, tu
         </button>
 
         {/* Spin — wooden medallion with gold chasing arrows (rotates + glows on click) */}
-        <span className="mx-2 sm:mx-4">
-          <SpinButton spinning={spinning} onClick={spin} disabled={spinning} />
-        </span>
+        <SpinButton spinning={spinning} onClick={spin} disabled={spinning} />
 
         {/* Bet up */}
         <button onClick={() => changeBet(1)} disabled={spinning} className="disabled:opacity-40">
