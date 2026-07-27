@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import {
   User as UserIcon, Phone, Hash, LogOut, Loader2, Check,
   Wallet, ArrowDownToLine, ArrowUpFromLine, Crown, Gamepad2, Copy, Coins, History,
+  Menu, Pencil, Ticket,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
@@ -44,8 +46,9 @@ const TABS = [
   { id: 'games', label: 'Games', icon: Gamepad2 },
 ];
 
-// Player profile: 10-digit uid, editable username & mobile, wallet balance,
-// VIP level, deposit/withdraw history, and betting & win/loss history.
+// Player profile: enlarged identity card with anime avatar, unique promo code,
+// a left-side menu (Deposit / Withdraw / History), and an edit panel toggled
+// by the edit icon next to the User ID.
 export default function Profile() {
   const { logout } = useAuth();
   const { toast } = useToast();
@@ -59,6 +62,8 @@ export default function Profile() {
   const [activity, setActivity] = useState([]);
   const [loadingHist, setLoadingHist] = useState(true);
   const [totalDeposits, setTotalDeposits] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   // Load (and ensure a 10-digit uid exists for) the current player.
   useEffect(() => {
@@ -80,6 +85,14 @@ export default function Profile() {
     })();
     return () => { active = false; };
   }, []);
+
+  // Close the side menu when clicking outside of it.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e) => { if (!e.target.closest('[data-menu]')) setMenuOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuOpen]);
 
   const loadHistory = useCallback(async () => {
     if (!profile) return;
@@ -117,7 +130,12 @@ export default function Profile() {
     }
   };
 
+  const copy = async (text, label) => {
+    try { await navigator.clipboard.writeText(text); toast({ title: `${label} copied` }); } catch { /* ignore */ }
+  };
+
   const uid = profile?.uid || '';
+  const promoCode = uid ? 'GB' + uid.slice(0, 6) : '';
   const vip = getVipLevel(totalDeposits);
   const next = getNextVipLevel(totalDeposits);
   const vipRate = vip?.rate ?? BASE_RATE;
@@ -127,50 +145,93 @@ export default function Profile() {
     <div className="relative min-h-screen bg-[#0b0b0d] pb-8">
       <WesternBackdrop />
       <header className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
-        <div className="max-w-md mx-auto px-4 py-2 flex items-center gap-2">
+        <div className="max-w-md mx-auto px-4 py-2 flex items-center gap-2 relative" data-menu>
+          {/* Left-side menu icon */}
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            className="w-8 h-8 rounded-md flex items-center justify-center shrink-0"
+            style={{ border: '1px solid rgba(190,140,55,0.6)', background: 'rgba(20,14,8,0.6)' }}
+            title="Menu"
+          >
+            <Menu className="w-5 h-5 text-amber-200" />
+          </button>
           <BackButton />
           <div className="flex-1 text-center">
             <WesternTitleBadge fullWidth>Profile</WesternTitleBadge>
           </div>
           <div className="w-6" />
+
+          {/* Dropdown menu — Deposit / Withdraw / History */}
+          {menuOpen && (
+            <div className="absolute left-4 top-12 z-30 w-44 rounded-md overflow-hidden"
+              style={{ border: '1px solid rgba(214,178,98,0.5)', background: 'rgba(14,10,6,0.97)', boxShadow: '0 10px 28px rgba(0,0,0,0.7)' }}>
+              <Link to="/pay" onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2.5 text-amber-100 text-xs font-bold italic hover:bg-amber-700/20 transition-colors"
+                style={{ fontFamily: 'Georgia, serif', borderBottom: '1px solid rgba(190,140,55,0.18)' }}>
+                <ArrowDownToLine className="w-4 h-4 text-emerald-300" /> Deposit
+              </Link>
+              <Link to="/withdraw" onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2.5 text-amber-100 text-xs font-bold italic hover:bg-amber-700/20 transition-colors"
+                style={{ fontFamily: 'Georgia, serif', borderBottom: '1px solid rgba(190,140,55,0.18)' }}>
+                <ArrowUpFromLine className="w-4 h-4 text-rose-300" /> Withdraw
+              </Link>
+              <button onClick={() => { setTab('wallet'); setMenuOpen(false); }}
+                className="w-full flex items-center gap-2 px-3 py-2.5 text-amber-100 text-xs font-bold italic hover:bg-amber-700/20 transition-colors"
+                style={{ fontFamily: 'Georgia, serif' }}>
+                <History className="w-4 h-4 text-amber-300" /> History
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
       <main className="relative z-10 max-w-md mx-auto px-4 py-4 flex flex-col gap-3">
-        {/* Identity + uid + VIP */}
-        <WesternFrame glow variant="glass" className="p-3 flex flex-col items-center gap-1.5">
-          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-500/60 shadow-md bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center">
+        {/* Identity card — enlarged */}
+        <WesternFrame glow variant="glass" className="p-4 flex flex-col items-center gap-2">
+          <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-amber-500/60 shadow-md bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
             ) : (
-              <UserIcon className="w-7 h-7 text-stone-950" />
+              <UserIcon className="w-9 h-9 text-stone-950" />
             )}
           </div>
-          <h2 className="text-sm font-black italic text-amber-200" style={{ fontFamily: 'Rye, Georgia, serif' }}>
+          <h2 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Rye, Georgia, serif' }}>
             {profile?.username || profile?.full_name || 'Player'}
           </h2>
-          <p className="text-[10px] text-amber-100/70">{profile?.email}</p>
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/40 border border-amber-700/40">
-            <Hash className="w-2.5 h-2.5 text-amber-400/70" />
-            <span className="text-[10px] font-mono tracking-wider text-amber-100/90 select-all">{uid || '—'}</span>
-            <button
-              onClick={async () => {
-                try { await navigator.clipboard.writeText(uid); toast({ title: 'User ID copied' }); } catch { /* ignore */ }
-              }}
-              className="ml-0.5 text-amber-300/70 hover:text-amber-200 transition-colors"
-              title="Copy User ID"
-            >
-              <Copy className="w-2.5 h-2.5" />
+          <p className="text-[11px] text-amber-100/70">{profile?.email}</p>
+
+          {/* User ID with copy + edit icon */}
+          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/40 border border-amber-700/40">
+            <Hash className="w-3 h-3 text-amber-400/70" />
+            <span className="text-[11px] font-mono tracking-wider text-amber-100/90 select-all">{uid || '—'}</span>
+            <button onClick={() => copy(uid, 'User ID')} className="ml-0.5 text-amber-300/70 hover:text-amber-200 transition-colors" title="Copy User ID">
+              <Copy className="w-3 h-3" />
+            </button>
+            <button onClick={() => setEditOpen(o => !o)} className="text-amber-300/80 hover:text-amber-100 transition-colors" title="Edit profile">
+              <Pencil className="w-3 h-3" />
             </button>
           </div>
 
+          {/* Promo code — unique per user */}
+          <button
+            onClick={() => copy(promoCode, 'Promo code')}
+            className="w-full mt-1 px-3 py-2 rounded-md flex items-center justify-between gap-2"
+            style={{ border: '1px solid rgba(245,210,120,0.5)', background: 'rgba(20,14,8,0.35)' }}
+          >
+            <div className="flex items-center gap-2">
+              <Ticket className="w-4 h-4 text-amber-300" />
+              <div className="text-left">
+                <p className="text-[8px] tracking-widest uppercase text-amber-300 font-bold leading-none" style={{ fontFamily: 'Rye, Georgia, serif' }}>Promo Code</p>
+                <p className="text-[13px] font-black italic text-amber-100 mt-0.5" style={{ fontFamily: 'Georgia, serif' }}>{promoCode || '—'}</p>
+              </div>
+            </div>
+            <Copy className="w-4 h-4 text-amber-300/70" />
+          </button>
+
           {/* VIP level badge */}
           <div
-            className="w-full mt-1.5 px-2.5 py-1.5 rounded-md flex items-center justify-between gap-2"
-            style={{
-              border: '1px solid rgba(245,210,120,0.5)',
-              background: 'rgba(20,14,8,0.25)',
-            }}
+            className="w-full mt-1 px-2.5 py-1.5 rounded-md flex items-center justify-between gap-2"
+            style={{ border: '1px solid rgba(245,210,120,0.5)', background: 'rgba(20,14,8,0.25)' }}
           >
             <div className="flex items-center gap-1.5 min-w-0">
               <Crown className="w-3.5 h-3.5 shrink-0" style={{ color: vip?.color || '#8a7a5a' }} />
@@ -200,47 +261,53 @@ export default function Profile() {
           )}
         </WesternFrame>
 
-        {/* Edit profile */}
-        <WesternFrame variant="glass" className="p-2 flex flex-col gap-1.5">
-          <div className="space-y-0.5">
-            <label className="text-[8px] tracking-widest uppercase text-amber-300 font-bold" style={{ fontFamily: 'Rye, Georgia, serif' }}>Username</label>
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Set a username"
-              className="w-60 mx-auto px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
-              style={{ fontFamily: 'Georgia, serif' }}
-            />
-          </div>
-          <div className="space-y-0.5">
-            <label className="text-[8px] tracking-widest uppercase text-amber-300 font-bold" style={{ fontFamily: 'Rye, Georgia, serif' }}>Mobile Number</label>
-            <div className="relative">
-              <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-amber-400/60" />
+        {/* Edit panel — toggled by the edit icon next to the User ID */}
+        {editOpen && (
+          <WesternFrame variant="glass" className="p-2 flex flex-col gap-1.5">
+            <div className="flex items-center justify-between px-0.5">
+              <h3 className="text-[10px] tracking-widest uppercase text-amber-300 font-bold" style={{ fontFamily: 'Rye, Georgia, serif' }}>Edit Profile</h3>
+              <button onClick={() => setEditOpen(false)} className="text-amber-300/60 hover:text-amber-100 text-[10px] italic" style={{ fontFamily: 'Georgia, serif' }}>close</button>
+            </div>
+            <div className="space-y-0.5">
+              <label className="text-[8px] tracking-widest uppercase text-amber-300 font-bold" style={{ fontFamily: 'Rye, Georgia, serif' }}>Name / Username</label>
               <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+1 555 000 0000"
-                className="w-60 mx-auto pl-7 pr-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Set a username"
+                className="w-60 mx-auto px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
                 style={{ fontFamily: 'Georgia, serif' }}
               />
             </div>
-          </div>
-          <button
-            onClick={save}
-            disabled={saving}
-            className="w-auto mx-auto px-3 py-1.5 rounded-md text-xs font-black italic shadow-md disabled:opacity-60 transition-all flex items-center justify-center gap-1.5"
-            style={{
-              border: '1px solid rgba(245,210,120,0.9)',
-              background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
-              boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 2px 6px rgba(200,136,30,0.45)',
-              color: '#2a1a06',
-              fontFamily: 'Rye, Georgia, serif',
-              textShadow: '0 1px 1px rgba(255,240,200,0.4)',
-            }}
-          >
-            {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Check className="w-4 h-4" /> Save</>}
-          </button>
-        </WesternFrame>
+            <div className="space-y-0.5">
+              <label className="text-[8px] tracking-widest uppercase text-amber-300 font-bold" style={{ fontFamily: 'Rye, Georgia, serif' }}>Mobile Number</label>
+              <div className="relative">
+                <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-amber-400/60" />
+                <input
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+1 555 000 0000"
+                  className="w-60 mx-auto pl-7 pr-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none focus:border-amber-500"
+                  style={{ fontFamily: 'Georgia, serif' }}
+                />
+              </div>
+            </div>
+            <button
+              onClick={save}
+              disabled={saving}
+              className="w-auto mx-auto px-3 py-1.5 rounded-md text-xs font-black italic shadow-md disabled:opacity-60 transition-all flex items-center justify-center gap-1.5"
+              style={{
+                border: '1px solid rgba(245,210,120,0.9)',
+                background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
+                boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 2px 6px rgba(200,136,30,0.45)',
+                color: '#2a1a06',
+                fontFamily: 'Rye, Georgia, serif',
+                textShadow: '0 1px 1px rgba(255,240,200,0.4)',
+              }}
+            >
+              {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Check className="w-4 h-4" /> Save</>}
+            </button>
+          </WesternFrame>
+        )}
 
         {/* Tabs */}
         <div className="grid grid-cols-2 gap-1.5">
