@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import MultiplierStrip from './MultiplierStrip';
 
 // Hanging "bull-skull + gold-frame wooden sign" banner mounted on top of the
 // reel board. The source asset ships on a solid #000000 background with a
@@ -87,6 +88,7 @@ export default function BoardTopBanner({ className = '' }) {
           draggable={false}
           style={{ mixBlendMode: 'screen', filter: 'brightness(1.1) contrast(1.8) saturate(1.5)' }}
         />
+        <MultiplierStrip className="z-30" />
       </div>
     );
   }
@@ -94,13 +96,16 @@ export default function BoardTopBanner({ className = '' }) {
   return (
     <div className={`relative w-full mx-auto ${className}`}>
       {src ? (
-        <img
-          src={src}
-          alt=""
-          className="block w-full h-auto select-none"
-          draggable={false}
-          style={{ filter: 'saturate(1.65) contrast(1.22) brightness(1.02)' }}
-        />
+        <>
+          <img
+            src={src}
+            alt=""
+            className="block w-full h-auto select-none"
+            draggable={false}
+            style={{ filter: 'saturate(1.65) contrast(1.22) brightness(1.02)' }}
+          />
+          <MultiplierStrip className="z-30" />
+        </>
       ) : (
         <div className="w-full aspect-[3/1]" />
       )}
