@@ -23,16 +23,12 @@ const BANNER_IMG =
 // (low saturation) are background/halo → alpha 0. The dark wood is dark but
 // highly saturated (R≠G≠B), so it stays fully opaque. Bright low-saturation
 // pixels (metal highlights) are kept via the value ceiling.
-const BG_VALUE_FLOOR = 38;    // pure/near-black + dark fringe → transparent
-const SAT_FLOOR = 0.32;       // below this = desaturated (haze/halo)
-const GREY_VALUE_CEIL = 175;  // dark + desaturated → full halo removal
-// Faint coloured fringe (slightly saturated but low value) — fade alpha with
-// how desaturated / dark it is so no hazy colour survives.
-const FEATHER_VALUE_CEIL = 140;
-// Mid-saturation haze that survived the hard cut: fade it out gently so the
-// banner keeps crisp edges but loses the surrounding colour wash.
-const SAT_MID = 0.55;
-const SAT_MID_VALUE_CEIL = 150;
+const BG_VALUE_FLOOR = 30;   // pure/near-black → always transparent
+const SAT_FLOOR = 0.24;       // (max-min)/max below this = greyish
+const GREY_VALUE_CEIL = 150;  // only treat as halo if also darker than this
+// Soft glow that survives the hard key (slightly coloured dark fringe) is
+// faded out by scaling its alpha down with how desaturated it is.
+const FEATHER_VALUE_CEIL = 120;
 
 export default function BoardTopBanner({ className = '' }) {
   const [src, setSrc] = useState(null);
@@ -59,18 +55,12 @@ export default function BoardTopBanner({ className = '' }) {
           const min = r < g ? (r < b ? r : b) : (g < b ? g : b);
           const sat = max === 0 ? 0 : (max - min) / max;
           if (max < BG_VALUE_FLOOR) {
-            px[i + 3] = 0; // pure black background / dark fringe
+            px[i + 3] = 0; // pure black background
           } else if (sat < SAT_FLOOR && max < GREY_VALUE_CEIL) {
             px[i + 3] = 0; // grey halo (dark + desaturated)
           } else if (sat < SAT_FLOOR && max < FEATHER_VALUE_CEIL) {
             // soft coloured glow near the art edge — fade it out
             const keep = Math.max(sat / SAT_FLOOR, max / FEATHER_VALUE_CEIL);
-            px[i + 3] = Math.round(px[i + 3] * keep);
-          } else if (sat < SAT_MID && max < SAT_MID_VALUE_CEIL) {
-            // faint coloured haze washing around the art — feather to nothing
-            const satKeep = (sat - SAT_FLOOR) / (SAT_MID - SAT_FLOOR);
-            const valKeep = max / SAT_MID_VALUE_CEIL;
-            const keep = Math.min(1, Math.max(0, Math.min(satKeep, valKeep)));
             px[i + 3] = Math.round(px[i + 3] * keep);
           }
         }
@@ -109,7 +99,7 @@ export default function BoardTopBanner({ className = '' }) {
           alt=""
           className="block w-full h-auto select-none"
           draggable={false}
-          style={{ filter: 'saturate(1.12) contrast(1.06) brightness(1.02)' }}
+          style={{ filter: 'saturate(1.55) contrast(1.18) brightness(1.05)' }}
         />
       ) : (
         <div className="w-full aspect-[3/1]" />
