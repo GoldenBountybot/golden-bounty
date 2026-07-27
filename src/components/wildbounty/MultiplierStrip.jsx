@@ -38,19 +38,19 @@ function metallicStyle(size, red) {
     color: 'transparent',
     background: red
       ? 'linear-gradient(180deg,#ffc0a8 0%,#e0553a 38%,#a62b1a 64%,#5a1208 100%)'
-      : 'linear-gradient(180deg,#fff8da 0%,#f3dd82 34%,#cda23c 60%,#7a4f1e 100%)',
+      : 'linear-gradient(180deg,#fff4c0 0%,#f0c850 30%,#d4a73c 55%,#a67b25 80%,#6e4e18 100%)',
     WebkitBackgroundClip: 'text',
     backgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
-    WebkitTextStroke: '0.4px rgba(70,45,18,0.55)',
+    WebkitTextStroke: '0.6px rgba(110,78,24,0.85)',
     textShadow:
-      '0 1px 0 rgba(255,250,220,0.85),' +
-      '0 -1px 0 rgba(70,45,18,0.9),' +
-      '1px 0 0 rgba(255,245,200,0.45),' +
-      '-1px 0 0 rgba(70,45,18,0.45),' +
-      '0 2px 2px rgba(0,0,0,0.8),' +
-      '0 4px 6px rgba(0,0,0,0.55)',
-    filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.55))',
+      '0 1px 0 rgba(255,244,192,0.95),' +
+      '0 -1px 0 rgba(90,62,20,0.95),' +
+      '1px 0 0 rgba(255,235,160,0.6),' +
+      '-1px 0 0 rgba(90,62,20,0.6),' +
+      '0 2px 3px rgba(0,0,0,0.85),' +
+      '0 4px 7px rgba(0,0,0,0.6)',
+    filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.6)) brightness(1.08)',
     whiteSpace: 'nowrap',
     position: 'absolute',
     transformOrigin: 'center center',
