@@ -11,7 +11,10 @@ export default function MultiplierBanner() {
         alt="Multiplier banner"
         className="w-full h-auto block select-none"
         draggable={false}
-        style={{ mixBlendMode: 'screen' }}
+        style={{
+          mixBlendMode: 'screen',
+          filter: 'brightness(1.25) contrast(1.45) saturate(1.5) drop-shadow(0 2px 6px rgba(0,0,0,0.65))',
+        }}
       />
     </div>
   );
