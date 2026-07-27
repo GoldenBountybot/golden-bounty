@@ -7,12 +7,7 @@ export default function PlaqueBanner({ children, className = '', style = {}, glo
   return (
     <div
       className={`relative ${className}`}
-      style={{
-        boxShadow: glow
-          ? '0 0 12px rgba(255,200,80,0.4), 0 2px 6px rgba(0,0,0,0.55)'
-          : '0 2px 6px rgba(0,0,0,0.55)',
-        ...style,
-      }}
+      style={style}
     >
       <img
         src={BANNER_URL}
