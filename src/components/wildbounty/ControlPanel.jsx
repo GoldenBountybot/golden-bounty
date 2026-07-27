@@ -1,5 +1,6 @@
 import React from 'react';
-import { Zap, Minus, Plus, Play } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Zap, Minus, Plus, Play, Menu } from 'lucide-react';
 import { BETS } from './symbols';
 import SpinButton from './SpinButton';
 
@@ -88,6 +89,20 @@ export default function ControlPanel({ betIndex, setBetIndex, spinning, spin, tu
           </span>
           <span className="text-[9px] font-bold tracking-wide" style={{ color: autoSpin ? '#4ade80' : '#ffd700' }}>AUTO</span>
         </button>
+
+        {/* Menu — bottom-right hamburger icon */}
+        <Link to="/dashboard" className="flex flex-col items-center gap-1 ml-1">
+          <span
+            className="w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95"
+            style={{
+              border: '2px solid rgba(197,160,89,0.9)',
+              background: 'rgba(40,28,16,0.5)',
+            }}
+          >
+            <Menu className="w-5 h-5" style={{ color: '#ffffff' }} strokeWidth={2.6} />
+          </span>
+          <span className="text-[9px] font-bold tracking-wide" style={{ color: '#e8d8b8' }}>MENU</span>
+        </Link>
       </div>
     </div>
   );
