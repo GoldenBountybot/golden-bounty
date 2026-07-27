@@ -23,9 +23,12 @@ const BANNER_IMG =
 // (low saturation) are background/halo → alpha 0. The dark wood is dark but
 // highly saturated (R≠G≠B), so it stays fully opaque. Bright low-saturation
 // pixels (metal highlights) are kept via the value ceiling.
-const BG_VALUE_FLOOR = 26;   // pure/near-black → always transparent
-const SAT_FLOOR = 0.16;       // (max-min)/max below this = greyish
-const GREY_VALUE_CEIL = 132;  // only treat as halo if also darker than this
+const BG_VALUE_FLOOR = 30;   // pure/near-black → always transparent
+const SAT_FLOOR = 0.24;       // (max-min)/max below this = greyish
+const GREY_VALUE_CEIL = 150;  // only treat as halo if also darker than this
+// Soft glow that survives the hard key (slightly coloured dark fringe) is
+// faded out by scaling its alpha down with how desaturated it is.
+const FEATHER_VALUE_CEIL = 120;
 
 export default function BoardTopBanner({ className = '' }) {
   const [src, setSrc] = useState(null);
@@ -50,13 +53,15 @@ export default function BoardTopBanner({ className = '' }) {
           const r = px[i], g = px[i + 1], b = px[i + 2];
           const max = r > g ? (r > b ? r : b) : (g > b ? g : b);
           const min = r < g ? (r < b ? r : b) : (g < b ? g : b);
+          const sat = max === 0 ? 0 : (max - min) / max;
           if (max < BG_VALUE_FLOOR) {
             px[i + 3] = 0; // pure black background
-          } else {
-            const sat = max === 0 ? 0 : (max - min) / max;
-            if (sat < SAT_FLOOR && max < GREY_VALUE_CEIL) {
-              px[i + 3] = 0; // grey halo (dark + desaturated)
-            }
+          } else if (sat < SAT_FLOOR && max < GREY_VALUE_CEIL) {
+            px[i + 3] = 0; // grey halo (dark + desaturated)
+          } else if (sat < SAT_FLOOR && max < FEATHER_VALUE_CEIL) {
+            // soft coloured glow near the art edge — fade it out
+            const keep = Math.max(sat / SAT_FLOOR, max / FEATHER_VALUE_CEIL);
+            px[i + 3] = Math.round(px[i + 3] * keep);
           }
         }
         ctx.putImageData(data, 0, 0);
