@@ -91,7 +91,7 @@ export default function MultiplierStrip({ className = '' }) {
   const x1Style = {
     ...metallicStyle('1.95rem', false),
     left: '50%',
-    top: '56%',
+    top: '58%',
     transform: 'translate(-50%, -50%)',
   };
 
