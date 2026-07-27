@@ -3,6 +3,7 @@ import { BETS, buildGrid, clearWilds, expandWilds, evaluateWins, freeSpinsForSca
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
+import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
 
 export function useBigBrown() {
   const [grid, setGrid] = useState(() => buildGrid());
@@ -25,6 +26,7 @@ export function useBigBrown() {
 
   const settings = useGameSettings('big-brown');
   const logActivity = useLogActivity();
+  usePendingRoundRecovery('big-brown', setBalance);
   const rtpRef = useRef(50);
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
   const minBet = settings.minBet || BETS[0];
@@ -42,6 +44,7 @@ export function useBigBrown() {
   useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
 
   const settle = useCallback((finalGrid, wasFree) => {
+    clearPendingRound('big-brown');
     // Expand wilds (visual + evaluation).
     const expanded = expandWilds(finalGrid);
 
@@ -162,6 +165,13 @@ export function useBigBrown() {
         finalGrid[1][Math.floor(Math.random() * 4)] = sym;
       }
     }
+
+    // Persist the already-determined outcome so a mid-spin exit can be
+    // recovered (win credited) on return. Cleared at settle.
+    const _expanded = expandWilds(finalGrid);
+    const _ev = evaluateWins(_expanded, bet);
+    const _totalWin = _ev.wins.reduce((s, w) => s + w.pay, 0) + _ev.scatterWin;
+    savePendingRound('big-brown', { win: _totalWin, bet });
 
     const baseGap = turbo ? 300 : 460;
     const slowGap = turbo ? 850 : 1200;

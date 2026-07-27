@@ -10,6 +10,7 @@ const ALL_CELLS = (() => {
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
+import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
 
 export function useGates() {
   const [grid, setGrid] = useState(() => buildGrid(false));
@@ -35,6 +36,7 @@ export function useGates() {
 
   const settings = useGameSettings('gates-of-olympus');
   const logActivity = useLogActivity();
+  usePendingRoundRecovery('gates-of-olympus', setBalance);
   const rtpRef = useRef(50);
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
   const minBet = settings.minBet || BETS[0];
@@ -79,6 +81,9 @@ export function useGates() {
     const wantWin = Math.random() < (usingFree ? baseChance + 0.12 : baseChance);
     const freeMode = usingFree;
     const result = computeSpin(bet, wantWin, freeMode, runningMultRef.current);
+    // Persist this spin's already-determined outcome so a mid-spin exit can be
+    // recovered (win credited) on return. Cleared at settle.
+    savePendingRound('gates-of-olympus', { win: result.spinWin, bet });
     if (freeMode) runningMultRef.current = result.newRunningMult;
 
     const hold = turbo ? 520 : 950;        // winners glow long enough to read which matched
@@ -135,6 +140,7 @@ export function useGates() {
     // settle — right after the final drop has landed
     acc += turbo ? 200 : 320;
     timers.current.push(setTimeout(() => {
+      clearPendingRound('gates-of-olympus');
       const win = result.spinWin;
       if (win > 0) {
         setBalance((b) => b + win);
