@@ -18,8 +18,12 @@ export default function BoardTopBanner({ className = '' }) {
                 1 0 0 0 0
                 0 1 0 0 0
                 0 0 1 0 0
-                0.3 0.59 0.11 0 -0.08"
+                0.36 0.708 0.132 0 -0.1"
             />
+            <feComponentTransfer>
+              <feFuncA type="table" tableValues="0 0.08 0.9 1" />
+            </feComponentTransfer>
+            <feGaussianBlur stdDeviation="0.3" />
           </filter>
         </defs>
       </svg>
@@ -28,7 +32,7 @@ export default function BoardTopBanner({ className = '' }) {
         alt=""
         className="block w-full h-auto select-none"
         draggable={false}
-        style={{ filter: 'url(#wbBoardLumaKey) saturate(1.2) contrast(1.12)' }}
+        style={{ filter: 'url(#wbBoardLumaKey) saturate(1.45) contrast(1.4) brightness(1.05)' }}
       />
     </div>
   );
