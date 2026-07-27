@@ -25,7 +25,7 @@ const CENTERS = {
   '512':  -0.86,
   '1024': -0.40,
   '2':     0.40,
-  '4':     0.86,
+  '4':     0.62,
 };
 
 function metallicStyle(size, red) {
@@ -98,8 +98,8 @@ export default function MultiplierStrip({ className = '' }) {
   return (
     <div className={`absolute inset-0 pointer-events-none ${className}`}>
       {/* Left side, following the left-downward curve */}
-      <ArcWord label="X512"  centerA={CENTERS['512']}  size="1.0rem"  red={false} />
-      <ArcWord label="X1024" centerA={CENTERS['1024']} size="1.0rem"  red={true} />
+      <ArcWord label="X512"  centerA={CENTERS['512']}  size="0.78rem" red={false} />
+      <ArcWord label="X1024" centerA={CENTERS['1024']} size="0.78rem" red={true} />
       {/* Centre — X1 stays upright and unchanged */}
       <span style={x1Style}>X1</span>
       {/* Right side, following the right-downward curve */}
