@@ -19,16 +19,23 @@ function useBulletHoles() {
 }
 
 const IMG = {
-  bandit:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2a455767e_InShot_20260717_092730019.jpg',
-  revolver: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3917d133d_InShot_20260717_093241860.jpg',
-  whiskey:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/63b66e73a_InShot_20260717_093625593.jpg',
-  hat:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/27c3d09f2_InShot_20260717_094048229.jpg',
-  scatter:  'https://media.base44.com/images/public/6a564d2f376adbca6a03de48/f5447a4d1_generated_image.png',
-  wild:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/abaafa9c8_24e9525e1_generated_image.png',
-  A: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/71ae07f99_42eef6374_generated_image1.png',
-  K: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9f6abc15f_InShot_20260717_092231198.jpg',
-  Q: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/44d282e5e_InShot_20260717_091838072.jpg',
-  J: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f0565805f_fef0aca4e_generated_image1.png',
+  bandit:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/47b80dfa7_file_00000000ed3081fa8b2b38b3213ec99a.png',
+  revolver: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1d7f9ad2f_file_00000000936c81fa8c6b61333fddd167.png',
+  whiskey:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d20ec7196_file_0000000029f08207838de49974589b4b.png',
+  hat:      'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c71ef50cc_file_000000003d0c8211b8397d0e8ffb44b1.png',
+  scatter:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/00ba69c97_file_0000000019208211ab3b4e56cdb92344.png',
+  wild:     'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c970620bf_file_0000000037f88207a4992e01551e3e21.png',
+  A: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0fd153331_file_0000000005e881faa113be069715c687.png',
+  K: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/82aafe905_file_000000003f80820786167aa236a07df2.png',
+  Q: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fea6fbacb_file_0000000071cc81faa25eed7055b02650.png',
+  J: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8257788f9_file_0000000090808211a1f59f4ce81dde17.png',
+};
+
+// Per-symbol zoom so each image fills its cell with minimal black padding.
+const SCALE = {
+  bandit: 1.06, revolver: 1, whiskey: 1.06, hat: 1.06,
+  scatter: 1.18, wild: 1.18,
+  A: 1.12, K: 1.12, Q: 1.12, J: 1.12,
 };
 
 // Card letters styled like worn wooden tiles
@@ -57,7 +64,8 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           src={img}
           alt={symbolId}
           loading="lazy"
-          className={`w-full h-full object-cover ${isSpecial ? 'scale-[1.5]' : ''}`}
+          className="w-full h-full object-cover"
+          style={{ transform: `scale(${SCALE[symbolId] || 1})` }}
         />
       ) : isCard ? (
         <div className={`w-full h-full flex items-center justify-center bg-gradient-to-b ${CARD_STYLE[symbolId].bg}`}>
@@ -86,12 +94,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
         />
       )}
 
-      {/* Special label (WILD text is part of the wild badge image) */}
-      {symbolId === 'scatter' && (
-        <span className="absolute bottom-0 inset-x-0 text-[7px] font-bold text-center text-amber-950 bg-amber-200/90 py-px tracking-wider">
-          {SYMBOLS[symbolId].label}
-        </span>
-      )}
+      {/* Scatter label is part of the symbol image now */}
 
       {/* Golden glow tint before blast */}
       {highlighted && !shattering && (
