@@ -97,6 +97,20 @@ export default function MultiplierStrip({ className = '' }) {
 
   return (
     <div className={`absolute inset-0 pointer-events-none ${className}`}>
+      {/* Continuous rotating golden shimmer sweep across the banner */}
+      <div className="absolute inset-0 overflow-hidden" style={{ pointerEvents: 'none', maskImage: 'linear-gradient(180deg,transparent 30%,#000 60%,transparent 100%)', WebkitMaskImage: 'linear-gradient(180deg,transparent 30%,#000 60%,transparent 100%)' }}>
+        <div
+          className="absolute top-1/4 h-1/2"
+          style={{
+            width: '40%',
+            left: '0',
+            background: 'linear-gradient(90deg, rgba(255,245,170,0) 0%, rgba(255,240,160,0.85) 50%, rgba(255,225,120,0) 100%)',
+            filter: 'blur(6px)',
+            mixBlendMode: 'screen',
+            animation: 'bannerShimmer 4.2s ease-in-out infinite',
+          }}
+        />
+      </div>
       {/* Left side, following the left-upward curve */}
       <ArcWord label="X512"  centerA={CENTERS['512']}  size="0.72rem" red={false} nudgeY={3} />
       <ArcWord label="X1024" centerA={CENTERS['1024']} size="0.64rem" red={false} charW={0.045} nudgeY={3} />
