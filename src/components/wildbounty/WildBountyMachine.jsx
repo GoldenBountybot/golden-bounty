@@ -34,7 +34,7 @@ export default function WildBountyMachine() {
 
 {/* Reel board — bronze western frame (web asset) around symbols */}
       <div
-        className="relative mx-0 my-0"
+        className="relative mx-0 my-0 -mt-24"
         style={{
           backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c1acaec26_file_000000001de88211868a1e08115c5695.png)',
           backgroundSize: '108% 100%',
