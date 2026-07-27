@@ -14,13 +14,14 @@ export default function SlotGame() {
 
   return (
     <div
-      className="relative min-h-screen w-full overflow-hidden"
+      className="relative w-full overflow-hidden"
       style={{
+        height: "100dvh",
         backgroundImage: `url(${BG_URL})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center top",
+        backgroundSize: "contain",
+        backgroundPosition: "center center",
         backgroundRepeat: "no-repeat",
-        backgroundColor: "#3D2B1F",
+        backgroundColor: "#1a120b",
       }}
     >
       {!loaded && <GameLoadingScreen onDone={() => setLoaded(true)} />}
