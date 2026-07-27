@@ -26,6 +26,11 @@ export default function WildBountyMachine() {
           backgroundPosition: 'center',
         }}
       >
+      {/* Multiplier banner — mounted onto the board's top border */}
+      <div className="flex justify-center px-2 -mb-20">
+        <MultiplierBanner multIndex={g.multIndex} />
+      </div>
+
       {/* Reel board — bronze western frame (web asset) around symbols */}
       <div
         className="relative mx-0 my-0"
@@ -66,11 +71,6 @@ export default function WildBountyMachine() {
           ))}
         </div>
 
-      </div>
-
-      {/* Multiplier banner — mounted on top of the board's upper edge */}
-      <div className="flex justify-center px-2 -mt-24">
-        <MultiplierBanner multIndex={g.multIndex} />
       </div>
 
       {/* Win / message banner */}
