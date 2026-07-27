@@ -16,7 +16,7 @@ export default function SlotGame() {
       className="min-h-screen bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage:
-          'linear-gradient(rgba(15,11,8,0.28), rgba(15,11,8,0.42)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/25cab1181_file_00000000b50c8230a0ebee9ef44b2ebe.png)',
+          'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/25cab1181_file_00000000b50c8230a0ebee9ef44b2ebe.png)',
       }}
     >
       {!loaded && <GameLoadingScreen onDone={() => setLoaded(true)} />}
