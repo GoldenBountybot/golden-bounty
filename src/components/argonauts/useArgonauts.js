@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   REELS, ROWS, generateGrid, evaluate, resolveBonus, forceWinGrid,
-  BETS, FREE_SPINS_AWARD, BONUS_TRIGGER_COUNT, MAX_RISK_STEPS,
+  FREE_SPINS_AWARD, BONUS_TRIGGER_COUNT, MAX_RISK_STEPS,
   coinTriggered, collectCoins, spinCoinRound, coinTotal, COIN_SPINS_START,
   valueCoinKey,
 } from './argonautsEngine';
@@ -32,7 +32,7 @@ function dealFour() {
 export function useArgonauts() {
   const [grid, setGrid] = useState(() => generateGrid(false));
   const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
-  const [betIndex, setBetIndex] = useState(3); // $1 default
+  const [bet, setBet] = useState(0.10); // $0.10 default
   const [spinning, setSpinning] = useState(false);
   const [lastWin, setLastWin] = useState(0);
   const [totalWin, setTotalWin] = useState(0);
@@ -84,7 +84,6 @@ export function useArgonauts() {
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
 
   const timers = useRef([]);
-  const bet = BETS[betIndex];
   const lineBet = bet / 10;
 
   // refs to avoid stale closures in chained coin-spin timers
@@ -478,11 +477,11 @@ export function useArgonauts() {
   };
 
   return {
-    grid, balance, bet, betIndex, spinning, spinningReels,
+    grid, balance, bet, spinning, spinningReels,
     lastWin, totalWin, message, winningPositions, winningLines,
     freeSpins, freeSpinsActive, showFreeSpinStart, startFreeSpins,
     bonusActive, bonusSteps, bonusPrize, bonusExtra, finishBonus,
-    autoSpin, turbo, setBetIndex, setTurbo, setAutoSpin,
+    autoSpin, turbo, setBet, setTurbo, setAutoSpin,
     riskActive, riskMode, riskStep, riskHistory, riskResult, pendingWin,
     dealerCard, playerCards, revealedIdx, riskOutcome,
     startRisk, riskPick, riskContinue, collectRisk, loseRisk,

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { computeSpin, BETS, buildGrid, FREE_SPINS_AWARD, REELS, ROWS } from '@/lib/gatesEngine';
+import { computeSpin, BETS, buildGrid, FREE_SPINS_AWARD, REELS, ROWS, MIN_BET } from '@/lib/gatesEngine';
 
 // every board position `${c}-${r}` — used so the first spin drops all symbols
 const ALL_CELLS = (() => {
@@ -15,7 +15,7 @@ import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/
 export function useGates() {
   const [grid, setGrid] = useState(() => buildGrid(false));
   const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
-  const [bet, setBet] = useState(BETS[2]);
+  const [bet, setBet] = useState(MIN_BET);
   const [spinning, setSpinning] = useState(false);
   const [lastWin, setLastWin] = useState(0);
   const [message, setMessage] = useState('GATES OF OLYMPUS · 8+ PAYS');

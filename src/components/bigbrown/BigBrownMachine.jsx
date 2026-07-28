@@ -6,6 +6,7 @@ import BigBrownFreeSpinStart from './BigBrownFreeSpinStart';
 import BigBrownBonusPop from './BigBrownBonusPop';
 import { useBigBrown } from './useBigBrown';
 import { WAYS, BETS, WILD_EXPAND_IMG, randomSymbol, SYMBOLS } from '@/lib/bigBrownEngine';
+import { incBet } from '@/lib/betStepper';
 
 // Big Brown slot machine — 6x4 grid, 4096 ways, expanding wilds, free spins.
 // Night-forest design matching the reference screenshot.
@@ -366,11 +367,7 @@ export default function BigBrownMachine() {
           {/* Right cluster: Plus + Autoplay + Currency */}
           <div className="flex flex-col gap-2 items-center">
             <button
-              onClick={() => {
-                const idx = BETS.findIndex(b => Math.abs(bet - b) < 0.001);
-                if (idx >= 0 && idx < BETS.length - 1) setBet(BETS[idx + 1]);
-                else setCustomBet(bet + 1);
-              }}
+              onClick={() => setBet(incBet(bet))}
               disabled={spinning}
               className="w-9 h-9 rounded-full flex items-center justify-center disabled:opacity-40 active:scale-95 transition-transform"
               style={{ border: '1.5px solid rgba(214,178,98,0.45)', background: 'rgba(8,18,38,0.85)' }}

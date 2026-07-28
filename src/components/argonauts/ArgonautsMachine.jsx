@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Zap, Menu, Plus, Minus, RotateCw, DollarSign, Play } from 'lucide-react';
 import { useArgonauts } from './useArgonauts';
 import { REELS, ROWS, BETS, FREE_SPINS_AWARD, SYMBOLS } from './argonautsEngine';
+import { incBet, decBet, MIN_BET, MAX_BET } from '@/lib/betStepper';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import GameHeader from '@/components/GameHeader';
 import ArgoSymbolTile from './ArgoSymbolTile';
@@ -306,7 +307,7 @@ export default function ArgonautsMachine() {
 
             {/* Center: Minus + Spin + Plus */}
             <div className="flex items-center gap-2">
-              <IconButton onClick={() => g.setBetIndex(Math.max(g.betIndex - 1, 0))} disabled={g.spinning || g.coinMode || g.betIndex <= 0} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
+              <IconButton onClick={() => g.setBet(decBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet <= MIN_BET} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
               <button
                 onClick={g.spin}
                 disabled={spinDisabled}
@@ -325,7 +326,7 @@ export default function ArgonautsMachine() {
                   <Play className="w-7 h-7 text-white" fill="white" style={{ marginLeft: 3 }} />
                 )}
               </button>
-              <IconButton onClick={() => g.setBetIndex(Math.min(g.betIndex + 1, BETS.length - 1))} disabled={g.spinning || g.coinMode || g.betIndex >= BETS.length - 1} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
+              <IconButton onClick={() => g.setBet(incBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet >= MAX_BET} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
             </div>
 
             {/* Right column: Auto + Bet chip */}
@@ -343,7 +344,7 @@ export default function ArgonautsMachine() {
                 return (
                   <button
                     key={b}
-                    onClick={() => { g.setBetIndex(BETS.indexOf(b)); setShowBetMenu(false); }}
+                    onClick={() => { g.setBet(b); setShowBetMenu(false); }}
                     className={`px-2.5 py-1 rounded text-[11px] font-bold tabular-nums ${active ? 'text-yellow-300' : 'text-white/70'}`}
                     style={{ fontFamily: 'Georgia, serif', background: active ? 'rgba(255,215,0,0.15)' : 'rgba(0,0,0,0.4)', border: `1px solid ${active ? 'rgba(255,215,0,0.6)' : 'rgba(255,215,0,0.2)'}` }}
                   >

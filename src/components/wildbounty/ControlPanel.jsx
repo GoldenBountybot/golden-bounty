@@ -1,17 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, Minus, Plus, Play, Menu } from 'lucide-react';
-import { BETS } from './symbols';
+import { incBet, decBet } from '@/lib/betStepper';
 import SpinButton from './SpinButton';
 
 // Control bar matching the reference:
 //  - Turbo / Auto : thin circular outlines with coloured icon + label
 //  - Minus / Plus : thin gold circular outlines
 //  - Spin         : large wood-grain circle with white/silver arrows
-export default function ControlPanel({ betIndex, setBetIndex, spinning, spin, turbo, setTurbo, autoSpin, setAutoSpin }) {
+export default function ControlPanel({ bet, setBet, spinning, spin, turbo, setTurbo, autoSpin, setAutoSpin }) {
   const changeBet = (dir) => {
     if (spinning) return;
-    setBetIndex(i => Math.max(0, Math.min(BETS.length - 1, i + dir)));
+    setBet(b => (dir > 0 ? incBet(b) : decBet(b)));
   };
 
   const outline = (color, glow) => ({

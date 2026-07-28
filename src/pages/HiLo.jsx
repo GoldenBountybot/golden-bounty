@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowUp, ArrowDown, RotateCcw } from 'lucide-react';
+import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus } from 'lucide-react';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import BackButton from '@/components/BackButton';
 import ShareButton from '@/components/ShareButton';
@@ -8,10 +8,10 @@ import GameLoadingScreen from '@/components/GameLoadingScreen';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
+import { incBet, decBet } from '@/lib/betStepper';
 
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-const BETS = [25, 50, 100, 250, 500];
 
 function drawCard() {
   return { rank: Math.floor(Math.random() * 13), suit: Math.floor(Math.random() * 4) };
@@ -73,8 +73,6 @@ export default function HiLo() {
   const [message, setMessage] = useState('Deal a card to start!');
   const [streak, setStreak] = useState(0);
   const logActivity = useLogActivity();
-
-  const bet = BETS[betIdx];
 
   const deal = () => {
     if (phase === 'guessing') return;

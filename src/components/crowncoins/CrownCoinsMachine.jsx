@@ -6,6 +6,7 @@ import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, getPendingRound } from '@/lib/pendingRound';
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
+import { incBet, decBet } from '@/lib/betStepper';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
@@ -193,7 +194,7 @@ export default function CrownCoinsMachine() {
   const [winMask, setWinMask] = useState(() => [[false, false, false], [false, false, false], [false, false, false]]);
   const [lastWin, setLastWin] = useState(0);
   const [amountCell, setAmountCell] = useState(null);
-  const [bet, setBet] = useState(1);
+  const [bet, setBet] = useState(0.10);
   const [bonus, setBonus] = useState(null);
   const [revealStep, setRevealStep] = useState(0);
   const [showInfo, setShowInfo] = useState(false);
@@ -501,21 +502,8 @@ export default function CrownCoinsMachine() {
     }
   };
 
-  const BET_LADDER = [0.05, 0.10, 0.20, 0.30, 0.50, 0.80, 1.00, 1.50, 2.00, 3.00, 5.00, 10.00, 20.00, 50.00, 100.00, 200.00, 500.00];
-  const stepTo = (dir) => setBet(b => {
-    const cap = maxBet || 500;
-    let idx = BET_LADDER.findIndex(v => Math.abs(v - b) < 0.001);
-    if (idx < 0) {
-      // snap to nearest ladder value not exceeding current
-      idx = BET_LADDER.reduce((best, v, i) => (v <= b + 0.001 ? i : best), 0);
-    }
-    const next = Math.max(0, Math.min(BET_LADDER.length - 1, idx + dir));
-    let val = BET_LADDER[next];
-    if (val > cap) val = BET_LADDER.filter(v => v <= cap).pop() || 0.05;
-    return val;
-  });
-  const decBet = () => stepTo(-1);
-  const incBet = () => stepTo(1);
+  const decBetLocal = () => setBet(b => decBet(b));
+  const incBetLocal = () => setBet(b => incBet(b));
 
   return (
     <div className="relative min-h-screen overflow-hidden text-white">
@@ -723,7 +711,7 @@ export default function CrownCoinsMachine() {
           <button onClick={() => setTurbo(t => !t)} className={`w-9 h-9 rounded-full flex items-center justify-center border ${turbo ? 'border-yellow-400 text-yellow-300 bg-yellow-500/20' : 'border-white/40 text-white/80 bg-black/30'}`}>
             <Zap className="w-5 h-5" />
           </button>
-          <button onClick={decBet} disabled={spinning} className="w-10 h-10 rounded-full flex items-center justify-center border border-yellow-600/60 text-yellow-200 bg-black/40 disabled:opacity-40">
+          <button onClick={decBetLocal} disabled={spinning} className="w-10 h-10 rounded-full flex items-center justify-center border border-yellow-600/60 text-yellow-200 bg-black/40 disabled:opacity-40">
             <Minus className="w-6 h-6" />
           </button>
 
@@ -739,7 +727,7 @@ export default function CrownCoinsMachine() {
             {spinning ? <RotateCw className="w-7 h-7 text-stone-900 animate-spin" /> : <Play className="w-7 h-7 text-stone-900 ml-1" />}
           </button>
 
-          <button onClick={incBet} disabled={spinning} className="w-10 h-10 rounded-full flex items-center justify-center border border-yellow-600/60 text-yellow-200 bg-black/40 disabled:opacity-40">
+          <button onClick={incBetLocal} disabled={spinning} className="w-10 h-10 rounded-full flex items-center justify-center border border-yellow-600/60 text-yellow-200 bg-black/40 disabled:opacity-40">
             <Plus className="w-6 h-6" />
           </button>
           <button onClick={toggleAuto} className={`w-9 h-9 rounded-full flex items-center justify-center border ${autoSpin ? 'border-yellow-400 text-yellow-300 bg-yellow-500/20' : 'border-white/40 text-white/80 bg-black/30'}`}>

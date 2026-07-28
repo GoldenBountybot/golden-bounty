@@ -22,9 +22,10 @@ import {
   playSpinStart, playReelLand, playComboWin, playCascade, playScatter,
   playBigWin, playLose, playClick,
 } from '@/lib/superaceSounds';
+import { incBet, decBet } from '@/lib/betStepper';
 
 const W = { fontFamily: 'Rye, Georgia, serif' };
-const BETS = [0.1, 1, 5, 10];
+const QUICK_BETS = [0.10, 1, 10, 100];
 
 const woodBtn = (active) => ({
   background: active
@@ -66,7 +67,7 @@ export default function SuperAceMachine() {
   const { rtp } = useGameSettings('fullhouse');
   const logActivity = useLogActivity();
 
-  const [betIdx, setBetIdx] = useState(1);
+  const [bet, setBet] = useState(0.10);
   const [grid, setGrid] = useState(() => makeGrid());
   const [combo, setCombo] = useState(0);
   const [winThisSpin, setWinThisSpin] = useState(0);
@@ -91,7 +92,7 @@ export default function SuperAceMachine() {
   const [teaseStart, setTeaseStart] = useState(-1);
 
   // refs for async orchestration
-  const betRef = useRef(BETS[betIdx]);
+  const betRef = useRef(0.10);
   const rtpRef = useRef(rtp);
   const inFreeRef = useRef(false);
   const freeSpinsLeftRef = useRef(0);
@@ -107,13 +108,12 @@ export default function SuperAceMachine() {
   const goldenTargetsRef = useRef([]);
   const normalWildSpawnedRef = useRef(false);
 
-  useEffect(() => { betRef.current = BETS[betIdx]; }, [betIdx]);
+  useEffect(() => { betRef.current = bet; }, [bet]);
   useEffect(() => { rtpRef.current = rtp; }, [rtp]);
   useEffect(() => { turboRef.current = turbo; }, [turbo]);
   useEffect(() => { autoRef.current = autoSpin; }, [autoSpin]);
   useEffect(() => { doSpinRef.current = doSpin; });
 
-  const bet = BETS[betIdx];
   const mults = inFree ? FREE_MULTS : BASE_MULTS;
 
   const share = () => {
@@ -123,7 +123,7 @@ export default function SuperAceMachine() {
   const changeBet = (d) => {
     if (busyRef.current) return;
     playClick();
-    setBetIdx((i) => Math.max(0, Math.min(BETS.length - 1, i + d)));
+    setBet((b) => (d > 0 ? incBet(b) : decBet(b)));
   };
 
   const doSpin = async () => {
@@ -578,14 +578,14 @@ export default function SuperAceMachine() {
               </div>
             </div>
 
-            {/* Bet chips */}
+            {/* Bet chips — quick shortcuts within the $0.10–$500 range */}
             <div className="px-2 grid grid-cols-4 gap-1.5">
-              {BETS.map((b, i) => (
+              {QUICK_BETS.map((b) => (
                 <button
                   key={b}
-                  onClick={() => { if (!busyRef.current) { playClick(); setBetIdx(i); } }}
+                  onClick={() => { if (!busyRef.current) { playClick(); setBet(b); } }}
                   className="py-2 rounded-md text-xs font-bold italic"
-                  style={{ ...woodBtn(betIdx === i), ...W }}
+                  style={{ ...woodBtn(Math.abs(bet - b) < 0.001), ...W }}
                 >
                   ${b}
                 </button>

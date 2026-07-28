@@ -168,8 +168,8 @@ export default function WildBountyMachine() {
 
         {/* Controls */}
         <ControlPanel
-          betIndex={g.betIndex}
-          setBetIndex={g.setBetIndex}
+          bet={g.bet}
+          setBet={g.setBet}
           spinning={g.spinning}
           spin={g.spin}
           turbo={g.turbo}

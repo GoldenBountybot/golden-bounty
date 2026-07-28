@@ -4,7 +4,7 @@
 
 export const REEL_ROWS = [4, 4, 4, 4, 4, 4];
 export const WAYS = 4096;
-export const BETS = [0.50, 1.00, 2.00, 5.00, 12.50];
+export const BETS = [0.10, 0.20, 0.50, 1.00, 2.00, 5.00, 10.00, 25.00, 50.00, 100.00, 250.00, 500.00];
 
 // Reels where wilds may land (0-indexed): reels 1,2,3,4,5 → indices 0,1,2,3,4.
 export const WILD_REELS = new Set([0, 1, 2, 3, 4]);

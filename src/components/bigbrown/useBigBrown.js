@@ -8,7 +8,7 @@ import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/
 export function useBigBrown() {
   const [grid, setGrid] = useState(() => buildGrid());
   const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
-  const [bet, setBet] = useState(BETS[1]);
+  const [bet, setBet] = useState(0.10);
   const [spinning, setSpinning] = useState(false);
   const [lastWin, setLastWin] = useState(0);
   const [message, setMessage] = useState('4096 WAYS · BIG BROWN');
@@ -38,8 +38,8 @@ export function useBigBrown() {
   });
   const rtpRef = useRef(50);
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
-  const minBet = settings.minBet || BETS[0];
-  const maxBet = settings.maxBet || BETS[BETS.length - 1];
+  const minBet = settings.minBet || 0.10;
+  const maxBet = settings.maxBet || 500;
 
   const timers = useRef([]);
   const lastBonusPurchase = useRef(null); // { cost, games } when banner came from Bonus Pop

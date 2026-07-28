@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { REEL_ROWS, buildReel, evaluateWins, MULTIPLIERS, BETS, randomSymbol } from './symbols';
+import { REEL_ROWS, buildReel, evaluateWins, MULTIPLIERS, randomSymbol } from './symbols';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -12,7 +12,7 @@ sfx.preload && sfx.preload();
 export function useWildBounty() {
   const [grid, setGrid] = useState(() => REEL_ROWS.map(r => buildReel(r)));
   const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
-  const [betIndex, setBetIndex] = useState(1);
+  const [bet, setBet] = useState(0.10);
   const [spinning, setSpinning] = useState(false);
   const [multIndex, setMultIndex] = useState(0);
   const [lastWin, setLastWin] = useState(0);
@@ -51,7 +51,6 @@ export function useWildBounty() {
 
   const timers = useRef([]);
   const pendingStateRef = useRef(null);
-  const bet = BETS[betIndex];
 
   useEffect(() => () => { timers.current.forEach(clearTimeout); timers.current.forEach(clearInterval); }, []);
 
@@ -409,7 +408,7 @@ export function useWildBounty() {
       timers.current.push(t);
     };
     stopReel(0, false);
-  }, [spinning, balance, bet, freeSpins, turbo, multIndex]);
+  }, [spinning, balance, bet, freeSpins, turbo, multIndex, setBet]);
 
   // auto spin
   useEffect(() => {
@@ -470,7 +469,7 @@ export function useWildBounty() {
   };
 
   return {
-    grid, balance, bet, betIndex, spinning, stoppedReels,
+    grid, balance, bet, spinning, stoppedReels,
     multiplier: MULTIPLIERS[multIndex], multIndex,
     lastWin, message, winningPositions, goldFrames, shattering, cascading, cascadePositions,
     freeSpins, scatterCount, turbo, autoSpin,
@@ -480,7 +479,7 @@ export function useWildBounty() {
     cascadeSlow,
     bulletHit,
     flyingMult, clearFlyingMult,
-    spin, setBetIndex, setTurbo, setAutoSpin, reset,
+    spin, setBet, setTurbo, setAutoSpin, reset,
     featureCost: bet * 75,
   };
 }
