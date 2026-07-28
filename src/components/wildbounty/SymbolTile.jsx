@@ -120,8 +120,8 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           className="absolute pointer-events-none"
           style={{
             zIndex: 0,
-            top: '-100%', bottom: '-100%', left: '8%', right: '8%',
-            background: 'radial-gradient(ellipse 68% 52% at center, rgba(255,251,225,0.95) 0%, rgba(255,228,130,0.62) 34%, rgba(255,195,75,0.24) 58%, transparent 82%)',
+            top: '-65%', bottom: '-65%', left: '-65%', right: '-65%',
+            background: 'radial-gradient(circle at center, rgba(255,251,225,0.95) 0%, rgba(255,228,130,0.62) 34%, rgba(255,195,75,0.24) 58%, transparent 82%)',
             filter: 'blur(5px)',
             animation: 'wildHaloPulse 2.4s ease-in-out infinite',
           }}
@@ -150,8 +150,8 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             <div
               className="absolute pointer-events-none"
               style={{
-                top: '-70%', bottom: '-70%', left: '14%', right: '14%',
-                background: 'linear-gradient(180deg, rgba(255,248,185,0) 0%, rgba(255,248,185,0.95) 30%, rgba(255,248,185,0.18) 46%, rgba(255,248,185,0.18) 54%, rgba(255,248,185,0.95) 70%, rgba(255,248,185,0) 100%)',
+                top: '-70%', bottom: '-70%', left: '6%', right: '6%',
+                background: 'radial-gradient(ellipse 82% 58% at 50% 0%, rgba(255,251,225,0.95) 0%, rgba(255,228,130,0.5) 34%, transparent 70%), radial-gradient(ellipse 82% 58% at 50% 100%, rgba(255,251,225,0.95) 0%, rgba(255,228,130,0.5) 34%, transparent 70%)',
                 filter: 'blur(6px)',
                 mixBlendMode: 'screen',
                 zIndex: 0,
