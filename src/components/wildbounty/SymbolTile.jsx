@@ -60,7 +60,7 @@ const IMG = {
 // Per-symbol zoom so each image fills its cell with minimal black padding.
 const SCALE = {
   bandit: 1.32, revolver: 1.28, whiskey: 1.24, hat: 1.3,
-  scatter: 1.36, wild: 1.36,
+  scatter: 1.36, wild: 1.48,
   A: 1.4, K: 1.26, Q: 1.26, J: 1.16,
 };
 
