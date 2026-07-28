@@ -32,27 +32,17 @@ const SLOTS = {
   right2: { centerA:  0.62, size: '1.0rem'  }, // far right (was X4)
 };
 
+// The deep-gold gradient / 3D bevel / stroke live in the `.wb-deep-gold` class
+// (shared with the win banner) so both banners stay pixel-identical. Here we
+// only add layout + a warm outer glow so the gold lifts off the dark wooden
+// banner instead of fading into it.
 function metallicStyle(size, lit) {
   const style = {
-    fontFamily: 'Rye, Georgia, serif',
     fontSize: size,
-    fontWeight: 900,
-    fontStyle: 'italic',
-    lineHeight: 1,
-    color: 'transparent',
-    background: 'linear-gradient(180deg,#fff6cf 0%,#f0c94a 24%,#c9941e 48%,#8a5e16 74%,#4d3310 100%)',
-    WebkitBackgroundClip: 'text',
-    backgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    WebkitTextStroke: '1px rgba(74,46,10,0.95)',
-    textShadow:
-      '0 1px 0 rgba(255,246,207,0.95),' +
-      '0 -1px 0 rgba(60,38,10,0.95),' +
-      '0 2px 0 rgba(120,80,20,0.85),' +
-      '0 3px 1px rgba(0,0,0,0.5),' +
-      '0 4px 3px rgba(0,0,0,0.45),' +
-      '0 6px 6px rgba(0,0,0,0.55)',
-    filter: 'drop-shadow(0 3px 3px rgba(0,0,0,0.5)) brightness(1.05)',
+    filter:
+      'drop-shadow(0 0 3px rgba(255,210,110,0.55)) ' +
+      'drop-shadow(0 2px 2px rgba(0,0,0,0.6)) ' +
+      'brightness(1.1)',
     whiteSpace: 'nowrap',
     position: 'absolute',
     transformOrigin: 'center center',
@@ -86,6 +76,7 @@ function ArcWord({ label, centerA, size, lit, nudgeY = 3 }) {
     return (
       <span
         key={`${label}-${i}`}
+        className="wb-deep-gold"
         style={{
           ...metallicStyle(size, lit),
           left: `${leftPct}%`,
@@ -108,7 +99,7 @@ export default function MultiplierStrip({ multIndex = 0, lit = false, className 
 
   const centerLabel = `X${MULTIPLIERS[displayIndex]}`;
   const centerStyle = {
-    ...metallicStyle('1.95rem', lit),
+    ...metallicStyle('2.3rem', lit),
     left: '50%',
     top: '58%',
     transform: 'translate(-50%, -50%)',
@@ -120,7 +111,7 @@ export default function MultiplierStrip({ multIndex = 0, lit = false, className 
       <ArcWord label={`X${at(-2)}`} centerA={SLOTS.left2.centerA} size={SLOTS.left2.size} />
       <ArcWord label={`X${at(-1)}`} centerA={SLOTS.left1.centerA} size={SLOTS.left1.size} />
       {/* Centre — current multiplier, upright; lights up while matching */}
-      <span key={displayIndex} style={centerStyle}>{centerLabel}</span>
+      <span key={displayIndex} className="wb-deep-gold" style={centerStyle}>{centerLabel}</span>
       {/* Right side — upcoming multipliers, following the right-upward curve */}
       <ArcWord label={`X${at(1)}`} centerA={SLOTS.right1.centerA} size={SLOTS.right1.size} />
       <ArcWord label={`X${at(2)}`} centerA={SLOTS.right2.centerA} size={SLOTS.right2.size} />
