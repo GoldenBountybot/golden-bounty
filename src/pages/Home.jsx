@@ -56,7 +56,7 @@ export default function Home() {
                   toast({ title: next ? 'Demo Mode ON · $1000 practice balance' : 'Demo Mode OFF · real balance restored' });
                 }}
                 title={demoMode ? 'Demo mode is ON' : 'Enable demo mode'}
-                className="absolute -top-[23px] left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-[6px] transition-all active:scale-95 z-30"
+                className="absolute -top-[35px] left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-[6px] transition-all active:scale-95 z-30"
                 style={{
                   border: demoMode ? '1px solid rgba(74,222,128,0.85)' : '1px solid rgba(214,178,98,0.55)',
                   background: demoMode ? 'rgba(34,197,94,0.95)' : 'rgba(20,17,13,0.92)',
