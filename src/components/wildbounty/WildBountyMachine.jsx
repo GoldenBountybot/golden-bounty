@@ -26,6 +26,7 @@ export default function WildBountyMachine() {
   const machineRef = useRef(null);
   const boardRef = useRef(null);
   const winBannerRef = useRef(null);
+  const topStripRef = useRef(null);
 
   const anchor = (() => {
     const m = machineRef.current;
@@ -38,7 +39,11 @@ export default function WildBountyMachine() {
     };
     const hold = yOf(boardRef.current);
     const win = yOf(winBannerRef.current);
-    return { startY: Math.max(8, hold - mb.height * 0.4), holdY: hold, winY: win };
+    const strip = yOf(topStripRef.current);
+    // Fly FROM the top multiplier strip (where X2 / X4 live), not from above
+    // the board. Fall back to a little above the board if not measured yet.
+    const startY = strip > 0 ? strip : Math.max(8, hold - mb.height * 0.4);
+    return { startY, holdY: hold, winY: win };
   })();
 
   return (
@@ -55,7 +60,7 @@ export default function WildBountyMachine() {
         }}
       >
 {/* Decorative steer-skull banner on top of the board (black bg keyed out) */}
-<div className="flex justify-center mx-1 -mt-20 -mb-2 relative z-20 scale-110">
+<div ref={topStripRef} className="flex justify-center mx-1 -mt-20 -mb-2 relative z-20 scale-110">
   <BoardTopBanner multIndex={g.multIndex} lit={lit} />
 </div>
 

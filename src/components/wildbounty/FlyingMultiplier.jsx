@@ -22,7 +22,7 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1, startY =
 
   return (
     <div
-      className="absolute inset-0 pointer-events-none z-[60] overflow-hidden"
+      className="absolute inset-0 pointer-events-none z-[60]"
       style={{ '--hold-dy': `${holdDy}px`, '--win-dy': `${winDy}px` }}
     >
       {/* Multiplier flies from the top, holds dead-centre over the reels, then
