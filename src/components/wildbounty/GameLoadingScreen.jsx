@@ -22,6 +22,7 @@ export default function GameLoadingScreen({ onDone }) {
     let chain = null;
     try {
       ac = new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended' && ac.resume) ac.resume();
       srcNode = ac.createMediaElementSource(audio);
 
       const lowShelf = ac.createBiquadFilter();   // clean up muddy lows
@@ -61,14 +62,23 @@ export default function GameLoadingScreen({ onDone }) {
     }
 
     // Stop the intro sound the instant loading ends so it never leaks into
-    // gameplay. Guard against double-close (onEnded + unmount) and handle
-    // the close() promise so it never becomes an unhandled rejection.
+    // gameplay. Fade it out (no click), pause, abort buffering, and close the
+    // context so the audio element can never resume once gameplay begins.
     let stopped = false;
     const stopIntro = () => {
       if (stopped) return;
       stopped = true;
+      try {
+        if (ac && chain && chain.out) {
+          const t = ac.currentTime;
+          chain.out.gain.cancelScheduledValues(t);
+          chain.out.gain.setValueAtTime(chain.out.gain.value, t);
+          chain.out.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+        }
+      } catch { /* noop */ }
       try { audio.pause(); } catch { /* noop */ }
       try { audio.currentTime = 0; } catch { /* noop */ }
+      try { audio.load(); } catch { /* noop */ } // abort any pending buffering
       try {
         if (ac) {
           const p = ac.close();
@@ -77,38 +87,42 @@ export default function GameLoadingScreen({ onDone }) {
       } catch { /* noop */ }
     };
 
-    const onEnded = () => {
-      stopIntro();
+    let done = false;
+    const reveal = () => {
+      if (done) return;
+      done = true;
       setProgress(100);
-      setTimeout(() => onDone && onDone(), 250);
+      stopIntro();
+      setTimeout(() => onDone && onDone(), 220);
     };
+
+    const onEnded = () => reveal();
     const onTimeUpdate = () => {
       if (audio.duration && isFinite(audio.duration)) {
         setProgress(Math.min(100, (audio.currentTime / audio.duration) * 100));
       }
     };
-    const onError = () => {
-      // If the sound fails to load, don't block the game forever.
-      stopIntro();
-      setTimeout(() => onDone && onDone(), 1200);
-    };
+    const onError = () => reveal();
 
     audio.addEventListener('ended', onEnded);
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('error', onError);
 
+    // Safety cap: never let the intro block gameplay longer than 5.5s. If the
+    // sound is still playing (e.g. the AudioContext was suspended and the
+    // intro would otherwise only resume on the first in-game tap), cut it now
+    // so the entrance sound can never be heard during gameplay.
+    const cap = setTimeout(reveal, 5500);
+
     // Browsers require a user gesture to play audio; the navigation click
     // that brought us here counts, so playback should start immediately.
     const playPromise = audio.play();
     if (playPromise && playPromise.catch) {
-      playPromise.catch(() => {
-        // Autoplay blocked — fall back to a timed reveal.
-        const fallback = setTimeout(() => { stopIntro(); onDone && onDone(); }, 4000);
-        audio.addEventListener('ended', () => clearTimeout(fallback), { once: true });
-      });
+      playPromise.catch(() => reveal()); // autoplay blocked — timed reveal
     }
 
     return () => {
+      clearTimeout(cap);
       audio.removeEventListener('ended', onEnded);
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('error', onError);
