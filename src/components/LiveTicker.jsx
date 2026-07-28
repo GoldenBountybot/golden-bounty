@@ -13,16 +13,17 @@ const GOLD = '#d4a017';
 const rand = (min, max) => Math.random() * (max - min) + min;
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
+// Deposit / withdraw: whole-number amounts (e.g. 25, 105, 220, 540, 860, 1000).
 function depositAmount() {
-  if (Math.random() < 0.18) return Math.round(rand(1200, 5000));
-  return pick([5, 10, 20, 50, 100, 250, 1000]);
+  if (Math.random() < 0.18) return Math.round(rand(1100, 2500));
+  return Math.round(rand(25, 1000));
 }
 function withdrawAmount() {
-  return pick([5, 10, 20, 50, 100, 250, 500, 1000]);
+  return Math.round(rand(25, 1000));
 }
+// Game wins: one-decimal floats (e.g. 56.5, 68.6, 80.4, 408.8).
 function winAmount() {
-  if (Math.random() < 0.55) return rand(1, 120).toFixed(2);
-  return Math.round(rand(50, 1500));
+  return rand(10, 500).toFixed(1);
 }
 
 // Build a feed with unique names (shuffled) so the same user/message never
