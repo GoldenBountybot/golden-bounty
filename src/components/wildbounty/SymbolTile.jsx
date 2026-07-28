@@ -91,7 +91,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   const embers = useBlastEmbers();
   // Matching symbol pops bigger like a bomb burst (only before it shatters).
   // Wilds don't pop — they carry a soft persistent halo instead.
-  const popAnim = highlighted && !shattering && !isWild ? `matchPop 0.5s ease-out forwards` : undefined;
+  const popAnim = highlighted && !shattering && !isWild ? `matchPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards` : undefined;
   const showHalo = isWild && scatterBeam;
   // Bullet holes punch into the symbol the instant it matches/pops — a mix of
   // small and big impact craters.
@@ -100,7 +100,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   return (
     <div
       className={`relative ${highlighted || showHalo || scatterBeam || goldFramed || decorFrame ? 'overflow-visible' : 'overflow-hidden'} transition-transform`}
-      style={{ aspectRatio: '1 / 1', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s ease-out forwards` : undefined, zIndex: shattering ? 20 : undefined }}
+      style={{ aspectRatio: '1 / 1', willChange: 'transform, filter', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards` : undefined, zIndex: shattering ? 20 : undefined }}
     >
       {/* Golden light-burst behind matching symbols (not wilds) — slightly
           larger than the symbol so the flare bleeds around it */}
@@ -110,7 +110,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           alt=""
           draggable={false}
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{ zIndex: 0, mixBlendMode: 'screen', transformOrigin: 'center center', animation: 'winLightBurst 0.5s ease-out forwards' }}
+          style={{ zIndex: 0, mixBlendMode: 'screen', transformOrigin: 'center center', willChange: 'transform, opacity', animation: 'winLightBurst 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
         />
       )}
       {/* Wild — soft golden halo that glows gently and persists until the next
@@ -140,7 +140,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             alt={symbolId}
             loading="lazy"
             className="w-full h-full object-cover"
-            style={{ '--bs': baseScale, transform: spinning ? 'none' : `scale(${baseScale})`, zIndex: 5, animation: popAnim }}
+            style={{ '--bs': baseScale, transform: spinning ? 'none' : `scale(${baseScale})`, zIndex: 5, willChange: 'transform, filter', animation: popAnim }}
           />
         </>
       ) : img ? (
@@ -166,7 +166,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             alt={symbolId}
             loading="lazy"
             className="w-full h-full object-cover"
-            style={{ '--bs': baseScale, transform: spinning ? 'none' : `scale(${baseScale})`, animation: popAnim, filter: spinning ? undefined : (isScatter ? 'brightness(1.4) drop-shadow(0 0 6px rgba(255,235,150,0.75))' : undefined) }}
+            style={{ '--bs': baseScale, transform: spinning ? 'none' : `scale(${baseScale})`, willChange: 'transform, filter', animation: popAnim, filter: spinning ? undefined : (isScatter ? 'brightness(1.4) drop-shadow(0 0 6px rgba(255,235,150,0.75))' : undefined) }}
           />
         </>
       ) : isCard ? (
@@ -201,7 +201,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             background: 'radial-gradient(circle, #0a0a05 38%, #2a1607 68%, rgba(40,24,8,0) 100%)',
             boxShadow: '0 0 0 1.5px rgba(255,225,150,0.45), 0 0 4px 1px rgba(0,0,0,0.7)',
             zIndex: 12,
-            animation: `bulletHolePop 0.2s ease-out ${0.46 + i * 0.05}s both`,
+            animation: `bulletHolePop 0.2s cubic-bezier(0.16, 1, 0.3, 1) ${0.46 + i * 0.05}s both`,
           }}
         />
       ))}
@@ -217,7 +217,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
               borderRadius: '50%',
               border: '2px solid rgba(255,225,150,0.9)',
               transformOrigin: 'center center',
-              animation: `blastRing ${(0.5 * slow).toFixed(2)}s ease-out forwards`,
+              animation: `blastRing ${(0.5 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards`,
               zIndex: 25,
             }}
           />
@@ -230,7 +230,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
               background: 'radial-gradient(circle, #fff7d6 0%, #ffcf5a 28%, #ff7a1a 58%, #b22a00 82%, transparent 100%)',
               filter: 'blur(1px)',
               transformOrigin: 'center center',
-              animation: `blastCore ${(0.5 * slow).toFixed(2)}s ease-out forwards`,
+              animation: `blastCore ${(0.5 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards`,
               zIndex: 24,
             }}
           />
@@ -247,7 +247,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
                 background: e.color,
                 boxShadow: '0 0 6px rgba(255,170,40,0.9)',
                 '--ex': `${e.dx}px`, '--ey': `${e.dy}px`,
-                animation: `blastEmber ${(0.6 * slow).toFixed(2)}s ease-out ${e.delay}s forwards`,
+                animation: `blastEmber ${(0.6 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) ${e.delay}s forwards`,
                 zIndex: 23,
               }}
             />
