@@ -91,7 +91,7 @@ export default function BoardTopBanner({ className = '' }) {
             alt=""
             className="block w-full h-auto select-none"
             draggable={false}
-            style={{ filter: 'saturate(1.12) contrast(1.06) brightness(1.02)' }}
+            style={{ filter: 'saturate(0.92) contrast(0.98) brightness(1.0)' }}
           />
           <MultiplierStrip className="z-30" />
         </>
