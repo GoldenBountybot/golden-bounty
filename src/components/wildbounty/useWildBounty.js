@@ -251,8 +251,8 @@ export function useWildBounty() {
 
     let finalGrid = REEL_ROWS.map(r => buildReel(r));
     // RTP bias: decide win/loss for the spin before evaluation.
-    // Reduced bias factor so forced matching symbol wins land less often.
-    const wantWin = Math.random() < (rtpRef.current / 100) * 0.18;
+    // Higher bias factor so forced matching-symbol wins land more often.
+    const wantWin = Math.random() < (rtpRef.current / 100) * 0.5;
     if (wantWin) {
       const X = 'A';
       finalGrid = finalGrid.map((reel, ri) => {
@@ -264,8 +264,9 @@ export function useWildBounty() {
         return reel;
       });
     } else {
+      // Only suppress natural wins briefly so matches still happen often.
       let attempts = 0;
-      while (attempts < 6 && evaluateWins(finalGrid, bet).wins.length > 0) {
+      while (attempts < 2 && evaluateWins(finalGrid, bet).wins.length > 0) {
         finalGrid = REEL_ROWS.map(r => buildReel(r));
         attempts++;
       }
