@@ -20,14 +20,14 @@ function roundTo5(v) { return Math.round(v / 5) * 5; }
 // Deposit / withdraw: whole-number amounts ending in 0 or 5.
 function depositAmount() {
   if (Math.random() < 0.18) return roundTo5(rand(1100, 2500));
-  return roundTo5(rand(25, 1000));
+  return roundTo5(rand(5, 1000));
 }
 function withdrawAmount() {
-  return roundTo5(rand(25, 1000));
+  return roundTo5(rand(5, 1000));
 }
 // Staked amount — whole number ending in 0 or 5 (like a real money amount).
 function stackedAmount() {
-  return roundTo5(rand(25, 1000));
+  return roundTo5(rand(5, 1000));
 }
 // Claimed profit — one-decimal float (e.g. 56.5, 80.4, 408.8).
 function claimedAmount() {
