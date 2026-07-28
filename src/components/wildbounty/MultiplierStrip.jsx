@@ -96,7 +96,7 @@ export default function MultiplierStrip({ multIndex = 0, lit = false, className 
 
   const centerLabel = `X${MULTIPLIERS[displayIndex]}`;
   const centerStyle = {
-    ...metallicStyle('2.4rem', lit),
+    ...metallicStyle('2rem', lit),
     left: '50%',
     top: '58%',
     transform: 'translate(-50%, -50%)',
