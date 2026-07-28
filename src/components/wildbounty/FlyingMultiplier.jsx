@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
 
-// A multiplier value (X2, X4, ...) that flies from the tracker bar at the top
-// of the board all the way down into the win banner, pops big on arrival, and
-// releases a short shower of gold coins into the banner — the win amount then
-// counts up in the banner.
-export default function FlyingMultiplier({ value, onComplete, slow = 1 }) {
+// A multiplier value (X2, X4, ...) that flies from the tracker bar at the top,
+// holds dead-centre over the reels as the matching symbols shatter, then
+// continues down into the win banner and pops — the win amount then counts up.
+// The vertical anchors (start / hold / win) are measured by the parent and
+// passed as percentages of the machine height so the hold lands exactly on
+// the board centre and the pop lands exactly on the win banner.
+export default function FlyingMultiplier({ value, onComplete, slow = 1, startY = 8, holdY = 46, winY = 63 }) {
   const TOTAL = 1500 * slow;
   const COIN_START = 1280 * slow;
   const COIN_COUNT = 12;
@@ -32,9 +34,16 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1 }) {
   }, [onComplete]);
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-[60]">
-      {/* Phase 1 — multiplier flies from the top banner down to the win banner
-          and pops big on landing */}
+    <div
+      className="absolute inset-0 pointer-events-none z-[60]"
+      style={{
+        '--start-y': `${startY}%`,
+        '--hold-y': `${holdY}%`,
+        '--win-y': `${winY}%`,
+      }}
+    >
+      {/* Phase 1 — multiplier flies from the top banner, holds dead-centre over
+          the reels as the symbols shatter, then continues into the win banner */}
       <div
         className="absolute left-1/2 flex items-center justify-center"
         style={{ animation: `multFlyToWin ${(TOTAL / 1000).toFixed(2)}s cubic-bezier(0.22,0.61,0.36,1) forwards` }}

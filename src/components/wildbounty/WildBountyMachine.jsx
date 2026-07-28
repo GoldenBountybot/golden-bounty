@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useWildBounty } from './useWildBounty';
 import { REEL_ROWS } from './symbols';
 import Reel from './Reel';
@@ -19,9 +19,41 @@ export default function WildBountyMachine() {
   // showing the achieved tier until the next spin resets the round).
   const lit = g.winningPositions.size > 0 || g.cascading || g.shattering.size > 0 || g.lastWin > 0;
 
+  // Measure the real vertical position of the reel board (hold) and the win
+  // banner (pop) as percentages of the machine height, so the flying
+  // multiplier holds dead-centre over the board and lands exactly on the win
+  // banner regardless of layout / screen size.
+  const machineRef = useRef(null);
+  const boardRef = useRef(null);
+  const winBannerRef = useRef(null);
+  const [anchor, setAnchor] = useState({ start: 8, hold: 46, win: 63 });
+
+  useEffect(() => {
+    const compute = () => {
+      const m = machineRef.current;
+      if (!m) return;
+      const mb = m.getBoundingClientRect();
+      const pct = (el) => {
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return ((r.top + r.height / 2 - mb.top) / mb.height) * 100;
+      };
+      const hold = pct(boardRef.current);
+      const win = pct(winBannerRef.current);
+      if (hold != null && win != null && win > hold) {
+        setAnchor({ start: Math.max(4, hold - 42), hold, win });
+      }
+    };
+    compute();
+    const t = setTimeout(compute, 350);
+    window.addEventListener('resize', compute);
+    return () => { clearTimeout(t); window.removeEventListener('resize', compute); };
+  }, []);
+
   return (
     <div
       className="w-full mx-auto relative"
+      ref={machineRef}
     >
       <div
         className="flex flex-col gap-2 overflow-hidden relative"
@@ -38,6 +70,7 @@ export default function WildBountyMachine() {
 
 {/* Reel board — bronze western frame (web asset) around symbols */}
       <div
+        ref={boardRef}
         className="relative mx-0 my-0 -mt-24"
         style={{
           backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c1acaec26_file_000000001de88211868a1e08115c5695.png)',
@@ -106,7 +139,7 @@ export default function WildBountyMachine() {
 
       {/* Win / message banner — shows a counting-up win amount while a round
           is paying, otherwise the status message */}
-      <PlaqueBanner glow className="-mt-28 mx-auto py-1 text-center relative z-30 w-[94%]">
+      <PlaqueBanner ref={winBannerRef} glow className="-mt-28 mx-auto py-1 text-center relative z-30 w-[94%]">
         <span
           className="wb-deep-gold text-lg sm:text-xl italic leading-none tracking-wide block w-full"
           style={{ fontFamily: 'Rye, Georgia, serif' }}
@@ -163,6 +196,9 @@ export default function WildBountyMachine() {
           key={g.flyingMult.key}
           value={g.flyingMult.value}
           slow={g.flyingMult.slow}
+          startY={anchor.start}
+          holdY={anchor.hold}
+          winY={anchor.win}
           onComplete={g.clearFlyingMult}
         />
       )}
