@@ -172,6 +172,7 @@ export function useWildBounty() {
       // shatter/drop animation lines up with the (also slowed) win sound.
       // Hold matched (popped) symbols big for ~1s, then blast them directly.
       const holdMs = cascadeCount >= 1 ? 1200 : 1000;
+      const shatterDur = 600 * slow; // let the shatterWin blast play in full
       const shatterT = setTimeout(() => { setShattering(shatterPos); }, holdMs);
       timers.current.push(shatterT);
 
@@ -195,7 +196,7 @@ export function useWildBounty() {
           evaluateAndCascade(newGrid, cascadeCount + 1, newTotal, newMult, wasFree, awarded, framedPositions);
         }, 450 * slow);
         timers.current.push(evalT);
-      }, 1000 * slow);
+      }, holdMs + shatterDur);
       timers.current.push(cascadeT);
     } else {
       // No more wins — end the chain. Credit the accumulated round total now
