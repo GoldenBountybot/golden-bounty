@@ -4,7 +4,7 @@ import { randomSymbol } from './symbols';
 
 // A single reel column that smoothly scrolls downward while spinning,
 // then snaps to the final symbols when stopped.
-function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions, goldFrames, shatteringPositions, cascading, cascadePositions, fallPositions, scatterGlow, anticipationGlow, bulletHit, slow = 1 }) {
+function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions, goldFrames, shatteringPositions, cascading, cascadePositions, scatterGlow, anticipationGlow, bulletHit, slow = 1 }) {
   const [justStopped, setJustStopped] = useState(false);
   const prevSpinning = useRef(false);
   const wasAnticipation = useRef(false);
@@ -69,10 +69,8 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
       >
         {strip.map((sym, i) => {
           const isDropping = cascading && cascadePositions && cascadePositions.has(`${reelIndex}-${i}`);
-          const fallOffset = cascading && fallPositions && fallPositions[`${reelIndex}-${i}`];
-          const anim = isDropping ? `reelFall ${(0.30 * slow).toFixed(2)}s linear` : fallOffset ? `tumbleSlide ${(0.30 * slow).toFixed(2)}s linear` : 'none';
           return (
-            <div key={i} style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1', animation: anim, willChange: (isDropping || fallOffset) ? 'transform' : 'auto', zIndex: (isDropping || fallOffset) ? 15 : (!spinning && (sym === 'wild' || sym === 'scatter') ? 18 : undefined), ...(fallOffset ? { '--fall-from': `calc(-${fallOffset * 100}%)` } : {}) }}>
+            <div key={i} style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1', animation: isDropping ? `reelFall ${(0.30 * slow).toFixed(2)}s linear` : 'none', willChange: isDropping ? 'transform' : 'auto', zIndex: isDropping ? 15 : (!spinning && (sym === 'wild' || sym === 'scatter') ? 18 : undefined) }}>
               <SymbolTile
                 symbolId={sym}
                 spinning={spinning}
