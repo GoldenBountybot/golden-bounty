@@ -70,7 +70,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
         {strip.map((sym, i) => {
           const isDropping = cascading && cascadePositions && cascadePositions.has(`${reelIndex}-${i}`);
           return (
-            <div key={i} style={{ width: '100%', aspectRatio: '1 / 1', animation: isDropping ? `cascadeDrop ${(0.45 * slow).toFixed(2)}s ease-out` : 'none', zIndex: isDropping ? 15 : undefined }}>
+            <div key={i} style={{ width: '100%', aspectRatio: '1 / 1', animation: isDropping ? `cascadeDrop ${(0.45 * slow).toFixed(2)}s ease-out` : 'none', zIndex: isDropping ? 15 : (!spinning && sym === 'wild' ? 18 : undefined) }}>
               <SymbolTile
                 symbolId={sym}
                 highlighted={!spinning && !cascading && winningPositions.has(`${reelIndex}-${i}`)}

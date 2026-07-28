@@ -117,12 +117,12 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           spin / round (driven by scatterGlow, not per-cascade highlights). */}
       {showHalo && (
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="absolute pointer-events-none"
           style={{
             zIndex: 0,
-            background: 'radial-gradient(circle at center, rgba(255,251,225,0.9) 0%, rgba(255,224,125,0.6) 36%, rgba(255,190,70,0.25) 62%, transparent 80%)',
-            filter: 'blur(4px)',
-            transform: 'scale(1.26)',
+            top: '-100%', bottom: '-100%', left: '8%', right: '8%',
+            background: 'radial-gradient(ellipse 68% 52% at center, rgba(255,251,225,0.95) 0%, rgba(255,228,130,0.62) 34%, rgba(255,195,75,0.24) 58%, transparent 82%)',
+            filter: 'blur(5px)',
             animation: 'wildHaloPulse 2.4s ease-in-out infinite',
           }}
         />
