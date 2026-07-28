@@ -77,7 +77,7 @@ const woodBtn = {
 };
 
 export default function FreeSpin() {
-  const { balance, setBalance } = useCasinoBalance();
+  const { balance, setBalance, demoMode, addRealBalance } = useCasinoBalance();
   const [lastSpinAt, setLastSpinAt] = useState(null); // null = still loading
   const [spinCount, setSpinCount] = useState(0); // total daily spins done (drives the prize ladder)
   const [spinGroup, setSpinGroup] = useState(null); // 'mask' | 'ladder' — masks the uniform ladder
@@ -161,7 +161,10 @@ export default function FreeSpin() {
       // within 24 hours.
       setResult({ ...prize, win, held: true, expires_at: ts + 24 * 60 * 60 * 1000 });
     } else {
-      setBalance((b) => b + win);
+      // In demo mode, free-spin wins credit the REAL wallet (not the practice
+      // balance), so the prize is preserved and visible once demo is off.
+      if (demoMode) addRealBalance(win);
+      else setBalance((b) => b + win);
       setResult({ ...prize, win });
     }
     setLastSpinAt(ts);
@@ -178,7 +181,7 @@ export default function FreeSpin() {
     } catch {
       /* cooldown persist is best-effort */
     }
-  }, [setBalance, spinCount]);
+  }, [setBalance, demoMode, addRealBalance, spinCount]);
 
   return (
     <div className="min-h-screen relative" style={{ ...W, backgroundImage: 'linear-gradient(rgba(10,8,6,0.8), rgba(10,8,6,0.8)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bd52e9c49_file_00000000a50c8207b70a5b0acc15d3dc.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
