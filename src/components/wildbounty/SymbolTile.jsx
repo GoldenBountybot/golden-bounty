@@ -61,20 +61,24 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   // When this cell is a winning match, screen-blend the symbol so the golden
   // light-burst behind it shines through the black background of the art.
   const symBlend = highlighted && img ? 'screen' : 'normal';
+  const baseScale = SCALE[symbolId] || 1;
+  // Matching symbol pops bigger like a bomb burst (only before it shatters).
+  const popAnim = highlighted && !shattering ? `matchPop 0.5s ease-out` : undefined;
 
   return (
     <div
-      className={`relative overflow-hidden transition-transform`}
+      className={`relative ${highlighted ? 'overflow-visible' : 'overflow-hidden'} transition-transform`}
       style={{ aspectRatio: '1 / 1', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s ease-out forwards` : undefined, zIndex: shattering ? 20 : undefined }}
     >
-      {/* Golden light-burst behind matching symbols (symbol size unchanged) */}
+      {/* Golden light-burst behind matching symbols — slightly larger than the
+          symbol so the flare bleeds around it (bomb-burst feel) */}
       {highlighted && (
         <img
           src={WIN_LIGHT_URL}
           alt=""
           draggable={false}
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{ zIndex: 0, mixBlendMode: 'screen', animation: 'winLightBurst 0.45s ease-out forwards' }}
+          style={{ zIndex: 0, mixBlendMode: 'screen', animation: 'winLightBurst 0.5s ease-out forwards' }}
         />
       )}
       {decorFrame && img ? (
@@ -90,7 +94,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             alt={symbolId}
             loading="lazy"
             className="w-full h-full object-cover"
-            style={{ transform: `scale(${SCALE[symbolId] || 1})`, zIndex: 5, mixBlendMode: symBlend }}
+            style={{ '--bs': baseScale, transform: `scale(${baseScale})`, zIndex: 5, mixBlendMode: symBlend, animation: popAnim }}
           />
         </>
       ) : img ? (
@@ -99,10 +103,13 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           alt={symbolId}
           loading="lazy"
           className="w-full h-full object-cover"
-          style={{ transform: `scale(${SCALE[symbolId] || 1})`, mixBlendMode: symBlend }}
+          style={{ '--bs': baseScale, transform: `scale(${baseScale})`, mixBlendMode: symBlend, animation: popAnim }}
         />
       ) : isCard ? (
-        <div className={`w-full h-full flex items-center justify-center bg-gradient-to-b ${CARD_STYLE[symbolId].bg}`}>
+        <div
+          className={`w-full h-full flex items-center justify-center bg-gradient-to-b ${CARD_STYLE[symbolId].bg}`}
+          style={{ '--bs': 1, animation: popAnim }}
+        >
           <span className={`text-4xl font-black italic ${CARD_STYLE[symbolId].text} drop-shadow-[0_2px_3px_rgba(0,0,0,0.6)]`} style={{ fontFamily: 'Rye, Georgia, serif' }}>
             {symbolId}
           </span>
