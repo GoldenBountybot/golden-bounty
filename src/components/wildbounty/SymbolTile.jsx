@@ -99,7 +99,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
 
   return (
     <div
-      className={`relative ${highlighted || showHalo || goldFramed || decorFrame ? 'overflow-visible' : 'overflow-hidden'} transition-transform`}
+      className={`relative ${highlighted || showHalo || scatterBeam || goldFramed || decorFrame ? 'overflow-visible' : 'overflow-hidden'} transition-transform`}
       style={{ aspectRatio: '1 / 1', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s ease-out forwards` : undefined, zIndex: shattering ? 20 : undefined }}
     >
       {/* Golden light-burst behind matching symbols (not wilds) — slightly
