@@ -40,7 +40,7 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1, startY =
         <span
           className="block font-black italic leading-none select-none"
           style={{
-            fontSize: '4rem',
+            fontSize: '2.25rem',
             fontFamily: 'Rye, Georgia, serif',
             backgroundImage: 'linear-gradient(180deg, #fff7c4 0%, #ffd966 22%, #d4af37 48%, #9b6a1f 74%, #5e3d12 100%)',
             WebkitBackgroundClip: 'text',
