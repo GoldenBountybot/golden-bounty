@@ -80,7 +80,7 @@ const CARD_STYLE = {
   J: { bg: 'from-blue-600 to-blue-900', text: 'text-blue-50' },
 };
 
-function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam, bulletHit, slow = 1, decorFrame = false }) {
+function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam, bulletHit, slow = 1, decorFrame = false, spinning = false }) {
   const isCard = ['A', 'K', 'Q', 'J'].includes(symbolId);
   const img = IMG[symbolId];
   const isSpecial = symbolId === 'scatter' || symbolId === 'wild';
@@ -140,7 +140,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             alt={symbolId}
             loading="lazy"
             className="w-full h-full object-cover"
-            style={{ '--bs': baseScale, transform: `scale(${baseScale})`, zIndex: 5, animation: popAnim }}
+            style={{ '--bs': baseScale, transform: spinning ? 'none' : `scale(${baseScale})`, zIndex: 5, animation: popAnim }}
           />
         </>
       ) : img ? (
@@ -166,7 +166,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             alt={symbolId}
             loading="lazy"
             className="w-full h-full object-cover"
-            style={{ '--bs': baseScale, transform: `scale(${baseScale})`, animation: popAnim, filter: isScatter ? 'brightness(1.4) drop-shadow(0 0 6px rgba(255,235,150,0.75))' : undefined }}
+            style={{ '--bs': baseScale, transform: spinning ? 'none' : `scale(${baseScale})`, animation: popAnim, filter: spinning ? undefined : (isScatter ? 'brightness(1.4) drop-shadow(0 0 6px rgba(255,235,150,0.75))' : undefined) }}
           />
         </>
       ) : isCard ? (

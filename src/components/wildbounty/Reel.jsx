@@ -73,6 +73,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
             <div key={i} style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1', animation: isDropping ? `cascadeDrop ${(0.45 * slow).toFixed(2)}s ease-out` : 'none', zIndex: isDropping ? 15 : (!spinning && (sym === 'wild' || sym === 'scatter') ? 18 : undefined) }}>
               <SymbolTile
                 symbolId={sym}
+                spinning={spinning}
                 highlighted={!spinning && !cascading && winningPositions.has(`${reelIndex}-${i}`)}
                 goldFramed={!spinning && goldFrames.has(`${reelIndex}-${i}`)}
                 shattering={!spinning && shatteringPositions && shatteringPositions.has(`${reelIndex}-${i}`)}
