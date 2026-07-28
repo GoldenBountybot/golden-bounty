@@ -46,9 +46,13 @@ export default function BoardTopBanner({ className = '' }) {
           const max = r > g ? (r > b ? r : b) : (g > b ? g : b);
           const min = r < g ? (r < b ? r : b) : (g < b ? g : b);
           const sat = max === 0 ? 0 : (max - min) / max;
-          // Keep every pixel fully opaque so the reel-board background (sky)
-          // behind the banner never shows through.
-          px[i + 3] = 255;
+          if (max < BG_VALUE_FLOOR) {
+            px[i + 3] = 0; // pure black background
+          } else if (sat < SAT_FLOOR && max < GREY_VALUE_CEIL) {
+            px[i + 3] = 0; // grey halo (dark + desaturated)
+          } else {
+            px[i + 3] = 255; // kept art is always fully opaque — no smudge
+          }
         }
         ctx.putImageData(data, 0, 0);
         if (!cancelled) setSrc(canvas.toDataURL('image/png'));
@@ -87,7 +91,7 @@ export default function BoardTopBanner({ className = '' }) {
             alt=""
             className="block w-full h-auto select-none"
             draggable={false}
-            style={{ filter: 'saturate(0.92) contrast(0.98) brightness(1.0)', opacity: 1 }}
+            style={{ filter: 'saturate(0.92) contrast(0.98) brightness(1.0)' }}
           />
           <MultiplierStrip className="z-30" />
         </>
