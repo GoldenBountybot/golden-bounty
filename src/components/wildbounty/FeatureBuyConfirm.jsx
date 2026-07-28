@@ -43,23 +43,33 @@ export default function FeatureBuyConfirm({ cost, onStart, onCancel }) {
           </span>
         </div>
 
-        {/* Instruction text under COST — Rye font, golden, clearly readable */}
+        {/* Instruction text under COST — Rye font, bright gold on dark band */}
         <div
-          className="absolute left-0 right-0 flex flex-col items-center justify-center text-center px-[14%] pointer-events-none"
-          style={{ top: '50%', height: '24%', zIndex: 6 }}
+          className="absolute left-0 right-0 flex flex-col items-center justify-center text-center px-[8%] pointer-events-none"
+          style={{ top: '48%', height: '26%', zIndex: 7 }}
         >
-          <p
-            className="text-[13px] leading-snug italic"
+          <div
             style={{
-              fontFamily: 'Rye, Georgia, serif',
-              color: '#f5d98a',
-              textShadow:
-                '0 1px 0 rgba(40,24,8,0.9), 0 2px 2px rgba(0,0,0,0.7)',
-              letterSpacing: '0.02em',
+              background: 'rgba(40,24,8,0.82)',
+              borderRadius: '10px',
+              padding: '8px 12px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
             }}
           >
-            SELECT &lsquo;START&rsquo; TO TRIGGER THE FREE SPINS FEATURE AT THE CURRENT BET SIZE &amp; BET LEVEL
-          </p>
+            <p
+              className="text-[13px] leading-snug italic"
+              style={{
+                fontFamily: 'Rye, Georgia, serif',
+                color: '#ffd54a',
+                WebkitTextStroke: '0.6px #2a1a08',
+                textShadow:
+                  '0 1px 0 rgba(0,0,0,0.8), 0 0 8px rgba(255,200,60,0.55)',
+                letterSpacing: '0.03em',
+              }}
+            >
+              SELECT &lsquo;START&rsquo; TO TRIGGER THE FREE SPINS FEATURE AT THE CURRENT BET SIZE &amp; BET LEVEL
+            </p>
+          </div>
         </div>
 
         {/* Hidden CANCEL button — sits over the CANCEL button artwork */}
