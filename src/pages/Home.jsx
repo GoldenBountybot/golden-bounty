@@ -41,12 +41,30 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto pl-4 pr-0 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <img
-              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e0ebe2f88_InShot_20260722_150739877.jpg"
-              alt="Golden Bounty"
-              className="w-12 h-12 shrink-0 self-end translate-y-[13px] rounded-[8px] object-cover"
-              style={{ border: '1px solid rgba(214,178,98,0.6)', boxShadow: '0 4px 12px rgba(200,136,30,0.4)' }}
-            />
+            <div className="relative shrink-0 self-end translate-y-[13px]">
+              <img
+                src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e0ebe2f88_InShot_20260722_150739877.jpg"
+                alt="Golden Bounty"
+                className="w-12 h-12 rounded-[8px] object-cover"
+                style={{ border: '1px solid rgba(214,178,98,0.6)', boxShadow: '0 4px 12px rgba(200,136,30,0.4)' }}
+              />
+              <button
+                onClick={() => {
+                  const next = !demoMode;
+                  setDemoMode(next);
+                  toast({ title: next ? 'Demo Mode ON · $1000 practice balance' : 'Demo Mode OFF · real balance restored' });
+                }}
+                title={demoMode ? 'Demo mode is ON' : 'Enable demo mode'}
+                className="absolute -top-2 -right-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-[5px] transition-all active:scale-95 z-30"
+                style={{
+                  border: demoMode ? '1px solid rgba(74,222,128,0.85)' : '1px solid rgba(214,178,98,0.55)',
+                  background: demoMode ? 'rgba(34,197,94,0.95)' : 'rgba(20,17,13,0.92)',
+                }}
+              >
+                <FlaskConical className={`w-2.5 h-2.5 ${demoMode ? 'text-emerald-200' : 'text-amber-400'}`} />
+                <span className="text-[8px] font-black italic tracking-wide" style={{ fontFamily: 'Georgia, serif', color: demoMode ? '#bbf7d0' : '#e8c878' }}>DEMO</span>
+              </button>
+            </div>
             <div className="flex-1 min-w-0 self-start">
               <WesternTitleBadge size="lg" fullWidth className="-mt-3">Golden Bounty</WesternTitleBadge>
               <p className="text-[11px] text-amber-100/55 tracking-wide mt-1 text-center">{playable} Games Live · Play & Win</p>
@@ -54,22 +72,6 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col items-end gap-1.5 self-end mr-0">
-            <button
-              onClick={() => {
-                const next = !demoMode;
-                setDemoMode(next);
-                toast({ title: next ? 'Demo Mode ON · $1000 practice balance' : 'Demo Mode OFF · real balance restored' });
-              }}
-              title={demoMode ? 'Demo mode is ON' : 'Enable demo mode'}
-              className="flex items-center gap-1 px-2 py-1 mr-3 rounded-[6px] transition-all active:scale-95"
-              style={{
-                border: demoMode ? '1px solid rgba(74,222,128,0.75)' : '1px solid rgba(214,178,98,0.45)',
-                background: demoMode ? 'rgba(34,197,94,0.18)' : 'rgba(20,17,13,0.6)',
-              }}
-            >
-              <FlaskConical className={`w-3 h-3 ${demoMode ? 'text-emerald-300' : 'text-amber-400'}`} />
-              <span className="text-[10px] font-black italic tracking-wide" style={{ fontFamily: 'Georgia, serif', color: demoMode ? '#bbf7d0' : '#e8c878' }}>DEMO</span>
-            </button>
             <Link
               to="/dashboard"
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] transition-colors"
