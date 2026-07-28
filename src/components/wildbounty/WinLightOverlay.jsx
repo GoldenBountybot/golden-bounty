@@ -35,7 +35,7 @@ export default function WinLightOverlay({ winningPositions, grid }) {
   if (!winningPositions || winningPositions.size === 0) return null;
   const positions = [...winningPositions];
   return (
-    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 30, mixBlendMode: 'screen' }}>
+    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0, mixBlendMode: 'screen' }}>
       {positions.map(pos => {
         const s = lightFor(pos, grid);
         return (
