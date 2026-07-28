@@ -588,12 +588,10 @@
   line-height: 1;
   color: #ffe066;
   -webkit-text-fill-color: #ffe066;
-  -webkit-text-stroke: 1px #2a1805;
+  -webkit-text-stroke: 0.5px #5a3a0c;
   text-shadow:
-    1px 1px 0 #c88e1a,
-    2px 2px 0 #8a5812,
-    2px 2px 4px rgba(0,0,0,0.6),
-    0 0 8px rgba(255,215,120,0.8);
+    1px 1px 0 #d8a32a,
+    0 0 6px rgba(255,215,120,0.85);
   filter: drop-shadow(0 0 2px rgba(255,210,110,0.7)) brightness(1.15) saturate(1.25);
   white-space: nowrap;
 }

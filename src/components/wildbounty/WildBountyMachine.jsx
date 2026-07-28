@@ -104,7 +104,7 @@ export default function WildBountyMachine() {
 
       {/* Win / message banner */}
       <PlaqueBanner glow className="-mt-28 mx-auto py-1 text-center relative z-30 w-4/5">
-        <span className="wb-deep-gold text-4xl italic leading-none tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif' }}>
+        <span className="wb-deep-gold text-xl sm:text-2xl italic leading-none tracking-wide block max-w-full overflow-hidden text-ellipsis" style={{ fontFamily: 'Rye, Georgia, serif' }}>
           {g.message}
         </span>
       </PlaqueBanner>
