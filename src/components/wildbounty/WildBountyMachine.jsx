@@ -10,7 +10,6 @@ import WesternFrame from './WesternFrame';
 import PlaqueBanner from './PlaqueBanner';
 import InfoBar from './InfoBar';
 import BoardTopBanner from './BoardTopBanner';
-import WinLightOverlay from './WinLightOverlay';
 
 export default function WildBountyMachine() {
   const g = useWildBounty();
@@ -49,14 +48,11 @@ export default function WildBountyMachine() {
 
 
         {/* Grid — 24 cells (3-4-5-5-4-3), centered diamond */}
-        <div className="grid grid-cols-6 gap-0 px-0 items-center mt-0 mb-0 relative">
-          {/* Winning light-burst — rendered FIRST so it paints BEHIND the symbols,
-              with each flare larger than its cell so the glow shows around the
-              winning symbol (symbol stays on top, flare bleeds around edges). */}
-          <WinLightOverlay winningPositions={g.winningPositions} grid={g.grid} />
+        <div className="grid grid-cols-6 gap-0 px-0 items-center mt-0 mb-0">
           {g.grid.map((reel, ri) => (
             <Reel
               key={ri}
+              reelIndex={ri}
               rowCount={REEL_ROWS[ri]}
               symbols={reel}
               spinning={!g.stoppedReels.has(ri)}
