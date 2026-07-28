@@ -68,23 +68,65 @@ export function useWildBounty() {
     return frames;
   };
 
-  // Remove winning symbols from each reel; remaining symbols fall to the
-  // bottom and new random symbols drop in at the top (tumble mechanic).
-  // Replace only the winning (blasted) positions with new symbols;
-  // all other symbols stay exactly where they were.
-  const cascadeStep = (currentGrid, removePositions) => {
-    return currentGrid.map((reel, ri) => {
-      let changed = false;
-      const next = reel.map((sym, row) => {
-        if (!removePositions.has(`${ri}-${row}`)) return sym;
-        changed = true;
-        return randomSymbol();
-      });
-      // Preserve the reel array reference when nothing changed on it so
-      // React.memo on <Reel> skips re-rendering unchanged reels during
-      // cascades — a big React-work reduction in multiplier rounds.
-      return changed ? next : reel;
+  // Target odds for the cascade chain (among winning spins). The multiplier
+  // strip climbs X1→X2→X4→X8→X16→X32→X64→X128 one tier per winning cascade.
+  // CONTINUE_PROB[i] = chance the NEXT cascade wins after a win paid at tier i,
+  // derived from the requested cumulative reach odds:
+  //   reach X2 75%, X4 10%, X8 5%, X16 3%, X32 1%, X64 0.5%, X128 0.1%.
+  const CONTINUE_PROB = [0.75, 10 / 75, 0.5, 0.6, 1 / 3, 0.5, 0.2];
+
+  // Drop new symbols into the blasted positions and rig them so the next
+  // cascade either wins (chain continues toward a higher multiplier tier) or
+  // loses (chain ends), hitting the target odds. Only blasted positions are
+  // replaced; unchanged reels keep their array reference (React.memo skip).
+  const rigCascadeGrid = (currentGrid, removePositions, forceWin) => {
+    const removed = [...removePositions];
+    const changedReels = new Set(removed.map(p => Number(p.split('-')[0])));
+    const grid = currentGrid.map((reel, ri) => changedReels.has(ri) ? [...reel] : reel);
+    const baseIds = ['bandit', 'revolver', 'whiskey', 'hat', 'A', 'K', 'Q', 'J'];
+    const randBase = () => baseIds[Math.floor(Math.random() * baseIds.length)];
+    removed.forEach(pos => {
+      const [r, row] = pos.split('-').map(Number);
+      grid[r][row] = randBase();
     });
+
+    if (forceWin) {
+      // Guarantee a 3+ contiguous-from-left win: drop the same symbol on the
+      // first blasted cell of reels 0, 1 and 2 (a wild already on one of those
+      // reels substitutes, so a reel with no blasted cell is fine).
+      const S = randBase();
+      [0, 1, 2].forEach(r => {
+        const pos = removed.find(p => Number(p.split('-')[0]) === r);
+        if (pos) {
+          const [, row] = pos.split('-').map(Number);
+          grid[r][row] = S;
+        }
+      });
+    } else {
+      // Force a non-win: break any 3-reel contiguity by swapping a blasted
+      // cell on reel 2 (then 1, then 0) to a symbol different from the win.
+      let guard = 0;
+      while (guard++ < 12 && evaluateWins(grid, bet).wins.length > 0) {
+        const wins = evaluateWins(grid, bet).wins;
+        let fixed = false;
+        for (const w of wins) {
+          for (const targetReel of [2, 1, 0]) {
+            const pos = removed.find(p => Number(p.split('-')[0]) === targetReel);
+            if (pos) {
+              const [, row] = pos.split('-').map(Number);
+              let alt = randBase();
+              while (alt === w.symbol) alt = randBase();
+              grid[targetReel][row] = alt;
+              fixed = true;
+              break;
+            }
+          }
+          if (fixed) break;
+        }
+        if (!fixed) break;
+      }
+    }
+    return grid;
   };
 
   // Evaluate wins, shatter winners, cascade new symbols, repeat until no win.
@@ -179,7 +221,11 @@ export function useWildBounty() {
 
       // Cascade: drop new symbols, then re-evaluate
       const cascadeT = setTimeout(() => {
-        const newGrid = cascadeStep(gridForCascade, shatterPos);
+        // Decide whether the next cascade wins (chain continues toward a
+        // higher multiplier tier) per the target reach odds, then rig the
+        // dropped symbols to match that outcome.
+        const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex];
+        const newGrid = rigCascadeGrid(gridForCascade, shatterPos, cont);
         setShattering(new Set());
         // Keep persistent wild symbols highlighted across cascades so their
         // light burst stays on smoothly instead of flickering off/on.
@@ -263,10 +309,8 @@ export function useWildBounty() {
     setMessage('Spinning...');
 
     let finalGrid = REEL_ROWS.map(r => buildReel(r));
-    // RTP bias: decide win/loss for the spin before evaluation.
-    // Boosted (temp) so matching-symbol wins land almost every spin — makes
-    // the multiplier progression on the top banner easy to see.
-    const wantWin = Math.random() < Math.min(0.97, (rtpRef.current / 100) * 1.6);
+    // Match chance = admin RTP (default 35%): 65% no-match, 35% match.
+    const wantWin = Math.random() < (rtpRef.current / 100);
     if (wantWin) {
       const X = 'A';
       finalGrid = finalGrid.map((reel, ri) => {
@@ -286,16 +330,16 @@ export function useWildBounty() {
       }
     }
 
-    // Scatter distribution per spin: 1 = 10%, 2 = 5%, 3 = 0.003%, else 0.
+    // Scatter distribution per spin: 3+ = 1% (free-spin trigger), 2 = 5%, 1 = 10%.
     finalGrid = finalGrid.map(reel => [...reel]);
     const nonScatter = () => { let s = randomSymbol(); while (s === 'scatter') s = randomSymbol(); return s; };
     // Remove any natural scatters so we control the exact count.
     finalGrid.forEach(reel => { for (let i = 0; i < reel.length; i++) if (reel[i] === 'scatter') reel[i] = nonScatter(); });
     const roll = Math.random();
     let targetScatters = 0;
-    if (roll < 0.00003) targetScatters = 3;            // 0.003%
-    else if (roll < 0.05003) targetScatters = 2;       // 5%
-    else if (roll < 0.15003) targetScatters = 1;       // 10%
+    if (roll < 0.01) targetScatters = 3;               // 1%  (free-spin trigger)
+    else if (roll < 0.06) targetScatters = 2;           // 5%
+    else if (roll < 0.16) targetScatters = 1;          // 10%
     const cells = [];
     finalGrid.forEach((reel, ri) => reel.forEach((_, row) => cells.push([ri, row])));
     for (let i = 0; i < targetScatters && cells.length; i++) {
