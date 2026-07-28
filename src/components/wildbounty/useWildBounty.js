@@ -134,14 +134,15 @@ export function useWildBounty() {
       const convertByReel = {};
       wins.forEach(w => {
         if (w.reels >= 3) {
-          // Wild lands only on reels 3 & 4 (indices 2 & 3), and only on
-          // symbols sitting in a framed cell.
-          const tr = Math.min(w.reels - 1, 3);
-          if (!convertByReel[tr]) convertByReel[tr] = [];
-          currentGrid[tr].forEach((s, row) => {
-            const key = `${tr}-${row}`;
-            if (s === w.symbol && !convertByReel[tr].includes(key) && framedPositions.has(key)) convertByReel[tr].push(key);
-          });
+          // Every framed matching symbol on reels 3 & 4 (indices 2 & 3) that is
+          // part of this winning line converts to a wild.
+          for (let r = 2; r <= Math.min(w.reels - 1, 3); r++) {
+            if (!convertByReel[r]) convertByReel[r] = [];
+            currentGrid[r].forEach((s, row) => {
+              const key = `${r}-${row}`;
+              if (s === w.symbol && !convertByReel[r].includes(key) && framedPositions.has(key)) convertByReel[r].push(key);
+            });
+          }
         }
       });
       const convertSet = new Set();
