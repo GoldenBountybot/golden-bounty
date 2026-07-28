@@ -78,8 +78,10 @@ export function useWildBounty() {
     const reel0Syms = new Set(currentGrid[0].filter(s => s && s !== 'scatter' && s !== 'wild'));
     const baseIds = Object.values(SYMBOLS).filter(s => s.type !== 'scatter' && s.type !== 'wild').map(s => s.id);
     return currentGrid.map((reel, ri) => {
-      return reel.map((sym, row) => {
+      let changed = false;
+      const next = reel.map((sym, row) => {
         if (!removePositions.has(`${ri}-${row}`)) return sym;
+        changed = true;
         // Temp boost: bias new symbols on reels 1+ toward reel 0's symbols so
         // cascade wins chain often and the multiplier climbs several tiers.
         if (ri > 0 && reel0Syms.size > 0 && Math.random() < 0.85) {
@@ -88,6 +90,10 @@ export function useWildBounty() {
         }
         return randomSymbol();
       });
+      // Preserve the reel array reference when nothing changed on it so
+      // React.memo on <Reel> skips re-rendering unchanged reels during
+      // cascades — a big React-work reduction in multiplier rounds.
+      return changed ? next : reel;
     });
   };
 
