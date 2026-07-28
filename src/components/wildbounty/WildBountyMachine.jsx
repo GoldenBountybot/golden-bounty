@@ -76,11 +76,11 @@ export default function WildBountyMachine() {
           alt="Feature Buy"
           className="absolute z-40 select-none"
           style={{
-            right: '0%',
+            right: '-5px',
             bottom: '11%',
-            width: '24%',
-            maxWidth: '185px',
-            minWidth: '96px',
+            width: '27%',
+            maxWidth: '205px',
+            minWidth: '106px',
             height: 'auto',
           }}
           draggable={false}
