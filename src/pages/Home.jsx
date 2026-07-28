@@ -44,7 +44,7 @@ export default function Home() {
             <img
               src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e0ebe2f88_InShot_20260722_150739877.jpg"
               alt="Golden Bounty"
-              className="w-12 h-12 shrink-0 self-end rounded-[8px] object-cover"
+              className="w-12 h-12 shrink-0 self-end translate-y-2 rounded-[8px] object-cover"
               style={{ border: '1px solid rgba(214,178,98,0.6)', boxShadow: '0 4px 12px rgba(200,136,30,0.4)' }}
             />
             <div className="flex-1 min-w-0 self-start">
