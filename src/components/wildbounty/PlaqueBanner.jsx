@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Golden-frame wooden sign banner used as the win message backdrop.
-const BANNER_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/49e75976a_file_00000000045482309d8cfa516245238e.png';
+const BANNER_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ded9f1015_file_00000000d1a0820eb551f775dc672260.png';
 
 export default function PlaqueBanner({ children, className = '', style = {}, glow = false }) {
   return (
