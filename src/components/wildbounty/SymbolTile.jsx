@@ -69,22 +69,6 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
     >
       {/* Golden light-burst behind matching symbols — slightly larger than the
           symbol so the flare bleeds around it (bomb-burst feel) */}
-      {highlighted && (
-        <img
-          src={WIN_LIGHT_URL}
-          alt=""
-          draggable={false}
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{
-            zIndex: 0,
-            mixBlendMode: 'screen',
-            transformOrigin: 'center center',
-            '--wl-peak': symbolId === 'wild' ? 2.35 : 1.95,
-            '--wl-settle': symbolId === 'wild' ? 2.2 : 1.82,
-            animation: 'winLightBurst 0.5s ease-out forwards',
-          }}
-        />
-      )}
       {decorFrame && img ? (
         <>
           <img
