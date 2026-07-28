@@ -136,7 +136,7 @@ export default function WildBountyMachine() {
       </div>
 
       {g.showFreeSpinStart && !g.spinning && (
-        <FreeSpinStart count={g.freeSpins} onStart={g.startFreeSpinStart} />
+        <FreeSpinStart count={g.freeSpins} onStart={g.startFreeSpins} />
       )}
 
       {g.showFeatureBuyConfirm && (

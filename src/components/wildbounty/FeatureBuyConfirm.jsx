@@ -14,23 +14,23 @@ export default function FeatureBuyConfirm({ cost, onStart, onCancel }) {
       className="fixed inset-0 z-[110] flex items-center justify-center px-4"
       style={{ background: 'rgba(0,0,0,0.78)', backdropFilter: 'blur(3px)' }}
     >
-      <div className="relative w-full max-w-md select-none">
+      <div className="relative w-full max-w-md select-none" style={{ aspectRatio: '3 / 4' }}>
         {/* Panel artwork */}
         <img
           src={PANEL_URL}
           alt="Feature Buy"
           draggable={false}
-          className="block w-full h-auto"
+          className="absolute inset-0 w-full h-full object-contain pointer-events-none"
           style={{ filter: 'drop-shadow(0 10px 26px rgba(0,0,0,0.7))' }}
         />
 
         {/* Dynamic cost value — sits inside the dark COST plaque */}
         <div
           className="absolute left-0 right-0 flex items-center justify-center pointer-events-none"
-          style={{ top: '33%', height: '11%' }}
+          style={{ top: '34%', height: '12%', zIndex: 5 }}
         >
           <span
-            className="text-3xl font-black italic leading-none"
+            className="text-4xl font-black italic leading-none"
             style={{
               fontFamily: 'Rye, Georgia, serif',
               color: '#f0cf6a',
@@ -48,16 +48,16 @@ export default function FeatureBuyConfirm({ cost, onStart, onCancel }) {
           type="button"
           onClick={onCancel}
           aria-label="Cancel"
-          className="absolute active:scale-[0.97] transition-transform"
-          style={{ left: '7%', right: '51%', bottom: '5%', top: '83%' }}
+          className="absolute cursor-pointer"
+          style={{ left: '6%', right: '52%', top: '82%', bottom: '4%', zIndex: 20 }}
         />
         {/* START click zone (bottom-right button) */}
         <button
           type="button"
           onClick={onStart}
           aria-label="Start"
-          className="absolute active:scale-[0.97] transition-transform"
-          style={{ left: '51%', right: '7%', bottom: '5%', top: '83%' }}
+          className="absolute cursor-pointer"
+          style={{ left: '52%', right: '6%', top: '82%', bottom: '4%', zIndex: 20 }}
         />
       </div>
     </div>
