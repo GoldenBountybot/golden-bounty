@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { useWildBounty } from './useWildBounty';
 import { REEL_ROWS } from './symbols';
 import Reel from './Reel';
@@ -29,7 +29,12 @@ export default function WildBountyMachine() {
   const topStripRef = useRef(null);
   const centerMultRef = useRef(null);
 
-  const anchor = (() => {
+  // Measure anchor positions ONCE per flying-multiplier (keyed by its key) so
+  // the many re-renders during a cascade / multiplier round don't force-layout
+  // on every frame — the old per-render IIFE caused layout thrash → jank.
+  const anchor = useMemo(() => {
+    const fm = g.flyingMult;
+    if (!fm) return null;
     const m = machineRef.current;
     if (!m) return null;
     const mb = m.getBoundingClientRect();
@@ -47,7 +52,8 @@ export default function WildBountyMachine() {
     // above the board, if not measured yet.
     const startY = centerMult > 0 ? centerMult : (strip > 0 ? strip : Math.max(8, hold - mb.height * 0.4));
     return { startY, holdY: hold, winY: win };
-  })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [g.flyingMult?.key]);
 
   return (
     <div
