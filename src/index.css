@@ -586,18 +586,15 @@
   font-weight: 900;
   font-style: italic;
   line-height: 1;
-  color: #ffd23a;
-  -webkit-text-fill-color: #ffd23a;
-  -webkit-text-stroke: 1.5px #3a2208;
+  color: #ffe066;
+  -webkit-text-fill-color: #ffe066;
+  -webkit-text-stroke: 1px #2a1805;
   text-shadow:
-    0 1px 0 #ffe98a,
-    0 -1px 0 #6e470c,
-    1px 1px 0 #b8860b,
+    1px 1px 0 #c88e1a,
     2px 2px 0 #8a5812,
-    3px 3px 1px #5d3a0c,
-    4px 4px 3px rgba(0,0,0,0.7),
-    0 0 10px rgba(255,210,110,0.55);
-  filter: brightness(1.12) saturate(1.2);
+    2px 2px 4px rgba(0,0,0,0.6),
+    0 0 8px rgba(255,215,120,0.8);
+  filter: drop-shadow(0 0 2px rgba(255,210,110,0.7)) brightness(1.15) saturate(1.25);
   white-space: nowrap;
 }
 
