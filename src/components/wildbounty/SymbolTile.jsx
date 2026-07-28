@@ -58,9 +58,6 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   const isCard = ['A', 'K', 'Q', 'J'].includes(symbolId);
   const img = IMG[symbolId];
   const isSpecial = symbolId === 'scatter' || symbolId === 'wild';
-  // When this cell is a winning match, screen-blend the symbol so the golden
-  // light-burst behind it shines through the black background of the art.
-  const symBlend = highlighted && img ? 'screen' : 'normal';
   const baseScale = SCALE[symbolId] || 1;
   // Matching symbol pops bigger like a bomb burst (only before it shatters).
   const popAnim = highlighted && !shattering ? `matchPop 0.5s ease-out` : undefined;
@@ -94,7 +91,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             alt={symbolId}
             loading="lazy"
             className="w-full h-full object-cover"
-            style={{ '--bs': baseScale, transform: `scale(${baseScale})`, zIndex: 5, mixBlendMode: symBlend, animation: popAnim }}
+            style={{ '--bs': baseScale, transform: `scale(${baseScale})`, zIndex: 5, animation: popAnim }}
           />
         </>
       ) : img ? (
@@ -103,7 +100,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           alt={symbolId}
           loading="lazy"
           className="w-full h-full object-cover"
-          style={{ '--bs': baseScale, transform: `scale(${baseScale})`, mixBlendMode: symBlend, animation: popAnim }}
+          style={{ '--bs': baseScale, transform: `scale(${baseScale})`, animation: popAnim }}
         />
       ) : isCard ? (
         <div
