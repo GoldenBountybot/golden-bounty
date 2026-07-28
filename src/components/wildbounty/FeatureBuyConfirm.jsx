@@ -30,14 +30,8 @@ export default function FeatureBuyConfirm({ cost, onStart, onCancel }) {
           style={{ top: '33%', height: '13%', zIndex: 5 }}
         >
           <span
-            className="text-4xl font-black italic leading-none"
-            style={{
-              fontFamily: 'Rye, Georgia, serif',
-              color: '#f0cf6a',
-              WebkitTextStroke: '1px #2a1a08',
-              textShadow:
-                '0 1px 0 rgba(255,250,210,0.55), 0 2px 1px rgba(0,0,0,0.55), 0 3px 3px rgba(0,0,0,0.5)',
-            }}
+            className="wb-deep-gold text-4xl italic leading-none"
+            style={{ fontFamily: 'Rye, Georgia, serif' }}
           >
             {cost.toFixed(2)}
           </span>
