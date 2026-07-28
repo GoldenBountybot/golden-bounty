@@ -546,8 +546,8 @@
    slightly larger than the symbol so the flare bleeds around it */
 @keyframes winLightBurst {
   0%   { opacity: 0; transform: scale(0.7); }
-  45%  { opacity: 0.8; transform: scale(var(--wb-scale, 2.7)); }
-  100% { opacity: 0.8; transform: scale(var(--wb-scale, 2.7)); }
+  45%  { opacity: 0.8; transform: scale(1.42); }
+  100% { opacity: 0.8; transform: scale(1.34); }
 }
 
 /* Wild Bounty — matching symbol pops bigger like a bomb burst, then settles */
