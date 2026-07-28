@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Bell, Gift, CheckCircle2, ArrowDownToLine, ArrowUpFromLine, Megaphone, ArrowLeft } from 'lucide-react';
+import React from 'react';
+import { Bell, Gift, CheckCircle2, ArrowDownToLine, ArrowUpFromLine, Megaphone } from 'lucide-react';
 import { useNotifications } from '@/lib/useNotifications';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
 import BackButton from '@/components/BackButton';
@@ -31,27 +30,8 @@ function fullTime(d) {
 
 export default function Notifications() {
   const { items, unreadCount, markAllRead, reload, loading } = useNotifications();
-  const [filter, setFilter] = useState('all');
 
   React.useEffect(() => { markAllRead(); reload(); /* eslint-disable-next-line */ }, []);
-
-  const filters = [
-    { id: 'all', label: 'All' },
-    { id: 'bonus', label: 'Bonus' },
-    { id: 'deposit', label: 'Deposit' },
-    { id: 'withdraw', label: 'Withdraw' },
-    { id: 'system', label: 'System' },
-  ];
-
-  const matchFilter = (n) => {
-    if (filter === 'all') return true;
-    if (filter === 'bonus') return n.type === 'bonus_arrived' || n.type === 'bonus_claimed';
-    if (filter === 'deposit') return n.type === 'deposit_approved';
-    if (filter === 'withdraw') return n.type === 'withdraw_approved';
-    return n.type === 'system';
-  };
-
-  const shown = items.filter(matchFilter);
 
   return (
     <div className="min-h-screen pb-24 bg-[#0b0b0d]">
@@ -62,7 +42,7 @@ export default function Notifications() {
       >
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <BackButton to="/" />
-          <WesternTitleBadge size="lg">Notifications</WesternTitleBadge>
+          <WesternTitleBadge size="lg" fullWidth className="max-w-[60%]">Notifications</WesternTitleBadge>
           <div className="w-8" />
         </div>
       </header>
@@ -72,40 +52,21 @@ export default function Notifications() {
           {items.length} total · {unreadCount} unread
         </p>
 
-        {/* Filter tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide mb-4">
-          {filters.map(f => (
-            <button
-              key={f.id}
-              onClick={() => setFilter(f.id)}
-              className="px-4 py-1.5 rounded-[7px] text-xs font-bold italic whitespace-nowrap transition-colors"
-              style={{
-                fontFamily: 'Georgia, serif',
-                border: filter === f.id ? '1px solid rgba(214,178,98,0.85)' : '1px solid rgba(214,178,98,0.3)',
-                background: filter === f.id ? 'linear-gradient(to bottom,#f5c542,#c8881e)' : 'rgba(20,17,13,0.6)',
-                color: filter === f.id ? '#2a1a06' : '#e8c878',
-              }}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Notification list */}
+        {/* Notification list — each notification on its own line */}
         {loading ? (
           <div className="text-center py-10 text-[12px] text-amber-100/50 italic" style={{ fontFamily: 'Georgia, serif' }}>
             Loading…
           </div>
-        ) : shown.length === 0 ? (
+        ) : items.length === 0 ? (
           <div className="text-center py-16 flex flex-col items-center gap-3">
             <Bell className="w-10 h-10 text-amber-200/30" />
             <p className="text-[12px] text-amber-100/50 italic" style={{ fontFamily: 'Georgia, serif' }}>
-              No notifications here
+              No notifications yet
             </p>
           </div>
         ) : (
           <div className="flex flex-col gap-2.5">
-            {shown.map((n) => {
+            {items.map((n) => {
               const m = TYPE_META[n.type] || TYPE_META.system;
               const Icon = m.icon;
               return (
@@ -122,7 +83,7 @@ export default function Notifications() {
                     className="shrink-0 mt-0.5 w-9 h-9 rounded-full flex items-center justify-center"
                     style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${m.color}66` }}
                   >
-                    <Icon className="w-4.5 h-4.5" style={{ color: m.color }} />
+                    <Icon className="w-4 h-4" style={{ color: m.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
