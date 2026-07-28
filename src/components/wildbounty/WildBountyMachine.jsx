@@ -90,10 +90,9 @@ export default function WildBountyMachine() {
           }}
         >
           <img
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ded9f1015_file_00000000d1a0820eb551f775dc672260.png"
+            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a422458cf_file_000000001fe0823080289c04ab45bfdf.png"
             alt="Feature Buy"
             className="block w-full h-auto"
-            style={{ mixBlendMode: 'screen', filter: 'saturate(1.15) contrast(1.08)' }}
             draggable={false}
           />
         </button>
