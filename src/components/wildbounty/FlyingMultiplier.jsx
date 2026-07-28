@@ -8,25 +8,26 @@ import React, { useEffect, useMemo } from 'react';
 // the board centre and the pop lands exactly on the win banner.
 export default function FlyingMultiplier({ value, onComplete, slow = 1, startY = 8, holdY = 46, winY = 63 }) {
   const TOTAL = 1500 * slow;
-  const COIN_START = 1280 * slow;
-  const COIN_COUNT = 12;
-  const COIN_STEP = 26;
+  const COIN_START = 760 * slow;
+  const COIN_COUNT = 10;
+  const COIN_STEP = 20 * slow;
 
   const coins = useMemo(() => {
     const list = [];
-    const coinDur = TOTAL - COIN_START;
+    const maxDelay = (COIN_COUNT - 1) * COIN_STEP;
+    const coinDur = Math.max(260, TOTAL - COIN_START - maxDelay);
     for (let i = 0; i < COIN_COUNT; i++) {
-      const dx = (i - (COIN_COUNT - 1) / 2) * 16 + (Math.random() - 0.5) * 18;
-      const offset = (i * COIN_STEP + Math.random() * 24) * slow;
+      const dx = (i - (COIN_COUNT - 1) / 2) * 15 + (Math.random() - 0.5) * 16;
+      const offset = i * COIN_STEP + Math.random() * 14;
       list.push({
         dx,
         delay: COIN_START + offset,
-        dur: Math.max(120, coinDur - offset),
+        dur: coinDur,
         size: 14 + Math.random() * 9,
       });
     }
     return list;
-  }, [slow, TOTAL, COIN_START]);
+  }, [slow, TOTAL, COIN_START, COIN_COUNT, COIN_STEP]);
 
   useEffect(() => {
     const doneT = setTimeout(() => onComplete && onComplete(), TOTAL);
@@ -83,7 +84,7 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1, startY =
               boxShadow: '0 0 6px rgba(255,200,60,0.85), inset 0 0 2px rgba(90,55,10,0.7)',
               border: '1.5px solid #7a4f17',
               animation: `coinDropShort ${(c.dur / 1000).toFixed(2)}s cubic-bezier(0.4,0.0,0.7,1) forwards`,
-              animationDelay: `${c.delay - COIN_START}ms`,
+              animationDelay: `${c.delay}ms`,
             }}
           />
         ))}

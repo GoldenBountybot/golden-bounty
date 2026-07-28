@@ -203,12 +203,13 @@
   100% { top: var(--win-y, 63%);   transform: translateX(-50%) scale(0.8);  opacity: 0; }
 }
 
-/* Wild Bounty — short gold-coin shower dropping from the multiplier's landing
-   point into the win banner */
+/* Wild Bounty — short gold-coin shower raining from just above the win
+   banner down onto the banner centre (never below it) */
 @keyframes coinDropShort {
-  0%   { top: var(--win-y, 63%); transform: translate(-50%, 0) scale(0.6); opacity: 0; }
-  18%  { opacity: 1; }
-  100% { top: calc(var(--win-y, 63%) + 13%); transform: translate(calc(-50% + var(--dx, 0px)), 4px) scale(0.5); opacity: 0; }
+  0%   { top: calc(var(--hold-y, 46%) - 8%); transform: translate(-50%, 0) scale(0.55); opacity: 0; }
+  16%  { opacity: 1; }
+  82%  { top: var(--win-y, 63%); transform: translate(calc(-50% + var(--dx, 0px)), 0) scale(0.6); opacity: 1; }
+  100% { top: var(--win-y, 63%); transform: translate(calc(-50% + var(--dx, 0px)), 0) scale(0.45); opacity: 0; }
 }
 
 /* Wild Bounty — win banner pops each time the win amount counts up a tier */
