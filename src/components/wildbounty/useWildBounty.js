@@ -79,9 +79,11 @@ export function useWildBounty() {
     return currentGrid.map((reel, ri) => {
       return reel.map((sym, row) => {
         if (!removePositions.has(`${ri}-${row}`)) return sym;
-        if (ri > 0 && reel0Syms.size > 0 && Math.random() < 0.65) {
-          const choices = baseIds.filter(id => !reel0Syms.has(id));
-          if (choices.length) return choices[Math.floor(Math.random() * choices.length)];
+        // Temp boost: bias new symbols on reels 1+ toward reel 0's symbols so
+        // cascade wins chain often and the multiplier climbs several tiers.
+        if (ri > 0 && reel0Syms.size > 0 && Math.random() < 0.85) {
+          const choices = [...reel0Syms];
+          return choices[Math.floor(Math.random() * choices.length)];
         }
         return randomSymbol();
       });
@@ -260,12 +262,13 @@ export function useWildBounty() {
 
     let finalGrid = REEL_ROWS.map(r => buildReel(r));
     // RTP bias: decide win/loss for the spin before evaluation.
-    // Higher bias factor so forced matching-symbol wins land more often.
-    const wantWin = Math.random() < (rtpRef.current / 100) * 0.5;
+    // Boosted (temp) so matching-symbol wins land almost every spin — makes
+    // the multiplier progression on the top banner easy to see.
+    const wantWin = Math.random() < Math.min(0.97, (rtpRef.current / 100) * 1.6);
     if (wantWin) {
       const X = 'A';
       finalGrid = finalGrid.map((reel, ri) => {
-        if (ri < 3 && !reel.includes(X)) {
+        if (ri < 4 && !reel.includes(X)) {
           const copy = [...reel];
           copy[Math.floor(Math.random() * copy.length)] = X;
           return copy;
