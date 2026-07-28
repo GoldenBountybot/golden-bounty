@@ -148,11 +148,11 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           {/* Scatter — soft golden glow only on the top & bottom edges */}
           {isScatter && scatterBeam && (
             <div
-              className="absolute inset-0 pointer-events-none"
+              className="absolute pointer-events-none"
               style={{
-                background: 'linear-gradient(180deg, rgba(255,248,185,0.98) 0%, rgba(255,248,185,0) 26%, rgba(255,248,185,0) 74%, rgba(255,248,185,0.98) 100%)',
-                filter: 'blur(5px)',
-                transform: 'scaleY(1.35) scaleX(0.48)',
+                top: '-70%', bottom: '-70%', left: '14%', right: '14%',
+                background: 'linear-gradient(180deg, rgba(255,248,185,0) 0%, rgba(255,248,185,0.95) 30%, rgba(255,248,185,0.18) 46%, rgba(255,248,185,0.18) 54%, rgba(255,248,185,0.95) 70%, rgba(255,248,185,0) 100%)',
+                filter: 'blur(6px)',
                 mixBlendMode: 'screen',
                 zIndex: 0,
               }}
