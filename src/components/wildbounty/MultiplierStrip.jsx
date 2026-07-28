@@ -85,7 +85,7 @@ function ArcWord({ label, centerA, size, lit, nudgeY = 3 }) {
   });
 }
 
-export default function MultiplierStrip({ multIndex = 0, lit = false, className = '' }) {
+export default function MultiplierStrip({ multIndex = 0, lit = false, className = '', centerRef }) {
   // The centre shows the multiplier of the most-recent cascade win. multIndex
   // is incremented *after* a win is computed, so while a win is showing the
   // active tier is multIndex - 1. When idle, show the base tier (multIndex).
@@ -106,7 +106,7 @@ export default function MultiplierStrip({ multIndex = 0, lit = false, className 
       <ArcWord label={`X${at(-2)}`} centerA={SLOTS.left2.centerA} size={SLOTS.left2.size} />
       <ArcWord label={`X${at(-1)}`} centerA={SLOTS.left1.centerA} size={SLOTS.left1.size} />
       {/* Centre — current multiplier, upright; lights up while matching */}
-      <span key={displayIndex} className="wb-deep-gold" style={centerStyle}>{centerLabel}</span>
+      <span ref={centerRef} key={displayIndex} className="wb-deep-gold" style={centerStyle}>{centerLabel}</span>
       {/* Right side — upcoming multipliers, following the right-upward curve */}
       <ArcWord label={`X${at(1)}`} centerA={SLOTS.right1.centerA} size={SLOTS.right1.size} />
       <ArcWord label={`X${at(2)}`} centerA={SLOTS.right2.centerA} size={SLOTS.right2.size} />

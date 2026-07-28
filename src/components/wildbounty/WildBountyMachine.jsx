@@ -27,6 +27,7 @@ export default function WildBountyMachine() {
   const boardRef = useRef(null);
   const winBannerRef = useRef(null);
   const topStripRef = useRef(null);
+  const centerMultRef = useRef(null);
 
   const anchor = (() => {
     const m = machineRef.current;
@@ -39,10 +40,12 @@ export default function WildBountyMachine() {
     };
     const hold = yOf(boardRef.current);
     const win = yOf(winBannerRef.current);
+    const centerMult = yOf(centerMultRef.current);
     const strip = yOf(topStripRef.current);
-    // Fly FROM the top multiplier strip (where X2 / X4 live), not from above
-    // the board. Fall back to a little above the board if not measured yet.
-    const startY = strip > 0 ? strip : Math.max(8, hold - mb.height * 0.4);
+    // Fly FROM the centre of the multiplier text on the top strip (not from
+    // the top of the banner). Fall back to the strip centre, then to a little
+    // above the board, if not measured yet.
+    const startY = centerMult > 0 ? centerMult : (strip > 0 ? strip : Math.max(8, hold - mb.height * 0.4));
     return { startY, holdY: hold, winY: win };
   })();
 
@@ -61,7 +64,7 @@ export default function WildBountyMachine() {
       >
 {/* Decorative steer-skull banner on top of the board (black bg keyed out) */}
 <div ref={topStripRef} className="flex justify-center mx-1 -mt-20 -mb-2 relative z-20 scale-110">
-  <BoardTopBanner multIndex={g.multIndex} lit={lit} />
+  <BoardTopBanner multIndex={g.multIndex} lit={lit} centerMultRef={centerMultRef} />
 </div>
 
 {/* Reel board — bronze western frame (web asset) around symbols */}
