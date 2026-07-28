@@ -233,6 +233,12 @@
   100% { opacity: 0; transform: scale(0.25); }
 }
 
+/* Stylish top-banner notification — slides down from the very top */
+@keyframes notifySlideIn {
+  0%   { transform: translateY(-130%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
 /* Stealth bomber takeoff exhaust trail */
 @keyframes jetExhaust {
   0%, 100% { opacity: 0.55; transform: scaleX(1) scaleY(1); }

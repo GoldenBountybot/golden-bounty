@@ -9,6 +9,7 @@ import BackButton from '@/components/BackButton';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import WesternBackdrop from '@/components/WesternBackdrop';
+import StylishNotify from '@/components/StylishNotify';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/lib/AuthContext';
 import { base44 } from '@/api/base44Client';
@@ -32,6 +33,8 @@ export default function Dashboard() {
   const [history, setHistory] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [stackBanner, setStackBanner] = useState('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ce2101293_InShot_20260718_173817740.jpg');
+  const [notify, setNotify] = useState(null);
+  const showNotify = (title, description) => setNotify({ title, description });
 
   useEffect(() => {
     let active = true;
@@ -84,8 +87,8 @@ export default function Dashboard() {
   const claim = (name, fn) => {
     const res = fn();
     if (res === false) toast({ title: `${name} not available yet` });
-    else if (typeof res === 'number') toast({ title: `${name} claimed!`, description: `+$${res.toFixed(2)} added to balance` });
-    else toast({ title: `${name} claimed!`, description: 'Bonus added to your balance' });
+    else if (typeof res === 'number') showNotify(`${name} claimed!`, `+$${res.toFixed(2)} added to balance`);
+    else showNotify(`${name} claimed!`, 'Bonus added to your balance');
   };
 
   const doStake = async (amount) => {
@@ -93,13 +96,13 @@ export default function Dashboard() {
     const n = Number(amount);
     if (!n || n <= 0) { toast({ title: 'Enter a valid amount' }); return; }
     const ok = await stake.stake(n);
-    if (ok) { toast({ title: 'Stacked!', description: `$${n.toFixed(2)} locked · earning ${(stake.rate * 100).toFixed(2)}% daily` }); setStkAmt(''); }
+    if (ok) { showNotify('Stacked!', `$${n.toFixed(2)} locked · earning ${(stake.rate * 100).toFixed(2)}% daily`); setStkAmt(''); }
     else toast({ title: 'Insufficient balance' });
   };
 
   const doClaimProfit = async () => {
     const p = await stake.claimProfit();
-    if (p > 0) toast({ title: 'Profit claimed!', description: `+$${p.toFixed(2)} added to balance` });
+    if (p > 0) showNotify('Profit claimed!', `+$${p.toFixed(2)} added to balance`);
     else toast({ title: 'No profit to claim yet' });
   };
 
@@ -337,6 +340,7 @@ export default function Dashboard() {
           </div>
         )}
       </main>
+      <StylishNotify data={notify} onDone={() => setNotify(null)} />
     </div>
   );
 }
