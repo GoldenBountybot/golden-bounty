@@ -5,6 +5,7 @@ import Reel from './Reel';
 
 import ControlPanel from './ControlPanel';
 import FreeSpinStart from './FreeSpinStart';
+import FeatureBuyConfirm from './FeatureBuyConfirm';
 import WesternFrame from './WesternFrame';
 import PlaqueBanner from './PlaqueBanner';
 import InfoBar from './InfoBar';
@@ -76,7 +77,7 @@ export default function WildBountyMachine() {
         <button
           type="button"
           onClick={g.buyFeature}
-          disabled={g.spinning || g.showFreeSpinStart}
+          disabled={g.spinning || g.showFreeSpinStart || g.showFeatureBuyConfirm}
           className="absolute z-40 select-none active:scale-95 transition-transform disabled:opacity-70"
           style={{
             right: '-15px',
@@ -135,7 +136,15 @@ export default function WildBountyMachine() {
       </div>
 
       {g.showFreeSpinStart && !g.spinning && (
-        <FreeSpinStart count={g.freeSpins} onStart={g.startFreeSpins} />
+        <FreeSpinStart count={g.freeSpins} onStart={g.startFreeSpinStart} />
+      )}
+
+      {g.showFeatureBuyConfirm && (
+        <FeatureBuyConfirm
+          cost={g.featureCost}
+          onStart={g.confirmFeatureBuy}
+          onCancel={g.cancelFeatureBuy}
+        />
       )}
 
       </div>

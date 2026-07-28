@@ -29,6 +29,7 @@ export function useWildBounty() {
   const [cascadePositions, setCascadePositions] = useState(new Set());
   const [cascadeSlow, setCascadeSlow] = useState(1);
   const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
+  const [showFeatureBuyConfirm, setShowFeatureBuyConfirm] = useState(false);
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
   const [anticipation, setAnticipation] = useState(false);
   const [scatterGlow, setScatterGlow] = useState(new Set());
@@ -389,13 +390,23 @@ export function useWildBounty() {
 
   const clearFlyingMult = useCallback(() => setFlyingMult(null), []);
 
-  // FEATURE BUY — instantly award 10 free spins and show the start banner.
+  // FEATURE BUY — open the confirmation modal first (Start awards the spins).
   const buyFeature = useCallback(() => {
-    if (spinning || showFreeSpinStart) return;
+    if (spinning || showFreeSpinStart || showFeatureBuyConfirm) return;
+    setShowFeatureBuyConfirm(true);
+  }, [spinning, showFreeSpinStart, showFeatureBuyConfirm]);
+
+  // START — award 10 free spins and let the free-spins loop begin.
+  const confirmFeatureBuy = useCallback(() => {
+    setShowFeatureBuyConfirm(false);
     setFreeSpins(10);
-    setShowFreeSpinStart(true);
+    setFreeSpinsActive(true);
+    setMultIndex(3); // 8x — free spins start here
     setMessage('FEATURE BUY · 10 FREE SPINS');
-  }, [spinning, showFreeSpinStart]);
+  }, []);
+
+  // CANCEL — just close the modal, nothing awarded.
+  const cancelFeatureBuy = useCallback(() => setShowFeatureBuyConfirm(false), []);
 
   const startFreeSpins = useCallback(() => {
     setShowFreeSpinStart(false);
@@ -419,11 +430,13 @@ export function useWildBounty() {
     multiplier: MULTIPLIERS[multIndex], multIndex,
     lastWin, message, winningPositions, goldFrames, shattering, cascading, cascadePositions,
     freeSpins, scatterCount, turbo, autoSpin,
-    showFreeSpinStart, freeSpinsActive, startFreeSpins, buyFeature,
+    showFreeSpinStart, showFeatureBuyConfirm, confirmFeatureBuy, cancelFeatureBuy,
+    freeSpinsActive, startFreeSpins, buyFeature,
     anticipation, scatterGlow,
     cascadeSlow,
     bulletHit,
     flyingMult, clearFlyingMult,
     spin, setBetIndex, setTurbo, setAutoSpin, reset,
+    featureCost: bet * 100,
   };
 }
