@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CasinoGameCard from '@/components/CasinoGameCard';
 import WesternGameBanners from '@/components/WesternGameBanners';
+import LiveTicker from '@/components/LiveTicker';
 import BottomNav from '@/components/BottomNav';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
 import { Wallet, FlaskConical } from 'lucide-react';
@@ -87,6 +88,9 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-4 pt-5">
         <WesternGameBanners />
       </div>
+
+      {/* Live activity ticker */}
+      <LiveTicker />
 
       {/* Category tabs */}
       <div className="max-w-6xl mx-auto px-4 mt-6">

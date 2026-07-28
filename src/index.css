@@ -233,6 +233,12 @@
   100% { opacity: 0; transform: scale(0.25); }
 }
 
+/* Live ticker marquee — scrolls right→left, two copies for seamless loop */
+@keyframes liveMarquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 /* Stylish top-banner notification — slides down, holds, then slides back up */
 @keyframes notifyLife {
   0%   { transform: translateY(-130%); opacity: 0; }
