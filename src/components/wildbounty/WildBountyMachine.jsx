@@ -70,6 +70,22 @@ export default function WildBountyMachine() {
           ))}
         </div>
 
+        {/* FEATURE BUY banner — small, bottom-right, flush with the frame border */}
+        <img
+          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a422458cf_file_000000001fe0823080289c04ab45bfdf.png"
+          alt="Feature Buy"
+          className="absolute z-40 select-none"
+          style={{
+            right: '0%',
+            bottom: '4%',
+            width: '15%',
+            maxWidth: '120px',
+            minWidth: '64px',
+            height: 'auto',
+          }}
+          draggable={false}
+        />
+
       </div>
 
       {/* Win / message banner */}
