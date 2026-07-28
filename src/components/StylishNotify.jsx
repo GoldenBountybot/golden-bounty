@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 
 // Stylish top-banner notification for claim / submit success messages:
 // black banner, white "Rey" font, golden accent, slide-in + auto-dismiss.
-export default function StylishNotify({ data, onDone, duration = 2800 }) {
+export default function StylishNotify({ data, onDone, duration = 1500 }) {
   useEffect(() => {
     if (!data) return;
     const t = setTimeout(() => onDone && onDone(), duration);
@@ -20,7 +20,7 @@ export default function StylishNotify({ data, onDone, duration = 2800 }) {
           background: 'linear-gradient(180deg, #0a0a0c 0%, #15130b 100%)',
           border: '1px solid rgba(245,210,120,0.55)',
           boxShadow: '0 6px 22px rgba(0,0,0,0.6), 0 0 18px rgba(255,200,90,0.22), inset 0 1px 0 rgba(255,240,180,0.18)',
-          animation: 'notifySlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both',
+          animation: `notifyLife ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) both`,
           willChange: 'transform, opacity',
         }}
       >
