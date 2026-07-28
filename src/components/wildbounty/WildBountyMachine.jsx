@@ -10,7 +10,6 @@ import WesternFrame from './WesternFrame';
 import PlaqueBanner from './PlaqueBanner';
 import InfoBar from './InfoBar';
 import BoardTopBanner from './BoardTopBanner';
-import FeatureBuy from './FeatureBuy';
 
 export default function WildBountyMachine() {
   const g = useWildBounty();
@@ -72,9 +71,6 @@ export default function WildBountyMachine() {
         </div>
 
       </div>
-
-      {/* Feature Buy plaque — bottom-right of the board frame */}
-      <FeatureBuy />
 
       {/* Win / message banner */}
       <PlaqueBanner glow className="-mt-24 mx-auto py-1 text-center relative z-30 w-3/5">
