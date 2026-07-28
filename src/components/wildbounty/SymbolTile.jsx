@@ -59,23 +59,40 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   const img = IMG[symbolId];
   const isSpecial = symbolId === 'scatter' || symbolId === 'wild';
   const baseScale = SCALE[symbolId] || 1;
+  const isWild = symbolId === 'wild';
   // Matching symbol pops bigger like a bomb burst (only before it shatters).
-  const popAnim = highlighted && !shattering ? `matchPop 0.5s ease-out` : undefined;
+  // Wilds don't pop — they carry a soft persistent halo instead.
+  const popAnim = highlighted && !shattering && !isWild ? `matchPop 0.5s ease-out` : undefined;
+  const showHalo = isWild && scatterBeam;
 
   return (
     <div
-      className={`relative ${highlighted ? 'overflow-visible' : 'overflow-hidden'} transition-transform`}
+      className={`relative ${highlighted || showHalo ? 'overflow-visible' : 'overflow-hidden'} transition-transform`}
       style={{ aspectRatio: '1 / 1', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s ease-out forwards` : undefined, zIndex: shattering ? 20 : undefined }}
     >
-      {/* Golden light-burst behind matching symbols — slightly larger than the
-          symbol so the flare bleeds around it (bomb-burst feel) */}
-      {highlighted && (
+      {/* Golden light-burst behind matching symbols (not wilds) — slightly
+          larger than the symbol so the flare bleeds around it */}
+      {highlighted && !isWild && (
         <img
           src={WIN_LIGHT_URL}
           alt=""
           draggable={false}
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           style={{ zIndex: 0, mixBlendMode: 'screen', transformOrigin: 'center center', animation: 'winLightBurst 0.5s ease-out forwards' }}
+        />
+      )}
+      {/* Wild — soft golden halo that glows gently and persists until the next
+          spin / round (driven by scatterGlow, not per-cascade highlights). */}
+      {showHalo && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            zIndex: 0,
+            background: 'radial-gradient(circle at center, rgba(255,243,180,0.62) 0%, rgba(255,212,95,0.32) 44%, transparent 72%)',
+            filter: 'blur(5px)',
+            transform: 'scale(1.18)',
+            animation: 'wildHaloPulse 2.4s ease-in-out infinite',
+          }}
         />
       )}
       {(decorFrame || goldFramed) && img ? (

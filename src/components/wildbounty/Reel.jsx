@@ -38,19 +38,6 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
     return symbols;
   }, [spinning, symbols, rowCount, anticipationGlow]);
 
-  // Randomly pick cells in the 3rd and 4th rows (index 2 & 3) to show the
-  // decorative western frame behind the symbol. Re-rolled each settled board.
-  const framedRows = useMemo(() => {
-    if (spinning) return new Set();
-    // Only the two center reels (5-row) hold the middle two lines of the board.
-    if (reelIndex !== 2 && reelIndex !== 3) return new Set();
-    const s = new Set();
-    symbols.forEach((_, i) => {
-      if ((i === 2 || i === 3) && Math.random() < 0.5) s.add(i);
-    });
-    return s;
-  }, [spinning, symbols, reelIndex]);
-
   return (
     <div className={`relative w-full ${spinning ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount }}>
       {/* Anticipation golden edge glow on both sides (brighter) */}
@@ -91,7 +78,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
                 shattering={!spinning && shatteringPositions && shatteringPositions.has(`${reelIndex}-${i}`)}
                 scatterBeam={!spinning && scatterGlow && scatterGlow.has(`${reelIndex}-${i}`)}
                 bulletHit={!spinning && bulletHit && bulletHit.has(`${reelIndex}-${i}`)}
-                decorFrame={!spinning && framedRows.has(i)}
+                decorFrame={false}
                 slow={slow}
               />
             </div>

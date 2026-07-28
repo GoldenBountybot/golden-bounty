@@ -55,10 +55,13 @@ export function useWildBounty() {
   useEffect(() => () => { timers.current.forEach(clearTimeout); timers.current.forEach(clearInterval); }, []);
 
   const assignGoldFrames = (newGrid) => {
+    // Golden frames only appear on the two center reels (indices 2 & 3),
+    // on the middle two lines (rows 2 & 3).
     const frames = new Set();
     newGrid.forEach((reel, ri) => {
+      if (ri !== 2 && ri !== 3) return;
       reel.forEach((_, row) => {
-        if (Math.random() < 0.14) frames.add(`${ri}-${row}`);
+        if ((row === 2 || row === 3) && Math.random() < 0.5) frames.add(`${ri}-${row}`);
       });
     });
     return frames;
