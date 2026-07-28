@@ -145,15 +145,18 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
         </>
       ) : img ? (
         <>
-          {/* Scatter — soft golden glow only on the top & bottom edges */}
+          {/* Scatter — full-tile warm golden radial glow (rounded rectangle),
+              screen-blended so it wraps the gold bars + SCATTER text. */}
           {isScatter && scatterBeam && (
             <div
               className="absolute pointer-events-none"
               style={{
-                top: '-70%', bottom: '-70%', left: '6%', right: '6%',
-                background: 'radial-gradient(ellipse 82% 58% at 50% 0%, rgba(255,251,225,0.95) 0%, rgba(255,228,130,0.5) 34%, transparent 70%), radial-gradient(ellipse 82% 58% at 50% 100%, rgba(255,251,225,0.95) 0%, rgba(255,228,130,0.5) 34%, transparent 70%)',
-                filter: 'blur(6px)',
+                top: '-8%', bottom: '-8%', left: '-8%', right: '-8%',
+                borderRadius: '16%',
+                background: 'radial-gradient(ellipse 72% 64% at 50% 46%, rgba(255,248,224,0.98) 0%, rgba(255,210,80,0.92) 26%, rgba(255,160,30,0.6) 52%, rgba(255,130,15,0.22) 76%, rgba(255,110,5,0) 100%)',
+                filter: 'blur(3px)',
                 mixBlendMode: 'screen',
+                animation: 'wildHaloPulse 2.6s ease-in-out infinite',
                 zIndex: 0,
               }}
             />
