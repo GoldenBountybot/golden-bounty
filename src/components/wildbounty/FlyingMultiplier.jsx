@@ -6,7 +6,7 @@ import React, { useEffect, useMemo } from 'react';
 // counts up in the banner.
 export default function FlyingMultiplier({ value, onComplete, slow = 1 }) {
   const TOTAL = 1500 * slow;
-  const COIN_START = 760 * slow;
+  const COIN_START = 1280 * slow;
   const COIN_COUNT = 12;
   const COIN_STEP = 26;
 
