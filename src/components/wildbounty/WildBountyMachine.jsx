@@ -77,10 +77,10 @@ export default function WildBountyMachine() {
           className="absolute z-40 select-none"
           style={{
             right: '0%',
-            bottom: '4%',
-            width: '15%',
-            maxWidth: '120px',
-            minWidth: '64px',
+            bottom: '9%',
+            width: '19%',
+            maxWidth: '150px',
+            minWidth: '78px',
             height: 'auto',
           }}
           draggable={false}
