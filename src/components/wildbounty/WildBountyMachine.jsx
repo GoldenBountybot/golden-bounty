@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { useWildBounty } from './useWildBounty';
 import { REEL_ROWS } from './symbols';
 import Reel from './Reel';
@@ -19,36 +19,27 @@ export default function WildBountyMachine() {
   // showing the achieved tier until the next spin resets the round).
   const lit = g.winningPositions.size > 0 || g.cascading || g.shattering.size > 0 || g.lastWin > 0;
 
-  // Measure the real vertical position of the reel board (hold) and the win
-  // banner (pop) as percentages of the machine height, so the flying
-  // multiplier holds dead-centre over the board and lands exactly on the win
-  // banner regardless of layout / screen size.
+  // Measure the real pixel positions of the reel-board centre and the
+  // win-banner centre relative to the machine — computed live each time a
+  // multiplier is about to fly — so it holds dead-centre over the reels and
+  // pops exactly on the win banner regardless of negative margins / layout.
   const machineRef = useRef(null);
   const boardRef = useRef(null);
   const winBannerRef = useRef(null);
-  const [anchor, setAnchor] = useState({ start: 8, hold: 46, win: 63 });
 
-  useEffect(() => {
-    const compute = () => {
-      const m = machineRef.current;
-      if (!m) return;
-      const mb = m.getBoundingClientRect();
-      const pct = (el) => {
-        if (!el) return null;
-        const r = el.getBoundingClientRect();
-        return ((r.top + r.height / 2 - mb.top) / mb.height) * 100;
-      };
-      const hold = pct(boardRef.current);
-      const win = pct(winBannerRef.current);
-      if (hold != null && win != null && win > hold) {
-        setAnchor({ start: Math.max(4, hold - 42), hold, win });
-      }
+  const anchor = (() => {
+    const m = machineRef.current;
+    if (!m) return null;
+    const mb = m.getBoundingClientRect();
+    const yOf = (el) => {
+      if (!el) return 0;
+      const r = el.getBoundingClientRect();
+      return r.top + r.height / 2 - mb.top;
     };
-    compute();
-    const t = setTimeout(compute, 350);
-    window.addEventListener('resize', compute);
-    return () => { clearTimeout(t); window.removeEventListener('resize', compute); };
-  }, []);
+    const hold = yOf(boardRef.current);
+    const win = yOf(winBannerRef.current);
+    return { startY: Math.max(8, hold - mb.height * 0.4), holdY: hold, winY: win };
+  })();
 
   return (
     <div
@@ -191,14 +182,14 @@ export default function WildBountyMachine() {
       {/* Flying multiplier — overlays the whole machine so it can fly from the
           top banner all the way down into the win banner, then the win amount
           counts up in the banner */}
-      {g.flyingMult && (
+      {g.flyingMult && anchor && (
         <FlyingMultiplier
           key={g.flyingMult.key}
           value={g.flyingMult.value}
           slow={g.flyingMult.slow}
-          startY={anchor.start}
-          holdY={anchor.hold}
-          winY={anchor.win}
+          startY={anchor.startY}
+          holdY={anchor.holdY}
+          winY={anchor.winY}
           onComplete={g.clearFlyingMult}
         />
       )}
