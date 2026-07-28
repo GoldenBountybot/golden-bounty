@@ -61,7 +61,7 @@ export function useWildBounty() {
     newGrid.forEach((reel, ri) => {
       if (ri !== 2 && ri !== 3) return;
       reel.forEach((sym, row) => {
-        if ((row === 2 || row === 3) && sym !== 'scatter' && Math.random() < 0.5) frames.add(`${ri}-${row}`);
+        if ((row === 2 || row === 3) && sym !== 'scatter' && Math.random() < 0.72) frames.add(`${ri}-${row}`);
       });
     });
     return frames;

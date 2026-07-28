@@ -86,6 +86,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   const isSpecial = symbolId === 'scatter' || symbolId === 'wild';
   const baseScale = SCALE[symbolId] || 1;
   const isWild = symbolId === 'wild';
+  const isScatter = symbolId === 'scatter';
   const holes = useBulletHoles();
   const embers = useBlastEmbers();
   // Matching symbol pops bigger like a bomb burst (only before it shatters).
@@ -143,13 +144,28 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           />
         </>
       ) : img ? (
-        <img
-          src={img}
-          alt={symbolId}
-          loading="lazy"
-          className="w-full h-full object-cover"
-          style={{ '--bs': baseScale, transform: `scale(${baseScale})`, animation: popAnim }}
-        />
+        <>
+          {/* Scatter — soft golden glow only on the top & bottom edges */}
+          {isScatter && scatterBeam && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'linear-gradient(180deg, rgba(255,248,185,0.95) 0%, rgba(255,248,185,0) 30%, rgba(255,248,185,0) 70%, rgba(255,248,185,0.95) 100%)',
+                filter: 'blur(7px)',
+                transform: 'scaleY(1.3) scaleX(0.72)',
+                mixBlendMode: 'screen',
+                zIndex: 0,
+              }}
+            />
+          )}
+          <img
+            src={img}
+            alt={symbolId}
+            loading="lazy"
+            className="w-full h-full object-cover"
+            style={{ '--bs': baseScale, transform: `scale(${baseScale})`, animation: popAnim, filter: isScatter ? 'brightness(1.4) drop-shadow(0 0 6px rgba(255,235,150,0.75))' : undefined }}
+          />
+        </>
       ) : isCard ? (
         <div
           className={`w-full h-full flex items-center justify-center bg-gradient-to-b ${CARD_STYLE[symbolId].bg}`}
