@@ -67,7 +67,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
 
   return (
     <div
-      className={`relative ${highlighted || showHalo ? 'overflow-visible' : 'overflow-hidden'} transition-transform`}
+      className={`relative ${highlighted || showHalo || goldFramed || decorFrame ? 'overflow-visible' : 'overflow-hidden'} transition-transform`}
       style={{ aspectRatio: '1 / 1', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s ease-out forwards` : undefined, zIndex: shattering ? 20 : undefined }}
     >
       {/* Golden light-burst behind matching symbols (not wilds) — slightly
@@ -95,13 +95,13 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           }}
         />
       )}
-      {(decorFrame || goldFramed) && img ? (
+      {(decorFrame || goldFramed) && img && symbolId !== 'scatter' ? (
         <>
           <img
             src={FRAME_URL}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
-            style={{ zIndex: 0 }}
+            style={{ zIndex: 0, transform: 'scale(1.08)' }}
           />
           <img
             src={img}

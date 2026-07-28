@@ -60,8 +60,8 @@ export function useWildBounty() {
     const frames = new Set();
     newGrid.forEach((reel, ri) => {
       if (ri !== 2 && ri !== 3) return;
-      reel.forEach((_, row) => {
-        if ((row === 2 || row === 3) && Math.random() < 0.5) frames.add(`${ri}-${row}`);
+      reel.forEach((sym, row) => {
+        if ((row === 2 || row === 3) && sym !== 'scatter' && Math.random() < 0.5) frames.add(`${ri}-${row}`);
       });
     });
     return frames;
@@ -179,6 +179,9 @@ export function useWildBounty() {
         // Keep persistent wild symbols highlighted across cascades so their
         // light burst stays on smoothly instead of flickering off/on.
         setWinningPositions(new Set([...wpos].filter(p => !shatterPos.has(p))));
+        // A shattered framed symbol carries its frame away with it — new
+        // symbols tumbling into those cells don't inherit the frame.
+        setGoldFrames(prev => new Set([...prev].filter(p => !shatterPos.has(p))));
         setGrid(newGrid);
         setCascading(true);
         setCascadePositions(shatterPos);
