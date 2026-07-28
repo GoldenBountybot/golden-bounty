@@ -18,9 +18,12 @@ const BANNER_IMG =
 
 // Clean hard key — no feathering, so kept pixels are always fully opaque and
 // never blend with the board behind (which is what created the smudge).
+// Keyed-out pixels are filled with a solid dark-wood shadow so the board's
+// sky/background never shows through the banner.
 const BG_VALUE_FLOOR = 38;
 const SAT_FLOOR = 0.33;
 const GREY_VALUE_CEIL = 205;
+const FILL_RGB = [22, 15, 9]; // dark brown shadow backdrop
 
 export default function BoardTopBanner({ className = '' }) {
   const [src, setSrc] = useState(null);
@@ -47,9 +50,9 @@ export default function BoardTopBanner({ className = '' }) {
           const min = r < g ? (r < b ? r : b) : (g < b ? g : b);
           const sat = max === 0 ? 0 : (max - min) / max;
           if (max < BG_VALUE_FLOOR) {
-            px[i + 3] = 0; // pure black background
+            px[i] = FILL_RGB[0]; px[i + 1] = FILL_RGB[1]; px[i + 2] = FILL_RGB[2]; px[i + 3] = 255;
           } else if (sat < SAT_FLOOR && max < GREY_VALUE_CEIL) {
-            px[i + 3] = 0; // grey halo (dark + desaturated)
+            px[i] = FILL_RGB[0]; px[i + 1] = FILL_RGB[1]; px[i + 2] = FILL_RGB[2]; px[i + 3] = 255;
           } else {
             px[i + 3] = 255; // kept art is always fully opaque — no smudge
           }
