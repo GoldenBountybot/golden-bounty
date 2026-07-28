@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { REEL_ROWS, buildReel, evaluateWins, MULTIPLIERS, BETS, randomSymbol, SYMBOLS } from './symbols';
+import { REEL_ROWS, buildReel, evaluateWins, MULTIPLIERS, BETS, randomSymbol } from './symbols';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -27,6 +27,7 @@ export function useWildBounty() {
   const [shattering, setShattering] = useState(new Set());
   const [cascading, setCascading] = useState(false);
   const [cascadePositions, setCascadePositions] = useState(new Set());
+  const [fallPositions, setFallPositions] = useState({});
   const [cascadeSlow, setCascadeSlow] = useState(1);
   const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
   const [showFeatureBuyConfirm, setShowFeatureBuyConfirm] = useState(false);
@@ -68,33 +69,50 @@ export function useWildBounty() {
     return frames;
   };
 
-  // Remove winning symbols from each reel; remaining symbols fall to the
-  // bottom and new random symbols drop in at the top (tumble mechanic).
-  // Replace only the winning (blasted) positions with new symbols;
-  // all other symbols stay exactly where they were.
+  // Tumble mechanic: remove winning symbols, let the remaining symbols fall
+  // DOWN to fill the gaps (gravity), then drop brand-new symbols into the
+  // emptied TOP cells. Returns the tumbled grid plus two animation maps —
+  // dropPositions (top cells that got new symbols → spin-like drop) and
+  // fallInfo (moved symbols → how many rows each slid down).
   const cascadeStep = (currentGrid, removePositions) => {
-    // Avoid matching reel 0's landed symbols when dropping new symbols on reels
-    // 1+ so contiguous-from-left cascade wins (multiplier chain) form less often.
+    // Bias new symbols on reels 1+ toward reel 0's landed symbols so cascade
+    // wins chain often and the multiplier climbs several tiers.
     const reel0Syms = new Set(currentGrid[0].filter(s => s && s !== 'scatter' && s !== 'wild'));
-    const baseIds = Object.values(SYMBOLS).filter(s => s.type !== 'scatter' && s.type !== 'wild').map(s => s.id);
-    return currentGrid.map((reel, ri) => {
-      let changed = false;
-      const next = reel.map((sym, row) => {
-        if (!removePositions.has(`${ri}-${row}`)) return sym;
-        changed = true;
-        // Temp boost: bias new symbols on reels 1+ toward reel 0's symbols so
-        // cascade wins chain often and the multiplier climbs several tiers.
-        if (ri > 0 && reel0Syms.size > 0 && Math.random() < 0.85) {
-          const choices = [...reel0Syms];
-          return choices[Math.floor(Math.random() * choices.length)];
-        }
-        return randomSymbol();
+    const newSymbolForReel = (ri) => {
+      if (ri > 0 && reel0Syms.size > 0 && Math.random() < 0.85) {
+        const choices = [...reel0Syms];
+        return choices[Math.floor(Math.random() * choices.length)];
+      }
+      return randomSymbol();
+    };
+    const dropPositions = new Set();
+    const fallInfo = {};
+    const newGrid = currentGrid.map((reel, ri) => {
+      const rows = reel.length;
+      const surviving = [];
+      let removedCount = 0;
+      reel.forEach((sym, row) => {
+        if (removePositions.has(`${ri}-${row}`)) { removedCount++; }
+        else { surviving.push({ sym, row }); }
       });
-      // Preserve the reel array reference when nothing changed on it so
-      // React.memo on <Reel> skips re-rendering unchanged reels during
-      // cascades — a big React-work reduction in multiplier rounds.
-      return changed ? next : reel;
+      if (removedCount === 0) return reel; // unchanged → preserve ref (memo skip)
+      const newReel = new Array(rows);
+      // Surviving symbols compact to the bottom, preserving top→bottom order
+      const startRow = removedCount;
+      surviving.forEach((item, idx) => {
+        const newRow = startRow + idx;
+        newReel[newRow] = item.sym;
+        const moved = newRow - item.row;
+        if (moved > 0) fallInfo[`${ri}-${newRow}`] = moved;
+      });
+      // Brand-new symbols drop into the emptied top cells
+      for (let row = 0; row < removedCount; row++) {
+        newReel[row] = newSymbolForReel(ri);
+        dropPositions.add(`${ri}-${row}`);
+      }
+      return newReel;
     });
+    return { grid: newGrid, dropPositions, fallInfo };
   };
 
   // Evaluate wins, shatter winners, cascade new symbols, repeat until no win.
@@ -189,7 +207,7 @@ export function useWildBounty() {
 
       // Cascade: drop new symbols, then re-evaluate
       const cascadeT = setTimeout(() => {
-        const newGrid = cascadeStep(gridForCascade, shatterPos);
+        const { grid: newGrid, dropPositions, fallInfo } = cascadeStep(gridForCascade, shatterPos);
         setShattering(new Set());
         // Keep persistent wild symbols highlighted across cascades so their
         // light burst stays on smoothly instead of flickering off/on.
@@ -199,11 +217,13 @@ export function useWildBounty() {
         setGoldFrames(prev => new Set([...prev].filter(p => !shatterPos.has(p))));
         setGrid(newGrid);
         setCascading(true);
-        setCascadePositions(shatterPos);
+        setCascadePositions(dropPositions);
+        setFallPositions(fallInfo);
 
         const evalT = setTimeout(() => {
           setCascading(false);
           setCascadePositions(new Set());
+          setFallPositions({});
           evaluateAndCascade(newGrid, cascadeCount + 1, newTotal, newMult, wasFree, awarded, framedPositions);
         }, 450 * slow);
         timers.current.push(evalT);
@@ -256,6 +276,8 @@ export function useWildBounty() {
     setGoldFrames(new Set());
     setShattering(new Set());
     setCascading(false);
+    setCascadePositions(new Set());
+    setFallPositions({});
     setLastWin(0);
     setCascadeSlow(1);
     setAnticipation(false);
@@ -438,7 +460,7 @@ export function useWildBounty() {
   return {
     grid, balance, bet, betIndex, spinning, stoppedReels,
     multiplier: MULTIPLIERS[multIndex], multIndex,
-    lastWin, message, winningPositions, goldFrames, shattering, cascading, cascadePositions,
+    lastWin, message, winningPositions, goldFrames, shattering, cascading, cascadePositions, fallPositions,
     freeSpins, scatterCount, turbo, autoSpin,
     showFreeSpinStart, showFeatureBuyConfirm, confirmFeatureBuy, cancelFeatureBuy,
     freeSpinsActive, startFreeSpins, buyFeature,

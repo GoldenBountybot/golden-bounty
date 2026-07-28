@@ -183,6 +183,14 @@
   100% { transform: translateY(0%); }
 }
 
+/* Wild Bounty tumble — a surviving symbol slides DOWN by exactly the number
+   of rows it fell (driven by the --fall-from var set per cell), so upper
+   symbols visibly descend into the gaps left by shattered winners. */
+@keyframes tumbleSlide {
+  0%   { transform: translateY(var(--fall-from, -100%)); }
+  100% { transform: translateY(0%); }
+}
+
 @keyframes multCenterFly {
   0%   { top: 6%;  transform: translateX(-50%) scale(0.38); opacity: 0; }
   12%  { top: 24%; transform: translateX(-50%) scale(0.85); opacity: 1; }
