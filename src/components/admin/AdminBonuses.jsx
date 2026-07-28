@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
+import { pushNotification } from '@/lib/notify';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 
 export default function AdminBonuses() {
@@ -23,6 +24,15 @@ export default function AdminBonuses() {
       await base44.entities.BonusSetting.update(r.id, {
         amount: Number(r.amount), deposit_percent: Number(r.deposit_percent), active: r.active,
       });
+      // Broadcast a "bonus arrived" notice to all users when a bonus is active.
+      if (r.active) {
+        const name = (r.name || 'bonus').charAt(0).toUpperCase() + (r.name || 'bonus').slice(1);
+        const amt = Number(r.amount) || 0;
+        const body = amt > 0
+          ? `$${amt.toFixed(2)} bonus is now available to claim.`
+          : `${r.deposit_percent ? r.deposit_percent + '% deposit ' : ''}bonus is now available.`;
+        await pushNotification({ user_id: '', type: 'bonus_arrived', title: `${name} bonus arrived`, body });
+      }
       toast({ title: 'Bonus saved' });
       load();
     } catch { toast({ title: 'Failed to save' }); }

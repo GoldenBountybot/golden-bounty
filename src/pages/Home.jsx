@@ -4,6 +4,7 @@ import CasinoGameCard from '@/components/CasinoGameCard';
 import WesternGameBanners from '@/components/WesternGameBanners';
 import LiveTicker from '@/components/LiveTicker';
 import BottomNav from '@/components/BottomNav';
+import NotificationBell from '@/components/NotificationBell';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
 import { Wallet, FlaskConical } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
@@ -72,6 +73,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col items-end gap-1.5 self-end mr-0">
+            <NotificationBell />
             <Link
               to="/dashboard"
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] transition-colors"

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
+import { pushNotification } from '@/lib/notify';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 
 export default function AdminTransactions() {
@@ -47,6 +48,11 @@ export default function AdminTransactions() {
         update.wager_remaining = (Number(u.wager_remaining ?? 0)) + amt;
       }
       await base44.entities.User.update(u.id, update);
+      // Notify the player about the new credit/debit.
+      const label = form.type === 'withdraw' ? 'Withdraw approved' : form.type === 'bonus' ? 'Bonus arrived' : form.type === 'adjustment' ? 'Balance adjusted' : 'Deposit approved';
+      const nType = form.type === 'withdraw' ? 'withdraw_approved' : form.type === 'bonus' ? 'bonus_arrived' : 'deposit_approved';
+      const verb = credit ? 'credited to' : 'debited from';
+      await pushNotification({ user_id: u.id, type: nType, title: label, body: `$${amt.toFixed(2)} ${verb} your balance`, amount: amt });
       setForm({ user_id: '', amount: '', type: 'deposit', note: '' });
       toast({ title: 'Transaction applied' });
       load();
@@ -70,6 +76,16 @@ export default function AdminTransactions() {
         await base44.entities.User.update(tx.user_id, update);
       }
       await base44.entities.Transaction.update(tx.id, { status });
+      // Notify the player of the status change.
+      if (status === 'completed') {
+        const credit = tx.type === 'deposit' || tx.type === 'bonus';
+        const nType = tx.type === 'withdraw' ? 'withdraw_approved' : tx.type === 'bonus' ? 'bonus_arrived' : 'deposit_approved';
+        const label = tx.type === 'withdraw' ? 'Withdraw approved' : tx.type === 'bonus' ? 'Bonus arrived' : 'Deposit approved';
+        const verb = credit ? 'credited to' : 'sent from';
+        await pushNotification({ user_id: tx.user_id, type: nType, title: label, body: `$${Number(tx.amount).toFixed(2)} ${verb} your balance`, amount: Number(tx.amount) });
+      } else if (status === 'rejected') {
+        await pushNotification({ user_id: tx.user_id, type: 'system', title: `${tx.type === 'withdraw' ? 'Withdraw' : 'Deposit'} request rejected`, body: `Your $${Number(tx.amount).toFixed(2)} request was rejected.` });
+      }
       toast({ title: `Marked ${status}` });
       load();
     } catch { toast({ title: 'Failed' }); }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import { pushNotification } from '@/lib/notify';
 
 // Casino account: balance (shared, backend-backed) + admin-configured bonuses.
 // Deposit now creates a pending request — the balance is only added after an
@@ -116,24 +117,28 @@ export function useCasinoAccount() {
     if (!signupCfg.active || claim.signupClaimed) return false;
     setBalance((b) => b + signupCfg.amount);
     setClaim((prev) => ({ ...prev, signupClaimed: true }));
+    if (userId) pushNotification({ user_id: userId, type: 'bonus_claimed', title: 'Signup bonus claimed', body: `+$${signupCfg.amount.toFixed(2)} added to your balance`, amount: signupCfg.amount });
     return true;
   };
   const claimDaily = () => {
     if (!dailyCfg.active || claim.dailyLast === todayStr()) return false;
     setBalance((b) => b + dailyCfg.amount);
     setClaim((prev) => ({ ...prev, dailyLast: todayStr() }));
+    if (userId) pushNotification({ user_id: userId, type: 'bonus_claimed', title: 'Daily bonus claimed', body: `+$${dailyCfg.amount.toFixed(2)} added to your balance`, amount: dailyCfg.amount });
     return true;
   };
   const claimWeekly = () => {
     if (!weeklyCfg.active || claim.weeklyLast === weekStr()) return false;
     setBalance((b) => b + weeklyCfg.amount);
     setClaim((prev) => ({ ...prev, weeklyLast: weekStr() }));
+    if (userId) pushNotification({ user_id: userId, type: 'bonus_claimed', title: 'Weekly bonus claimed', body: `+$${weeklyCfg.amount.toFixed(2)} added to your balance`, amount: weeklyCfg.amount });
     return true;
   };
   const claimMonthly = () => {
     if (!monthlyCfg.active || claim.monthlyLast === monthStr()) return false;
     setBalance((b) => b + monthlyCfg.amount);
     setClaim((prev) => ({ ...prev, monthlyLast: monthStr() }));
+    if (userId) pushNotification({ user_id: userId, type: 'bonus_claimed', title: 'Monthly bonus claimed', body: `+$${monthlyCfg.amount.toFixed(2)} added to your balance`, amount: monthlyCfg.amount });
     return true;
   };
   const claimDeposit = () => {
@@ -141,6 +146,7 @@ export function useCasinoAccount() {
     const bonus = Math.round(claim.depositAmount * (depositCfg.deposit_percent / 100) * 100) / 100;
     setBalance((b) => b + bonus);
     setClaim((prev) => ({ ...prev, depositAvailable: false }));
+    if (userId) pushNotification({ user_id: userId, type: 'bonus_claimed', title: 'Deposit bonus claimed', body: `+$${bonus.toFixed(2)} added to your balance`, amount: bonus });
     return bonus;
   };
 

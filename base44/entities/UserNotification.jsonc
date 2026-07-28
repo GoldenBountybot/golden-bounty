@@ -1,0 +1,81 @@
+{
+  "name": "UserNotification",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Target user id; empty string = broadcast to every user (admin notice / bonus arrived)"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "bonus_arrived",
+        "bonus_claimed",
+        "deposit_approved",
+        "withdraw_approved",
+        "system"
+      ],
+      "default": "system",
+      "description": "Category of the notification"
+    },
+    "title": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string",
+      "default": ""
+    },
+    "amount": {
+      "type": "number",
+      "default": 0
+    },
+    "link": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "user_id",
+    "type",
+    "title"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "data.user_id": ""
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

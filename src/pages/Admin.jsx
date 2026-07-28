@@ -11,7 +11,8 @@ import AdminBonuses from '@/components/admin/AdminBonuses';
 import AdminBanners from '@/components/admin/AdminBanners';
 import AdminPaymentAddresses from '@/components/admin/AdminPaymentAddresses';
 import AdminStackBanner from '@/components/admin/AdminStackBanner';
-import { Image, Layers } from 'lucide-react';
+import AdminNotices from '@/components/admin/AdminNotices';
+import { Image, Layers, Megaphone } from 'lucide-react';
 
 const TABS = [
   { id: 'players', label: 'Players', icon: Users, comp: AdminPlayers },
@@ -21,6 +22,7 @@ const TABS = [
   { id: 'banners', label: 'Banners', icon: Image, comp: AdminBanners },
   { id: 'pay', label: 'Pay Addr', icon: Wallet, comp: AdminPaymentAddresses },
   { id: 'stack', label: 'Stack', icon: Layers, comp: AdminStackBanner },
+  { id: 'notices', label: 'Notices', icon: Megaphone, comp: AdminNotices },
 ];
 
 export default function Admin() {
