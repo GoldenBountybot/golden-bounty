@@ -103,7 +103,23 @@ export default function WildBountyMachine() {
 
       {/* Win / message banner */}
       <PlaqueBanner glow className="-mt-28 mx-auto py-1 text-center relative z-30 w-4/5">
-        <span className="font-black italic text-lg text-yellow-300 drop-shadow-[0_0_6px_rgba(255,200,0,0.7)]" style={{ fontFamily: 'Rye, Georgia, serif' }}>
+        <span
+          className="italic text-lg font-black tracking-wide"
+          style={{
+            fontFamily: 'Rye, Georgia, serif',
+            color: 'transparent',
+            background: 'linear-gradient(180deg,#fff4c0 0%,#f0c850 30%,#d4a73c 55%,#a67b25 80%,#6e4e18 100%)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            WebkitTextStroke: '0.6px rgba(110,78,24,0.85)',
+            textShadow:
+              '0 1px 0 rgba(255,244,192,0.95),0 -1px 0 rgba(90,62,20,0.95),' +
+              '1px 0 0 rgba(255,235,160,0.6),-1px 0 0 rgba(90,62,20,0.6),' +
+              '0 2px 3px rgba(0,0,0,0.85),0 4px 7px rgba(0,0,0,0.6)',
+            filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.6)) brightness(1.08)',
+          }}
+        >
           {g.message}
         </span>
       </PlaqueBanner>
