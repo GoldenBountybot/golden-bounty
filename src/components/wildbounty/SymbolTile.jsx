@@ -20,6 +20,30 @@ function useBulletHoles() {
   }, []);
 }
 
+// Stable blast-ember directions for one tile instance (6-9 embers flying
+// outward in random directions when the symbol explodes like a bomb).
+function useBlastEmbers() {
+  return useMemo(() => {
+    const count = 6 + Math.floor(Math.random() * 4);
+    const embers = [];
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 28 + Math.random() * 48;
+      const big = Math.random() < 0.35;
+      embers.push({
+        dx: Math.cos(angle) * dist,
+        dy: Math.sin(angle) * dist,
+        size: big ? 7 + Math.random() * 5 : 3 + Math.random() * 3,
+        color: Math.random() < 0.5
+          ? 'radial-gradient(circle, #fff3c0 0%, #ff9a2a 70%, transparent 100%)'
+          : 'radial-gradient(circle, #ffd86a 0%, #e0530a 70%, transparent 100%)',
+        delay: Math.random() * 0.05,
+      });
+    }
+    return embers;
+  }, []);
+}
+
 const IMG = {
   bandit:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/47b80dfa7_file_00000000ed3081fa8b2b38b3213ec99a.png',
   revolver: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1d7f9ad2f_file_00000000936c81fa8c6b61333fddd167.png',
@@ -63,6 +87,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   const baseScale = SCALE[symbolId] || 1;
   const isWild = symbolId === 'wild';
   const holes = useBulletHoles();
+  const embers = useBlastEmbers();
   // Matching symbol pops bigger like a bomb burst (only before it shatters).
   // Wilds don't pop — they carry a soft persistent halo instead.
   const popAnim = highlighted && !shattering && !isWild ? `matchPop 0.5s ease-out forwards` : undefined;
@@ -161,6 +186,55 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           }}
         />
       ))}
+
+      {/* Bomb-blast explosion when the matching symbol shatters: shockwave
+          ring, fireball flash core, and flying embers. */}
+      {shattering && (
+        <>
+          {/* Shockwave ring */}
+          <span
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              borderRadius: '50%',
+              border: '2px solid rgba(255,225,150,0.9)',
+              transformOrigin: 'center center',
+              animation: `blastRing ${(0.5 * slow).toFixed(2)}s ease-out forwards`,
+              zIndex: 25,
+            }}
+          />
+          {/* Fireball flash core */}
+          <span
+            className="absolute pointer-events-none"
+            style={{
+              left: '15%', top: '15%', width: '70%', height: '70%',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, #fff7d6 0%, #ffcf5a 28%, #ff7a1a 58%, #b22a00 82%, transparent 100%)',
+              filter: 'blur(1px)',
+              transformOrigin: 'center center',
+              animation: `blastCore ${(0.5 * slow).toFixed(2)}s ease-out forwards`,
+              zIndex: 24,
+            }}
+          />
+          {/* Flying embers */}
+          {embers.map((e, i) => (
+            <span
+              key={`ember-${i}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: '50%', top: '50%',
+                width: e.size, height: e.size,
+                marginLeft: -e.size / 2, marginTop: -e.size / 2,
+                borderRadius: '50%',
+                background: e.color,
+                boxShadow: '0 0 6px rgba(255,170,40,0.9)',
+                '--ex': `${e.dx}px`, '--ey': `${e.dy}px`,
+                animation: `blastEmber ${(0.6 * slow).toFixed(2)}s ease-out ${e.delay}s forwards`,
+                zIndex: 23,
+              }}
+            />
+          ))}
+        </>
+      )}
 
     </div>
   );
