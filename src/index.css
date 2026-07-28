@@ -582,9 +582,9 @@
    (forwards fill) until it blasts ~1s later */
 @keyframes matchPop {
   0%   { transform: scale(var(--bs, 1)); }
-  24%  { transform: scale(calc(var(--bs, 1) * 1.28)); filter: brightness(1.45) drop-shadow(0 0 9px rgba(255,210,90,0.95)); }
-  60%  { transform: scale(calc(var(--bs, 1) * 1.2)); filter: brightness(1.3) drop-shadow(0 0 10px rgba(255,210,90,0.9)); }
-  100% { transform: scale(calc(var(--bs, 1) * 1.2)); filter: brightness(1.3) drop-shadow(0 0 10px rgba(255,210,90,0.9)); }
+  24%  { transform: scale(calc(var(--bs, 1) * 1.28)); filter: brightness(1.45); }
+  60%  { transform: scale(calc(var(--bs, 1) * 1.2)); filter: brightness(1.3); }
+  100% { transform: scale(calc(var(--bs, 1) * 1.2)); filter: brightness(1.3); }
 }
 
 /* Wild Bounty — soft golden halo that gently pulses behind a Wild symbol

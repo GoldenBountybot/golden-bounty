@@ -5,7 +5,7 @@ import { SYMBOLS } from './symbols';
 // small and big).
 function useBulletHoles() {
   return useMemo(() => {
-    const count = 2 + Math.floor(Math.random() * 3);
+    const count = 1 + Math.floor(Math.random() * 2);
     const holes = [];
     for (let i = 0; i < count; i++) {
       const big = Math.random() < 0.4;
@@ -24,7 +24,7 @@ function useBulletHoles() {
 // outward in random directions when the symbol explodes like a bomb).
 function useBlastEmbers() {
   return useMemo(() => {
-    const count = 6 + Math.floor(Math.random() * 4);
+    const count = 3 + Math.floor(Math.random() * 3);
     const embers = [];
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -105,12 +105,9 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
       {/* Golden light-burst behind matching symbols (not wilds) — slightly
           larger than the symbol so the flare bleeds around it */}
       {highlighted && !isWild && (
-        <img
-          src={WIN_LIGHT_URL}
-          alt=""
-          draggable={false}
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{ zIndex: 0, mixBlendMode: 'screen', transformOrigin: 'center center', animation: 'winLightBurst 0.5s ease-out forwards' }}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ zIndex: 0, background: 'radial-gradient(circle at center, rgba(255,248,210,0.92) 0%, rgba(255,220,110,0.55) 38%, rgba(255,180,60,0.18) 64%, transparent 74%)', transformOrigin: 'center center', animation: 'winLightBurst 0.5s ease-out forwards' }}
         />
       )}
       {/* Wild — soft golden halo that glows gently and persists until the next
@@ -245,7 +242,6 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
                 marginLeft: -e.size / 2, marginTop: -e.size / 2,
                 borderRadius: '50%',
                 background: e.color,
-                boxShadow: '0 0 6px rgba(255,170,40,0.9)',
                 '--ex': `${e.dx}px`, '--ey': `${e.dy}px`,
                 animation: `blastEmber ${(0.6 * slow).toFixed(2)}s ease-out ${e.delay}s forwards`,
                 zIndex: 23,
