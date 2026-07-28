@@ -70,21 +70,32 @@ export default function WildBountyMachine() {
           ))}
         </div>
 
-        {/* FEATURE BUY banner — small, bottom-right, flush with the frame border */}
-        <img
-          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a422458cf_file_000000001fe0823080289c04ab45bfdf.png"
-          alt="Feature Buy"
-          className="absolute z-40 select-none"
+        {/* FEATURE BUY banner — click to buy 10 free spins */}
+        <button
+          type="button"
+          onClick={g.buyFeature}
+          disabled={g.spinning || g.showFreeSpinStart}
+          className="absolute z-40 select-none active:scale-95 transition-transform disabled:opacity-70"
           style={{
-            right: '-10px',
+            right: '-15px',
             bottom: '11%',
             width: '27%',
             maxWidth: '205px',
             minWidth: '106px',
             height: 'auto',
+            padding: 0,
+            background: 'transparent',
+            border: 'none',
+            cursor: (g.spinning || g.showFreeSpinStart) ? 'not-allowed' : 'pointer',
           }}
-          draggable={false}
-        />
+        >
+          <img
+            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a422458cf_file_000000001fe0823080289c04ab45bfdf.png"
+            alt="Feature Buy"
+            className="block w-full h-auto"
+            draggable={false}
+          />
+        </button>
 
       </div>
 

@@ -371,6 +371,14 @@ export function useWildBounty() {
 
   const clearFlyingMult = useCallback(() => setFlyingMult(null), []);
 
+  // FEATURE BUY — instantly award 10 free spins and show the start banner.
+  const buyFeature = useCallback(() => {
+    if (spinning || showFreeSpinStart) return;
+    setFreeSpins(10);
+    setShowFreeSpinStart(true);
+    setMessage('FEATURE BUY · 10 FREE SPINS');
+  }, [spinning, showFreeSpinStart]);
+
   const startFreeSpins = useCallback(() => {
     setShowFreeSpinStart(false);
     setFreeSpinsActive(true);
@@ -393,7 +401,7 @@ export function useWildBounty() {
     multiplier: MULTIPLIERS[multIndex], multIndex,
     lastWin, message, winningPositions, goldFrames, shattering, cascading, cascadePositions,
     freeSpins, scatterCount, turbo, autoSpin,
-    showFreeSpinStart, freeSpinsActive, startFreeSpins,
+    showFreeSpinStart, freeSpinsActive, startFreeSpins, buyFeature,
     anticipation, scatterGlow,
     cascadeSlow,
     bulletHit,
