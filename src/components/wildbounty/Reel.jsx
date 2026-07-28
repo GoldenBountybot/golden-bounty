@@ -34,13 +34,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
       const b1 = block();
       return [...b1, ...block(), ...block(), ...b1];
     }
-    if (spinning) {
-      // 4 blocks where the last matches the first → seamless -75%→0% loop,
-      // so the constant-velocity scroll never jumps/flickers at the wrap point.
-      const block = () => Array.from({ length: rowCount }, () => randomSymbol());
-      const b1 = block();
-      return [...b1, ...block(), ...block(), ...b1];
-    }
+    if (spinning) return Array.from({ length: rowCount * 4 }, () => randomSymbol());
     return symbols;
   }, [spinning, symbols, rowCount, anticipationGlow]);
 
@@ -71,7 +65,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
       )}
       <div
         className="flex flex-col w-full"
-        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s cubic-bezier(0.22, 1, 0.36, 1)' : 'reelLand 0.42s cubic-bezier(0.22, 1, 0.36, 1)') : 'none', willChange: spinning ? 'transform' : 'auto', transform: spinning ? 'translateZ(0)' : undefined, backfaceVisibility: 'hidden', filter: spinning ? (anticipationGlow ? 'blur(3px) saturate(1.1)' : 'blur(1.5px)') : 'none', transition: 'filter 0.32s ease' }}
+        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s ease-out' : 'reelLand 0.4s ease-out') : 'none', willChange: spinning ? 'transform' : 'auto', filter: spinning ? (anticipationGlow ? 'blur(3px) saturate(1.1)' : 'blur(1.5px)') : 'none', transition: 'filter 0.3s ease' }}
       >
         {strip.map((sym, i) => {
           const isDropping = cascading && cascadePositions && cascadePositions.has(`${reelIndex}-${i}`);
