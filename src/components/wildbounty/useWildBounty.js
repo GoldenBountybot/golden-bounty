@@ -437,6 +437,6 @@ export function useWildBounty() {
     bulletHit,
     flyingMult, clearFlyingMult,
     spin, setBetIndex, setTurbo, setAutoSpin, reset,
-    featureCost: bet * 100,
+    featureCost: bet * 75,
   };
 }
