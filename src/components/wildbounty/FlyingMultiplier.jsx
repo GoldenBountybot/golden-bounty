@@ -23,7 +23,7 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1, startY =
   return (
     <div
       className="absolute inset-0 pointer-events-none z-[60]"
-      style={{ '--hold-dy': `${holdDy}px`, '--win-dy': `${winDy}px` }}
+      style={{ '--hold-dy': `${holdDy}px`, '--win-dy': `${winDy}px`, overflow: 'visible' }}
     >
       {/* Multiplier flies from the top, holds dead-centre over the reels, then
           moves directly onto the win banner and pops (transform-only = smooth,
@@ -33,8 +33,12 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1, startY =
         style={{
           left: '50%',
           top: `${startY}px`,
+          // Base centered transform so the text is dead-centre from the very
+          // first paint (before the animation's 0% keyframe applies), preventing
+          // a right-of-center flash where the right edge can appear clipped.
+          transform: 'translate(-50%, -50%)',
           willChange: 'transform',
-          animation: `multFlyToWin ${(TOTAL / 1000).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards`,
+          animation: `multFlyToWin ${(TOTAL / 1000).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) both`,
         }}
       >
         <span
@@ -42,6 +46,7 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1, startY =
           style={{
             fontSize: '2.25rem',
             fontFamily: 'Rye, Georgia, serif',
+            whiteSpace: 'nowrap',
             backgroundImage: 'linear-gradient(180deg, #fffbe6 0%, #ffe57a 18%, #ffd24a 38%, #e7b53a 58%, #b8861f 80%, #7c5818 100%)',
             WebkitBackgroundClip: 'text',
             backgroundClip: 'text',
