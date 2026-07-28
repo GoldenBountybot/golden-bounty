@@ -172,7 +172,9 @@ export function useWildBounty() {
       const cascadeT = setTimeout(() => {
         const newGrid = cascadeStep(gridForCascade, shatterPos);
         setShattering(new Set());
-        setWinningPositions(new Set());
+        // Keep persistent wild symbols highlighted across cascades so their
+        // light burst stays on smoothly instead of flickering off/on.
+        setWinningPositions(new Set([...wpos].filter(p => !shatterPos.has(p))));
         setGoldFrames(new Set());
         setGrid(newGrid);
         setCascading(true);
@@ -192,6 +194,7 @@ export function useWildBounty() {
       // pending round so recovery never double-pays.
       sfx.winStop();
       setCascadeSlow(1);
+      setWinningPositions(new Set());
       if (totalWin > 0) setBalance(b => b + totalWin);
       clearPendingRound('wild-bounty');
       pendingStateRef.current = null;
