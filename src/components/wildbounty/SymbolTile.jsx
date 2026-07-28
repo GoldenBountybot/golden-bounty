@@ -75,7 +75,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           alt=""
           draggable={false}
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{ zIndex: 0, mixBlendMode: 'screen', transformOrigin: 'center center', animation: 'winLightBurst 0.5s ease-out forwards' }}
+          style={{ zIndex: 0, mixBlendMode: 'screen', transformOrigin: 'center center', '--wb-scale': symbolId === 'wild' ? 3.8 : 2.7, animation: 'winLightBurst 0.5s ease-out forwards' }}
         />
       )}
       {decorFrame && img ? (
