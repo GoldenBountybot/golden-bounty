@@ -13,6 +13,9 @@ import BoardTopBanner from './BoardTopBanner';
 
 export default function WildBountyMachine() {
   const g = useWildBounty();
+  // The centre multiplier lights up while symbols are matching (and stays lit
+  // showing the achieved tier until the next spin resets the round).
+  const lit = g.winningPositions.size > 0 || g.cascading || g.shattering.size > 0 || g.lastWin > 0;
 
   return (
     <div
@@ -28,7 +31,7 @@ export default function WildBountyMachine() {
       >
 {/* Decorative steer-skull banner on top of the board (black bg keyed out) */}
 <div className="flex justify-center mx-1 -mt-20 -mb-2 relative z-20 scale-110">
-  <BoardTopBanner />
+  <BoardTopBanner multIndex={g.multIndex} lit={lit} />
 </div>
 
 {/* Reel board — bronze western frame (web asset) around symbols */}

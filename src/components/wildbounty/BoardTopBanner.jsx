@@ -22,7 +22,7 @@ const BG_VALUE_FLOOR = 38;
 const SAT_FLOOR = 0.33;
 const GREY_VALUE_CEIL = 205;
 
-export default function BoardTopBanner({ className = '' }) {
+export default function BoardTopBanner({ multIndex = 0, lit = false, className = '' }) {
   const [src, setSrc] = useState(null);
   const [error, setError] = useState(false);
   const canvasRef = useRef(null);
@@ -77,7 +77,7 @@ export default function BoardTopBanner({ className = '' }) {
           draggable={false}
           style={{ mixBlendMode: 'screen', filter: 'brightness(1.1) contrast(1.8) saturate(1.5)' }}
         />
-        <MultiplierStrip className="z-30" />
+        <MultiplierStrip multIndex={multIndex} lit={lit} className="z-30" />
       </div>
     );
   }
@@ -93,7 +93,7 @@ export default function BoardTopBanner({ className = '' }) {
             draggable={false}
             style={{ filter: 'saturate(0.92) contrast(0.98) brightness(1.0)' }}
           />
-          <MultiplierStrip className="z-30" />
+          <MultiplierStrip multIndex={multIndex} lit={lit} className="z-30" />
         </>
       ) : (
         <div className="w-full aspect-[3/1]" />
