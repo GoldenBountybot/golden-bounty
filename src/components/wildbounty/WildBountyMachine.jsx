@@ -11,6 +11,7 @@ import PlaqueBanner from './PlaqueBanner';
 import InfoBar from './InfoBar';
 import BoardTopBanner from './BoardTopBanner';
 import FlyingMultiplier from './FlyingMultiplier';
+import CountUp from './CountUp';
 
 export default function WildBountyMachine() {
   const g = useWildBounty();
@@ -74,18 +75,6 @@ export default function WildBountyMachine() {
           ))}
         </div>
 
-        {/* Flying multiplier — drops from the top banner, swells over the
-            reels as the matching symbols shatter, then pours as gold coins
-            into the win banner below. */}
-        {g.flyingMult && (
-          <FlyingMultiplier
-            key={g.flyingMult.key}
-            value={g.flyingMult.value}
-            slow={g.flyingMult.slow}
-            onComplete={g.clearFlyingMult}
-          />
-        )}
-
         {/* FEATURE BUY banner — click to buy 10 free spins */}
         <button
           type="button"
@@ -115,10 +104,14 @@ export default function WildBountyMachine() {
 
       </div>
 
-      {/* Win / message banner */}
+      {/* Win / message banner — shows a counting-up win amount while a round
+          is paying, otherwise the status message */}
       <PlaqueBanner glow className="-mt-28 mx-auto py-1 text-center relative z-30 w-[94%]">
-        <span className="wb-deep-gold text-lg sm:text-xl italic leading-none tracking-wide block w-full" style={{ fontFamily: 'Rye, Georgia, serif' }}>
-          {g.message}
+        <span
+          className="wb-deep-gold text-lg sm:text-xl italic leading-none tracking-wide block w-full"
+          style={{ fontFamily: 'Rye, Georgia, serif' }}
+        >
+          {g.lastWin > 0 ? <>WIN <CountUp value={g.lastWin} /></> : g.message}
         </span>
       </PlaqueBanner>
 
@@ -161,6 +154,18 @@ export default function WildBountyMachine() {
       )}
 
       </div>
+
+      {/* Flying multiplier — overlays the whole machine so it can fly from the
+          top banner all the way down into the win banner, then the win amount
+          counts up in the banner */}
+      {g.flyingMult && (
+        <FlyingMultiplier
+          key={g.flyingMult.key}
+          value={g.flyingMult.value}
+          slow={g.flyingMult.slow}
+          onComplete={g.clearFlyingMult}
+        />
+      )}
     </div>
   );
 }

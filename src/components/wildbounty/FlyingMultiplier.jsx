@@ -1,28 +1,26 @@
 import React, { useEffect, useMemo } from 'react';
 
-// A multiplier value (X2, X4, ...) that flies from the tracker bar at the top,
-// swells big at the centre of the reels, then turns into a shower of gold coins
-// that stream down and pile into the win banner — with coin-clink sounds.
+// A multiplier value (X2, X4, ...) that flies from the tracker bar at the top
+// of the board all the way down into the win banner, pops big on arrival, and
+// releases a short shower of gold coins into the banner — the win amount then
+// counts up in the banner.
 export default function FlyingMultiplier({ value, onComplete, slow = 1 }) {
-  const TOTAL = 1450 * slow;       // completes as the next cascade round begins
-  const COIN_START = 820 * slow;   // coins begin after the swell
-  const HOLD_END = 1000 * slow;    // phase-1 (fly + swell + hold) ends
-  const COIN_COUNT = 10;
-  const COIN_STEP = 34;
+  const TOTAL = 1500 * slow;
+  const COIN_START = 760 * slow;
+  const COIN_COUNT = 12;
+  const COIN_STEP = 26;
 
-  // Pre-build coin particles with spread offsets + staggered delays.
   const coins = useMemo(() => {
     const list = [];
     const coinDur = TOTAL - COIN_START;
     for (let i = 0; i < COIN_COUNT; i++) {
-      const dx = (i - (COIN_COUNT - 1) / 2) * 14 + (Math.random() - 0.5) * 22;
-      const offset = (i * COIN_STEP + Math.random() * 30) * slow;
+      const dx = (i - (COIN_COUNT - 1) / 2) * 16 + (Math.random() - 0.5) * 18;
+      const offset = (i * COIN_STEP + Math.random() * 24) * slow;
       list.push({
         dx,
         delay: COIN_START + offset,
         dur: Math.max(120, coinDur - offset),
-        rot: (Math.random() * 2 - 1) * 220,
-        size: 16 + Math.random() * 10,
+        size: 14 + Math.random() * 9,
       });
     }
     return list;
@@ -34,11 +32,12 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1 }) {
   }, [onComplete]);
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-50">
-      {/* Phase 1 — the multiplier flies down + swells at the reel centre */}
+    <div className="absolute inset-0 pointer-events-none z-[60]">
+      {/* Phase 1 — multiplier flies from the top banner down to the win banner
+          and pops big on landing */}
       <div
         className="absolute left-1/2 flex items-center justify-center"
-        style={{ animation: `multCenterFly ${(HOLD_END / 1000).toFixed(2)}s cubic-bezier(0.22,0.61,0.36,1) forwards` }}
+        style={{ animation: `multFlyToWin ${(TOTAL / 1000).toFixed(2)}s cubic-bezier(0.22,0.61,0.36,1) forwards` }}
       >
         <span
           className="relative font-black italic leading-none select-none"
@@ -57,7 +56,8 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1 }) {
         </span>
       </div>
 
-      {/* Phase 2 — a stream of gold coins pours from the centre into the win banner */}
+      {/* Phase 2 — a short shower of gold coins drops from the landing point
+          into the win banner */}
       <div className="absolute left-1/2">
         {coins.map((c, i) => (
           <span
@@ -73,7 +73,7 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1 }) {
                 'radial-gradient(circle at 35% 30%, #fff5c0 0%, #ffd966 26%, #d4af37 52%, #9b6a1f 78%, #6e4a14 100%)',
               boxShadow: '0 0 6px rgba(255,200,60,0.85), inset 0 0 2px rgba(90,55,10,0.7)',
               border: '1.5px solid #7a4f17',
-              animation: `coinStream ${(c.dur / 1000).toFixed(2)}s cubic-bezier(0.4,0.0,0.7,1) forwards`,
+              animation: `coinDropShort ${(c.dur / 1000).toFixed(2)}s cubic-bezier(0.4,0.0,0.7,1) forwards`,
               animationDelay: `${c.delay - COIN_START}ms`,
             }}
           />
