@@ -587,19 +587,19 @@
   font-style: italic;
   line-height: 1;
   color: transparent;
-  background: linear-gradient(180deg,#fffce0 0%,#ffe78a 16%,#ffd54a 36%,#f7b926 58%,#d28a1c 80%,#8a5812 100%);
+  background: linear-gradient(180deg,#fffce0 0%,#ffec9a 18%,#ffd54a 40%,#ffc02a 62%,#f7b926 82%,#e0a426 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 1px rgba(90,56,12,0.95);
+  -webkit-text-stroke: 1.4px rgba(76,46,10,0.95);
   text-shadow:
+    0 0 1.5px rgba(255,235,150,0.95),
     0 1px 0 rgba(255,250,210,1),
-    0 -1px 0 rgba(80,50,14,0.95),
+    0 -1px 0 rgba(255,225,120,0.95),
     0 2px 0 rgba(150,100,24,0.9),
-    0 3px 1px rgba(0,0,0,0.55),
-    0 4px 3px rgba(0,0,0,0.5),
-    0 6px 6px rgba(0,0,0,0.6);
-  filter: drop-shadow(0 3px 3px rgba(0,0,0,0.55)) brightness(1.18) saturate(1.15);
+    0 3px 1px rgba(0,0,0,0.5),
+    0 5px 4px rgba(0,0,0,0.55);
+  filter: drop-shadow(0 0 2px rgba(255,220,120,0.5)) drop-shadow(0 3px 3px rgba(0,0,0,0.55)) brightness(1.32) saturate(1.28);
   white-space: nowrap;
 }
 
