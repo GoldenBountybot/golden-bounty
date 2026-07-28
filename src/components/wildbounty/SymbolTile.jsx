@@ -1,17 +1,19 @@
 import React, { useMemo } from 'react';
 import { SYMBOLS } from './symbols';
 
-// Stable bullet-hole positions for one tile instance (1-3 holes).
+// Stable bullet-hole positions for one tile instance (2-4 holes, mix of
+// small and big).
 function useBulletHoles() {
   return useMemo(() => {
-    const count = 1 + Math.floor(Math.random() * 3);
+    const count = 2 + Math.floor(Math.random() * 3);
     const holes = [];
     for (let i = 0; i < count; i++) {
+      const big = Math.random() < 0.4;
       holes.push({
-        x: 18 + Math.random() * 64,
-        y: 18 + Math.random() * 64,
+        x: 14 + Math.random() * 72,
+        y: 14 + Math.random() * 72,
         rot: Math.random() * 360,
-        size: 6 + Math.random() * 4,
+        size: big ? 11 + Math.random() * 7 : 5 + Math.random() * 4,
       });
     }
     return holes;
@@ -60,10 +62,14 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   const isSpecial = symbolId === 'scatter' || symbolId === 'wild';
   const baseScale = SCALE[symbolId] || 1;
   const isWild = symbolId === 'wild';
+  const holes = useBulletHoles();
   // Matching symbol pops bigger like a bomb burst (only before it shatters).
   // Wilds don't pop — they carry a soft persistent halo instead.
   const popAnim = highlighted && !shattering && !isWild ? `matchPop 0.5s ease-out` : undefined;
   const showHalo = isWild && scatterBeam;
+  // Bullet holes punch into the symbol the instant it matches/pops — a mix of
+  // small and big impact craters.
+  const showBulletHoles = highlighted && !shattering && !isWild;
 
   return (
     <div
@@ -135,6 +141,26 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
       )}
 
       {/* Scatter label is part of the symbol image now */}
+
+      {/* Bullet-hole impact marks punched into matching symbols as they pop */}
+      {showBulletHoles && holes.map((h, i) => (
+        <span
+          key={i}
+          className="absolute pointer-events-none"
+          style={{
+            left: `${h.x}%`,
+            top: `${h.y}%`,
+            width: h.size,
+            height: h.size,
+            transform: 'translate(-50%, -50%)',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, #0a0a05 38%, #2a1607 68%, rgba(40,24,8,0) 100%)',
+            boxShadow: '0 0 0 1.5px rgba(255,225,150,0.45), 0 0 4px 1px rgba(0,0,0,0.7)',
+            zIndex: 12,
+            animation: `bulletHolePop 0.18s ease-out ${i * 0.04}s both`,
+          }}
+        />
+      ))}
 
     </div>
   );
