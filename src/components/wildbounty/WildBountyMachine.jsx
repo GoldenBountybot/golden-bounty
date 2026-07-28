@@ -10,6 +10,7 @@ import WesternFrame from './WesternFrame';
 import PlaqueBanner from './PlaqueBanner';
 import InfoBar from './InfoBar';
 import BoardTopBanner from './BoardTopBanner';
+import FlyingMultiplier from './FlyingMultiplier';
 
 export default function WildBountyMachine() {
   const g = useWildBounty();
@@ -72,6 +73,18 @@ export default function WildBountyMachine() {
             />
           ))}
         </div>
+
+        {/* Flying multiplier — drops from the top banner, swells over the
+            reels as the matching symbols shatter, then pours as gold coins
+            into the win banner below. */}
+        {g.flyingMult && (
+          <FlyingMultiplier
+            key={g.flyingMult.key}
+            value={g.flyingMult.value}
+            slow={g.flyingMult.slow}
+            onComplete={g.clearFlyingMult}
+          />
+        )}
 
         {/* FEATURE BUY banner — click to buy 10 free spins */}
         <button

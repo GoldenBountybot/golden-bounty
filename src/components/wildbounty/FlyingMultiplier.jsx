@@ -43,14 +43,14 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1 }) {
         <span
           className="relative font-black italic leading-none select-none"
           style={{
-            fontSize: '6rem',
+            fontSize: '4rem',
             fontFamily: 'Rye, Georgia, serif',
             backgroundImage: 'linear-gradient(180deg, #fff7c4 0%, #ffd966 22%, #d4af37 48%, #9b6a1f 74%, #5e3d12 100%)',
             WebkitBackgroundClip: 'text',
             backgroundClip: 'text',
             color: 'transparent',
-            WebkitTextStroke: '2px #3a2407',
-            filter: 'drop-shadow(0 4px 5px rgba(0,0,0,0.7)) drop-shadow(0 0 10px rgba(255,200,60,0.6))',
+            WebkitTextStroke: '1px #5a3a0c',
+            filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.45)) drop-shadow(0 0 8px rgba(255,200,60,0.6))',
           }}
         >
           X{value}
