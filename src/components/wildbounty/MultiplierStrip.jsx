@@ -46,11 +46,9 @@ function metallicStyle(size, lit) {
     zIndex: 5,
   };
   if (lit) {
-    style.filter =
-      'drop-shadow(0 0 6px rgba(255,220,120,0.95)) ' +
-      'drop-shadow(0 0 14px rgba(255,180,60,0.8)) ' +
-      'brightness(1.4)';
-    style.animation = 'wbMultLit 1.3s ease-in-out infinite';
+    // Stay visibly "lit" (brighter, sharper) but with NO pulsing glow halo so
+    // the wood behind the value stays clean.
+    style.filter = 'brightness(1.28) saturate(1.15)';
     style.zIndex = 8;
   }
   return style;
