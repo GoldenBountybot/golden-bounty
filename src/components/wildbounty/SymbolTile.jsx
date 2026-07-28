@@ -60,7 +60,7 @@ const IMG = {
 // Per-symbol zoom so each image fills its cell with minimal black padding.
 const SCALE = {
   bandit: 1.32, revolver: 1.28, whiskey: 1.24, hat: 1.3,
-  scatter: 1.36, wild: 1.48,
+  scatter: 1.36, wild: 1.58,
   A: 1.4, K: 1.26, Q: 1.26, J: 1.16,
 };
 
@@ -120,9 +120,9 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           className="absolute inset-0 pointer-events-none"
           style={{
             zIndex: 0,
-            background: 'radial-gradient(circle at center, rgba(255,243,180,0.62) 0%, rgba(255,212,95,0.32) 44%, transparent 72%)',
-            filter: 'blur(5px)',
-            transform: 'scale(1.18)',
+            background: 'radial-gradient(circle at center, rgba(255,251,225,0.9) 0%, rgba(255,224,125,0.6) 36%, rgba(255,190,70,0.25) 62%, transparent 80%)',
+            filter: 'blur(4px)',
+            transform: 'scale(1.26)',
             animation: 'wildHaloPulse 2.4s ease-in-out infinite',
           }}
         />
@@ -150,9 +150,9 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: 'linear-gradient(180deg, rgba(255,248,185,0.95) 0%, rgba(255,248,185,0) 30%, rgba(255,248,185,0) 70%, rgba(255,248,185,0.95) 100%)',
-                filter: 'blur(7px)',
-                transform: 'scaleY(1.3) scaleX(0.72)',
+                background: 'linear-gradient(180deg, rgba(255,248,185,0.98) 0%, rgba(255,248,185,0) 26%, rgba(255,248,185,0) 74%, rgba(255,248,185,0.98) 100%)',
+                filter: 'blur(5px)',
+                transform: 'scaleY(1.35) scaleX(0.48)',
                 mixBlendMode: 'screen',
                 zIndex: 0,
               }}
