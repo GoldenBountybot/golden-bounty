@@ -25,6 +25,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
+import Notifications from './pages/Notifications';
 import PayMethod from './pages/PayMethod';
 import Withdraw from './pages/Withdraw';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -93,6 +94,7 @@ const AuthenticatedApp = () => {
         <Route path="/pay" element={<PayMethod />} />
         <Route path="/withdraw" element={<Withdraw />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/notifications" element={<Notifications />} />
         <Route path="/admin" element={<Admin />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
