@@ -16,20 +16,11 @@ import MultiplierStrip from './MultiplierStrip';
 const BANNER_IMG =
   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/34377a521_file_00000000ce28820b9b425fc57f1c795e.png';
 
-// Chroma + value key. The source art sits on solid black, but compression
-// leaves a grey halo around it whose luminance overlaps the dark-brown wood
-// (#4A2D1B) — so a pure luminance cut cannot separate them.
-//
-// Instead we key by colourfulness: pixels that are both dark AND nearly grey
-// (low saturation) are background/halo → alpha 0. The dark wood is dark but
-// highly saturated (R≠G≠B), so it stays fully opaque. Bright low-saturation
-// pixels (metal highlights) are kept via the value ceiling.
-const BG_VALUE_FLOOR = 38;   // pure/near-black → always transparent
-const SAT_FLOOR = 0.33;       // (max-min)/max below this = greyish
-const GREY_VALUE_CEIL = 205;  // only treat as halo if also darker than this
-// Soft glow that survives the hard key (slightly coloured dark fringe) is
-// faded out by scaling its alpha down with how desaturated it is.
-const FEATHER_VALUE_CEIL = 170;
+// Clean hard key — no feathering, so kept pixels are always fully opaque and
+// never blend with the board behind (which is what created the smudge).
+const BG_VALUE_FLOOR = 38;
+const SAT_FLOOR = 0.33;
+const GREY_VALUE_CEIL = 205;
 
 export default function BoardTopBanner({ className = '' }) {
   const [src, setSrc] = useState(null);
@@ -59,10 +50,8 @@ export default function BoardTopBanner({ className = '' }) {
             px[i + 3] = 0; // pure black background
           } else if (sat < SAT_FLOOR && max < GREY_VALUE_CEIL) {
             px[i + 3] = 0; // grey halo (dark + desaturated)
-          } else if (sat < SAT_FLOOR && max < FEATHER_VALUE_CEIL) {
-            // soft coloured glow near the art edge — fade it out
-            const keep = Math.max(sat / SAT_FLOOR, max / FEATHER_VALUE_CEIL);
-            px[i + 3] = Math.round(px[i + 3] * keep);
+          } else {
+            px[i + 3] = 255; // kept art is always fully opaque — no smudge
           }
         }
         ctx.putImageData(data, 0, 0);
@@ -102,7 +91,7 @@ export default function BoardTopBanner({ className = '' }) {
             alt=""
             className="block w-full h-auto select-none"
             draggable={false}
-            style={{ filter: 'saturate(1.65) contrast(1.22) brightness(1.02)' }}
+            style={{ filter: 'saturate(1.12) contrast(1.06) brightness(1.02)' }}
           />
           <MultiplierStrip className="z-30" />
         </>
