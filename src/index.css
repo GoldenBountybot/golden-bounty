@@ -199,8 +199,9 @@
   12%  { transform: translate(-50%, -50%) scale(0.85); opacity: 1; }
   40%  { transform: translate(-50%, calc(var(--hold-dy, 0) - 50%)) scale(1.15); opacity: 1; }
   73%  { transform: translate(-50%, calc(var(--hold-dy, 0) - 50%)) scale(1.15); opacity: 1; }
-  90%  { transform: translate(-50%, calc(var(--win-dy, 0) - 50%))  scale(1.3);  opacity: 1; }
-  100% { transform: translate(-50%, calc(var(--win-dy, 0) - 50%))  scale(0.7);  opacity: 0; }
+  86%  { transform: translate(-50%, calc(var(--win-dy, 0) - 50%))  scale(1.4);  opacity: 1; }
+  93%  { transform: translate(-50%, calc(var(--win-dy, 0) - 50%))  scale(1.16); opacity: 1; }
+  100% { transform: translate(-50%, calc(var(--win-dy, 0) - 50%))  scale(0.72); opacity: 0; }
 }
 
 /* Wild Bounty — short gold-coin shower raining from just above the win

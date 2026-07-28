@@ -34,7 +34,7 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1, startY =
           left: '50%',
           top: `${startY}px`,
           willChange: 'transform',
-          animation: `multFlyToWin ${(TOTAL / 1000).toFixed(2)}s cubic-bezier(0.22,0.61,0.36,1) forwards`,
+          animation: `multFlyToWin ${(TOTAL / 1000).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards`,
         }}
       >
         <span
@@ -42,12 +42,12 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1, startY =
           style={{
             fontSize: '2.25rem',
             fontFamily: 'Rye, Georgia, serif',
-            backgroundImage: 'linear-gradient(180deg, #fff7c4 0%, #ffd966 22%, #d4af37 48%, #9b6a1f 74%, #5e3d12 100%)',
+            backgroundImage: 'linear-gradient(180deg, #fffbe6 0%, #ffe57a 18%, #ffd24a 38%, #e7b53a 58%, #b8861f 80%, #7c5818 100%)',
             WebkitBackgroundClip: 'text',
             backgroundClip: 'text',
             color: 'transparent',
-            WebkitTextStroke: '1px #5a3a0c',
-            filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.45)) drop-shadow(0 0 8px rgba(255,200,60,0.6))',
+            filter: 'drop-shadow(0 3px 4px rgba(0,0,0,0.55)) drop-shadow(0 0 10px rgba(255,210,90,0.9)) drop-shadow(0 0 20px rgba(255,180,50,0.5))',
+            backfaceVisibility: 'hidden',
           }}
         >
           X{value}
