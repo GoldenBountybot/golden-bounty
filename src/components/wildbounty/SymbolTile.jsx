@@ -35,7 +35,7 @@ const IMG = {
 const SCALE = {
   bandit: 1.32, revolver: 1.28, whiskey: 1.24, hat: 1.3,
   scatter: 1.36, wild: 1.36,
-  A: 1.4, K: 1.32, Q: 1.32, J: 1.16,
+  A: 1.4, K: 1.26, Q: 1.26, J: 1.16,
 };
 
 // Decorative western frame shown behind randomly selected symbols in rows 3-4.
@@ -78,7 +78,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           style={{ zIndex: 0, mixBlendMode: 'screen', transformOrigin: 'center center', animation: 'winLightBurst 0.5s ease-out forwards' }}
         />
       )}
-      {decorFrame && img ? (
+      {(decorFrame || goldFramed) && img ? (
         <>
           <img
             src={FRAME_URL}

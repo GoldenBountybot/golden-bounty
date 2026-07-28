@@ -86,7 +86,7 @@ export function useWildBounty() {
   };
 
   // Evaluate wins, shatter winners, cascade new symbols, repeat until no win.
-  const evaluateAndCascade = (currentGrid, cascadeCount, totalWin, currentMultIndex, wasFree, scatterAwarded = false) => {
+  const evaluateAndCascade = (currentGrid, cascadeCount, totalWin, currentMultIndex, wasFree, scatterAwarded = false, framedPositions = new Set()) => {
     const { wins, scatterCount: sc } = evaluateWins(currentGrid, bet);
     const multiplier = MULTIPLIERS[currentMultIndex];
     const stepWin = wins.reduce((sum, w) => sum + w.pay, 0) * multiplier;
@@ -129,12 +129,13 @@ export function useWildBounty() {
       const convertByReel = {};
       wins.forEach(w => {
         if (w.reels >= 3) {
-          // Wild lands only on reels 3 & 4 (indices 2 & 3)
+          // Wild lands only on reels 3 & 4 (indices 2 & 3), and only on
+          // symbols sitting in a framed cell.
           const tr = Math.min(w.reels - 1, 3);
           if (!convertByReel[tr]) convertByReel[tr] = [];
           currentGrid[tr].forEach((s, row) => {
             const key = `${tr}-${row}`;
-            if (s === w.symbol && !convertByReel[tr].includes(key)) convertByReel[tr].push(key);
+            if (s === w.symbol && !convertByReel[tr].includes(key) && framedPositions.has(key)) convertByReel[tr].push(key);
           });
         }
       });
@@ -175,7 +176,6 @@ export function useWildBounty() {
         // Keep persistent wild symbols highlighted across cascades so their
         // light burst stays on smoothly instead of flickering off/on.
         setWinningPositions(new Set([...wpos].filter(p => !shatterPos.has(p))));
-        setGoldFrames(new Set());
         setGrid(newGrid);
         setCascading(true);
         setCascadePositions(shatterPos);
@@ -183,7 +183,7 @@ export function useWildBounty() {
         const evalT = setTimeout(() => {
           setCascading(false);
           setCascadePositions(new Set());
-          evaluateAndCascade(newGrid, cascadeCount + 1, newTotal, newMult, wasFree, awarded);
+          evaluateAndCascade(newGrid, cascadeCount + 1, newTotal, newMult, wasFree, awarded, framedPositions);
         }, 450 * slow);
         timers.current.push(evalT);
       }, 1000 * slow);
@@ -215,7 +215,7 @@ export function useWildBounty() {
     setAnticipation(false);
     sfx.stopSpin();
     // Free spins always evaluate from 8x; normal spins from 1x.
-    evaluateAndCascade(finalGrid, 0, 0, wasFree ? 3 : 0, wasFree, false);
+    evaluateAndCascade(finalGrid, 0, 0, wasFree ? 3 : 0, wasFree, false, frames);
   };
 
   const spin = useCallback(() => {
