@@ -13,13 +13,25 @@ const GOLD = '#d4a017';
 const rand = (min, max) => Math.random() * (max - min) + min;
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-// Deposit / withdraw: whole-number amounts (e.g. 25, 105, 220, 540, 860, 1000).
+// Round to nearest multiple of 5 so amounts always end in 0 or 5
+// (e.g. 25, 50, 105, 220, 540, 860, 1000).
+function roundTo5(v) { return Math.round(v / 5) * 5; }
+
+// Deposit / withdraw: whole-number amounts ending in 0 or 5.
 function depositAmount() {
-  if (Math.random() < 0.18) return Math.round(rand(1100, 2500));
-  return Math.round(rand(25, 1000));
+  if (Math.random() < 0.18) return roundTo5(rand(1100, 2500));
+  return roundTo5(rand(25, 1000));
 }
 function withdrawAmount() {
-  return Math.round(rand(25, 1000));
+  return roundTo5(rand(25, 1000));
+}
+// Staked amount — whole number ending in 0 or 5 (like a real money amount).
+function stackedAmount() {
+  return roundTo5(rand(25, 1000));
+}
+// Claimed profit — one-decimal float (e.g. 56.5, 80.4, 408.8).
+function claimedAmount() {
+  return rand(5, 400).toFixed(1);
 }
 // Game wins: one-decimal floats (e.g. 56.5, 68.6, 80.4, 408.8).
 function winAmount() {
@@ -34,8 +46,10 @@ function buildFeed(n = 26) {
   for (let i = 0; i < n; i++) {
     const name = names[i % names.length];
     const r = Math.random();
-    if (r < 0.5) items.push({ icon: '↓', text: `${name} deposited $${depositAmount()}` });
-    else if (r < 0.7) items.push({ icon: '↑', text: `${name} withdrew $${withdrawAmount()}` });
+    if (r < 0.42) items.push({ icon: '↓', text: `${name} deposited $${depositAmount()}` });
+    else if (r < 0.60) items.push({ icon: '↑', text: `${name} withdrew $${withdrawAmount()}` });
+    else if (r < 0.74) items.push({ icon: '⛏', text: `${name} stacked $${stackedAmount()}` });
+    else if (r < 0.86) items.push({ icon: '✓', text: `${name} claimed $${claimedAmount()}` });
     else items.push({ icon: '★', text: `${name} won $${winAmount()} on ${pick(GAMES)}` });
   }
   return items;
