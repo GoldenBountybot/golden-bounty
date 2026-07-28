@@ -41,6 +41,11 @@ const SCALE = {
 // Decorative western frame shown behind randomly selected symbols in rows 3-4.
 const FRAME_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/779f97a01_file_000000008b6081fab70937ee49f1af71.png';
 
+// Golden light-burst shown behind matching (winning) symbols. Sits on solid
+// black, so it's screen-blended so the black vanishes and only the golden
+// flare + sparkle particles glow through.
+const WIN_LIGHT_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bc304a051_file_0000000019b081faa7b2dd0cdc894459.png';
+
 // Card letters styled like worn wooden tiles
 const CARD_STYLE = {
   A: { bg: 'from-yellow-600 to-amber-800', text: 'text-yellow-50' },
@@ -53,12 +58,25 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   const isCard = ['A', 'K', 'Q', 'J'].includes(symbolId);
   const img = IMG[symbolId];
   const isSpecial = symbolId === 'scatter' || symbolId === 'wild';
+  // When this cell is a winning match, screen-blend the symbol so the golden
+  // light-burst behind it shines through the black background of the art.
+  const symBlend = highlighted && img ? 'screen' : 'normal';
 
   return (
     <div
       className={`relative overflow-hidden transition-transform`}
       style={{ aspectRatio: '1 / 1', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s ease-out forwards` : undefined, zIndex: shattering ? 20 : undefined }}
     >
+      {/* Golden light-burst behind matching symbols (symbol size unchanged) */}
+      {highlighted && (
+        <img
+          src={WIN_LIGHT_URL}
+          alt=""
+          draggable={false}
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          style={{ zIndex: 0, mixBlendMode: 'screen', animation: 'winLightBurst 0.45s ease-out forwards' }}
+        />
+      )}
       {decorFrame && img ? (
         <>
           <img
@@ -72,7 +90,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             alt={symbolId}
             loading="lazy"
             className="w-full h-full object-cover"
-            style={{ transform: `scale(${SCALE[symbolId] || 1})`, zIndex: 5 }}
+            style={{ transform: `scale(${SCALE[symbolId] || 1})`, zIndex: 5, mixBlendMode: symBlend }}
           />
         </>
       ) : img ? (
@@ -81,7 +99,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           alt={symbolId}
           loading="lazy"
           className="w-full h-full object-cover"
-          style={{ transform: `scale(${SCALE[symbolId] || 1})` }}
+          style={{ transform: `scale(${SCALE[symbolId] || 1})`, mixBlendMode: symBlend }}
         />
       ) : isCard ? (
         <div className={`w-full h-full flex items-center justify-center bg-gradient-to-b ${CARD_STYLE[symbolId].bg}`}>
