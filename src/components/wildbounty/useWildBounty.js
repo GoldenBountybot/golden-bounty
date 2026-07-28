@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { REEL_ROWS, buildReel, evaluateWins, MULTIPLIERS, BETS, randomSymbol, SYMBOLS } from './symbols';
+import { REEL_ROWS, buildReel, evaluateWins, MULTIPLIERS, BETS, randomSymbol } from './symbols';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -73,21 +73,11 @@ export function useWildBounty() {
   // Replace only the winning (blasted) positions with new symbols;
   // all other symbols stay exactly where they were.
   const cascadeStep = (currentGrid, removePositions) => {
-    // Avoid matching reel 0's landed symbols when dropping new symbols on reels
-    // 1+ so contiguous-from-left cascade wins (multiplier chain) form less often.
-    const reel0Syms = new Set(currentGrid[0].filter(s => s && s !== 'scatter' && s !== 'wild'));
-    const baseIds = Object.values(SYMBOLS).filter(s => s.type !== 'scatter' && s.type !== 'wild').map(s => s.id);
     return currentGrid.map((reel, ri) => {
       let changed = false;
       const next = reel.map((sym, row) => {
         if (!removePositions.has(`${ri}-${row}`)) return sym;
         changed = true;
-        // Temp boost: bias new symbols on reels 1+ toward reel 0's symbols so
-        // cascade wins chain often and the multiplier climbs several tiers.
-        if (ri > 0 && reel0Syms.size > 0 && Math.random() < 0.85) {
-          const choices = [...reel0Syms];
-          return choices[Math.floor(Math.random() * choices.length)];
-        }
         return randomSymbol();
       });
       // Preserve the reel array reference when nothing changed on it so
