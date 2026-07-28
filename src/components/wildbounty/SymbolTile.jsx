@@ -157,7 +157,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             background: 'radial-gradient(circle, #0a0a05 38%, #2a1607 68%, rgba(40,24,8,0) 100%)',
             boxShadow: '0 0 0 1.5px rgba(255,225,150,0.45), 0 0 4px 1px rgba(0,0,0,0.7)',
             zIndex: 12,
-            animation: `bulletHolePop 0.2s ease-out ${0.46 + i * 0.05}s both`,
+            animation: `bulletHolePop 0.2s ease-out ${1 + i * 0.05}s both`,
           }}
         />
       ))}
