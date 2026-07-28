@@ -33,9 +33,9 @@ const IMG = {
 
 // Per-symbol zoom so each image fills its cell with minimal black padding.
 const SCALE = {
-  bandit: 1.24, revolver: 1.2, whiskey: 1.16, hat: 1.22,
-  scatter: 1.28, wild: 1.28,
-  A: 1.32, K: 1.24, Q: 1.24, J: 1.08,
+  bandit: 1.32, revolver: 1.28, whiskey: 1.24, hat: 1.3,
+  scatter: 1.36, wild: 1.36,
+  A: 1.4, K: 1.32, Q: 1.32, J: 1.16,
 };
 
 // Decorative western frame shown behind randomly selected symbols in rows 3-4.
