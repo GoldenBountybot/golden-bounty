@@ -114,24 +114,6 @@
   100% { transform: translateY(0%); }
 }
 
-/* Wild Bounty — per-symbol drop: each symbol slides down into its own cell
-   from just above the top edge and settles with a soft bounce. The cell clips
-   it so the first row's drop is clearly visible with no spill outside. */
-@keyframes reelSymbolDrop {
-  0%   { transform: translateY(-102%); opacity: 0.35; }
-  55%  { opacity: 1; }
-  74%  { transform: translateY(7%); }
-  86%  { transform: translateY(-3%); }
-  100% { transform: translateY(0%); }
-}
-@keyframes reelSymbolDropSlow {
-  0%   { transform: translateY(-102%); opacity: 0.3; }
-  50%  { opacity: 1; }
-  70%  { transform: translateY(8%); }
-  84%  { transform: translateY(-4%); }
-  100% { transform: translateY(0%); }
-}
-
 /* Spin button — bright pulsing white glow while a spin is in progress */
 @keyframes gatesSpinGlow {
   0%, 100% { box-shadow: 0 0 0 3px rgba(255,255,255,0.5), 0 0 20px 6px rgba(255,255,255,0.85), 0 0 36px 12px rgba(255,230,180,0.6), 0 4px 16px rgba(0,0,0,0.5); }

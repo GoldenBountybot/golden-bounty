@@ -14,7 +14,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
   useEffect(() => {
     if (prevSpinning.current && !spinning) {
       setJustStopped(true);
-      const t = setTimeout(() => { setJustStopped(false); wasAnticipation.current = false; }, wasAnticipation.current ? 1100 : 650);
+      const t = setTimeout(() => { setJustStopped(false); wasAnticipation.current = false; }, wasAnticipation.current ? 1100 : 400);
       prevSpinning.current = spinning;
       return () => clearTimeout(t);
     }
@@ -38,11 +38,8 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
     return symbols;
   }, [spinning, symbols, rowCount, anticipationGlow]);
 
-  const reelHasHighlight = winningPositions && [...winningPositions].some(p => p.startsWith(`${reelIndex}-`));
-  const outerClip = spinning || (justStopped && !reelHasHighlight);
-
   return (
-    <div className="relative w-full" style={{ aspectRatio: '1 / ' + rowCount, overflow: outerClip ? 'hidden' : 'visible' }}>
+    <div className={`relative w-full ${spinning ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount }}>
       {/* Anticipation golden edge glow on both sides (brighter) */}
       {anticipationGlow && spinning && (
         <>
@@ -68,28 +65,19 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
       )}
       <div
         className="flex flex-col w-full"
-        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : 'none', willChange: spinning ? 'transform' : 'auto', filter: spinning ? (anticipationGlow ? 'blur(3px) saturate(1.1)' : 'blur(1.5px)') : 'none', transition: 'filter 0.3s ease' }}
+        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s ease-out' : 'reelLand 0.4s ease-out') : 'none', willChange: spinning ? 'transform' : 'auto', filter: spinning ? (anticipationGlow ? 'blur(3px) saturate(1.1)' : 'blur(1.5px)') : 'none', transition: 'filter 0.3s ease' }}
       >
         {strip.map((sym, i) => {
-          const cellKey = `${reelIndex}-${i}`;
-          const isDropping = cascading && cascadePositions && cascadePositions.has(cellKey);
-          const cellHighlighted = winningPositions && winningPositions.has(cellKey);
-          // Clip each cell during the landing drop (and while spinning) so the
-          // symbol slides in cleanly; unclip the instant this cell wins so the
-          // light burst still bleeds into adjacent cells.
-          const cellClip = spinning || (justStopped && !cellHighlighted);
-          const landAnim = !spinning && !isDropping && justStopped
-            ? `${wasAnticipation.current ? 'reelSymbolDropSlow 0.9s' : 'reelSymbolDrop 0.45s'} cubic-bezier(0.22, 0.61, 0.36, 1) ${(i * 0.03).toFixed(2)}s both`
-            : null;
+          const isDropping = cascading && cascadePositions && cascadePositions.has(`${reelIndex}-${i}`);
           return (
-            <div key={i} style={{ width: '100%', aspectRatio: '1 / 1', animation: isDropping ? `cascadeDrop ${(0.45 * slow).toFixed(2)}s ease-out` : (landAnim || 'none'), zIndex: isDropping ? 15 : undefined, overflow: cellClip ? 'hidden' : 'visible' }}>
+            <div key={i} style={{ width: '100%', aspectRatio: '1 / 1', animation: isDropping ? `cascadeDrop ${(0.45 * slow).toFixed(2)}s ease-out` : 'none', zIndex: isDropping ? 15 : undefined }}>
               <SymbolTile
                 symbolId={sym}
-                highlighted={!spinning && !cascading && winningPositions.has(cellKey)}
-                goldFramed={!spinning && goldFrames.has(cellKey)}
-                shattering={!spinning && shatteringPositions && shatteringPositions.has(cellKey)}
-                scatterBeam={!spinning && scatterGlow && scatterGlow.has(cellKey)}
-                bulletHit={!spinning && bulletHit && bulletHit.has(cellKey)}
+                highlighted={!spinning && !cascading && winningPositions.has(`${reelIndex}-${i}`)}
+                goldFramed={!spinning && goldFrames.has(`${reelIndex}-${i}`)}
+                shattering={!spinning && shatteringPositions && shatteringPositions.has(`${reelIndex}-${i}`)}
+                scatterBeam={!spinning && scatterGlow && scatterGlow.has(`${reelIndex}-${i}`)}
+                bulletHit={!spinning && bulletHit && bulletHit.has(`${reelIndex}-${i}`)}
                 decorFrame={false}
                 slow={slow}
               />
