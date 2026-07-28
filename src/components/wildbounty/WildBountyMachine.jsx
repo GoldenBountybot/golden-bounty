@@ -5,7 +5,6 @@ import Reel from './Reel';
 
 import ControlPanel from './ControlPanel';
 import FreeSpinStart from './FreeSpinStart';
-import FlyingMultiplier from './FlyingMultiplier';
 import WesternFrame from './WesternFrame';
 import PlaqueBanner from './PlaqueBanner';
 import InfoBar from './InfoBar';
@@ -139,14 +138,6 @@ export default function WildBountyMachine() {
         <FreeSpinStart count={g.freeSpins} onStart={g.startFreeSpins} />
       )}
 
-      {g.flyingMult && (
-        <FlyingMultiplier
-          key={g.flyingMult.key}
-          value={g.flyingMult.value}
-          slow={g.flyingMult.slow}
-          onComplete={g.clearFlyingMult}
-        />
-      )}
       </div>
     </div>
   );
