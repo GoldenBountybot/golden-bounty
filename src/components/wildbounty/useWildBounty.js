@@ -217,7 +217,6 @@ export function useWildBounty() {
   };
 
   const settle = (finalGrid, frames, wasFree) => {
-    setGoldFrames(frames);
     setAnticipation(false);
     sfx.stopSpin();
     // Free spins always evaluate from 8x; normal spins from 1x.
@@ -300,6 +299,10 @@ export function useWildBounty() {
     }
 
     const frames = assignGoldFrames(finalGrid);
+    // Pre-load the frame layout so each frame appears the instant its reel
+    // stops (dropping in with the symbol), instead of popping in after every
+    // reel has landed.
+    setGoldFrames(frames);
     const baseGap = turbo ? 130 : 230;
     const slowGap = turbo ? 900 : 1500; // slow-motion anticipation for remaining reels
 
