@@ -168,8 +168,9 @@ export function useWildBounty() {
 
       // From the second cascade, run everything in a slight slow motion so the
       // shatter/drop animation lines up with the (also slowed) win sound.
-      // Shatter winning symbols after a brief highlight
-      const shatterT = setTimeout(() => { setShattering(shatterPos); }, 400 * slow);
+      // Hold matched (popped) symbols big for ~1s, then blast them directly.
+      const holdMs = cascadeCount >= 1 ? 1200 : 1000;
+      const shatterT = setTimeout(() => { setShattering(shatterPos); }, holdMs);
       timers.current.push(shatterT);
 
       // Cascade: drop new symbols, then re-evaluate

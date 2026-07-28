@@ -65,7 +65,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   const holes = useBulletHoles();
   // Matching symbol pops bigger like a bomb burst (only before it shatters).
   // Wilds don't pop — they carry a soft persistent halo instead.
-  const popAnim = highlighted && !shattering && !isWild ? `matchPop 0.5s ease-out` : undefined;
+  const popAnim = highlighted && !shattering && !isWild ? `matchPop 0.5s ease-out forwards` : undefined;
   const showHalo = isWild && scatterBeam;
   // Bullet holes punch into the symbol the instant it matches/pops — a mix of
   // small and big impact craters.
