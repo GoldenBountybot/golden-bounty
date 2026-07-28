@@ -116,7 +116,7 @@ export default function WildBountyMachine() {
       )}
 
       {/* Stats bar */}
-      <div className="-mt-12 pb-8">
+      <div className="-mt-20 pb-8">
         <InfoBar balance={g.balance} bet={g.bet} win={g.lastWin} />
 
         {/* Controls */}
