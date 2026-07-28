@@ -167,7 +167,11 @@ export function useWildBounty() {
       savePendingRound('wild-bounty', { win: newTotal, bet, state: pendingStateRef.current });
       setLastWin(newTotal);
       setMultIndex(newMult);
-      setFlyingMult({ value: MULTIPLIERS[newMult], key: Date.now(), slow: cascadeCount >= 1 ? 1.6 : 1.2 });
+      // First cascade (X1 round) shows no flying multiplier — the strip just
+      // lights up X1. From the X2 round onward the achieved tier flies.
+      if (currentMultIndex >= 1) {
+        setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: cascadeCount >= 1 ? 1.6 : 1.2 });
+      }
       setMessage(justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`);
 
       // From the second cascade, run everything in a slight slow motion so the
