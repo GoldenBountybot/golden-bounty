@@ -14,13 +14,13 @@ export default function FeatureBuyConfirm({ cost, onStart, onCancel }) {
       className="fixed inset-0 z-[110] flex items-center justify-center px-4"
       style={{ background: 'rgba(0,0,0,0.78)', backdropFilter: 'blur(3px)' }}
     >
-      <div className="relative w-full max-w-md select-none" style={{ aspectRatio: '3 / 4' }}>
-        {/* Panel artwork */}
+      <div className="relative w-full max-w-md select-none">
+        {/* Panel artwork — in flow so it defines the box the buttons map to */}
         <img
           src={PANEL_URL}
           alt="Feature Buy"
           draggable={false}
-          className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+          className="block w-full h-auto pointer-events-none"
           style={{ filter: 'drop-shadow(0 10px 26px rgba(0,0,0,0.7))' }}
         />
 
@@ -43,21 +43,21 @@ export default function FeatureBuyConfirm({ cost, onStart, onCancel }) {
           </span>
         </div>
 
-        {/* CANCEL click zone (bottom-left button) */}
+        {/* Hidden CANCEL button — sits over the CANCEL button artwork */}
         <button
           type="button"
           onClick={onCancel}
           aria-label="Cancel"
           className="absolute cursor-pointer"
-          style={{ left: '6%', right: '52%', top: '82%', bottom: '4%', zIndex: 20 }}
+          style={{ left: '7%', width: '41%', top: '82%', height: '13%', zIndex: 20 }}
         />
-        {/* START click zone (bottom-right button) */}
+        {/* Hidden START button — sits over the START button artwork */}
         <button
           type="button"
           onClick={onStart}
           aria-label="Start"
           className="absolute cursor-pointer"
-          style={{ left: '52%', right: '6%', top: '82%', bottom: '4%', zIndex: 20 }}
+          style={{ left: '52%', width: '41%', top: '82%', height: '13%', zIndex: 20 }}
         />
       </div>
     </div>
