@@ -39,10 +39,7 @@ const SLOTS = {
 function metallicStyle(size, lit) {
   const style = {
     fontSize: size,
-    filter:
-      'drop-shadow(0 0 3px rgba(255,210,110,0.55)) ' +
-      'drop-shadow(0 2px 2px rgba(0,0,0,0.6)) ' +
-      'brightness(1.1)',
+    fontFamily: 'Rye, Georgia, serif',
     whiteSpace: 'nowrap',
     position: 'absolute',
     transformOrigin: 'center center',
@@ -99,7 +96,7 @@ export default function MultiplierStrip({ multIndex = 0, lit = false, className 
 
   const centerLabel = `X${MULTIPLIERS[displayIndex]}`;
   const centerStyle = {
-    ...metallicStyle('2.3rem', lit),
+    ...metallicStyle('3rem', lit),
     left: '50%',
     top: '58%',
     transform: 'translate(-50%, -50%)',
