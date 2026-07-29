@@ -40,8 +40,8 @@ export default function Login() {
       footer={
         <>
           Don't have an account?{" "}
-          <Link to="/register" className="text-primary font-medium hover:underline">
-            Create one
+          <Link to="/register" className="text-amber-300 font-bold hover:underline">
+            Sign up here
           </Link>
         </>
       }
@@ -120,6 +120,19 @@ export default function Login() {
           )}
         </Button>
       </form>
+
+      <Link
+        to="/register"
+        className="w-full h-9 flex items-center justify-center rounded-md text-sm font-bold italic transition-colors mt-3"
+        style={{
+          border: '1px solid rgba(214,178,98,0.6)',
+          background: 'rgba(20,17,13,0.6)',
+          color: '#e8c878',
+          fontFamily: 'Georgia, serif',
+        }}
+      >
+        Create new account
+      </Link>
     </AuthLayout>
   );
 }
