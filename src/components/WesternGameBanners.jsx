@@ -110,9 +110,9 @@ export default function WesternGameBanners() {
       <div
         className="relative overflow-hidden select-none"
         style={{
-          borderRadius: 20,
+          borderRadius: 9,
           border: '1px solid rgba(214,178,98,0.55)',
-          boxShadow: 'inset 0 1px 0 rgba(255,240,200,0.18), 0 8px 26px rgba(0,0,0,0.6)',
+          boxShadow: 'inset 0 1px 0 rgba(255,240,200,0.18), 0 6px 18px rgba(0,0,0,0.55)',
         }}
       >
         <div
@@ -229,8 +229,8 @@ export default function WesternGameBanners() {
         </div>
       </div>
 
-      {/* Dots — centered beneath banner with equal spacing */}
-      <div className="flex justify-center gap-2 mt-3">
+      {/* Dots */}
+      <div className="flex justify-center gap-1.5 mt-2.5">
         {BANNERS.map((_, i) => (
           <button
             key={i}

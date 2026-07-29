@@ -35,83 +35,75 @@ export default function Home() {
 
   return (
     <div className="min-h-screen pb-24 bg-[#0b0b0d]">
-      {/* Top bar — Demo badge (left) · Logo + title (center) · Notification (right) */}
+      {/* Header */}
       <header
         className="sticky top-0 z-20 backdrop-blur-xl"
         style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}
       >
-        <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between gap-3">
-          {/* Demo badge — top-left compact pill */}
-          <button
-            onClick={() => {
-              const next = !demoMode;
-              setDemoMode(next);
-              toast({ title: next ? 'Demo Mode ON · $1000 practice balance' : 'Demo Mode OFF · real balance restored' });
-            }}
-            title={demoMode ? 'Demo mode is ON' : 'Enable demo mode'}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full transition-all active:scale-95 shrink-0"
-            style={{
-              border: demoMode ? '1px solid rgba(74,222,128,0.85)' : '1px solid rgba(214,178,98,0.55)',
-              background: demoMode ? 'rgba(34,197,94,0.95)' : 'rgba(20,17,13,0.92)',
-            }}
-          >
-            <FlaskConical className={`w-3.5 h-3.5 ${demoMode ? 'text-emerald-200' : 'text-amber-400'}`} />
-            <span className="text-[10px] font-black italic tracking-wide" style={{ fontFamily: 'Georgia, serif', color: demoMode ? '#bbf7d0' : '#e8c878' }}>DEMO</span>
-          </button>
-
-          {/* Centered logo + title */}
-          <div className="flex items-center gap-3 flex-1 min-w-0 justify-center">
-            <img
-              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e0ebe2f88_InShot_20260722_150739877.jpg"
-              alt="Golden Bounty"
-              className="w-14 h-14 rounded-[10px] object-cover shrink-0"
-              style={{ border: '1px solid rgba(214,178,98,0.6)', boxShadow: '0 4px 14px rgba(200,136,30,0.45)' }}
-            />
-            <div className="min-w-0">
-              <WesternTitleBadge size="lg" fullWidth>Golden Bounty</WesternTitleBadge>
+        <div className="max-w-6xl mx-auto pl-4 pr-0 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="relative shrink-0 self-end translate-y-[13px]">
+              <img
+                src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e0ebe2f88_InShot_20260722_150739877.jpg"
+                alt="Golden Bounty"
+                className="w-12 h-12 rounded-[8px] object-cover"
+                style={{ border: '1px solid rgba(214,178,98,0.6)', boxShadow: '0 4px 12px rgba(200,136,30,0.4)' }}
+              />
+              <button
+                onClick={() => {
+                  const next = !demoMode;
+                  setDemoMode(next);
+                  toast({ title: next ? 'Demo Mode ON · $1000 practice balance' : 'Demo Mode OFF · real balance restored' });
+                }}
+                title={demoMode ? 'Demo mode is ON' : 'Enable demo mode'}
+                className="absolute -top-[27px] left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-[6px] transition-all active:scale-95 z-30"
+                style={{
+                  border: demoMode ? '1px solid rgba(74,222,128,0.85)' : '1px solid rgba(214,178,98,0.55)',
+                  background: demoMode ? 'rgba(34,197,94,0.95)' : 'rgba(20,17,13,0.92)',
+                }}
+              >
+                <FlaskConical className={`w-3.5 h-3.5 ${demoMode ? 'text-emerald-200' : 'text-amber-400'}`} />
+                <span className="text-[10px] font-black italic tracking-wide" style={{ fontFamily: 'Georgia, serif', color: demoMode ? '#bbf7d0' : '#e8c878' }}>DEMO</span>
+              </button>
+            </div>
+            <div className="flex-1 min-w-0 self-start">
+              <WesternTitleBadge size="lg" fullWidth className="-mt-3 translate-x-2">Golden Bounty</WesternTitleBadge>
               <p className="text-[11px] text-amber-100/55 tracking-wide mt-1 text-center">{playable} Games Live · Play & Win</p>
             </div>
           </div>
 
-          {/* Notification bell — top-right */}
-          <div className="shrink-0">
+          <div className="flex flex-col items-end gap-1.5 self-end mr-2">
             <NotificationBell />
+            <Link
+              to="/dashboard"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] transition-colors"
+              style={{ border: demoMode ? '1px solid rgba(74,222,128,0.6)' : '1px solid rgba(214,178,98,0.45)', background: demoMode ? 'rgba(34,197,94,0.12)' : 'rgba(20,17,13,0.6)' }}
+            >
+              <Wallet className="w-4 h-4 text-amber-400" />
+              <span className="text-xs font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
+                ${balance.toFixed(2)}
+              </span>
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Balance card — below top bar, right-aligned with breathing space */}
-      <div className="max-w-6xl mx-auto px-4 pt-4 flex justify-end">
-        <Link
-          to="/dashboard"
-          className="flex items-center gap-2 px-3.5 py-2 rounded-[10px] transition-all active:scale-95"
-          style={{ border: demoMode ? '1px solid rgba(74,222,128,0.6)' : '1px solid rgba(214,178,98,0.45)', background: demoMode ? 'rgba(34,197,94,0.12)' : 'rgba(20,17,13,0.6)', boxShadow: '0 4px 14px rgba(0,0,0,0.35)' }}
-        >
-          <Wallet className="w-4 h-4 text-amber-400" />
-          <span className="text-sm font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
-            ${balance.toFixed(2)}
-          </span>
-        </Link>
-      </div>
-
-      {/* Hero banner — rounded gold frame, generous horizontal margins */}
-      <div className="max-w-6xl mx-auto px-5 sm:px-6 pt-6">
+      {/* Premium Western game banners */}
+      <div className="max-w-6xl mx-auto px-4 pt-5">
         <WesternGameBanners />
       </div>
 
-      {/* Announcement bar — scrolling winner ticker below the hero banner */}
-      <div className="pt-5">
-        <LiveTicker />
-      </div>
+      {/* Live activity ticker */}
+      <LiveTicker />
 
-      {/* Category navigation — horizontally scrollable, equal spacing, edge padding */}
+      {/* Category tabs */}
       <div className="max-w-6xl mx-auto px-4 mt-6">
-        <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide px-1">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {CATEGORIES.map(c => (
             <button
               key={c}
               onClick={() => setCat(c)}
-              className="px-4 py-2 rounded-[8px] text-sm font-bold italic whitespace-nowrap transition-all duration-300 active:scale-95"
+              className="px-4 py-2 rounded-[7px] text-sm font-bold italic whitespace-nowrap transition-colors"
               style={{
                 fontFamily: 'Georgia, serif',
                 border: cat === c
@@ -119,7 +111,6 @@ export default function Home() {
                   : '1px solid rgba(214,178,98,0.3)',
                 background: cat === c ? 'linear-gradient(to bottom,#f5c542,#c8881e)' : 'rgba(20,17,13,0.6)',
                 color: cat === c ? '#2a1a06' : '#e8c878',
-                boxShadow: cat === c ? '0 4px 14px rgba(200,136,30,0.35)' : 'none',
               }}
             >
               {c}
@@ -128,9 +119,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Game grid — extra vertical spacing, equal card sizing */}
-      <main id="games" className="max-w-6xl mx-auto px-4 pt-7 pb-8 scroll-mt-20">
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3.5 sm:gap-4">
+      {/* Game grid */}
+      <main id="games" className="max-w-6xl mx-auto px-4 py-6 scroll-mt-20">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
           {filtered.map(g => (
             <CasinoGameCard key={g.id} game={g} />
           ))}
