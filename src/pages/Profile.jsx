@@ -211,7 +211,7 @@ export default function Profile() {
         <div className="dash-card p-5 flex flex-col items-center gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           {/* Avatar with golden glow */}
           <div className="relative">
-            <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 30px rgba(212,175,55,0.5)', transform: 'scale(1.1)' }} />
+            <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 14px rgba(212,175,55,0.25)', transform: 'scale(1.1)' }} />
             <div className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center relative" style={{ border: '2px solid rgba(212,175,55,0.6)', background: 'linear-gradient(135deg, #FFD700, #C89B3C)' }}>
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
@@ -352,7 +352,7 @@ export default function Profile() {
           <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
             {/* Wallet balance card */}
             <div className="dash-card p-5 flex items-center gap-3" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.35)' }}>
-              <div className="flex items-center justify-center w-11 h-11 rounded-full shrink-0" style={{ background: 'linear-gradient(135deg, #FFD700, #C89B3C)', boxShadow: '0 0 16px rgba(212,175,55,0.5)' }}>
+              <div className="flex items-center justify-center w-11 h-11 rounded-full shrink-0" style={{ background: 'linear-gradient(135deg, #FFD700, #C89B3C)', boxShadow: '0 0 8px rgba(212,175,55,0.25)' }}>
                 <Wallet className="w-5 h-5" style={{ color: '#1a1408' }} />
               </div>
               <div className="flex-1">
