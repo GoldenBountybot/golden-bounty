@@ -33,9 +33,10 @@ function stackedAmount() {
 function claimedAmount() {
   return rand(5, 400).toFixed(1);
 }
-// Game wins: one-decimal floats (e.g. 56.5, 68.6, 80.4, 408.8).
+// Game wins: one-decimal floats — mostly under $100, occasional big hits.
 function winAmount() {
-  return rand(10, 500).toFixed(1);
+  if (Math.random() < 0.78) return rand(5, 100).toFixed(1);
+  return rand(100, 500).toFixed(1);
 }
 
 // Build a feed with unique names (shuffled) so the same user/message never
