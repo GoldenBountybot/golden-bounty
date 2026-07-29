@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '@/components/BackButton';
-import WesternTitleBadge from '@/components/WesternTitleBadge';
-import WesternFrame from '@/components/wildbounty/WesternFrame';
-import WesternBackdrop from '@/components/WesternBackdrop';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -10,6 +7,8 @@ import { Bitcoin, Wallet, Copy, Check, ArrowLeft, AlertTriangle } from 'lucide-r
 import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
 import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
 import TxIdRow from '@/components/wallet/TxIdSubmit';
+
+const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
 const LOGOS = {
   bitcoin: 'https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400',
@@ -92,8 +91,9 @@ function CopyAddr({ addr }) {
     setTimeout(() => setCopied(false), 1200);
   };
   return (
-    <button onClick={copy} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-amber-600/60 bg-black/40 text-amber-200 text-xs font-bold italic hover:bg-black/60 active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>
-      {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+    <button onClick={copy} className="flex items-center gap-1.5 px-3 h-9 rounded-[14px] text-xs font-bold transition-all active:scale-95 shrink-0"
+      style={{ border: '1px solid rgba(212,175,55,0.4)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
+      {copied ? <Check className="w-3.5 h-3.5" style={{ color: '#34d399' }} /> : <Copy className="w-3.5 h-3.5" />}
       {copied ? 'Copied' : 'Copy'}
     </button>
   );
@@ -101,8 +101,9 @@ function CopyAddr({ addr }) {
 
 function CoinLogo({ symbol, color, logo }) {
   return (
-    <div className="flex items-center justify-center w-9 h-9 rounded-full shrink-0 overflow-hidden" style={{ background: logo ? '#fff' : color, boxShadow: `0 0 0 2px rgba(255,255,255,0.15), 0 1px 4px rgba(0,0,0,0.4)` }}>
-      {logo ? <img src={logo} alt={symbol} className="w-7 h-7 object-contain" /> : <span className="text-lg font-black text-white" style={{ fontFamily: 'Georgia, serif' }}>{symbol}</span>}
+    <div className="flex items-center justify-center w-11 h-11 rounded-full shrink-0 overflow-hidden"
+      style={{ background: logo ? '#fff' : color, boxShadow: '0 0 0 2px rgba(255,255,255,0.12), 0 2px 8px rgba(0,0,0,0.5)' }}>
+      {logo ? <img src={logo} alt={symbol} className="w-8 h-8 object-contain" /> : <span className="text-lg font-bold text-white">{symbol}</span>}
     </div>
   );
 }
@@ -140,97 +141,114 @@ export default function PayMethod() {
   const methodLabel = view === 'usdt' ? 'USDT Deposit' : view === 'crypto' ? 'Crypto Deposit' : view === 'tonkeeper' ? 'Ton Wallet Deposit' : view === 'trust' ? 'Trust Wallet Pay' : 'Binance Pay Deposit';
 
   return (
-    <div className="relative min-h-screen bg-[#0b0b0d] pb-10">
-      <WesternBackdrop />
-      <header className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
+    <div className="relative min-h-screen pb-10" style={{ background: '#0D0D0D', fontFamily: SANS }}>
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 55% at 50% -10%, rgba(212,175,55,0.12), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.06), transparent 60%)' }} />
+
+      {/* Header — text unchanged */}
+      <header
+        className="sticky top-0 z-30"
+        style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
+      >
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
           {view !== 'choose' ? (
-            <button onClick={() => { setView('choose'); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md italic font-bold border border-amber-600/80 text-amber-200 bg-black/40 active:scale-95" style={{ fontFamily: 'Rye, Georgia, serif' }}>
+            <button onClick={() => { setView('choose'); }}
+              className="flex items-center gap-1.5 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
+              style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
           ) : (
-            <BackButton href="/dashboard" />
+            <button onClick={() => window.history.back()} title="Back"
+              className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
+              style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+            </button>
           )}
           <div className="flex-1 text-center">
-            <WesternTitleBadge size="lg" fullWidth>{view === 'choose' ? 'Choose Payment' : methodLabel}</WesternTitleBadge>
+            <span className="text-base font-extrabold tracking-tight" style={{ color: '#D4AF37' }}>{view === 'choose' ? 'Choose Payment' : methodLabel}</span>
           </div>
+          <div className="w-10" />
         </div>
       </header>
 
       <main className="relative z-10 max-w-md mx-auto px-4 py-5 flex flex-col gap-4">
         {demoMode ? (
-          <WesternFrame variant="glass" className="p-5 flex flex-col items-center gap-3 text-center">
-            <AlertTriangle className="w-8 h-8 text-amber-400" />
-            <p className="text-amber-100 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>Demo Mode is active.</p>
-            <p className="text-amber-100/60 text-xs italic">Deposits are disabled while using the practice balance. Turn off Demo from the home page to deposit real funds.</p>
-            <button onClick={() => window.location.href = '/'} className="px-4 py-2 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>Back to Home</button>
-          </WesternFrame>
+          <div className="dash-card p-5 flex flex-col items-center gap-3 text-center" style={{ animation: 'dashFadeIn 300ms ease both' }}>
+            <AlertTriangle className="w-8 h-8" style={{ color: '#D4AF37' }} />
+            <p className="text-sm font-semibold" style={{ color: '#fff' }}>Demo Mode is active.</p>
+            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>Deposits are disabled while using the practice balance. Turn off Demo from the home page to deposit real funds.</p>
+            <button onClick={() => window.location.href = '/'} className="dash-btn-gold px-5 py-2.5 text-sm">Back to Home</button>
+          </div>
         ) : amount <= 0 ? (
-          <WesternFrame variant="glass" className="p-5 flex flex-col items-center gap-3 text-center">
-            <AlertTriangle className="w-8 h-8 text-amber-400" />
-            <p className="text-amber-100 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>No deposit amount selected.</p>
-            <p className="text-amber-100/60 text-xs italic">Please choose a deposit amount from the dashboard.</p>
-            <button onClick={() => window.location.href = '/dashboard'} className="px-4 py-2 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>Go to Dashboard</button>
-          </WesternFrame>
+          <div className="dash-card p-5 flex flex-col items-center gap-3 text-center" style={{ animation: 'dashFadeIn 300ms ease both' }}>
+            <AlertTriangle className="w-8 h-8" style={{ color: '#D4AF37' }} />
+            <p className="text-sm font-semibold" style={{ color: '#fff' }}>No deposit amount selected.</p>
+            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>Please choose a deposit amount from the dashboard.</p>
+            <button onClick={() => window.location.href = '/dashboard'} className="dash-btn-gold px-5 py-2.5 text-sm">Go to Dashboard</button>
+          </div>
         ) : (
         <>
-        <WesternFrame glow variant="glass" className="p-4 flex items-center justify-between">
+        {/* Deposit amount card */}
+        <div className="dash-card p-5 flex items-center justify-between" style={{ animation: 'dashFadeIn 400ms ease both', background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.4)', boxShadow: '0 0 24px rgba(212,175,55,0.16), 0 8px 24px rgba(0,0,0,0.5)' }}>
           <div>
-            <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Depositing</p>
-            <p className="text-2xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${amount.toFixed(2)}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Depositing</p>
+            <p className="text-3xl font-extrabold tabular-nums mt-0.5" style={{ color: '#fff' }}>${amount.toFixed(2)}</p>
           </div>
-          <Wallet className="w-8 h-8 text-amber-400/60" />
-        </WesternFrame>
+          <div className="flex items-center justify-center w-12 h-12 rounded-full shrink-0" style={{ background: 'linear-gradient(135deg, #FFD700, #C89B3C)', boxShadow: '0 0 18px rgba(212,175,55,0.5)' }}>
+            <Wallet className="w-6 h-6" style={{ color: '#1a1408' }} />
+          </div>
+        </div>
 
         {view === 'choose' && (
-          <div className="flex flex-col gap-3">
-            {METHODS.map(m => (
+          <div className="flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+            {METHODS.map((m, i) => (
               <button
                 key={m.id}
                 onClick={() => choose(m)}
-                className="w-full flex items-center gap-4 p-4 rounded-xl border border-amber-700/40 bg-black/30 hover:bg-black/50 transition-all active:scale-[0.98]"
-                style={{ boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.18), 0 2px 6px rgba(0,0,0,0.5)' }}
+                className="dash-card w-full flex items-center gap-4 p-4 transition-all active:scale-[0.98]"
+                style={{ animation: 'dashFadeIn 400ms ease both', animationDelay: (50 * i) + 'ms' }}
               >
-                <div className={`flex items-center justify-center w-12 h-12 rounded-full ring-2 overflow-hidden ${m.logo ? 'bg-white/95 ring-white/30' : (m.badgeClass || 'bg-black/40 ring-amber-700/40')}`}>
-                  {m.logo ? <img src={m.logo} alt={m.label} className="w-8 h-8 object-contain" /> : m.badge ? <span className="text-2xl font-black" style={{ fontFamily: 'Georgia, serif' }}>{m.badge}</span> : m.icon ? <m.icon className={`w-7 h-7 ${m.iconClass || ''}`} /> : null}
+                <div className={`flex items-center justify-center w-12 h-12 rounded-full ring-2 overflow-hidden shrink-0 ${m.logo ? 'bg-white/95 ring-white/20' : (m.badgeClass || 'bg-black/40 ring-amber-700/40')}`}>
+                  {m.logo ? <img src={m.logo} alt={m.label} className="w-8 h-8 object-contain" /> : m.badge ? <span className="text-2xl font-bold">{m.badge}</span> : m.icon ? <m.icon className={`w-7 h-7 ${m.iconClass || ''}`} /> : null}
                 </div>
                 <div className="flex-1 text-left">
-                  <h2 className="text-base font-black italic text-amber-100" style={{ fontFamily: 'Georgia, serif' }}>{m.label}</h2>
-                  <p className="text-[11px] text-amber-100/50">{m.hint}</p>
+                  <h2 className="text-base font-bold" style={{ color: '#fff' }}>{m.label}</h2>
+                  <p className="text-[12px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>{m.hint}</p>
                 </div>
               </button>
             ))}
-            <p className="text-[10px] text-amber-100/40 italic text-center mt-2">Minimum deposit $3.00 · Choose your preferred method</p>
+            <p className="text-[11px] text-center mt-2" style={{ color: 'rgba(255,255,255,0.4)' }}>Minimum deposit $3.00 · Choose your preferred method</p>
           </div>
         )}
 
         {view !== 'choose' && view !== 'binance' && (
-          <div className="flex flex-col gap-3">
-            <p className="text-xs text-amber-100/70 italic">Send to one of the addresses below to deposit.</p>
+          <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+            <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>Send to one of the addresses below to deposit.</p>
             {networks.map((n, i) => (
-              <WesternFrame key={i} variant="glass" className="p-3 flex flex-col gap-2">
-                <div className="flex items-center gap-2">
+              <div key={i} className="dash-card p-4 flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both', animationDelay: (50 * i) + 'ms' }}>
+                <div className="flex items-center gap-3">
                   <CoinLogo symbol={n.symbol} color={n.color} logo={n.logo} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>{n.name}</p>
+                    <p className="text-sm font-bold" style={{ color: '#fff' }}>{n.name}</p>
                   </div>
                   <CopyAddr addr={n.address} />
                 </div>
-                <p className="text-[11px] text-amber-100/80 break-all font-mono">{n.address}</p>
+                <div className="rounded-[14px] px-3 py-2.5" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(212,175,55,0.18)' }}>
+                  <p className="text-[12px] break-all font-mono" style={{ color: 'rgba(255,255,255,0.85)' }}>{n.address}</p>
+                </div>
                 <TxIdRow amount={amount} method={view} network={n.name} />
-              </WesternFrame>
+              </div>
             ))}
           </div>
         )}
 
         {view === 'binance' && (
-          <div className="flex flex-col gap-4 items-center">
-            <WesternFrame glow variant="glass" className="p-5 flex flex-col items-center gap-3 w-full">
-              <div className="w-56 h-56 rounded-lg overflow-hidden bg-white p-3 flex items-center justify-center" style={{ boxShadow: '0 0 0 1px rgba(190,140,55,0.5), 0 4px 12px rgba(0,0,0,0.5)' }}>
+          <div className="flex flex-col gap-4 items-center" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+            <div className="dash-card p-5 flex flex-col items-center gap-3 w-full" style={{ boxShadow: '0 0 24px rgba(212,175,55,0.16), 0 8px 24px rgba(0,0,0,0.5)' }}>
+              <div className="w-56 h-56 rounded-2xl overflow-hidden bg-white p-3 flex items-center justify-center" style={{ boxShadow: '0 0 0 1px rgba(212,175,55,0.4), 0 6px 18px rgba(0,0,0,0.5)' }}>
                 <img src={payData.binance?.qr_image_url || 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2a51a6e74_InShot_20260718_2329057661.jpg'} alt="Binance Pay QR" className="w-full h-full object-contain" />
               </div>
-              <p className="text-xs text-amber-100/70 italic text-center">Scan the QR with your Binance app to pay <span className="font-bold text-amber-200">${amount.toFixed(2)}</span></p>
-            </WesternFrame>
+              <p className="text-[13px] text-center" style={{ color: 'rgba(255,255,255,0.7)' }}>Scan the QR with your Binance app to pay <span className="font-bold" style={{ color: '#D4AF37' }}>${amount.toFixed(2)}</span></p>
+            </div>
           </div>
         )}
 

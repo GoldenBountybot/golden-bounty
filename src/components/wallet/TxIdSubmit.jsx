@@ -37,30 +37,26 @@ export default function TxIdRow({ amount, method, network }) {
     }
   };
 
-  const W = { fontFamily: 'Georgia, serif' };
-
   if (done) {
     return (
-      <div className="flex items-center gap-1.5 mt-1 text-emerald-300 text-[11px] italic" style={W}>
+      <div className="flex items-center gap-1.5 mt-1 text-[12px] font-semibold" style={{ color: '#34d399' }}>
         <Check className="w-3.5 h-3.5" /> TxID received — pending verification.
       </div>
     );
   }
 
   return (
-    <div className="mt-1 flex items-center gap-1.5">
+    <div className="mt-2 flex items-center gap-2">
       <input
         value={txid}
         onChange={(e) => setTxid(e.target.value)}
         placeholder="Paste transaction ID / hash"
-        className="flex-1 min-w-0 rounded-md px-2 py-1.5 text-[11px] font-mono outline-none"
-        style={{ border: '1px solid rgba(190,140,55,0.6)', background: 'rgba(20,13,6,0.9)', color: '#ffe6a8' }}
+        className="dash-input flex-1 min-w-0 px-3.5 h-10 text-[12px] font-mono"
       />
       <button
         onClick={submit}
         disabled={submitting || !txid.trim()}
-        className="shrink-0 px-2.5 py-1.5 rounded-md text-[11px] font-black italic disabled:opacity-50 active:scale-95 transition-transform flex items-center gap-1"
-        style={{ background: 'linear-gradient(to bottom, #f5c542, #c8881e)', border: '1px solid rgba(245,210,120,0.9)', color: '#2a1a06', ...W }}
+        className="dash-btn-gold shrink-0 px-4 h-10 text-[12px] flex items-center gap-1.5"
       >
         {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Send className="w-3.5 h-3.5" /> Submit</>}
       </button>
