@@ -43,6 +43,12 @@ export default function Dashboard() {
   const [notify, setNotify] = useState(null);
   const showNotify = (title, description) => setNotify({ title, description });
 
+  // Keep the active tab in sync with the URL query param so navigation from the
+  // bottom bar (e.g. clicking Dashboard while on ?tab=stack) updates the view.
+  useEffect(() => {
+    setTab(params.get('tab') || 'wallet');
+  }, [params]);
+
   useEffect(() => {
     let active = true;
     (async () => {
