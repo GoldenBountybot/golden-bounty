@@ -15,7 +15,7 @@ export default function BottomNav() {
         src={src}
         alt={label}
         draggable={false}
-        className="block w-9 h-9 select-none transition-all group-hover:scale-105"
+        className="block w-11 h-11 select-none transition-all group-hover:scale-105"
         style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 2px 6px rgba(200,136,30,0.4))' }}
       />
     </Link>
@@ -55,7 +55,7 @@ export default function BottomNav() {
             title="Play Games"
           >
             <span
-              className="flex items-center justify-center w-10 h-10 rounded-[8px] overflow-hidden transition-all group-hover:scale-105"
+              className="flex items-center justify-center w-12 h-12 rounded-[8px] overflow-hidden transition-all group-hover:scale-105"
               style={{
                 filter: 'drop-shadow(0 3px 8px rgba(200,136,30,0.55))',
               }}
