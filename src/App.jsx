@@ -29,6 +29,7 @@ import Notifications from './pages/Notifications';
 import PayMethod from './pages/PayMethod';
 import Withdraw from './pages/Withdraw';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import BottomNavLayout from '@/components/BottomNavLayout';
 import AppLoadingImage from '@/components/AppLoadingImage';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 
@@ -90,11 +91,14 @@ const AuthenticatedApp = () => {
         <Route path="/games/argonauts" element={<Argonauts />} />
         <Route path="/games/gates-of-olympus" element={<GatesOfOlympus />} />
         <Route path="/free-spin" element={<FreeSpin />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/pay" element={<PayMethod />} />
-        <Route path="/withdraw" element={<Withdraw />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/notifications" element={<Notifications />} />
+        {/* Non-game authenticated pages — persistent bottom navigation */}
+        <Route element={<BottomNavLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/pay" element={<PayMethod />} />
+          <Route path="/withdraw" element={<Withdraw />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/notifications" element={<Notifications />} />
+        </Route>
         <Route path="/admin" element={<Admin />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />

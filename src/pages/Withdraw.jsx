@@ -99,7 +99,7 @@ export default function Withdraw() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#0b0b0d] pb-10">
+    <div className="relative min-h-screen bg-[#0b0b0d] pb-24">
       <WesternBackdrop />
       <header className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
