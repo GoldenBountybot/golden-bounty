@@ -150,7 +150,7 @@ export default function Profile() {
   };
 
   const uid = profile?.uid || '';
-  const promoCode = uid ? 'GB' + uid.slice(0, 6) : '';
+  const promoCode = profile?.promo_code || (uid ? 'GB' + uid : '');
   const vip = getVipLevel(totalDeposits);
   const next = getNextVipLevel(totalDeposits);
   const vipRate = vip?.rate ?? BASE_RATE;
