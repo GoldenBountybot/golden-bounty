@@ -1,12 +1,13 @@
 // VIP level system based on total approved deposits.
 // Each tier unlocks a higher daily Stack profit rate.
-export const BASE_RATE = 0.03; // below Bronze
+export const BASE_RATE = 0.025; // below Bronze — regular user
 
 export const VIP_LEVELS = [
-  { level: 1, name: 'Bronze',   minDeposit: 1000,  rate: 0.0333, color: '#cd7f32' },
-  { level: 2, name: 'Silver',   minDeposit: 2000,  rate: 0.0366, color: '#c0c0c0' },
-  { level: 3, name: 'Gold',     minDeposit: 5000,  rate: 0.04,   color: '#ffd700' },
-  { level: 4, name: 'Diamond',  minDeposit: 10000, rate: 0.045,  color: '#b9f2ff' },
+  { level: 1, name: 'Bronze',   minDeposit: 100,    rate: 0.03,   color: '#cd7f32' },
+  { level: 2, name: 'Silver',   minDeposit: 500,    rate: 0.033,  color: '#c0c0c0' },
+  { level: 3, name: 'Gold',     minDeposit: 1000,   rate: 0.036,  color: '#ffd700' },
+  { level: 4, name: 'Platinum', minDeposit: 10000, rate: 0.04,   color: '#e5e4e2' },
+  { level: 5, name: 'Diamond',  minDeposit: 50000, rate: 0.045,  color: '#b9f2ff' },
 ];
 
 export function getVipLevel(totalDeposits) {
