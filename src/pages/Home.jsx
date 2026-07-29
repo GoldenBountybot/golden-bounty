@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import CasinoGameCard from '@/components/CasinoGameCard';
 import WesternGameBanners from '@/components/WesternGameBanners';
 import LiveTicker from '@/components/LiveTicker';
+import PlayButton777 from '@/components/PlayButton777';
 import BottomNav from '@/components/BottomNav';
 import NotificationBell from '@/components/NotificationBell';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
@@ -95,6 +96,9 @@ export default function Home() {
 
       {/* Live activity ticker */}
       <LiveTicker />
+
+      {/* Featured 777 play button */}
+      <PlayButton777 />
 
       {/* Category tabs */}
       <div className="max-w-6xl mx-auto px-4 mt-6">
