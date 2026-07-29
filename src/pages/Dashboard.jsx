@@ -1,24 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History, Menu } from 'lucide-react';
+import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History, Menu, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import { useStake, LOCK_DAYS } from '@/lib/useStake';
 import StackMining from '@/components/StackMining';
 import VipLevels from '@/components/VipLevels';
 import BackButton from '@/components/BackButton';
-import WesternTitleBadge from '@/components/WesternTitleBadge';
-import WesternFrame from '@/components/wildbounty/WesternFrame';
-import WesternBackdrop from '@/components/WesternBackdrop';
 import StylishNotify from '@/components/StylishNotify';
+import AnimatedNumber from '@/components/AnimatedNumber';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/lib/AuthContext';
 import { base44 } from '@/api/base44Client';
+
+const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
 const TABS = [
   { id: 'wallet', label: 'Wallet', icon: Wallet },
   { id: 'vip', label: 'VIP', icon: Crown },
   { id: 'stack', label: 'Stack', icon: Layers },
 ];
+
+const STATUS_META = {
+  completed: { color: '#34d399', bg: 'rgba(52,211,153,0.14)', border: 'rgba(52,211,153,0.4)', icon: CheckCircle2, label: 'Success' },
+  approved:  { color: '#34d399', bg: 'rgba(52,211,153,0.14)', border: 'rgba(52,211,153,0.4)', icon: CheckCircle2, label: 'Success' },
+  pending:   { color: '#fb923c', bg: 'rgba(251,146,60,0.14)', border: 'rgba(251,146,60,0.4)', icon: Clock, label: 'Pending' },
+  rejected:  { color: '#f87171', bg: 'rgba(248,113,113,0.14)', border: 'rgba(248,113,113,0.4)', icon: XCircle, label: 'Rejected' },
+};
 
 export default function Dashboard() {
   const [params, setParams] = useSearchParams();
@@ -84,13 +91,6 @@ export default function Dashboard() {
     setWdAmt('');
   };
 
-  const claim = (name, fn) => {
-    const res = fn();
-    if (res === false) toast({ title: `${name} not available yet` });
-    else if (typeof res === 'number') showNotify(`${name} claimed!`, `+$${res.toFixed(2)} added to balance`);
-    else showNotify(`${name} claimed!`, 'Bonus added to your balance');
-  };
-
   const doStake = async (amount) => {
     if (acct.demoMode) { toast({ title: 'Stacking is not available in Demo mode', description: 'Turn off Demo balance to lock real funds and earn profit.' }); return; }
     const n = Number(amount);
@@ -106,25 +106,50 @@ export default function Dashboard() {
     else toast({ title: 'No profit to claim yet' });
   };
 
+  const goldText = { color: '#D4AF37' };
+  const heading = { fontFamily: SANS, fontWeight: 700, letterSpacing: '-0.01em' };
+
   return (
-    <div className="relative min-h-screen bg-[#0b0b0d] pb-10">
-      <WesternBackdrop />
-      <header className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
-        <div className="max-w-md mx-auto px-4 py-2 flex items-center gap-2">
-          <BackButton />
-          <div className="flex-1 text-center">
-            <WesternTitleBadge fullWidth>{tab === 'stack' ? 'Stack' : tab === 'vip' ? 'VIP' : 'Dashboard'}</WesternTitleBadge>
+    <div className="relative min-h-screen pb-10" style={{ background: '#0D0D0D', fontFamily: SANS }}>
+      {/* soft gold glow backdrop */}
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.12), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.06), transparent 60%)' }} />
+
+      {/* Sticky top navigation */}
+      <header
+        className="sticky top-0 z-30"
+        style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
+      >
+        <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
+          <button
+            onClick={() => window.history.back()}
+            title="Back"
+            className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
+            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+
+          <div className="flex-1 flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'linear-gradient(135deg,#FFD700,#C89B3C)', boxShadow: '0 0 14px rgba(212,175,55,0.45)' }}>
+              <Wallet className="w-5 h-5" style={{ color: '#1a1408' }} />
+            </div>
+            <span className="text-lg font-extrabold tracking-tight" style={{ ...heading, color: '#D4AF37' }}>
+              {tab === 'stack' ? 'Stack' : tab === 'vip' ? 'VIP' : 'Dashboard'}
+            </span>
           </div>
+
           <button
             onClick={() => setMenuOpen(o => !o)}
             title="Menu"
-            className="flex items-center justify-center w-9 h-9 rounded-lg text-amber-200 hover:text-amber-100 hover:bg-black/40 transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
+            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
           >
             <Menu className="w-5 h-5" />
           </button>
         </div>
+
         {menuOpen && (
-          <div className="max-w-md mx-auto px-4 pb-2 flex items-center gap-1.5">
+          <div className="max-w-md mx-auto px-4 pb-3 flex items-center gap-2" style={{ animation: 'dashFadeIn 250ms ease both' }}>
             {TABS.map(t => {
               const Icon = t.icon;
               const active = tab === t.id;
@@ -133,10 +158,14 @@ export default function Dashboard() {
                   key={t.id}
                   onClick={() => { goTab(t.id); setMenuOpen(false); }}
                   title={t.label}
-                  className={`flex items-center justify-center w-9 h-9 rounded-md border transition-colors ${active ? 'bg-amber-400 text-stone-900 border-amber-300' : 'bg-black/30 text-amber-100/80 border-amber-700/40 hover:bg-black/50'}`}
-                  style={{ fontFamily: 'Rye, Georgia, serif' }}
+                  className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95"
+                  style={{
+                    border: active ? '1px solid rgba(212,175,55,0.6)' : '1px solid rgba(212,175,55,0.22)',
+                    background: active ? 'linear-gradient(135deg,#FFD700,#C89B3C)' : 'rgba(255,255,255,0.03)',
+                    color: active ? '#1a1408' : '#D4AF37',
+                  }}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-4 h-4" /> {t.label}
                 </button>
               );
             })}
@@ -144,8 +173,8 @@ export default function Dashboard() {
               <button
                 onClick={() => { window.location.href = '/admin'; }}
                 title="Admin Panel"
-                className="flex items-center justify-center w-9 h-9 rounded-md border bg-black/30 text-amber-200 border-amber-700/40 hover:bg-black/50 transition-colors"
-                style={{ fontFamily: 'Rye, Georgia, serif' }}
+                className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
+                style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
               >
                 <Shield className="w-4 h-4" />
               </button>
@@ -154,78 +183,108 @@ export default function Dashboard() {
         )}
       </header>
 
-      <main className="relative z-10 max-w-md mx-auto px-4 py-3 flex flex-col gap-3">
-        {/* Balance */}
-        <WesternFrame glow variant="glass" className="p-2.5 flex items-center justify-between">
-          <div>
-            <p className="text-[8px] tracking-widest uppercase text-amber-300/70" style={{ fontFamily: 'Rye, Georgia, serif' }}>Balance</p>
-            <p className="text-xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${acct.balance.toFixed(2)}</p>
+      <main className="relative z-10 max-w-md mx-auto px-4 py-4 flex flex-col gap-4">
+        {/* Large balance card */}
+        <div
+          className="dash-card relative overflow-hidden p-5"
+          style={{ animation: 'dashFadeIn 400ms ease both', background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.35)' }}
+        >
+          <div className="pointer-events-none absolute -top-10 -right-8 w-40 h-40 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.22), transparent 70%)' }} />
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Total Balance</p>
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl" style={{ background: 'linear-gradient(135deg,#FFD700,#C89B3C)', boxShadow: '0 0 18px rgba(212,175,55,0.5)' }}>
+              <Wallet className="w-5 h-5" style={{ color: '#1a1408' }} />
+            </div>
           </div>
-          <Wallet className="w-5 h-5 text-amber-400/60" />
-        </WesternFrame>
+          <div className="mt-2 flex items-end gap-1">
+            <span className="text-3xl font-extrabold tabular-nums" style={{ color: '#fff', ...heading }}>
+              $<AnimatedNumber value={acct.balance} duration={900} decimals={2} />
+            </span>
+          </div>
+          <div className="mt-3 flex items-center gap-3 text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            <span>Withdrawable: <span style={{ color: '#D4AF37', fontWeight: 700 }}>${acct.maxWithdrawable.toFixed(2)}</span></span>
+            {acct.wagerRemaining > 0 && <span>Locked: <span style={{ color: '#fb923c', fontWeight: 700 }}>${acct.wagerRemaining.toFixed(2)}</span></span>}
+          </div>
+        </div>
 
         {tab === 'wallet' && (
-          <div className="flex flex-col gap-2.5">
-            <WesternFrame variant="glass" className="p-2.5 flex flex-col gap-2">
-              <div className="flex items-center gap-1.5 text-amber-200">
-                <ArrowDownToLine className="w-3.5 h-3.5" />
-                <h2 className="text-[11px] font-black italic" style={{ fontFamily: 'Rye, Georgia, serif' }}>Deposit</h2>
+          <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+            {/* Deposit & Withdraw cards */}
+            <div className="grid grid-cols-1 gap-4">
+              <div className="dash-card p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(52,211,153,0.14)', border: '1px solid rgba(52,211,153,0.35)' }}>
+                    <ArrowDownToLine className="w-4 h-4" style={{ color: '#34d399' }} />
+                  </div>
+                  <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>Deposit</h2>
+                </div>
+                <div className="flex gap-2 flex-wrap mb-3">
+                  {[50, 100, 500, 1000].map(a => (
+                    <button key={a} onClick={() => doDeposit(a)} className="px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95" style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
+                      ${a}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input type="number" value={depAmt} onChange={e => setDepAmt(e.target.value)} placeholder="Custom amount" className="dash-input flex-1 px-4 py-3 text-sm" />
+                  <button onClick={() => doDeposit(depAmt)} className="dash-btn-gold px-6 py-3 text-sm">Deposit</button>
+                </div>
               </div>
-              <div className="flex gap-1.5 flex-wrap">
-                {[50, 100, 500, 1000].map(a => (
-                  <button key={a} onClick={() => doDeposit(a)} className="px-3 py-1.5 rounded-md text-[11px] font-bold italic border bg-black/30 text-amber-100/80 border-amber-700/40 hover:bg-black/50" style={{ fontFamily: 'Georgia, serif' }}>${a}</button>
-                ))}
-              </div>
-              <div className="flex gap-1.5 justify-center">
-                <input type="number" value={depAmt} onChange={e => setDepAmt(e.target.value)} placeholder="Custom amount" className="w-32 px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none" />
-                <button onClick={() => doDeposit(depAmt)} className="px-3 py-1.5 rounded-md text-xs font-bold italic" style={{ border: '1px solid rgba(245,210,120,0.9)', background: 'linear-gradient(to bottom, #f5c542, #c8881e)', color: '#2a1a06', fontFamily: 'Rye, Georgia, serif' }}>Deposit</button>
-              </div>
-            </WesternFrame>
 
-            <WesternFrame variant="glass" className="p-2.5 flex flex-col gap-2">
-              <div className="flex items-center gap-1.5 text-amber-200">
-                <ArrowUpFromLine className="w-3.5 h-3.5" />
-                <h2 className="text-[11px] font-black italic" style={{ fontFamily: 'Rye, Georgia, serif' }}>Withdraw</h2>
+              <div className="dash-card p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(248,113,113,0.14)', border: '1px solid rgba(248,113,113,0.35)' }}>
+                    <ArrowUpFromLine className="w-4 h-4" style={{ color: '#f87171' }} />
+                  </div>
+                  <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>Withdraw</h2>
+                </div>
+                <div className="flex gap-2 mb-2">
+                  <input type="number" value={wdAmt} onChange={e => setWdAmt(e.target.value)} placeholder="Amount to withdraw" className="dash-input flex-1 px-4 py-3 text-sm" />
+                  <button onClick={doWithdraw} className="dash-btn-gold px-6 py-3 text-sm">Withdraw</button>
+                </div>
+                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>Withdraw creates a request — funds sent after admin approval.</p>
+                {acct.wagerRemaining > 0 && (
+                  <p className="text-[11px] mt-1" style={{ color: '#fb923c' }}>
+                    Locked deposit: ${acct.wagerRemaining.toFixed(2)} — play through or stack before withdrawing. Withdrawable now: ${acct.maxWithdrawable.toFixed(2)}.
+                  </p>
+                )}
               </div>
-              <div className="flex gap-1.5 justify-center">
-                <input type="number" value={wdAmt} onChange={e => setWdAmt(e.target.value)} placeholder="Amount to withdraw" className="w-32 px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-xs placeholder-amber-100/40 outline-none" />
-                <button onClick={doWithdraw} className="px-3 py-1.5 rounded-md text-xs font-bold italic" style={{ border: '1px solid rgba(245,210,120,0.9)', background: 'linear-gradient(to bottom, #e0556a, #a02338)', color: '#fff', fontFamily: 'Rye, Georgia, serif' }}>Withdraw</button>
-              </div>
-              <p className="text-[9px] text-amber-100/40 italic">Withdraw creates a request — funds sent after admin approval.</p>
-              {acct.wagerRemaining > 0 && (
-                <p className="text-[10px] text-amber-300/80 italic">
-                  Locked deposit: ${acct.wagerRemaining.toFixed(2)} — play it through or stack it before withdrawing. Withdrawable now: ${acct.maxWithdrawable.toFixed(2)}.
-                </p>
-              )}
-            </WesternFrame>
+            </div>
 
-            {/* Deposit & Withdraw history */}
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-1.5 text-amber-200 px-0.5">
-                <History className="w-3 h-3" />
-                <h2 className="text-[11px] font-black italic" style={{ fontFamily: 'Rye, Georgia, serif' }}>Deposit & Withdraw History</h2>
+            {/* History */}
+            <div className="flex flex-col gap-2.5">
+              <div className="flex items-center gap-2 px-1">
+                <History className="w-4 h-4" style={{ color: '#D4AF37' }} />
+                <h2 className="text-sm font-bold" style={{ ...heading, color: '#D4AF37' }}>Transaction History</h2>
               </div>
               {history.length === 0 ? (
-                <p className="text-amber-100/50 text-[10px] italic px-0.5">No transactions yet.</p>
+                <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>No transactions yet.</p>
               ) : history.map(t => {
                 const credit = t.type === 'deposit';
-                const statusColor = t.status === 'completed' ? 'text-emerald-300' : t.status === 'pending' ? 'text-amber-300' : 'text-rose-400';
+                const sm = STATUS_META[t.status] || STATUS_META.pending;
+                const SIcon = sm.icon;
                 return (
-                  <WesternFrame key={t.id} variant="glass" className="p-2 flex items-center justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold italic text-amber-100" style={{ fontFamily: 'Georgia, serif' }}>
-                        {credit ? 'Deposit' : 'Withdraw'} · <span className={credit ? 'text-emerald-300' : 'text-rose-300'}>{credit ? '+' : '−'}${Number(t.amount).toFixed(2)}</span>
-                      </p>
-                      <p className="text-[9px] text-amber-100/50 italic">{t.method} · {t.reference ? `${t.reference.slice(0, 16)}` : '—'}</p>
-                      {t.created_date && (
-                        <p className="text-[9px] text-amber-100/45 italic">
-                          {new Date(t.created_date).toLocaleString(undefined, { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                  <div key={t.id} className="dash-card p-4 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0" style={{ background: credit ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', border: `1px solid ${credit ? 'rgba(52,211,153,0.3)' : 'rgba(248,113,113,0.3)'}` }}>
+                        {credit ? <ArrowDownToLine className="w-4 h-4" style={{ color: '#34d399' }} /> : <ArrowUpFromLine className="w-4 h-4" style={{ color: '#f87171' }} />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold" style={{ color: '#fff' }}>
+                          {credit ? 'Deposit' : 'Withdraw'} · <span style={{ color: credit ? '#34d399' : '#f87171' }}>{credit ? '+' : '−'}${Number(t.amount).toFixed(2)}</span>
                         </p>
-                      )}
-                      {t.note && <p className="text-[8px] text-amber-100/35 italic truncate">{t.note}</p>}
+                        <p className="text-[11px] truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>{t.method}{t.reference ? ` · ${t.reference.slice(0, 16)}` : ''}</p>
+                        {t.created_date && (
+                          <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                            {new Date(t.created_date).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <span className={`text-[9px] font-bold italic capitalize ${statusColor}`} style={{ fontFamily: 'Georgia, serif' }}>{t.status}</span>
-                  </WesternFrame>
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold shrink-0" style={{ color: sm.color, background: sm.bg, border: `1px solid ${sm.border}` }}>
+                      <SIcon className="w-3 h-3" /> {sm.label}
+                    </span>
+                  </div>
                 );
               })}
             </div>
@@ -233,7 +292,7 @@ export default function Dashboard() {
         )}
 
         {tab === 'vip' && (
-          <div className="relative -mx-4 -my-3 px-4 py-4 min-h-[calc(100vh-64px)]">
+          <div className="relative -mx-4 -my-4 px-4 py-4 min-h-[calc(100vh-72px)]" style={{ animation: 'dashFadeIn 400ms ease both' }}>
             <div
               className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
               style={{ backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/64820b41c_MuchaTseBle.jpg)' }}
@@ -245,8 +304,8 @@ export default function Dashboard() {
         )}
 
         {tab === 'stack' && (
-          <div className="flex flex-col gap-3">
-            <div className="rounded-2xl overflow-hidden border border-amber-700/40 shadow-lg">
+          <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+            <div className="rounded-2xl overflow-hidden border shadow-lg" style={{ borderColor: 'rgba(212,175,55,0.3)' }}>
               <img
                 src={stackBanner}
                 alt={`Stack Balance — Lock your balance to earn ${(stake.rate * 100).toFixed(2)}% daily profit for ${LOCK_DAYS} days`}
@@ -254,11 +313,9 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* USDT mining animation */}
             <StackMining staked={stake.staked} pendingProfit={stake.pendingProfit} daysLocked={stake.daysLocked} unlocked={stake.unlocked} rate={stake.rate} />
 
-            {/* Stack stats */}
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-2 gap-3">
               {[
                 { icon: Lock, label: 'Staked', value: `$${stake.staked.toFixed(2)}` },
                 { icon: Sparkles, label: 'Pending Profit', value: `$${stake.pendingProfit.toFixed(2)}` },
@@ -267,76 +324,51 @@ export default function Dashboard() {
               ].map((s, i) => {
                 const Icon = s.icon;
                 return (
-                  <WesternFrame key={i} variant="glass" className="flex flex-col items-center py-1.5 px-1">
-                    {Icon && <Icon className="w-3 h-3 text-amber-300/70 mb-0.5" />}
-                    <span className="text-[8px] text-amber-300/70 tracking-widest uppercase" style={{ fontFamily: 'Rye, Georgia, serif' }}>{s.label}</span>
-                    <span className="text-[11px] font-bold italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>{s.value}</span>
-                  </WesternFrame>
+                  <div key={i} className="dash-card p-3 flex flex-col items-center gap-1">
+                    {Icon && <Icon className="w-4 h-4" style={{ color: '#D4AF37' }} />}
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{s.label}</span>
+                    <span className="text-sm font-bold tabular-nums" style={{ color: '#fff' }}>{s.value}</span>
+                  </div>
                 );
               })}
             </div>
 
-            {/* Claim profit */}
             <button
               onClick={doClaimProfit}
               disabled={stake.pendingProfit <= 0}
-              className="w-auto mx-auto px-3 py-1.5 rounded-md text-xs font-black italic shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-1.5"
-              style={{
-                border: '1px solid rgba(245,210,120,0.9)',
-                background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
-                boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 3px 8px rgba(200,136,30,0.45)',
-                color: '#2a1a06',
-                fontFamily: 'Rye, Georgia, serif',
-                textShadow: '0 1px 1px rgba(255,240,200,0.4)',
-              }}
+              className="dash-btn-gold mx-auto px-6 py-3 text-sm flex items-center gap-2"
             >
               <Coins className="w-4 h-4" /> CLAIM PROFIT ${stake.pendingProfit.toFixed(2)}
             </button>
 
-            {/* Stake form */}
-            <WesternFrame variant="glass" className="p-2 flex flex-col gap-2">
-              <div className="flex items-center gap-1.5 text-amber-200">
-                <Layers className="w-3.5 h-3.5" />
-                <h2 className="text-sm font-black italic" style={{ fontFamily: 'Rye, Georgia, serif' }}>Stack More</h2>
+            <div className="dash-card p-5 flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(212,175,55,0.14)', border: '1px solid rgba(212,175,55,0.35)' }}>
+                  <Layers className="w-4 h-4" style={{ color: '#D4AF37' }} />
+                </div>
+                <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>Stack More</h2>
               </div>
-              <p className="text-[10px] text-amber-100/50 italic">Available balance: ${acct.balance.toFixed(2)}</p>
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>Available balance: ${acct.balance.toFixed(2)}</p>
               {acct.demoMode && (
-                <p className="text-[10px] text-rose-300/80 italic">Demo balance cannot be stacked — turn off Demo mode to lock real funds.</p>
+                <p className="text-[12px]" style={{ color: '#f87171' }}>Demo balance cannot be stacked — turn off Demo mode to lock real funds.</p>
               )}
-              <div className="flex gap-1.5 flex-wrap">
+              <div className="flex gap-2 flex-wrap">
                 {[50, 100, 500, 1000].map(a => (
                   <button
                     key={a}
                     onClick={() => doStake(a)}
                     disabled={acct.demoMode || a > acct.balance}
-                    className="px-3 py-1.5 rounded-md text-[11px] font-bold italic border disabled:opacity-40"
-                    style={{
-                      border: '1px solid rgba(190,140,55,0.7)',
-                      background: 'linear-gradient(to bottom, rgba(74,52,24,0.95), rgba(40,27,12,0.95))',
-                      boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.25), 0 1px 3px rgba(0,0,0,0.5)',
-                      color: '#d9b97a',
-                      fontFamily: 'Rye, Georgia, serif',
-                    }}
+                    className="px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-40"
+                    style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
                   >${a}</button>
                 ))}
               </div>
-              <div className="flex gap-1.5 justify-center">
-                <input type="number" value={stkAmt} onChange={e => setStkAmt(e.target.value)} placeholder="Amount to stack" disabled={acct.demoMode} className="w-32 px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-xs disabled:opacity-40" />
-                <button
-                  onClick={() => doStake(stkAmt)}
-                  disabled={acct.demoMode}
-                  className="px-3 py-1.5 rounded-md text-xs font-bold italic disabled:opacity-40"
-                  style={{
-                    border: '1px solid rgba(245,210,120,0.9)',
-                    background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 2px 6px rgba(200,136,30,0.45)',
-                    color: '#2a1a06',
-                    fontFamily: 'Rye, Georgia, serif',
-                  }}
-                >Stack</button>
+              <div className="flex gap-2">
+                <input type="number" value={stkAmt} onChange={e => setStkAmt(e.target.value)} placeholder="Amount to stack" disabled={acct.demoMode} className="dash-input flex-1 px-4 py-3 text-sm disabled:opacity-40" />
+                <button onClick={() => doStake(stkAmt)} disabled={acct.demoMode} className="dash-btn-gold px-6 py-3 text-sm disabled:opacity-40">Stack</button>
               </div>
-              <p className="text-[9px] text-amber-100/40 italic">Stacking again restarts your {LOCK_DAYS}-day lock and profit timer on the total.</p>
-            </WesternFrame>
+              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Stacking again restarts your {LOCK_DAYS}-day lock and profit timer on the total.</p>
+            </div>
           </div>
         )}
       </main>
