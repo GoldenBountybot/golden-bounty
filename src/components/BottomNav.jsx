@@ -1,9 +1,26 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutDashboard, Layers, Crown, UserCircle } from 'lucide-react';
+import { Crown, UserCircle } from 'lucide-react';
 
 // Minimal premium bottom bar — sharp gold top trim, dark glass.
 export default function BottomNav() {
+  // Image-backed tile: gold medallion graphic (black bg removed via screen blend).
+  const ImgTile = ({ to, label, src, onClick }) => (
+    <Link
+      to={to}
+      onClick={onClick}
+      className="group flex flex-col items-center justify-center gap-0.5 py-1.5 transition-all hover:brightness-125 active:scale-95"
+    >
+      <img
+        src={src}
+        alt={label}
+        draggable={false}
+        className="block w-9 h-9 select-none transition-all group-hover:scale-105"
+        style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 2px 6px rgba(200,136,30,0.4))' }}
+      />
+    </Link>
+  );
+
   const Tile = ({ to, icon: Icon, label, onClick }) => (
     <Link
       to={to}
@@ -28,8 +45,8 @@ export default function BottomNav() {
         }}
       >
         <div className="grid grid-cols-5 gap-1 items-center">
-          <Tile to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
-          <Tile to="/dashboard?tab=stack" icon={Layers} label="Stack" />
+          <ImgTile to="/dashboard" label="Dashboard" src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0bf2d07ee_file_000000009cf082119790d647b9b4d6d2.png" />
+          <ImgTile to="/dashboard?tab=stack" label="Stack" src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5ee916b61_file_0000000084f082119192d2d5866b87d5.png" />
 
           {/* Center Play button — 777 medallion, black bg removed via screen blend */}
           <button
