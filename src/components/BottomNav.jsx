@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Crown, UserCircle } from 'lucide-react';
+
 
 // Minimal premium bottom bar — sharp gold top trim, dark glass.
 export default function BottomNav() {
@@ -70,8 +70,8 @@ export default function BottomNav() {
             </span>
           </button>
 
-          <Tile to="/dashboard?tab=vip" icon={Crown} label="VIP" />
-          <Tile to="/profile" icon={UserCircle} label="Profile" />
+          <ImgTile to="/dashboard?tab=vip" label="VIP" src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e130df042_file_00000000003c81fab9a795d126ebcf40.png" />
+          <ImgTile to="/profile" label="Profile" src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/991ab5d3e_file_00000000a2b081fa9b55e7aca49962fc.png" />
         </div>
       </div>
     </div>
