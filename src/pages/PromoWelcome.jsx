@@ -26,6 +26,10 @@ export default function PromoWelcome() {
 
   const claim = async () => {
     if (!code.trim()) { toast({ title: 'Enter a promo code' }); return; }
+    if (myPromo && code.trim().toUpperCase() === myPromo.toUpperCase()) {
+      toast({ title: 'You cannot use your own promo code' });
+      return;
+    }
     setLoading(true);
     try {
       const res = await base44.functions.invoke('redeemPromoCode', { promo_code: code.trim() });
