@@ -22,7 +22,7 @@ export default function CasinoGameCard({ game }) {
 
   const inner = (
     <div
-      className="group relative aspect-[3/4] overflow-hidden rounded-[7px] bg-stone-900 transition-transform hover:-translate-y-0.5"
+      className="group relative aspect-[3/4] overflow-hidden rounded-[10px] bg-stone-900 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(200,136,30,0.35)] active:scale-[0.97]"
       style={{
         border: '1px solid rgba(214,178,98,0.42)',
         boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
