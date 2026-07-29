@@ -100,17 +100,12 @@
 }
 
 @keyframes reelLand {
-  0% { transform: translateY(-12%); }
-  50% { transform: translateY(3%); }
-  75% { transform: translateY(-1%); }
+  0%   { transform: translateY(-9%); }
   100% { transform: translateY(0%); }
 }
 
 @keyframes reelLandSlow {
-  0% { transform: translateY(-22%); }
-  35% { transform: translateY(6%); }
-  60% { transform: translateY(-4%); }
-  80% { transform: translateY(2%); }
+  0%   { transform: translateY(-16%); }
   100% { transform: translateY(0%); }
 }
 
@@ -183,17 +178,14 @@
   100% { transform: translateY(0%); }
 }
 
-/* Wild Bounty — premium cascade symbol drop: fades in from above, accelerates
-   with a gravity feel, then lands with a soft squash-and-bounce settle.
-   Driven with the app's signature cubic-bezier(0.16,1,0.3,1) easing so the
-   fall starts quick and decelerates gently into place. GPU-only transform. */
+/* Wild Bounty — calm cascade symbol drop: a soft, bounce-free glide from
+   above with a gentle fade-in, settling smoothly into place. No squash or
+   overshoot — pure translateY with the app's signature ease-out so it feels
+   weightless and relaxing. GPU-only transform. */
 @keyframes wbDrop {
-  0%   { transform: translateY(-62%) scale(0.92, 1.08); opacity: 0; }
-  9%   { opacity: 1; }
-  52%  { transform: translateY(3%)  scale(1.04, 0.96); opacity: 1; }
-  68%  { transform: translateY(-2%) scale(0.985, 1.015); }
-  82%  { transform: translateY(0.8%) scale(1.006, 0.994); }
-  100% { transform: translateY(0)   scale(1); opacity: 1; }
+  0%   { transform: translateY(-42%); opacity: 0; }
+  22%  { opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes multCenterFly {
