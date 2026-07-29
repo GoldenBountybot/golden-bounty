@@ -67,7 +67,7 @@ export default function Home() {
               </button>
             </div>
             <div className="flex-1 min-w-0 self-start">
-              <WesternTitleBadge size="lg" fullWidth className="-mt-3">Golden Bounty</WesternTitleBadge>
+              <WesternTitleBadge size="lg" fullWidth className="-mt-3 translate-x-2">Golden Bounty</WesternTitleBadge>
               <p className="text-[11px] text-amber-100/55 tracking-wide mt-1 text-center">{playable} Games Live · Play & Win</p>
             </div>
           </div>
