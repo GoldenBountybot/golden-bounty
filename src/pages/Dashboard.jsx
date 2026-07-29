@@ -293,10 +293,6 @@ export default function Dashboard() {
 
         {tab === 'vip' && (
           <div className="relative -mx-4 -my-4 px-4 py-4 min-h-[calc(100vh-72px)]" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-            <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
-              style={{ backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/64820b41c_MuchaTseBle.jpg)' }}
-            />
             <div className="relative z-10">
               <VipLevels totalDeposits={stake.totalDeposits} />
             </div>
