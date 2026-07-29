@@ -75,12 +75,12 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Public auth pages */}
+      {/* Public lobby & auth */}
+      <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      {/* Authenticated casino — signup/login required to use the app */}
-      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route path="/" element={<Home />} />
+      {/* Authenticated casino — signup required to play */}
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/register" replace />} />}>
         <Route path="/games/wild-bounty" element={<SlotGame />} />
         <Route path="/games/hi-lo" element={<HiLo />} />
         <Route path="/games/plinko" element={<Plinko />} />
