@@ -48,9 +48,9 @@ export default function BottomNav() {
           <ImgTile to="/dashboard" label="Dashboard" src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0bf2d07ee_file_000000009cf082119790d647b9b4d6d2.png" />
           <ImgTile to="/dashboard?tab=stack" label="Stack" src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5ee916b61_file_0000000084f082119192d2d5866b87d5.png" />
 
-          {/* Center Play button — 777 medallion, black bg removed via screen blend */}
-          <button
-            onClick={() => document.getElementById('games')?.scrollIntoView({ behavior: 'smooth' })}
+          {/* Center Play button — 777 medallion; takes you to the Home games list */}
+          <Link
+            to="/"
             className="group flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform"
             title="Play Games"
           >
@@ -68,7 +68,7 @@ export default function BottomNav() {
                 style={{ mixBlendMode: 'screen' }}
               />
             </span>
-          </button>
+          </Link>
 
           <ImgTile to="/dashboard?tab=vip" label="VIP" src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e130df042_file_00000000003c81fab9a795d126ebcf40.png" />
           <ImgTile to="/profile" label="Profile" src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/991ab5d3e_file_00000000a2b081fa9b55e7aca49962fc.png" />
