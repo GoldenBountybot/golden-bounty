@@ -4,11 +4,12 @@ import { beginCell, Address, toNano } from '@ton/core';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
-import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, LogOut } from 'lucide-react';
 import { TON_USDT_DECIMALS, TON_ADMIN, getUserJettonWallet } from '@/lib/tonConfig';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { addWagerRequirement } from '@/lib/useCasinoBalance';
+
+const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
 // Jetton transfer op code: transfer#0f8a7ea5
 const JETTON_TRANSFER_OP = 0x0f8a7ea5;
@@ -48,7 +49,6 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
     try {
       let expectedNano;
       if (payAsset === 'ton') {
-        // Native TON transfer: $ amount → equivalent TON at live price.
         const pr = price || (await getCryptoPrices()).ton || 0;
         if (!pr) { setErrMsg('Could not fetch TON price. Please try again.'); setStatus('error'); return; }
         expectedNano = BigInt(Math.round((amount / pr) * 1e9));
@@ -57,7 +57,6 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
           messages: [{ address: TON_ADMIN, amount: expectedNano.toString() }],
         });
       } else {
-        // 1. Resolve the user's USDT jetton wallet (destination of the transfer message).
         const jwRaw = await getUserJettonWallet(account.address);
         if (!jwRaw) {
           setErrMsg('No USDT (TON) found in your wallet. Add USDT first.');
@@ -66,32 +65,29 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
         const jettonWallet = Address.parse(jwRaw).toString();
         const admin = Address.parse(TON_ADMIN);
 
-        // 2. Build the jetton transfer body: transfer(query_id, amount, dest, resp, fwd_ton).
         const queryId = crypto.getRandomValues(new BigUint64Array(1))[0];
         const nanoAmount = BigInt(Math.round(amount * Math.pow(10, TON_USDT_DECIMALS)));
         const body = beginCell()
           .storeUint(JETTON_TRANSFER_OP, 32)
           .storeUint(queryId, 64)
           .storeCoins(nanoAmount)
-          .storeAddress(admin)              // destination (admin)
-          .storeAddress(Address.parse(account.address)) // response_destination (excess → user)
-          .storeBit(0)                       // no custom_payload
-          .storeCoins(toNano('0.01'))        // forward_ton_amount
-          .storeBit(0)                       // no forward_payload
+          .storeAddress(admin)
+          .storeAddress(Address.parse(account.address))
+          .storeBit(0)
+          .storeCoins(toNano('0.01'))
+          .storeBit(0)
           .endCell();
         const bocBytes = body.toBoc({ idx: false });
         let binary = '';
         for (let i = 0; i < bocBytes.length; i++) binary += String.fromCharCode(bocBytes[i]);
         const payload = btoa(binary);
 
-        // 3. Send via TON Connect → Tonkeeper signs & broadcasts.
         await tonConnectUI.sendTransaction({
           validUntil: Math.floor(Date.now() / 1000) + 300,
           messages: [{ address: jettonWallet, amount: toNano('0.1').toString(), payload }],
         });
       }
 
-      // 4. Verify on backend (polls admin's wallet for the incoming transfer).
       setStatus('verifying');
       const fn = payAsset === 'ton' ? 'verifyTonNativeDeposit' : 'verifyTonDeposit';
       const verifyPayload = payAsset === 'ton'
@@ -102,7 +98,6 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
         if (!res.data.already) {
           const credited = Number(res.data.amount || amount);
           setBalance((b) => b + credited);
-          // Deposited funds must be played through or stacked before withdrawal.
           addWagerRequirement(credited);
         }
         setStatus('done');
@@ -128,26 +123,34 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
   }[status];
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2">
-        <button onClick={onBack} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md italic font-bold border border-amber-600/80 text-amber-200 bg-black/40 active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>
+    <div className="flex flex-col gap-4" style={{ fontFamily: SANS, animation: 'dashFadeIn 350ms ease both' }}>
+      {/* Header — text unchanged */}
+      <div className="flex items-center gap-3">
+        <button onClick={onBack}
+          className="flex items-center gap-1.5 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
+          style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
           <ChevronLeft className="w-4 h-4" /> Back
         </button>
-        <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Ton Wallet (TON) Deposit</h1>
+        <h1 className="text-base font-extrabold" style={{ color: '#D4AF37' }}>Ton Wallet (TON) Deposit</h1>
       </div>
 
-      <WesternFrame glow variant="glass" className="p-4 flex items-center justify-between">
+      {/* Deposit amount card */}
+      <div className="dash-card p-5 flex items-center justify-between"
+        style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.4)', boxShadow: '0 0 24px rgba(212,175,55,0.16), 0 8px 24px rgba(0,0,0,0.5)' }}>
         <div>
-          <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Depositing</p>
-          <p className="text-2xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${amount.toFixed(2)}</p>
-          <p className="text-[11px] text-amber-100/50 italic">{payAsset === 'ton' ? `≈ ${coinAmt.toFixed(5)} TON (Native)` : 'USDT · TON Network (Jetton)'}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Depositing</p>
+          <p className="text-3xl font-extrabold tabular-nums mt-0.5" style={{ color: '#fff' }}>${amount.toFixed(2)}</p>
+          <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.55)' }}>{payAsset === 'ton' ? `≈ ${coinAmt.toFixed(5)} TON (Native)` : 'USDT · TON Network (Jetton)'}</p>
         </div>
-        <Wallet className="w-8 h-8 text-amber-400/60" />
-      </WesternFrame>
+        <div className="flex items-center justify-center w-12 h-12 rounded-full shrink-0" style={{ background: 'linear-gradient(135deg, #FFD700, #C89B3C)', boxShadow: '0 0 18px rgba(212,175,55,0.5)' }}>
+          <Wallet className="w-6 h-6" style={{ color: '#1a1408' }} />
+        </div>
+      </div>
 
+      {/* Connected account */}
       {connected && account?.address && (
-        <div className="px-3 py-2 rounded-md border border-amber-700/40 bg-black/30 text-[11px] text-amber-100/80 font-mono break-all flex items-center justify-between gap-2">
-          <span className="break-all">✓ Connected: {account.address}</span>
+        <div className="dash-card px-4 py-2.5 flex items-center justify-between gap-2">
+          <span className="text-[12px] font-mono break-all" style={{ color: 'rgba(255,255,255,0.85)' }}>✓ Connected: {account.address}</span>
           {!busy && (
             <button
               onClick={async () => {
@@ -157,50 +160,74 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
                 setErrMsg('');
                 setStatus('idle');
               }}
-              className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-md border border-rose-700/50 bg-rose-950/40 text-rose-200 text-[10px] font-bold italic active:scale-95"
-              style={{ fontFamily: 'Georgia, serif' }}
+              className="shrink-0 flex items-center gap-1 px-3 h-8 rounded-[12px] text-[11px] font-bold transition-all active:scale-95"
+              style={{ border: '1px solid rgba(244,63,94,0.4)', background: 'rgba(244,63,94,0.12)', color: '#fca5a5' }}
             >
-              <LogOut className="w-3 h-3" /> Disconnect
+              <LogOut className="w-3.5 h-3.5" /> Disconnect
             </button>
           )}
         </div>
       )}
 
+      {/* Busy status */}
       {busy && (
-        <div className="flex items-center gap-2 p-3 rounded-md border border-amber-700/40 bg-black/30 text-amber-200 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>
-          <Loader2 className="w-4 h-4 animate-spin" /> {statusText}
+        <div className="dash-card p-4 flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#D4AF37' }}>
+            <Loader2 className="w-4 h-4 animate-spin" /> {statusText}
+          </div>
           {status === 'sending' && (
-            <p className="text-[12px] text-amber-100/80 italic ml-2">Confirm the transaction in the Ton Wallet app. A small amount of TON is needed for gas.</p>
+            <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>Confirm the transaction in the Ton Wallet app. A small amount of TON is needed for gas.</p>
           )}
         </div>
       )}
 
+      {/* Idle — coin selector + action */}
       {status === 'idle' && (
-        <div className="flex flex-col gap-2">
-          <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => setPayAsset('usdt')} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'usdt' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>USDT (Jetton)</button>
-            <button onClick={() => setPayAsset('ton')} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'ton' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>TON (Native)</button>
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
+            <button onClick={() => setPayAsset('usdt')}
+              className="h-12 rounded-[14px] text-sm font-bold transition-all active:scale-95"
+              style={payAsset === 'usdt'
+                ? { background: 'linear-gradient(135deg, #FFD700, #C89B3C)', color: '#1a1408', border: '1px solid rgba(255,215,0,0.6)', boxShadow: '0 4px 14px rgba(200,155,60,0.4)' }
+                : { background: 'rgba(255,255,255,0.03)', color: '#D4AF37', border: '1px solid rgba(212,175,55,0.3)' }}>
+              USDT (Jetton)
+            </button>
+            <button onClick={() => setPayAsset('ton')}
+              className="h-12 rounded-[14px] text-sm font-bold transition-all active:scale-95"
+              style={payAsset === 'ton'
+                ? { background: 'linear-gradient(135deg, #FFD700, #C89B3C)', color: '#1a1408', border: '1px solid rgba(255,215,0,0.6)', boxShadow: '0 4px 14px rgba(200,155,60,0.4)' }
+                : { background: 'rgba(255,255,255,0.03)', color: '#D4AF37', border: '1px solid rgba(212,175,55,0.3)' }}>
+              TON (Native)
+            </button>
           </div>
           {!connected ? (
-            <button onClick={() => tonConnectUI?.openModal()} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
+            <button onClick={() => tonConnectUI?.openModal()}
+              className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
+              style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', boxShadow: '0 6px 20px rgba(59,130,246,0.4)' }}>
               <Smartphone className="w-5 h-5" /> Connect Ton Wallet
             </button>
           ) : (
-            <button onClick={deposit} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 text-stone-950 font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
+            <button onClick={deposit}
+              className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
+              style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', boxShadow: '0 6px 20px rgba(52,211,153,0.4)' }}>
               <ArrowRight className="w-5 h-5" /> Send {payAsset === 'ton' ? `${coinAmt.toFixed(5)} TON` : `$${amount.toFixed(2)} USDT`} from wallet
             </button>
           )}
         </div>
       )}
 
+      {/* Error */}
       {status === 'error' && (
-        <div className="flex items-start gap-2 px-3 py-2 rounded-md border border-rose-700/50 bg-rose-950/40 text-rose-200 text-xs italic" style={{ fontFamily: 'Georgia, serif' }}>
+        <div className="flex items-start gap-2.5 px-4 py-3 rounded-[14px] text-[13px]"
+          style={{ border: '1px solid rgba(244,63,94,0.35)', background: 'rgba(244,63,94,0.1)', color: '#fca5a5' }}>
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" /> <span>{errMsg}</span>
         </div>
       )}
 
+      {/* Done */}
       {status === 'done' && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-emerald-700/50 bg-emerald-950/40 text-emerald-200 text-sm italic font-bold" style={{ fontFamily: 'Georgia, serif' }}>
+        <div className="flex items-center gap-2.5 px-4 py-3 rounded-[14px] text-sm font-bold"
+          style={{ border: '1px solid rgba(52,211,153,0.4)', background: 'rgba(52,211,153,0.12)', color: '#6ee7b7' }}>
           <CheckCircle2 className="w-5 h-5" /> Deposit successful!
         </div>
       )}
