@@ -65,7 +65,7 @@ export default function HiLo() {
   const { balance, setBalance } = useCasinoBalance();
   const [loaded, setLoaded] = useState(false);
   const { rtp } = useGameSettings('hi-lo');
-  const [betIdx, setBetIdx] = useState(1);
+  const [bet, setBet] = useState(0.10);
   const [current, setCurrent] = useState(null);
   const [revealed, setRevealed] = useState(null);
   const [phase, setPhase] = useState('idle'); // idle | guessing | result
@@ -171,19 +171,29 @@ export default function HiLo() {
           </WesternFrame>
         </div>
 
-        {/* Bet selector (only when idle) */}
+        {/* Bet selector — $0.10 steps, $0.10–$500 (only when idle) */}
         {phase === 'idle' && (
-          <div className="flex gap-2 flex-wrap justify-center">
-            {BETS.map((b, i) => (
-              <button
-                key={b}
-                onClick={() => setBetIdx(i)}
-                className={`px-3 py-1.5 rounded-md text-sm font-bold italic border transition-colors ${betIdx === i ? 'bg-amber-400 text-stone-900 border-amber-300' : 'bg-black/30 text-amber-100/80 border-amber-700/40 hover:bg-black/50'}`}
-                style={{ fontFamily: 'Georgia, serif' }}
-              >
-                ${b}
-              </button>
-            ))}
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => setBet(b => decBet(b))}
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-black/30 border border-amber-700/40 text-amber-100/90 hover:bg-black/50 transition-colors"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              <Minus className="w-5 h-5" />
+            </button>
+            <div
+              className="px-5 py-2 rounded-md text-base font-black italic tabular-nums bg-amber-400 text-stone-900 border border-amber-300 min-w-[96px] text-center"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              ${bet.toFixed(2)}
+            </div>
+            <button
+              onClick={() => setBet(b => incBet(b))}
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-black/30 border border-amber-700/40 text-amber-100/90 hover:bg-black/50 transition-colors"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              <Plus className="w-5 h-5" />
+            </button>
           </div>
         )}
 
