@@ -116,7 +116,7 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
-          <TonConnectUIProvider manifestUrl="/tonconnect-manifest.json">
+          <TonConnectUIProvider manifestUrl={window.location.hostname === 'golden-bounty.com' ? '/tonconnect-manifest.json' : 'https://base44.app/api/apps/6a5698edffaa42a5b6637776/files/mp/public/6a5698edffaa42a5b6637776/a0c67c5f1_tonconnect-manifest.json'}>
             <AuthenticatedApp />
           </TonConnectUIProvider>
         </Router>
