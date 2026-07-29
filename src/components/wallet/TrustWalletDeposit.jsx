@@ -2,13 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
-import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { QRCodeSVG } from 'qrcode.react';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, ChevronDown, LogOut } from 'lucide-react';
 import { connectWalletConnect, disconnectWalletConnect, hasWalletConnect, onWalletConnectUri, preloadWalletConnect } from '@/lib/walletConnect';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { addWagerRequirement } from '@/lib/useCasinoBalance';
+
+const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
 function toHexAmount(usd, decimals) {
   const factor = Math.pow(10, decimals);
@@ -43,8 +44,6 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
   const coinAmt = price ? amount / price : 0;
 
-  // Bring the Trust Wallet app back to the foreground so the pending tx request
-  // can be confirmed — the wc session URI deep-links into the existing session.
   const openTrustApp = () => {
     const uri = wcUriRef.current;
     if (uri) {
@@ -54,11 +53,8 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     }
   };
 
-  // Pre-warm the WalletConnect provider for the default chain → faster connect.
   useEffect(() => { if (hasWalletConnect()) preloadWalletConnect(net.chainId); }, []);
 
-  // Reset to USDT if the selected network has no native option, and fetch the
-  // live native-coin price whenever native pay is active.
   useEffect(() => { if (!nativeSupported && payAsset === 'native') setPayAsset('usdt'); }, [netKey]);
   useEffect(() => {
     if (payAsset === 'native' && nativeSupported) {
@@ -66,7 +62,6 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     }
   }, [payAsset, netKey]);
 
-  // Open the Trust Wallet app directly and connect → auto-fire payment request once connected.
   const connectAndPay = async () => {
     if (!hasWalletConnect()) {
       setErrMsg('WalletConnect projectId is not set (src/lib/walletConfig.js).');
@@ -152,7 +147,6 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       if (!res.data.already) {
         const credited = Number(res.data.amount || amt);
         setBalance((b) => b + credited);
-        // Deposited funds must be played through or stacked before withdrawal.
         addWagerRequirement(credited);
       }
       setStatus('done');
@@ -171,11 +165,9 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
     try {
-      // Let the WC session fully settle before the first request.
       await new Promise((r) => setTimeout(r, 800));
 
       if (payAsset === 'native') {
-        // Native BNB / ETH transfer: $ amount → equivalent coin at live price.
         const pr = price || (await getCryptoPrices())[nativeKey] || 0;
         if (!pr) { setErrMsg('Could not fetch coin price. Please try again.'); setStatus('error'); return; }
         const wei = BigInt(Math.round((amount / pr) * 1e18));
@@ -194,11 +186,8 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         return;
       }
 
-      // USDT (ERC20) transfer(address,uint256) → selected network's USDT contract.
       const data = '0xa9059cbb' + pad32(net.admin).slice(2) + pad32(toHexAmount(amount, net.decimals)).slice(2);
       const to = net.usdt.toLowerCase();
-      // Estimate gas so the wallet receives a complete contract call (with gas)
-      // and decodes it as a USDT transfer instead of showing a bare "0 BNB" send.
       let gas = '0x' + (60000).toString(16);
       try {
         const est = await p.request({ method: 'eth_estimateGas', params: [{ from: acct, to, data, value: '0x0' }] });
@@ -236,55 +225,76 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const netLocked = busy || status === 'connected';
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2">
-        <button onClick={onBack} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md italic font-bold border border-amber-600/80 text-amber-200 bg-black/40 active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>
+    <div className="flex flex-col gap-4" style={{ fontFamily: SANS, animation: 'dashFadeIn 350ms ease both' }}>
+      {/* Header — text unchanged */}
+      <div className="flex items-center gap-3">
+        <button onClick={onBack}
+          className="flex items-center gap-1.5 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
+          style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
           <ChevronLeft className="w-4 h-4" /> Back
         </button>
-        <h1 className="text-base font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>Trust Wallet Deposit</h1>
+        <h1 className="text-base font-extrabold" style={{ color: '#D4AF37' }}>Trust Wallet Deposit</h1>
       </div>
 
       {/* Network selector */}
-      <div className="flex flex-col gap-1">
-        <label className="text-[10px] tracking-widest uppercase text-amber-300/70">Select USDT Network</label>
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Select USDT Network</label>
         <div className="relative">
           <select
             value={netKey}
             onChange={(e) => setNetKey(e.target.value)}
             disabled={netLocked}
-            className="w-full appearance-none px-3 py-2.5 pr-9 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 text-sm font-bold italic outline-none disabled:opacity-50"
-            style={{ fontFamily: 'Georgia, serif' }}
+            className="dash-input w-full appearance-none px-4 h-12 pr-10 text-sm font-semibold disabled:opacity-50"
           >
             {USDT_NETWORKS.map((n) => (
-              <option key={n.key} value={n.key} className="bg-stone-900 text-amber-100">{n.label}</option>
+              <option key={n.key} value={n.key} style={{ background: '#1a1a1a', color: '#fff' }}>{n.label}</option>
             ))}
           </select>
-          <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-amber-300 pointer-events-none" />
+          <ChevronDown className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#D4AF37' }} />
         </div>
       </div>
 
+      {/* Payment coin segmented control */}
       {nativeSupported && (
-        <div className="flex flex-col gap-1">
-          <label className="text-[10px] tracking-widest uppercase text-amber-300/70">Payment Coin</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Payment Coin</label>
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => setPayAsset('usdt')} disabled={netLocked} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'usdt' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>USDT</button>
-            <button onClick={() => setPayAsset('native')} disabled={netLocked} className={`px-3 py-2 rounded-md text-sm font-bold italic border ${payAsset === 'native' ? 'bg-amber-400 text-stone-950 border-amber-300' : 'bg-black/40 text-amber-200 border-amber-700/40'}`} style={{ fontFamily: 'Georgia, serif' }}>{net.nativeSymbol} (Native)</button>
+            <button onClick={() => setPayAsset('usdt')} disabled={netLocked}
+              className="h-12 rounded-[14px] text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
+              style={payAsset === 'usdt'
+                ? { background: 'linear-gradient(135deg, #FFD700, #C89B3C)', color: '#1a1408', border: '1px solid rgba(255,215,0,0.6)', boxShadow: '0 4px 14px rgba(200,155,60,0.4)' }
+                : { background: 'rgba(255,255,255,0.03)', color: '#D4AF37', border: '1px solid rgba(212,175,55,0.3)' }}>
+              USDT
+            </button>
+            <button onClick={() => setPayAsset('native')} disabled={netLocked}
+              className="h-12 rounded-[14px] text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
+              style={payAsset === 'native'
+                ? { background: 'linear-gradient(135deg, #FFD700, #C89B3C)', color: '#1a1408', border: '1px solid rgba(255,215,0,0.6)', boxShadow: '0 4px 14px rgba(200,155,60,0.4)' }
+                : { background: 'rgba(255,255,255,0.03)', color: '#D4AF37', border: '1px solid rgba(212,175,55,0.3)' }}>
+              {net.nativeSymbol} (Native)
+            </button>
           </div>
         </div>
       )}
 
-      <WesternFrame glow variant="glass" className="p-4 flex items-center justify-between">
+      {/* Deposit amount card */}
+      <div className="dash-card p-5 flex items-center justify-between"
+        style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.4)', boxShadow: '0 0 24px rgba(212,175,55,0.16), 0 8px 24px rgba(0,0,0,0.5)' }}>
         <div>
-          <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Depositing</p>
-          <p className="text-2xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${amount.toFixed(2)}</p>
-          <p className="text-[11px] text-amber-100/50 italic">{payAsset === 'native' ? `≈ ${coinAmt.toFixed(5)} ${net.nativeSymbol} (Native)` : `${net.short} (BEP20/ERC20)`}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Depositing</p>
+          <p className="text-3xl font-extrabold tabular-nums mt-0.5" style={{ color: '#fff' }}>${amount.toFixed(2)}</p>
+          <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.55)' }}>{payAsset === 'native' ? `≈ ${coinAmt.toFixed(5)} ${net.nativeSymbol} (Native)` : `${net.short} (BEP20/ERC20)`}</p>
         </div>
-        <Wallet className="w-8 h-8 text-amber-400/60" />
-      </WesternFrame>
+        <div className="flex items-center justify-center w-12 h-12 rounded-full shrink-0" style={{ background: 'linear-gradient(135deg, #FFD700, #C89B3C)', boxShadow: '0 0 18px rgba(212,175,55,0.5)' }}>
+          <Wallet className="w-6 h-6" style={{ color: '#1a1408' }} />
+        </div>
+      </div>
 
+      {/* Connected account */}
       {account && (
-        <div className="px-3 py-2 rounded-md border border-amber-700/40 bg-black/30 text-[11px] text-amber-100/80 font-mono break-all flex items-center justify-between gap-2">
-          <span className="break-all">✓ Connected: {account}</span>
+        <div className="dash-card px-4 py-2.5 flex items-center justify-between gap-2"
+          style={{ border: '1px solid rgba(212,175,55,0.25)' }}>
+          <span className="text-[12px] font-mono break-all" style={{ color: 'rgba(255,255,255,0.85)' }}>✓ Connected: {account}</span>
           {!busy && (
             <button
               onClick={async () => {
@@ -297,26 +307,29 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
                 setErrMsg('');
                 setStatus('idle');
               }}
-              className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-md border border-rose-700/50 bg-rose-950/40 text-rose-200 text-[10px] font-bold italic active:scale-95"
-              style={{ fontFamily: 'Georgia, serif' }}
+              className="shrink-0 flex items-center gap-1 px-3 h-8 rounded-[12px] text-[11px] font-bold transition-all active:scale-95"
+              style={{ border: '1px solid rgba(244,63,94,0.4)', background: 'rgba(244,63,94,0.12)', color: '#fca5a5' }}
             >
-              <LogOut className="w-3 h-3" /> Disconnect
+              <LogOut className="w-3.5 h-3.5" /> Disconnect
             </button>
           )}
         </div>
       )}
 
+      {/* Busy status */}
       {busy && !wcUri && (
-        <div className="flex flex-col gap-2 p-3 rounded-md border border-amber-700/40 bg-black/30">
-          <div className="flex items-center gap-2 text-amber-200 text-sm italic" style={{ fontFamily: 'Georgia, serif' }}>
+        <div className="dash-card p-4 flex flex-col gap-3">
+          <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#D4AF37' }}>
             <Loader2 className="w-4 h-4 animate-spin" /> {statusText}
           </div>
           {status === 'sending' && (
             <>
-              <p className="text-[12px] text-amber-100/80 italic" style={{ fontFamily: 'Georgia, serif' }}>
-                Seeing "<b className="text-amber-200">0 BNB</b>" in the wallet is normal — USDT transfers carry 0 native BNB; the actual {amount.toFixed(2)} USDT goes inside the contract call. However, your wallet needs a <b className="text-amber-200">small amount of BNB ($0.05–0.20)</b> for gas — otherwise it will show "Insufficient BNB balance".
+              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                Seeing "<b style={{ color: '#D4AF37' }}>0 BNB</b>" in the wallet is normal — USDT transfers carry 0 native BNB; the actual {amount.toFixed(2)} USDT goes inside the contract call. However, your wallet needs a <b style={{ color: '#D4AF37' }}>small amount of BNB ($0.05–0.20)</b> for gas — otherwise it will show "Insufficient BNB balance".
               </p>
-              <button onClick={openTrustApp} className="self-start flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold italic active:scale-95" style={{ fontFamily: 'Georgia, serif' }}>
+              <button onClick={openTrustApp}
+                className="self-start flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
+                style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', boxShadow: '0 4px 14px rgba(59,130,246,0.35)' }}>
                 <Smartphone className="w-4 h-4" /> Open Trust Wallet
               </button>
             </>
@@ -324,42 +337,56 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         </div>
       )}
 
+      {/* WalletConnect QR */}
       {status === 'connecting' && wcUri && (
-        <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white" style={{ boxShadow: '0 0 0 1px rgba(190,140,55,0.5), 0 4px 12px rgba(0,0,0,0.5)' }}>
+        <div className="dash-card p-5 flex flex-col items-center gap-3" style={{ background: '#fff', border: '1px solid rgba(212,175,55,0.4)' }}>
           <QRCodeSVG value={wcUri} size={208} level="M" />
-          <p className="text-xs text-stone-800 font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>Scan this QR with the Trust app</p>
-          <p className="text-[10px] text-stone-500 italic">Trust Wallet app → Settings → WalletConnect</p>
+          <p className="text-sm font-bold" style={{ color: '#1a1a1a' }}>Scan this QR with the Trust app</p>
+          <p className="text-[11px]" style={{ color: '#888' }}>Trust Wallet app → Settings → WalletConnect</p>
         </div>
       )}
 
+      {/* Idle action buttons */}
       {status === 'idle' && (
-        <div className="flex flex-col gap-2">
-          <button onClick={connectAndPay} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
+        <div className="flex flex-col gap-2.5">
+          <button onClick={connectAndPay}
+            className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
+            style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', boxShadow: '0 6px 20px rgba(59,130,246,0.4)' }}>
             <Smartphone className="w-5 h-5" /> Open in Trust Wallet App (Auto Pay)
           </button>
-          <button onClick={connectMobile} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
+          <button onClick={connectMobile}
+            className="dash-btn-gold w-full flex items-center justify-center gap-2 h-14 rounded-[16px] text-[15px]">
             <Wallet className="w-5 h-5" /> Connect via QR Scan
           </button>
-          <button onClick={connectInjected} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-black/40 border border-amber-700/40 text-amber-100 font-bold italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
-            <Chrome className="w-5 h-5" /> Browser Extension
+          <button onClick={connectInjected}
+            className="w-full flex items-center justify-center gap-2 h-12 rounded-[16px] font-bold transition-all active:scale-[0.98]"
+            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#fff' }}>
+            <Chrome className="w-5 h-5" style={{ color: '#D4AF37' }} /> Browser Extension
           </button>
         </div>
       )}
 
+      {/* Connected — send */}
       {status === 'connected' && (
-        <button onClick={deposit} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 text-stone-950 font-black italic active:scale-[0.98]" style={{ fontFamily: 'Georgia, serif' }}>
+        <button onClick={deposit}
+          className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', boxShadow: '0 6px 20px rgba(52,211,153,0.4)' }}>
           <ArrowRight className="w-5 h-5" /> Send {payAsset === 'native' ? `${coinAmt.toFixed(5)} ${net.nativeSymbol}` : `$${amount.toFixed(2)} USDT`} from wallet
         </button>
       )}
 
+      {/* Error */}
       {status === 'error' && (
-        <div className="flex items-start gap-2 px-3 py-2 rounded-md border border-rose-700/50 bg-rose-950/40 text-rose-200 text-xs italic" style={{ fontFamily: 'Georgia, serif' }}>
+        <div className="flex items-start gap-2.5 px-4 py-3 rounded-[14px] text-[13px]"
+          style={{ border: '1px solid rgba(244,63,94,0.35)', background: 'rgba(244,63,94,0.1)', color: '#fca5a5' }}>
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" /> <span>{errMsg}</span>
         </div>
       )}
 
+      {/* Done */}
       {status === 'done' && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-emerald-700/50 bg-emerald-950/40 text-emerald-200 text-sm italic font-bold" style={{ fontFamily: 'Georgia, serif' }}>
+        <div className="flex items-center gap-2.5 px-4 py-3 rounded-[14px] text-sm font-bold"
+          style={{ border: '1px solid rgba(52,211,153,0.4)', background: 'rgba(52,211,153,0.12)', color: '#6ee7b7' }}>
           <CheckCircle2 className="w-5 h-5" /> Deposit successful!
         </div>
       )}
