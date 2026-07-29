@@ -22,6 +22,7 @@ import GatesOfOlympus from './pages/GatesOfOlympus';
 import FreeSpin from './pages/FreeSpin';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import PromoWelcome from './pages/PromoWelcome';
 import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
@@ -91,6 +92,7 @@ const AuthenticatedApp = () => {
         <Route path="/games/argonauts" element={<Argonauts />} />
         <Route path="/games/gates-of-olympus" element={<GatesOfOlympus />} />
         <Route path="/free-spin" element={<FreeSpin />} />
+        <Route path="/promo-welcome" element={<PromoWelcome />} />
         {/* Non-game authenticated pages — persistent bottom navigation */}
         <Route element={<BottomNavLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />

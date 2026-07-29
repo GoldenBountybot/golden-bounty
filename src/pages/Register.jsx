@@ -47,15 +47,17 @@ export default function Register() {
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
         const uid = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+        const promoCode = 'GB' + uid;
         // Assign a unique anime avatar based on the chosen gender.
         let avatar_url = "";
         try {
           const r = await base44.functions.invoke("assignAvatar", { gender });
           avatar_url = r?.data?.image_url || "";
         } catch { /* avatar assignment is optional */ }
-        try { await base44.auth.updateMe({ uid, phone, gender, avatar_url }); } catch { /* profile fields optional */ }
+        try { await base44.auth.updateMe({ uid, phone, gender, avatar_url, promo_code: promoCode }); } catch { /* profile fields optional */ }
       }
-      window.location.href = "/";
+      // Show the promo-code welcome banner before entering the home page.
+      window.location.href = "/promo-welcome";
     } catch (err) {
       setError(err.message || "Invalid verification code");
     } finally {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { pushNotification } from '@/lib/notify';
+import { applyReferralCommission } from '@/lib/referral';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 
 export default function AdminTransactions() {
@@ -48,6 +49,8 @@ export default function AdminTransactions() {
         update.wager_remaining = (Number(u.wager_remaining ?? 0)) + amt;
       }
       await base44.entities.User.update(u.id, update);
+      // 5% referral commission to the referrer on real deposits.
+      if (form.type === 'deposit') applyReferralCommission(u.id, amt);
       // Notify the player about the new credit/debit.
       const label = form.type === 'withdraw' ? 'Withdraw approved' : form.type === 'bonus' ? 'Bonus arrived' : form.type === 'adjustment' ? 'Balance adjusted' : 'Deposit approved';
       const nType = form.type === 'withdraw' ? 'withdraw_approved' : form.type === 'bonus' ? 'bonus_arrived' : 'deposit_approved';
@@ -74,6 +77,8 @@ export default function AdminTransactions() {
           update.wager_remaining = (Number(u?.wager_remaining ?? 0)) + amt;
         }
         await base44.entities.User.update(tx.user_id, update);
+        // 5% referral commission to the referrer on approved deposits.
+        if (tx.type === 'deposit') applyReferralCommission(tx.user_id, amt);
       }
       await base44.entities.Transaction.update(tx.id, { status });
       // Notify the player of the status change.

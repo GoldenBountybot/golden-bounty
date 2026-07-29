@@ -50,6 +50,24 @@
       "type": "number",
       "default": 0,
       "description": "Deposited funds still requiring play-through (bets or stacking) before withdrawal is allowed. Decremented by game bets and stacking; cleared to 0 once the deposited amount has been wagered or staked."
+    },
+    "promo_code": {
+      "type": "string",
+      "description": "This player's unique referral promo code (shareable). New players who redeem it receive a $1 Stack bonus."
+    },
+    "referred_by": {
+      "type": "string",
+      "description": "User id of the referrer whose promo code this player redeemed. Empty until a code is used."
+    },
+    "promo_claimed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this player has already redeemed a promo code for the $1 Stack bonus."
+    },
+    "referral_earnings": {
+      "type": "number",
+      "default": 0,
+      "description": "Total 5% referral commission earned from referred players' deposits."
     }
   },
   "required": [

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   User as UserIcon, Phone, Hash, LogOut, Loader2, Check,
   Wallet, ArrowDownToLine, ArrowUpFromLine, Crown, Gamepad2, Copy, Coins, History,
-  Menu, Pencil, Ticket,
+  Menu, Pencil, Ticket, Gift, Users,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -67,6 +67,9 @@ export default function Profile() {
   const [totalDeposits, setTotalDeposits] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [view, setView] = useState('profile');
+  const [rewards, setRewards] = useState([]);
+  const [loadingRewards, setLoadingRewards] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -117,6 +120,17 @@ export default function Profile() {
   }, [profile]);
 
   useEffect(() => { loadHistory(); }, [loadHistory]);
+
+  const loadRewards = useCallback(async () => {
+    if (!profile) return;
+    setLoadingRewards(true);
+    try {
+      const rows = await base44.entities.Transaction.filter({ user_id: profile.id, type: 'bonus' }, '-created_date', 50);
+      setRewards(rows.filter(r => r.method === 'referral-commission'));
+    } catch { /* ignore */ } finally { setLoadingRewards(false); }
+  }, [profile]);
+
+  useEffect(() => { if (view === 'rewards') loadRewards(); }, [view, loadRewards]);
 
   const save = async () => {
     setSaving(true);
@@ -200,6 +214,11 @@ export default function Profile() {
               <button onClick={() => { setTab('wallet'); setMenuOpen(false); }}
                 className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors">
                 <History className="w-4 h-4" style={{ color: '#D4AF37' }} /> History
+              </button>
+              <button onClick={() => { setView('rewards'); setMenuOpen(false); }}
+                className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
+                style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
+                <Gift className="w-4 h-4" style={{ color: '#D4AF37' }} /> Rewards
               </button>
             </div>
           )}
@@ -330,6 +349,89 @@ export default function Profile() {
           </div>
         )}
 
+        {view === 'rewards' && (
+          <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+            <div className="flex items-center justify-between">
+              <button onClick={() => setView('profile')} className="flex items-center gap-1.5 text-sm font-bold" style={{ color: '#D4AF37' }}>
+                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+                Back
+              </button>
+              <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>Rewards</h3>
+              <div className="w-12" />
+            </div>
+
+            {/* Referral earnings card */}
+            <div className="dash-card p-5 flex items-center gap-3" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.35)' }}>
+              <div className="flex items-center justify-center w-11 h-11 rounded-full shrink-0" style={{ background: 'linear-gradient(135deg, #FFD700, #C89B3C)', boxShadow: '0 0 8px rgba(212,175,55,0.25)' }}>
+                <Gift className="w-5 h-5" style={{ color: '#1a1408' }} />
+              </div>
+              <div className="flex-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Referral Earnings</p>
+                <p className="text-2xl font-extrabold tabular-nums mt-0.5" style={{ color: '#fff' }}>
+                  $<AnimatedNumber value={Number(profile?.referral_earnings ?? 0)} duration={900} decimals={2} />
+                </p>
+              </div>
+              <Users className="w-5 h-5" style={{ color: 'rgba(212,175,55,0.5)' }} />
+            </div>
+
+            {/* Promo code share card */}
+            <button
+              onClick={() => copy(promoCode, 'Promo code')}
+              className="dash-card p-4 flex items-center justify-between gap-2 transition-all active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(212,175,55,0.14)', border: '1px solid rgba(212,175,55,0.35)' }}>
+                  <Ticket className="w-4 h-4" style={{ color: '#D4AF37' }} />
+                </div>
+                <div className="text-left">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>Your Promo Code</p>
+                  <p className="text-[14px] font-bold mt-0.5" style={{ color: '#fff' }}>{promoCode || '—'}</p>
+                </div>
+              </div>
+              <Copy className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.7)' }} />
+            </button>
+            <p className="text-[11px] px-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              Share your code. New players get $1 in their Stack; you earn 5% commission on every deposit they make.
+            </p>
+
+            {/* Redeemed status */}
+            <div className="dash-card p-4 flex items-center gap-3">
+              <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: profile?.promo_claimed ? 'rgba(52,211,153,0.12)' : 'rgba(251,146,60,0.12)', border: `1px solid ${profile?.promo_claimed ? 'rgba(52,211,153,0.35)' : 'rgba(251,146,60,0.35)'}` }}>
+                {profile?.promo_claimed ? <Check className="w-4 h-4" style={{ color: '#34d399' }} /> : <Ticket className="w-4 h-4" style={{ color: '#fb923c' }} />}
+              </div>
+              <div className="flex-1">
+                <p className="text-[12px] font-bold" style={{ color: '#fff' }}>{profile?.promo_claimed ? 'Promo code redeemed' : 'No promo code redeemed yet'}</p>
+                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{profile?.promo_claimed ? 'You received your $1 Stack bonus.' : 'Enter a promo code on signup to get $1 in your Stack.'}</p>
+              </div>
+            </div>
+
+            {/* Commission history */}
+            <div className="flex items-center gap-2 px-1">
+              <Coins className="w-4 h-4" style={{ color: '#D4AF37' }} />
+              <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>Commission History</h3>
+            </div>
+            {loadingRewards ? (
+              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.55)' }}>Loading...</p>
+            ) : rewards.length === 0 ? (
+              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>No commission earned yet. Share your promo code to start earning.</p>
+            ) : rewards.map((r) => (
+              <div key={r.id} className="dash-card p-4 flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.35)' }}>
+                  <Gift className="w-4 h-4" style={{ color: '#D4AF37' }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold" style={{ color: '#fff' }}>Referral Commission</p>
+                  <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{fmtDate(r.created_date)}</p>
+                  {r.note && <p className="text-[10px] truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>{r.note}</p>}
+                </div>
+                <span className="font-bold tabular-nums text-sm shrink-0" style={{ color: '#34d399' }}>+${Number(r.amount).toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {view === 'profile' && (
+        <>
         {/* Segmented tabs — Wallet & Games */}
         <div className="grid grid-cols-2 gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           {TABS.map(t => {
@@ -434,6 +536,9 @@ export default function Profile() {
               })
             )}
           </div>
+        )}
+
+        </>
         )}
 
         {/* Log out */}
