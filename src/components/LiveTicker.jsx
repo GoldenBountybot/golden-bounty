@@ -46,10 +46,10 @@ function buildFeed(n = 26) {
   for (let i = 0; i < n; i++) {
     const name = names[i % names.length];
     const r = Math.random();
-    if (r < 0.42) items.push({ icon: '↓', text: `${name} deposited $${depositAmount()}` });
-    else if (r < 0.60) items.push({ icon: '↑', text: `${name} withdrew $${withdrawAmount()}` });
-    else if (r < 0.74) items.push({ icon: '⛏', text: `${name} stacked $${stackedAmount()}` });
-    else if (r < 0.86) items.push({ icon: '✓', text: `${name} claimed $${claimedAmount()}` });
+    if (r < 0.15) items.push({ icon: '↓', text: `${name} deposited $${depositAmount()}` });
+    else if (r < 0.25) items.push({ icon: '↑', text: `${name} withdrew $${withdrawAmount()}` });
+    else if (r < 0.40) items.push({ icon: '⛏', text: `${name} stacked $${stackedAmount()}` });
+    else if (r < 0.55) items.push({ icon: '✓', text: `${name} claimed $${claimedAmount()}` });
     else items.push({ icon: '★', text: `${name} won $${winAmount()} on ${pick(GAMES)}` });
   }
   return items;
