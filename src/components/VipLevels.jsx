@@ -1,8 +1,9 @@
 import React from 'react';
-import WesternFrame from '@/components/wildbounty/WesternFrame';
 import VipMedal from '@/components/VipMedal';
 import { Crown } from 'lucide-react';
 import { VIP_LEVELS, getVipLevel, getNextVipLevel, BASE_RATE } from '@/lib/vipLevels';
+
+const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
 // VIP tiers (Bronze → Diamond) display with current level, progress to next,
 // and the Stack profit rate each tier unlocks.
@@ -14,66 +15,89 @@ export default function VipLevels({ totalDeposits }) {
   const remaining = next ? Math.max(0, next.minDeposit - totalDeposits) : 0;
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* Current VIP status */}
-      <WesternFrame glow variant="glass" className="p-4 flex flex-col gap-2">
+    <div className="flex flex-col gap-4" style={{ fontFamily: SANS }}>
+      {/* Current VIP status — premium glass card with golden glow */}
+      <div
+        className="dash-card relative overflow-hidden p-5 flex flex-col gap-3"
+        style={{ animation: 'dashFadeIn 400ms ease both', background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.4)', boxShadow: '0 0 28px rgba(212,175,55,0.18), 0 10px 30px rgba(0,0,0,0.5)' }}
+      >
+        <div className="pointer-events-none absolute -top-12 -right-10 w-44 h-44 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.22), transparent 70%)' }} />
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Crown className="w-5 h-5" style={{ color: current?.color || '#8a7a5a' }} />
-            <h2 className="font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl" style={{ background: 'rgba(212,175,55,0.14)', border: '1px solid rgba(212,175,55,0.35)' }}>
+              <Crown className="w-5 h-5" style={{ color: current?.color || '#8a7a5a' }} />
+            </div>
+            <h2 className="text-base font-bold" style={{ color: '#D4AF37' }}>
               {current ? `VIP Level ${current.level} · ${current.name}` : 'No VIP Yet'}
             </h2>
           </div>
           {current && (
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-black italic" style={{ background: current.color, color: '#2a1a06' }}>
+            <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: current.color, color: '#1a1408' }}>
               {current.name}
             </span>
           )}
         </div>
-        <p className="text-xs text-amber-100/60 italic">
-          Total Deposits: <span className="font-bold text-yellow-100">${totalDeposits.toFixed(2)}</span>
-        </p>
-        <p className="text-xs text-amber-100/80 italic">
-          Your Stack Profit Rate: <span className="font-bold text-emerald-300">{(rate * 100).toFixed(2)}% / day</span>
-        </p>
+
+        <div className="flex flex-col gap-2.5 mt-1">
+          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            Total Deposits: <span className="font-bold" style={{ color: '#fff' }}>${totalDeposits.toFixed(2)}</span>
+          </p>
+          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            Your Stack Profit Rate: <span className="font-bold" style={{ color: '#34d399' }}>{(rate * 100).toFixed(2)}% / day</span>
+          </p>
+        </div>
+
         {next ? (
-          <div className="flex flex-col gap-1 mt-1">
-            <div className="h-2 rounded-full bg-black/50 overflow-hidden border border-amber-700/30">
-              <div className="h-full rounded-full transition-all" style={{ width: `${progress}%`, background: `linear-gradient(to right, ${current?.color || '#8a7a5a'}, ${next.color})` }} />
+          <div className="flex flex-col gap-1.5 mt-2">
+            <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(212,175,55,0.2)' }}>
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{ width: progress + '%', background: 'linear-gradient(90deg, #FFD700, #C89B3C)', boxShadow: '0 0 10px rgba(212,175,55,0.6)' }}
+              />
             </div>
-            <p className="text-[10px] text-amber-100/50 italic">Deposit ${remaining.toFixed(2)} more to reach {next.name}</p>
+            <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>Deposit ${remaining.toFixed(2)} more to reach {next.name}</p>
           </div>
         ) : (
-          <p className="text-[10px] text-amber-100/50 italic">Highest VIP level reached!</p>
+          <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>Highest VIP level reached!</p>
         )}
-      </WesternFrame>
+      </div>
 
       {/* Tier ladder: Bronze → Diamond */}
-      {VIP_LEVELS.map(lv => {
+      {VIP_LEVELS.map((lv, i) => {
         const reached = totalDeposits >= lv.minDeposit;
         const isCurrent = current?.level === lv.level;
+        const borderStyle = isCurrent ? ('1px solid ' + lv.color) : '1px solid rgba(212,175,55,0.25)';
         return (
-          <WesternFrame
+          <div
             key={lv.level}
-            variant="glass"
-            className={`p-3 flex items-center gap-3 ${isCurrent ? 'ring-2' : ''}`}
-            style={isCurrent ? { boxShadow: `inset 0 0 0 2px ${lv.color}, 0 2px 6px rgba(0,0,0,0.5)` } : {}}
+            className="dash-card p-4 flex items-center gap-4"
+            style={{ animation: 'dashFadeIn 400ms ease both', animationDelay: (60 * i) + 'ms', border: borderStyle, boxShadow: isCurrent ? ('0 0 22px ' + lv.color + '40, 0 8px 24px rgba(0,0,0,0.5)') : undefined }}
           >
-            <VipMedal tier={lv.name} className="w-10 h-10 shrink-0" />
-            <div className="flex-1">
-              <h3 className="font-black italic text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>
+            {/* Left — VIP icon in glowing circle */}
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 18px ' + (lv.color || '#8a7a5a') + '80', transform: 'scale(0.9)' }} />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center relative" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid ' + (lv.color || '#8a7a5a') }}>
+                <VipMedal tier={lv.name} className="w-7 h-7" />
+              </div>
+            </div>
+
+            {/* Center — title + deposit requirement */}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-bold" style={{ color: '#fff' }}>
                 VIP {lv.level} · {lv.name}
               </h3>
-              <p className="text-[11px] text-amber-100/60 italic">Deposit ${lv.minDeposit.toLocaleString()}+</p>
+              <p className="text-[12px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>Deposit ${lv.minDeposit.toLocaleString()}+</p>
             </div>
-            <div className="text-right">
-              <p className="text-[9px] tracking-widest uppercase text-amber-300/70">Rate</p>
-              <p className="text-sm font-black italic tabular-nums" style={{ color: reached ? '#7af0c8' : '#8a7a5a', fontFamily: 'Georgia, serif' }}>
+
+            {/* Right — profit rate */}
+            <div className="text-right shrink-0">
+              <p className="text-[9px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.7)' }}>Rate</p>
+              <p className="text-base font-extrabold tabular-nums leading-tight" style={{ color: reached ? '#34d399' : 'rgba(255,255,255,0.4)' }}>
                 {(lv.rate * 100).toFixed(2)}%
               </p>
-              <p className="text-[9px] text-amber-100/40 italic">/ day</p>
+              <p className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)' }}>/ day</p>
             </div>
-          </WesternFrame>
+          </div>
         );
       })}
     </div>
