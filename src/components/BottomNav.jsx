@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { LayoutDashboard, Layers, Play, Crown, UserCircle } from 'lucide-react';
+import { LayoutDashboard, Layers, Crown, UserCircle } from 'lucide-react';
 
 // Minimal premium bottom bar — sharp gold top trim, dark glass.
 export default function BottomNav() {
@@ -31,21 +31,25 @@ export default function BottomNav() {
           <Tile to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
           <Tile to="/dashboard?tab=stack" icon={Layers} label="Stack" />
 
-          {/* Center Play button */}
+          {/* Center Play button — 777 medallion, black bg removed via screen blend */}
           <button
             onClick={() => document.getElementById('games')?.scrollIntoView({ behavior: 'smooth' })}
             className="group flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform"
             title="Play Games"
           >
             <span
-              className="flex items-center justify-center w-10 h-10 rounded-[8px] transition-all group-hover:scale-105"
+              className="flex items-center justify-center w-10 h-10 rounded-[8px] overflow-hidden transition-all group-hover:scale-105"
               style={{
-                border: '1px solid rgba(214,178,98,0.7)',
-                background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
-                boxShadow: 'inset 0 1px 0 rgba(255,240,200,0.5), 0 4px 12px rgba(200,136,30,0.5)',
+                filter: 'drop-shadow(0 3px 8px rgba(200,136,30,0.55))',
               }}
             >
-              <Play className="w-5 h-5 text-stone-950" />
+              <img
+                src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a37f15d57_file_00000000710c8207a086cbd3402c46e3.png"
+                alt="777 Play"
+                draggable={false}
+                className="block w-full h-full object-cover select-none"
+                style={{ mixBlendMode: 'screen' }}
+              />
             </span>
           </button>
 
