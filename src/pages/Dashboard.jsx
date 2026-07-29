@@ -39,7 +39,7 @@ export default function Dashboard() {
   const [stkAmt, setStkAmt] = useState('');
   const [history, setHistory] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [stackBanner, setStackBanner] = useState('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ce2101293_InShot_20260718_173817740.jpg');
+  const [stackBanner, setStackBanner] = useState('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e4a14a054_file_0000000014cc821197a44e24a1a46272.png');
   const [notify, setNotify] = useState(null);
   const showNotify = (title, description) => setNotify({ title, description });
 
