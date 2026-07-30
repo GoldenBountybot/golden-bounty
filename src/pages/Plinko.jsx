@@ -214,44 +214,46 @@ export default function Plinko() {
     let bucket = 0;
     for (let i = 0; i < WEIGHTS.length; i++) { r -= WEIGHTS[i]; if (r <= 0) { bucket = i; break; } }
 
-    // The peg directly above the target bucket — in the last peg row, the peg
-    // nearest to the bucket. The ball drops from the top, bounces off ONLY this
-    // peg, then falls straight into the bucket below it.
-    const pegCol = Math.max(0, Math.min(ROWS - 1, Math.round(bucket - 0.5)));
-    const lastPeg = { row: ROWS - 1, col: pegCol };
+    const steps = Array.from({ length: ROWS }, (_, i) => (i < bucket ? 1 : 0));
+    for (let i = steps.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [steps[i], steps[j]] = [steps[j], steps[i]]; }
+    // Ball bounces off pegs at rows 0..ROWS-1, then drops into a bucket in the
+    // gap below the last peg row. It goes directly peg-to-peg (diagonal), not
+    // passing through the spaces between them.
+    const pegPath = [{ row: 0, col: 0 }];
+    let col = 0;
+    for (let r = 1; r < ROWS; r++) { col += steps[r - 1]; pegPath.push({ row: r, col }); }
+    const finalCol = col + steps[ROWS - 1];
 
-    // Step 1: ball appears at the top center
-    setBallPos({ kind: 'peg', row: 0, col: 0 });
-
-    // Step 2: ball drops down to the peg directly above the target bucket
-    const t1 = setTimeout(() => {
-      setBallPos({ kind: 'peg', row: lastPeg.row, col: lastPeg.col });
-      // Step 3: bounce off the peg
-      const t2 = setTimeout(() => {
-        setHitPeg(lastPeg);
-        playPeg();
-        // Step 4: ball falls into the bucket
-        const t3 = setTimeout(() => {
-          setBallPos({ kind: 'bucket', col: bucket });
-          const t4 = setTimeout(() => {
-            const mult = MULTS[bucket];
+    let step = 0;
+    const animate = () => {
+      const cur = pegPath[step];
+      setBallPos({ kind: 'peg', row: cur.row, col: cur.col });
+      setHitPeg(cur);
+      if (step > 0) playPeg();
+      if (step < pegPath.length - 1) {
+        const t = setTimeout(() => { step++; animate(); }, 200);
+        timers.current.push(t);
+      } else {
+        const t = setTimeout(() => {
+          setBallPos({ kind: 'bucket', col: finalCol });
+          const t2 = setTimeout(() => {
+            const mult = MULTS[finalCol];
             const win = bet * mult;
             if (win > 0) setBalance((b) => b + win);
             if (mult > 1) playWin(); else playLose();
             setLastWin(win);
-            setResultBucket(bucket);
+            setResultBucket(finalCol);
             setMessage(`${mult}x · ${win > 0 ? `+$${win.toFixed(2)}` : 'No win'}`);
             logActivity('plinko', bet, win, mult > 1 ? 'win' : 'loss');
             setDropping(false);
             setBallPos(null);
           }, 200);
-          timers.current.push(t4);
+          timers.current.push(t2);
         }, 200);
-        timers.current.push(t3);
-      }, 350);
-      timers.current.push(t2);
-    }, 100);
-    timers.current.push(t1);
+        timers.current.push(t);
+      }
+    };
+    animate();
   };
 
   // Peg positions matching the baked-in peg grid in the board image.
