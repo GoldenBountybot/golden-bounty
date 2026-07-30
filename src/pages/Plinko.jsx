@@ -408,7 +408,8 @@ export default function Plinko() {
         <button
           onClick={drop}
           disabled={dropping}
-          className="mt-4 w-full transition-all disabled:opacity-60 relative"
+          className="mt-4 transition-all disabled:opacity-60 relative mx-auto"
+          style={{ width: '66.67%' }}
         >
           <img
             src={DROP_BTN_IMG}
