@@ -231,9 +231,8 @@ export default function Thimbles() {
           <button onClick={() => adjustBet(BET_STEP)} className="absolute right-0 top-0 h-full w-[18%] transition-transform active:scale-90" title="Plus" />
         </div>
 
-        {/* Game area — ornate gilded wood table with three barrels (full width edge-to-edge) */}
-        <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 60%, rgba(0,0,0,0.1), rgba(0,0,0,0.3))' }} />
+        {/* Game area — three barrels on plain dark gradient */}
+        <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', background: 'linear-gradient(to bottom, #1a191e, #100f14)' }}>
 
           {/* Three barrels */}
           <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '240px' }}>
