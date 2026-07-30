@@ -436,7 +436,7 @@ export default function Plinko() {
         </button>
 
         {/* Stats — wooden tiles */}
-        <div className="grid grid-cols-3 gap-2 text-center" style={{ marginTop: '-30px' }}>
+        <div className="grid grid-cols-3 gap-2 text-center" style={{ marginTop: '-50px' }}>
           <Stat label="Balance" value={`$${balance.toFixed(2)}`} />
           <Stat label="Bet" value={`$${bet.toFixed(2)}`} />
           <Stat label="Last Win" value={`$${lastWin.toFixed(2)}`} accent={lastWin > 0} />
