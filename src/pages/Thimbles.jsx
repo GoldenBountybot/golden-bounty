@@ -14,8 +14,9 @@ const DEFAULT_BET = 1;
 const BET_STEP = 0.1;
 const SINGLE_MULT = 2.88;
 const TWO_MULT = 1.44;
-const SHUFFLE_SWAPS = 13;
-const SHUFFLE_MS = 320;
+const SHUFFLE_SWAPS = 17;
+const SHUFFLE_MS_MIN = 130;
+const SHUFFLE_MS_MAX = 430;
 
 let _actx = null;
 function actx() {
@@ -76,6 +77,7 @@ export default function Thimbles() {
   const [mode, setMode] = useState('single');
   const [phase, setPhase] = useState('idle');
   const [positions, setPositions] = useState([0, 1, 2]);
+  const [swapDelay, setSwapDelay] = useState(SHUFFLE_MS_MAX);
   const [ballCups, setBallCups] = useState(new Set([0]));
   const [picked, setPicked] = useState(null);
   const [won, setWon] = useState(false);
@@ -125,13 +127,21 @@ export default function Thimbles() {
   const runShuffle = () => {
     let cur = [0, 1, 2];
     let swaps = 0;
+    // Slow-fast-slow bell curve: cups start slow, blur into a quick blur in the
+    // middle, then ease back to a slow stop — so the eye (and slow-mo screen
+    // recordings) can't lock onto any single cup.
+    const delayFor = (i) => {
+      const p = SHUFFLE_SWAPS <= 1 ? 0 : i / (SHUFFLE_SWAPS - 1);
+      const bell = (2 * p - 1) ** 2; // 1 at ends, 0 in the middle
+      return SHUFFLE_MS_MIN + (SHUFFLE_MS_MAX - SHUFFLE_MS_MIN) * bell;
+    };
     const doSwap = () => {
       if (swaps >= SHUFFLE_SWAPS) {
         setPositions([...cur]);
         const t = setTimeout(() => {
           setPhase('picking');
           setMessage('Pick a cup!');
-        }, 200);
+        }, 260);
         timers.current.push(t);
         return;
       }
@@ -141,10 +151,12 @@ export default function Thimbles() {
       const cupA = cur.indexOf(a);
       const cupB = cur.indexOf(b);
       cur = cur.map((slot, cup) => (cup === cupA ? b : cup === cupB ? a : slot));
+      const delay = delayFor(swaps);
+      setSwapDelay(delay);
       setPositions([...cur]);
       playShuffle();
       swaps++;
-      const t = setTimeout(doSwap, SHUFFLE_MS);
+      const t = setTimeout(doSwap, delay);
       timers.current.push(t);
     };
     const t0 = setTimeout(doSwap, 200);
@@ -267,7 +279,7 @@ export default function Thimbles() {
                     left: slotLeft(slot),
                     width: '30%',
                     height: '100%',
-                    transitionDuration: phase === 'shuffling' ? `${SHUFFLE_MS}ms` : '350ms',
+                    transitionDuration: phase === 'shuffling' ? `${swapDelay}ms` : '350ms',
                     transitionTimingFunction: 'ease-in-out',
                   }}
                 >
