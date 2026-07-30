@@ -10,7 +10,6 @@ const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1; // 12 rows: bottom row has 12 pegs between 13 slots
 const BOARD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/41d1489a2_file_000000005b9881faa2d49d948685f05d.png';
 const DROP_BTN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11333e586_file_000000008b6481fabfe246939d68f1fa.png';
-const STAT_BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/941ac179e_file_0000000012f4820b97f8bd8f450c0d36.png';
 const BETS = [0.1, 1, 5, 10];
 // Absolute per-bucket landing chance (percent), symmetric across both edges.
 // 100x: 0.1% · 50x: 0.3% · 25x: 0.5% · 10x: 1% · 5x: 2% · 2x: 26% (split each side).
@@ -146,6 +145,21 @@ function colorFor(m) {
   if (m >= 5) return { bg: '#f97316', glow: 'rgba(249,115,22,0.6)' };
   if (m >= 2) return { bg: '#4299e1', glow: 'rgba(66,153,225,0.6)' };
   return { bg: '#718096', glow: 'rgba(113,128,150,0.5)' };
+}
+
+const STAT_BGS = {
+  Balance: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/675f2abaf_generated_image.png',
+  Bet: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0303a0164_generated_image.png',
+  'Last Win': 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3acccce01_generated_image.png',
+};
+
+function Stat({ label, value, accent }) {
+  return (
+    <div className="py-2 text-center relative" style={{ background: `url('${STAT_BGS[label] || Object.values(STAT_BGS)[0]}') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))`, border: '1px solid rgba(190,140,55,0.75)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), 0 2px 6px rgba(0,0,0,0.55)', fontFamily: FONT }}>
+      <p className="text-xs tracking-widest uppercase relative" style={{ color: '#f5c542', textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>{label}</p>
+      <p className="text-xs font-bold tabular-nums relative" style={{ color: accent ? '#f5c542' : '#f3e2b3', textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>{value}</p>
+    </div>
+  );
 }
 
 export default function Plinko() {
@@ -411,29 +425,11 @@ export default function Plinko() {
           </span>
         </button>
 
-        {/* Stats — single wooden banner with Balance / Bet / Last Win */}
-        <div className="mt-3 pb-6 relative w-full">
-          <img
-            src={STAT_BANNER_IMG}
-            alt="stats"
-            draggable={false}
-            className="w-full h-auto select-none block"
-            style={{ mixBlendMode: 'screen' }}
-          />
-          <div className="absolute inset-0 grid grid-cols-3 items-center text-center pointer-events-none">
-            <div className="flex flex-col items-center justify-center">
-              <span className="text-[10px] tracking-widest uppercase" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>Balance</span>
-              <span className="text-xs font-bold tabular-nums" style={{ color: '#f3e2b3', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>${balance.toFixed(2)}</span>
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <span className="text-[10px] tracking-widest uppercase" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>Bet</span>
-              <span className="text-xs font-bold tabular-nums" style={{ color: '#f3e2b3', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>${bet.toFixed(2)}</span>
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <span className="text-[10px] tracking-widest uppercase" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>Last Win</span>
-              <span className="text-xs font-bold tabular-nums" style={{ color: lastWin > 0 ? '#f5c542' : '#f3e2b3', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>${lastWin.toFixed(2)}</span>
-            </div>
-          </div>
+        {/* Stats — wooden tiles */}
+        <div className="mt-3 grid grid-cols-3 gap-2 pb-6 text-center">
+          <Stat label="Balance" value={`$${balance.toFixed(2)}`} />
+          <Stat label="Bet" value={`$${bet.toFixed(2)}`} />
+          <Stat label="Last Win" value={`$${lastWin.toFixed(2)}`} accent={lastWin > 0} />
         </div>
       </main>
     </div>
