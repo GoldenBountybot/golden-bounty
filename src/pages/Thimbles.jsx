@@ -1,21 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { DollarSign, RotateCcw, ChevronDown, ChevronUp, Trophy, Eye } from 'lucide-react';
+import { ChevronLeft, Menu, History, Minus, Plus, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import GameHeader from '@/components/GameHeader';
-import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
 
-const MIN_BET = 0.05;
-const BETS = [0.1, 1, 10, 50, 100, 500];
-const RTP = 0.96;
-const SINGLE_MULT = 3 * RTP;   // 2.88x
-const TWO_MULT = 1.5 * RTP;    // 1.44x
-const SHUFFLE_SWAPS = 7;
-const SHUFFLE_MS = 280;
-
-const W = { fontFamily: 'Rye, Georgia, serif' };
+const MIN_BET = 5;
+const MAX_BET = 7500;
+const DEFAULT_BET = 20;
+const BET_STEP = 5;
+const SINGLE_MULT = 2.88;
+const TWO_MULT = 1.44;
+const SHUFFLE_SWAPS = 8;
+const SHUFFLE_MS = 320;
 
 let _actx = null;
 function actx() {
@@ -25,7 +23,7 @@ function actx() {
   }
   return _actx;
 }
-function playTone(freq, t0, dur, type = 'triangle', gain = 0.15) {
+function playTone(freq, t0, dur, type = 'triangle', gain = 0.12) {
   const ac = actx(); if (!ac) return;
   const o = ac.createOscillator();
   const g = ac.createGain();
@@ -39,8 +37,13 @@ function playTone(freq, t0, dur, type = 'triangle', gain = 0.15) {
 function playShuffle() {
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
-  playTone(220, t, 0.08, 'sawtooth', 0.08);
-  playTone(180, t + 0.05, 0.08, 'sawtooth', 0.06);
+  playTone(180, t, 0.07, 'sawtooth', 0.06);
+  playTone(140, t + 0.04, 0.07, 'sawtooth', 0.05);
+}
+function playLift() {
+  const ac = actx(); if (!ac) return;
+  const t = ac.currentTime;
+  playTone(320, t, 0.1, 'sine', 0.08);
 }
 function playWin() {
   const ac = actx(); if (!ac) return;
@@ -52,37 +55,34 @@ function playWin() {
 function playLose() {
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
-  playTone(300, t, 0.18, 'sawtooth', 0.12);
-  playTone(200, t + 0.12, 0.22, 'sawtooth', 0.1);
+  playTone(300, t, 0.18, 'sawtooth', 0.1);
+  playTone(200, t + 0.12, 0.22, 'sawtooth', 0.08);
 }
 
-const woodBtn = (active) => ({
-  border: '1px solid rgba(190,140,55,0.85)',
-  background: active
-    ? 'linear-gradient(to bottom, rgba(255,210,120,0.95), rgba(200,150,60,0.95))'
-    : 'linear-gradient(to bottom, rgba(58,40,18,0.95), rgba(26,18,9,0.95))',
-  boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), inset 0 0 0 1px rgba(46,30,12,0.6), 0 2px 5px rgba(0,0,0,0.55)',
-  color: active ? '#1a1206' : 'rgba(255,220,150,0.92)',
-});
+function genHash() {
+  const chars = '0123456789abcdef';
+  let s = '';
+  for (let i = 0; i < 40; i++) s += chars[Math.floor(Math.random() * 16)];
+  return s;
+}
 
 export default function Thimbles() {
   const { balance, setBalance } = useCasinoBalance();
   const [loaded, setLoaded] = useState(false);
   const { rtp } = useGameSettings('thimbles');
-  const [betIdx, setBetIdx] = useState(0);
-  const [customBet, setCustomBet] = useState('');
-  const bet = customBet ? Math.max(MIN_BET, Number(customBet)) : BETS[betIdx];
-  const [mode, setMode] = useState('single'); // 'single' | 'two'
-  const [phase, setPhase] = useState('idle'); // idle | shuffling | picking | over
-  const [positions, setPositions] = useState([0, 1, 2]); // cup index -> slot
-  const [ballCups, setBallCups] = useState(new Set()); // cup indices hiding a ball
-  const [picked, setPicked] = useState(null); // cup index the player picked
+  const [bet, setBet] = useState(DEFAULT_BET);
+  const [mode, setMode] = useState('single');
+  const [phase, setPhase] = useState('idle');
+  const [positions, setPositions] = useState([0, 1, 2]);
+  const [ballCups, setBallCups] = useState(new Set([0]));
+  const [picked, setPicked] = useState(null);
   const [won, setWon] = useState(false);
   const [lastWin, setLastWin] = useState(0);
-  const [message, setMessage] = useState('Place yer bet an\' pick a cup');
-  const [shuffleKey, setShuffleKey] = useState(0);
+  const [message, setMessage] = useState('Press SPIN to start');
+  const [hash] = useState(genHash);
   const logActivity = useLogActivity();
   const timers = useRef([]);
+  const pendingWin = useRef(false);
 
   const mult = mode === 'single' ? SINGLE_MULT : TWO_MULT;
   const winChance = rtp / 100;
@@ -93,33 +93,35 @@ export default function Thimbles() {
 
   const start = () => {
     if (phase !== 'idle' && phase !== 'over') return;
-    if (!bet || bet < MIN_BET) { setMessage('Min bet is $0.05'); return; }
-    if (balance < bet) { setMessage('Not enough gold, partner'); return; }
+    if (!bet || bet < MIN_BET) { setMessage(`Min bet is ${MIN_BET} BDT`); return; }
+    if (balance < bet) { setMessage('Not enough balance'); return; }
     setBalance((b) => b - bet);
 
-    // Decide outcome based on RTP win chance.
-    const willWin = Math.random() < winChance;
-
-    // Place ball(s). Cups are 0,1,2. In single mode 1 ball; in two mode 2 balls.
     const numBalls = mode === 'single' ? 1 : 2;
-    // We'll place balls after the shuffle; for now pick random cups.
-    // The picked cup will be decided by the player; we bias the ball placement
-    // to match the pre-decided outcome after the player picks.
-    setBallCups(new Set());
+    const cups = new Set();
+    while (cups.size < numBalls) cups.add(Math.floor(Math.random() * 3));
+    setBallCups(cups);
     setPicked(null);
     setWon(false);
     setLastWin(0);
     setPositions([0, 1, 2]);
-    setMessage(mode === 'single' ? 'Find the golden ball!' : 'Find a golden ball!');
-    setPhase('shuffling');
-    setShuffleKey((k) => k + 1);
+    setMessage('Watch the ball…');
+    setPhase('peek');
+    playLift();
 
-    // Run shuffle animation: swap positions several times.
+    const t1 = setTimeout(() => {
+      setPhase('shuffling');
+      setMessage('Shuffling…');
+      runShuffle();
+    }, 1200);
+    timers.current.push(t1);
+  };
+
+  const runShuffle = () => {
     let cur = [0, 1, 2];
     let swaps = 0;
     const doSwap = () => {
       if (swaps >= SHUFFLE_SWAPS) {
-        // After shuffle, go to picking phase.
         setPositions([...cur]);
         const t = setTimeout(() => {
           setPhase('picking');
@@ -128,11 +130,9 @@ export default function Thimbles() {
         timers.current.push(t);
         return;
       }
-      // pick two different slots to swap
       const a = Math.floor(Math.random() * 3);
       let b = Math.floor(Math.random() * 3);
       while (b === a) b = Math.floor(Math.random() * 3);
-      // swap cups in slots a and b
       const cupA = cur.indexOf(a);
       const cupB = cur.indexOf(b);
       cur = cur.map((slot, cup) => (cup === cupA ? b : cup === cupB ? a : slot));
@@ -142,45 +142,30 @@ export default function Thimbles() {
       const t = setTimeout(doSwap, SHUFFLE_MS);
       timers.current.push(t);
     };
-    // Small initial delay so the player sees the cups before they move.
-    const t0 = setTimeout(doSwap, 300);
+    const t0 = setTimeout(doSwap, 200);
     timers.current.push(t0);
-
-    // Store the willWin decision for the pick handler.
-    // We use a ref-like approach via state since the pick happens later.
-    pendingWin.current = willWin;
   };
-
-  const pendingWin = useRef(false);
 
   const pick = (cupIdx) => {
     if (phase !== 'picking') return;
     clearTimers();
     setPicked(cupIdx);
     setPhase('over');
+    playLift();
 
-    const willWin = pendingWin.current;
+    const willWin = Math.random() < winChance;
     const numBalls = mode === 'single' ? 1 : 2;
 
-    // Place balls to match the pre-decided outcome.
     let cups;
     if (willWin) {
-      // Place a ball under the picked cup + random others.
       cups = new Set([cupIdx]);
-      while (cups.size < numBalls) {
-        cups.add(Math.floor(Math.random() * 3));
-      }
+      while (cups.size < numBalls) cups.add(Math.floor(Math.random() * 3));
     } else {
-      // Place balls under cups that are NOT the picked cup.
       const others = [0, 1, 2].filter((c) => c !== cupIdx);
       cups = new Set();
-      // For single mode: place 1 ball among the other 2 cups.
-      // For two mode: place 2 balls — but we need the picked cup to lose, so
-      // both balls go under the other 2 cups.
       const shuffled = others.sort(() => Math.random() - 0.5);
       const count = Math.min(numBalls, others.length);
       for (let i = 0; i < count; i++) cups.add(shuffled[i]);
-      // If single mode and we still need the ball not under picked — done (1 of 2 others).
     }
     setBallCups(cups);
 
@@ -189,13 +174,13 @@ export default function Thimbles() {
       setBalance((b) => b + win);
       setLastWin(win);
       setWon(true);
-      setMessage(`Ya found it! +$${win.toFixed(2)} (${mult.toFixed(2)}x)`);
+      setMessage(`You found it! +${win.toFixed(2)} (${mult}x)`);
       playWin();
       logActivity('thimbles', bet, win, 'win', mult);
     } else {
       setLastWin(0);
       setWon(false);
-      setMessage('Wrong cup! The ball got away');
+      setMessage('Wrong cup! Try again');
       playLose();
       logActivity('thimbles', bet, 0, 'loss', 0);
     }
@@ -205,183 +190,233 @@ export default function Thimbles() {
     clearTimers();
     setPhase('idle');
     setPicked(null);
-    setBallCups(new Set());
+    setBallCups(new Set([Math.floor(Math.random() * 3)]));
     setPositions([0, 1, 2]);
     setWon(false);
     setLastWin(0);
-    setMessage('Place yer bet an\' pick a cup');
+    setMessage('Press SPIN to start');
   };
 
-  const halfBet = () => +(Math.max(MIN_BET, bet / 2)).toFixed(2);
-  const doubleBet = () => +(bet * 2).toFixed(2);
+  useEffect(() => {
+    if (loaded) {
+      setBallCups(new Set([Math.floor(Math.random() * 3)]));
+    }
+  }, [loaded]);
+
+  const adjustBet = (delta) => {
+    setBet((b) => Math.min(MAX_BET, Math.max(MIN_BET, b + delta)));
+  };
 
   const slotLeft = (slot) => `${slot * 33.333}%`;
+  const cupsLifted = phase === 'peek';
+  const pickedLifted = phase === 'over';
 
   return (
-    <div className="min-h-screen text-amber-100 flex flex-col relative" style={{ background: 'linear-gradient(to bottom, #1a1108, #0d0905)', ...W }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(to bottom, #2a2932, #1a191e)', fontFamily: 'Georgia, serif' }}>
       {!loaded && <GameLoadingScreen title="Thimbles" onDone={() => setLoaded(true)} />}
-      <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7ad5415af_.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.4, mixBlendMode: 'screen' }} />
       <GameHeader title="Thimbles" balance={balance} />
 
-      <main className="max-w-md w-full mx-auto px-4 py-5 flex flex-col gap-4 flex-1">
-        {/* Balance / profit bar */}
-        <WesternFrame className="p-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="flex items-center justify-center w-9 h-9 rounded-lg" style={{ background: 'radial-gradient(circle, rgba(255,210,120,0.25), rgba(120,80,30,0.4))', border: '1px solid rgba(190,140,55,0.7)' }}>
-              <DollarSign className="w-5 h-5 text-amber-300" />
-            </span>
-            <div>
-              <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>BALANCE</p>
-              <p className="text-lg text-amber-200 tabular-nums" style={W}>${balance.toFixed(2)}</p>
+      <main className="max-w-md w-full mx-auto px-3 py-3 flex flex-col gap-3 flex-1">
+        {/* Betting controls bar */}
+        <div className="rounded-xl p-3 flex items-center justify-between" style={{ background: 'linear-gradient(to bottom, #4a3a2a, #2e2218)', border: '1px solid rgba(180,140,80,0.5)', boxShadow: 'inset 0 1px 0 rgba(255,220,160,0.2), 0 3px 8px rgba(0,0,0,0.5)' }}>
+          <button onClick={() => setBet(MIN_BET)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }} title="Min">
+            <ChevronsLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
+          </button>
+          <button onClick={() => adjustBet(-BET_STEP)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }}>
+            <Minus className="w-5 h-5" style={{ color: '#e0d8c0' }} />
+          </button>
+          <div className="flex flex-col items-center px-3">
+            <span className="text-[10px] tracking-widest" style={{ color: '#b0a890' }}>TOTAL BET</span>
+            <span className="text-xl font-black tabular-nums" style={{ color: '#ffe8a0' }}>{bet} BDT</span>
+          </div>
+          <button onClick={() => adjustBet(BET_STEP)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }}>
+            <Plus className="w-5 h-5" style={{ color: '#e0d8c0' }} />
+          </button>
+          <button onClick={() => setBet(MAX_BET)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }} title="Max">
+            <ChevronsRight className="w-5 h-5" style={{ color: '#e0d8c0' }} />
+          </button>
+        </div>
+        <p className="text-center text-[11px]" style={{ color: '#8a8270' }}>MIN {MIN_BET} BDT - MAX {MAX_BET.toLocaleString()} BDT</p>
+
+        {/* Game area — stone table with three barrels */}
+        <div className="relative rounded-2xl overflow-hidden flex-1 flex flex-col justify-center" style={{ background: 'linear-gradient(to bottom, #3e3d48, #2a2932)', border: '2px solid rgba(180,140,80,0.4)', boxShadow: 'inset 0 2px 12px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.5)' }}>
+          <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(255,255,255,0.04), transparent 40%), radial-gradient(circle at 80% 70%, rgba(0,0,0,0.15), transparent 40%)' }} />
+
+          {/* Message banner */}
+          <div className="absolute top-3 left-0 right-0 flex justify-center z-20">
+            <div className="px-4 py-1.5 rounded-full text-sm font-bold" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(180,140,80,0.4)', color: won ? '#ffe066' : '#e0d8c0' }}>
+              {message}
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>PROFIT</p>
-            <p className={`text-sm tabular-nums ${lastWin > 0 ? 'text-amber-300' : 'text-amber-100/50'}`} style={W}>
-              {lastWin > 0 ? `+$${lastWin.toFixed(2)}` : '$0.00'}
-            </p>
-          </div>
-        </WesternFrame>
 
-        {/* Game board — three cups */}
-        <WesternFrame className="p-4">
-          <div className="relative w-full" style={{ height: '180px' }}>
-            {/* table surface line */}
-            <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(to right, transparent, rgba(190,140,55,0.5), transparent)' }} />
-            {phase === 'idle' && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <p className="text-sm text-amber-300/60 text-center px-4" style={W}>
-                  {mode === 'single' ? 'One ball · 2.88x payout' : 'Two balls · 1.44x payout'}
-                </p>
-              </div>
-            )}
-            {phase !== 'idle' && [0, 1, 2].map((cupIdx) => {
+          {/* Three barrels */}
+          <div className="relative w-full px-4" style={{ height: '200px' }}>
+            <div className="absolute bottom-2 left-4 right-4 h-[3px] rounded-full" style={{ background: 'linear-gradient(to right, transparent, rgba(180,140,80,0.4), transparent)' }} />
+            {[0, 1, 2].map((cupIdx) => {
               const slot = positions[cupIdx];
               const isPicked = picked === cupIdx;
               const hasBall = ballCups.has(cupIdx);
-              const reveal = phase === 'over';
+              const lifted = cupsLifted || (pickedLifted && isPicked);
               return (
                 <button
                   key={cupIdx}
                   onClick={() => pick(cupIdx)}
                   disabled={phase !== 'picking'}
-                  className="absolute top-1/2 -translate-y-1/2 transition-all"
+                  className="absolute bottom-2 transition-all"
                   style={{
                     left: slotLeft(slot),
                     width: '33.333%',
-                    transitionDuration: phase === 'shuffling' ? `${SHUFFLE_MS}ms` : '300ms',
+                    height: '100%',
+                    transitionDuration: phase === 'shuffling' ? `${SHUFFLE_MS}ms` : '350ms',
                     transitionTimingFunction: 'ease-in-out',
-                    opacity: phase === 'idle' ? 0 : 1,
                   }}
                 >
-                  <Cup revealed={reveal && (isPicked || hasBall)} hasBall={reveal && hasBall} picked={isPicked && reveal} won={won} disabled={phase !== 'picking'} />
+                  <Barrel lifted={lifted} hasBall={hasBall} reveal={lifted} won={won && isPicked} />
                 </button>
               );
             })}
           </div>
-        </WesternFrame>
-
-        {/* Message */}
-        <div className="w-full rounded-xl py-3 text-center" style={{ background: '#1a1a1a', border: '1px solid #b8860b', boxShadow: '0 2px 6px rgba(0,0,0,0.5)' }}>
-          <span className="text-sm" style={{ color: won ? '#ffd75a' : '#c5a059', ...W }}>{message}</span>
         </div>
 
-        {/* Mode selector — only in idle */}
-        {phase === 'idle' && (
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setMode('single')}
-              className="rounded-xl py-3 px-2 transition-all"
-              style={{ ...woodBtn(mode === 'single'), ...W }}
-            >
-              <div className="flex flex-col items-center gap-0.5">
-                <span className="text-xs">ONE BALL</span>
-                <span className="text-base font-black">{SINGLE_MULT.toFixed(2)}x</span>
-                <span className="text-[9px] opacity-70">1 in 3 chance</span>
-              </div>
-            </button>
-            <button
-              onClick={() => setMode('two')}
-              className="rounded-xl py-3 px-2 transition-all"
-              style={{ ...woodBtn(mode === 'two'), ...W }}
-            >
-              <div className="flex flex-col items-center gap-0.5">
-                <span className="text-xs">TWO BALLS</span>
-                <span className="text-base font-black">{TWO_MULT.toFixed(2)}x</span>
-                <span className="text-[9px] opacity-70">2 in 3 chance</span>
-              </div>
-            </button>
+        {/* Game config panel — 1 ball / 2 balls selectors */}
+        <div className="rounded-xl p-3 flex items-center justify-around" style={{ background: 'linear-gradient(to bottom, #6d4a36, #4a3220)', border: '1px solid rgba(180,140,80,0.5)', boxShadow: 'inset 0 1px 0 rgba(255,220,160,0.2), 0 3px 8px rgba(0,0,0,0.5)' }}>
+          <button
+            onClick={() => phase === 'idle' && setMode('single')}
+            className="flex items-center gap-2.5 transition-transform active:scale-95"
+            style={{ opacity: mode === 'single' ? 1 : 0.55 }}
+          >
+            <span className="text-sm font-bold" style={{ color: '#e0d8c0' }}>1 ball</span>
+            <span className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-black" style={{
+              background: mode === 'single' ? 'linear-gradient(to bottom, #ffe890, #c89020)' : 'linear-gradient(to bottom, #5a4a3a, #3a2e22)',
+              color: mode === 'single' ? '#1a1206' : '#a09080',
+              border: '1px solid rgba(180,140,80,0.6)',
+              boxShadow: mode === 'single' ? '0 0 10px rgba(255,210,100,0.5), inset 0 1px 0 rgba(255,255,255,0.3)' : 'inset 0 1px 0 rgba(255,220,160,0.1)',
+            }}>
+              X {SINGLE_MULT}
+            </span>
+          </button>
+          <div className="w-px h-10" style={{ background: 'rgba(180,140,80,0.3)' }} />
+          <button
+            onClick={() => phase === 'idle' && setMode('two')}
+            className="flex items-center gap-2.5 transition-transform active:scale-95"
+            style={{ opacity: mode === 'two' ? 1 : 0.55 }}
+          >
+            <span className="text-sm font-bold" style={{ color: '#e0d8c0' }}>2 balls</span>
+            <span className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-black" style={{
+              background: mode === 'two' ? 'linear-gradient(to bottom, #ffe890, #c89020)' : 'linear-gradient(to bottom, #5a4a3a, #3a2e22)',
+              color: mode === 'two' ? '#1a1206' : '#a09080',
+              border: '1px solid rgba(180,140,80,0.6)',
+              boxShadow: mode === 'two' ? '0 0 10px rgba(255,210,100,0.5), inset 0 1px 0 rgba(255,255,255,0.3)' : 'inset 0 1px 0 rgba(255,220,160,0.1)',
+            }}>
+              X {TWO_MULT}
+            </span>
+          </button>
+        </div>
+
+        {/* Spin / New Game button */}
+        {(phase === 'idle' || phase === 'over') && (
+          <button
+            onClick={phase === 'over' ? newGame : start}
+            disabled={phase === 'idle' && balance < bet}
+            className="w-full py-4 rounded-xl text-lg font-black transition-all disabled:opacity-40"
+            style={{
+              background: 'linear-gradient(to bottom, #ffe890, #c89020)',
+              color: '#1a1206',
+              border: '1px solid rgba(120,80,20,0.6)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(0,0,0,0.5)',
+            }}
+          >
+            {phase === 'over' ? 'NEW GAME' : 'SPIN'}
+          </button>
+        )}
+        {(phase === 'peek' || phase === 'shuffling' || phase === 'picking') && (
+          <div className="w-full py-4 rounded-xl text-center text-lg font-black" style={{ background: 'linear-gradient(to bottom, #4a3a2a, #2e2218)', color: '#8a7a60', border: '1px solid rgba(180,140,80,0.3)' }}>
+            {phase === 'peek' ? 'WATCH…' : phase === 'shuffling' ? 'SHUFFLING…' : 'PICK A CUP'}
           </div>
         )}
-
-        {/* Bet button */}
-        {phase === 'idle' && (
-          <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/67ff4e03b_generated_image.png') center / cover, linear-gradient(to bottom, #4a2c1f, #2a160c)", border: '1px solid #b8860b', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.35), 0 4px 12px rgba(0,0,0,0.6)', ...W }}>
-            <Eye className="w-5 h-5" style={{ color: '#c5a059' }} />
-            <span style={{ color: '#c5a059', textShadow: '0 1px 2px rgba(0,0,0,0.75)' }}>BET ${bet.toFixed(2)} · {mode === 'single' ? '1 BALL' : '2 BALLS'}</span>
-          </button>
-        )}
-
-        {/* Bet controls */}
-        {phase === 'idle' && (
-          <WesternFrame className="p-4 flex flex-col gap-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-amber-200" style={W}>BET AMOUNT</span>
-                <div className="flex items-center gap-1">
-                  <button onClick={() => setCustomBet(String(halfBet()))} className="w-7 h-7 rounded-md flex items-center justify-center" style={woodBtn(false)}><ChevronDown className="w-4 h-4" /></button>
-                  <input
-                    value={customBet || bet}
-                    onChange={(e) => setCustomBet(e.target.value.replace(/[^0-9.]/g, ''))}
-                    className="w-24 text-center rounded-md py-1 text-sm tabular-nums outline-none"
-                    style={{ border: '1px solid rgba(190,140,55,0.6)', background: 'rgba(20,13,6,0.9)', color: '#ffe6a8', ...W }}
-                  />
-                  <button onClick={() => setCustomBet(String(doubleBet()))} className="w-7 h-7 rounded-md flex items-center justify-center" style={woodBtn(false)}><ChevronUp className="w-4 h-4" /></button>
-                </div>
-              </div>
-              <div className="grid grid-cols-6 gap-1.5">
-                {BETS.map((b, i) => (
-                  <button
-                    key={b}
-                    onClick={() => { setBetIdx(i); setCustomBet(''); }}
-                    className="py-1.5 rounded-md text-xs transition-colors"
-                    style={{ ...woodBtn(!customBet && betIdx === i), ...W }}
-                  >
-                    {b}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <StatBox label="PAYOUT" value={`${mult.toFixed(2)}x`} gold />
-              <StatBox label="WIN" value={`$${(bet * mult).toFixed(2)}`} />
-              <StatBox label="CHANCE" value={mode === 'single' ? '33%' : '67%'} />
-            </div>
-          </WesternFrame>
-        )}
-
-        {/* Result / new game */}
-        {phase === 'over' && (
-          <button onClick={newGame} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2" style={{ ...woodBtn(true), ...W }}>
-            <RotateCcw className="w-5 h-5" /> NEW GAME
-          </button>
-        )}
       </main>
+
+      {/* Bottom action bar */}
+      <div className="w-full max-w-md mx-auto px-3 pb-2">
+        <div className="rounded-xl py-2.5 px-4 flex items-center justify-between" style={{ background: 'linear-gradient(to bottom, #2e2218, #1a1208)', border: '1px solid rgba(180,140,80,0.4)' }}>
+          <button className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(180,140,80,0.15)' }}>
+            <ChevronLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
+          </button>
+          <button className="flex items-center gap-2 px-5 py-2 rounded-lg" style={{ background: 'linear-gradient(to bottom, #6d4a36, #4a3220)', border: '1px solid rgba(180,140,80,0.5)' }}>
+            <History className="w-4 h-4" style={{ color: '#e0d8c0' }} />
+            <span className="text-sm font-bold" style={{ color: '#e0d8c0' }}>History</span>
+          </button>
+          <button className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(180,140,80,0.15)' }}>
+            <Menu className="w-5 h-5" style={{ color: '#e0d8c0' }} />
+          </button>
+        </div>
+        <div className="flex items-center justify-between mt-1.5 px-1">
+          <span className="text-[9px] tabular-nums truncate max-w-[60%]" style={{ color: '#6a6258' }}>HASH: {hash.substring(0, 28)}…</span>
+          <span className="text-[10px] font-bold tabular-nums" style={{ color: '#a09080' }}>Cash: {balance.toFixed(2)} BDT</span>
+        </div>
+      </div>
     </div>
   );
 }
 
-function StatBox({ label, value, gold }) {
+function Barrel({ lifted, hasBall, reveal, won }) {
   return (
-    <div className="rounded-lg py-2" style={{ border: '1px solid rgba(190,140,55,0.5)', background: 'rgba(20,13,6,0.85)' }}>
-      <p className="text-[9px] tracking-widest text-amber-300/70" style={W}>{label}</p>
-      <p className={`text-sm tabular-nums ${gold ? 'text-amber-300' : 'text-amber-100'}`} style={W}>{value}</p>
+    <div className="relative w-full h-full flex flex-col items-center justify-end">
+      {/* Ball under the barrel — visible when lifted/revealed and barrel has it */}
+      <div className="absolute left-1/2 -translate-x-1/2 transition-all duration-300" style={{ bottom: lifted && reveal && hasBall ? '14px' : '4px', opacity: lifted && reveal && hasBall ? 1 : 0, zIndex: 1 }}>
+        <GoldenBall size={28} />
+      </div>
+
+      {/* Barrel body */}
+      <div
+        className="relative transition-transform duration-300"
+        style={{
+          width: '72px',
+          height: '90px',
+          transform: lifted ? 'translateY(-22px)' : 'translateY(0)',
+          zIndex: 2,
+        }}
+      >
+        <svg width="72" height="90" viewBox="0 0 80 100" style={{ filter: won ? 'drop-shadow(0 0 10px rgba(255,210,100,0.7)) brightness(1.1)' : 'drop-shadow(0 3px 5px rgba(0,0,0,0.6))' }}>
+          <defs>
+            <linearGradient id="woodGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#8c5e42" />
+              <stop offset="40%" stopColor="#6d4a36" />
+              <stop offset="100%" stopColor="#4a3220" />
+            </linearGradient>
+            <linearGradient id="bandGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#b0a090" />
+              <stop offset="50%" stopColor="#6a6055" />
+              <stop offset="100%" stopColor="#3a3530" />
+            </linearGradient>
+            <linearGradient id="topGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#9c6e52" />
+              <stop offset="100%" stopColor="#5d3e2a" />
+            </linearGradient>
+          </defs>
+          <path d="M14 20 Q8 50 14 88 L66 88 Q72 50 66 20 Z" fill="url(#woodGrad)" stroke="#3a2218" strokeWidth="1.5" />
+          <g stroke="rgba(60,35,20,0.4)" strokeWidth="0.8" fill="none">
+            <path d="M24 22 Q22 50 24 86" />
+            <path d="M34 21 Q33 50 34 87" />
+            <path d="M46 21 Q47 50 46 87" />
+            <path d="M56 22 Q58 50 56 86" />
+          </g>
+          <ellipse cx="40" cy="20" rx="26" ry="7" fill="url(#topGrad)" stroke="#3a2218" strokeWidth="1.5" />
+          <ellipse cx="40" cy="19" rx="24" ry="5.5" fill="#2a1810" />
+          <rect x="12" y="28" width="56" height="5" rx="2" fill="url(#bandGrad)" stroke="#2a2520" strokeWidth="0.5" />
+          <rect x="13" y="76" width="54" height="5" rx="2" fill="url(#bandGrad)" stroke="#2a2520" strokeWidth="0.5" />
+          <circle cx="18" cy="30.5" r="1.3" fill="#3a3530" />
+          <circle cx="62" cy="30.5" r="1.3" fill="#3a3530" />
+          <circle cx="19" cy="78.5" r="1.3" fill="#3a3530" />
+          <circle cx="61" cy="78.5" r="1.3" fill="#3a3530" />
+          <path d="M18 24 Q14 50 18 84" fill="none" stroke="rgba(255,220,180,0.25)" strokeWidth="2" />
+        </svg>
+      </div>
     </div>
   );
 }
 
-// Ornate golden carved cup and ball rendered as SVG — no background issues.
-function GoldenBall({ size = 26 }) {
+function GoldenBall({ size = 28 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" style={{ filter: 'drop-shadow(0 0 8px rgba(255,210,120,0.85))' }}>
       <defs>
@@ -393,83 +428,11 @@ function GoldenBall({ size = 26 }) {
         </radialGradient>
       </defs>
       <circle cx="50" cy="50" r="42" fill="url(#ballGrad)" stroke="#6a4408" strokeWidth="1.5" />
-      {/* filigree engravings */}
       <g fill="none" stroke="#7a5008" strokeWidth="1.2" opacity="0.55">
         <circle cx="50" cy="50" r="28" />
         <circle cx="50" cy="50" r="18" />
-        <path d="M50 22 L52 30 L50 28 L48 30 Z" />
-        <path d="M50 78 L52 70 L50 72 L48 70 Z" />
-        <path d="M22 50 L30 52 L28 50 L30 48 Z" />
-        <path d="M78 50 L70 52 L72 50 L70 48 Z" />
       </g>
       <ellipse cx="38" cy="34" rx="10" ry="7" fill="rgba(255,255,240,0.45)" />
     </svg>
-  );
-}
-
-function Cup({ revealed, hasBall, picked, won, disabled }) {
-  return (
-    <div className="flex flex-col items-center" style={{ filter: disabled ? 'none' : 'drop-shadow(0 4px 6px rgba(0,0,0,0.5))' }}>
-      {/* Ball (shown when revealed and cup has it) */}
-      <div style={{ height: '24px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-        {revealed && hasBall && (
-          <div style={{ animation: 'saWinPop 0.4s ease both' }}>
-            <GoldenBall size={26} />
-          </div>
-        )}
-      </div>
-      {/* Cup body — ornate golden carved SVG */}
-      <div
-        className="relative mx-auto"
-        style={{
-          width: '78px',
-          height: '88px',
-          transition: 'transform 300ms ease',
-          transform: revealed ? 'translateY(-8px) rotate(-8deg)' : 'translateY(0) rotate(0deg)',
-        }}
-      >
-        <svg width="78" height="88" viewBox="0 0 80 90" style={{ filter: revealed && hasBall ? 'drop-shadow(0 0 8px rgba(255,210,120,0.7)) brightness(1.1)' : 'none' }}>
-          <defs>
-            <linearGradient id="cupGold" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#ffe890" />
-              <stop offset="30%" stopColor="#e8b840" />
-              <stop offset="65%" stopColor="#c89020" />
-              <stop offset="100%" stopColor="#8a5a10" />
-            </linearGradient>
-            <linearGradient id="cupGoldDark" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="rgba(90,60,10,0.6)" />
-              <stop offset="50%" stopColor="rgba(255,220,120,0.3)" />
-              <stop offset="100%" stopColor="rgba(90,60,10,0.6)" />
-            </linearGradient>
-          </defs>
-          {/* Cup body — trapezoid thimble shape */}
-          <path d="M16 12 L64 12 L58 82 Q40 88 22 82 Z" fill="url(#cupGold)" stroke="#6a4408" strokeWidth="1.5" />
-          {/* Rim */}
-          <ellipse cx="40" cy="12" rx="24" ry="5" fill="url(#cupGold)" stroke="#6a4408" strokeWidth="1.5" />
-          <ellipse cx="40" cy="11" rx="24" ry="4" fill="none" stroke="rgba(255,245,200,0.5)" strokeWidth="1" />
-          {/* Carved filigree bands */}
-          <g fill="none" stroke="#7a5008" strokeWidth="1" opacity="0.5">
-            <path d="M20 24 Q40 28 60 24" />
-            <path d="M21 30 Q40 34 59 30" />
-            <path d="M22 36 Q40 40 58 36" />
-          </g>
-          {/* Center medallion */}
-          <circle cx="40" cy="52" r="9" fill="none" stroke="#7a5008" strokeWidth="1.3" opacity="0.6" />
-          <circle cx="40" cy="52" r="5" fill="none" stroke="#7a5008" strokeWidth="0.8" opacity="0.5" />
-          {/* Lower filigree */}
-          <g fill="none" stroke="#7a5008" strokeWidth="1" opacity="0.45">
-            <path d="M24 68 Q40 72 56 68" />
-            <path d="M25 74 Q40 78 55 74" />
-          </g>
-          {/* Highlight sheen */}
-          <path d="M22 16 L26 78" fill="none" stroke="rgba(255,250,210,0.4)" strokeWidth="2" />
-        </svg>
-        {picked && (
-          <div className="absolute -top-1 -right-1 z-10">
-            <Trophy className="w-5 h-5" style={{ color: won ? '#ffd75a' : '#f87171', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.6))' }} />
-          </div>
-        )}
-      </div>
-    </div>
   );
 }
