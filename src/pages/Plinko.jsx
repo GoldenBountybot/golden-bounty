@@ -6,8 +6,9 @@ import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
 
-const MULTS = [100, 50, 25, 10, 5, 2, 0, 2, 5, 10, 25, 50, 100];
+const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1;
+const BOARD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/41d1489a2_file_000000005b9881faa2d49d948685f05d.png';
 const BETS = [0.1, 1, 5, 10];
 // Absolute per-bucket landing chance (percent), symmetric across both edges.
 // 100x: 0.1% · 50x: 0.3% · 25x: 0.5% · 10x: 1% · 5x: 2% · 2x: 26% (split each side).
@@ -238,11 +239,12 @@ export default function Plinko() {
           const t2 = setTimeout(() => {
             const mult = MULTS[finalCol];
             const win = bet * mult;
-            if (win > 0) { setBalance((b) => b + win); playWin(); } else playLose();
+            if (win > 0) setBalance((b) => b + win);
+            if (mult > 1) playWin(); else playLose();
             setLastWin(win);
             setResultBucket(finalCol);
-            setMessage(mult > 0 ? `${mult}x · +$${win.toFixed(2)}` : `0x · No win`);
-            logActivity('plinko', bet, win, win > 0 ? 'win' : 'loss');
+            setMessage(`${mult}x · ${win > 0 ? `+$${win.toFixed(2)}` : 'No win'}`);
+            logActivity('plinko', bet, win, mult > 1 ? 'win' : 'loss');
             setDropping(false);
             setBallPos(null);
           }, 200);
@@ -254,22 +256,22 @@ export default function Plinko() {
     animate();
   };
 
+  // Peg positions matching the baked-in peg grid in the board image.
+  // 12 rows in a triangle: row 0 at center top, row 11 spread 15%–85%.
   const pos = (row, col) => {
-    const rowFrac = row / ROWS;
-    // Give upper rows a base spread so the third line has a wider gap between pegs.
-    const spread = (0.12 + rowFrac * 0.88) * 94;
-    const left = 50 + ((col + 0.5) / (row + 1) - 0.5) * spread;
-    const top = 5 + rowFrac * 84;
+    const rowFrac = row / (ROWS - 1);
+    const top = 13 + rowFrac * 67;
+    const left = row === 0 ? 50 : 50 + (col - row / 2) * (70 / 11);
     return { left: `${left}%`, top: `${top}%` };
   };
 
   // Buckets sit in the gaps between the last row of pegs (row ROWS-1), using the
   // same spread as that row so each bucket is exactly between two pegs.
+  // 13 buckets sit in the gaps below the bottom peg row, aligned with the
+  // baked-in multiplier slots in the board image.
   const bucketPos = (b) => {
-    const rowFrac = (ROWS - 1) / ROWS;
-    const spread = (0.12 + rowFrac * 0.88) * 94;
-    const left = 50 + (b / ROWS - 0.5) * spread;
-    const top = 90;
+    const left = 50 + (b - 6) * (70 / 11);
+    const top = 91;
     return { left: `${left}%`, top: `${top}%` };
   };
 
@@ -309,47 +311,46 @@ export default function Plinko() {
 
       {/* Board area */}
       <main className="relative z-10 max-w-lg mx-auto w-full px-3 flex-1 flex flex-col">
-        {/* Board */}
-        <div className="relative w-full" style={{ aspectRatio: '1.1 / 1' }}>
-          <div className="absolute inset-0" style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)', background: 'radial-gradient(circle at 50% 100%, rgba(139,92,246,0.12), transparent 70%)' }} />
+        {/* Board — image with overlaid ball */}
+        <div className="relative w-full" style={{ aspectRatio: '1 / 1.15' }}>
+          <img src={BOARD_IMG} alt="Plinko Board" draggable={false} className="absolute inset-0 w-full h-full object-contain select-none" />
+
+          {/* Peg hit glow — brief flash when the ball strikes a peg */}
           {Array.from({ length: ROWS }).map((_, r) =>
             Array.from({ length: r + 1 }).map((_, c) => {
               const isHit = hitPeg && hitPeg.row === r && hitPeg.col === c;
-              const size = r === 0 ? 16 : 10;
-              const isTop = r === 0;
+              if (!isHit) return null;
               return (
                 <span
                   key={`p-${r}-${c}`}
-                  className="absolute rounded-full"
-                  style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: size, height: size, background: isTop ? 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)' : 'radial-gradient(circle at 35% 30%, #fff3d6, #e0b94e 55%, #9a6a1e)', boxShadow: isTop ? '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)' : '0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55)', ...(isHit ? { animation: 'plinkoPegHit 0.26s ease-out' } : {}) }}
+                  className="absolute rounded-full pointer-events-none"
+                  style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: 16, height: 16, background: 'radial-gradient(circle, rgba(213,63,140,0.55), transparent 70%)', animation: 'plinkoPegHit 0.26s ease-out' }}
                 />
               );
             })
           )}
+
+          {/* Ball on peg */}
           {ballPos && ballPos.kind === 'peg' && (
             <span
               className="absolute z-10 rounded-full"
-              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 10, height: 10, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.2s ease-in, top 0.2s ease-in' }}
+              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 11, height: 11, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(139,92,246,0.85), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.2s ease-in, top 0.2s ease-in' }}
             />
           )}
-          {/* Multiplier chips sit in the gaps between the bottom pegs */}
-          {MULTS.map((m, i) => {
-            const c = colorFor(m);
-            const hit = resultBucket === i;
-            return (
-              <div
-                key={i}
-                className="absolute z-20 text-center text-[7px] font-black tabular-nums transition-all"
-                style={{ ...bucketPos(i), transform: 'translate(-50%,-50%)', minWidth: '8%', padding: '2px 4px', borderRadius: 4, background: hit ? c.bg : `${c.bg}33`, color: hit ? '#fff' : c.bg, boxShadow: hit ? `0 0 14px ${c.glow}` : 'none', border: `1px solid ${c.bg}55` }}
-              >
-                {m}x
-              </div>
-            );
-          })}
+
+          {/* Bucket win highlight */}
+          {resultBucket !== null && (
+            <div
+              className="absolute z-20 pointer-events-none"
+              style={{ ...bucketPos(resultBucket), transform: 'translate(-50%,-50%)', width: '7%', height: '6%', borderRadius: 4, boxShadow: '0 0 18px rgba(255,215,0,0.95), inset 0 0 12px rgba(255,235,120,0.5)', animation: 'plinkoPegHit 0.5s ease-out' }}
+            />
+          )}
+
+          {/* Ball in bucket */}
           {ballPos && ballPos.kind === 'bucket' && (
             <span
               className="absolute z-20 rounded-full"
-              style={{ ...bucketPos(ballPos.col), transform: 'translate(-50%,-50%)', width: 10, height: 10, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 8px rgba(139,92,246,0.7), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.2s ease-in, top 0.2s ease-in' }}
+              style={{ ...bucketPos(ballPos.col), transform: 'translate(-50%,-50%)', width: 11, height: 11, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(139,92,246,0.85), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.2s ease-in, top 0.2s ease-in' }}
             />
           )}
         </div>
