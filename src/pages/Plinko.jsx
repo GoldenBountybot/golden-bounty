@@ -6,13 +6,13 @@ import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
 
-const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
+const MULTS = [100, 50, 25, 10, 5, 0.1, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1;
 const BOARD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/41d1489a2_file_000000005b9881faa2d49d948685f05d.png';
 const BETS = [0.1, 1, 5, 10];
 // Absolute per-bucket landing chance (percent), symmetric across both edges.
 // 100x: 0.1% · 50x: 0.3% · 25x: 0.5% · 10x: 1% · 5x: 2% · 2x: 26% (split each side).
-const WEIGHTS = [0.05, 0.15, 0.25, 0.5, 1, 13, 70, 13, 1, 0.5, 0.25, 0.15, 0.05];
+const WEIGHTS = [0.05, 0.15, 0.25, 0.5, 13, 70, 13, 0.5, 0.25, 0.15, 0.05];
 const WEIGHT_TOTAL = WEIGHTS.reduce((a, b) => a + b, 0);
 
 const FONT = "Rye, Georgia, serif";
@@ -261,7 +261,7 @@ export default function Plinko() {
   const pos = (row, col) => {
     const rowFrac = row / (ROWS - 1);
     const top = 13 + rowFrac * 67;
-    const left = row === 0 ? 50 : 50 + (col - row / 2) * (70 / 11);
+    const left = row === 0 ? 50 : 50 + (col - row / 2) * (70 / (ROWS - 1));
     return { left: `${left}%`, top: `${top}%` };
   };
 
@@ -270,7 +270,7 @@ export default function Plinko() {
   // 13 buckets sit in the gaps below the bottom peg row, aligned with the
   // baked-in multiplier slots in the board image.
   const bucketPos = (b) => {
-    const left = 50 + (b - 6) * (70 / 11);
+    const left = 50 + (b - ROWS / 2) * (70 / (ROWS - 1));
     const top = 91;
     return { left: `${left}%`, top: `${top}%` };
   };
@@ -311,8 +311,9 @@ export default function Plinko() {
 
       {/* Board area */}
       <main className="relative z-10 max-w-2xl mx-auto w-full px-3 flex-1 flex flex-col">
-        {/* Board — image with overlaid ball, full viewport width edge-to-edge */}
-        <div className="relative" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)' }}>
+        {/* Board — image with overlaid ball, enlarged beyond viewport width */}
+        <div className="relative overflow-hidden" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)' }}>
+          <div className="relative" style={{ width: '118%', marginLeft: '-9%' }}>
           <img src={BOARD_IMG} alt="Plinko Board" draggable={false} className="w-full h-auto block select-none" />
 
           {/* Peg hit glow — brief flash when the ball strikes a peg */}
@@ -353,6 +354,7 @@ export default function Plinko() {
               style={{ ...bucketPos(ballPos.col), transform: 'translate(-50%,-50%)', width: 11, height: 11, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(139,92,246,0.85), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.2s ease-in, top 0.2s ease-in' }}
             />
           )}
+          </div>
         </div>
 
         {/* Message — wooden plaque */}
