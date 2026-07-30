@@ -260,21 +260,21 @@ export default function Plinko() {
     animate();
   };
 
-  // Peg positions matching the image's 12-row triangle (13%–80%).
+  // Peg positions matching the image's 12-row triangle (12%–78%).
   // Bottom row pegs sit BETWEEN the slots (offset by half a slot).
-  const SPACING = 80 / 12; // horizontal spacing = same for pegs and slots
+  const SPACING = 84 / 12; // horizontal spacing = same for pegs and slots
   const pos = (row, col) => {
     const rowFrac = row / (ROWS - 1);
-    const top = 13 + rowFrac * 67;
+    const top = 12 + rowFrac * 66;
     const left = row === 0 ? 50 : 50 + (col - row / 2) * SPACING;
     return { left: `${left}%`, top: `${top}%` };
   };
 
-  // 13 multiplier slots at the base, evenly spaced from 10% to 90%.
+  // 13 multiplier slots at the base, evenly spaced from 8% to 92%.
   // Each slot sits in the gap between two pegs of the bottom row.
   const bucketPos = (b) => {
-    const left = 10 + b * SPACING;
-    const top = 86;
+    const left = 8 + b * SPACING;
+    const top = 85;
     return { left: `${left}%`, top: `${top}%` };
   };
 
