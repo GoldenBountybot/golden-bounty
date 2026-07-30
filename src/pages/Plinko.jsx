@@ -316,34 +316,6 @@ export default function Plinko() {
           <div className="relative" style={{ width: '132%', marginLeft: '-16%' }}>
           <img src={BOARD_IMG} alt="Plinko Board" draggable={false} className="w-full h-auto block select-none" />
 
-          {/* Multiplier slots — custom badges at the bottom of the board */}
-          {MULTS.map((m, i) => {
-            const c = colorFor(m);
-            return (
-              <div
-                key={`slot-${i}`}
-                className="absolute pointer-events-none flex items-center justify-center"
-                style={{
-                  ...bucketPos(i),
-                  transform: 'translate(-50%,-50%)',
-                  width: '5.5%',
-                  height: '6%',
-                  borderRadius: 5,
-                  background: c.bg,
-                  boxShadow: `0 1px 3px rgba(0,0,0,0.6), 0 0 6px ${c.glow}, inset 0 1px 0 rgba(255,255,255,0.3)`,
-                  zIndex: 1,
-                  fontFamily: FONT,
-                  fontSize: '10px',
-                  fontWeight: 900,
-                  color: m >= 10 ? '#1a1206' : '#fff',
-                  textShadow: m >= 10 ? '0 1px 0 rgba(255,255,255,0.3)' : '0 1px 1px rgba(0,0,0,0.5)',
-                }}
-              >
-                {m}×
-              </div>
-            );
-          })}
-
           {/* Peg hit glow — brief flash when the ball strikes a peg */}
           {Array.from({ length: ROWS }).map((_, r) =>
             Array.from({ length: r + 1 }).map((_, c) => {
