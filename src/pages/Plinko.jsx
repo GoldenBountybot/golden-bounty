@@ -358,9 +358,12 @@ export default function Plinko() {
           </div>
         </div>
 
-        {/* Message — wooden plaque */}
-        <div className="mt-4 mx-auto px-6 py-1.5 relative" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bed350a7c_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))", border: '1px solid rgba(190,140,55,0.75)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), 0 2px 6px rgba(0,0,0,0.55)' }}>
-          <span className="relative text-sm font-black italic" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>{message}</span>
+        {/* Message — ornate wooden banner (black bg removed via screen blend) */}
+        <div className="mt-4 mx-auto relative" style={{ width: '66.67%' }}>
+          <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/08830b540_file_00000000e134820babf1565cf66cbd5b.png" alt="message" draggable={false} className="w-full h-auto select-none block" style={{ mixBlendMode: 'screen' }} />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span className="text-sm font-black italic" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>{message}</span>
+          </div>
         </div>
 
         {/* Bet row — wooden frame */}
