@@ -361,7 +361,7 @@ export default function Plinko() {
         </div>
 
         {/* Message — ornate wooden banner (black bg removed via screen blend) */}
-        <div className="mx-auto relative" style={{ width: '66.67%', marginTop: '-110px' }}>
+        <div className="mx-auto relative" style={{ width: '66.67%', marginTop: '-90px' }}>
           <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/08830b540_file_00000000e134820babf1565cf66cbd5b.png" alt="message" draggable={false} className="w-full h-auto select-none block" style={{ mixBlendMode: 'screen' }} />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: 'translateY(-7px)' }}>
             <span className="text-sm font-black italic" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>{message}</span>
