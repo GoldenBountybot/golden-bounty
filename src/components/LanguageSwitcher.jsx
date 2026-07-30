@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Globe, Check, ChevronDown } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
 import { LANGUAGES } from '@/lib/i18n';
 
-// Compact language dropdown — shows the current language's native name with
-// a globe icon. Used on the signup page and inside the profile menu.
+// Easy language dropdown — big flag + native name, clean list with flags.
+// Used on the signup page and inside the profile menu.
 export default function LanguageSwitcher({ variant = 'default' }) {
   const { lang, setLang } = useLanguage();
   const [open, setOpen] = useState(false);
@@ -21,29 +21,31 @@ export default function LanguageSwitcher({ variant = 'default' }) {
   const isAuth = variant === 'auth';
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative w-full" ref={ref}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         className={isAuth
-          ? "w-full h-9 flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors"
+          ? "w-full h-11 flex items-center justify-between gap-2 px-4 rounded-lg text-sm font-semibold transition-all active:scale-95"
           : "w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all active:scale-95"}
         style={isAuth
           ? { border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)', color: '#e8c878' }
           : { border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }
         }
       >
-        <span className="flex items-center gap-2">
-          <Globe className={isAuth ? 'w-4 h-4' : 'w-4 h-4'} />
-          <span className="text-lg leading-none">{current.flag}</span>
-          <span>{current.native}</span>
+        <span className="flex items-center gap-2.5">
+          <span className="text-2xl leading-none">{current.flag}</span>
+          <span className="flex flex-col items-start leading-tight">
+            <span className="font-bold">{current.native}</span>
+            <span className="text-[10px] opacity-60">{current.name}</span>
+          </span>
         </span>
         <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
         <div
-          className="absolute z-50 mt-1 w-full rounded-xl overflow-hidden max-h-72 overflow-y-auto"
+          className="absolute z-50 mt-1.5 w-full rounded-xl overflow-hidden max-h-80 overflow-y-auto"
           style={{
             border: '1px solid rgba(212,175,55,0.4)',
             background: 'rgba(13,13,13,0.97)',
@@ -57,13 +59,14 @@ export default function LanguageSwitcher({ variant = 'default' }) {
               <button
                 key={l.code}
                 onClick={() => { setLang(l.code); setOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/5"
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-white/5"
                 style={{
                   color: active ? '#D4AF37' : 'rgba(255,255,255,0.85)',
                   borderBottom: '1px solid rgba(212,175,55,0.12)',
+                  background: active ? 'rgba(212,175,55,0.08)' : 'transparent',
                 }}
               >
-                <span className="text-lg leading-none">{l.flag}</span>
+                <span className="text-2xl leading-none">{l.flag}</span>
                 <span className="flex-1 text-left">
                   <span className="font-bold">{l.native}</span>
                   <span className="ml-2 text-[11px] opacity-60">{l.name}</span>
