@@ -212,11 +212,12 @@ export default function Thimbles() {
   const pickedLifted = phase === 'over';
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ background: 'linear-gradient(to bottom, #2a2932, #1a191e)', fontFamily: 'Georgia, serif' }}>
+    <div className="min-h-screen flex flex-col overflow-x-hidden relative" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e91e88414_generated_image.png')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', fontFamily: 'Georgia, serif' }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(26,25,30,0.82), rgba(16,15,20,0.88))' }} />
       {!loaded && <GameLoadingScreen title="Thimbles" onDone={() => setLoaded(true)} />}
       <GameHeader title="Thimbles" balance={balance} />
 
-      <main className="max-w-md w-full mx-auto px-3 py-3 flex flex-col gap-3 flex-1">
+      <main className="max-w-md w-full mx-auto px-3 py-3 flex flex-col gap-3 flex-1 relative z-10">
         {/* Betting controls bar */}
         <div className="rounded-xl p-3 flex items-center justify-between" style={{ background: 'linear-gradient(to bottom, #4a3a2a, #2e2218)', border: '1px solid rgba(180,140,80,0.5)', boxShadow: 'inset 0 1px 0 rgba(255,220,160,0.2), 0 3px 8px rgba(0,0,0,0.5)' }}>
           <button onClick={() => setBet(MIN_BET)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }} title="Min">
@@ -350,7 +351,7 @@ export default function Thimbles() {
       </main>
 
       {/* Bottom action bar */}
-      <div className="w-full max-w-md mx-auto px-3 pb-2">
+      <div className="w-full max-w-md mx-auto px-3 pb-2 relative z-10">
         <div className="rounded-xl py-2.5 px-4 flex items-center justify-between" style={{ background: 'linear-gradient(to bottom, #2e2218, #1a1208)', border: '1px solid rgba(180,140,80,0.4)' }}>
           <button className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(180,140,80,0.15)' }}>
             <ChevronLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
