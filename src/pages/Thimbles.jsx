@@ -302,7 +302,7 @@ export default function Thimbles() {
           <button
             onClick={() => phase === 'idle' && setMode('two')}
             className="flex-1 transition-all active:scale-95"
-            style={{ opacity: mode === 'two' ? 1 : 0.45, marginTop: '9px' }}
+            style={{ opacity: mode === 'two' ? 1 : 0.45, marginTop: '11px' }}
           >
             <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/de25c864e_file_00000000c2f081f79b316882b62f9e13.png" alt="2 BALLS X 1.44" draggable={false} className="w-full h-auto select-none" />
           </button>
