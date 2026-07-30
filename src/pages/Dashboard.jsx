@@ -267,24 +267,24 @@ export default function Dashboard() {
               </div>
               {history.length === 0 ? (
                 <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("No transactions yet.")}</p>
-              ) : history.map(t => {
-                const credit = t.type === 'deposit';
-                const sm = STATUS_META[t.status] || STATUS_META.pending;
+              ) : history.map(tx => {
+                const credit = tx.type === 'deposit';
+                const sm = STATUS_META[tx.status] || STATUS_META.pending;
                 const SIcon = sm.icon;
                 return (
-                  <div key={t.id} className="dash-card p-4 flex items-center justify-between gap-3">
+                  <div key={tx.id} className="dash-card p-4 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0" style={{ background: credit ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', border: `1px solid ${credit ? 'rgba(52,211,153,0.3)' : 'rgba(248,113,113,0.3)'}` }}>
                         {credit ? <ArrowDownToLine className="w-4 h-4" style={{ color: '#34d399' }} /> : <ArrowUpFromLine className="w-4 h-4" style={{ color: '#f87171' }} />}
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-bold" style={{ color: '#fff' }}>
-                          {credit ? t("Deposit") : t("Withdraw")} · <span style={{ color: credit ? '#34d399' : '#f87171' }}>{credit ? '+' : '−'}${Number(t.amount).toFixed(2)}</span>
+                          {credit ? t("Deposit") : t("Withdraw")} · <span style={{ color: credit ? '#34d399' : '#f87171' }}>{credit ? '+' : '−'}${Number(tx.amount).toFixed(2)}</span>
                         </p>
-                        <p className="text-[11px] truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>{t.method}{t.reference ? ` · ${t.reference.slice(0, 16)}` : ''}</p>
-                        {t.created_date && (
+                        <p className="text-[11px] truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>{tx.method}{tx.reference ? ` · ${tx.reference.slice(0, 16)}` : ''}</p>
+                        {tx.created_date && (
                           <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                            {new Date(t.created_date).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                            {new Date(tx.created_date).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
                           </p>
                         )}
                       </div>
