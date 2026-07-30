@@ -295,6 +295,22 @@ export default function Thimbles() {
           </button>
         </div>
 
+        {/* Win / Loss result banner — sits in the gap between multiplier and spin */}
+        <div className="relative w-full" style={{ marginTop: '-14px', marginBottom: '-14px' }}>
+          <img src={WIN_BANNER_IMG} alt="result" draggable={false} className="w-full h-auto select-none block" />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: 'translateY(-1px)' }}>
+            {phase === 'over' ? (
+              <span className="text-lg font-black tabular-nums italic" style={{ color: won ? '#7ee787' : '#ff6b6b', fontFamily: 'Georgia, serif' }}>
+                {won ? `+${lastWin.toFixed(2)} USDT` : `-${bet.toFixed(2)} USDT`}
+              </span>
+            ) : (
+              <span className="text-sm font-bold tracking-[0.2em] italic" style={{ color: '#c8b890', fontFamily: 'Georgia, serif' }}>
+                {phase === 'idle' ? 'GOOD LUCK' : '…'}
+              </span>
+            )}
+          </div>
+        </div>
+
         {/* Spin / New Game button */}
         {(phase === 'idle' || phase === 'over') && (
           <button
@@ -357,6 +373,7 @@ const BET_BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b
 const SPIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/06b6ee99c_file_000000003c488211a7ea3420ca9b6b25.png';
 const BARREL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f1d422732_file_000000002c8c81f789fe32b56de1dcdf.png';
 const HISTORY_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4fcee62b8_file_000000001a688230909747b265fab779.png';
+const WIN_BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6b98787a0_file_00000000eee082308b42773bcc9edee4.png';
 
 function Barrel({ lifted, hasBall, reveal, won }) {
   return (
