@@ -294,18 +294,6 @@ export default function Thimbles() {
               alt="SPIN"
               draggable={false}
               className="w-full h-auto select-none"
-              style={{
-                WebkitMaskImage: `url(${SPIN_IMG})`,
-                WebkitMaskMode: 'luminance',
-                WebkitMaskSize: 'contain',
-                WebkitMaskRepeat: 'no-repeat',
-                WebkitMaskPosition: 'center',
-                maskImage: `url(${SPIN_IMG})`,
-                maskMode: 'luminance',
-                maskSize: 'contain',
-                maskRepeat: 'no-repeat',
-                maskPosition: 'center',
-              }}
             />
           </button>
         )}
