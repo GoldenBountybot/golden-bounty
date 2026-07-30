@@ -9,6 +9,7 @@ import GameLoadingScreen from '@/components/GameLoadingScreen';
 const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1; // 12 rows: bottom row has 12 pegs between 13 slots
 const BOARD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/41d1489a2_file_000000005b9881faa2d49d948685f05d.png';
+const DROP_BTN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11333e586_file_000000008b6481fabfe246939d68f1fa.png';
 const BETS = [0.1, 1, 5, 10];
 // Absolute per-bucket landing chance (percent), symmetric across both edges.
 // 100x: 0.1% · 50x: 0.3% · 25x: 0.5% · 10x: 1% · 5x: 2% · 2x: 26% (split each side).
@@ -403,14 +404,24 @@ export default function Plinko() {
           </div>
         )}
 
-        {/* Drop button — gold western */}
+        {/* Drop button — ornate gold/green crest asset (black bg removed via screen blend) */}
         <button
           onClick={drop}
           disabled={dropping}
-          className="mt-4 w-full py-4 text-base font-black italic transition-all disabled:opacity-60 flex items-center justify-center gap-2 relative overflow-hidden"
-          style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/584e9a6ed_generated_image.png') center / cover, linear-gradient(to bottom, #f5c542, #c8881e)", border: '1px solid rgba(245,210,120,0.9)', boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 3px 10px rgba(200,136,30,0.45)', color: '#2a1a06', fontFamily: FONT, textShadow: '0 1px 1px rgba(255,240,200,0.4)' }}
+          className="mt-4 w-full transition-all disabled:opacity-60 relative"
         >
-          <DollarSign className="w-5 h-5 relative" /> <span className="relative" style={{ color: '#f5c542' }}>{dropping ? 'Dropping…' : `Drop · $${bet}`}</span>
+          <img
+            src={DROP_BTN_IMG}
+            alt="Drop"
+            draggable={false}
+            className="w-full h-auto select-none"
+            style={{
+              mixBlendMode: 'screen',
+            }}
+          />
+          <span className="absolute inset-0 flex items-center justify-center pointer-events-none font-black italic" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+            {dropping ? 'Dropping…' : `Drop · $${bet}`}
+          </span>
         </button>
 
         {/* Stats — wooden tiles */}
