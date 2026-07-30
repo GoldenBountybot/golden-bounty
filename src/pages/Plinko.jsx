@@ -442,15 +442,23 @@ export default function Plinko() {
           <Stat label="Last Win" value={`$${lastWin.toFixed(2)}`} accent={lastWin > 0} />
         </div>
 
-        {/* History button — bottom */}
+        {/* History button — ornate banner asset (black bg removed via screen blend) */}
         <div className="flex justify-center pb-4" style={{ marginTop: '-10px' }}>
           <button
             onClick={() => setShowHistory(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg transition-transform active:scale-95"
-            style={{ ...woodBtn, color: '#f3e2b3', fontFamily: FONT }}
+            className="relative transition-transform active:scale-95"
+            style={{ width: '50%' }}
           >
-            <History className="w-4 h-4" style={{ color: '#f5c542' }} />
-            <span className="text-sm font-bold italic">History</span>
+            <img
+              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/50a48430e_file_000000002fc08211917ff24d7e23cfbc.png"
+              alt="History"
+              draggable={false}
+              className="w-full h-auto select-none block"
+              style={{ mixBlendMode: 'screen' }}
+            />
+            <span className="absolute inset-0 flex items-center justify-center pointer-events-none font-black italic" style={{ color: '#ffe8a0', fontFamily: FONT, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+              History
+            </span>
           </button>
         </div>
       </main>
