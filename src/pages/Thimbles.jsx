@@ -298,7 +298,7 @@ export default function Thimbles() {
         {/* Win / Loss result banner — sits in the gap between multiplier and spin */}
         <div className="relative w-full" style={{ marginTop: '-14px', marginBottom: '-14px' }}>
           <img src={WIN_BANNER_IMG} alt="result" draggable={false} className="w-full h-auto select-none block" />
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: 'translateY(-12px)' }}>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: 'translateY(-17px)' }}>
             {phase === 'over' ? (
               <span className="text-lg font-black tabular-nums italic" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif' }}>
                 {won ? `+${lastWin.toFixed(2)} USDT` : `-${bet.toFixed(2)} USDT`}
