@@ -214,15 +214,17 @@ export default function Plinko() {
     let bucket = 0;
     for (let i = 0; i < WEIGHTS.length; i++) { r -= WEIGHTS[i]; if (r <= 0) { bucket = i; break; } }
 
-    const steps = Array.from({ length: ROWS }, (_, i) => (i < bucket ? 1 : 0));
+    // Ball bounces naturally through the pegs from the top. At the last row
+    // it hits the peg directly above the target multiplier slot and drops
+    // straight down into it — never bouncing sideways off other slots' pegs.
+    const targetPeg = Math.max(0, Math.min(ROWS - 1, bucket - 1));
+    const numSteps = ROWS - 1;
+    const steps = Array.from({ length: numSteps }, (_, i) => (i < targetPeg ? 1 : 0));
     for (let i = steps.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [steps[i], steps[j]] = [steps[j], steps[i]]; }
-    // Ball bounces off pegs at rows 0..ROWS-1, then drops into a bucket in the
-    // gap below the last peg row. It goes directly peg-to-peg (diagonal), not
-    // passing through the spaces between them.
     const pegPath = [{ row: 0, col: 0 }];
     let col = 0;
     for (let r = 1; r < ROWS; r++) { col += steps[r - 1]; pegPath.push({ row: r, col }); }
-    const finalCol = col + steps[ROWS - 1];
+    const finalCol = bucket;
 
     let step = 0;
     const animate = () => {
