@@ -207,7 +207,7 @@ export default function Thimbles() {
     setBet((b) => Math.min(MAX_BET, Math.max(MIN_BET, b + delta)));
   };
 
-  const slotLeft = (slot) => `${2 + slot * 32}%`;
+  const slotLeft = (slot) => `${2.5 + slot * 32.5}%`;
   const cupsLifted = phase === 'peek';
   const pickedLifted = phase === 'over';
 
@@ -265,7 +265,7 @@ export default function Thimbles() {
                   className="absolute bottom-2 transition-all"
                   style={{
                     left: slotLeft(slot),
-                    width: '32%',
+                    width: '30%',
                     height: '100%',
                     transitionDuration: phase === 'shuffling' ? `${SHUFFLE_MS}ms` : '350ms',
                     transitionTimingFunction: 'ease-in-out',
