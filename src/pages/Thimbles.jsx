@@ -212,13 +212,11 @@ export default function Thimbles() {
   const pickedLifted = phase === 'over';
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden relative" style={{ fontFamily: 'Georgia, serif' }}>
-      {/* Saloon background — brightened so the scene reads clearly */}
-      <div className="fixed inset-0 z-0" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/47b6716b5_file_000000001a38820bbc8591d3888ea292.png')", backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(1.35) saturate(1.1)' }} />
+    <div className="min-h-screen flex flex-col overflow-x-hidden relative" style={{ background: 'linear-gradient(to bottom, #1a191e, #100f14)', fontFamily: 'Georgia, serif' }}>
       {!loaded && <GameLoadingScreen title="Thimbles" onDone={() => setLoaded(true)} />}
       <GameHeader title="Thimbles" balance={balance} />
 
-      <main className="max-w-md w-full mx-auto px-2 py-0.5 flex flex-col gap-0.5 flex-1 relative z-10">
+      <main className="max-w-md w-full mx-auto px-3 py-1 flex flex-col gap-1 flex-1 relative z-10">
         {/* Betting controls bar — ornate gilded banner with baked-in - / + buttons */}
         <div className="relative w-full">
           <img src={BET_BANNER_IMG} alt="Total Bet" draggable={false} className="w-full h-auto select-none block" />
@@ -233,11 +231,11 @@ export default function Thimbles() {
           <button onClick={() => adjustBet(BET_STEP)} className="absolute right-0 top-0 h-full w-[18%] transition-transform active:scale-90" title="Plus" />
         </div>
 
-        {/* Game area — three barrels over the saloon background */}
-        <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)' }}>
+        {/* Game area — ornate gilded wood table with three barrels (full width edge-to-edge) */}
+        <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
 
           {/* Three barrels */}
-          <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '160px' }}>
+          <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '200px' }}>
             {[0, 1, 2].map((cupIdx) => {
               const slot = positions[cupIdx];
               const isPicked = picked === cupIdx;
@@ -265,7 +263,7 @@ export default function Thimbles() {
         </div>
 
         {/* Multiplier banners — 1 ball / 2 balls selectors side-by-side */}
-        <div className="flex items-stretch gap-1.5">
+        <div className="flex items-stretch gap-2">
           <button
             onClick={() => phase === 'idle' && setMode('single')}
             className="flex-1 transition-all active:scale-95"
@@ -310,26 +308,26 @@ export default function Thimbles() {
           </button>
         )}
         {(phase === 'peek' || phase === 'shuffling' || phase === 'picking') && (
-          <div className="w-full py-1 text-center text-base font-black" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif' }}>
+          <div className="w-full py-2 text-center text-lg font-black" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif' }}>
             {phase === 'peek' ? 'WATCH…' : phase === 'shuffling' ? 'SHUFFLING…' : 'PICK A CUP'}
           </div>
         )}
       </main>
 
       {/* Bottom action bar */}
-      <div className="w-full max-w-md mx-auto px-2 pb-0.5 relative z-10">
-        <div className="py-0.5 px-2 flex items-center justify-between">
-          <button className="w-8 h-8 flex items-center justify-center">
+      <div className="w-full max-w-md mx-auto px-3 pb-1 relative z-10">
+        <div className="py-1.5 px-2 flex items-center justify-between">
+          <button className="w-9 h-9 flex items-center justify-center">
             <ChevronLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
-          <button className="relative flex items-center justify-center px-5 py-1.5 rounded-lg" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4fcee62b8_file_000000001a688230909747b265fab779.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat' }}>
+          <button className="relative flex items-center justify-center px-6 py-2 rounded-lg" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4fcee62b8_file_000000001a688230909747b265fab779.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat' }}>
             <span className="text-sm font-black tracking-wide" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif' }}>HISTORY</span>
           </button>
-          <button className="w-8 h-8 flex items-center justify-center">
+          <button className="w-9 h-9 flex items-center justify-center">
             <Menu className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
         </div>
-        <div className="flex items-center justify-between mt-0.5 px-1">
+        <div className="flex items-center justify-between mt-1.5 px-1">
           <span className="text-[9px] tabular-nums truncate max-w-[60%]" style={{ color: '#6a6258' }}>HASH: {hash.substring(0, 28)}…</span>
           <span className="text-[10px] font-bold tabular-nums" style={{ color: '#a09080' }}>Cash: {balance.toFixed(2)} USDT</span>
         </div>
