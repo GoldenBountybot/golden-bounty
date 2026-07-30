@@ -9,7 +9,7 @@ import GameLoadingScreen from '@/components/GameLoadingScreen';
 const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1; // 12 rows: bottom row has 12 pegs between 13 slots
 const BOARD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/41d1489a2_file_000000005b9881faa2d49d948685f05d.png';
-const DROP_BTN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11333e586_file_000000008b6481fabfe246939d68f1fa.png';
+const DROP_BTN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a402172b3_file_000000002200820baadd0a1f2df2f8ce.png';
 const BETS = [0.1, 1, 5, 10];
 // Absolute per-bucket landing chance (percent), symmetric across both edges.
 // 100x: 0.1% · 50x: 0.3% · 25x: 0.5% · 10x: 1% · 5x: 2% · 2x: 26% (split each side).
