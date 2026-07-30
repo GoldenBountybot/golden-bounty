@@ -395,7 +395,7 @@ export default function Plinko() {
         </div>
 
         {showCustom && (
-          <div className="mt-2 p-2 flex items-center gap-2" style={{ ...woodFrame }}>
+          <div className="mt-2 p-2 flex items-center gap-2 relative z-20" style={{ ...woodFrame }}>
             <DollarSign className="w-4 h-4" style={{ color: '#f5c542' }} />
             <input
               type="number"
