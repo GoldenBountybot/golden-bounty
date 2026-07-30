@@ -151,21 +151,18 @@ const STAT_BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5
 
 function Stat({ label, value, accent }) {
   return (
-    <div
-      className="relative text-center flex flex-col items-center justify-center"
-      style={{
-        fontFamily: FONT,
-        backgroundImage: `url('${STAT_BANNER_IMG}')`,
-        backgroundSize: 'contain',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        backgroundColor: '#0a0a12',
-        backgroundBlendMode: 'screen',
-        aspectRatio: '3 / 1',
-      }}
-    >
-      <p className="text-[8px] tracking-widest uppercase leading-none relative" style={{ color: '#f5c542', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>{label}</p>
-      <p className="text-[10px] font-bold tabular-nums leading-tight mt-0.5 relative" style={{ color: accent ? '#f5c542' : '#f3e2b3', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>{value}</p>
+    <div className="relative text-center" style={{ fontFamily: FONT }}>
+      <img
+        src={STAT_BANNER_IMG}
+        alt={label}
+        draggable={false}
+        className="w-full h-auto select-none block"
+        style={{ mixBlendMode: 'screen' }}
+      />
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" style={{ paddingTop: '2px' }}>
+        <p className="text-[9px] tracking-widest uppercase leading-none" style={{ color: '#f5c542', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>{label}</p>
+        <p className="text-[11px] font-bold tabular-nums leading-tight mt-0.5" style={{ color: accent ? '#f5c542' : '#f3e2b3', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>{value}</p>
+      </div>
     </div>
   );
 }
