@@ -239,11 +239,11 @@ export default function Thimbles() {
         <p className="text-center text-[11px]" style={{ color: '#8a8270' }}>MIN {MIN_BET} USDT - MAX {MAX_BET} USDT</p>
 
         {/* Game area — ornate wood table with three barrels (full width edge-to-edge) */}
-        <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3f0f13dd8_generated_image.png')", backgroundSize: 'cover', backgroundPosition: 'center', borderTop: '2px solid rgba(180,140,80,0.4)', borderBottom: '2px solid rgba(180,140,80,0.4)', boxShadow: 'inset 0 2px 12px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.5)' }}>
+        <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3f0f13dd8_generated_image.png')", backgroundSize: 'cover', backgroundPosition: 'center', border: '2px solid rgba(180,140,80,0.4)', borderLeft: 'none', borderRight: 'none', boxShadow: 'inset 0 2px 12px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.5)' }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 60%, rgba(0,0,0,0.15), rgba(0,0,0,0.35))' }} />
 
-          {/* Ornate golden frame border around the table */}
-          <div className="absolute inset-0 pointer-events-none" style={{ border: '4px solid transparent', borderImage: 'linear-gradient(135deg, #c89020 0%, #ffe890 25%, #b88010 50%, #ffe890 75%, #c89020 100%) 1', boxShadow: 'inset 0 0 0 2px rgba(60,40,10,0.7), inset 0 0 0 6px rgba(255,225,140,0.18), inset 0 0 18px rgba(0,0,0,0.55), 0 0 14px rgba(200,150,60,0.35)' }} />
+          {/* Ornate golden frame border around the table — full width edge-to-edge */}
+          <div className="absolute inset-0 pointer-events-none" style={{ border: '4px solid', borderColor: '#c89020', borderImage: 'linear-gradient(135deg, #c89020 0%, #ffe890 25%, #b88010 50%, #ffe890 75%, #c89020 100%) 1', boxShadow: 'inset 0 0 0 2px rgba(60,40,10,0.7), inset 0 0 0 6px rgba(255,225,140,0.18), inset 0 0 18px rgba(0,0,0,0.55), 0 0 14px rgba(200,150,60,0.35)' }} />
           <div className="absolute inset-1 pointer-events-none" style={{ border: '1px solid rgba(255,225,140,0.45)', boxShadow: 'inset 0 0 0 3px rgba(40,28,8,0.5)' }} />
           {/* Corner ornaments */}
           {[
