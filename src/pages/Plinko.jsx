@@ -6,13 +6,13 @@ import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
 
-const MULTS = [100, 50, 25, 10, 5, 0.1, 5, 10, 25, 50, 100];
+const MULTS = [100, 50, 25, 10, 5, 2, 1, 0.1, 0.1, 1, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1;
 const BOARD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/41d1489a2_file_000000005b9881faa2d49d948685f05d.png';
 const BETS = [0.1, 1, 5, 10];
 // Absolute per-bucket landing chance (percent), symmetric across both edges.
 // 100x: 0.1% · 50x: 0.3% · 25x: 0.5% · 10x: 1% · 5x: 2% · 2x: 26% (split each side).
-const WEIGHTS = [0.05, 0.15, 0.25, 0.5, 13, 70, 13, 0.5, 0.25, 0.15, 0.05];
+const WEIGHTS = [0.02, 0.05, 0.1, 0.3, 1, 3, 10, 35, 35, 10, 3, 1, 0.3, 0.1, 0.05, 0.02];
 const WEIGHT_TOTAL = WEIGHTS.reduce((a, b) => a + b, 0);
 
 const FONT = "Rye, Georgia, serif";
@@ -313,7 +313,7 @@ export default function Plinko() {
       <main className="relative z-10 max-w-2xl mx-auto w-full px-3 flex-1 flex flex-col">
         {/* Board — image with overlaid ball, enlarged beyond viewport width */}
         <div className="relative overflow-hidden" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)' }}>
-          <div className="relative" style={{ width: '118%', marginLeft: '-9%' }}>
+          <div className="relative" style={{ width: '132%', marginLeft: '-16%' }}>
           <img src={BOARD_IMG} alt="Plinko Board" draggable={false} className="w-full h-auto block select-none" />
 
           {/* Peg hit glow — brief flash when the ball strikes a peg */}
