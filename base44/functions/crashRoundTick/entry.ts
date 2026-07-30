@@ -14,25 +14,48 @@ const CRASH_HOLD_MS = 1500;  // brief blast flash before next round
 const GROWTH = 1.10;         // multiplier = GROWTH ^ elapsedSec
 
 function genCrashPoint(rtp) {
-  // Jitter the effective RTP round-to-round and layer in multiplicative
-  // noise so the resulting distribution can't be reverse-engineered from
-  // observed history — no two rounds follow a predictable curve.
-  const rtpJitter = rtp + (Math.random() - 0.5) * 6; // ±3% band around configured RTP
-  const r = Math.random();
-  let crash = (rtpJitter / 100) / (1 - r);
-  crash *= 1 + (Math.random() - 0.5) * 0.3; // ±15% noise, mean-preserving
-  // Occasionally inject an outlier spike or early dip for extra entropy.
-  if (Math.random() < 0.08) crash *= 0.4 + Math.random() * 2.2;
+  // Crypto-grade entropy so the sequence can't be reverse-engineered or
+  // predicted from observed history — every draw is independent.
+  const rand = () => {
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    return buf[0] / 4294967296;
+  };
+
+  // Jitter the effective RTP round-to-round.
+  const rtpJitter = rtp + (rand() - 0.5) * 6; // ±3% band around configured RTP
+
+  // Randomly switch between generation regimes so no single distribution
+  // shape fits the observed data — an analyst can't pin down "the curve".
+  const regime = rand();
+  let crash;
+  if (regime < 0.15) {
+    // Heavy-tail regime: longer flights, rare but possible.
+    crash = (rtpJitter / 100) / Math.pow(1 - rand(), 1.6);
+  } else if (regime < 0.30) {
+    // Steep-drop regime: mostly low busts.
+    crash = (rtpJitter / 100) / (1 - rand() * rand());
+  } else {
+    // Standard regime.
+    crash = (rtpJitter / 100) / (1 - rand());
+  }
+
+  // Multiplicative noise with randomly varying amplitude (15%–40%) so the
+  // spread itself changes round-to-round.
+  const noiseAmp = 0.15 + rand() * 0.25;
+  crash *= 1 + (rand() - 0.5) * noiseAmp * 2;
+
+  // Occasional outlier spike or early dip for extra entropy.
+  if (rand() < 0.10) crash *= 0.3 + rand() * 2.5;
+
   if (crash < 1.00) {
-    // Same redistribution rule: 50% fewer exact 1.00x busts, the rest
-    // spread across (1.00, 2.00).
-    crash = Math.random() < 0.5 ? 1.00 : 1.00 + Math.random();
+    // 50% fewer exact 1.00x busts, the rest spread across (1.00, 2.00).
+    crash = rand() < 0.5 ? 1.00 : 1.00 + rand();
   }
   // Redistribute ~20% of sub-2x busts up into the 2x–3x band so the
-  // curve crashes below 2x slightly less often than before (e.g. 10
-  // sub-2x busts become ~8, the other ~2 land in 2x–3x).
-  if (crash < 2 && Math.random() < 0.20) {
-    crash = 2 + Math.random();
+  // curve crashes below 2x slightly less often than before.
+  if (crash < 2 && rand() < 0.20) {
+    crash = 2 + rand();
   }
   return Math.min(Math.max(crash, 1.00), 250);
 }
