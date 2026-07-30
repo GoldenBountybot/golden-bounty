@@ -271,21 +271,21 @@ export default function Thimbles() {
           </div>
         </div>
 
-        {/* Multiplier banners — 1 ball / 2 balls selectors side-by-side */}
-        <div className="flex items-stretch gap-2">
+        {/* Multiplier banners — 1 ball / 2 balls selectors side-by-side, equal size */}
+        <div className="flex gap-2">
           <button
             onClick={() => phase === 'idle' && setMode('single')}
-            className="flex-1 transition-all active:scale-95"
+            className="flex-1 h-16 flex items-center justify-center transition-all active:scale-95"
             style={{ opacity: mode === 'single' ? 1 : 0.45, filter: mode === 'single' ? 'drop-shadow(0 0 6px rgba(255,210,100,0.5))' : 'none' }}
           >
-            <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1fd7f6441_file_0000000066e081f7a29c25fb6bde36e0.png" alt="1 BALL X 2.88" draggable={false} className="w-full h-auto select-none" />
+            <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1fd7f6441_file_0000000066e081f7a29c25fb6bde36e0.png" alt="1 BALL X 2.88" draggable={false} className="max-h-full max-w-full object-contain select-none" />
           </button>
           <button
             onClick={() => phase === 'idle' && setMode('two')}
-            className="flex-1 transition-all active:scale-95"
+            className="flex-1 h-16 flex items-center justify-center transition-all active:scale-95"
             style={{ opacity: mode === 'two' ? 1 : 0.45, filter: mode === 'two' ? 'drop-shadow(0 0 6px rgba(255,210,100,0.5))' : 'none' }}
           >
-            <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/de25c864e_file_00000000c2f081f79b316882b62f9e13.png" alt="2 BALLS X 1.44" draggable={false} className="w-full h-auto select-none" />
+            <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/de25c864e_file_00000000c2f081f79b316882b62f9e13.png" alt="2 BALLS X 1.44" draggable={false} className="max-h-full max-w-full object-contain select-none" />
           </button>
         </div>
 
