@@ -302,6 +302,7 @@ export default function Thimbles() {
               alt="SPIN"
               draggable={false}
               className="w-full h-auto select-none"
+              style={{ mixBlendMode: 'screen' }}
             />
           </button>
         )}
