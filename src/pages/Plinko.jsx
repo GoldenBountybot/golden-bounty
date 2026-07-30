@@ -7,7 +7,7 @@ import { useLogActivity } from '@/lib/useLogActivity';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
 
 const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
-const ROWS = MULTS.length; // 13 rows: bottom row has 13 pegs, one above each slot
+const ROWS = MULTS.length - 1; // 12 rows: bottom row has 12 pegs between 13 slots
 const BOARD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/41d1489a2_file_000000005b9881faa2d49d948685f05d.png';
 const BETS = [0.1, 1, 5, 10];
 // Absolute per-bucket landing chance (percent), symmetric across both edges.
@@ -214,10 +214,12 @@ export default function Plinko() {
     let bucket = 0;
     for (let i = 0; i < WEIGHTS.length; i++) { r -= WEIGHTS[i]; if (r <= 0) { bucket = i; break; } }
 
-    // Ball bounces through 13 rows. The last row (row 12) has one peg per slot,
-    // so the ball hits the peg DIRECTLY above the target slot and drops straight
-    // down — never bouncing sideways off another slot's peg.
-    const targetPeg = bucket;
+    // Ball bounces through 12 rows. At the last row it hits one of the two pegs
+    // adjacent to the target slot (left peg or right peg) and drops into that
+    // slot — never bouncing off another multiplier's peg.
+    // Slot k sits between peg k-1 (left) and peg k (right).
+    const targetPeg = bucket === 0 ? 0 : bucket === MULTS.length - 1 ? ROWS - 1
+      : (Math.random() < 0.5 ? bucket - 1 : bucket);
     const numSteps = ROWS - 1;
     const steps = Array.from({ length: numSteps }, (_, i) => (i < targetPeg ? 1 : 0));
     for (let i = steps.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [steps[i], steps[j]] = [steps[j], steps[i]]; }
@@ -258,11 +260,12 @@ export default function Plinko() {
     animate();
   };
 
-  // Peg positions: rows 0–11 match the image's 12-row triangle (13%–80%).
-  // Row 12 is an extra row at 83% with 13 pegs — one directly above each slot.
+  // Peg positions matching the image's 12-row triangle (13%–80%).
+  // Bottom row pegs sit BETWEEN the slots (offset by half a slot).
   const SPACING = 80 / 12; // horizontal spacing = same for pegs and slots
   const pos = (row, col) => {
-    const top = row < ROWS - 1 ? 13 + row * (67 / (ROWS - 2)) : 83;
+    const rowFrac = row / (ROWS - 1);
+    const top = 13 + rowFrac * 67;
     const left = row === 0 ? 50 : 50 + (col - row / 2) * SPACING;
     return { left: `${left}%`, top: `${top}%` };
   };
@@ -316,8 +319,8 @@ export default function Plinko() {
           <div className="relative" style={{ width: '118%', marginLeft: '-9%' }}>
           <img src={BOARD_IMG} alt="Plinko Board" draggable={false} className="w-full h-auto block select-none" />
 
-          {/* Peg hit glow — brief flash when the ball strikes a peg (rows 0–11 only) */}
-          {Array.from({ length: ROWS - 1 }).map((_, r) =>
+          {/* Peg hit glow — brief flash when the ball strikes a peg */}
+          {Array.from({ length: ROWS }).map((_, r) =>
             Array.from({ length: r + 1 }).map((_, c) => {
               const isHit = hitPeg && hitPeg.row === r && hitPeg.col === c;
               if (!isHit) return null;
