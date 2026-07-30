@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, Menu, History, Minus, Plus, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ChevronLeft, Menu, History } from 'lucide-react';
 import GameHeader from '@/components/GameHeader';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -217,26 +217,19 @@ export default function Thimbles() {
       <GameHeader title="Thimbles" balance={balance} />
 
       <main className="max-w-md w-full mx-auto px-3 py-3 flex flex-col gap-3 flex-1 relative z-10">
-        {/* Betting controls bar */}
-        <div className="rounded-xl py-4 px-5 flex items-center justify-between" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/29e26897b_generated_image.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', boxShadow: '0 3px 10px rgba(0,0,0,0.55)' }}>
-          <button onClick={() => setBet(MIN_BET)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }} title="Min">
-            <ChevronsLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
-          </button>
-          <button onClick={() => adjustBet(-BET_STEP)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }}>
-            <Minus className="w-5 h-5" style={{ color: '#e0d8c0' }} />
-          </button>
-          <div className="flex flex-col items-center px-3">
-            <span className="text-[10px] tracking-widest" style={{ color: '#b0a890' }}>TOTAL BET</span>
-            <span className="text-xl font-black tabular-nums" style={{ color: '#ffe8a0' }}>{bet.toFixed(2)} USDT</span>
+        {/* Betting controls bar — ornate gilded banner with baked-in - / + buttons */}
+        <div className="relative w-full" style={{ boxShadow: '0 3px 10px rgba(0,0,0,0.55)' }}>
+          <img src={BET_BANNER_IMG} alt="Total Bet" draggable={false} className="w-full h-auto select-none block" />
+          {/* Center text inside the wooden panel */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" style={{ paddingLeft: '22%', paddingRight: '22%' }}>
+            <span className="text-[10px] tracking-[0.2em]" style={{ color: '#c8b890' }}>TOTAL BET</span>
+            <span className="text-xl font-black tabular-nums leading-tight" style={{ color: '#ffe8a0' }}>{bet.toFixed(2)} USDT</span>
           </div>
-          <button onClick={() => adjustBet(BET_STEP)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }}>
-            <Plus className="w-5 h-5" style={{ color: '#e0d8c0' }} />
-          </button>
-          <button onClick={() => setBet(MAX_BET)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }} title="Max">
-            <ChevronsRight className="w-5 h-5" style={{ color: '#e0d8c0' }} />
-          </button>
+          {/* Minus button — left end */}
+          <button onClick={() => adjustBet(-BET_STEP)} className="absolute left-0 top-0 h-full w-[18%] transition-transform active:scale-90" title="Minus" />
+          {/* Plus button — right end */}
+          <button onClick={() => adjustBet(BET_STEP)} className="absolute right-0 top-0 h-full w-[18%] transition-transform active:scale-90" title="Plus" />
         </div>
-        <p className="text-center text-[11px]" style={{ color: '#8a8270' }}>MIN {MIN_BET} USDT - MAX {MAX_BET} USDT</p>
 
         {/* Game area — ornate gilded wood table with three barrels (full width edge-to-edge) */}
         <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
@@ -347,6 +340,7 @@ export default function Thimbles() {
   );
 }
 
+const BET_BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2c9406808_file_000000003fc481fab86dd38fbe7b4787.png';
 const SPIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/06b6ee99c_file_000000003c488211a7ea3420ca9b6b25.png';
 const BARREL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f1d422732_file_000000002c8c81f789fe32b56de1dcdf.png';
 
