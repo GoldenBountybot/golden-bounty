@@ -359,7 +359,7 @@ export default function Plinko() {
         </div>
 
         {/* Message — ornate wooden banner (black bg removed via screen blend) */}
-        <div className="mx-auto relative" style={{ width: '66.67%', marginTop: '-20px' }}>
+        <div className="mx-auto relative" style={{ width: '66.67%', marginTop: '-60px' }}>
           <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/08830b540_file_00000000e134820babf1565cf66cbd5b.png" alt="message" draggable={false} className="w-full h-auto select-none block" style={{ mixBlendMode: 'screen' }} />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: 'translateY(-7px)' }}>
             <span className="text-sm font-black italic" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>{message}</span>
@@ -367,7 +367,7 @@ export default function Plinko() {
         </div>
 
         {/* Bet row — wooden frame */}
-        <div className="p-2 flex items-center gap-2" style={{ ...woodFrame, marginTop: '-18px' }}>
+        <div className="p-2 flex items-center gap-2" style={{ ...woodFrame, marginTop: '-54px' }}>
           <button onClick={() => setShowCustom(s => !s)} className={`w-10 h-10 flex items-center justify-center ${showCustom ? 'ring-2 ring-amber-300' : ''}`} style={{ ...woodBtn, color: customBet != null ? '#f5c542' : '#d9b97a' }} title="Custom bet">
             <Pencil className="w-4 h-4" />
           </button>
@@ -417,7 +417,7 @@ export default function Plinko() {
           onClick={drop}
           disabled={dropping}
           className="transition-all disabled:opacity-60 relative mx-auto"
-          style={{ width: '66.67%', marginTop: '-18px' }}
+          style={{ width: '66.67%', marginTop: '-54px' }}
         >
           <img
             src={DROP_BTN_IMG}
@@ -434,7 +434,7 @@ export default function Plinko() {
         </button>
 
         {/* Stats — wooden tiles */}
-        <div className="grid grid-cols-3 gap-2 pb-4 text-center" style={{ marginTop: '-18px' }}>
+        <div className="grid grid-cols-3 gap-2 pb-4 text-center" style={{ marginTop: '-54px' }}>
           <Stat label="Balance" value={`$${balance.toFixed(2)}`} />
           <Stat label="Bet" value={`$${bet.toFixed(2)}`} />
           <Stat label="Last Win" value={`$${lastWin.toFixed(2)}`} accent={lastWin > 0} />
