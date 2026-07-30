@@ -370,7 +370,7 @@ export default function Plinko() {
 
         {/* Bet row — wooden frame */}
         <div className="p-2 flex items-center gap-2" style={{ ...woodFrame, marginTop: '-80px' }}>
-          <button onClick={() => setShowCustom(s => !s)} className={`w-10 h-10 flex items-center justify-center ${showCustom ? 'ring-2 ring-amber-300' : ''}`} style={{ ...woodBtn, color: customBet != null ? '#f5c542' : '#d9b97a' }} title="Custom bet">
+          <button onClick={() => setShowCustom(s => !s)} className={`w-10 h-10 flex items-center justify-center ${showCustom ? 'ring-2 ring-amber-300' : ''}`} style={{ ...woodBtn, color: customBet != null ? '#f5c542' : '#d9b97a', transform: 'translateY(3px)' }} title="Custom bet">
             <Pencil className="w-4 h-4" />
           </button>
           <div className="flex-1 grid grid-cols-4 gap-2">
