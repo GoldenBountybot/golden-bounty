@@ -388,23 +388,21 @@ function Barrel({ lifted, hasBall, reveal, won }) {
   );
 }
 
+const BALL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8a7398106_file_00000000fdcc81fa9090dcaff6ecfea6.png';
+
 function GoldenBall({ size = 28 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" style={{ filter: 'drop-shadow(0 0 8px rgba(255,210,120,0.85))' }}>
-      <defs>
-        <radialGradient id="ballGrad" cx="38%" cy="32%" r="70%">
-          <stop offset="0%" stopColor="#fff8d0" />
-          <stop offset="35%" stopColor="#f5d058" />
-          <stop offset="75%" stopColor="#c89020" />
-          <stop offset="100%" stopColor="#8a5a10" />
-        </radialGradient>
-      </defs>
-      <circle cx="50" cy="50" r="42" fill="url(#ballGrad)" stroke="#6a4408" strokeWidth="1.5" />
-      <g fill="none" stroke="#7a5008" strokeWidth="1.2" opacity="0.55">
-        <circle cx="50" cy="50" r="28" />
-        <circle cx="50" cy="50" r="18" />
-      </g>
-      <ellipse cx="38" cy="34" rx="10" ry="7" fill="rgba(255,255,240,0.45)" />
-    </svg>
+    <img
+      src={BALL_IMG}
+      alt="gold ball"
+      draggable={false}
+      className="select-none"
+      style={{
+        width: size,
+        height: 'auto',
+        mixBlendMode: 'screen',
+        filter: 'drop-shadow(0 0 8px rgba(255,210,120,0.85))',
+      }}
+    />
   );
 }
