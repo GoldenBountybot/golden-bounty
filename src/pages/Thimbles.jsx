@@ -6,10 +6,10 @@ import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
 
-const MIN_BET = 5;
-const MAX_BET = 7500;
-const DEFAULT_BET = 20;
-const BET_STEP = 5;
+const MIN_BET = 0.1;
+const MAX_BET = 500;
+const DEFAULT_BET = 1;
+const BET_STEP = 0.1;
 const SINGLE_MULT = 2.88;
 const TWO_MULT = 1.44;
 const SHUFFLE_SWAPS = 13;
@@ -93,7 +93,7 @@ export default function Thimbles() {
 
   const start = () => {
     if (phase !== 'idle' && phase !== 'over') return;
-    if (!bet || bet < MIN_BET) { setMessage(`Min bet is ${MIN_BET} BDT`); return; }
+    if (!bet || bet < MIN_BET) { setMessage(`Min bet is ${MIN_BET} USDT`); return; }
     if (balance < bet) { setMessage('Not enough balance'); return; }
     setBalance((b) => b - bet);
 
@@ -227,7 +227,7 @@ export default function Thimbles() {
           </button>
           <div className="flex flex-col items-center px-3">
             <span className="text-[10px] tracking-widest" style={{ color: '#b0a890' }}>TOTAL BET</span>
-            <span className="text-xl font-black tabular-nums" style={{ color: '#ffe8a0' }}>{bet} BDT</span>
+            <span className="text-xl font-black tabular-nums" style={{ color: '#ffe8a0' }}>{bet.toFixed(2)} USDT</span>
           </div>
           <button onClick={() => adjustBet(BET_STEP)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }}>
             <Plus className="w-5 h-5" style={{ color: '#e0d8c0' }} />
@@ -236,7 +236,7 @@ export default function Thimbles() {
             <ChevronsRight className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
         </div>
-        <p className="text-center text-[11px]" style={{ color: '#8a8270' }}>MIN {MIN_BET} BDT - MAX {MAX_BET.toLocaleString()} BDT</p>
+        <p className="text-center text-[11px]" style={{ color: '#8a8270' }}>MIN {MIN_BET} USDT - MAX {MAX_BET} USDT</p>
 
         {/* Game area — ornate wood table with three barrels (full width edge-to-edge) */}
         <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/63f730da2_file_00000000a08482079b6365566218e339.png')", backgroundSize: 'cover', backgroundPosition: 'center', borderTop: '2px solid rgba(180,140,80,0.4)', borderBottom: '2px solid rgba(180,140,80,0.4)', boxShadow: 'inset 0 2px 12px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.5)' }}>
@@ -365,7 +365,7 @@ export default function Thimbles() {
         </div>
         <div className="flex items-center justify-between mt-1.5 px-1">
           <span className="text-[9px] tabular-nums truncate max-w-[60%]" style={{ color: '#6a6258' }}>HASH: {hash.substring(0, 28)}…</span>
-          <span className="text-[10px] font-bold tabular-nums" style={{ color: '#a09080' }}>Cash: {balance.toFixed(2)} BDT</span>
+          <span className="text-[10px] font-bold tabular-nums" style={{ color: '#a09080' }}>Cash: {balance.toFixed(2)} USDT</span>
         </div>
       </div>
     </div>
