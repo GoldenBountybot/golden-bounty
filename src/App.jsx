@@ -19,6 +19,7 @@ import CrownCoins from './pages/CrownCoins';
 import BigBrown from './pages/BigBrown';
 import Argonauts from './pages/Argonauts';
 import GatesOfOlympus from './pages/GatesOfOlympus';
+import Thimbles from './pages/Thimbles';
 import FreeSpin from './pages/FreeSpin';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -91,6 +92,7 @@ const AuthenticatedApp = () => {
         <Route path="/games/big-brown" element={<BigBrown />} />
         <Route path="/games/argonauts" element={<Argonauts />} />
         <Route path="/games/gates-of-olympus" element={<GatesOfOlympus />} />
+        <Route path="/games/thimbles" element={<Thimbles />} />
         <Route path="/free-spin" element={<FreeSpin />} />
         <Route path="/promo-welcome" element={<PromoWelcome />} />
         {/* Non-game authenticated pages — persistent bottom navigation */}
