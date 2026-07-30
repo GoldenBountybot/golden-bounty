@@ -380,9 +380,32 @@ function StatBox({ label, value, gold }) {
   );
 }
 
-// Ornate golden carved glass cup with optional ball reveal.
-const CUP_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8e9a150fe_generated_image.png';
-const BALL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ddee64fde_generated_image.png';
+// Ornate golden carved cup and ball rendered as SVG — no background issues.
+function GoldenBall({ size = 26 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" style={{ filter: 'drop-shadow(0 0 8px rgba(255,210,120,0.85))' }}>
+      <defs>
+        <radialGradient id="ballGrad" cx="38%" cy="32%" r="70%">
+          <stop offset="0%" stopColor="#fff8d0" />
+          <stop offset="35%" stopColor="#f5d058" />
+          <stop offset="75%" stopColor="#c89020" />
+          <stop offset="100%" stopColor="#8a5a10" />
+        </radialGradient>
+      </defs>
+      <circle cx="50" cy="50" r="42" fill="url(#ballGrad)" stroke="#6a4408" strokeWidth="1.5" />
+      {/* filigree engravings */}
+      <g fill="none" stroke="#7a5008" strokeWidth="1.2" opacity="0.55">
+        <circle cx="50" cy="50" r="28" />
+        <circle cx="50" cy="50" r="18" />
+        <path d="M50 22 L52 30 L50 28 L48 30 Z" />
+        <path d="M50 78 L52 70 L50 72 L48 70 Z" />
+        <path d="M22 50 L30 52 L28 50 L30 48 Z" />
+        <path d="M78 50 L70 52 L72 50 L70 48 Z" />
+      </g>
+      <ellipse cx="38" cy="34" rx="10" ry="7" fill="rgba(255,255,240,0.45)" />
+    </svg>
+  );
+}
 
 function Cup({ revealed, hasBall, picked, won, disabled }) {
   return (
@@ -390,24 +413,12 @@ function Cup({ revealed, hasBall, picked, won, disabled }) {
       {/* Ball (shown when revealed and cup has it) */}
       <div style={{ height: '24px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
         {revealed && hasBall && (
-          <img
-            src={BALL_IMG}
-            alt="Golden ball"
-            style={{
-              width: '26px',
-              height: '26px',
-              objectFit: 'contain',
-              filter: 'drop-shadow(0 0 10px rgba(255,210,120,0.9))',
-              WebkitMaskImage: `url(${BALL_IMG})`,
-              WebkitMaskMode: 'luminance',
-              maskImage: `url(${BALL_IMG})`,
-              maskMode: 'luminance',
-              animation: 'saWinPop 0.4s ease both',
-            }}
-          />
+          <div style={{ animation: 'saWinPop 0.4s ease both' }}>
+            <GoldenBall size={26} />
+          </div>
         )}
       </div>
-      {/* Cup body — ornate golden carved glass image */}
+      {/* Cup body — ornate golden carved SVG */}
       <div
         className="relative mx-auto"
         style={{
@@ -417,20 +428,42 @@ function Cup({ revealed, hasBall, picked, won, disabled }) {
           transform: revealed ? 'translateY(-8px) rotate(-8deg)' : 'translateY(0) rotate(0deg)',
         }}
       >
-        <img
-          src={CUP_IMG}
-          alt="Golden cup"
-          className="w-full h-full object-contain"
-          style={{
-            filter: revealed && hasBall
-              ? 'drop-shadow(0 0 10px rgba(255,210,120,0.7)) brightness(1.15)'
-              : 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
-            WebkitMaskImage: `url(${CUP_IMG})`,
-            WebkitMaskMode: 'luminance',
-            maskImage: `url(${CUP_IMG})`,
-            maskMode: 'luminance',
-          }}
-        />
+        <svg width="78" height="88" viewBox="0 0 80 90" style={{ filter: revealed && hasBall ? 'drop-shadow(0 0 8px rgba(255,210,120,0.7)) brightness(1.1)' : 'none' }}>
+          <defs>
+            <linearGradient id="cupGold" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ffe890" />
+              <stop offset="30%" stopColor="#e8b840" />
+              <stop offset="65%" stopColor="#c89020" />
+              <stop offset="100%" stopColor="#8a5a10" />
+            </linearGradient>
+            <linearGradient id="cupGoldDark" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="rgba(90,60,10,0.6)" />
+              <stop offset="50%" stopColor="rgba(255,220,120,0.3)" />
+              <stop offset="100%" stopColor="rgba(90,60,10,0.6)" />
+            </linearGradient>
+          </defs>
+          {/* Cup body — trapezoid thimble shape */}
+          <path d="M16 12 L64 12 L58 82 Q40 88 22 82 Z" fill="url(#cupGold)" stroke="#6a4408" strokeWidth="1.5" />
+          {/* Rim */}
+          <ellipse cx="40" cy="12" rx="24" ry="5" fill="url(#cupGold)" stroke="#6a4408" strokeWidth="1.5" />
+          <ellipse cx="40" cy="11" rx="24" ry="4" fill="none" stroke="rgba(255,245,200,0.5)" strokeWidth="1" />
+          {/* Carved filigree bands */}
+          <g fill="none" stroke="#7a5008" strokeWidth="1" opacity="0.5">
+            <path d="M20 24 Q40 28 60 24" />
+            <path d="M21 30 Q40 34 59 30" />
+            <path d="M22 36 Q40 40 58 36" />
+          </g>
+          {/* Center medallion */}
+          <circle cx="40" cy="52" r="9" fill="none" stroke="#7a5008" strokeWidth="1.3" opacity="0.6" />
+          <circle cx="40" cy="52" r="5" fill="none" stroke="#7a5008" strokeWidth="0.8" opacity="0.5" />
+          {/* Lower filigree */}
+          <g fill="none" stroke="#7a5008" strokeWidth="1" opacity="0.45">
+            <path d="M24 68 Q40 72 56 68" />
+            <path d="M25 74 Q40 78 55 74" />
+          </g>
+          {/* Highlight sheen */}
+          <path d="M22 16 L26 78" fill="none" stroke="rgba(255,250,210,0.4)" strokeWidth="2" />
+        </svg>
         {picked && (
           <div className="absolute -top-1 -right-1 z-10">
             <Trophy className="w-5 h-5" style={{ color: won ? '#ffd75a' : '#f87171', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.6))' }} />
