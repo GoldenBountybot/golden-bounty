@@ -213,6 +213,17 @@ export default function Thimbles() {
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden relative" style={{ background: 'linear-gradient(to bottom, #1a191e, #100f14)', fontFamily: 'Georgia, serif' }}>
+      {/* Saloon background image — 35% opacity */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/47b6716b5_file_000000001a38820bbc8591d3888ea292.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: 0.35,
+          zIndex: 0,
+        }}
+      />
       {!loaded && <GameLoadingScreen title="Thimbles" onDone={() => setLoaded(true)} />}
       <GameHeader title="Thimbles" balance={balance} />
 
