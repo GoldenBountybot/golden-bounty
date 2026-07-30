@@ -238,8 +238,8 @@ export default function Thimbles() {
         </div>
         <p className="text-center text-[11px]" style={{ color: '#8a8270' }}>MIN {MIN_BET} BDT - MAX {MAX_BET.toLocaleString()} BDT</p>
 
-        {/* Game area — ornate wood table with three barrels */}
-        <div className="relative rounded-2xl overflow-hidden flex-1 flex flex-col justify-center" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/63f730da2_file_00000000a08482079b6365566218e339.png')", backgroundSize: 'cover', backgroundPosition: 'center', border: '2px solid rgba(180,140,80,0.4)', boxShadow: 'inset 0 2px 12px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.5)' }}>
+        {/* Game area — ornate wood table with three barrels (full width edge-to-edge) */}
+        <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/63f730da2_file_00000000a08482079b6365566218e339.png')", backgroundSize: 'cover', backgroundPosition: 'center', borderTop: '2px solid rgba(180,140,80,0.4)', borderBottom: '2px solid rgba(180,140,80,0.4)', boxShadow: 'inset 0 2px 12px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.5)' }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 60%, rgba(0,0,0,0.15), rgba(0,0,0,0.35))' }} />
 
           {/* Message banner */}
