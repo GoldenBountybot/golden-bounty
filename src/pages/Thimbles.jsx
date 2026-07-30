@@ -329,7 +329,7 @@ export default function Thimbles() {
         )}
 
         {/* History + Menu — right under the spin button */}
-        <div className="w-full flex items-center justify-between" style={{ marginTop: '-56px' }}>
+        <div className="w-full flex items-center justify-between" style={{ marginTop: '-51px' }}>
           <span style={{ width: '36px' }} />
           <button onClick={() => setShowHistory(true)} className="relative transition-transform active:scale-95" style={{ width: '42%' }}>
             <img src={HISTORY_IMG} alt="HISTORY" draggable={false} className="w-full h-auto select-none block" />
