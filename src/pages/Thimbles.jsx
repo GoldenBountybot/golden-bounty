@@ -291,7 +291,7 @@ export default function Thimbles() {
         </div>
 
         {/* Multiplier banners — 1 ball / 2 balls selectors side-by-side */}
-        <div className="flex items-stretch gap-2" style={{ marginTop: '-50px' }}>
+        <div className="flex items-stretch gap-2 relative z-10" style={{ marginTop: '-50px' }}>
           <button
             onClick={() => phase === 'idle' && setMode('single')}
             className="flex-1 transition-all active:scale-95"
