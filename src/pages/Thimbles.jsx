@@ -221,7 +221,7 @@ export default function Thimbles() {
         <div className="relative w-full" style={{ boxShadow: '0 3px 10px rgba(0,0,0,0.55)' }}>
           <img src={BET_BANNER_IMG} alt="Total Bet" draggable={false} className="w-full h-auto select-none block" />
           {/* Center text inside the wooden panel */}
-          <div className="absolute flex flex-col items-center justify-center pointer-events-none" style={{ left: '18%', right: '18%', top: 0, bottom: 0, transform: 'translateY(-10px)' }}>
+          <div className="absolute flex flex-col items-center justify-center pointer-events-none" style={{ left: '18%', right: '18%', top: 0, bottom: 0, transform: 'translateY(-20px)' }}>
             <span className="text-[10px] tracking-[0.2em]" style={{ color: '#c8b890' }}>TOTAL BET</span>
             <span className="text-xl font-black tabular-nums leading-tight" style={{ color: '#ffe8a0' }}>{bet.toFixed(2)} USDT</span>
           </div>
