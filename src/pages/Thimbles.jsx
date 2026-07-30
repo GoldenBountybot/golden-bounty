@@ -296,7 +296,7 @@ export default function Thimbles() {
         </div>
 
         {/* Win / Loss result banner — sits in the gap between multiplier and spin */}
-        <div className="relative w-full" style={{ marginTop: '-14px', marginBottom: '-14px' }}>
+        <div className="relative w-full" style={{ marginTop: '-34px', marginBottom: '-24px' }}>
           <img src={WIN_BANNER_IMG} alt="result" draggable={false} className="w-full h-auto select-none block" />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: 'translateY(-17px)' }}>
             {phase === 'over' ? (
