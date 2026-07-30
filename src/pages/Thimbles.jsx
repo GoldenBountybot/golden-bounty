@@ -417,6 +417,7 @@ function Cup({ revealed, hasBall, picked, won, disabled }) {
           alt="Golden cup"
           className="w-full h-full object-contain"
           style={{
+            mixBlendMode: 'screen',
             filter: revealed && hasBall
               ? 'drop-shadow(0 0 10px rgba(255,210,120,0.7)) brightness(1.15)'
               : 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
