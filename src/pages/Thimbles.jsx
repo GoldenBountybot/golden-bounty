@@ -250,7 +250,7 @@ export default function Thimbles() {
           </div>
 
           {/* Three barrels */}
-          <div className="relative w-full px-4" style={{ height: '200px' }}>
+          <div className="relative w-full px-4" style={{ height: '240px' }}>
             <div className="absolute bottom-2 left-4 right-4 h-[3px] rounded-full" style={{ background: 'linear-gradient(to right, transparent, rgba(180,140,80,0.4), transparent)' }} />
             {[0, 1, 2].map((cupIdx) => {
               const slot = positions[cupIdx];
@@ -376,9 +376,9 @@ function Barrel({ lifted, hasBall, reveal, won }) {
         draggable={false}
         className="relative transition-transform duration-300 select-none"
         style={{
-          width: '92px',
+          width: '120px',
           height: 'auto',
-          transform: lifted ? 'translateY(-22px)' : 'translateY(0)',
+          transform: lifted ? 'translateY(-26px)' : 'translateY(0)',
           zIndex: 2,
           mixBlendMode: 'screen',
           filter: won ? 'drop-shadow(0 0 10px rgba(255,210,100,0.7)) brightness(1.1)' : 'drop-shadow(0 3px 5px rgba(0,0,0,0.6))',
