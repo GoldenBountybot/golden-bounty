@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { RotateCw, ChevronLeft, DollarSign, Plus, Pencil, Share2, Check, Wallet, History, X } from 'lucide-react';
+import { RotateCw, ChevronLeft, DollarSign, Plus, Pencil, Volume2, Check, Wallet, History, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -314,7 +314,7 @@ export default function Plinko() {
               <Plus className="w-4 h-4" />
             </Link>
             <button onClick={share} className="w-5 h-5 flex items-center justify-center bg-transparent border-0 shadow-none" style={{ color: '#f3e2b3' }}>
-              {copied ? <Check className="w-[5px] h-[5px]" style={{ color: '#f5c542' }} /> : <Share2 className="w-[5px] h-[5px]" />}
+              {copied ? <Check className="w-[7px] h-[7px]" style={{ color: '#f5c542' }} /> : <Volume2 className="w-[7px] h-[7px]" />}
             </button>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Share2, Check } from 'lucide-react';
+import { Volume2, Check } from 'lucide-react';
 
 // Copies the current game URL (or uses native share sheet) so anyone can open/clone the game link.
 export default function ShareButton({ className = '' }) {
@@ -29,7 +29,7 @@ export default function ShareButton({ className = '' }) {
       } ${className}`}
       style={{ fontFamily: 'Rye, Georgia, serif' }}
     >
-      {copied ? <Check className="w-[5px] h-[5px]" /> : <Share2 className="w-[5px] h-[5px]" />}
+      {copied ? <Check className="w-[7px] h-[7px]" /> : <Volume2 className="w-[7px] h-[7px]" />}
     </button>
   );
 }

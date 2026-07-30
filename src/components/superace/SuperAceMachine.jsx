@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, Share2, Check, Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, Sparkles, Gamepad2 } from 'lucide-react';
+import { ChevronLeft, Volume2, Check, Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, Sparkles, Gamepad2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -436,7 +436,7 @@ export default function SuperAceMachine() {
               </button>
               <button onClick={share} className="shrink-0">
                 <Medallion size="w-5 h-5" active={copied}>
-                  {copied ? <Check className="w-[5px] h-[5px] text-yellow-300" style={emboss(true)} /> : <Share2 className="w-[5px] h-[5px] text-amber-300/85" style={emboss(false)} />}
+                  {copied ? <Check className="w-[7px] h-[7px] text-yellow-300" style={emboss(true)} /> : <Volume2 className="w-[7px] h-[7px] text-amber-300/85" style={emboss(false)} />}
                 </Medallion>
               </button>
             </>
