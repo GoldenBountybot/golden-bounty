@@ -365,7 +365,7 @@ function Barrel({ lifted, hasBall, reveal, won }) {
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-end">
       {/* Ball under the barrel — visible when lifted/revealed and barrel has it */}
-      <div className="absolute left-1/2 -translate-x-1/2 transition-all duration-300" style={{ bottom: lifted && reveal && hasBall ? '14px' : '4px', opacity: lifted && reveal && hasBall ? 1 : 0, zIndex: 1 }}>
+      <div className="absolute left-1/2 -translate-x-1/2 transition-all duration-300" style={{ bottom: lifted && reveal && hasBall ? '40px' : '4px', opacity: lifted && reveal && hasBall ? 1 : 0, zIndex: 1 }}>
         <GoldenBall size={28} />
       </div>
 
@@ -378,7 +378,7 @@ function Barrel({ lifted, hasBall, reveal, won }) {
         style={{
           width: '120px',
           height: 'auto',
-          transform: lifted ? 'translateY(-26px)' : 'translateY(0)',
+          transform: lifted ? 'translateY(-52px)' : 'translateY(0)',
           zIndex: 2,
           mixBlendMode: 'screen',
           filter: won ? 'drop-shadow(0 0 10px rgba(255,210,100,0.7)) brightness(1.1)' : 'drop-shadow(0 3px 5px rgba(0,0,0,0.6))',
