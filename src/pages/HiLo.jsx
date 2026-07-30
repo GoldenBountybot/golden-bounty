@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus, ArrowLeft, Volume2, Wallet, Coins, Trophy } from 'lucide-react';
+import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus } from 'lucide-react';
+import WesternFrame from '@/components/wildbounty/WesternFrame';
+import BackButton from '@/components/BackButton';
+import ShareButton from '@/components/ShareButton';
+import GameTitleBar from '@/components/GameTitleBar';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
-import LuxuryCard from '@/components/hilo/LuxuryCard';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -9,14 +12,6 @@ import { incBet, decBet } from '@/lib/betStepper';
 
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-
-const LUX = "'Cinzel', 'Georgia', serif";
-const LUX_BODY = "'Cormorant Garamond', 'Georgia', serif";
-
-const GOLD = '#D4A72C';
-const GOLD_BRIGHT = '#F6C94A';
-const GOLD_HI = '#FFE08A';
-const CREAM = '#FFF1C7';
 
 function drawCard() {
   return { rank: Math.floor(Math.random() * 13), suit: Math.floor(Math.random() * 4) };
@@ -36,43 +31,32 @@ function pickCard(dir, curRank, wantCorrect) {
   return { rank: cand[Math.floor(Math.random() * cand.length)], suit: Math.floor(Math.random() * 4) };
 }
 
-// Reusable gold bevel border for panels
-const goldPanel = {
-  background: 'linear-gradient(160deg, #071D14 0%, #050806 100%)',
-  boxShadow: `0 0 0 1px #1a0f08, 0 0 0 2px ${GOLD}, 0 0 0 3px #3a2a10, 0 0 0 4px ${GOLD_BRIGHT}, 0 10px 26px rgba(0,0,0,0.6), 0 0 22px rgba(246,201,74,0.12)`,
-};
-
-function GoldCorner({ pos }) {
-  return (
-    <span
-      className="absolute pointer-events-none"
-      style={{
-        ...pos,
-        width: 16,
-        height: 16,
-        transform: `rotate(${pos.rot || 0}deg)`,
-        borderTop: `1.5px solid ${GOLD_BRIGHT}`,
-        borderLeft: `1.5px solid ${GOLD_BRIGHT}`,
-        boxShadow: '0 0 5px rgba(246,201,74,0.7)',
-      }}
-    />
-  );
-}
-
-function StatBox({ label, value, icon: Icon }) {
+function CardFace({ card, hidden }) {
+  const isRed = card && (card.suit === 1 || card.suit === 2);
   return (
     <div
-      className="relative rounded-xl flex flex-col items-center justify-center py-2.5 px-1"
+      className="w-28 h-40 rounded-xl border-2 flex flex-col justify-between p-2 shadow-xl"
       style={{
-        background: 'linear-gradient(160deg, #061410 0%, #03090A 100%)',
-        boxShadow: `inset 0 1px 4px rgba(0,0,0,0.6), 0 0 0 1px ${GOLD}, 0 0 10px rgba(246,201,74,0.18)`,
+        background: hidden ? 'linear-gradient(135deg,#7a4f17,#3a2810)' : '#fffdf7',
+        borderColor: hidden ? '#b8862a' : '#d4b06a',
+        fontFamily: 'Georgia, serif',
       }}
     >
-      <div className="flex items-center gap-1">
-        {Icon && <Icon className="w-3 h-3" style={{ color: GOLD_BRIGHT, filter: 'drop-shadow(0 0 3px rgba(246,201,74,0.6))' }} />}
-        <span className="text-[9px] tracking-[0.18em] uppercase" style={{ fontFamily: LUX, color: GOLD, fontWeight: 600 }}>{label}</span>
-      </div>
-      <span className="text-base font-bold tabular-nums leading-tight mt-0.5" style={{ fontFamily: LUX_BODY, color: CREAM, fontWeight: 700 }}>{value}</span>
+      {hidden ? (
+        <div className="w-full h-full rounded-lg flex items-center justify-center text-amber-300/80 text-3xl">★</div>
+      ) : (
+        <>
+          <div className={`text-left leading-none text-2xl font-black ${isRed ? 'text-red-600' : 'text-stone-900'}`}>
+            <div>{RANKS[card.rank]}</div>
+            <div className="text-xl">{SUITS[card.suit]}</div>
+          </div>
+          <div className={`text-center text-5xl ${isRed ? 'text-red-600' : 'text-stone-900'}`}>{SUITS[card.suit]}</div>
+          <div className={`text-right leading-none text-2xl font-black rotate-180 ${isRed ? 'text-red-600' : 'text-stone-900'}`}>
+            <div>{RANKS[card.rank]}</div>
+            <div className="text-xl">{SUITS[card.suit]}</div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -99,6 +83,7 @@ export default function HiLo() {
     setRevealed(null);
     setStreak(0);
     setPhase('guessing');
+    setMessage(`Will the next card be Higher or Lower than ${RANKS[current?.rank ?? 0]}?`);
     setMessage('Guess: Higher or Lower?');
   };
 
@@ -119,6 +104,7 @@ export default function HiLo() {
       setPot(newPot);
       setStreak(s => s + 1);
       setMessage(`Correct! Pot is now $${newPot.toFixed(2)}. Continue or Collect.`);
+      // prepare next round with revealed as new current after short delay
       setTimeout(() => {
         setCurrent(next);
         setRevealed(null);
@@ -143,210 +129,82 @@ export default function HiLo() {
     setStreak(0);
   };
 
-  const dealBtnBase = {
-    fontFamily: LUX,
-    fontWeight: 800,
-    fontStyle: 'italic',
-    color: CREAM,
-    letterSpacing: '0.06em',
-  };
-
   return (
-    <div
-      className="min-h-screen relative overflow-hidden"
-      style={{ background: 'radial-gradient(circle at 50% 0%, #071D14 0%, #03150F 60%, #020A07 100%)' }}
-    >
-      {!loaded && <GameLoadingScreen title="High or Low" onDone={() => setLoaded(true)} />}
-
-      {/* ambient golden particles / bokeh */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          opacity: 0.5,
-          backgroundImage:
-            'radial-gradient(1.5px 1.5px at 18% 22%, rgba(246,201,74,0.7), transparent), radial-gradient(1px 1px at 72% 30%, rgba(255,224,138,0.6), transparent), radial-gradient(1.5px 1.5px at 40% 70%, rgba(246,201,74,0.5), transparent), radial-gradient(1px 1px at 85% 65%, rgba(255,224,138,0.5), transparent), radial-gradient(1px 1px at 12% 80%, rgba(246,201,74,0.5), transparent)',
-          backgroundSize: '340px 340px',
-        }}
-      />
-      {/* faint blurred casino table hint */}
-      <div
-        className="fixed inset-x-0 bottom-0 pointer-events-none"
-        style={{ height: '40%', background: 'radial-gradient(ellipse at 50% 100%, rgba(8,122,67,0.18), transparent 70%)' }}
-      />
-      {/* soft radial golden glow around edges */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{ boxShadow: 'inset 0 0 120px rgba(246,201,74,0.08)' }}
-      />
-
-      {/* HEADER */}
-      <header
-        className="sticky top-0 z-30"
-        style={{
-          background: 'linear-gradient(to bottom, #0a0906 0%, #071D14 100%)',
-          borderBottom: `1px solid ${GOLD}`,
-          boxShadow: `0 2px 10px rgba(0,0,0,0.5), 0 0 14px rgba(246,201,74,0.12)`,
-        }}
-      >
-        <div className="max-w-md mx-auto px-3 py-2.5 flex items-center justify-between">
-          {/* Back */}
-          <button
-            onClick={() => window.history.back()}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-2 transition-transform active:scale-95"
-            style={{
-              background: 'linear-gradient(to bottom, #0a0906, #050806)',
-              border: `1px solid ${GOLD}`,
-              boxShadow: `inset 0 1px 0 rgba(255,224,138,0.2), 0 0 8px rgba(246,201,74,0.18)`,
-            }}
-          >
-            <ArrowLeft className="w-4 h-4" style={{ color: GOLD_BRIGHT, filter: 'drop-shadow(0 0 3px rgba(246,201,74,0.6))' }} />
-            <span className="text-sm font-bold" style={{ fontFamily: LUX, color: GOLD_BRIGHT, letterSpacing: '0.05em' }}>Back</span>
-          </button>
-
-          {/* Title in ornate gold frame */}
-          <div
-            className="relative rounded-lg px-5 py-1.5"
-            style={{
-              border: `1px solid ${GOLD_BRIGHT}`,
-              background: 'linear-gradient(to bottom, rgba(246,201,74,0.08), rgba(0,0,0,0))',
-              boxShadow: `0 0 0 1px #3a2a10, 0 0 14px rgba(246,201,74,0.3)`,
-            }}
-          >
-            <GoldCorner pos={{ top: 2, left: 2, rot: 0 }} />
-            <GoldCorner pos={{ top: 2, right: 2, rot: 90 }} />
-            <GoldCorner pos={{ bottom: 2, left: 2, rot: 270 }} />
-            <GoldCorner pos={{ bottom: 2, right: 2, rot: 180 }} />
-            <h1
-              className="text-xl font-black tracking-[0.12em]"
-              style={{ fontFamily: LUX, color: '#F4C95D', textShadow: '0 1px 2px rgba(0,0,0,0.7), 0 0 12px rgba(246,201,74,0.6)' }}
-            >
-              High or Low
-            </h1>
-          </div>
-
-          {/* Speaker */}
-          <button
-            className="w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95"
-            style={{
-              background: 'linear-gradient(to bottom, #0a0906, #050806)',
-              border: `1px solid ${GOLD}`,
-              boxShadow: `inset 0 1px 0 rgba(255,224,138,0.2), 0 0 8px rgba(246,201,74,0.18)`,
-            }}
-          >
-            <Volume2 className="w-4 h-4" style={{ color: GOLD_BRIGHT, filter: 'drop-shadow(0 0 3px rgba(246,201,74,0.6))' }} />
-          </button>
-        </div>
+    <div className="min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950">
+      {!loaded && <GameLoadingScreen title="High or Low" emoji="🃏" onDone={() => setLoaded(true)} />}
+      <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-emerald-600/30">
+        <GameTitleBar title="High or Low" left={<BackButton />} right={<ShareButton />} />
       </header>
 
-      <main className="relative z-10 max-w-md mx-auto px-4 py-5 flex flex-col items-center gap-4">
-        {/* MAIN GAME PANEL */}
-        <div
-          className="relative w-full rounded-2xl py-7 px-4 flex flex-col items-center"
-          style={goldPanel}
-        >
-          <GoldCorner pos={{ top: 6, left: 6, rot: 0 }} />
-          <GoldCorner pos={{ top: 6, right: 6, rot: 90 }} />
-          <GoldCorner pos={{ bottom: 6, left: 6, rot: 270 }} />
-          <GoldCorner pos={{ bottom: 6, right: 6, rot: 180 }} />
-          {/* subtle dark green texture */}
-          <div
-            className="absolute inset-0 rounded-2xl pointer-events-none"
-            style={{ opacity: 0.18, backgroundImage: 'radial-gradient(circle at 30% 20%, rgba(8,122,67,0.4), transparent 60%), radial-gradient(circle at 70% 80%, rgba(8,122,67,0.3), transparent 60%)' }}
-          />
-
-          {/* CARD AREA */}
-          <div className="relative flex items-center justify-center gap-5">
-            <div className="flex flex-col items-center gap-1.5">
-              <span className="text-[10px] tracking-[0.22em] uppercase" style={{ fontFamily: LUX, color: GOLD, fontWeight: 600 }}>Current</span>
-              <LuxuryCard card={current} hidden={!current} />
+      <main className="max-w-md mx-auto px-4 py-6 flex flex-col items-center gap-5">
+        {/* Felt table */}
+        <WesternFrame className="w-full py-6 flex flex-col items-center gap-3" >
+          <div className="flex items-center justify-center gap-6">
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-[10px] text-amber-300/70 tracking-widest uppercase" style={{ fontFamily: 'Georgia, serif' }}>Current</span>
+              <CardFace card={current} hidden={!current} />
             </div>
-            <span
-              className="text-3xl"
-              style={{ color: GOLD_BRIGHT, filter: 'drop-shadow(0 0 8px rgba(246,201,74,0.7))', fontFamily: LUX, marginTop: 18 }}
-            >
-              →
-            </span>
-            <div className="flex flex-col items-center gap-1.5">
-              <span className="text-[10px] tracking-[0.22em] uppercase" style={{ fontFamily: LUX, color: GOLD, fontWeight: 600 }}>Next</span>
-              <LuxuryCard card={revealed} hidden={!revealed} />
+            <span className="text-2xl text-amber-400/70 italic" style={{ fontFamily: 'Georgia, serif' }}>→</span>
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-[10px] text-amber-300/70 tracking-widest uppercase" style={{ fontFamily: 'Georgia, serif' }}>Next</span>
+              <CardFace card={revealed} hidden={!revealed} />
             </div>
           </div>
+        </WesternFrame>
+
+        <WesternFrame glow className="w-full text-center py-2">
+          <span className="font-black italic text-base text-amber-300 px-2" style={{ fontFamily: 'Georgia, serif' }}>{message}</span>
+        </WesternFrame>
+
+        <div className="grid grid-cols-3 gap-2 w-full">
+          <WesternFrame className="flex flex-col items-center py-2">
+            <span className="text-[9px] text-amber-300/70 tracking-widest uppercase">Balance</span>
+            <span className="text-sm font-bold italic text-yellow-100 tabular-nums">${balance.toFixed(2)}</span>
+          </WesternFrame>
+          <WesternFrame className="flex flex-col items-center py-2">
+            <span className="text-[9px] text-amber-300/70 tracking-widest uppercase">Pot</span>
+            <span className="text-sm font-bold italic text-yellow-100 tabular-nums">${pot.toFixed(2)}</span>
+          </WesternFrame>
+          <WesternFrame className="flex flex-col items-center py-2">
+            <span className="text-[9px] text-amber-300/70 tracking-widest uppercase">Streak</span>
+            <span className="text-sm font-bold italic text-yellow-100 tabular-nums">{streak}x</span>
+          </WesternFrame>
         </div>
 
-        {/* MESSAGE PANEL */}
-        <div
-          className="relative w-full rounded-xl py-3 px-4 text-center"
-          style={{
-            background: 'linear-gradient(to bottom, #03090A, #061410)',
-            boxShadow: `inset 0 1px 4px rgba(0,0,0,0.6), 0 0 0 1px ${GOLD}, 0 0 0 3px ${GOLD_BRIGHT}, 0 0 0 4px #3a2a10, 0 0 18px rgba(246,201,74,0.2)`,
-          }}
-        >
-          <GoldCorner pos={{ top: 3, left: 3, rot: 0 }} />
-          <GoldCorner pos={{ top: 3, right: 3, rot: 90 }} />
-          <GoldCorner pos={{ bottom: 3, left: 3, rot: 270 }} />
-          <GoldCorner pos={{ bottom: 3, right: 3, rot: 180 }} />
-          <span className="text-base italic" style={{ fontFamily: LUX_BODY, color: '#FFD86A', fontWeight: 600, textShadow: '0 1px 2px rgba(0,0,0,0.7), 0 0 10px rgba(255,216,106,0.5)' }}>{message}</span>
-        </div>
-
-        {/* STATISTICS */}
-        <div className="grid grid-cols-3 gap-2.5 w-full">
-          <StatBox label="Balance" value={`$${balance.toFixed(2)}`} icon={Wallet} />
-          <StatBox label="Pot" value={`$${pot.toFixed(2)}`} icon={Coins} />
-          <StatBox label="Streak" value={`${streak}x`} icon={Trophy} />
-        </div>
-
-        {/* BET CONTROL (idle only) */}
+        {/* Bet selector — $0.10 steps, $0.10–$500 (only when idle) */}
         {phase === 'idle' && (
-          <div className="flex items-center justify-center gap-4 w-full">
+          <div className="flex items-center justify-center gap-3">
             <button
               onClick={() => setBet(b => decBet(b))}
-              className="w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-90"
-              style={{
-                background: 'linear-gradient(to bottom, #0a0906, #050806)',
-                border: `1px solid ${GOLD}`,
-                boxShadow: `inset 0 1px 0 rgba(255,224,138,0.2), 0 0 10px rgba(246,201,74,0.2)`,
-              }}
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-black/30 border border-amber-700/40 text-amber-100/90 hover:bg-black/50 transition-colors"
+              style={{ fontFamily: 'Georgia, serif' }}
             >
-              <Minus className="w-5 h-5" style={{ color: GOLD_BRIGHT }} />
+              <Minus className="w-5 h-5" />
             </button>
             <div
-              className="rounded-xl px-6 py-2.5 min-w-[120px] text-center"
-              style={{
-                background: 'linear-gradient(to bottom, #03090A, #061410)',
-                border: `1px solid ${GOLD_BRIGHT}`,
-                boxShadow: `inset 0 1px 4px rgba(0,0,0,0.6), 0 0 14px rgba(246,201,74,0.25)`,
-              }}
+              className="px-5 py-2 rounded-md text-base font-black italic tabular-nums bg-amber-400 text-stone-900 border border-amber-300 min-w-[96px] text-center"
+              style={{ fontFamily: 'Georgia, serif' }}
             >
-              <span className="text-xl font-bold italic tabular-nums" style={{ fontFamily: LUX_BODY, color: CREAM, fontWeight: 700 }}>${bet.toFixed(2)}</span>
+              ${bet.toFixed(2)}
             </div>
             <button
               onClick={() => setBet(b => incBet(b))}
-              className="w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-90"
-              style={{
-                background: 'linear-gradient(to bottom, #0a0906, #050806)',
-                border: `1px solid ${GOLD}`,
-                boxShadow: `inset 0 1px 0 rgba(255,224,138,0.2), 0 0 10px rgba(246,201,74,0.2)`,
-              }}
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-black/30 border border-amber-700/40 text-amber-100/90 hover:bg-black/50 transition-colors"
+              style={{ fontFamily: 'Georgia, serif' }}
             >
-              <Plus className="w-5 h-5" style={{ color: GOLD_BRIGHT }} />
+              <Plus className="w-5 h-5" />
             </button>
           </div>
         )}
 
-        {/* ACTIONS */}
+        {/* Actions */}
         {phase === 'idle' && (
           <button
             onClick={deal}
-            className="w-full rounded-xl py-4 text-lg transition-transform active:scale-[0.98]"
-            style={{
-              ...dealBtnBase,
-              background: 'linear-gradient(to bottom, #12A85E 0%, #087A43 100%)',
-              border: `1.5px solid ${GOLD_BRIGHT}`,
-              boxShadow: `inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -2px 6px rgba(0,0,0,0.3), 0 0 18px rgba(246,201,74,0.4), 0 4px 12px rgba(0,0,0,0.4)`,
-              textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-            }}
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-green-700 text-white text-lg font-black italic shadow-lg hover:from-emerald-400 hover:to-green-600 transition-colors"
+            style={{ fontFamily: 'Georgia, serif' }}
           >
-            DEAL • ${bet.toFixed(2)}
+            DEAL · ${bet}
           </button>
         )}
 
@@ -354,40 +212,22 @@ export default function HiLo() {
           <div className="grid grid-cols-2 gap-3 w-full">
             <button
               onClick={() => guess('high')}
-              className="py-4 rounded-xl text-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
-              style={{
-                ...dealBtnBase,
-                background: 'linear-gradient(to bottom, #12A85E 0%, #087A43 100%)',
-                border: `1.5px solid ${GOLD_BRIGHT}`,
-                boxShadow: `inset 0 1px 0 rgba(255,255,255,0.25), 0 0 14px rgba(246,201,74,0.3)`,
-                color: CREAM,
-              }}
+              className="py-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-stone-950 text-lg font-black italic shadow-lg hover:from-amber-400 hover:to-orange-500 transition-colors flex items-center justify-center gap-2"
+              style={{ fontFamily: 'Georgia, serif' }}
             >
               <ArrowUp className="w-5 h-5" /> HIGHER
             </button>
             <button
               onClick={() => guess('low')}
-              className="py-4 rounded-xl text-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
-              style={{
-                ...dealBtnBase,
-                background: 'linear-gradient(to bottom, #0a0906 0%, #050806 100%)',
-                border: `1.5px solid ${GOLD_BRIGHT}`,
-                boxShadow: `inset 0 1px 0 rgba(255,224,138,0.2), 0 0 14px rgba(246,201,74,0.3)`,
-                color: GOLD_HI,
-              }}
+              className="py-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-700 text-white text-lg font-black italic shadow-lg hover:from-sky-400 hover:to-blue-600 transition-colors flex items-center justify-center gap-2"
+              style={{ fontFamily: 'Georgia, serif' }}
             >
               <ArrowDown className="w-5 h-5" /> LOWER
             </button>
             <button
               onClick={collect}
-              className="col-span-2 py-3 rounded-xl text-base flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
-              style={{
-                ...dealBtnBase,
-                background: 'linear-gradient(to bottom, #FFE08A 0%, #D4A72C 100%)',
-                border: `1.5px solid ${GOLD_HI}`,
-                boxShadow: `inset 0 1px 0 rgba(255,255,255,0.4), 0 0 16px rgba(246,201,74,0.5)`,
-                color: '#2a1a06',
-              }}
+              className="col-span-2 py-3 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-600 text-stone-950 text-base font-black italic shadow-lg hover:from-yellow-300 hover:to-amber-500 transition-colors flex items-center justify-center gap-2"
+              style={{ fontFamily: 'Georgia, serif' }}
             >
               <RotateCcw className="w-4 h-4" /> COLLECT ${pot.toFixed(2)}
             </button>
@@ -397,18 +237,13 @@ export default function HiLo() {
         {phase === 'result' && (
           <button
             onClick={() => { setPhase('idle'); setCurrent(null); setRevealed(null); setMessage('Deal a card to start!'); }}
-            className="w-full rounded-xl py-4 text-lg transition-transform active:scale-[0.98]"
-            style={{
-              ...dealBtnBase,
-              background: 'linear-gradient(to bottom, #12A85E 0%, #087A43 100%)',
-              border: `1.5px solid ${GOLD_BRIGHT}`,
-              boxShadow: `inset 0 1px 0 rgba(255,255,255,0.25), 0 0 18px rgba(246,201,74,0.4)`,
-              color: CREAM,
-            }}
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-green-700 text-white text-lg font-black italic shadow-lg hover:from-emerald-400 hover:to-green-600 transition-colors"
+            style={{ fontFamily: 'Georgia, serif' }}
           >
             NEW HAND
           </button>
         )}
+
       </main>
     </div>
   );
