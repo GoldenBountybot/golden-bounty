@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus } from 'lucide-react';
-import WesternFrame from '@/components/wildbounty/WesternFrame';
-import BackButton from '@/components/BackButton';
-import ShareButton from '@/components/ShareButton';
-import GameTitleBar from '@/components/GameTitleBar';
+import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus, ChevronLeft, Volume2, Wallet, CircleDollarSign, Trophy } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -12,6 +9,16 @@ import { incBet, decBet } from '@/lib/betStepper';
 
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+const SERIF = "'Cinzel', Georgia, serif";
+
+const GOLD = '#D4A72C';
+const GOLD_BRIGHT = '#F6C94A';
+const GOLD_HIGHLIGHT = '#FFE08A';
+const CREAM = '#FFF1C7';
+const CARD_GREEN = '#0B301E';
+const DEEP_BLACK = '#050806';
+const EMERALD = '#087A43';
+const EMERALD_BRIGHT = '#12A85E';
 
 function drawCard() {
   return { rank: Math.floor(Math.random() * 13), suit: Math.floor(Math.random() * 4) };
@@ -31,35 +38,108 @@ function pickCard(dir, curRank, wantCorrect) {
   return { rank: cand[Math.floor(Math.random() * cand.length)], suit: Math.floor(Math.random() * 4) };
 }
 
-function CardFace({ card, hidden }) {
-  const isRed = card && (card.suit === 1 || card.suit === 2);
+// Premium card back — deep emerald with ornate gold frame + 3D gold star emblem
+function CardBack() {
   return (
-    <div
-      className="w-28 h-40 rounded-xl border-2 flex flex-col justify-between p-2 shadow-xl"
-      style={{
-        background: hidden ? 'linear-gradient(135deg,#7a4f17,#3a2810)' : '#fffdf7',
-        borderColor: hidden ? '#b8862a' : '#d4b06a',
-        fontFamily: 'Georgia, serif',
-      }}
-    >
-      {hidden ? (
-        <div className="w-full h-full rounded-lg flex items-center justify-center text-amber-300/80 text-3xl">★</div>
-      ) : (
-        <>
-          <div className={`text-left leading-none text-2xl font-black ${isRed ? 'text-red-600' : 'text-stone-900'}`}>
-            <div>{RANKS[card.rank]}</div>
-            <div className="text-xl">{SUITS[card.suit]}</div>
-          </div>
-          <div className={`text-center text-5xl ${isRed ? 'text-red-600' : 'text-stone-900'}`}>{SUITS[card.suit]}</div>
-          <div className={`text-right leading-none text-2xl font-black rotate-180 ${isRed ? 'text-red-600' : 'text-stone-900'}`}>
-            <div>{RANKS[card.rank]}</div>
-            <div className="text-xl">{SUITS[card.suit]}</div>
-          </div>
-        </>
-      )}
+    <div className="relative w-28 h-40 rounded-xl" style={{
+      background: `linear-gradient(135deg, ${CARD_GREEN} 0%, #061a10 100%)`,
+      border: `2px solid ${GOLD}`,
+      boxShadow: `0 0 0 1px ${DEEP_BLACK}, 0 0 0 3px ${GOLD_BRIGHT}, 0 6px 16px rgba(0,0,0,0.7), 0 0 18px rgba(212,167,44,0.25)`,
+    }}>
+      {/* inner gold line */}
+      <div className="absolute inset-1 rounded-lg" style={{ border: `1px solid rgba(246,201,74,0.5)` }} />
+      {/* diamond ornamental pattern */}
+      <div className="absolute inset-2 rounded-lg" style={{
+        backgroundImage:
+          'repeating-linear-gradient(45deg, transparent, transparent 7px, rgba(212,167,44,0.16) 7px, rgba(212,167,44,0.16) 8px),' +
+          'repeating-linear-gradient(-45deg, transparent, transparent 7px, rgba(212,167,44,0.16) 7px, rgba(212,167,44,0.16) 8px)',
+      }} />
+      {/* ornamental corners */}
+      {['top-0 left-0', 'top-0 right-0', 'bottom-0 left-0', 'bottom-0 right-0'].map((pos, i) => (
+        <div key={i} className={`absolute ${pos}`} style={{
+          width: 18, height: 18,
+          borderTop: pos.includes('top') ? `2px solid ${GOLD_BRIGHT}` : 'none',
+          borderBottom: pos.includes('bottom') ? `2px solid ${GOLD_BRIGHT}` : 'none',
+          borderLeft: pos.includes('left') ? `2px solid ${GOLD_BRIGHT}` : 'none',
+          borderRight: pos.includes('right') ? `2px solid ${GOLD_BRIGHT}` : 'none',
+          margin: 5, borderRadius: 4,
+        }} />
+      ))}
+      {/* center 3D gold star emblem */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span style={{
+          fontSize: 54,
+          color: GOLD_BRIGHT,
+          textShadow: `0 0 10px rgba(246,201,74,0.9), 0 0 22px rgba(212,167,44,0.6), 0 2px 4px rgba(0,0,0,0.6)`,
+          filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
+        }}>★</span>
+      </div>
     </div>
   );
 }
+
+// Revealed card face — keeps the original white card style with gold frame
+function CardFace({ card }) {
+  const isRed = card && (card.suit === 1 || card.suit === 2);
+  return (
+    <div className="w-28 h-40 rounded-xl flex flex-col justify-between p-2" style={{
+      background: '#fffdf7',
+      border: `2px solid ${GOLD}`,
+      boxShadow: `0 0 0 1px ${DEEP_BLACK}, 0 0 0 3px ${GOLD_BRIGHT}, 0 6px 16px rgba(0,0,0,0.7), 0 0 18px rgba(212,167,44,0.25)`,
+      fontFamily: 'Georgia, serif',
+    }}>
+      <div className={`text-left leading-none text-2xl font-black ${isRed ? 'text-red-600' : 'text-stone-900'}`}>
+        <div>{RANKS[card.rank]}</div>
+        <div className="text-xl">{SUITS[card.suit]}</div>
+      </div>
+      <div className={`text-center text-5xl ${isRed ? 'text-red-600' : 'text-stone-900'}`}>{SUITS[card.suit]}</div>
+      <div className={`text-right leading-none text-2xl font-black rotate-180 ${isRed ? 'text-red-600' : 'text-stone-900'}`}>
+        <div>{RANKS[card.rank]}</div>
+        <div className="text-xl">{SUITS[card.suit]}</div>
+      </div>
+    </div>
+  );
+}
+
+function CardSlot({ card, label }) {
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <span className="text-[10px] tracking-[0.25em] uppercase font-semibold" style={{ color: GOLD, fontFamily: SERIF }}>{label}</span>
+      {card ? <CardFace card={card} /> : <CardBack />}
+    </div>
+  );
+}
+
+function StatBox({ label, value, icon }) {
+  return (
+    <div className="flex flex-col items-center py-2.5 px-1 rounded-lg" style={{
+      background: `linear-gradient(160deg, #071D14, ${DEEP_BLACK})`,
+      border: `1px solid ${GOLD}`,
+      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(212,167,44,0.15)',
+    }}>
+      <div className="flex items-center gap-1 mb-0.5" style={{ color: GOLD }}>
+        {icon}
+        <span className="text-[9px] tracking-[0.2em] uppercase font-semibold" style={{ fontFamily: SERIF }}>{label}</span>
+      </div>
+      <span className="text-sm font-bold tabular-nums" style={{ color: CREAM, fontFamily: SERIF }}>{value}</span>
+    </div>
+  );
+}
+
+const goldBtn = {
+  background: `linear-gradient(to bottom, ${CARD_GREEN}, ${DEEP_BLACK})`,
+  border: `1px solid ${GOLD}`,
+  color: GOLD_BRIGHT,
+  boxShadow: 'inset 0 1px 0 rgba(246,201,74,0.2), 0 2px 6px rgba(0,0,0,0.4)',
+};
+
+const dealBtn = {
+  background: `linear-gradient(to bottom, ${EMERALD_BRIGHT}, ${EMERALD})`,
+  border: `2px solid ${GOLD_BRIGHT}`,
+  color: CREAM,
+  fontFamily: SERIF,
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -2px 4px rgba(0,0,0,0.3), 0 4px 14px rgba(8,122,67,0.5), 0 0 18px rgba(246,201,74,0.3)',
+};
 
 export default function HiLo() {
   const { balance, setBalance } = useCasinoBalance();
@@ -83,7 +163,6 @@ export default function HiLo() {
     setRevealed(null);
     setStreak(0);
     setPhase('guessing');
-    setMessage(`Will the next card be Higher or Lower than ${RANKS[current?.rank ?? 0]}?`);
     setMessage('Guess: Higher or Lower?');
   };
 
@@ -104,7 +183,6 @@ export default function HiLo() {
       setPot(newPot);
       setStreak(s => s + 1);
       setMessage(`Correct! Pot is now $${newPot.toFixed(2)}. Continue or Collect.`);
-      // prepare next round with revealed as new current after short delay
       setTimeout(() => {
         setCurrent(next);
         setRevealed(null);
@@ -130,120 +208,147 @@ export default function HiLo() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-950 via-green-950 to-stone-950">
+    <div className="min-h-screen relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at 50% 0%, #071D14 0%, #03150F 55%, #050806 100%)', fontFamily: SERIF }}>
       {!loaded && <GameLoadingScreen title="High or Low" emoji="🃏" onDone={() => setLoaded(true)} />}
-      <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-emerald-600/30">
-        <GameTitleBar title="High or Low" left={<BackButton />} right={<ShareButton />} />
+
+      {/* Ambient casino backdrop — soft golden glow + emerald haze */}
+      <div className="fixed inset-0 pointer-events-none" style={{
+        backgroundImage: 'radial-gradient(circle at 20% 25%, rgba(212,167,44,0.08), transparent 40%), radial-gradient(circle at 80% 70%, rgba(8,122,67,0.12), transparent 45%)',
+      }} />
+      {/* subtle golden particles / bokeh */}
+      <div className="fixed inset-0 pointer-events-none opacity-40" style={{
+        backgroundImage: 'radial-gradient(1px 1px at 15% 20%, rgba(246,201,74,0.5), transparent), radial-gradient(1px 1px at 70% 40%, rgba(246,201,74,0.4), transparent), radial-gradient(1.5px 1.5px at 40% 80%, rgba(212,167,44,0.35), transparent), radial-gradient(1px 1px at 85% 15%, rgba(246,201,74,0.3), transparent)',
+        backgroundSize: '400px 400px',
+      }} />
+
+      {/* Header */}
+      <header className="sticky top-0 z-20" style={{
+        background: 'linear-gradient(to bottom, rgba(7,29,20,0.96), rgba(5,8,6,0.98))',
+        borderBottom: `1px solid ${GOLD}`,
+        boxShadow: '0 2px 12px rgba(0,0,0,0.5)',
+      }}>
+        <div className="max-w-md mx-auto px-3 py-3 relative flex items-center justify-center">
+          {/* Back button */}
+          <Link to="/" className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1 px-3 py-1.5 rounded-lg" style={{ ...goldBtn, fontFamily: SERIF }}>
+            <ChevronLeft className="w-4 h-4" />
+            <span className="text-xs font-bold tracking-wide">Back</span>
+          </Link>
+          {/* Title — ornate gold frame */}
+          <div className="px-10 py-1.5 rounded-lg" style={{
+            background: 'linear-gradient(to bottom, rgba(11,48,30,0.6), rgba(5,8,6,0.6))',
+            border: `1px solid ${GOLD}`,
+            boxShadow: 'inset 0 1px 0 rgba(246,201,74,0.25), 0 0 14px rgba(212,167,44,0.2)',
+          }}>
+            <h1 className="text-lg font-bold tracking-[0.15em]" style={{ color: '#F4C95D', fontFamily: SERIF, textShadow: '0 0 10px rgba(246,201,74,0.5), 0 1px 2px rgba(0,0,0,0.6)' }}>High or Low</h1>
+          </div>
+          {/* Speaker button */}
+          <button className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center" style={goldBtn}>
+            <Volume2 className="w-4 h-4" />
+          </button>
+        </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 py-6 flex flex-col items-center gap-5">
-        {/* Felt table */}
-        <WesternFrame className="w-full py-6 flex flex-col items-center gap-3" >
-          <div className="flex items-center justify-center gap-6">
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-[10px] text-amber-300/70 tracking-widest uppercase" style={{ fontFamily: 'Georgia, serif' }}>Current</span>
-              <CardFace card={current} hidden={!current} />
-            </div>
-            <span className="text-2xl text-amber-400/70 italic" style={{ fontFamily: 'Georgia, serif' }}>→</span>
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-[10px] text-amber-300/70 tracking-widest uppercase" style={{ fontFamily: 'Georgia, serif' }}>Next</span>
-              <CardFace card={revealed} hidden={!revealed} />
-            </div>
+      <main className="max-w-md mx-auto px-3 py-4 flex flex-col items-center gap-4 relative z-10">
+        {/* Main game panel — double gold border + ornate corners */}
+        <div className="w-full p-4 rounded-2xl relative" style={{
+          background: 'linear-gradient(160deg, #071D14 0%, #050806 100%)',
+          border: `2px solid ${GOLD}`,
+          boxShadow: `inset 0 0 0 1px ${DEEP_BLACK}, inset 0 0 0 3px rgba(246,201,74,0.4), 0 8px 24px rgba(0,0,0,0.6), 0 0 20px rgba(212,167,44,0.15)`,
+        }}>
+          {/* ornate corner decorations */}
+          {['top-0 left-0', 'top-0 right-0', 'bottom-0 left-0', 'bottom-0 right-0'].map((pos, i) => (
+            <div key={i} className={`absolute ${pos} pointer-events-none`} style={{
+              width: 22, height: 22,
+              borderTop: pos.includes('top') ? `2px solid ${GOLD_BRIGHT}` : 'none',
+              borderBottom: pos.includes('bottom') ? `2px solid ${GOLD_BRIGHT}` : 'none',
+              borderLeft: pos.includes('left') ? `2px solid ${GOLD_BRIGHT}` : 'none',
+              borderRight: pos.includes('right') ? `2px solid ${GOLD_BRIGHT}` : 'none',
+              margin: 6, borderRadius: 6,
+            }} />
+          ))}
+          {/* Card area */}
+          <div className="flex items-center justify-center gap-5 py-2">
+            <CardSlot card={current} label="Current" />
+            <span className="text-2xl" style={{ color: GOLD_BRIGHT, textShadow: '0 0 8px rgba(246,201,74,0.6)' }}>→</span>
+            <CardSlot card={revealed} label="Next" />
           </div>
-        </WesternFrame>
-
-        <WesternFrame glow className="w-full text-center py-2">
-          <span className="font-black italic text-base text-amber-300 px-2" style={{ fontFamily: 'Georgia, serif' }}>{message}</span>
-        </WesternFrame>
-
-        <div className="grid grid-cols-3 gap-2 w-full">
-          <WesternFrame className="flex flex-col items-center py-2">
-            <span className="text-[9px] text-amber-300/70 tracking-widest uppercase">Balance</span>
-            <span className="text-sm font-bold italic text-yellow-100 tabular-nums">${balance.toFixed(2)}</span>
-          </WesternFrame>
-          <WesternFrame className="flex flex-col items-center py-2">
-            <span className="text-[9px] text-amber-300/70 tracking-widest uppercase">Pot</span>
-            <span className="text-sm font-bold italic text-yellow-100 tabular-nums">${pot.toFixed(2)}</span>
-          </WesternFrame>
-          <WesternFrame className="flex flex-col items-center py-2">
-            <span className="text-[9px] text-amber-300/70 tracking-widest uppercase">Streak</span>
-            <span className="text-sm font-bold italic text-yellow-100 tabular-nums">{streak}x</span>
-          </WesternFrame>
         </div>
 
-        {/* Bet selector — $0.10 steps, $0.10–$500 (only when idle) */}
+        {/* Message banner — gold pill */}
+        <div className="w-full py-3 px-4 rounded-full text-center" style={{
+          background: `linear-gradient(to bottom, ${DEEP_BLACK}, #071D14)`,
+          border: `2px solid ${GOLD}`,
+          boxShadow: 'inset 0 1px 0 rgba(246,201,74,0.25), 0 4px 12px rgba(0,0,0,0.5), 0 0 14px rgba(212,167,44,0.2)',
+        }}>
+          <span className="text-base font-bold italic" style={{ color: '#FFD86A', fontFamily: SERIF, textShadow: '0 0 8px rgba(255,216,106,0.4)' }}>{message}</span>
+        </div>
+
+        {/* Statistics — 3 premium boxes */}
+        <div className="grid grid-cols-3 gap-2 w-full">
+          <StatBox label="Balance" value={`$${balance.toFixed(2)}`} icon={<Wallet className="w-3 h-3" />} />
+          <StatBox label="Pot" value={`$${pot.toFixed(2)}`} icon={<CircleDollarSign className="w-3 h-3" />} />
+          <StatBox label="Streak" value={`${streak}x`} icon={<Trophy className="w-3 h-3" />} />
+        </div>
+
+        {/* Bet control — minus / amount / plus */}
         {phase === 'idle' && (
-          <div className="flex items-center justify-center gap-3">
-            <button
-              onClick={() => setBet(b => decBet(b))}
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-black/30 border border-amber-700/40 text-amber-100/90 hover:bg-black/50 transition-colors"
-              style={{ fontFamily: 'Georgia, serif' }}
-            >
+          <div className="flex items-center justify-center gap-3 w-full">
+            <button onClick={() => setBet(b => decBet(b))} className="w-11 h-11 rounded-full flex items-center justify-center" style={goldBtn}>
               <Minus className="w-5 h-5" />
             </button>
-            <div
-              className="px-5 py-2 rounded-md text-base font-black italic tabular-nums bg-amber-400 text-stone-900 border border-amber-300 min-w-[96px] text-center"
-              style={{ fontFamily: 'Georgia, serif' }}
-            >
-              ${bet.toFixed(2)}
+            <div className="px-6 py-2.5 rounded-lg min-w-[120px] text-center" style={{
+              background: `linear-gradient(to bottom, ${DEEP_BLACK}, #071D14)`,
+              border: `2px solid ${GOLD}`,
+              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.6), 0 0 12px rgba(212,167,44,0.2)',
+            }}>
+              <span className="text-lg font-bold italic tabular-nums" style={{ color: CREAM, fontFamily: SERIF }}>${bet.toFixed(2)}</span>
             </div>
-            <button
-              onClick={() => setBet(b => incBet(b))}
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-black/30 border border-amber-700/40 text-amber-100/90 hover:bg-black/50 transition-colors"
-              style={{ fontFamily: 'Georgia, serif' }}
-            >
+            <button onClick={() => setBet(b => incBet(b))} className="w-11 h-11 rounded-full flex items-center justify-center" style={goldBtn}>
               <Plus className="w-5 h-5" />
             </button>
           </div>
         )}
 
-        {/* Actions */}
+        {/* Deal button — emerald gradient + gold border */}
         {phase === 'idle' && (
-          <button
-            onClick={deal}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-green-700 text-white text-lg font-black italic shadow-lg hover:from-emerald-400 hover:to-green-600 transition-colors"
-            style={{ fontFamily: 'Georgia, serif' }}
-          >
-            DEAL · ${bet}
+          <button onClick={deal} className="w-full py-4 rounded-full" style={dealBtn}>
+            <span className="text-lg font-bold italic tracking-wide">DEAL • ${bet.toFixed(2)}</span>
           </button>
         )}
 
+        {/* Guessing actions */}
         {phase === 'guessing' && (
           <div className="grid grid-cols-2 gap-3 w-full">
-            <button
-              onClick={() => guess('high')}
-              className="py-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-stone-950 text-lg font-black italic shadow-lg hover:from-amber-400 hover:to-orange-500 transition-colors flex items-center justify-center gap-2"
-              style={{ fontFamily: 'Georgia, serif' }}
-            >
+            <button onClick={() => guess('high')} className="py-4 rounded-xl flex items-center justify-center gap-2" style={dealBtn}>
               <ArrowUp className="w-5 h-5" /> HIGHER
             </button>
-            <button
-              onClick={() => guess('low')}
-              className="py-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-700 text-white text-lg font-black italic shadow-lg hover:from-sky-400 hover:to-blue-600 transition-colors flex items-center justify-center gap-2"
-              style={{ fontFamily: 'Georgia, serif' }}
-            >
+            <button onClick={() => guess('low')} className="py-4 rounded-xl flex items-center justify-center gap-2" style={{
+              ...goldBtn,
+              border: `2px solid ${GOLD_BRIGHT}`,
+              color: CREAM,
+              fontFamily: SERIF,
+              boxShadow: 'inset 0 1px 0 rgba(246,201,74,0.2), 0 4px 12px rgba(0,0,0,0.4), 0 0 14px rgba(246,201,74,0.25)',
+            }}>
               <ArrowDown className="w-5 h-5" /> LOWER
             </button>
-            <button
-              onClick={collect}
-              className="col-span-2 py-3 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-600 text-stone-950 text-base font-black italic shadow-lg hover:from-yellow-300 hover:to-amber-500 transition-colors flex items-center justify-center gap-2"
-              style={{ fontFamily: 'Georgia, serif' }}
-            >
+            <button onClick={collect} className="col-span-2 py-3 rounded-xl flex items-center justify-center gap-2" style={{
+              background: `linear-gradient(to bottom, ${GOLD_BRIGHT}, ${GOLD})`,
+              border: `2px solid ${GOLD_HIGHLIGHT}`,
+              color: DEEP_BLACK,
+              fontFamily: SERIF,
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(212,167,44,0.4), 0 0 14px rgba(255,216,106,0.3)',
+            }}>
               <RotateCcw className="w-4 h-4" /> COLLECT ${pot.toFixed(2)}
             </button>
           </div>
         )}
 
+        {/* Result */}
         {phase === 'result' && (
-          <button
-            onClick={() => { setPhase('idle'); setCurrent(null); setRevealed(null); setMessage('Deal a card to start!'); }}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-green-700 text-white text-lg font-black italic shadow-lg hover:from-emerald-400 hover:to-green-600 transition-colors"
-            style={{ fontFamily: 'Georgia, serif' }}
-          >
-            NEW HAND
+          <button onClick={() => { setPhase('idle'); setCurrent(null); setRevealed(null); setMessage('Deal a card to start!'); }} className="w-full py-4 rounded-full" style={dealBtn}>
+            <span className="text-lg font-bold italic tracking-wide">NEW HAND</span>
           </button>
         )}
-
       </main>
     </div>
   );

@@ -67,7 +67,8 @@ module.exports = {
   			display: ['var(--font-display)'],
   			western: ['var(--font-western)'],
 			'western-body': ['var(--font-western-body)'],
-  			mono: ['var(--font-mono)']
+  			mono: ['var(--font-mono)'],
+  			cinzel: ['var(--font-cinzel)']
   		},
   		keyframes: {
   			'accordion-down': {
