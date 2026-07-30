@@ -216,9 +216,9 @@ export default function Thimbles() {
       {!loaded && <GameLoadingScreen title="Thimbles" onDone={() => setLoaded(true)} />}
       <GameHeader title="Thimbles" balance={balance} />
 
-      <main className="max-w-md w-full mx-auto px-3 py-3 flex flex-col gap-3 flex-1 relative z-10">
+      <main className="max-w-md w-full mx-auto px-3 py-1 flex flex-col gap-1 flex-1 relative z-10">
         {/* Betting controls bar — ornate gilded banner with baked-in - / + buttons */}
-        <div className="relative w-full" style={{ boxShadow: '0 3px 10px rgba(0,0,0,0.55)' }}>
+        <div className="relative w-full">
           <img src={BET_BANNER_IMG} alt="Total Bet" draggable={false} className="w-full h-auto select-none block" />
           {/* Center text inside the wooden panel */}
           <div className="absolute flex flex-col items-center justify-center pointer-events-none" style={{ left: '18%', right: '18%', top: 0, bottom: 0, transform: 'translateY(-20px)' }}>
@@ -233,11 +233,9 @@ export default function Thimbles() {
 
         {/* Game area — ornate gilded wood table with three barrels (full width edge-to-edge) */}
         <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 60%, rgba(0,0,0,0.1), rgba(0,0,0,0.3))' }} />
 
           {/* Three barrels */}
-          <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '240px' }}>
-            <div className="absolute bottom-2 left-4 right-4 h-[3px] rounded-full" style={{ background: 'linear-gradient(to right, transparent, rgba(180,140,80,0.4), transparent)' }} />
+          <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '200px' }}>
             {[0, 1, 2].map((cupIdx) => {
               const slot = positions[cupIdx];
               const isPicked = picked === cupIdx;
@@ -269,14 +267,14 @@ export default function Thimbles() {
           <button
             onClick={() => phase === 'idle' && setMode('single')}
             className="flex-1 transition-all active:scale-95"
-            style={{ opacity: mode === 'single' ? 1 : 0.45, filter: mode === 'single' ? 'drop-shadow(0 0 6px rgba(255,210,100,0.5))' : 'none' }}
+            style={{ opacity: mode === 'single' ? 1 : 0.45 }}
           >
             <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1fd7f6441_file_0000000066e081f7a29c25fb6bde36e0.png" alt="1 BALL X 2.88" draggable={false} className="w-full h-auto select-none" />
           </button>
           <button
             onClick={() => phase === 'idle' && setMode('two')}
             className="flex-1 transition-all active:scale-95"
-            style={{ opacity: mode === 'two' ? 1 : 0.45, filter: mode === 'two' ? 'drop-shadow(0 0 6px rgba(255,210,100,0.5))' : 'none', marginTop: '12px' }}
+            style={{ opacity: mode === 'two' ? 1 : 0.45 }}
           >
             <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/de25c864e_file_00000000c2f081f79b316882b62f9e13.png" alt="2 BALLS X 1.44" draggable={false} className="w-full h-auto select-none" />
           </button>
@@ -288,7 +286,6 @@ export default function Thimbles() {
             onClick={phase === 'over' ? newGame : start}
             disabled={phase === 'idle' && balance < bet}
             className="w-full transition-all disabled:opacity-40"
-            style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}
           >
             <img
               src={SPIN_IMG}
@@ -311,22 +308,22 @@ export default function Thimbles() {
           </button>
         )}
         {(phase === 'peek' || phase === 'shuffling' || phase === 'picking') && (
-          <div className="w-full py-4 rounded-xl text-center text-lg font-black" style={{ background: 'linear-gradient(to bottom, #4a3a2a, #2e2218)', color: '#8a7a60', border: '1px solid rgba(180,140,80,0.3)' }}>
+          <div className="w-full py-2 text-center text-lg font-black" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif' }}>
             {phase === 'peek' ? 'WATCH…' : phase === 'shuffling' ? 'SHUFFLING…' : 'PICK A CUP'}
           </div>
         )}
       </main>
 
       {/* Bottom action bar */}
-      <div className="w-full max-w-md mx-auto px-3 pb-2 relative z-10">
-        <div className="rounded-xl py-2.5 px-4 flex items-center justify-between" style={{ background: 'linear-gradient(to bottom, #2e2218, #1a1208)', border: '1px solid rgba(180,140,80,0.4)' }}>
-          <button className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(180,140,80,0.15)' }}>
+      <div className="w-full max-w-md mx-auto px-3 pb-1 relative z-10">
+        <div className="py-1.5 px-2 flex items-center justify-between">
+          <button className="w-9 h-9 flex items-center justify-center">
             <ChevronLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
-          <button className="relative flex items-center justify-center px-6 py-2 rounded-lg" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4fcee62b8_file_000000001a688230909747b265fab779.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', boxShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-            <span className="text-sm font-black tracking-wide" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif', textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>HISTORY</span>
+          <button className="relative flex items-center justify-center px-6 py-2 rounded-lg" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4fcee62b8_file_000000001a688230909747b265fab779.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat' }}>
+            <span className="text-sm font-black tracking-wide" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif' }}>HISTORY</span>
           </button>
-          <button className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(180,140,80,0.15)' }}>
+          <button className="w-9 h-9 flex items-center justify-center">
             <Menu className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
         </div>
@@ -363,7 +360,7 @@ function Barrel({ lifted, hasBall, reveal, won }) {
           transform: lifted ? 'translateY(-52px)' : 'translateY(0)',
           zIndex: 2,
           mixBlendMode: 'screen',
-          filter: won ? 'drop-shadow(0 0 10px rgba(255,210,100,0.7)) brightness(1.1)' : 'drop-shadow(0 3px 5px rgba(0,0,0,0.6))',
+          filter: won ? 'brightness(1.1)' : 'none',
         }}
       />
     </div>
@@ -383,7 +380,7 @@ function GoldenBall({ size = 28 }) {
         width: size,
         height: 'auto',
         mixBlendMode: 'screen',
-        filter: 'drop-shadow(0 0 8px rgba(255,210,120,0.85))',
+        filter: 'none',
       }}
     />
   );
