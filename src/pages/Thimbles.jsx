@@ -243,7 +243,7 @@ export default function Thimbles() {
         </div>
 
         {/* Game area — ornate gilded wood table with three barrels (full width edge-to-edge) */}
-        <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', marginTop: '-50px', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
 
           {/* Three barrels */}
           <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '200px' }}>
@@ -274,7 +274,7 @@ export default function Thimbles() {
         </div>
 
         {/* Multiplier banners — 1 ball / 2 balls selectors side-by-side */}
-        <div className="flex items-stretch gap-2">
+        <div className="flex items-stretch gap-2" style={{ marginTop: '-50px' }}>
           <button
             onClick={() => phase === 'idle' && setMode('single')}
             className="flex-1 transition-all active:scale-95"
