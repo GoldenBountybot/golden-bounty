@@ -271,24 +271,21 @@ export default function Thimbles() {
           </div>
         </div>
 
-        {/* Game config panel — 1 ball / 2 balls selectors */}
-        <div className="rounded-xl py-4 px-5 flex items-center justify-around" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7e2a98220_generated_image.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', boxShadow: '0 3px 10px rgba(0,0,0,0.55)' }}>
+        {/* Multiplier banners — 1 ball / 2 balls selectors side-by-side */}
+        <div className="flex items-stretch gap-2">
           <button
             onClick={() => phase === 'idle' && setMode('single')}
-            className="flex flex-col items-center gap-1 transition-transform active:scale-95"
-            style={{ opacity: mode === 'single' ? 1 : 0.5 }}
+            className="flex-1 transition-all active:scale-95"
+            style={{ opacity: mode === 'single' ? 1 : 0.45, filter: mode === 'single' ? 'drop-shadow(0 0 6px rgba(255,210,100,0.5))' : 'none' }}
           >
-            <span className="text-[11px] font-bold tracking-widest" style={{ color: mode === 'single' ? '#ffe8a0' : '#a09080' }}>1 BALL</span>
-            <span className="text-lg font-black tabular-nums" style={{ color: mode === 'single' ? '#ffe066' : '#8a7a60', textShadow: mode === 'single' ? '0 0 8px rgba(255,210,100,0.6)' : 'none' }}>X {SINGLE_MULT}</span>
+            <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1fd7f6441_file_0000000066e081f7a29c25fb6bde36e0.png" alt="1 BALL X 2.88" draggable={false} className="w-full h-auto select-none" />
           </button>
-          <div className="w-px h-12" style={{ background: 'rgba(180,140,80,0.3)' }} />
           <button
             onClick={() => phase === 'idle' && setMode('two')}
-            className="flex flex-col items-center gap-1 transition-transform active:scale-95"
-            style={{ opacity: mode === 'two' ? 1 : 0.5 }}
+            className="flex-1 transition-all active:scale-95"
+            style={{ opacity: mode === 'two' ? 1 : 0.45, filter: mode === 'two' ? 'drop-shadow(0 0 6px rgba(255,210,100,0.5))' : 'none' }}
           >
-            <span className="text-[11px] font-bold tracking-widest" style={{ color: mode === 'two' ? '#ffe8a0' : '#a09080' }}>2 BALLS</span>
-            <span className="text-lg font-black tabular-nums" style={{ color: mode === 'two' ? '#ffe066' : '#8a7a60', textShadow: mode === 'two' ? '0 0 8px rgba(255,210,100,0.6)' : 'none' }}>X {TWO_MULT}</span>
+            <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/de25c864e_file_00000000c2f081f79b316882b62f9e13.png" alt="2 BALLS X 1.44" draggable={false} className="w-full h-auto select-none" />
           </button>
         </div>
 
