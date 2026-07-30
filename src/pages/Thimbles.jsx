@@ -12,7 +12,7 @@ const DEFAULT_BET = 20;
 const BET_STEP = 5;
 const SINGLE_MULT = 2.88;
 const TWO_MULT = 1.44;
-const SHUFFLE_SWAPS = 8;
+const SHUFFLE_SWAPS = 13;
 const SHUFFLE_MS = 320;
 
 let _actx = null;
