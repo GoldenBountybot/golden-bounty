@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, Menu, History } from 'lucide-react';
+import { ChevronLeft, Menu, History, X } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 import GameHeader from '@/components/GameHeader';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -80,6 +81,7 @@ export default function Thimbles() {
   const [lastWin, setLastWin] = useState(0);
   const [message, setMessage] = useState('Press SPIN to start');
   const [hash] = useState(genHash);
+  const [showHistory, setShowHistory] = useState(false);
   const logActivity = useLogActivity();
   const timers = useRef([]);
   const pendingWin = useRef(false);
@@ -331,18 +333,19 @@ export default function Thimbles() {
           <button className="w-9 h-9 flex items-center justify-center">
             <ChevronLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
-          <button className="relative flex items-center justify-center px-6 py-2 rounded-lg" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4fcee62b8_file_000000001a688230909747b265fab779.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat' }}>
-            <span className="text-sm font-black tracking-wide" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif' }}>HISTORY</span>
+          <button onClick={() => setShowHistory(true)} className="transition-transform active:scale-95" style={{ width: '42%' }}>
+            <img src={HISTORY_IMG} alt="HISTORY" draggable={false} className="w-full h-auto select-none" />
           </button>
           <button className="w-9 h-9 flex items-center justify-center">
             <Menu className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
         </div>
-        <div className="flex items-center justify-between mt-1.5 px-1">
-          <span className="text-[9px] tabular-nums truncate max-w-[60%]" style={{ color: '#6a6258' }}>HASH: {hash.substring(0, 28)}…</span>
+        <div className="flex items-center justify-end mt-1.5 px-1">
           <span className="text-[10px] font-bold tabular-nums" style={{ color: '#a09080' }}>Cash: {balance.toFixed(2)} USDT</span>
         </div>
       </div>
+
+      {showHistory && <HistoryModal onClose={() => setShowHistory(false)} />}
     </div>
   );
 }
@@ -350,6 +353,7 @@ export default function Thimbles() {
 const BET_BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2c9406808_file_000000003fc481fab86dd38fbe7b4787.png';
 const SPIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/06b6ee99c_file_000000003c488211a7ea3420ca9b6b25.png';
 const BARREL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f1d422732_file_000000002c8c81f789fe32b56de1dcdf.png';
+const HISTORY_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4fcee62b8_file_000000001a688230909747b265fab779.png';
 
 function Barrel({ lifted, hasBall, reveal, won }) {
   return (
@@ -394,5 +398,104 @@ function GoldenBall({ size = 28 }) {
         filter: 'none',
       }}
     />
+  );
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  try {
+    const dt = new Date(d);
+    return dt.toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  } catch { return String(d); }
+}
+
+function HistoryModal({ onClose }) {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const list = await base44.entities.PlayerActivity.filter({ game_id: 'thimbles' }, '-created_date', 60);
+        if (active) setRows((list || []).filter((r) => (r.bet || 0) > 0));
+      } catch { if (active) setRows([]); }
+      finally { if (active) setLoading(false); }
+    })();
+    return () => { active = false; };
+  }, []);
+
+  const totalBet = rows.reduce((s, r) => s + (r.bet || 0), 0);
+  const totalWin = rows.reduce((s, r) => s + (r.win || 0), 0);
+  const net = totalWin - totalBet;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="w-full max-w-md rounded-xl relative overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+        style={{ border: '1px solid rgba(214,178,98,0.5)', background: 'linear-gradient(to bottom, #1a191e, #100f14)', fontFamily: 'Georgia, serif' }}
+      >
+        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
+          <div className="flex items-center gap-2">
+            <History className="w-4 h-4" style={{ color: '#ffe8a0' }} />
+            <h3 className="text-sm font-black italic" style={{ color: '#ffe8a0' }}>Thimbles History</h3>
+          </div>
+          <button onClick={onClose} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)', color: '#ffe8a0' }}>
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 px-4 py-3 text-center" style={{ borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
+          <div>
+            <div className="text-[9px] font-bold tracking-wider" style={{ color: '#a09080' }}>TOTAL BET</div>
+            <div className="text-sm font-black text-white tabular-nums">{totalBet.toFixed(2)}</div>
+          </div>
+          <div>
+            <div className="text-[9px] font-bold tracking-wider" style={{ color: '#a09080' }}>TOTAL WIN</div>
+            <div className="text-sm font-black tabular-nums" style={{ color: '#7ee787' }}>{totalWin.toFixed(2)}</div>
+          </div>
+          <div>
+            <div className="text-[9px] font-bold tracking-wider" style={{ color: '#a09080' }}>NET</div>
+            <div className={`text-sm font-black tabular-nums ${net >= 0 ? '' : ''}`} style={{ color: net >= 0 ? '#7ee787' : '#ff6b6b' }}>{net >= 0 ? '+' : ''}{net.toFixed(2)}</div>
+          </div>
+        </div>
+
+        <div className="max-h-[55vh] overflow-y-auto">
+          {loading ? (
+            <div className="flex items-center justify-center py-10">
+              <div className="w-6 h-6 rounded-full animate-spin" style={{ border: '2px solid rgba(214,178,98,0.3)', borderTopColor: '#ffe8a0' }} />
+            </div>
+          ) : rows.length === 0 ? (
+            <div className="py-10 text-center text-sm italic" style={{ color: '#6a6258' }}>No history yet</div>
+          ) : (
+            rows.map((r) => {
+              const profit = (r.win || 0) - (r.bet || 0);
+              const odds = Number(r.multiplier) || 0;
+              return (
+                <div key={r.id} className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2 px-4 py-2 text-xs" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div className="flex flex-col">
+                    <span className="font-bold" style={{ color: '#ffe8a0' }}>Thimbles</span>
+                    <span className="text-[10px]" style={{ color: '#6a6258' }}>{fmtDate(r.created_date)}</span>
+                  </div>
+                  <span className="text-right tabular-nums" style={{ color: '#c8b890' }}>{odds > 0 ? `×${odds.toFixed(2)}` : '—'}</span>
+                  <span className="text-right tabular-nums" style={{ color: '#a09080' }}>{(r.win || 0).toFixed(2)}</span>
+                  <span className="text-right font-bold tabular-nums" style={{ color: profit >= 0 ? '#7ee787' : '#ff6b6b' }}>
+                    {profit >= 0 ? '+' : ''}{profit.toFixed(2)}
+                  </span>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2 px-4 py-2 text-[9px] font-bold tracking-wider" style={{ borderTop: '1px solid rgba(214,178,98,0.22)', color: '#6a6258' }}>
+          <span>GAME</span>
+          <span className="text-right">ODDS</span>
+          <span className="text-right">WIN</span>
+          <span className="text-right">NET</span>
+        </div>
+      </div>
+    </div>
   );
 }
