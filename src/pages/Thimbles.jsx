@@ -298,11 +298,22 @@ export default function Thimbles() {
             style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}
           >
             <img
-              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/06b6ee99c_file_000000003c488211a7ea3420ca9b6b25.png"
+              src={SPIN_IMG}
               alt="SPIN"
               draggable={false}
               className="w-full h-auto select-none"
-              style={{ mixBlendMode: 'screen' }}
+              style={{
+                WebkitMaskImage: `url(${SPIN_IMG})`,
+                WebkitMaskMode: 'luminance',
+                WebkitMaskSize: 'contain',
+                WebkitMaskRepeat: 'no-repeat',
+                WebkitMaskPosition: 'center',
+                maskImage: `url(${SPIN_IMG})`,
+                maskMode: 'luminance',
+                maskSize: 'contain',
+                maskRepeat: 'no-repeat',
+                maskPosition: 'center',
+              }}
             />
           </button>
         )}
@@ -336,6 +347,7 @@ export default function Thimbles() {
   );
 }
 
+const SPIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/06b6ee99c_file_000000003c488211a7ea3420ca9b6b25.png';
 const BARREL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f1d422732_file_000000002c8c81f789fe32b56de1dcdf.png';
 
 function Barrel({ lifted, hasBall, reveal, won }) {
