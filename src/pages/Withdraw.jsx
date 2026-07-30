@@ -12,8 +12,8 @@ import { Wallet, ArrowLeft, Send, AlertTriangle } from 'lucide-react';
 const FONT = 'Rye, Georgia, serif';
 
 const METHODS = [
-  { id: 'binance', label: 'Binance Pay', badge: 'B', badgeClass: 'bg-amber-400 text-stone-950 ring-amber-200', hint: 'Withdraw to your Binance UID' },
-  { id: 'usdt', label: 'USDT (Crypto)', badge: '₮', badgeClass: 'bg-emerald-500 text-white ring-emerald-300', hint: 'Withdraw USDT to your wallet' },
+  { id: 'binance', label: 'Binance Pay', badge: 'B', badgeClass: 'bg-amber-400 text-stone-950 ring-amber-200', hintKey: 'Withdraw to your Binance UID' },
+  { id: 'usdt', label: 'USDT (Crypto)', badge: '₮', badgeClass: 'bg-emerald-500 text-white ring-emerald-300', hintKey: 'Withdraw USDT to your wallet' },
 ];
 
 const DEFAULT_USDT_NETS = [
@@ -107,7 +107,7 @@ export default function Withdraw() {
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
           {view !== 'choose' ? (
             <button onClick={() => { setView('choose'); setSelectedNet(null); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md italic font-bold border border-amber-600/80 text-amber-200 bg-black/40 active:scale-95" style={{ fontFamily: FONT }}>
-              <ArrowLeft className="w-4 h-4" /> Back
+              <ArrowLeft className="w-4 h-4" /> {t("Back")}
             </button>
           ) : (
             <BackButton href="/dashboard" />
@@ -150,7 +150,7 @@ export default function Withdraw() {
                 </div>
                 <div className="flex-1 text-left">
                   <h2 className="text-base font-black italic text-amber-100" style={{ fontFamily: FONT }}>{m.label}</h2>
-                  <p className="text-[11px] text-amber-100/50">{m.hint}</p>
+                  <p className="text-[11px] text-amber-100/50">{t(m.hintKey)}</p>
                 </div>
               </button>
             ))}
@@ -159,7 +159,7 @@ export default function Withdraw() {
               <WesternFrame variant="glass" className="p-3 flex flex-col gap-1 text-center">
                 <p className="text-[11px] text-amber-200 italic" style={{ fontFamily: FONT }}>{t("Deposit play-through required")}</p>
                 <p className="text-[10px] text-amber-100/70 italic">
-                  ${wagerRemaining.toFixed(2)} of your deposit must be played in games or stacked before withdrawal. Withdrawable now: <span className="text-amber-200 font-bold">${maxWithdrawable.toFixed(2)}</span>.
+                  {t("{x} of your deposit must be played in games or stacked before withdrawal. Withdrawable now: {y}.", { x: `$${wagerRemaining.toFixed(2)}`, y: `$${maxWithdrawable.toFixed(2)}` })}
                 </p>
               </WesternFrame>
             )}
@@ -168,8 +168,8 @@ export default function Withdraw() {
 
         {view === 'binance' && (
           <WesternFrame variant="glass" className="p-4 flex flex-col gap-3">
-            <h2 className="font-black italic text-amber-200" style={{ fontFamily: FONT }}>Enter Binance UID</h2>
-            <p className="text-[11px] text-amber-100/60 italic">Enter your Binance Pay ID where you want to receive the funds.</p>
+            <h2 className="font-black italic text-amber-200" style={{ fontFamily: FONT }}>{t("Enter Binance UID")}</h2>
+            <p className="text-[11px] text-amber-100/60 italic">{t("Enter your Binance Pay ID where you want to receive the funds.")}</p>
             <input
               type="text"
               value={binanceUid}
@@ -184,15 +184,15 @@ export default function Withdraw() {
               className="w-auto mx-auto px-3 py-1.5 rounded-md font-bold italic flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.98]"
               style={{ ...GOLD_BTN, fontFamily: FONT }}
             >
-              <Send className="w-4 h-4" /> {submitting ? 'Submitting...' : 'Submit Withdrawal'}
+              <Send className="w-4 h-4" /> {submitting ? t("Submitting...") : t("Submit Withdrawal")}
             </button>
-            <p className="text-[10px] text-amber-100/40 italic text-center">Funds sent after admin approves your request.</p>
+            <p className="text-[10px] text-amber-100/40 italic text-center">{t("Funds sent after admin approves your request.")}</p>
           </WesternFrame>
         )}
 
         {view === 'usdt' && (
           <div className="flex flex-col gap-3">
-            <p className="text-xs text-amber-100/70 italic">Select a network, then enter your wallet address.</p>
+            <p className="text-xs text-amber-100/70 italic">{t("Select a network, then enter your wallet address.")}</p>
             {usdtNets.map((n, i) => {
               const active = selectedNet?.name === n.name;
               return (
@@ -213,13 +213,13 @@ export default function Withdraw() {
 
             {selectedNet && (
               <WesternFrame variant="glass" className="p-4 flex flex-col gap-3">
-                <h2 className="font-black italic text-amber-200" style={{ fontFamily: FONT }}>Your Wallet Address</h2>
-                <p className="text-[11px] text-amber-100/60 italic">Network: {selectedNet.name}</p>
+                <h2 className="font-black italic text-amber-200" style={{ fontFamily: FONT }}>{t("Your Wallet Address")}</h2>
+                <p className="text-[11px] text-amber-100/60 italic">{t("Network:")} {selectedNet.name}</p>
                 <input
                   type="text"
                   value={walletAddr}
                   onChange={e => setWalletAddr(e.target.value)}
-                  placeholder="Paste your USDT wallet address"
+                  placeholder={t("Paste your USDT wallet address")}
                   className="w-60 mx-auto px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
                   style={{ fontFamily: 'monospace' }}
                 />
@@ -229,9 +229,9 @@ export default function Withdraw() {
                   className="w-auto mx-auto px-3 py-1.5 rounded-md font-bold italic flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.98]"
                   style={{ ...GOLD_BTN, fontFamily: FONT }}
                 >
-                  <Send className="w-4 h-4" /> {submitting ? 'Submitting...' : 'Submit Withdrawal'}
+                  <Send className="w-4 h-4" /> {submitting ? t("Submitting...") : t("Submit Withdrawal")}
                 </button>
-                <p className="text-[10px] text-amber-100/40 italic text-center">Funds sent after admin approves your request.</p>
+                <p className="text-[10px] text-amber-100/40 italic text-center">{t("Funds sent after admin approves your request.")}</p>
               </WesternFrame>
             )}
             </div>

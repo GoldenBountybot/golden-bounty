@@ -1,15 +1,16 @@
 import React from 'react';
 import { Bell, Gift, CheckCircle2, ArrowDownToLine, ArrowUpFromLine, Megaphone } from 'lucide-react';
 import { useNotifications } from '@/lib/useNotifications';
+import { useLanguage } from '@/lib/LanguageContext';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
 import BackButton from '@/components/BackButton';
 
 const TYPE_META = {
-  bonus_arrived: { icon: Gift, color: '#f5c542', label: 'Bonus Arrived' },
-  bonus_claimed: { icon: CheckCircle2, color: '#7bd88f', label: 'Bonus Claimed' },
-  deposit_approved: { icon: ArrowDownToLine, color: '#7bd88f', label: 'Deposit Approved' },
-  withdraw_approved: { icon: ArrowUpFromLine, color: '#f0a050', label: 'Withdraw Approved' },
-  system: { icon: Megaphone, color: '#c5a059', label: 'System' },
+  bonus_arrived: { icon: Gift, color: '#f5c542', labelKey: 'Bonus Arrived' },
+  bonus_claimed: { icon: CheckCircle2, color: '#7bd88f', labelKey: 'Bonus Claimed' },
+  deposit_approved: { icon: ArrowDownToLine, color: '#7bd88f', labelKey: 'Deposit Approved' },
+  withdraw_approved: { icon: ArrowUpFromLine, color: '#f0a050', labelKey: 'Withdraw Approved' },
+  system: { icon: Megaphone, color: '#c5a059', labelKey: 'System' },
 };
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -30,6 +31,7 @@ function fullTime(d) {
 
 export default function Notifications() {
   const { items, unreadCount, markAllRead, reload, loading } = useNotifications();
+  const { t } = useLanguage();
 
   React.useEffect(() => { markAllRead(); reload(); /* eslint-disable-next-line */ }, []);
 
@@ -42,26 +44,26 @@ export default function Notifications() {
       >
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <BackButton to="/" />
-          <WesternTitleBadge size="lg" fullWidth className="max-w-[60%]">Notifications</WesternTitleBadge>
+          <WesternTitleBadge size="lg" fullWidth className="max-w-[60%]">{t("Notifications")}</WesternTitleBadge>
           <div className="w-8" />
         </div>
       </header>
 
       <div className="max-w-3xl mx-auto px-4 pt-5">
         <p className="text-center text-[11px] text-amber-100/55 italic mb-4" style={{ fontFamily: 'Georgia, serif' }}>
-          {items.length} total · {unreadCount} unread
+          {items.length} {t("total")} · {unreadCount} {t("unread")}
         </p>
 
         {/* Notification list — each notification on its own line */}
         {loading ? (
           <div className="text-center py-10 text-[12px] text-amber-100/50 italic" style={{ fontFamily: 'Georgia, serif' }}>
-            Loading…
+            {t("Loading…")}
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-16 flex flex-col items-center gap-3">
             <Bell className="w-10 h-10 text-amber-200/30" />
             <p className="text-[12px] text-amber-100/50 italic" style={{ fontFamily: 'Georgia, serif' }}>
-              No notifications yet
+              {t("No notifications yet")}
             </p>
           </div>
         ) : (
@@ -88,7 +90,7 @@ export default function Notifications() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <p className="text-[11px] font-black italic" style={{ fontFamily: 'Georgia, serif', color: m.color }}>
-                        {m.label}
+                        {t(m.labelKey)}
                       </p>
                       {n.amount > 0 && (
                         <span
