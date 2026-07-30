@@ -242,13 +242,6 @@ export default function Thimbles() {
         <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 60%, rgba(0,0,0,0.1), rgba(0,0,0,0.3))' }} />
 
-          {/* Message banner — solid maroon with gold rim, fully covers the table's baked-in banner */}
-          <div className="absolute top-1.5 left-0 right-0 flex justify-center z-20">
-            <div className="text-sm font-bold uppercase tracking-wider text-center" style={{ minWidth: '260px', padding: '6px 24px', background: 'linear-gradient(to bottom, #5A0000, #2E0000)', border: '1.5px solid #D4AF37', borderRadius: '4px', color: won ? '#ffe066' : '#D4AF37', textShadow: '0 1px 2px rgba(0,0,0,0.8)', boxShadow: '0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,215,0,0.3)' }}>
-              {message}
-            </div>
-          </div>
-
           {/* Three barrels */}
           <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '240px' }}>
             <div className="absolute bottom-2 left-4 right-4 h-[3px] rounded-full" style={{ background: 'linear-gradient(to right, transparent, rgba(180,140,80,0.4), transparent)' }} />
