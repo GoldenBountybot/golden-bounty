@@ -7,6 +7,7 @@ import { Bitcoin, Wallet, Copy, Check, ArrowLeft, AlertTriangle } from 'lucide-r
 import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
 import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
 import TxIdRow from '@/components/wallet/TxIdSubmit';
+import { useLanguage } from '@/lib/LanguageContext';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -78,6 +79,7 @@ const CRYPTO_NETWORKS = [
 ];
 
 function CopyAddr({ addr }) {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
@@ -94,7 +96,7 @@ function CopyAddr({ addr }) {
     <button onClick={copy} className="flex items-center gap-1.5 px-3 h-9 rounded-[14px] text-xs font-bold transition-all active:scale-95 shrink-0"
       style={{ border: '1px solid rgba(212,175,55,0.4)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
       {copied ? <Check className="w-3.5 h-3.5" style={{ color: '#34d399' }} /> : <Copy className="w-3.5 h-3.5" />}
-      {copied ? 'Copied' : 'Copy'}
+      {copied ? t("Copied") : t("Copy")}
     </button>
   );
 }
@@ -112,6 +114,7 @@ export default function PayMethod() {
   const params = new URLSearchParams(window.location.search);
   const amount = Number(params.get('amount') || 0);
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { demoMode } = useCasinoBalance();
   const [view, setView] = useState('choose'); // 'choose' | 'usdt' | 'crypto' | 'binance'
   const [payData, setPayData] = useState({ binance: null, usdt: USDT_NETWORKS, crypto: CRYPTO_NETWORKS });
@@ -138,7 +141,7 @@ export default function PayMethod() {
   };
 
   const networks = view === 'usdt' ? payData.usdt : view === 'crypto' ? payData.crypto : [];
-  const methodLabel = view === 'usdt' ? 'USDT Deposit' : view === 'crypto' ? 'Crypto Deposit' : view === 'tonkeeper' ? 'Ton Wallet Deposit' : view === 'trust' ? 'Trust Wallet Pay' : 'Binance Pay Deposit';
+  const methodLabel = view === 'usdt' ? t("USDT Deposit") : view === 'crypto' ? t("Crypto Deposit") : view === 'tonkeeper' ? t("Ton Wallet Deposit") : view === 'trust' ? t("Trust Wallet Pay") : t("Binance Pay Deposit");
 
   return (
     <div className="relative min-h-screen pb-24" style={{ background: '#0D0D0D', fontFamily: SANS }}>
@@ -164,7 +167,7 @@ export default function PayMethod() {
             </button>
           )}
           <div className="flex-1 text-center">
-            <span className="text-base font-extrabold tracking-tight" style={{ color: '#D4AF37' }}>{view === 'choose' ? 'Choose Payment' : methodLabel}</span>
+            <span className="text-base font-extrabold tracking-tight" style={{ color: '#D4AF37' }}>{view === 'choose' ? t("Choose Payment") : methodLabel}</span>
           </div>
           <div className="w-10" />
         </div>
@@ -174,23 +177,23 @@ export default function PayMethod() {
         {demoMode ? (
           <div className="dash-card p-5 flex flex-col items-center gap-3 text-center" style={{ animation: 'dashFadeIn 300ms ease both' }}>
             <AlertTriangle className="w-8 h-8" style={{ color: '#D4AF37' }} />
-            <p className="text-sm font-semibold" style={{ color: '#fff' }}>Demo Mode is active.</p>
-            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>Deposits are disabled while using the practice balance. Turn off Demo from the home page to deposit real funds.</p>
-            <button onClick={() => window.location.href = '/'} className="dash-btn-gold px-5 py-2.5 text-sm">Back to Home</button>
+            <p className="text-sm font-semibold" style={{ color: '#fff' }}>{t("Demo Mode is active.")}</p>
+            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>{t("Deposits are disabled while using the practice balance. Turn off Demo from the home page to deposit real funds.")}</p>
+            <button onClick={() => window.location.href = '/'} className="dash-btn-gold px-5 py-2.5 text-sm">{t("Back to Home")}</button>
           </div>
         ) : amount <= 0 ? (
           <div className="dash-card p-5 flex flex-col items-center gap-3 text-center" style={{ animation: 'dashFadeIn 300ms ease both' }}>
             <AlertTriangle className="w-8 h-8" style={{ color: '#D4AF37' }} />
-            <p className="text-sm font-semibold" style={{ color: '#fff' }}>No deposit amount selected.</p>
-            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>Please choose a deposit amount from the dashboard.</p>
-            <button onClick={() => window.location.href = '/dashboard'} className="dash-btn-gold px-5 py-2.5 text-sm">Go to Dashboard</button>
+            <p className="text-sm font-semibold" style={{ color: '#fff' }}>{t("No deposit amount selected.")}</p>
+            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>{t("Please choose a deposit amount from the dashboard.")}</p>
+            <button onClick={() => window.location.href = '/dashboard'} className="dash-btn-gold px-5 py-2.5 text-sm">{t("Go to Dashboard")}</button>
           </div>
         ) : (
         <>
         {/* Deposit amount card */}
         <div className="dash-card p-5 flex items-center justify-between" style={{ animation: 'dashFadeIn 400ms ease both', background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.4)', boxShadow: '0 0 24px rgba(212,175,55,0.16), 0 8px 24px rgba(0,0,0,0.5)' }}>
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Depositing</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>{t("Depositing")}</p>
             <p className="text-3xl font-extrabold tabular-nums mt-0.5" style={{ color: '#fff' }}>${amount.toFixed(2)}</p>
           </div>
           <div className="flex items-center justify-center w-12 h-12 rounded-full shrink-0" style={{ background: 'linear-gradient(135deg, #FFD700, #C89B3C)', boxShadow: '0 0 18px rgba(212,175,55,0.5)' }}>
@@ -216,13 +219,13 @@ export default function PayMethod() {
                 </div>
               </button>
             ))}
-            <p className="text-[11px] text-center mt-2" style={{ color: 'rgba(255,255,255,0.4)' }}>Minimum deposit $3.00 · Choose your preferred method</p>
+            <p className="text-[11px] text-center mt-2" style={{ color: 'rgba(255,255,255,0.4)' }}>{t("Minimum deposit $3.00 · Choose your preferred method")}</p>
           </div>
         )}
 
         {view !== 'choose' && view !== 'binance' && (
           <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-            <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>Send to one of the addresses below to deposit.</p>
+            <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>{t("Send to one of the addresses below to deposit.")}</p>
             {networks.map((n, i) => (
               <div key={i} className="dash-card p-4 flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both', animationDelay: (50 * i) + 'ms' }}>
                 <div className="flex items-center gap-3">

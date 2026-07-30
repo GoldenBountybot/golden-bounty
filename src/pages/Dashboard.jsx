@@ -10,6 +10,7 @@ import StylishNotify from '@/components/StylishNotify';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/lib/AuthContext';
+import { useLanguage } from '@/lib/LanguageContext';
 import { base44 } from '@/api/base44Client';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
@@ -33,6 +34,7 @@ export default function Dashboard() {
   const acct = useCasinoAccount();
   const stake = useStake();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [depAmt, setDepAmt] = useState('');
   const [wdAmt, setWdAmt] = useState('');
@@ -74,22 +76,22 @@ export default function Dashboard() {
 
   const doDeposit = async (amount) => {
     const n = Number(amount);
-    if (!n || n <= 0) { toast({ title: 'Enter a valid amount' }); return; }
-    if (n < 3) { toast({ title: 'Minimum deposit is $3.00' }); return; }
+    if (!n || n <= 0) { toast({ title: t("Enter a valid amount") }); return; }
+    if (n < 3) { toast({ title: t("Minimum deposit is $3.00") }); return; }
     window.location.href = `/pay?amount=${encodeURIComponent(n)}`;
     setDepAmt('');
   };
 
   const doWithdraw = () => {
     const n = Number(wdAmt);
-    if (!n || n <= 0) { toast({ title: 'Enter a valid amount' }); return; }
-    if (n > acct.balance) { toast({ title: 'Insufficient balance' }); return; }
+    if (!n || n <= 0) { toast({ title: t("Enter a valid amount") }); return; }
+    if (n > acct.balance) { toast({ title: t("Insufficient balance") }); return; }
     if (n > acct.maxWithdrawable) {
       toast({
-        title: 'Wagering requirement not met',
+        title: t("Wagering requirement not met"),
         description: acct.wagerRemaining > 0
           ? `Play through or stack $${acct.wagerRemaining.toFixed(2)} of your deposit before withdrawing.`
-          : 'Only winnings above your locked deposit can be withdrawn.',
+          : t("Only winnings above your locked deposit can be withdrawn."),
       });
       return;
     }
@@ -98,18 +100,18 @@ export default function Dashboard() {
   };
 
   const doStake = async (amount) => {
-    if (acct.demoMode) { toast({ title: 'Stacking is not available in Demo mode', description: 'Turn off Demo balance to lock real funds and earn profit.' }); return; }
+    if (acct.demoMode) { toast({ title: t("Stacking is not available in Demo mode"), description: t("Turn off Demo balance to lock real funds and earn profit.") }); return; }
     const n = Number(amount);
-    if (!n || n <= 0) { toast({ title: 'Enter a valid amount' }); return; }
+    if (!n || n <= 0) { toast({ title: t("Enter a valid amount") }); return; }
     const ok = await stake.stake(n);
-    if (ok) { showNotify('Stacked!', `$${n.toFixed(2)} locked · earning ${(stake.rate * 100).toFixed(2)}% daily`); setStkAmt(''); }
-    else toast({ title: 'Insufficient balance' });
+    if (ok) { showNotify(t("Stacked!"), `$${n.toFixed(2)} locked · earning ${(stake.rate * 100).toFixed(2)}% daily`); setStkAmt(''); }
+    else toast({ title: t("Insufficient balance") });
   };
 
   const doClaimProfit = async () => {
     const p = await stake.claimProfit();
-    if (p > 0) showNotify('Profit claimed!', `+$${p.toFixed(2)} added to balance`);
-    else toast({ title: 'No profit to claim yet' });
+    if (p > 0) showNotify(t("Profit claimed!"), `+$${p.toFixed(2)} added to balance`);
+    else toast({ title: t("No profit to claim yet") });
   };
 
   const goldText = { color: '#D4AF37' };
@@ -140,7 +142,7 @@ export default function Dashboard() {
               <Wallet className="w-5 h-5" style={{ color: '#1a1408' }} />
             </div>
             <span className="text-lg font-extrabold tracking-tight" style={{ ...heading, color: '#D4AF37' }}>
-              {tab === 'stack' ? 'Stack' : tab === 'vip' ? 'VIP' : 'Dashboard'}
+              {tab === 'stack' ? t("Stack") : tab === 'vip' ? t("VIP") : t("Dashboard")}
             </span>
           </div>
 
@@ -156,14 +158,14 @@ export default function Dashboard() {
 
         {menuOpen && (
           <div className="max-w-md mx-auto px-4 pb-3 flex items-center gap-2" style={{ animation: 'dashFadeIn 250ms ease both' }}>
-            {TABS.map(t => {
-              const Icon = t.icon;
-              const active = tab === t.id;
+            {TABS.map(tb => {
+              const Icon = tb.icon;
+              const active = tab === tb.id;
               return (
                 <button
-                  key={t.id}
-                  onClick={() => { goTab(t.id); setMenuOpen(false); }}
-                  title={t.label}
+                  key={tb.id}
+                  onClick={() => { goTab(tb.id); setMenuOpen(false); }}
+                  title={t(tb.label)}
                   className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95"
                   style={{
                     border: active ? '1px solid rgba(212,175,55,0.6)' : '1px solid rgba(212,175,55,0.22)',
@@ -171,14 +173,14 @@ export default function Dashboard() {
                     color: active ? '#1a1408' : '#D4AF37',
                   }}
                 >
-                  <Icon className="w-4 h-4" /> {t.label}
+                  <Icon className="w-4 h-4" /> {t(tb.label)}
                 </button>
               );
             })}
             {user?.role === 'admin' && (
               <button
                 onClick={() => { window.location.href = '/admin'; }}
-                title="Admin Panel"
+                title={t("Admin Panel")}
                 className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
                 style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
               >
@@ -197,7 +199,7 @@ export default function Dashboard() {
         >
           <div className="pointer-events-none absolute -top-10 -right-8 w-40 h-40 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.22), transparent 70%)' }} />
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Total Balance</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>{t("Total Balance")}</p>
             <div className="flex items-center justify-center w-10 h-10 rounded-xl" style={{ background: 'linear-gradient(135deg,#FFD700,#C89B3C)', boxShadow: '0 0 18px rgba(212,175,55,0.5)' }}>
               <Wallet className="w-5 h-5" style={{ color: '#1a1408' }} />
             </div>
@@ -208,8 +210,8 @@ export default function Dashboard() {
             </span>
           </div>
           <div className="mt-3 flex items-center gap-3 text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
-            <span>Withdrawable: <span style={{ color: '#D4AF37', fontWeight: 700 }}>${acct.maxWithdrawable.toFixed(2)}</span></span>
-            {acct.wagerRemaining > 0 && <span>Locked: <span style={{ color: '#fb923c', fontWeight: 700 }}>${acct.wagerRemaining.toFixed(2)}</span></span>}
+            <span>{t("Withdrawable:")} <span style={{ color: '#D4AF37', fontWeight: 700 }}>${acct.maxWithdrawable.toFixed(2)}</span></span>
+            {acct.wagerRemaining > 0 && <span>{t("Locked:")} <span style={{ color: '#fb923c', fontWeight: 700 }}>${acct.wagerRemaining.toFixed(2)}</span></span>}
           </div>
         </div>
 
@@ -222,7 +224,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(52,211,153,0.14)', border: '1px solid rgba(52,211,153,0.35)' }}>
                     <ArrowDownToLine className="w-4 h-4" style={{ color: '#34d399' }} />
                   </div>
-                  <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>Deposit</h2>
+                  <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Deposit")}</h2>
                 </div>
                 <div className="flex gap-2 flex-wrap mb-3">
                   {[50, 100, 500, 1000].map(a => (
@@ -232,8 +234,8 @@ export default function Dashboard() {
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <input type="number" value={depAmt} onChange={e => setDepAmt(e.target.value)} placeholder="Custom amount" className="dash-input flex-1 px-4 py-3 text-sm" />
-                  <button onClick={() => doDeposit(depAmt)} className="dash-btn-gold px-6 py-3 text-sm">Deposit</button>
+                  <input type="number" value={depAmt} onChange={e => setDepAmt(e.target.value)} placeholder={t("Custom amount")} className="dash-input flex-1 px-4 py-3 text-sm" />
+                  <button onClick={() => doDeposit(depAmt)} className="dash-btn-gold px-6 py-3 text-sm">{t("Deposit")}</button>
                 </div>
               </div>
 
@@ -242,13 +244,13 @@ export default function Dashboard() {
                   <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(248,113,113,0.14)', border: '1px solid rgba(248,113,113,0.35)' }}>
                     <ArrowUpFromLine className="w-4 h-4" style={{ color: '#f87171' }} />
                   </div>
-                  <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>Withdraw</h2>
+                  <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Withdraw")}</h2>
                 </div>
                 <div className="flex gap-2 mb-2">
-                  <input type="number" value={wdAmt} onChange={e => setWdAmt(e.target.value)} placeholder="Amount to withdraw" className="dash-input flex-1 px-4 py-3 text-sm" />
-                  <button onClick={doWithdraw} className="dash-btn-gold px-6 py-3 text-sm">Withdraw</button>
+                  <input type="number" value={wdAmt} onChange={e => setWdAmt(e.target.value)} placeholder={t("Amount to withdraw")} className="dash-input flex-1 px-4 py-3 text-sm" />
+                  <button onClick={doWithdraw} className="dash-btn-gold px-6 py-3 text-sm">{t("Withdraw")}</button>
                 </div>
-                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>Withdraw creates a request — funds sent after admin approval.</p>
+                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("Withdraw creates a request — funds sent after admin approval.")}</p>
                 {acct.wagerRemaining > 0 && (
                   <p className="text-[11px] mt-1" style={{ color: '#fb923c' }}>
                     Locked deposit: ${acct.wagerRemaining.toFixed(2)} — play through or stack before withdrawing. Withdrawable now: ${acct.maxWithdrawable.toFixed(2)}.
@@ -261,10 +263,10 @@ export default function Dashboard() {
             <div className="flex flex-col gap-2.5">
               <div className="flex items-center gap-2 px-1">
                 <History className="w-4 h-4" style={{ color: '#D4AF37' }} />
-                <h2 className="text-sm font-bold" style={{ ...heading, color: '#D4AF37' }}>Transaction History</h2>
+                <h2 className="text-sm font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Transaction History")}</h2>
               </div>
               {history.length === 0 ? (
-                <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>No transactions yet.</p>
+                <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("No transactions yet.")}</p>
               ) : history.map(t => {
                 const credit = t.type === 'deposit';
                 const sm = STATUS_META[t.status] || STATUS_META.pending;
@@ -277,7 +279,7 @@ export default function Dashboard() {
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-bold" style={{ color: '#fff' }}>
-                          {credit ? 'Deposit' : 'Withdraw'} · <span style={{ color: credit ? '#34d399' : '#f87171' }}>{credit ? '+' : '−'}${Number(t.amount).toFixed(2)}</span>
+                          {credit ? t("Deposit") : t("Withdraw")} · <span style={{ color: credit ? '#34d399' : '#f87171' }}>{credit ? '+' : '−'}${Number(t.amount).toFixed(2)}</span>
                         </p>
                         <p className="text-[11px] truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>{t.method}{t.reference ? ` · ${t.reference.slice(0, 16)}` : ''}</p>
                         {t.created_date && (
@@ -319,10 +321,10 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-2 gap-3">
               {[
-                { icon: Lock, label: 'Staked', value: `$${stake.staked.toFixed(2)}` },
-                { icon: Sparkles, label: 'Pending Profit', value: `$${stake.pendingProfit.toFixed(2)}` },
-                { icon: null, label: 'Days Locked', value: `${stake.daysLocked}/${LOCK_DAYS}` },
-                { icon: null, label: 'Unlocks In', value: stake.unlocked ? 'Ready' : `${stake.daysRemaining}d` },
+                { icon: Lock, label: t("Staked"), value: `$${stake.staked.toFixed(2)}` },
+                { icon: Sparkles, label: t("Pending Profit"), value: `$${stake.pendingProfit.toFixed(2)}` },
+                { icon: null, label: t("Days Locked"), value: `${stake.daysLocked}/${LOCK_DAYS}` },
+                { icon: null, label: t("Unlocks In"), value: stake.unlocked ? t("Ready") : `${stake.daysRemaining}d` },
               ].map((s, i) => {
                 const Icon = s.icon;
                 return (
@@ -340,7 +342,7 @@ export default function Dashboard() {
               disabled={stake.pendingProfit <= 0}
               className="dash-btn-gold mx-auto px-6 py-3 text-sm flex items-center gap-2"
             >
-              <Coins className="w-4 h-4" /> CLAIM PROFIT ${stake.pendingProfit.toFixed(2)}
+              <Coins className="w-4 h-4" /> {t("CLAIM PROFIT")} ${stake.pendingProfit.toFixed(2)}
             </button>
 
             <div className="dash-card p-5 flex flex-col gap-3">
@@ -348,11 +350,11 @@ export default function Dashboard() {
                 <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(212,175,55,0.14)', border: '1px solid rgba(212,175,55,0.35)' }}>
                   <Layers className="w-4 h-4" style={{ color: '#D4AF37' }} />
                 </div>
-                <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>Stack More</h2>
+                <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Stack More")}</h2>
               </div>
-              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>Available balance: ${acct.balance.toFixed(2)}</p>
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Available balance:")} ${acct.balance.toFixed(2)}</p>
               {acct.demoMode && (
-                <p className="text-[12px]" style={{ color: '#f87171' }}>Demo balance cannot be stacked — turn off Demo mode to lock real funds.</p>
+                <p className="text-[12px]" style={{ color: '#f87171' }}>{t("Demo balance cannot be stacked — turn off Demo mode to lock real funds.")}</p>
               )}
               <div className="flex gap-2 flex-wrap">
                 {[50, 100, 500, 1000].map(a => (
@@ -366,8 +368,8 @@ export default function Dashboard() {
                 ))}
               </div>
               <div className="flex gap-2">
-                <input type="number" value={stkAmt} onChange={e => setStkAmt(e.target.value)} placeholder="Amount to stack" disabled={acct.demoMode} className="dash-input flex-1 px-4 py-3 text-sm disabled:opacity-40" />
-                <button onClick={() => doStake(stkAmt)} disabled={acct.demoMode} className="dash-btn-gold px-6 py-3 text-sm disabled:opacity-40">Stack</button>
+                <input type="number" value={stkAmt} onChange={e => setStkAmt(e.target.value)} placeholder={t("Amount to stack")} disabled={acct.demoMode} className="dash-input flex-1 px-4 py-3 text-sm disabled:opacity-40" />
+                <button onClick={() => doStake(stkAmt)} disabled={acct.demoMode} className="dash-btn-gold px-6 py-3 text-sm disabled:opacity-40">{t("Stack")}</button>
               </div>
               <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Stacking again restarts your {LOCK_DAYS}-day lock and profit timer on the total.</p>
             </div>

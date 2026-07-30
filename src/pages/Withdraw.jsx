@@ -6,6 +6,7 @@ import WesternBackdrop from '@/components/WesternBackdrop';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Wallet, ArrowLeft, Send, AlertTriangle } from 'lucide-react';
 
 const FONT = 'Rye, Georgia, serif';
@@ -45,6 +46,7 @@ export default function Withdraw() {
   const params = new URLSearchParams(window.location.search);
   const amount = Number(params.get('amount') || 0);
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { demoMode, wagerRemaining, maxWithdrawable } = useCasinoBalance();
   const [view, setView] = useState('choose'); // 'choose' | 'binance' | 'usdt'
   const [usdtNets, setUsdtNets] = useState(DEFAULT_USDT_NETS);
@@ -60,21 +62,21 @@ export default function Withdraw() {
   }, []);
 
   const submit = async () => {
-    if (view === 'binance' && !binanceUid.trim()) { toast({ title: 'Enter your Binance UID' }); return; }
+    if (view === 'binance' && !binanceUid.trim()) { toast({ title: t("Enter your Binance UID") }); return; }
     if (view === 'usdt') {
-      if (!selectedNet) { toast({ title: 'Select a network first' }); return; }
-      if (!walletAddr.trim()) { toast({ title: 'Enter your wallet address' }); return; }
+      if (!selectedNet) { toast({ title: t("Select a network first") }); return; }
+      if (!walletAddr.trim()) { toast({ title: t("Enter your wallet address") }); return; }
     }
     setSubmitting(true);
     try {
       const user = await base44.auth.me().catch(() => null);
-      if (!user) { toast({ title: 'Please log in first' }); setSubmitting(false); return; }
+      if (!user) { toast({ title: t("Please log in first") }); setSubmitting(false); return; }
       if (amount > maxWithdrawable) {
         toast({
-          title: 'Wagering requirement not met',
+          title: t("Wagering requirement not met"),
           description: wagerRemaining > 0
             ? `Play through or stack $${wagerRemaining.toFixed(2)} of your deposit before withdrawing.`
-            : 'Only winnings above your locked deposit can be withdrawn.',
+            : t("Only winnings above your locked deposit can be withdrawn."),
         });
         setSubmitting(false);
         return;
@@ -89,11 +91,11 @@ export default function Withdraw() {
         reference: view === 'binance' ? binanceUid.trim() : walletAddr.trim(),
         note: view === 'binance' ? `Binance Pay · UID ${binanceUid.trim()}` : `${selectedNet.name} · ${walletAddr.trim().slice(0, 14)}...`,
       });
-      toast({ title: 'Withdrawal requested', description: 'Pending admin approval.' });
+      toast({ title: t("Withdrawal requested"), description: t("Pending admin approval.") });
       setBinanceUid(''); setWalletAddr(''); setSelectedNet(null);
       setTimeout(() => { window.location.href = '/dashboard?tab=wallet'; }, 1000);
     } catch {
-      toast({ title: 'Submission failed', description: 'Please try again.' });
+      toast({ title: t("Submission failed"), description: t("Please try again.") });
     }
     setSubmitting(false);
   };
@@ -111,7 +113,7 @@ export default function Withdraw() {
             <BackButton href="/dashboard" />
           )}
           <div className="flex-1 text-center">
-            <WesternTitleBadge size="lg">{view === 'choose' ? 'Withdraw' : view === 'binance' ? 'Binance Pay' : 'USDT Withdraw'}</WesternTitleBadge>
+            <WesternTitleBadge size="lg">{view === 'choose' ? t("Withdraw") : view === 'binance' ? t("Binance Pay") : t("USDT Withdraw")}</WesternTitleBadge>
           </div>
         </div>
       </header>
@@ -120,15 +122,15 @@ export default function Withdraw() {
         {demoMode ? (
           <WesternFrame variant="glass" className="p-5 flex flex-col items-center gap-3 text-center">
             <AlertTriangle className="w-8 h-8 text-amber-400" />
-            <p className="text-amber-100 text-sm italic" style={{ fontFamily: FONT }}>Demo Mode is active.</p>
-            <p className="text-amber-100/60 text-xs italic">Withdrawals are disabled while using the practice balance. Turn off Demo from the home page to withdraw real funds.</p>
-            <button onClick={() => window.location.href = '/'} className="px-4 py-2 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic active:scale-95" style={{ fontFamily: FONT }}>Back to Home</button>
+            <p className="text-amber-100 text-sm italic" style={{ fontFamily: FONT }}>{t("Demo Mode is active.")}</p>
+            <p className="text-amber-100/60 text-xs italic">{t("Deposits are disabled while using the practice balance. Turn off Demo from the home page to deposit real funds.")}</p>
+            <button onClick={() => window.location.href = '/'} className="px-4 py-2 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic active:scale-95" style={{ fontFamily: FONT }}>{t("Back to Home")}</button>
           </WesternFrame>
         ) : (
         <>
         <WesternFrame glow variant="glass" className="p-4 flex items-center justify-between">
           <div>
-            <p className="text-[10px] tracking-widest uppercase text-amber-300/70">Withdrawing</p>
+            <p className="text-[10px] tracking-widest uppercase text-amber-300/70">{t("Withdrawing")}</p>
             <p className="text-2xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: FONT }}>${amount.toFixed(2)}</p>
           </div>
           <Wallet className="w-8 h-8 text-amber-400/60" />
@@ -152,10 +154,10 @@ export default function Withdraw() {
                 </div>
               </button>
             ))}
-            <p className="text-[10px] text-amber-100/40 italic text-center mt-2">Choose your preferred withdrawal method · Approved by admin</p>
+            <p className="text-[10px] text-amber-100/40 italic text-center mt-2">{t("Choose your preferred withdrawal method · Approved by admin")}</p>
             {wagerRemaining > 0 && (
               <WesternFrame variant="glass" className="p-3 flex flex-col gap-1 text-center">
-                <p className="text-[11px] text-amber-200 italic" style={{ fontFamily: FONT }}>Deposit play-through required</p>
+                <p className="text-[11px] text-amber-200 italic" style={{ fontFamily: FONT }}>{t("Deposit play-through required")}</p>
                 <p className="text-[10px] text-amber-100/70 italic">
                   ${wagerRemaining.toFixed(2)} of your deposit must be played in games or stacked before withdrawal. Withdrawable now: <span className="text-amber-200 font-bold">${maxWithdrawable.toFixed(2)}</span>.
                 </p>

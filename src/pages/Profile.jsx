@@ -11,6 +11,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { getVipLevel, getNextVipLevel, BASE_RATE } from '@/lib/vipLevels';
 import AnimatedNumber from '@/components/AnimatedNumber';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useLanguage } from '@/lib/LanguageContext';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -55,6 +57,7 @@ const TABS = [
 export default function Profile() {
   const { logout } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { balance } = useCasinoBalance();
   const [profile, setProfile] = useState(null);
   const [username, setUsername] = useState('');
@@ -137,9 +140,9 @@ export default function Profile() {
     try {
       await base44.auth.updateMe({ username, phone });
       setProfile((p) => ({ ...p, username, phone }));
-      toast({ title: 'Profile updated' });
+      toast({ title: t("Profile updated") });
     } catch (e) {
-      toast({ title: 'Update failed', description: e.message });
+      toast({ title: t("Update failed"), description: e.message });
     } finally {
       setSaving(false);
     }
@@ -194,7 +197,7 @@ export default function Profile() {
             <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
           </button>
           <div className="flex-1 text-center">
-            <span className="text-lg font-extrabold tracking-tight" style={{ color: '#D4AF37' }}>Profile</span>
+            <span className="text-lg font-extrabold tracking-tight" style={{ color: '#D4AF37' }}>{t("Profile")}</span>
           </div>
           <div className="w-10" />
 
@@ -204,22 +207,25 @@ export default function Profile() {
               <Link to="/pay" onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
                 style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
-                <ArrowDownToLine className="w-4 h-4" style={{ color: '#34d399' }} /> Deposit
+                <ArrowDownToLine className="w-4 h-4" style={{ color: '#34d399' }} /> {t("Deposit")}
               </Link>
               <Link to="/withdraw" onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
                 style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
-                <ArrowUpFromLine className="w-4 h-4" style={{ color: '#f87171' }} /> Withdraw
+                <ArrowUpFromLine className="w-4 h-4" style={{ color: '#f87171' }} /> {t("Withdraw")}
               </Link>
               <button onClick={() => { setTab('wallet'); setMenuOpen(false); }}
                 className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors">
-                <History className="w-4 h-4" style={{ color: '#D4AF37' }} /> History
+                <History className="w-4 h-4" style={{ color: '#D4AF37' }} /> {t("History")}
               </button>
               <button onClick={() => { setView('rewards'); setMenuOpen(false); }}
                 className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
                 style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
-                <Gift className="w-4 h-4" style={{ color: '#D4AF37' }} /> Rewards
+                <Gift className="w-4 h-4" style={{ color: '#D4AF37' }} /> {t("Rewards")}
               </button>
+              <div className="px-3 py-2.5" style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
+                <LanguageSwitcher />
+              </div>
             </div>
           )}
         </div>
@@ -242,7 +248,7 @@ export default function Profile() {
 
           {/* Name + edit */}
           <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: '#fff' }}>
-            {profile?.username || profile?.full_name || 'Player'}
+            {profile?.username || profile?.full_name || t("Player")}
             <button onClick={() => setEditOpen(o => !o)} style={{ color: '#D4AF37' }} className="hover:opacity-80 transition-opacity" title="Edit profile">
               <Pencil className="w-3.5 h-3.5" />
             </button>
@@ -269,7 +275,7 @@ export default function Profile() {
                 <Ticket className="w-4 h-4" style={{ color: '#D4AF37' }} />
               </div>
               <div className="text-left">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>Promo Code</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Promo Code")}</p>
                 <p className="text-[14px] font-bold mt-0.5" style={{ color: '#fff' }}>{promoCode || '—'}</p>
               </div>
             </div>
@@ -281,7 +287,7 @@ export default function Profile() {
             <div className="dash-card p-3 flex flex-col gap-1">
               <div className="flex items-center gap-1.5">
                 <Crown className="w-4 h-4" style={{ color: vip?.color || '#8a7a5a' }} />
-                <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>VIP Level</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("VIP Level")}</p>
               </div>
               <p className="text-[13px] font-bold" style={{ color: vip?.color || '#D4AF37' }}>
                 {vip ? `${vip.name} · L${vip.level}` : 'None'}
@@ -290,7 +296,7 @@ export default function Profile() {
             <div className="dash-card p-3 flex flex-col gap-1">
               <div className="flex items-center gap-1.5">
                 <Coins className="w-4 h-4" style={{ color: '#D4AF37' }} />
-                <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>Stack Rate</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Stack Rate")}</p>
               </div>
               <p className="text-[13px] font-bold tabular-nums" style={{ color: '#34d399' }}>{(vipRate * 100).toFixed(2)}%</p>
             </div>
@@ -307,7 +313,7 @@ export default function Profile() {
               </p>
             </div>
           ) : (
-            <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>Highest VIP reached · Diamond</p>
+            <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{t("Highest VIP reached · Diamond")}</p>
           )}
         </div>
 
@@ -315,20 +321,20 @@ export default function Profile() {
         {editOpen && (
           <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 300ms ease both' }}>
             <div className="flex items-center justify-between">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: '#D4AF37' }}>Edit Profile</h3>
-              <button onClick={() => setEditOpen(false)} className="text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.55)' }}>close</button>
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: '#D4AF37' }}>{t("Edit Profile")}</h3>
+              <button onClick={() => setEditOpen(false)} className="text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("close")}</button>
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>Name / Username</label>
+              <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Name / Username")}</label>
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Set a username"
+                placeholder={t("Set a username")}
                 className="dash-input w-full px-4 py-2.5 text-sm"
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>Mobile Number</label>
+              <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Mobile Number")}</label>
               <div className="relative">
                 <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'rgba(212,175,55,0.6)' }} />
                 <input
@@ -344,7 +350,7 @@ export default function Profile() {
               disabled={saving}
               className="dash-btn-gold mx-auto px-6 py-2.5 text-sm flex items-center gap-2"
             >
-              {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Check className="w-4 h-4" /> Save</>}
+              {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> {t("Saving...")}</> : <><Check className="w-4 h-4" /> {t("Save")}</>}
             </button>
           </div>
         )}
@@ -354,9 +360,9 @@ export default function Profile() {
             <div className="flex items-center justify-between">
               <button onClick={() => setView('profile')} className="flex items-center gap-1.5 text-sm font-bold" style={{ color: '#D4AF37' }}>
                 <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
-                Back
+                {t("Back")}
               </button>
-              <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>Rewards</h3>
+              <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>{t("Rewards")}</h3>
               <div className="w-12" />
             </div>
 
@@ -366,7 +372,7 @@ export default function Profile() {
                 <Gift className="w-5 h-5" style={{ color: '#1a1408' }} />
               </div>
               <div className="flex-1">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Referral Earnings</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>{t("Referral Earnings")}</p>
                 <p className="text-2xl font-extrabold tabular-nums mt-0.5" style={{ color: '#fff' }}>
                   $<AnimatedNumber value={Number(profile?.referral_earnings ?? 0)} duration={900} decimals={2} />
                 </p>
@@ -384,14 +390,14 @@ export default function Profile() {
                   <Ticket className="w-4 h-4" style={{ color: '#D4AF37' }} />
                 </div>
                 <div className="text-left">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>Your Promo Code</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Your Promo Code")}</p>
                   <p className="text-[14px] font-bold mt-0.5" style={{ color: '#fff' }}>{promoCode || '—'}</p>
                 </div>
               </div>
               <Copy className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.7)' }} />
             </button>
             <p className="text-[11px] px-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Share your code. New players get $1 in their Stack; you earn 5% commission on every deposit they make.
+              {t("Share your code. New players get $1 in their Stack; you earn 5% commission on every deposit they make.")}
             </p>
 
             {/* Redeemed status */}
@@ -400,27 +406,27 @@ export default function Profile() {
                 {profile?.promo_claimed ? <Check className="w-4 h-4" style={{ color: '#34d399' }} /> : <Ticket className="w-4 h-4" style={{ color: '#fb923c' }} />}
               </div>
               <div className="flex-1">
-                <p className="text-[12px] font-bold" style={{ color: '#fff' }}>{profile?.promo_claimed ? 'Promo code redeemed' : 'No promo code redeemed yet'}</p>
-                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{profile?.promo_claimed ? 'You received your $1 Stack bonus.' : 'Enter a promo code on signup to get $1 in your Stack.'}</p>
+                <p className="text-[12px] font-bold" style={{ color: '#fff' }}>{profile?.promo_claimed ? t("Promo code redeemed") : t("No promo code redeemed yet")}</p>
+                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{profile?.promo_claimed ? t("You received your $1 Stack bonus.") : t("Enter a promo code on signup to get $1 in your Stack.")}</p>
               </div>
             </div>
 
             {/* Commission history */}
             <div className="flex items-center gap-2 px-1">
               <Coins className="w-4 h-4" style={{ color: '#D4AF37' }} />
-              <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>Commission History</h3>
+              <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>{t("Commission History")}</h3>
             </div>
             {loadingRewards ? (
-              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.55)' }}>Loading...</p>
+              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Loading...")}</p>
             ) : rewards.length === 0 ? (
-              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>No commission earned yet. Share your promo code to start earning.</p>
+              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("No commission earned yet. Share your promo code to start earning.")}</p>
             ) : rewards.map((r) => (
               <div key={r.id} className="dash-card p-4 flex items-center gap-3">
                 <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.35)' }}>
                   <Gift className="w-4 h-4" style={{ color: '#D4AF37' }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold" style={{ color: '#fff' }}>Referral Commission</p>
+                  <p className="text-sm font-bold" style={{ color: '#fff' }}>{t("Referral Commission")}</p>
                   <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{fmtDate(r.created_date)}</p>
                   {r.note && <p className="text-[10px] truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>{r.note}</p>}
                 </div>
@@ -434,17 +440,17 @@ export default function Profile() {
         <>
         {/* Segmented tabs — Wallet & Games */}
         <div className="grid grid-cols-2 gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-          {TABS.map(t => {
-            const Icon = t.icon;
-            const active = tab === t.id;
+          {TABS.map(tb => {
+            const Icon = tb.icon;
+            const active = tab === tb.id;
             return (
               <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
+                key={tb.id}
+                onClick={() => setTab(tb.id)}
                 className="flex items-center justify-center gap-2 px-4 py-3 rounded-[14px] text-sm font-bold transition-all active:scale-95"
                 style={active ? goldActiveStyle : goldIdleStyle}
               >
-                <Icon className="w-4 h-4" /> {t.label}
+                <Icon className="w-4 h-4" /> {t(tb.label)}
               </button>
             );
           })}
@@ -458,7 +464,7 @@ export default function Profile() {
                 <Wallet className="w-5 h-5" style={{ color: '#1a1408' }} />
               </div>
               <div className="flex-1">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Wallet Balance</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>{t("Wallet Balance")}</p>
                 <p className="text-2xl font-extrabold tabular-nums mt-0.5" style={{ color: '#fff' }}>
                   $<AnimatedNumber value={balance} duration={900} decimals={2} />
                 </p>
@@ -469,13 +475,13 @@ export default function Profile() {
             {/* History header */}
             <div className="flex items-center gap-2 px-1">
               <History className="w-4 h-4" style={{ color: '#D4AF37' }} />
-              <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>Deposit & Withdraw History</h3>
+              <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>{t("Deposit & Withdraw History")}</h3>
             </div>
 
             {loadingHist ? (
-              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.55)' }}>Loading...</p>
+              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Loading...")}</p>
             ) : txs.length === 0 ? (
-              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>No transactions yet.</p>
+              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("No transactions yet.")}</p>
             ) : (
               txs.map((t) => {
                 const m = TX_META[t.type] || TX_META.adjustment;
@@ -507,13 +513,13 @@ export default function Profile() {
           <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
             <div className="flex items-center gap-2 px-1">
               <Gamepad2 className="w-4 h-4" style={{ color: '#D4AF37' }} />
-              <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>Betting & Win/Loss History</h3>
+              <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>{t("Betting & Win/Loss History")}</h3>
             </div>
 
             {loadingHist ? (
-              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.55)' }}>Loading...</p>
+              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Loading...")}</p>
             ) : activity.length === 0 ? (
-              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>No games played yet.</p>
+              <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("No games played yet.")}</p>
             ) : (
               activity.map((a) => {
                 const om = OUTCOME_META[a.outcome] || OUTCOME_META.loss;
@@ -547,7 +553,7 @@ export default function Profile() {
           className="mx-auto px-6 py-2.5 rounded-[14px] text-sm font-bold transition-all active:scale-95 flex items-center justify-center gap-2"
           style={{ border: '1px solid rgba(248,113,113,0.3)', background: 'rgba(248,113,113,0.08)', color: '#f87171' }}
         >
-          <LogOut className="w-4 h-4" /> Log Out
+          <LogOut className="w-4 h-4" /> {t("Log Out")}
         </button>
       </main>
     </div>
