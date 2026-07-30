@@ -216,10 +216,10 @@ export default function Thimbles() {
       {!loaded && <GameLoadingScreen title="Thimbles" onDone={() => setLoaded(true)} />}
       <GameHeader title="Thimbles" balance={balance} />
 
-      <main className="max-w-md w-full mx-auto px-3 py-3 flex flex-col gap-3 flex-1 relative z-10">
+      <main className="max-w-md w-full mx-auto px-3 py-1 flex flex-col gap-1 flex-1 relative z-10">
         {/* Betting controls bar — ornate gilded banner with baked-in - / + buttons */}
         <div className="relative w-full" style={{ boxShadow: '0 3px 10px rgba(0,0,0,0.55)' }}>
-          <img src={BET_BANNER_IMG} alt="Total Bet" draggable={false} className="w-full h-auto select-none block" />
+          <img src={BET_BANNER_IMG} alt="Total Bet" draggable={false} className="w-full h-auto select-none block" style={{ WebkitMaskImage: `url(${BET_BANNER_IMG})`, WebkitMaskMode: 'luminance', WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center', maskImage: `url(${BET_BANNER_IMG})`, maskMode: 'luminance', maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
           {/* Center text inside the wooden panel */}
           <div className="absolute flex flex-col items-center justify-center pointer-events-none" style={{ left: '18%', right: '18%', top: 0, bottom: 0, transform: 'translateY(-20px)' }}>
             <span className="text-[10px] tracking-[0.2em]" style={{ color: '#c8b890' }}>TOTAL BET</span>
@@ -271,14 +271,14 @@ export default function Thimbles() {
             className="flex-1 transition-all active:scale-95"
             style={{ opacity: mode === 'single' ? 1 : 0.45, filter: mode === 'single' ? 'drop-shadow(0 0 6px rgba(255,210,100,0.5))' : 'none' }}
           >
-            <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1fd7f6441_file_0000000066e081f7a29c25fb6bde36e0.png" alt="1 BALL X 2.88" draggable={false} className="w-full h-auto select-none" />
+            <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1fd7f6441_file_0000000066e081f7a29c25fb6bde36e0.png" alt="1 BALL X 2.88" draggable={false} className="w-full h-auto select-none" style={{ WebkitMaskImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1fd7f6441_file_0000000066e081f7a29c25fb6bde36e0.png')", WebkitMaskMode: 'luminance', WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center', maskImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1fd7f6441_file_0000000066e081f7a29c25fb6bde36e0.png')", maskMode: 'luminance', maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
           </button>
           <button
             onClick={() => phase === 'idle' && setMode('two')}
             className="flex-1 transition-all active:scale-95"
             style={{ opacity: mode === 'two' ? 1 : 0.45, filter: mode === 'two' ? 'drop-shadow(0 0 6px rgba(255,210,100,0.5))' : 'none', marginTop: '12px' }}
           >
-            <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/de25c864e_file_00000000c2f081f79b316882b62f9e13.png" alt="2 BALLS X 1.44" draggable={false} className="w-full h-auto select-none" />
+            <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/de25c864e_file_00000000c2f081f79b316882b62f9e13.png" alt="2 BALLS X 1.44" draggable={false} className="w-full h-auto select-none" style={{ WebkitMaskImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/de25c864e_file_00000000c2f081f79b316882b62f9e13.png')", WebkitMaskMode: 'luminance', WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center', maskImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/de25c864e_file_00000000c2f081f79b316882b62f9e13.png')", maskMode: 'luminance', maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
           </button>
         </div>
 
