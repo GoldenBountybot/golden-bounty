@@ -249,9 +249,10 @@ export default function Thimbles() {
             </div>
           </div>
 
-          {/* Three barrels */}
-          <div className="relative w-full px-4" style={{ height: '240px' }}>
-            <div className="absolute bottom-2 left-4 right-4 h-[3px] rounded-full" style={{ background: 'linear-gradient(to right, transparent, rgba(180,140,80,0.4), transparent)' }} />
+          {/* Three barrels — centered max-width stage so cups stay perfectly
+              centered with equal spacing on every screen size */}
+          <div className="relative mx-auto" style={{ maxWidth: '420px', height: '240px' }}>
+            <div className="absolute bottom-2 left-6 right-6 h-[3px] rounded-full" style={{ background: 'linear-gradient(to right, transparent, rgba(180,140,80,0.4), transparent)' }} />
             {[0, 1, 2].map((cupIdx) => {
               const slot = positions[cupIdx];
               const isPicked = picked === cupIdx;
