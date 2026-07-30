@@ -294,21 +294,35 @@ export default function Thimbles() {
 
         {/* Spin / New Game button */}
         {(phase === 'idle' || phase === 'over') && (
-          <button
-            onClick={phase === 'over' ? newGame : start}
-            disabled={phase === 'idle' && balance < bet}
-            className="w-full py-5 px-4 rounded-xl text-lg font-black transition-all disabled:opacity-40 flex items-center justify-center"
-            style={{
-              backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fc546bfd1_generated_image.png')",
-              backgroundSize: '100% 100%',
-              backgroundRepeat: 'no-repeat',
-              color: '#1a1206',
-              textShadow: '0 1px 2px rgba(255,240,200,0.6)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-            }}
-          >
-            {phase === 'over' ? 'NEW GAME' : 'SPIN'}
-          </button>
+          phase === 'idle' ? (
+            <button
+              onClick={start}
+              disabled={balance < bet}
+              className="w-full transition-all disabled:opacity-40"
+              style={{
+                backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/06b6ee99c_file_000000003c488211a7ea3420ca9b6b25.png')",
+                backgroundSize: '100% 100%',
+                backgroundRepeat: 'no-repeat',
+                height: '64px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+              }}
+              aria-label="Spin"
+            />
+          ) : (
+            <button
+              onClick={newGame}
+              className="w-full py-5 px-4 rounded-xl text-lg font-black transition-all flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(to bottom, #660000, #330000)',
+                border: '1.5px solid #D4AF37',
+                color: '#ffe066',
+                textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+              }}
+            >
+              NEW GAME
+            </button>
+          )
         )}
         {(phase === 'peek' || phase === 'shuffling' || phase === 'picking') && (
           <div className="w-full py-4 rounded-xl text-center text-lg font-black" style={{ background: 'linear-gradient(to bottom, #4a3a2a, #2e2218)', color: '#8a7a60', border: '1px solid rgba(180,140,80,0.3)' }}>
