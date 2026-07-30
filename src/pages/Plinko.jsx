@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { RotateCw, ChevronLeft, DollarSign, Plus, Pencil, Share2, Check, Wallet } from 'lucide-react';
+import { RotateCw, ChevronLeft, DollarSign, Plus, Pencil, Share2, Check, Wallet, History, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -182,6 +183,7 @@ export default function Plinko() {
   const [message, setMessage] = useState('Drop the ball');
   const [lastWin, setLastWin] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const timers = useRef([]);
   const bet = customBet != null ? customBet : BETS[betIdx];
 
@@ -359,7 +361,7 @@ export default function Plinko() {
         </div>
 
         {/* Message — ornate wooden banner (black bg removed via screen blend) */}
-        <div className="mx-auto relative" style={{ width: '66.67%', marginTop: '-60px' }}>
+        <div className="mx-auto relative" style={{ width: '66.67%', marginTop: '-90px' }}>
           <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/08830b540_file_00000000e134820babf1565cf66cbd5b.png" alt="message" draggable={false} className="w-full h-auto select-none block" style={{ mixBlendMode: 'screen' }} />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: 'translateY(-7px)' }}>
             <span className="text-sm font-black italic" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>{message}</span>
@@ -367,7 +369,7 @@ export default function Plinko() {
         </div>
 
         {/* Bet row — wooden frame */}
-        <div className="p-2 flex items-center gap-2" style={{ ...woodFrame, marginTop: '-54px' }}>
+        <div className="p-2 flex items-center gap-2" style={{ ...woodFrame, marginTop: '-80px' }}>
           <button onClick={() => setShowCustom(s => !s)} className={`w-10 h-10 flex items-center justify-center ${showCustom ? 'ring-2 ring-amber-300' : ''}`} style={{ ...woodBtn, color: customBet != null ? '#f5c542' : '#d9b97a' }} title="Custom bet">
             <Pencil className="w-4 h-4" />
           </button>
@@ -417,7 +419,7 @@ export default function Plinko() {
           onClick={drop}
           disabled={dropping}
           className="transition-all disabled:opacity-60 relative mx-auto"
-          style={{ width: '66.67%', marginTop: '-54px' }}
+          style={{ width: '66.67%', marginTop: '-80px' }}
         >
           <img
             src={DROP_BTN_IMG}
@@ -434,12 +436,122 @@ export default function Plinko() {
         </button>
 
         {/* Stats — wooden tiles */}
-        <div className="grid grid-cols-3 gap-2 pb-4 text-center" style={{ marginTop: '-54px' }}>
+        <div className="grid grid-cols-3 gap-2 text-center" style={{ marginTop: '-80px' }}>
           <Stat label="Balance" value={`$${balance.toFixed(2)}`} />
           <Stat label="Bet" value={`$${bet.toFixed(2)}`} />
           <Stat label="Last Win" value={`$${lastWin.toFixed(2)}`} accent={lastWin > 0} />
         </div>
+
+        {/* History button — bottom */}
+        <div className="flex justify-center pb-4" style={{ marginTop: '-10px' }}>
+          <button
+            onClick={() => setShowHistory(true)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg transition-transform active:scale-95"
+            style={{ ...woodBtn, color: '#f3e2b3', fontFamily: FONT }}
+          >
+            <History className="w-4 h-4" style={{ color: '#f5c542' }} />
+            <span className="text-sm font-bold italic">History</span>
+          </button>
+        </div>
       </main>
+
+      {showHistory && <PlinkoHistoryModal onClose={() => setShowHistory(false)} />}
+    </div>
+  );
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  try {
+    const dt = new Date(d);
+    return dt.toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  } catch { return String(d); }
+}
+
+function PlinkoHistoryModal({ onClose }) {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const list = await base44.entities.PlayerActivity.filter({ game_id: 'plinko' }, '-created_date', 60);
+        if (active) setRows((list || []).filter((r) => (r.bet || 0) > 0));
+      } catch { if (active) setRows([]); }
+      finally { if (active) setLoading(false); }
+    })();
+    return () => { active = false; };
+  }, []);
+
+  const totalBet = rows.reduce((s, r) => s + (r.bet || 0), 0);
+  const totalWin = rows.reduce((s, r) => s + (r.win || 0), 0);
+  const net = totalWin - totalBet;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="w-full max-w-md rounded-xl relative overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+        style={{ border: '1px solid rgba(190,140,55,0.5)', background: 'linear-gradient(to bottom, #1a0f2e, #0a0a12)', fontFamily: FONT }}
+      >
+        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(190,140,55,0.22)' }}>
+          <div className="flex items-center gap-2">
+            <History className="w-4 h-4" style={{ color: '#f5c542' }} />
+            <h3 className="text-sm font-black italic" style={{ color: '#f3e2b3' }}>Plinko History</h3>
+          </div>
+          <button onClick={onClose} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ border: '1px solid rgba(190,140,55,0.45)', background: 'rgba(20,17,13,0.6)', color: '#f3e2b3' }}>
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 px-4 py-3 text-center" style={{ borderBottom: '1px solid rgba(190,140,55,0.22)' }}>
+          <div>
+            <div className="text-[9px] font-bold tracking-wider" style={{ color: '#a09080' }}>TOTAL BET</div>
+            <div className="text-sm font-black text-white tabular-nums">{totalBet.toFixed(2)}</div>
+          </div>
+          <div>
+            <div className="text-[9px] font-bold tracking-wider" style={{ color: '#a09080' }}>TOTAL WIN</div>
+            <div className="text-sm font-black tabular-nums" style={{ color: '#7ee787' }}>{totalWin.toFixed(2)}</div>
+          </div>
+          <div>
+            <div className="text-[9px] font-bold tracking-wider" style={{ color: '#a09080' }}>NET</div>
+            <div className="text-sm font-black tabular-nums" style={{ color: net >= 0 ? '#7ee787' : '#ff6b6b' }}>{net >= 0 ? '+' : ''}{net.toFixed(2)}</div>
+          </div>
+        </div>
+
+        <div className="max-h-[55vh] overflow-y-auto">
+          {loading ? (
+            <div className="flex items-center justify-center py-10">
+              <div className="w-6 h-6 rounded-full animate-spin" style={{ border: '2px solid rgba(190,140,55,0.3)', borderTopColor: '#f5c542' }} />
+            </div>
+          ) : rows.length === 0 ? (
+            <div className="py-10 text-center text-sm italic" style={{ color: '#6a6258' }}>No history yet</div>
+          ) : (
+            rows.map((r) => {
+              const profit = (r.win || 0) - (r.bet || 0);
+              return (
+                <div key={r.id} className="grid grid-cols-[1fr_auto_auto] items-center gap-2 px-4 py-2 text-xs" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div className="flex flex-col">
+                    <span className="font-bold" style={{ color: '#f3e2b3' }}>Plinko</span>
+                    <span className="text-[10px]" style={{ color: '#6a6258' }}>{fmtDate(r.created_date)}</span>
+                  </div>
+                  <span className="text-right tabular-nums" style={{ color: '#a09080' }}>{(r.bet || 0).toFixed(2)}</span>
+                  <span className="text-right font-bold tabular-nums" style={{ color: profit >= 0 ? '#7ee787' : '#ff6b6b' }}>
+                    {profit >= 0 ? '+' : ''}{profit.toFixed(2)}
+                  </span>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <div className="grid grid-cols-[1fr_auto_auto] gap-2 px-4 py-2 text-[9px] font-bold tracking-wider" style={{ borderTop: '1px solid rgba(190,140,55,0.22)', color: '#6a6258' }}>
+          <span>GAME</span>
+          <span className="text-right">BET</span>
+          <span className="text-right">NET</span>
+        </div>
+      </div>
     </div>
   );
 }
