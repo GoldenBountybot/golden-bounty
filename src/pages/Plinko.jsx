@@ -310,10 +310,10 @@ export default function Plinko() {
       </header>
 
       {/* Board area */}
-      <main className="relative z-10 max-w-lg mx-auto w-full px-3 flex-1 flex flex-col">
+      <main className="relative z-10 max-w-2xl mx-auto w-full px-3 flex-1 flex flex-col">
         {/* Board — image with overlaid ball */}
-        <div className="relative w-full" style={{ aspectRatio: '1 / 1.15' }}>
-          <img src={BOARD_IMG} alt="Plinko Board" draggable={false} className="absolute inset-0 w-full h-full object-contain select-none" />
+        <div className="relative w-full">
+          <img src={BOARD_IMG} alt="Plinko Board" draggable={false} className="w-full h-auto block select-none" />
 
           {/* Peg hit glow — brief flash when the ball strikes a peg */}
           {Array.from({ length: ROWS }).map((_, r) =>
