@@ -172,7 +172,6 @@ export default function Plinko() {
   const [dropping, setDropping] = useState(false);
   const [ballPos, setBallPos] = useState(null);
   const [resultBucket, setResultBucket] = useState(null);
-  const [hitPeg, setHitPeg] = useState(null);
   const [message, setMessage] = useState('Drop the ball');
   const [lastWin, setLastWin] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -214,46 +213,49 @@ export default function Plinko() {
     let bucket = 0;
     for (let i = 0; i < WEIGHTS.length; i++) { r -= WEIGHTS[i]; if (r <= 0) { bucket = i; break; } }
 
-    // Ball bounces through 12 rows. At the last row it hits one of the two pegs
-    // adjacent to the target slot (left peg or right peg) and drops into that
-    // slot — never bouncing off another multiplier's peg.
-    // Slot k sits between peg k-1 (left) and peg k (right).
-    const targetPeg = bucket === 0 ? 0 : bucket === MULTS.length - 1 ? ROWS - 1
-      : (Math.random() < 0.5 ? bucket - 1 : bucket);
-    const numSteps = ROWS - 1;
-    const steps = Array.from({ length: numSteps }, (_, i) => (i < targetPeg ? 1 : 0));
-    for (let i = steps.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [steps[i], steps[j]] = [steps[j], steps[i]]; }
-    const pegPath = [{ row: 0, col: 0 }];
-    let col = 0;
-    for (let r = 1; r < ROWS; r++) { col += steps[r - 1]; pegPath.push({ row: r, col }); }
-    const finalCol = bucket;
+    // Ball falls from the top center to the target slot with a natural zigzag
+    // bouncing motion — 12 bounces matching the 12 peg rows, ending directly
+    // above the target slot and dropping straight in.
+    const slotX = 8 + bucket * SPACING;
+    const BOUNCES = 12;
+    const STEP_MS = 170;
+    const path = [];
+    for (let i = 0; i <= BOUNCES; i++) {
+      const progress = i / BOUNCES;
+      const y = 12 + progress * 73; // 12% → 85%
+      const directX = 50 + (slotX - 50) * progress;
+      const decay = 1 - progress * 0.65; // zigzag shrinks as ball nears slot
+      const offset = (Math.random() < 0.5 ? -1 : 1) * (7 + Math.random() * 6) * decay;
+      const x = Math.max(8, Math.min(92, directX + offset));
+      path.push({ x, y });
+    }
+    path[path.length - 1] = { x: slotX, y: 85 }; // last bounce directly above slot
 
     let step = 0;
     const animate = () => {
-      const cur = pegPath[step];
-      setBallPos({ kind: 'peg', row: cur.row, col: cur.col });
-      setHitPeg(cur);
+      const p = path[step];
+      setBallPos({ kind: 'peg', x: p.x, y: p.y });
       if (step > 0) playPeg();
-      if (step < pegPath.length - 1) {
-        const t = setTimeout(() => { step++; animate(); }, 200);
+      if (step < path.length - 1) {
+        const t = setTimeout(() => { step++; animate(); }, STEP_MS);
         timers.current.push(t);
       } else {
         const t = setTimeout(() => {
-          setBallPos({ kind: 'bucket', col: finalCol });
+          setBallPos({ kind: 'bucket', col: bucket });
           const t2 = setTimeout(() => {
-            const mult = MULTS[finalCol];
+            const mult = MULTS[bucket];
             const win = bet * mult;
             if (win > 0) setBalance((b) => b + win);
             if (mult > 1) playWin(); else playLose();
             setLastWin(win);
-            setResultBucket(finalCol);
+            setResultBucket(bucket);
             setMessage(`${mult}x · ${win > 0 ? `+$${win.toFixed(2)}` : 'No win'}`);
             logActivity('plinko', bet, win, mult > 1 ? 'win' : 'loss');
             setDropping(false);
             setBallPos(null);
           }, 200);
           timers.current.push(t2);
-        }, 200);
+        }, STEP_MS);
         timers.current.push(t);
       }
     };
@@ -319,26 +321,11 @@ export default function Plinko() {
           <div className="relative" style={{ width: '118%', marginLeft: '-9%' }}>
           <img src={BOARD_IMG} alt="Plinko Board" draggable={false} className="w-full h-auto block select-none" />
 
-          {/* Peg hit glow — brief flash when the ball strikes a peg */}
-          {Array.from({ length: ROWS }).map((_, r) =>
-            Array.from({ length: r + 1 }).map((_, c) => {
-              const isHit = hitPeg && hitPeg.row === r && hitPeg.col === c;
-              if (!isHit) return null;
-              return (
-                <span
-                  key={`p-${r}-${c}`}
-                  className="absolute rounded-full pointer-events-none"
-                  style={{ ...pos(r, c), transform: 'translate(-50%,-50%)', width: 16, height: 16, background: 'radial-gradient(circle, rgba(213,63,140,0.55), transparent 70%)', animation: 'plinkoPegHit 0.26s ease-out' }}
-                />
-              );
-            })
-          )}
-
-          {/* Ball on peg */}
+          {/* Ball falling through pegs */}
           {ballPos && ballPos.kind === 'peg' && (
             <span
               className="absolute z-10 rounded-full"
-              style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 11, height: 11, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(139,92,246,0.85), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.2s ease-in, top 0.2s ease-in' }}
+              style={{ left: `${ballPos.x}%`, top: `${ballPos.y}%`, transform: 'translate(-50%,-50%)', width: 11, height: 11, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(139,92,246,0.85), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.17s ease-in, top 0.17s ease-in' }}
             />
           )}
 
