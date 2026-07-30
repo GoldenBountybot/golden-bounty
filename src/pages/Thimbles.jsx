@@ -327,11 +327,9 @@ export default function Thimbles() {
             {phase === 'peek' ? 'WATCH…' : phase === 'shuffling' ? 'SHUFFLING…' : 'PICK A CUP'}
           </div>
         )}
-      </main>
 
-      {/* Bottom action bar */}
-      <div className="w-full max-w-md mx-auto px-3 pb-1 relative z-10">
-        <div className="py-1.5 px-2 flex items-center justify-between">
+        {/* History + Menu — right under the spin button */}
+        <div className="w-full flex items-center justify-between" style={{ marginTop: '-6px' }}>
           <span style={{ width: '36px' }} />
           <button onClick={() => setShowHistory(true)} className="relative transition-transform active:scale-95" style={{ width: '42%' }}>
             <img src={HISTORY_IMG} alt="HISTORY" draggable={false} className="w-full h-auto select-none block" />
@@ -341,6 +339,10 @@ export default function Thimbles() {
             <Menu className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
         </div>
+      </main>
+
+      {/* Cash display */}
+      <div className="w-full max-w-md mx-auto px-3 pb-1 relative z-10">
         <div className="flex items-center justify-end mt-1.5 px-1">
           <span className="text-[10px] font-bold tabular-nums" style={{ color: '#a09080' }}>Cash: {balance.toFixed(2)} USDT</span>
         </div>
