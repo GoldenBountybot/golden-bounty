@@ -237,7 +237,7 @@ export default function Thimbles() {
         <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)' }}>
 
           {/* Three barrels */}
-          <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '180px' }}>
+          <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '160px' }}>
             {[0, 1, 2].map((cupIdx) => {
               const slot = positions[cupIdx];
               const isPicked = picked === cupIdx;
@@ -318,18 +318,18 @@ export default function Thimbles() {
 
       {/* Bottom action bar */}
       <div className="w-full max-w-md mx-auto px-2 pb-0.5 relative z-10">
-        <div className="py-1 px-2 flex items-center justify-between">
-          <button className="w-9 h-9 flex items-center justify-center">
+        <div className="py-0.5 px-2 flex items-center justify-between">
+          <button className="w-8 h-8 flex items-center justify-center">
             <ChevronLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
-          <button className="relative flex items-center justify-center px-6 py-2 rounded-lg" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4fcee62b8_file_000000001a688230909747b265fab779.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat' }}>
+          <button className="relative flex items-center justify-center px-5 py-1.5 rounded-lg" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4fcee62b8_file_000000001a688230909747b265fab779.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat' }}>
             <span className="text-sm font-black tracking-wide" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif' }}>HISTORY</span>
           </button>
-          <button className="w-9 h-9 flex items-center justify-center">
+          <button className="w-8 h-8 flex items-center justify-center">
             <Menu className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
         </div>
-        <div className="flex items-center justify-between mt-1 px-1">
+        <div className="flex items-center justify-between mt-0.5 px-1">
           <span className="text-[9px] tabular-nums truncate max-w-[60%]" style={{ color: '#6a6258' }}>HASH: {hash.substring(0, 28)}…</span>
           <span className="text-[10px] font-bold tabular-nums" style={{ color: '#a09080' }}>Cash: {balance.toFixed(2)} USDT</span>
         </div>
