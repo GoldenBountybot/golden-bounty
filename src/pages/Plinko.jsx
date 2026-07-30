@@ -370,8 +370,19 @@ export default function Plinko() {
 
         {/* Bet row — wooden frame */}
         <div className="p-2 flex items-center gap-2 relative z-20" style={{ ...woodFrame, marginTop: '-74px' }}>
-          <button onClick={() => setShowCustom(s => !s)} className={`w-10 h-10 flex items-center justify-center ${showCustom ? 'ring-2 ring-amber-300' : ''}`} style={{ ...woodBtn, color: customBet != null ? '#f5c542' : '#d9b97a' }} title="Custom bet">
-            <Pencil className="w-4 h-4" />
+          <button
+            onClick={() => setShowCustom(s => !s)}
+            className="w-10 h-10 flex items-center justify-center rounded-lg transition-all hover:brightness-125 active:scale-90"
+            style={{
+              ...woodBtn,
+              color: customBet != null ? '#f5c542' : '#d9b97a',
+              boxShadow: showCustom
+                ? 'inset 0 1px 0 rgba(255,210,120,0.25), 0 0 0 2px rgba(245,197,66,0.6), 0 1px 3px rgba(0,0,0,0.5)'
+                : 'inset 0 1px 0 rgba(255,210,120,0.25), 0 1px 3px rgba(0,0,0,0.5)',
+            }}
+            title="Custom bet"
+          >
+            <Pencil className="w-4 h-4" style={{ filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))' }} />
           </button>
           <div className="flex-1 grid grid-cols-4 gap-2">
             {BETS.map((b, i) => (
@@ -379,9 +390,9 @@ export default function Plinko() {
                 key={b}
                 disabled={dropping}
                 onClick={() => { setBetIdx(i); setCustomBet(null); }}
-                className="flex items-center justify-center gap-0.5 py-2 text-xs font-bold italic transition-colors disabled:opacity-50"
+                className="flex items-center justify-center gap-0.5 py-2 rounded-lg text-xs font-bold italic transition-all hover:brightness-110 active:scale-95 disabled:opacity-50"
                 style={betIdx === i && customBet == null
-                  ? { ...goldBtn, fontFamily: FONT }
+                  ? { ...goldBtn, fontFamily: FONT, boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 0 8px rgba(245,197,66,0.4), 0 2px 6px rgba(200,136,30,0.45)' }
                   : { ...woodBtn, color: '#d9b97a', fontFamily: FONT }
                 }
               >
@@ -389,14 +400,21 @@ export default function Plinko() {
               </button>
             ))}
           </div>
-          <button onClick={() => { setCustomBet(null); setBetIdx((i) => Math.max(0, i - 1)); }} className="w-10 h-10 flex items-center justify-center" style={{ ...woodBtn, color: '#d9b97a' }} title="Cycle bets">
-            <RotateCw className="w-4 h-4" />
+          <button
+            onClick={() => { setCustomBet(null); setBetIdx((i) => Math.max(0, i - 1)); }}
+            className="w-10 h-10 flex items-center justify-center rounded-lg transition-all hover:brightness-125 active:scale-90"
+            style={{ ...woodBtn, color: '#d9b97a' }}
+            title="Cycle bets"
+          >
+            <RotateCw className="w-4 h-4" style={{ filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))' }} />
           </button>
         </div>
 
         {showCustom && (
-          <div className="mt-2 p-2 flex items-center gap-2 relative z-20" style={{ ...woodFrame }}>
-            <DollarSign className="w-4 h-4" style={{ color: '#f5c542' }} />
+          <div className="mt-2 p-2.5 flex items-center gap-2.5 relative z-20 rounded-lg" style={{ ...woodFrame }}>
+            <div className="w-7 h-7 flex items-center justify-center rounded-md flex-shrink-0" style={{ background: 'rgba(245,197,66,0.12)', border: '1px solid rgba(245,197,66,0.3)' }}>
+              <DollarSign className="w-4 h-4" style={{ color: '#f5c542', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))' }} />
+            </div>
             <input
               type="number"
               min="0"
@@ -405,10 +423,14 @@ export default function Plinko() {
               onChange={e => setCustomInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') applyCustomBet(); }}
               placeholder="Custom bet amount"
-              className="flex-1 px-2 py-1.5 rounded bg-black/40 border border-amber-700/40 text-amber-100 outline-none text-sm font-bold"
+              className="flex-1 px-3 py-2 rounded-md bg-black/50 border border-amber-700/40 text-amber-100 outline-none text-sm font-bold transition-colors focus:border-amber-500/70"
               style={{ fontFamily: FONT }}
             />
-            <button onClick={applyCustomBet} className="px-3 py-1.5 rounded font-bold italic text-xs" style={{ ...goldBtn, fontFamily: FONT }}>
+            <button
+              onClick={applyCustomBet}
+              className="px-4 py-2 rounded-md font-bold italic text-xs transition-all hover:brightness-110 active:scale-95 flex-shrink-0"
+              style={{ ...goldBtn, fontFamily: FONT, boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 0 8px rgba(245,197,66,0.35), 0 2px 6px rgba(200,136,30,0.45)' }}
+            >
               Set
             </button>
           </div>
