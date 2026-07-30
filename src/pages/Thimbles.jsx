@@ -359,6 +359,8 @@ export default function Thimbles() {
   );
 }
 
+const BARREL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/35b2a44e4_file_00000000149481fa80aa6a96e6a047f9.png';
+
 function Barrel({ lifted, hasBall, reveal, won }) {
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-end">
@@ -367,51 +369,21 @@ function Barrel({ lifted, hasBall, reveal, won }) {
         <GoldenBall size={28} />
       </div>
 
-      {/* Barrel body */}
-      <div
-        className="relative transition-transform duration-300"
+      {/* Barrel body — image asset on black bg, screen blend drops the black */}
+      <img
+        src={BARREL_IMG}
+        alt="barrel"
+        draggable={false}
+        className="relative transition-transform duration-300 select-none"
         style={{
-          width: '72px',
-          height: '90px',
+          width: '92px',
+          height: 'auto',
           transform: lifted ? 'translateY(-22px)' : 'translateY(0)',
           zIndex: 2,
+          mixBlendMode: 'screen',
+          filter: won ? 'drop-shadow(0 0 10px rgba(255,210,100,0.7)) brightness(1.1)' : 'drop-shadow(0 3px 5px rgba(0,0,0,0.6))',
         }}
-      >
-        <svg width="72" height="90" viewBox="0 0 80 100" style={{ filter: won ? 'drop-shadow(0 0 10px rgba(255,210,100,0.7)) brightness(1.1)' : 'drop-shadow(0 3px 5px rgba(0,0,0,0.6))' }}>
-          <defs>
-            <linearGradient id="woodGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#8c5e42" />
-              <stop offset="40%" stopColor="#6d4a36" />
-              <stop offset="100%" stopColor="#4a3220" />
-            </linearGradient>
-            <linearGradient id="bandGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#b0a090" />
-              <stop offset="50%" stopColor="#6a6055" />
-              <stop offset="100%" stopColor="#3a3530" />
-            </linearGradient>
-            <linearGradient id="topGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#9c6e52" />
-              <stop offset="100%" stopColor="#5d3e2a" />
-            </linearGradient>
-          </defs>
-          <path d="M14 20 Q8 50 14 88 L66 88 Q72 50 66 20 Z" fill="url(#woodGrad)" stroke="#3a2218" strokeWidth="1.5" />
-          <g stroke="rgba(60,35,20,0.4)" strokeWidth="0.8" fill="none">
-            <path d="M24 22 Q22 50 24 86" />
-            <path d="M34 21 Q33 50 34 87" />
-            <path d="M46 21 Q47 50 46 87" />
-            <path d="M56 22 Q58 50 56 86" />
-          </g>
-          <ellipse cx="40" cy="20" rx="26" ry="7" fill="url(#topGrad)" stroke="#3a2218" strokeWidth="1.5" />
-          <ellipse cx="40" cy="19" rx="24" ry="5.5" fill="#2a1810" />
-          <rect x="12" y="28" width="56" height="5" rx="2" fill="url(#bandGrad)" stroke="#2a2520" strokeWidth="0.5" />
-          <rect x="13" y="76" width="54" height="5" rx="2" fill="url(#bandGrad)" stroke="#2a2520" strokeWidth="0.5" />
-          <circle cx="18" cy="30.5" r="1.3" fill="#3a3530" />
-          <circle cx="62" cy="30.5" r="1.3" fill="#3a3530" />
-          <circle cx="19" cy="78.5" r="1.3" fill="#3a3530" />
-          <circle cx="61" cy="78.5" r="1.3" fill="#3a3530" />
-          <path d="M18 24 Q14 50 18 84" fill="none" stroke="rgba(255,220,180,0.25)" strokeWidth="2" />
-        </svg>
-      </div>
+      />
     </div>
   );
 }
