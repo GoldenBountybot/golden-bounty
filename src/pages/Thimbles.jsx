@@ -227,7 +227,7 @@ export default function Thimbles() {
       {!loaded && <GameLoadingScreen title="Thimbles" onDone={() => setLoaded(true)} />}
       <GameHeader title="Thimbles" balance={balance} />
 
-      <main className="max-w-md w-full mx-auto px-3 py-1 flex flex-col gap-1 flex-1 relative z-10">
+      <main className="max-w-md w-full mx-auto px-3 pt-0 pb-1 flex flex-col gap-0 flex-1 relative z-10">
         {/* Betting controls bar — ornate gilded banner with baked-in - / + buttons */}
         <div className="relative w-full">
           <img src={BET_BANNER_IMG} alt="Total Bet" draggable={false} className="w-full h-auto select-none block" />
@@ -246,7 +246,7 @@ export default function Thimbles() {
         <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
 
           {/* Three barrels */}
-          <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '200px' }}>
+          <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '170px' }}>
             {[0, 1, 2].map((cupIdx) => {
               const slot = positions[cupIdx];
               const isPicked = picked === cupIdx;
@@ -274,7 +274,7 @@ export default function Thimbles() {
         </div>
 
         {/* Multiplier banners — 1 ball / 2 balls selectors side-by-side */}
-        <div className="flex items-stretch gap-2">
+        <div className="flex items-stretch gap-2 -mt-1">
           <button
             onClick={() => phase === 'idle' && setMode('single')}
             className="flex-1 transition-all active:scale-95"
@@ -326,8 +326,8 @@ export default function Thimbles() {
       </main>
 
       {/* Bottom action bar */}
-      <div className="w-full max-w-md mx-auto px-3 pb-1 relative z-10">
-        <div className="py-1.5 px-2 flex items-center justify-between">
+      <div className="w-full max-w-md mx-auto px-3 pb-1 relative z-10 -mt-1">
+        <div className="py-1 px-2 flex items-center justify-between">
           <button className="w-9 h-9 flex items-center justify-center">
             <ChevronLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
