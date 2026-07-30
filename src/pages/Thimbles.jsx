@@ -297,17 +297,15 @@ export default function Thimbles() {
           <button
             onClick={phase === 'over' ? newGame : start}
             disabled={phase === 'idle' && balance < bet}
-            className="w-full py-5 px-4 rounded-xl text-lg font-black transition-all disabled:opacity-40 flex items-center justify-center"
-            style={{
-              backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fc546bfd1_generated_image.png')",
-              backgroundSize: '100% 100%',
-              backgroundRepeat: 'no-repeat',
-              color: '#1a1206',
-              textShadow: '0 1px 2px rgba(255,240,200,0.6)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-            }}
+            className="w-full transition-all disabled:opacity-40"
+            style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}
           >
-            {phase === 'over' ? 'NEW GAME' : 'SPIN'}
+            <img
+              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/06b6ee99c_file_000000003c488211a7ea3420ca9b6b25.png"
+              alt="SPIN"
+              draggable={false}
+              className="w-full h-auto select-none"
+            />
           </button>
         )}
         {(phase === 'peek' || phase === 'shuffling' || phase === 'picking') && (
