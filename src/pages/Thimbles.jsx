@@ -323,9 +323,8 @@ export default function Thimbles() {
           <button className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(180,140,80,0.15)' }}>
             <ChevronLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
-          <button className="flex items-center gap-2 px-5 py-2 rounded-lg" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f6b605161_generated_image.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', boxShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-            <History className="w-4 h-4" style={{ color: '#ffe8a0' }} />
-            <span className="text-sm font-bold" style={{ color: '#ffe8a0' }}>History</span>
+          <button className="relative flex items-center justify-center px-6 py-2 rounded-lg" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4fcee62b8_file_000000001a688230909747b265fab779.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', boxShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+            <span className="text-sm font-black tracking-wide" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif', textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>HISTORY</span>
           </button>
           <button className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(180,140,80,0.15)' }}>
             <Menu className="w-5 h-5" style={{ color: '#e0d8c0' }} />
