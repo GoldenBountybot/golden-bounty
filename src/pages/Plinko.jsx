@@ -425,7 +425,7 @@ export default function Plinko() {
               mixBlendMode: 'screen',
             }}
           />
-          <span className="absolute inset-0 flex items-center justify-center pointer-events-none font-black italic" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+          <span className="absolute inset-0 flex items-center justify-center pointer-events-none font-black italic" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 3px rgba(0,0,0,0.8)', transform: 'translateY(-5px)' }}>
             {dropping ? 'Dropping…' : `Drop · $${bet}`}
           </span>
         </button>
