@@ -219,7 +219,7 @@ export default function Thimbles() {
 
       <main className="max-w-md w-full mx-auto px-3 py-3 flex flex-col gap-3 flex-1 relative z-10">
         {/* Betting controls bar */}
-        <div className="rounded-xl p-3 flex items-center justify-between" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/29e26897b_generated_image.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', boxShadow: '0 3px 10px rgba(0,0,0,0.55)' }}>
+        <div className="rounded-xl py-4 px-5 flex items-center justify-between" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/29e26897b_generated_image.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', boxShadow: '0 3px 10px rgba(0,0,0,0.55)' }}>
           <button onClick={() => setBet(MIN_BET)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }} title="Min">
             <ChevronsLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
@@ -293,37 +293,23 @@ export default function Thimbles() {
         </div>
 
         {/* Game config panel — 1 ball / 2 balls selectors */}
-        <div className="rounded-xl p-3 flex items-center justify-around" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7e2a98220_generated_image.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', boxShadow: '0 3px 10px rgba(0,0,0,0.55)' }}>
+        <div className="rounded-xl py-4 px-5 flex items-center justify-around" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7e2a98220_generated_image.png')", backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', boxShadow: '0 3px 10px rgba(0,0,0,0.55)' }}>
           <button
             onClick={() => phase === 'idle' && setMode('single')}
-            className="flex items-center gap-2.5 transition-transform active:scale-95"
-            style={{ opacity: mode === 'single' ? 1 : 0.55 }}
+            className="flex flex-col items-center gap-1 transition-transform active:scale-95"
+            style={{ opacity: mode === 'single' ? 1 : 0.5 }}
           >
-            <span className="text-sm font-bold" style={{ color: '#e0d8c0' }}>1 ball</span>
-            <span className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-black" style={{
-              background: mode === 'single' ? 'linear-gradient(to bottom, #ffe890, #c89020)' : 'linear-gradient(to bottom, #5a4a3a, #3a2e22)',
-              color: mode === 'single' ? '#1a1206' : '#a09080',
-              border: '1px solid rgba(180,140,80,0.6)',
-              boxShadow: mode === 'single' ? '0 0 10px rgba(255,210,100,0.5), inset 0 1px 0 rgba(255,255,255,0.3)' : 'inset 0 1px 0 rgba(255,220,160,0.1)',
-            }}>
-              X {SINGLE_MULT}
-            </span>
+            <span className="text-[11px] font-bold tracking-widest" style={{ color: mode === 'single' ? '#ffe8a0' : '#a09080' }}>1 BALL</span>
+            <span className="text-lg font-black tabular-nums" style={{ color: mode === 'single' ? '#ffe066' : '#8a7a60', textShadow: mode === 'single' ? '0 0 8px rgba(255,210,100,0.6)' : 'none' }}>X {SINGLE_MULT}</span>
           </button>
-          <div className="w-px h-10" style={{ background: 'rgba(180,140,80,0.3)' }} />
+          <div className="w-px h-12" style={{ background: 'rgba(180,140,80,0.3)' }} />
           <button
             onClick={() => phase === 'idle' && setMode('two')}
-            className="flex items-center gap-2.5 transition-transform active:scale-95"
-            style={{ opacity: mode === 'two' ? 1 : 0.55 }}
+            className="flex flex-col items-center gap-1 transition-transform active:scale-95"
+            style={{ opacity: mode === 'two' ? 1 : 0.5 }}
           >
-            <span className="text-sm font-bold" style={{ color: '#e0d8c0' }}>2 balls</span>
-            <span className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-black" style={{
-              background: mode === 'two' ? 'linear-gradient(to bottom, #ffe890, #c89020)' : 'linear-gradient(to bottom, #5a4a3a, #3a2e22)',
-              color: mode === 'two' ? '#1a1206' : '#a09080',
-              border: '1px solid rgba(180,140,80,0.6)',
-              boxShadow: mode === 'two' ? '0 0 10px rgba(255,210,100,0.5), inset 0 1px 0 rgba(255,255,255,0.3)' : 'inset 0 1px 0 rgba(255,220,160,0.1)',
-            }}>
-              X {TWO_MULT}
-            </span>
+            <span className="text-[11px] font-bold tracking-widest" style={{ color: mode === 'two' ? '#ffe8a0' : '#a09080' }}>2 BALLS</span>
+            <span className="text-lg font-black tabular-nums" style={{ color: mode === 'two' ? '#ffe066' : '#8a7a60', textShadow: mode === 'two' ? '0 0 8px rgba(255,210,100,0.6)' : 'none' }}>X {TWO_MULT}</span>
           </button>
         </div>
 
@@ -332,7 +318,7 @@ export default function Thimbles() {
           <button
             onClick={phase === 'over' ? newGame : start}
             disabled={phase === 'idle' && balance < bet}
-            className="w-full py-4 rounded-xl text-lg font-black transition-all disabled:opacity-40"
+            className="w-full py-5 px-4 rounded-xl text-lg font-black transition-all disabled:opacity-40 flex items-center justify-center"
             style={{
               backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fc546bfd1_generated_image.png')",
               backgroundSize: '100% 100%',
