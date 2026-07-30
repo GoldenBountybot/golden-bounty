@@ -82,7 +82,7 @@ export default function Register() {
   };
 
   const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", "/");
+    base44.auth.loginWithProvider("google", "/promo-welcome");
   };
 
   if (showOtp) {

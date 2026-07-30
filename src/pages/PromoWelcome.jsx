@@ -14,7 +14,27 @@ export default function PromoWelcome() {
   const [profile, setProfile] = useState(null);
 
   useEffect(() => {
-    base44.auth.me().then(setProfile).catch(() => {});
+    (async () => {
+      try {
+        let me = await base44.auth.me();
+        // Google sign-up users skip the OTP flow, so they may not have a
+        // uid / promo_code yet — set them up here so the promo card shows.
+        if (me && (!me.uid || !me.promo_code)) {
+          const uid = me.uid || Math.floor(1000000000 + Math.random() * 9000000000).toString();
+          const promoCode = me.promo_code || ('GB' + uid);
+          let avatar_url = me.avatar_url || "";
+          if (!avatar_url) {
+            try {
+              const r = await base44.functions.invoke("assignAvatar", { gender: me.gender || "male" });
+              avatar_url = r?.data?.image_url || "";
+            } catch { /* avatar optional */ }
+          }
+          try { await base44.auth.updateMe({ uid, promo_code: promoCode, avatar_url }); } catch { /* ignore */ }
+          me = { ...me, uid, promo_code: promoCode, avatar_url };
+        }
+        setProfile(me);
+      } catch { /* ignore */ }
+    })();
   }, []);
 
   const myPromo = profile?.promo_code || (profile?.uid ? 'GB' + profile.uid : '');
