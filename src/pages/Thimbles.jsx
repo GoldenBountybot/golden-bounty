@@ -5,7 +5,6 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
-import WesternWoodFrame from '@/components/thimbles/WesternWoodFrame';
 
 const MIN_BET = 0.1;
 const MAX_BET = 500;
@@ -220,26 +219,24 @@ export default function Thimbles() {
 
       <main className="max-w-md w-full mx-auto px-3 py-3 flex flex-col gap-3 flex-1 relative z-10">
         {/* Betting controls bar */}
-        <WesternWoodFrame full>
-          <div className="rounded-lg p-3 flex items-center justify-between" style={{ background: 'linear-gradient(to bottom, #4a3a2a, #2e2218)' }}>
-            <button onClick={() => setBet(MIN_BET)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }} title="Min">
-              <ChevronsLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
-            </button>
-            <button onClick={() => adjustBet(-BET_STEP)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }}>
-              <Minus className="w-5 h-5" style={{ color: '#e0d8c0' }} />
-            </button>
-            <div className="flex flex-col items-center px-3">
-              <span className="text-[10px] tracking-widest" style={{ color: '#b0a890' }}>TOTAL BET</span>
-              <span className="text-xl font-black tabular-nums" style={{ color: '#ffe8a0' }}>{bet.toFixed(2)} USDT</span>
-            </div>
-            <button onClick={() => adjustBet(BET_STEP)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }}>
-              <Plus className="w-5 h-5" style={{ color: '#e0d8c0' }} />
-            </button>
-            <button onClick={() => setBet(MAX_BET)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }} title="Max">
-              <ChevronsRight className="w-5 h-5" style={{ color: '#e0d8c0' }} />
-            </button>
+        <div className="rounded-xl p-3 flex items-center justify-between" style={{ background: 'linear-gradient(to bottom, #4a3a2a, #2e2218)', border: '1px solid rgba(180,140,80,0.5)', boxShadow: 'inset 0 1px 0 rgba(255,220,160,0.2), 0 3px 8px rgba(0,0,0,0.5)' }}>
+          <button onClick={() => setBet(MIN_BET)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }} title="Min">
+            <ChevronsLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
+          </button>
+          <button onClick={() => adjustBet(-BET_STEP)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }}>
+            <Minus className="w-5 h-5" style={{ color: '#e0d8c0' }} />
+          </button>
+          <div className="flex flex-col items-center px-3">
+            <span className="text-[10px] tracking-widest" style={{ color: '#b0a890' }}>TOTAL BET</span>
+            <span className="text-xl font-black tabular-nums" style={{ color: '#ffe8a0' }}>{bet.toFixed(2)} USDT</span>
           </div>
-        </WesternWoodFrame>
+          <button onClick={() => adjustBet(BET_STEP)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }}>
+            <Plus className="w-5 h-5" style={{ color: '#e0d8c0' }} />
+          </button>
+          <button onClick={() => setBet(MAX_BET)} className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform active:scale-90" style={{ background: 'linear-gradient(to bottom, #6a5a4a, #3a2e22)', border: '1px solid rgba(180,140,80,0.6)' }} title="Max">
+            <ChevronsRight className="w-5 h-5" style={{ color: '#e0d8c0' }} />
+          </button>
+        </div>
         <p className="text-center text-[11px]" style={{ color: '#8a8270' }}>MIN {MIN_BET} USDT - MAX {MAX_BET} USDT</p>
 
         {/* Game area — ornate wood table with three barrels (full width edge-to-edge) */}
@@ -296,64 +293,60 @@ export default function Thimbles() {
         </div>
 
         {/* Game config panel — 1 ball / 2 balls selectors */}
-        <WesternWoodFrame full>
-          <div className="rounded-lg p-3 flex items-center justify-around" style={{ background: 'linear-gradient(to bottom, #6d4a36, #4a3220)' }}>
-            <button
-              onClick={() => phase === 'idle' && setMode('single')}
-              className="flex items-center gap-2.5 transition-transform active:scale-95"
-              style={{ opacity: mode === 'single' ? 1 : 0.55 }}
-            >
-              <span className="text-sm font-bold" style={{ color: '#e0d8c0' }}>1 ball</span>
-              <span className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-black" style={{
-                background: mode === 'single' ? 'linear-gradient(to bottom, #ffe890, #c89020)' : 'linear-gradient(to bottom, #5a4a3a, #3a2e22)',
-                color: mode === 'single' ? '#1a1206' : '#a09080',
-                border: '1px solid rgba(180,140,80,0.6)',
-                boxShadow: mode === 'single' ? '0 0 10px rgba(255,210,100,0.5), inset 0 1px 0 rgba(255,255,255,0.3)' : 'inset 0 1px 0 rgba(255,220,160,0.1)',
-              }}>
-                X {SINGLE_MULT}
-              </span>
-            </button>
-            <div className="w-px h-10" style={{ background: 'rgba(180,140,80,0.3)' }} />
-            <button
-              onClick={() => phase === 'idle' && setMode('two')}
-              className="flex items-center gap-2.5 transition-transform active:scale-95"
-              style={{ opacity: mode === 'two' ? 1 : 0.55 }}
-            >
-              <span className="text-sm font-bold" style={{ color: '#e0d8c0' }}>2 balls</span>
-              <span className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-black" style={{
-                background: mode === 'two' ? 'linear-gradient(to bottom, #ffe890, #c89020)' : 'linear-gradient(to bottom, #5a4a3a, #3a2e22)',
-                color: mode === 'two' ? '#1a1206' : '#a09080',
-                border: '1px solid rgba(180,140,80,0.6)',
-                boxShadow: mode === 'two' ? '0 0 10px rgba(255,210,100,0.5), inset 0 1px 0 rgba(255,255,255,0.3)' : 'inset 0 1px 0 rgba(255,220,160,0.1)',
-              }}>
-                X {TWO_MULT}
-              </span>
-            </button>
-          </div>
-        </WesternWoodFrame>
+        <div className="rounded-xl p-3 flex items-center justify-around" style={{ background: 'linear-gradient(to bottom, #6d4a36, #4a3220)', border: '1px solid rgba(180,140,80,0.5)', boxShadow: 'inset 0 1px 0 rgba(255,220,160,0.2), 0 3px 8px rgba(0,0,0,0.5)' }}>
+          <button
+            onClick={() => phase === 'idle' && setMode('single')}
+            className="flex items-center gap-2.5 transition-transform active:scale-95"
+            style={{ opacity: mode === 'single' ? 1 : 0.55 }}
+          >
+            <span className="text-sm font-bold" style={{ color: '#e0d8c0' }}>1 ball</span>
+            <span className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-black" style={{
+              background: mode === 'single' ? 'linear-gradient(to bottom, #ffe890, #c89020)' : 'linear-gradient(to bottom, #5a4a3a, #3a2e22)',
+              color: mode === 'single' ? '#1a1206' : '#a09080',
+              border: '1px solid rgba(180,140,80,0.6)',
+              boxShadow: mode === 'single' ? '0 0 10px rgba(255,210,100,0.5), inset 0 1px 0 rgba(255,255,255,0.3)' : 'inset 0 1px 0 rgba(255,220,160,0.1)',
+            }}>
+              X {SINGLE_MULT}
+            </span>
+          </button>
+          <div className="w-px h-10" style={{ background: 'rgba(180,140,80,0.3)' }} />
+          <button
+            onClick={() => phase === 'idle' && setMode('two')}
+            className="flex items-center gap-2.5 transition-transform active:scale-95"
+            style={{ opacity: mode === 'two' ? 1 : 0.55 }}
+          >
+            <span className="text-sm font-bold" style={{ color: '#e0d8c0' }}>2 balls</span>
+            <span className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-black" style={{
+              background: mode === 'two' ? 'linear-gradient(to bottom, #ffe890, #c89020)' : 'linear-gradient(to bottom, #5a4a3a, #3a2e22)',
+              color: mode === 'two' ? '#1a1206' : '#a09080',
+              border: '1px solid rgba(180,140,80,0.6)',
+              boxShadow: mode === 'two' ? '0 0 10px rgba(255,210,100,0.5), inset 0 1px 0 rgba(255,255,255,0.3)' : 'inset 0 1px 0 rgba(255,220,160,0.1)',
+            }}>
+              X {TWO_MULT}
+            </span>
+          </button>
+        </div>
 
         {/* Spin / New Game button */}
         {(phase === 'idle' || phase === 'over') && (
-          <WesternWoodFrame full>
-            <button
-              onClick={phase === 'over' ? newGame : start}
-              disabled={phase === 'idle' && balance < bet}
-              className="w-full py-4 rounded-lg text-lg font-black transition-all disabled:opacity-40"
-              style={{
-                background: 'linear-gradient(to bottom, #ffe890, #c89020)',
-                color: '#1a1206',
-              }}
-            >
-              {phase === 'over' ? 'NEW GAME' : 'SPIN'}
-            </button>
-          </WesternWoodFrame>
+          <button
+            onClick={phase === 'over' ? newGame : start}
+            disabled={phase === 'idle' && balance < bet}
+            className="w-full py-4 rounded-xl text-lg font-black transition-all disabled:opacity-40"
+            style={{
+              background: 'linear-gradient(to bottom, #ffe890, #c89020)',
+              color: '#1a1206',
+              border: '1px solid rgba(120,80,20,0.6)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(0,0,0,0.5)',
+            }}
+          >
+            {phase === 'over' ? 'NEW GAME' : 'SPIN'}
+          </button>
         )}
         {(phase === 'peek' || phase === 'shuffling' || phase === 'picking') && (
-          <WesternWoodFrame full>
-            <div className="w-full py-4 rounded-lg text-center text-lg font-black" style={{ background: 'linear-gradient(to bottom, #4a3a2a, #2e2218)', color: '#8a7a60' }}>
-              {phase === 'peek' ? 'WATCH…' : phase === 'shuffling' ? 'SHUFFLING…' : 'PICK A CUP'}
-            </div>
-          </WesternWoodFrame>
+          <div className="w-full py-4 rounded-xl text-center text-lg font-black" style={{ background: 'linear-gradient(to bottom, #4a3a2a, #2e2218)', color: '#8a7a60', border: '1px solid rgba(180,140,80,0.3)' }}>
+            {phase === 'peek' ? 'WATCH…' : phase === 'shuffling' ? 'SHUFFLING…' : 'PICK A CUP'}
+          </div>
         )}
       </main>
 
@@ -363,12 +356,10 @@ export default function Thimbles() {
           <button className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(180,140,80,0.15)' }}>
             <ChevronLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
-          <WesternWoodFrame>
-            <button className="flex items-center gap-2 px-5 py-2 rounded-lg" style={{ background: 'linear-gradient(to bottom, #6d4a36, #4a3220)' }}>
-              <History className="w-4 h-4" style={{ color: '#e0d8c0' }} />
-              <span className="text-sm font-bold whitespace-nowrap" style={{ color: '#e0d8c0' }}>History</span>
-            </button>
-          </WesternWoodFrame>
+          <button className="flex items-center gap-2 px-5 py-2 rounded-lg" style={{ background: 'linear-gradient(to bottom, #6d4a36, #4a3220)', border: '1px solid rgba(180,140,80,0.5)' }}>
+            <History className="w-4 h-4" style={{ color: '#e0d8c0' }} />
+            <span className="text-sm font-bold" style={{ color: '#e0d8c0' }}>History</span>
+          </button>
           <button className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(180,140,80,0.15)' }}>
             <Menu className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
