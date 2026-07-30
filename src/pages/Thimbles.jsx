@@ -295,7 +295,7 @@ export default function Thimbles() {
             onClick={phase === 'over' ? newGame : start}
             disabled={phase === 'idle' && balance < bet}
             className="w-full transition-all disabled:opacity-40"
-            style={{ background: 'transparent', boxShadow: 'none' }}
+            style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}
           >
             <img
               src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/06b6ee99c_file_000000003c488211a7ea3420ca9b6b25.png"
