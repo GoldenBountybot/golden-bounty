@@ -271,7 +271,7 @@ export default function Plinko() {
   // baked-in multiplier slots in the board image.
   const bucketPos = (b) => {
     const left = 50 + (b - ROWS / 2) * (70 / (ROWS - 1));
-    const top = 91;
+    const top = 86;
     return { left: `${left}%`, top: `${top}%` };
   };
 
