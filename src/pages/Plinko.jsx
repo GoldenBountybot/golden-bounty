@@ -292,7 +292,7 @@ export default function Plinko() {
 
       {/* Header — western wooden bar */}
       <header className="sticky top-0 z-30" style={{ ...woodFrame, borderBottomWidth: 1, fontFamily: FONT, borderRadius: 0, background: 'linear-gradient(to bottom, rgba(58,40,18,0.96), rgba(26,18,9,0.98))' }}>
-        <div className="max-w-md mx-auto px-3 py-3 relative">
+        <div className="max-w-md mx-auto px-3 py-2 relative">
           {/* Full-width title frame, text centered */}
           <div className="w-full flex items-center justify-center gap-1.5 py-1.5 pl-12 pr-36" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/670fa1a3e_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))", border: '1px solid rgba(190,140,55,0.75)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), 0 2px 6px rgba(0,0,0,0.55)' }}>
             <DollarSign className="w-5 h-5 relative" style={{ color: '#f5c542' }} />
@@ -359,7 +359,7 @@ export default function Plinko() {
         </div>
 
         {/* Message — ornate wooden banner (black bg removed via screen blend) */}
-        <div className="mt-4 mx-auto relative" style={{ width: '66.67%' }}>
+        <div className="mt-2 mx-auto relative" style={{ width: '66.67%' }}>
           <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/08830b540_file_00000000e134820babf1565cf66cbd5b.png" alt="message" draggable={false} className="w-full h-auto select-none block" style={{ mixBlendMode: 'screen' }} />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: 'translateY(-7px)' }}>
             <span className="text-sm font-black italic" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>{message}</span>
@@ -367,7 +367,7 @@ export default function Plinko() {
         </div>
 
         {/* Bet row — wooden frame */}
-        <div className="mt-3 p-2 flex items-center gap-2" style={{ ...woodFrame }}>
+        <div className="mt-2 p-2 flex items-center gap-2" style={{ ...woodFrame }}>
           <button onClick={() => setShowCustom(s => !s)} className={`w-10 h-10 flex items-center justify-center ${showCustom ? 'ring-2 ring-amber-300' : ''}`} style={{ ...woodBtn, color: customBet != null ? '#f5c542' : '#d9b97a' }} title="Custom bet">
             <Pencil className="w-4 h-4" />
           </button>
@@ -416,7 +416,7 @@ export default function Plinko() {
         <button
           onClick={drop}
           disabled={dropping}
-          className="mt-4 transition-all disabled:opacity-60 relative mx-auto"
+          className="mt-2 transition-all disabled:opacity-60 relative mx-auto"
           style={{ width: '66.67%' }}
         >
           <img
@@ -434,7 +434,7 @@ export default function Plinko() {
         </button>
 
         {/* Stats — wooden tiles */}
-        <div className="mt-3 grid grid-cols-3 gap-2 pb-6 text-center">
+        <div className="mt-2 grid grid-cols-3 gap-2 pb-4 text-center">
           <Stat label="Balance" value={`$${balance.toFixed(2)}`} />
           <Stat label="Bet" value={`$${bet.toFixed(2)}`} />
           <Stat label="Last Win" value={`$${lastWin.toFixed(2)}`} accent={lastWin > 0} />
