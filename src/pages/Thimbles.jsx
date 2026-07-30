@@ -381,7 +381,7 @@ function StatBox({ label, value, gold }) {
 }
 
 // Ornate golden carved glass cup with optional ball reveal.
-const CUP_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ee6a44bfb_generated_image.png';
+const CUP_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/dc7d5fcf5_generated_image.png';
 
 function Cup({ revealed, hasBall, picked, won, disabled }) {
   return (
