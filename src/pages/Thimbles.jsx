@@ -83,6 +83,7 @@ export default function Thimbles() {
   const [message, setMessage] = useState('Press SPIN to start');
   const [hash] = useState(genHash);
   const [showHistory, setShowHistory] = useState(false);
+  const [showBetMenu, setShowBetMenu] = useState(false);
   const navigate = useNavigate();
   const logActivity = useLogActivity();
   const timers = useRef([]);
@@ -351,7 +352,7 @@ export default function Thimbles() {
             <img src={HISTORY_IMG} alt="HISTORY" draggable={false} className="w-full h-auto select-none block" />
             <span className="absolute inset-0 flex items-center justify-center text-base font-black tracking-wide pointer-events-none" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif' }}>History</span>
           </button>
-          <button onClick={() => navigate('/')} className="w-9 h-9 flex items-center justify-center transition-transform active:scale-90" title="Menu">
+          <button onClick={() => setShowBetMenu(true)} className="w-9 h-9 flex items-center justify-center transition-transform active:scale-90" title="Bet">
             <Menu className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
         </div>
@@ -365,6 +366,13 @@ export default function Thimbles() {
       </div>
 
       {showHistory && <HistoryModal onClose={() => setShowHistory(false)} />}
+      {showBetMenu && (
+        <BetMenuModal
+          current={bet}
+          onPick={(v) => { setBet(v); setShowBetMenu(false); }}
+          onClose={() => setShowBetMenu(false)}
+        />
+      )}
     </div>
   );
 }
@@ -514,6 +522,50 @@ function HistoryModal({ onClose }) {
           <span className="text-right">ODDS</span>
           <span className="text-right">WIN</span>
           <span className="text-right">NET</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const BET_OPTIONS = [1, 2, 5, 10, 20, 50, 100, 200, 500];
+
+function BetMenuModal({ current, onPick, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="w-full max-w-sm rounded-xl relative overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+        style={{ border: '1px solid rgba(214,178,98,0.5)', background: 'linear-gradient(to bottom, #1a191e, #100f14)', fontFamily: 'Georgia, serif' }}
+      >
+        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
+          <div className="flex items-center gap-2">
+            <Menu className="w-4 h-4" style={{ color: '#ffe8a0' }} />
+            <h3 className="text-sm font-black italic" style={{ color: '#ffe8a0' }}>Select Bet</h3>
+          </div>
+          <button onClick={onClose} className="w-7 h-7 rounded-full flex items-center justify-center" style={{ border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)', color: '#ffe8a0' }}>
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 p-4">
+          {BET_OPTIONS.map((v) => {
+            const active = Math.abs(current - v) < 0.001;
+            return (
+              <button
+                key={v}
+                onClick={() => onPick(v)}
+                className="py-3 rounded-lg font-black tabular-nums italic transition-transform active:scale-95"
+                style={{
+                  border: active ? '1px solid #ffe8a0' : '1px solid rgba(214,178,98,0.35)',
+                  background: active ? 'rgba(255,232,160,0.16)' : 'rgba(20,17,13,0.6)',
+                  color: '#ffe8a0',
+                }}
+              >
+                {v}$
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
