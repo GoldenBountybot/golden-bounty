@@ -436,14 +436,14 @@ export default function Plinko() {
         </button>
 
         {/* Stats — wooden tiles */}
-        <div className="grid grid-cols-3 gap-2 text-center" style={{ marginTop: '-50px' }}>
+        <div className="grid grid-cols-3 gap-2 text-center" style={{ marginTop: '-70px' }}>
           <Stat label="Balance" value={`$${balance.toFixed(2)}`} />
           <Stat label="Bet" value={`$${bet.toFixed(2)}`} />
           <Stat label="Last Win" value={`$${lastWin.toFixed(2)}`} accent={lastWin > 0} />
         </div>
 
         {/* History button — ornate banner asset (black bg removed via screen blend) */}
-        <div className="flex justify-center pb-4" style={{ marginTop: '-10px' }}>
+        <div className="flex justify-center pb-4" style={{ marginTop: '-30px' }}>
           <button
             onClick={() => setShowHistory(true)}
             className="relative transition-transform active:scale-95"
