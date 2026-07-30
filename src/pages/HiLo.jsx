@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus, ChevronLeft, Volume2, Wallet, CircleDollarSign, Trophy } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus, Wallet, CircleDollarSign, Trophy } from 'lucide-react';
+import BackButton from '@/components/BackButton';
+import ShareButton from '@/components/ShareButton';
+import GameTitleBar from '@/components/GameTitleBar';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -222,30 +224,8 @@ export default function HiLo() {
       }} />
 
       {/* Header */}
-      <header className="sticky top-0 z-20" style={{
-        background: 'linear-gradient(to bottom, rgba(7,29,20,0.96), rgba(5,8,6,0.98))',
-        borderBottom: `1px solid ${GOLD}`,
-        boxShadow: '0 2px 12px rgba(0,0,0,0.5)',
-      }}>
-        <div className="max-w-md mx-auto px-3 py-3 relative flex items-center justify-center">
-          {/* Back button */}
-          <Link to="/" className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1 px-3 py-1.5 rounded-lg" style={{ ...goldBtn, fontFamily: SERIF }}>
-            <ChevronLeft className="w-4 h-4" />
-            <span className="text-xs font-bold tracking-wide">Back</span>
-          </Link>
-          {/* Title — ornate gold frame */}
-          <div className="px-10 py-1.5 rounded-lg" style={{
-            background: 'linear-gradient(to bottom, rgba(11,48,30,0.6), rgba(5,8,6,0.6))',
-            border: `1px solid ${GOLD}`,
-            boxShadow: 'inset 0 1px 0 rgba(246,201,74,0.25), 0 0 14px rgba(212,167,44,0.2)',
-          }}>
-            <h1 className="text-lg font-bold tracking-[0.15em]" style={{ color: '#F4C95D', fontFamily: SERIF, textShadow: '0 0 10px rgba(246,201,74,0.5), 0 1px 2px rgba(0,0,0,0.6)' }}>High or Low</h1>
-          </div>
-          {/* Speaker button */}
-          <button className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center" style={goldBtn}>
-            <Volume2 className="w-4 h-4" />
-          </button>
-        </div>
+      <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-emerald-600/30">
+        <GameTitleBar title="High or Low" left={<BackButton />} right={<ShareButton />} />
       </header>
 
       <main className="max-w-md mx-auto px-3 py-4 flex flex-col items-center gap-4 relative z-10">
