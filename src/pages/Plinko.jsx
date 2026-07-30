@@ -217,7 +217,7 @@ export default function Plinko() {
     // Ball bounces naturally through the pegs from the top. At the last row
     // it hits the peg directly above the target multiplier slot and drops
     // straight down into it — never bouncing sideways off other slots' pegs.
-    const targetPeg = Math.min(bucket, ROWS - 1);
+    const targetPeg = Math.max(0, Math.min(ROWS - 1, bucket - 1));
     const numSteps = ROWS - 1;
     const steps = Array.from({ length: numSteps }, (_, i) => (i < targetPeg ? 1 : 0));
     for (let i = steps.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [steps[i], steps[j]] = [steps[j], steps[i]]; }
@@ -259,20 +259,20 @@ export default function Plinko() {
   };
 
   // Peg positions matching the baked-in peg grid in the board image.
-  // 12 rows in a triangle: row 0 at center top, row 11 spread 15%–85%.
+  // 12 rows in a triangle: row 0 at center top (~13%), row 11 spread ~13%–87%.
+  // Pegs sit BETWEEN the slots (offset by half a slot), matching the image.
+  const SPACING = 80 / 12; // horizontal spacing = same for pegs and slots
   const pos = (row, col) => {
     const rowFrac = row / (ROWS - 1);
     const top = 13 + rowFrac * 67;
-    const left = row === 0 ? 50 : 50 + (col - row / 2) * (70 / (ROWS - 1));
+    const left = row === 0 ? 50 : 50 + (col - row / 2) * SPACING;
     return { left: `${left}%`, top: `${top}%` };
   };
 
-  // Buckets sit in the gaps between the last row of pegs (row ROWS-1), using the
-  // same spread as that row so each bucket is exactly between two pegs.
-  // 13 buckets sit in the gaps below the bottom peg row, aligned with the
-  // baked-in multiplier slots in the board image.
+  // 13 multiplier slots at the base, evenly spaced from 10% to 90%.
+  // Each slot sits in the gap between two pegs of the bottom row.
   const bucketPos = (b) => {
-    const left = 50 + (b - (ROWS - 1) / 2) * (70 / (ROWS - 1));
+    const left = 10 + b * SPACING;
     const top = 86;
     return { left: `${left}%`, top: `${top}%` };
   };
