@@ -238,26 +238,13 @@ export default function Thimbles() {
         </div>
         <p className="text-center text-[11px]" style={{ color: '#8a8270' }}>MIN {MIN_BET} USDT - MAX {MAX_BET} USDT</p>
 
-        {/* Game area — ornate wood table with three barrels (full width edge-to-edge) */}
-        <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/63f730da2_file_00000000a08482079b6365566218e339.png')", backgroundSize: 'cover', backgroundPosition: 'center', borderTop: '2px solid rgba(180,140,80,0.4)', borderBottom: '2px solid rgba(180,140,80,0.4)', boxShadow: 'inset 0 2px 12px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.5)' }}>
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 60%, rgba(0,0,0,0.15), rgba(0,0,0,0.35))' }} />
+        {/* Game area — ornate gilded wood table with three barrels (full width edge-to-edge) */}
+        <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 60%, rgba(0,0,0,0.1), rgba(0,0,0,0.3))' }} />
 
-          {/* Ornate golden frame border around the table */}
-          <div className="absolute inset-0 pointer-events-none" style={{ border: '4px solid transparent', borderImage: 'linear-gradient(135deg, #c89020 0%, #ffe890 25%, #b88010 50%, #ffe890 75%, #c89020 100%) 1', boxShadow: 'inset 0 0 0 2px rgba(60,40,10,0.7), inset 0 0 0 6px rgba(255,225,140,0.18), inset 0 0 18px rgba(0,0,0,0.55), 0 0 14px rgba(200,150,60,0.35)' }} />
-          <div className="absolute inset-1 pointer-events-none" style={{ border: '1px solid rgba(255,225,140,0.45)', boxShadow: 'inset 0 0 0 3px rgba(40,28,8,0.5)' }} />
-          {/* Corner ornaments */}
-          {[
-            { top: 0, left: 0, borderTop: '4px solid #ffe890', borderLeft: '4px solid #ffe890' },
-            { top: 0, right: 0, borderTop: '4px solid #ffe890', borderRight: '4px solid #ffe890' },
-            { bottom: 0, left: 0, borderBottom: '4px solid #ffe890', borderLeft: '4px solid #ffe890' },
-            { bottom: 0, right: 0, borderBottom: '4px solid #ffe890', borderRight: '4px solid #ffe890' },
-          ].map((c, i) => (
-            <div key={i} className="absolute w-7 h-7 pointer-events-none" style={{ ...c, filter: 'drop-shadow(0 0 4px rgba(255,210,100,0.7))' }} />
-          ))}
-
-          {/* Message banner */}
-          <div className="absolute top-3 left-0 right-0 flex justify-center z-20">
-            <div className="px-4 py-1.5 rounded-full text-sm font-bold" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(180,140,80,0.4)', color: won ? '#ffe066' : '#e0d8c0' }}>
+          {/* Message banner — maroon with gold rim, sits over the table's banner */}
+          <div className="absolute top-2 left-0 right-0 flex justify-center z-20">
+            <div className="px-5 py-1.5 text-sm font-bold uppercase tracking-wider" style={{ background: 'linear-gradient(to bottom, #5A0000, #2E0000)', border: '1.5px solid #D4AF37', borderRadius: '4px', color: won ? '#ffe066' : '#D4AF37', textShadow: '0 1px 2px rgba(0,0,0,0.8)', boxShadow: '0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,215,0,0.3)' }}>
               {message}
             </div>
           </div>
