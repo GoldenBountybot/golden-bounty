@@ -28,6 +28,12 @@ function genCrashPoint(rtp) {
     // spread across (1.00, 2.00).
     crash = Math.random() < 0.5 ? 1.00 : 1.00 + Math.random();
   }
+  // Redistribute ~20% of sub-2x busts up into the 2x–3x band so the
+  // curve crashes below 2x slightly less often than before (e.g. 10
+  // sub-2x busts become ~8, the other ~2 land in 2x–3x).
+  if (crash < 2 && Math.random() < 0.20) {
+    crash = 2 + Math.random();
+  }
   return Math.min(Math.max(crash, 1.00), 250);
 }
 
