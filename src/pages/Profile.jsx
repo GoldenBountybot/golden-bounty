@@ -202,7 +202,7 @@ export default function Profile() {
           <div className="w-10" />
 
           {menuOpen && (
-            <div className="absolute left-4 top-14 z-40 w-48 rounded-2xl overflow-hidden"
+            <div className="absolute left-4 top-14 z-40 w-48 rounded-2xl"
               style={{ border: '1px solid rgba(212,175,55,0.4)', background: 'rgba(13,13,13,0.97)', boxShadow: '0 14px 40px rgba(0,0,0,0.7)', animation: 'dashFadeIn 200ms ease both' }}>
               <Link to="/pay" onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
