@@ -6,13 +6,13 @@ import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
 
-const MULTS = [100, 50, 25, 10, 5, 2, 1, 0.1, 0.1, 1, 2, 5, 10, 25, 50, 100];
+const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1;
 const BOARD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/41d1489a2_file_000000005b9881faa2d49d948685f05d.png';
 const BETS = [0.1, 1, 5, 10];
 // Absolute per-bucket landing chance (percent), symmetric across both edges.
 // 100x: 0.1% · 50x: 0.3% · 25x: 0.5% · 10x: 1% · 5x: 2% · 2x: 26% (split each side).
-const WEIGHTS = [0.02, 0.05, 0.1, 0.3, 1, 3, 10, 35, 35, 10, 3, 1, 0.3, 0.1, 0.05, 0.02];
+const WEIGHTS = [0.05, 0.15, 0.25, 0.5, 1, 13, 70, 13, 1, 0.5, 0.25, 0.15, 0.05];
 const WEIGHT_TOTAL = WEIGHTS.reduce((a, b) => a + b, 0);
 
 const FONT = "Rye, Georgia, serif";
