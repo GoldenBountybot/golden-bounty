@@ -381,8 +381,8 @@ function StatBox({ label, value, gold }) {
 }
 
 // Ornate golden carved glass cup with optional ball reveal.
-const CUP_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b34d480a0_generated_image.png';
-const BALL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0f825bff8_generated_image.png';
+const CUP_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8e9a150fe_generated_image.png';
+const BALL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ddee64fde_generated_image.png';
 
 function Cup({ revealed, hasBall, picked, won, disabled }) {
   return (
@@ -398,6 +398,10 @@ function Cup({ revealed, hasBall, picked, won, disabled }) {
               height: '26px',
               objectFit: 'contain',
               filter: 'drop-shadow(0 0 10px rgba(255,210,120,0.9))',
+              WebkitMaskImage: `url(${BALL_IMG})`,
+              WebkitMaskMode: 'luminance',
+              maskImage: `url(${BALL_IMG})`,
+              maskMode: 'luminance',
               animation: 'saWinPop 0.4s ease both',
             }}
           />
@@ -421,6 +425,10 @@ function Cup({ revealed, hasBall, picked, won, disabled }) {
             filter: revealed && hasBall
               ? 'drop-shadow(0 0 10px rgba(255,210,120,0.7)) brightness(1.15)'
               : 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
+            WebkitMaskImage: `url(${CUP_IMG})`,
+            WebkitMaskMode: 'luminance',
+            maskImage: `url(${CUP_IMG})`,
+            maskMode: 'luminance',
           }}
         />
         {picked && (
