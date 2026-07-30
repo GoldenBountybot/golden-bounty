@@ -382,6 +382,7 @@ function StatBox({ label, value, gold }) {
 
 // Ornate golden carved glass cup with optional ball reveal.
 const CUP_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8e9a150fe_generated_image.png';
+const BALL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ddee64fde_generated_image.png';
 
 function Cup({ revealed, hasBall, picked, won, disabled }) {
   return (
@@ -389,14 +390,15 @@ function Cup({ revealed, hasBall, picked, won, disabled }) {
       {/* Ball (shown when revealed and cup has it) */}
       <div style={{ height: '24px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
         {revealed && hasBall && (
-          <div
-            className="rounded-full"
+          <img
+            src={BALL_IMG}
+            alt="Golden ball"
             style={{
-              width: '20px',
-              height: '20px',
-              background: 'radial-gradient(circle at 35% 30%, #fff3c4, #f0c850 45%, #b8801e)',
-              boxShadow: '0 0 14px rgba(255,210,120,0.9), inset 0 1px 0 rgba(255,255,240,0.8)',
-              border: '1px solid rgba(90,60,15,0.5)',
+              width: '26px',
+              height: '26px',
+              objectFit: 'contain',
+              mixBlendMode: 'screen',
+              filter: 'drop-shadow(0 0 10px rgba(255,210,120,0.9))',
               animation: 'saWinPop 0.4s ease both',
             }}
           />
