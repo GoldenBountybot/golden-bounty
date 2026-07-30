@@ -227,7 +227,7 @@ export default function Thimbles() {
       {!loaded && <GameLoadingScreen title="Thimbles" onDone={() => setLoaded(true)} />}
       <GameHeader title="Thimbles" balance={balance} />
 
-      <main className="max-w-md w-full mx-auto px-3 py-1 flex flex-col gap-1 flex-1 relative z-10" style={{ marginTop: '-20px' }}>
+      <main className="max-w-md w-full mx-auto px-3 py-1 flex flex-col gap-1 flex-1 relative z-10" style={{ marginTop: '-60px' }}>
         {/* Betting controls bar — ornate gilded banner with baked-in - / + buttons */}
         <div className="relative w-full">
           <img src={BET_BANNER_IMG} alt="Total Bet" draggable={false} className="w-full h-auto select-none block" />
