@@ -380,64 +380,50 @@ function StatBox({ label, value, gold }) {
   );
 }
 
-// Wooden cup with optional ball reveal.
+// Ornate golden carved glass cup with optional ball reveal.
+const CUP_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/dc7d5fcf5_generated_image.png';
+
 function Cup({ revealed, hasBall, picked, won, disabled }) {
   return (
     <div className="flex flex-col items-center" style={{ filter: disabled ? 'none' : 'drop-shadow(0 4px 6px rgba(0,0,0,0.5))' }}>
       {/* Ball (shown when revealed and cup has it) */}
-      <div style={{ height: '28px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+      <div style={{ height: '24px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
         {revealed && hasBall && (
           <div
             className="rounded-full"
             style={{
-              width: '22px',
-              height: '22px',
+              width: '20px',
+              height: '20px',
               background: 'radial-gradient(circle at 35% 30%, #fff3c4, #f0c850 45%, #b8801e)',
-              boxShadow: '0 0 12px rgba(255,210,120,0.8), inset 0 1px 0 rgba(255,255,240,0.8)',
+              boxShadow: '0 0 14px rgba(255,210,120,0.9), inset 0 1px 0 rgba(255,255,240,0.8)',
               border: '1px solid rgba(90,60,15,0.5)',
               animation: 'saWinPop 0.4s ease both',
             }}
           />
         )}
       </div>
-      {/* Cup body */}
+      {/* Cup body — ornate golden carved glass image */}
       <div
         className="relative mx-auto"
         style={{
-          width: '70px',
-          height: '80px',
+          width: '78px',
+          height: '88px',
           transition: 'transform 300ms ease',
-          transform: revealed ? 'translateY(-6px) rotate(-8deg)' : 'translateY(0) rotate(0deg)',
+          transform: revealed ? 'translateY(-8px) rotate(-8deg)' : 'translateY(0) rotate(0deg)',
         }}
       >
-        <svg viewBox="0 0 70 80" width="70" height="80" style={{ filter: revealed && hasBall ? 'drop-shadow(0 0 8px rgba(255,210,120,0.6))' : 'none' }}>
-          <defs>
-            <linearGradient id="cupWood" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#6b4a2a" />
-              <stop offset="40%" stopColor="#4a3018" />
-              <stop offset="100%" stopColor="#2a1808" />
-            </linearGradient>
-            <linearGradient id="cupRim" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#8a5e36" />
-              <stop offset="100%" stopColor="#5a3a1a" />
-            </linearGradient>
-          </defs>
-          {/* cup body — trapezoid */}
-          <path d="M10 18 L60 18 L52 72 L18 72 Z" fill="url(#cupWood)" stroke="#3a2410" strokeWidth="1.5" />
-          {/* rim */}
-          <ellipse cx="35" cy="18" rx="25" ry="6" fill="url(#cupRim)" stroke="#3a2410" strokeWidth="1.5" />
-          {/* inner shadow */}
-          <ellipse cx="35" cy="18" rx="22" ry="4.5" fill="#1a0e04" opacity="0.7" />
-          {/* wood grain highlight */}
-          <path d="M16 24 L20 68" stroke="rgba(255,200,120,0.12)" strokeWidth="1" fill="none" />
-          <path d="M50 24 L46 68" stroke="rgba(255,200,120,0.08)" strokeWidth="1" fill="none" />
-          {/* base */}
-          <ellipse cx="35" cy="72" rx="17" ry="4" fill="#2a1808" stroke="#3a2410" strokeWidth="1" />
-          {/* gold band */}
-          <path d="M12 30 L58 30" stroke="#c5a059" strokeWidth="1.5" opacity="0.5" />
-        </svg>
+        <img
+          src={CUP_IMG}
+          alt="Golden cup"
+          className="w-full h-full object-contain"
+          style={{
+            filter: revealed && hasBall
+              ? 'drop-shadow(0 0 10px rgba(255,210,120,0.7)) brightness(1.15)'
+              : 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
+          }}
+        />
         {picked && (
-          <div className="absolute -top-1 -right-1">
+          <div className="absolute -top-1 -right-1 z-10">
             <Trophy className="w-5 h-5" style={{ color: won ? '#ffd75a' : '#f87171', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.6))' }} />
           </div>
         )}
