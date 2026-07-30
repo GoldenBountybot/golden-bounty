@@ -217,7 +217,7 @@ export default function Plinko() {
     // Ball bounces naturally through the pegs from the top. At the last row
     // it hits the peg directly above the target multiplier slot and drops
     // straight down into it — never bouncing sideways off other slots' pegs.
-    const targetPeg = Math.max(0, Math.min(ROWS - 1, bucket - 1));
+    const targetPeg = Math.min(bucket, ROWS - 1);
     const numSteps = ROWS - 1;
     const steps = Array.from({ length: numSteps }, (_, i) => (i < targetPeg ? 1 : 0));
     for (let i = steps.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [steps[i], steps[j]] = [steps[j], steps[i]]; }
@@ -272,7 +272,7 @@ export default function Plinko() {
   // 13 buckets sit in the gaps below the bottom peg row, aligned with the
   // baked-in multiplier slots in the board image.
   const bucketPos = (b) => {
-    const left = 50 + (b - ROWS / 2) * (70 / (ROWS - 1));
+    const left = 50 + (b - (ROWS - 1) / 2) * (70 / (ROWS - 1));
     const top = 86;
     return { left: `${left}%`, top: `${top}%` };
   };
