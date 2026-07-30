@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Rye&family=Smokum&family=Sancreek&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rye&family=Smokum&family=Sancreek&family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,6 +35,8 @@
     --font-display: ui-sans-serif, system-ui, sans-serif;
     --font-western: 'Rye', 'Georgia', serif;
     --font-western-body: 'Smokum', 'Rye', 'Georgia', serif;
+    --font-luxury: 'Cinzel', 'Georgia', serif;
+    --font-luxury-body: 'Cormorant Garamond', 'Georgia', serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
