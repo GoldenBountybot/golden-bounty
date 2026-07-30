@@ -155,9 +155,18 @@ const STAT_BGS = {
 
 function Stat({ label, value, accent }) {
   return (
-    <div className="py-2 text-center relative" style={{ background: `url('${STAT_BGS[label] || Object.values(STAT_BGS)[0]}') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))`, border: '1px solid rgba(190,140,55,0.75)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), 0 2px 6px rgba(0,0,0,0.55)', fontFamily: FONT }}>
-      <p className="text-xs tracking-widest uppercase relative" style={{ color: '#f5c542', textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>{label}</p>
-      <p className="text-xs font-bold tabular-nums relative" style={{ color: accent ? '#f5c542' : '#f3e2b3', textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>{value}</p>
+    <div className="relative text-center" style={{ fontFamily: FONT }}>
+      <img
+        src={DROP_BTN_IMG}
+        alt={label}
+        draggable={false}
+        className="w-full h-auto select-none block"
+        style={{ mixBlendMode: 'screen' }}
+      />
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" style={{ transform: 'translateY(-2px)' }}>
+        <p className="text-[9px] tracking-widest uppercase" style={{ color: '#f5c542', textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>{label}</p>
+        <p className="text-[11px] font-bold tabular-nums" style={{ color: accent ? '#f5c542' : '#f3e2b3', textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>{value}</p>
+      </div>
     </div>
   );
 }
