@@ -340,7 +340,7 @@ export default function Thimbles() {
   );
 }
 
-const BARREL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/35b2a44e4_file_00000000149481fa80aa6a96e6a047f9.png';
+const BARREL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f1d422732_file_000000002c8c81f789fe32b56de1dcdf.png';
 
 function Barrel({ lifted, hasBall, reveal, won }) {
   return (
