@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, Menu, History, X } from 'lucide-react';
+import { Menu, History, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { useNavigate } from 'react-router-dom';
 import GameHeader from '@/components/GameHeader';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -82,6 +83,7 @@ export default function Thimbles() {
   const [message, setMessage] = useState('Press SPIN to start');
   const [hash] = useState(genHash);
   const [showHistory, setShowHistory] = useState(false);
+  const navigate = useNavigate();
   const logActivity = useLogActivity();
   const timers = useRef([]);
   const pendingWin = useRef(false);
@@ -330,13 +332,12 @@ export default function Thimbles() {
       {/* Bottom action bar */}
       <div className="w-full max-w-md mx-auto px-3 pb-1 relative z-10">
         <div className="py-1.5 px-2 flex items-center justify-between">
-          <button className="w-9 h-9 flex items-center justify-center">
-            <ChevronLeft className="w-5 h-5" style={{ color: '#e0d8c0' }} />
+          <span style={{ width: '36px' }} />
+          <button onClick={() => setShowHistory(true)} className="relative transition-transform active:scale-95" style={{ width: '42%' }}>
+            <img src={HISTORY_IMG} alt="HISTORY" draggable={false} className="w-full h-auto select-none block" />
+            <span className="absolute inset-0 flex items-center justify-center text-base font-black tracking-wide pointer-events-none" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif' }}>History</span>
           </button>
-          <button onClick={() => setShowHistory(true)} className="transition-transform active:scale-95" style={{ width: '42%' }}>
-            <img src={HISTORY_IMG} alt="HISTORY" draggable={false} className="w-full h-auto select-none" />
-          </button>
-          <button className="w-9 h-9 flex items-center justify-center">
+          <button onClick={() => navigate('/')} className="w-9 h-9 flex items-center justify-center transition-transform active:scale-90" title="Menu">
             <Menu className="w-5 h-5" style={{ color: '#e0d8c0' }} />
           </button>
         </div>
