@@ -313,7 +313,7 @@ export default function Plinko() {
       <main className="relative z-10 max-w-2xl mx-auto w-full px-3 flex-1 flex flex-col">
         {/* Board — image with overlaid ball, enlarged beyond viewport width */}
         <div className="relative overflow-hidden" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)' }}>
-          <div className="relative" style={{ width: '132%', marginLeft: '-16%' }}>
+          <div className="relative" style={{ width: '118%', marginLeft: '-9%' }}>
           <img src={BOARD_IMG} alt="Plinko Board" draggable={false} className="w-full h-auto block select-none" />
 
           {/* Peg hit glow — brief flash when the ball strikes a peg */}
@@ -336,14 +336,6 @@ export default function Plinko() {
             <span
               className="absolute z-10 rounded-full"
               style={{ ...pos(ballPos.row, ballPos.col), transform: 'translate(-50%,-50%)', width: 11, height: 11, background: 'radial-gradient(circle at 35% 30%, #d6b3ff, #8b5cf6 55%, #5b21a6)', boxShadow: '0 1px 3px rgba(0,0,0,0.6), 0 0 10px rgba(139,92,246,0.85), inset 0 1px 0 rgba(214,179,255,0.4)', transition: 'left 0.2s ease-in, top 0.2s ease-in' }}
-            />
-          )}
-
-          {/* Bucket win highlight */}
-          {resultBucket !== null && (
-            <div
-              className="absolute z-20 pointer-events-none"
-              style={{ ...bucketPos(resultBucket), transform: 'translate(-50%,-50%)', width: '7%', height: '6%', borderRadius: 4, boxShadow: '0 0 18px rgba(255,215,0,0.95), inset 0 0 12px rgba(255,235,120,0.5)', animation: 'plinkoPegHit 0.5s ease-out' }}
             />
           )}
 
