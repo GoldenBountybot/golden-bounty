@@ -212,8 +212,7 @@ export default function Thimbles() {
   const pickedLifted = phase === 'over';
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden relative" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e91e88414_generated_image.png')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', fontFamily: 'Georgia, serif' }}>
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(26,25,30,0.82), rgba(16,15,20,0.88))' }} />
+    <div className="min-h-screen flex flex-col overflow-x-hidden relative" style={{ background: 'linear-gradient(to bottom, #1a191e, #100f14)', fontFamily: 'Georgia, serif' }}>
       {!loaded && <GameLoadingScreen title="Thimbles" onDone={() => setLoaded(true)} />}
       <GameHeader title="Thimbles" balance={balance} />
 
