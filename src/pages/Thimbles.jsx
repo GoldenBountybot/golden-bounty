@@ -298,13 +298,13 @@ export default function Thimbles() {
         {/* Win / Loss result banner — sits in the gap between multiplier and spin */}
         <div className="relative w-full" style={{ marginTop: '-14px', marginBottom: '-14px' }}>
           <img src={WIN_BANNER_IMG} alt="result" draggable={false} className="w-full h-auto select-none block" />
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: 'translateY(-1px)' }}>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: 'translateY(-7px)' }}>
             {phase === 'over' ? (
-              <span className="text-lg font-black tabular-nums italic" style={{ color: won ? '#7ee787' : '#ff6b6b', fontFamily: 'Georgia, serif' }}>
+              <span className="text-lg font-black tabular-nums italic" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif' }}>
                 {won ? `+${lastWin.toFixed(2)} USDT` : `-${bet.toFixed(2)} USDT`}
               </span>
             ) : (
-              <span className="text-sm font-bold tracking-[0.2em] italic" style={{ color: '#c8b890', fontFamily: 'Georgia, serif' }}>
+              <span className="text-sm font-bold tracking-[0.2em] italic" style={{ color: '#ffe8a0', fontFamily: 'Georgia, serif' }}>
                 {phase === 'idle' ? 'GOOD LUCK' : '…'}
               </span>
             )}
