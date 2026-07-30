@@ -419,7 +419,7 @@ export default function Plinko() {
           onClick={drop}
           disabled={dropping}
           className="transition-all disabled:opacity-60 relative mx-auto"
-          style={{ width: '66.67%', marginTop: '-80px' }}
+          style={{ width: '66.67%', marginTop: '-30px' }}
         >
           <img
             src={DROP_BTN_IMG}
@@ -436,7 +436,7 @@ export default function Plinko() {
         </button>
 
         {/* Stats — wooden tiles */}
-        <div className="grid grid-cols-3 gap-2 text-center" style={{ marginTop: '-80px' }}>
+        <div className="grid grid-cols-3 gap-2 text-center" style={{ marginTop: '-30px' }}>
           <Stat label="Balance" value={`$${balance.toFixed(2)}`} />
           <Stat label="Bet" value={`$${bet.toFixed(2)}`} />
           <Stat label="Last Win" value={`$${lastWin.toFixed(2)}`} accent={lastWin > 0} />
