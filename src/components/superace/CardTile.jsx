@@ -14,10 +14,10 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
   const isWild = sym === 'W';
   const isScatter = sym === 'SC';
 
-  // Standard white playing-card face with subtle radial gradient (lighter center)
+  // Standard white playing-card face — clean white, thin border, no checkerboard
   const baseStyle = {
-    background: 'radial-gradient(circle at 50% 45%, #ffffff 0%, #fbf8f0 55%, #ede9e0 100%)',
-    border: '1px solid #c9c4ba',
+    background: 'linear-gradient(to bottom, #ffffff 0%, #f5f5f5 100%)',
+    border: '1px solid #d0d0d0',
     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 3px rgba(0,0,0,0.4)',
   };
   // Golden card — thick glowing gold border (signifies golden → wild)
@@ -45,7 +45,8 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
   if (isWin) {
     style = {
       ...style,
-      boxShadow: '0 0 16px rgba(255,235,150,1), inset 0 0 0 2px rgba(255,245,180,1)',
+      border: '3px solid #FFD700',
+      boxShadow: '0 0 16px rgba(255,215,0,1), 0 0 28px rgba(255,200,80,0.7), inset 0 0 0 2px rgba(255,245,180,1)',
     };
   }
 

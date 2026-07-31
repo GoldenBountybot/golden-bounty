@@ -1,35 +1,33 @@
 import React from 'react';
 
-// SuperAce playing-card faces.
-// K/Q/J: realistic AI court figures. A + suits: clean SVG.
-// Corner index (letter + pip) overlaid top-left and inverted bottom-right.
+// SuperAce playing-card faces — JILI Super Ace style.
+// K/Q/J: illustrated profile portraits. A: spade with gold "ACE".
+// Suits: clean flat vector shapes. No checkerboard pattern.
 
 const RED = '#c62828';
-const RED_BRIGHT = '#e53935';
-const BLUE = '#1565c0';
-const DARK = '#1b1b1b';
-const GOLD = '#f2c53a';
+const RED_BRIGHT = '#d32f2f';
+const BLUE = '#2d65a1';
+const DARK = '#1a1a1a';
+const ORANGE = '#c75b26';
 
 const COURT_IMG = {
-  K: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/aab4c596e_generated_image.png',
-  Q: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/44b48b316_generated_image.png',
-  J: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/78c7b77e2_generated_image.png',
-  A: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/196f878d8_generated_image.png',
+  K: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e40b4b48f_generated_image.png',
+  Q: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/21f5a1dbb_generated_image.png',
+  J: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a23681e83_generated_image.png',
+  A: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4e53e6ae2_generated_image.png',
 };
 
 const SUIT_GLYPH = { S: '♠', H: '♥', D: '♦', C: '♣' };
-const SUIT_COLOR = { S: DARK, H: RED_BRIGHT, D: '#e64a19', C: BLUE };
+const SUIT_COLOR = { S: DARK, H: RED_BRIGHT, D: ORANGE, C: BLUE };
 const FACE_ACCENT = { A: DARK, K: BLUE, Q: RED, J: BLUE };
 const FACE_CORNER_PIP = { A: '♠', K: '♠', Q: '♥', J: '♣' };
 
-// Suit: big centered pip with side flourishes
+// Suit: big centered pip, clean and bold
 function SuitArt({ sym }) {
   const c = SUIT_COLOR[sym];
   return (
     <svg viewBox="0 0 64 92" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-      <text x="32" y="60" fontSize="46" textAnchor="middle" fill={c} style={{ fontFamily: 'Georgia, serif' }}>{SUIT_GLYPH[sym]}</text>
-      <path d="M8 48 Q14 52 8 56" fill="none" stroke={c} strokeWidth="1" opacity="0.45" />
-      <path d="M56 48 Q50 52 56 56" fill="none" stroke={c} strokeWidth="1" opacity="0.45" />
+      <text x="32" y="64" fontSize="52" textAnchor="middle" fill={c} style={{ fontFamily: 'Georgia, serif', fontWeight: 'bold' }}>{SUIT_GLYPH[sym]}</text>
     </svg>
   );
 }
@@ -67,12 +65,12 @@ export default function PlayingCardFace({ sym, golden }) {
           style={{
             backgroundImage: `url('${COURT_IMG[sym]}')`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center 35%',
+            backgroundPosition: 'center 30%',
             filter: sepia,
           }}
         />
       )}
-      {/* Ace realistic image */}
+      {/* Ace image */}
       {isAce && (
         <div
           className="absolute inset-0"
@@ -88,7 +86,7 @@ export default function PlayingCardFace({ sym, golden }) {
       {isSuit && <div className="absolute inset-0" style={{ filter: sepia }}><SuitArt sym={sym} /></div>}
 
       {/* subtle inner frame line like real cards */}
-      <div className="absolute inset-[3px] rounded-[3px] pointer-events-none" style={{ border: '0.5px solid rgba(0,0,0,0.18)' }} />
+      <div className="absolute inset-[3px] rounded-[3px] pointer-events-none" style={{ border: '0.5px solid rgba(0,0,0,0.12)' }} />
 
       {/* golden tint overlay for golden cards */}
       {golden && (
