@@ -612,11 +612,17 @@ export default function SuperAceMachine() {
 
                 {/* SPIN — luxury premium button image */}
                 <button onClick={() => { if (!busyRef.current) { playClick(); doSpin(); } }} disabled={busyRef.current} className="flex flex-col items-center gap-1 disabled:opacity-80">
-                  <span className="relative w-[88px] h-[88px] flex items-center justify-center transition-transform active:scale-95">
+                  <span
+                    className="relative w-[88px] h-[88px] flex items-center justify-center"
+                    style={{
+                      transform: busyRef.current ? 'scale(1.12)' : 'scale(1)',
+                      transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    }}
+                  >
                     <img
                       src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4c5d3e4ce_file_00000000541c8211a6dd57b4e4dcf69f.png"
                       alt="SPIN"
-                      className={`w-full h-full object-contain ${busyRef.current ? 'animate-spin' : ''}`}
+                      className="w-full h-full object-contain"
                       style={{ mixBlendMode: 'screen' }}
                     />
                   </span>
