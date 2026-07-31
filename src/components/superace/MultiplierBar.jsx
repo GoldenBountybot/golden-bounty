@@ -3,7 +3,7 @@ import React from 'react';
 const W = { fontFamily: 'Rye, Georgia, serif' };
 
 export default function MultiplierBar({ mults, combo, inFree, freeSpinsLeft }) {
-  const active = Math.min(combo, mults.length - 1);
+  const active = Math.min(combo - 1, mults.length - 1);
   return (
     <div className="flex flex-col items-center gap-1">
       {inFree && (
