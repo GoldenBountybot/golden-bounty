@@ -138,56 +138,121 @@ function tone({ freq, type = 'sine', dur = 0.2, gain = VOL, delay = 0, sweepTo }
 }
 
 // ── Background music ──────────────────────────────────────────────
-// Loops the uploaded background song continuously. Volume ducks down
-// whenever a spin / win / scatter sound event fires, then restores.
+// Loops the uploaded background song continuously via Web Audio API
+// (gapless, unlike HTMLAudioElement). A filter chain cleans up the
+// recording: high-pass removes low rumble, a compressor acts as a noise
+// gate to suppress quiet background sounds, and EQ boosts the music.
+// Volume ducks down whenever a spin / win / scatter event fires.
 const BG_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/22fed69b4_backgroundsong.mp3';
 const BG_VOL = 0.45;       // normal background volume
 const BG_DUCK_VOL = 0.12;  // ducked volume while SFX play
-const BG_DUCK_FADE = 0.25; // seconds to fade back up
-let bgAudio = null;
+let bgBuffer = null;
+let bgLoading = false;
+let bgSource = null;
+let bgGain = null;
 let bgStarted = false;
 let bgDuckTimer = null;
+let bgWantStart = false;
+
+async function loadBgBuffer() {
+  if (bgBuffer || bgLoading) return;
+  bgLoading = true;
+  try {
+    const res = await fetch(BG_URL);
+    const arr = await res.arrayBuffer();
+    const ac = getCtx();
+    if (ac) bgBuffer = await ac.decodeAudioData(arr);
+  } catch { /* ignore */ } finally { bgLoading = false; }
+}
+
+function playBgLoop() {
+  const ac = getCtx();
+  if (!ac || !bgBuffer || bgSource) return;
+  bgSource = ac.createBufferSource();
+  bgSource.buffer = bgBuffer;
+  bgSource.loop = true;
+
+  // High-pass filter — removes low-frequency rumble / hum from the recording.
+  const hp = ac.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 120;
+  hp.Q.value = 0.7;
+
+  // Low-pass filter — removes high-frequency hiss / background noise.
+  const lp = ac.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 7500;
+  lp.Q.value = 0.7;
+
+  // Presence boost for the main music frequencies.
+  const presence = ac.createBiquadFilter();
+  presence.type = 'peaking';
+  presence.frequency.value = 2200;
+  presence.Q.value = 1.2;
+  presence.gain.value = 4;
+
+  // Compressor / noise gate — squashes quiet background sounds (room noise,
+  // breathing, handling) while letting the louder music through cleanly.
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -38;
+  comp.knee.value = 12;
+  comp.ratio.value = 6;
+  comp.attack.value = 0.005;
+  comp.release.value = 0.18;
+
+  bgGain = ac.createGain();
+  bgGain.gain.setValueAtTime(0.0001, ac.currentTime);
+  bgGain.gain.exponentialRampToValueAtTime(BG_VOL, ac.currentTime + 1.2);
+
+  bgSource.connect(hp);
+  hp.connect(lp);
+  lp.connect(presence);
+  presence.connect(comp);
+  comp.connect(bgGain);
+  bgGain.connect(ac.destination);
+  bgSource.start();
+  // When the buffer ends (shouldn't, since loop=true) restart seamlessly.
+  bgSource.onended = () => { bgSource = null; if (bgStarted) playBgLoop(); };
+}
 
 function startBackgroundMusic() {
   if (bgStarted) return;
   bgStarted = true;
-  bgAudio = new Audio(BG_URL);
-  bgAudio.loop = true;
-  bgAudio.volume = 0;
-  const fadeIn = () => {
-    const steps = 20;
-    for (let i = 1; i <= steps; i++) {
-      setTimeout(() => { if (bgAudio) bgAudio.volume = BG_VOL * (i / steps); }, i * 40);
-    }
-  };
-  const tryPlay = () => {
-    bgAudio.play().then(fadeIn).catch(() => {
-      // Autoplay blocked — retry on first interaction (element reused, no dupes)
-      const resume = () => { bgAudio.play().then(fadeIn).catch(() => {}); };
-      document.addEventListener('click', resume, { once: true });
-      document.addEventListener('touchstart', resume, { once: true });
-      document.addEventListener('keydown', resume, { once: true });
-    });
-  };
-  tryPlay();
+  bgWantStart = true;
+  const ac = getCtx();
+  if (!ac) return;
+  loadBgBuffer().then(() => {
+    if (bgWantStart) playBgLoop();
+  });
+  // If autoplay is blocked, the AudioContext stays suspended — resume on
+  // first interaction which also kicks off playback.
+  if (ac.state === 'suspended') {
+    const resume = () => {
+      const c = getCtx();
+      if (c) c.resume().then(() => { if (bgBuffer) playBgLoop(); else loadBgBuffer().then(() => { if (bgWantStart) playBgLoop(); }); }).catch(() => {});
+      document.removeEventListener('click', resume);
+      document.removeEventListener('touchstart', resume);
+      document.removeEventListener('keydown', resume);
+    };
+    document.addEventListener('click', resume, { once: true });
+    document.addEventListener('touchstart', resume, { once: true });
+    document.addEventListener('keydown', resume, { once: true });
+  }
 }
 
 function duckBackground(durationMs = 1200) {
-  if (!bgAudio) return;
+  const ac = getCtx();
+  if (!ac || !bgGain) return;
   if (bgDuckTimer) clearTimeout(bgDuckTimer);
-  bgAudio.volume = BG_DUCK_VOL;
+  bgGain.gain.cancelScheduledValues(ac.currentTime);
+  bgGain.gain.setValueAtTime(bgGain.gain.value, ac.currentTime);
+  bgGain.gain.linearRampToValueAtTime(BG_DUCK_VOL, ac.currentTime + 0.08);
   bgDuckTimer = setTimeout(() => {
-    if (!bgAudio) return;
-    // smooth fade back up
-    const ac = getCtx();
-    if (ac) {
-      const steps = 15;
-      for (let i = 1; i <= steps; i++) {
-        setTimeout(() => { if (bgAudio) bgAudio.volume = BG_DUCK_VOL + (BG_VOL - BG_DUCK_VOL) * (i / steps); }, i * 30);
-      }
-    } else {
-      bgAudio.volume = BG_VOL;
-    }
+    const c = getCtx();
+    if (!c || !bgGain) return;
+    bgGain.gain.cancelScheduledValues(c.currentTime);
+    bgGain.gain.setValueAtTime(bgGain.gain.value, c.currentTime);
+    bgGain.gain.linearRampToValueAtTime(BG_VOL, c.currentTime + 0.4);
   }, durationMs);
 }
 
