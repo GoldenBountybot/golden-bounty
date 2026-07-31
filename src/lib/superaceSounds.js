@@ -87,6 +87,22 @@ export function playCascade() {
   for (let i = 0; i < 6; i++) tone(700 + i * 90, t + i * 0.03, 0.08, 'triangle', 0.05);
 }
 
+// Big coin drop — metallic "tang" when a scatter symbol lands on the reels.
+export function playScatterLand() {
+  const ac = actx(); if (!ac) return;
+  const t = ac.currentTime;
+  // 1. Sharp metallic attack (the "tang")
+  tone(2200, t, 0.08, 'triangle', 0.18);
+  tone(3300, t, 0.06, 'sine', 0.12);
+  // 2. Bell-like metallic ring (sustain)
+  tone(1568, t, 0.5, 'sine', 0.14);
+  tone(2093, t, 0.45, 'sine', 0.08);
+  tone(2637, t, 0.4, 'triangle', 0.05);
+  // 3. Low body (coin weight)
+  tone(220, t, 0.3, 'sine', 0.15);
+  tone(110, t, 0.4, 'sine', 0.10);
+}
+
 export function playScatter() {
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;

@@ -20,7 +20,7 @@ import {
 } from '@/lib/superaceEngine';
 import {
   playSpinStart, playReelLand, playComboWin, playCascade, playScatter,
-  playBigWin, playLose, playClick, announceWin, playCardDrop,
+  playBigWin, playLose, playClick, announceWin, playCardDrop, playScatterLand,
   startAmbient, stopAmbient,
 } from '@/lib/superaceSounds';
 import { incBet, decBet } from '@/lib/betStepper';
@@ -254,6 +254,8 @@ export default function SuperAceMachine() {
     setSpinning(false);
     setTeaseCols(new Set());
     playReelLand();
+    // Big coin "tang" when scatter symbols land on the reels.
+    if (g.filter((c) => c.sym === 'SC').length > 0) playScatterLand();
 
     // Announce the win immediately as the reels land — no delay.
     announcedFirstRef.current = false;
@@ -601,7 +603,6 @@ export default function SuperAceMachine() {
                 <button onClick={() => { if (!busyRef.current) { playClick(); doSpin(); } }} disabled={busyRef.current} className="flex flex-col items-center gap-1 disabled:opacity-80">
                   <span className="relative w-20 h-20 rounded-full flex items-center justify-center transition-transform active:scale-95" style={spinBtnStyle}>
                     <RotateCw className={`absolute w-16 h-16 text-amber-900/30 ${busyRef.current ? 'animate-spin' : ''}`} strokeWidth={1.5} />
-                    <span className="relative text-base font-black italic" style={{ fontFamily: 'Rye, Georgia, serif', color: '#ffd700', textShadow: '0 1px 2px rgba(0,0,0,0.6), 0 0 8px rgba(255,200,50,0.4)' }}>JILI</span>
                   </span>
                 </button>
 
