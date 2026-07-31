@@ -284,7 +284,8 @@ export function toggleMute() {
   if (ac && bgGain) {
     bgGain.gain.cancelScheduledValues(ac.currentTime);
     bgGain.gain.setValueAtTime(bgGain.gain.value, ac.currentTime);
-    bgGain.gain.linearRampToValueAtTime(bgMuted ? 0.0001 : BG_VOL, ac.currentTime + 0.15);
+    // 0 = truly silent; exponential ramps can't reach 0, so use linear.
+    bgGain.gain.linearRampToValueAtTime(bgMuted ? 0 : BG_VOL, ac.currentTime + 0.15);
   }
   return bgMuted;
 }
