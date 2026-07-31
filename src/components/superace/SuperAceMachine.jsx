@@ -436,9 +436,9 @@ export default function SuperAceMachine() {
       logActivity('fullhouse', betRef.current, grand, grand > 0 ? 'win' : 'loss');
     }
 
-    // Super Win banner: x5+ multiplier reached, or a big payout (≥ 15× bet).
+    // Super Win banner: x8+ multiplier reached, or a big payout (≥ 15× bet).
     const maxMult = maxMultRef.current;
-    const isSuper = maxMult >= 5 || (grand >= betRef.current * 15 && grand > 0);
+    const isSuper = maxMult >= 8 || (grand >= betRef.current * 15 && grand > 0);
     if (isSuper && !inFreeRef.current) {
       setSuperWin({ amount: grand, multiplier: maxMult });
       await new Promise((resolve) => { superWinResolverRef.current = resolve; });
