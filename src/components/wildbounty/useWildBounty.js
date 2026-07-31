@@ -41,6 +41,7 @@ export function useWildBounty() {
   const peakMultRef = useRef(1); // highest multiplier applied to a winning cascade this round
   const freeSpinsTotalRef = useRef(0); // accumulated win across the current free-spins round
   const freeSpinsCountRef = useRef(0); // remaining free spins (synced ref for chain-end checks)
+  const pendingWinRef = useRef(0); // win amount waiting to be revealed when the flying multiplier lands on the banner
   const [bannerPending, setBannerPending] = useState(false); // blocks auto/free spin while a round-end banner is delayed for the flying animation
 
   const settings = useGameSettings('wild-bounty');
@@ -211,14 +212,33 @@ export function useWildBounty() {
       // Credit the whole round at the end (see chain-end branch), not per
       // cascade, so a mid-cascade exit can be recovered exactly.
       savePendingRound('wild-bounty', { win: newTotal, bet, state: pendingStateRef.current });
-      setLastWin(newTotal);
       setMultIndex(newMult);
-      // First cascade (X1 round) shows no flying multiplier — the strip just
-      // lights up X1. From the X2 round onward the achieved tier flies.
+      // Don't show the win in the banner immediately — wait for the flying
+      // multiplier to land on the win banner, then the amount counts up.
+      // X1 (first cascade) has no flying multiplier, so it shows after a
+      // short delay instead.
+      const flySlow = cascadeCount >= 1 ? 1.6 : 1.2;
+      const winMsg = justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`;
       if (currentMultIndex >= 1) {
-        setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: cascadeCount >= 1 ? 1.6 : 1.2 });
+        setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
+        // The multiplier arrives at the banner at ~86% of the fly duration.
+        pendingWinRef.current = newTotal;
+        const winT = setTimeout(() => {
+          setLastWin(pendingWinRef.current);
+          pendingWinRef.current = 0;
+          setMessage(winMsg);
+        }, 1500 * flySlow * 0.86);
+        timers.current.push(winT);
+      } else {
+        pendingWinRef.current = newTotal;
+        const winT = setTimeout(() => {
+          setLastWin(pendingWinRef.current);
+          pendingWinRef.current = 0;
+          setMessage(winMsg);
+        }, 600);
+        timers.current.push(winT);
       }
-      setMessage(justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`);
+      setMessage(justAwarded ? '+10 FREE SPINS!' : 'MATCH!');
 
       // From the second cascade, run everything in a slight slow motion so the
       // shatter/drop animation lines up with the (also slowed) win sound.
@@ -255,6 +275,8 @@ export function useWildBounty() {
       setCascadeSlow(1);
       setWinningPositions(new Set());
       if (totalWin > 0) setBalance(b => b + totalWin);
+      // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
+      if (pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
       clearPendingRound('wild-bounty');
       pendingStateRef.current = null;
       if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
@@ -327,6 +349,7 @@ export function useWildBounty() {
     sfx.winStop();
     sfx.spin();
     peakMultRef.current = 1;
+    pendingWinRef.current = 0;
     setBannerPending(false);
     setSuperWin(null);
     setMegaWin(null);
