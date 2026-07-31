@@ -259,7 +259,7 @@ export default function SuperAceMachine() {
     announcedFirstRef.current = false;
     const evImm = evaluate(g, betRef.current);
     if (evImm.pay > 0 && evImm.winSymbols && evImm.winSymbols.length > 0) {
-      announceWin(evImm.winSymbols, multiplierFor(0, inFreeRef.current));
+      announceWin(evImm.winSymbols, 0);
       announcedFirstRef.current = true;
     }
 
@@ -340,7 +340,7 @@ export default function SuperAceMachine() {
       if (announcedFirstRef.current) {
         announcedFirstRef.current = false;
       } else {
-        announceWin(ev.winSymbols, mult);
+        announceWin(ev.winSymbols, comboCount);
       }
       await sleep(turboRef.current ? 380 : 560);
 
