@@ -19,7 +19,7 @@ import {
 } from '@/lib/superaceEngine';
 import {
   playSpinStart, playReelLand, playComboWin, playCascade, playScatter,
-  playBigWin, playLose, playClick,
+  playBigWin, playLose, playClick, announceWin, playCardDrop,
 } from '@/lib/superaceSounds';
 import { incBet, decBet } from '@/lib/betStepper';
 
@@ -298,6 +298,7 @@ export default function SuperAceMachine() {
       setWinningCells(new Set(ev.winCells));
       setFloatWin({ value: win, key: comboCount + '-' + Date.now() + Math.random() });
       playComboWin(comboCount);
+      announceWin(ev.winSymbols, mult);
       await sleep(turboRef.current ? 380 : 560);
 
       // Multiplier gate: each extra cascade is increasingly unlikely to chain,
@@ -315,7 +316,7 @@ export default function SuperAceMachine() {
         setFlipCells(new Set());
         setFloatWin(null);
         setNewCells(shatterSet);
-        playCascade();
+        playCascade(); playCardDrop();
         await sleep(turboRef.current ? 220 : 400);
         setNewCells(new Set());
         break;
@@ -351,7 +352,7 @@ export default function SuperAceMachine() {
       setFlipCells(new Set());
       setFloatWin(null);
       setNewCells(dropped);
-      playCascade();
+      playCascade(); playCardDrop();
       await sleep(turboRef.current ? 220 : 400);
       setNewCells(new Set());
     }

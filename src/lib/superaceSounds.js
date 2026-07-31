@@ -97,3 +97,41 @@ export function playClick() {
   const t = ac.currentTime;
   tone(880, t, 0.05, 'square', 0.05);
 }
+
+// ── Voice announcements (browser speechSynthesis — free, offline) ──
+const CARD_NAMES = {
+  A: 'Ace', K: 'King', Q: 'Queen', J: 'Jack',
+  S: 'Spade', H: 'Heart', D: 'Diamond', C: 'Club',
+  W: 'Wild', SC: 'Scatter',
+};
+
+const MULT_NAMES = {
+  1: '', 2: 'double', 3: 'triple', 4: 'four times',
+  5: 'five times', 6: 'six times', 10: 'ten times',
+};
+
+function speak(text) {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.1; u.pitch = 1.0; u.volume = 0.9;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+  } catch {}
+}
+
+// Announce winning card name(s) + multiplier level (double/triple/five times…).
+export function announceWin(symbols, mult) {
+  if (!symbols || symbols.length === 0) return;
+  const names = symbols.map((s) => CARD_NAMES[s] || s).join(', ');
+  const multWord = MULT_NAMES[mult] || '';
+  speak(multWord ? `${names}, ${multWord}` : names);
+}
+
+// Card drop — soft pluck when new cards land after a cascade.
+export function playCardDrop() {
+  const ac = actx(); if (!ac) return;
+  const t = ac.currentTime;
+  tone(320, t, 0.08, 'sine', 0.10);
+  tone(160, t, 0.12, 'sine', 0.06);
+}

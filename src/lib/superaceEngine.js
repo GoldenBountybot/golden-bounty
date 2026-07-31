@@ -80,6 +80,7 @@ export function evaluate(g, bet) {
   let pay = 0;
   const winCells = new Set();
   const goldenToWild = new Set();
+  const winSymbols = [];
   for (const s of PAY_SYMBOLS) {
     let run = 0;
     const counts = [];
@@ -94,6 +95,7 @@ export function evaluate(g, bet) {
     if (run >= 3) {
       const ways = counts.reduce((a, b) => a * b, 1);
       pay += (PAYS[s][run] || 0) * ways * bet;
+      winSymbols.push(s);
       for (let c = 0; c < run; c++) {
         for (let r = 0; r < ROWS; r++) {
           const idx = r * COLS + c;
@@ -111,7 +113,7 @@ export function evaluate(g, bet) {
   const scatterCount = g.filter((c) => c.sym === 'SC').length;
   let scatterPay = 0;
   if (scatterCount >= 3) scatterPay = (SCATTER_PAY[scatterCount] || SCATTER_PAY[5]) * bet;
-  return { pay, winCells, goldenToWild, scatterCount, scatterPay };
+  return { pay, winCells, goldenToWild, scatterCount, scatterPay, winSymbols };
 }
 
 // Remove winning cells, turn golden winners into WILD, compact down, refill top.
