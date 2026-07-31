@@ -20,6 +20,7 @@ import {
 import {
   playSpinStart, playReelLand, playComboWin, playCascade, playScatter,
   playBigWin, playLose, playClick, announceWin, playCardDrop,
+  startAmbient, stopAmbient,
 } from '@/lib/superaceSounds';
 import { incBet, decBet } from '@/lib/betStepper';
 
@@ -112,6 +113,12 @@ export default function SuperAceMachine() {
   useEffect(() => { turboRef.current = turbo; }, [turbo]);
   useEffect(() => { autoRef.current = autoSpin; }, [autoSpin]);
   useEffect(() => { doSpinRef.current = doSpin; });
+
+  // Start the background gaming ambient when the machine mounts; stop on unmount.
+  useEffect(() => {
+    startAmbient();
+    return () => stopAmbient();
+  }, []);
 
   const mults = inFree ? FREE_MULTS : BASE_MULTS;
 

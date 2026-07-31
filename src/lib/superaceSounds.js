@@ -23,15 +23,27 @@ function tone(freq, t0, dur, type = 'triangle', gain = 0.12) {
 export function playSpinStart() {
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
-  // descending whoosh
+  // Mechanical reel spin — rapid ticking + descending whoosh + gear whir.
   const o = ac.createOscillator(); const g = ac.createGain();
-  o.type = 'sawtooth'; o.frequency.setValueAtTime(900, t);
-  o.frequency.exponentialRampToValueAtTime(220, t + 0.5);
+  o.type = 'sawtooth'; o.frequency.setValueAtTime(1200, t);
+  o.frequency.exponentialRampToValueAtTime(180, t + 0.6);
   o.connect(g); g.connect(ac.destination);
-  g.gain.setValueAtTime(0.06, t);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
-  o.start(t); o.stop(t + 0.52);
-  [0, 1, 2, 3, 4].forEach((i) => tone(1400 - i * 120, t + i * 0.06, 0.1, 'triangle', 0.05));
+  g.gain.setValueAtTime(0.05, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+  o.start(t); o.stop(t + 0.62);
+  // Gear whir (mid-frequency buzz)
+  const w = ac.createOscillator(); const wg = ac.createGain();
+  w.type = 'square'; w.frequency.setValueAtTime(440, t);
+  w.frequency.linearRampToValueAtTime(660, t + 0.3);
+  w.frequency.linearRampToValueAtTime(300, t + 0.6);
+  w.connect(wg); wg.connect(ac.destination);
+  wg.gain.setValueAtTime(0.025, t);
+  wg.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+  w.start(t); w.stop(t + 0.62);
+  // Rapid ticking (reel teeth)
+  for (let i = 0; i < 14; i++) {
+    tone(900 + (i % 3) * 80, t + i * 0.04, 0.03, 'square', 0.04);
+  }
 }
 
 export function playReelLand() {
@@ -135,8 +147,8 @@ function speak(text) {
     const u = new SpeechSynthesisUtterance(text);
     const v = pickFemaleVoice();
     if (v) u.voice = v;
-    // Excited female announcer — higher pitch, faster rate, loud.
-    u.rate = 1.35; u.pitch = 1.5; u.volume = 1.0;
+    // Excited female announcer — thin, shrill, high-pitched winning-call vibe.
+    u.rate = 1.3; u.pitch = 1.9; u.volume = 1.0;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(u);
   } catch {}
@@ -156,4 +168,49 @@ export function playCardDrop() {
   const t = ac.currentTime;
   tone(320, t, 0.08, 'sine', 0.10);
   tone(160, t, 0.12, 'sine', 0.06);
+}
+
+// ── Background gaming ambient — continuous, no music, just atmosphere ──
+let _ambient = null;
+export function startAmbient() {
+  const ac = actx(); if (!ac || _ambient) return;
+  const t = ac.currentTime;
+  // Low pulsing drone
+  const bass = ac.createOscillator();
+  const bassGain = ac.createGain();
+  bass.type = 'sine'; bass.frequency.value = 55;
+  bassGain.gain.value = 0.025;
+  bass.connect(bassGain); bassGain.connect(ac.destination);
+  bass.start();
+  // LFO pulse on the bass
+  const lfo = ac.createOscillator();
+  const lfoGain = ac.createGain();
+  lfo.type = 'sine'; lfo.frequency.value = 0.4;
+  lfoGain.gain.value = 0.015;
+  lfo.connect(lfoGain); lfoGain.connect(bassGain.gain);
+  lfo.start();
+  // High shimmer pad
+  const shimmer = ac.createOscillator();
+  const shimmerGain = ac.createGain();
+  shimmer.type = 'triangle'; shimmer.frequency.value = 660;
+  shimmerGain.gain.value = 0.006;
+  shimmer.connect(shimmerGain); shimmerGain.connect(ac.destination);
+  shimmer.start();
+  // Second shimmer layer (fifth above)
+  const shimmer2 = ac.createOscillator();
+  const shimmer2Gain = ac.createGain();
+  shimmer2.type = 'sine'; shimmer2.frequency.value = 990;
+  shimmer2Gain.gain.value = 0.004;
+  shimmer2.connect(shimmer2Gain); shimmer2Gain.connect(ac.destination);
+  shimmer2.start();
+  _ambient = { bass, lfo, shimmer, shimmer2 };
+}
+
+export function stopAmbient() {
+  if (!_ambient) return;
+  try {
+    _ambient.bass.stop(); _ambient.lfo.stop();
+    _ambient.shimmer.stop(); _ambient.shimmer2.stop();
+  } catch {}
+  _ambient = null;
 }
