@@ -227,9 +227,8 @@ export function useWildBounty() {
       const shatterT = setTimeout(() => { setShattering(shatterPos); }, holdMs);
       timers.current.push(shatterT);
 
-      // Cascade: drop new symbols, then re-evaluate. When the chain is about to
-      // end (cont=false), collapse the drop + eval delays so the round settles
-      // and the Super/Mega win banner appears immediately at round end.
+      // Cascade: drop new symbols, then re-evaluate at the normal pacing so
+      // every multiplier round feels deliberate — no collapsed timing at chain end.
       const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex];
       const cascadeT = setTimeout(() => {
         const newGrid = rigCascadeGrid(gridForCascade, shatterPos, cont);
@@ -244,9 +243,9 @@ export function useWildBounty() {
           setCascading(false);
           setCascadePositions(new Set());
           evaluateAndCascade(newGrid, cascadeCount + 1, newTotal, newMult, wasFree, awarded, framedPositions);
-        }, cont ? 450 * slow : 80);
+        }, 450 * slow);
         timers.current.push(evalT);
-      }, cont ? 1000 * slow : 350);
+      }, 1000 * slow);
       timers.current.push(cascadeT);
     } else {
       // No more wins — end the chain. Credit the accumulated round total now
