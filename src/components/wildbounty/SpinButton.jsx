@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { sfx } from './sounds';
 
 // Faithful replica of the reference spin button: a wooden medallion with two
 // gold chasing arrows. Uses the provided asset clipped to a circle; while the
@@ -32,7 +33,7 @@ export default function SpinButton({ spinning, onClick, disabled }) {
 
   return (
     <button
-      onClick={onClick}
+      onClick={(e) => { if (!disabled) sfx.spinClick(); onClick(e); }}
       disabled={disabled}
       className="relative flex items-center justify-center disabled:opacity-90"
     >
