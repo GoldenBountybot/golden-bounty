@@ -3,7 +3,7 @@ import PlayingCardFace from './PlayingCardFace';
 import WesternBadge from './WesternBadge';
 import { COLS } from '@/lib/superaceEngine';
 
-export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild, tease, teaseStart }) {
+export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild, tease, teaseStart, scatterLand }) {
   const { sym, golden, id } = cell;
   const col = idx % COLS;
   const dropAnim = tease
@@ -124,9 +124,30 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
         </div>
       )}
       {isScatter && (
-        <div className="absolute inset-0 p-0.5">
+        <div className="absolute inset-0 p-0.5" style={scatterLand ? { animation: 'saScatterGlow 0.7s ease-out forwards', zIndex: 15 } : {}}>
           <WesternBadge variant="scatter" />
         </div>
+      )}
+      {isScatter && scatterLand && (
+        <>
+          <div
+            className="absolute top-1/2 left-1/2 z-30 pointer-events-none rounded-full"
+            style={{
+              width: '75%',
+              height: '75%',
+              border: '4px solid #FFD700',
+              boxShadow: '0 0 20px rgba(255,215,0,0.9), inset 0 0 10px rgba(255,235,150,0.6)',
+              animation: 'saScatterBurst 0.7s ease-out forwards',
+            }}
+          />
+          <div
+            className="absolute inset-0 z-20 pointer-events-none rounded-md"
+            style={{
+              background: 'radial-gradient(circle at center, rgba(255,235,150,0.9) 0%, rgba(255,200,80,0.4) 40%, transparent 70%)',
+              animation: 'saScatterFlash 0.5s ease-out forwards',
+            }}
+          />
+        </>
       )}
       {(isFace || isSuit) && <PlayingCardFace sym={sym} golden={golden} />}
       {golden && (isFace || isSuit) && (

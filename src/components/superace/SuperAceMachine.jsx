@@ -111,6 +111,7 @@ export default function SuperAceMachine() {
   const [teaseCols, setTeaseCols] = useState(new Set());
   const [teaseStart, setTeaseStart] = useState(-1);
   const [muted, setMuted] = useState(false);
+  const [scatterLand, setScatterLand] = useState(new Set());
 
   // refs for async orchestration
   const betRef = useRef(0.10);
@@ -254,8 +255,18 @@ export default function SuperAceMachine() {
     setSpinning(false);
     setTeaseCols(new Set());
     playReelLand();
-    // Big coin "tang" when scatter symbols land on the reels.
-    if (g.filter((c) => c.sym === 'SC').length > 0) playScatterLand();
+    // Each scatter that lands plays its own luxury coin sound + burst, staggered.
+    const scatterIdxs = g
+      .map((c, i) => (c.sym === 'SC' ? i : -1))
+      .filter((i) => i >= 0)
+      .sort((a, b) => (a % COLS) - (b % COLS));
+    scatterIdxs.forEach((idx, i) => {
+      setTimeout(() => {
+        playScatterLand();
+        setScatterLand(new Set([idx]));
+        setTimeout(() => setScatterLand(new Set()), 700);
+      }, i * 300);
+    });
 
     // Announce the win immediately as the reels land — no delay.
     announcedFirstRef.current = false;
@@ -552,7 +563,7 @@ export default function SuperAceMachine() {
                 <div className="grid gap-1.5 relative z-10" style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }}>
                   {grid.map((cell, idx) => (
                     <div key={cell.id + '-' + idx} className="aspect-[3/4]">
-                      <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} flip={flipCells.has(idx)} goldenWild={!!cell.goldenWild} spinning={spinning} isNew={newCells.has(idx)} tease={teaseCols.has(idx % COLS)} teaseStart={teaseStart} />
+                      <CardTile cell={cell} idx={idx} isWin={winningCells.has(idx)} shatter={shatterCells.has(idx)} flip={flipCells.has(idx)} goldenWild={!!cell.goldenWild} spinning={spinning} isNew={newCells.has(idx)} tease={teaseCols.has(idx % COLS)} teaseStart={teaseStart} scatterLand={scatterLand.has(idx)} />
                     </div>
                   ))}
                 </div>
