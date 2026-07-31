@@ -576,7 +576,7 @@ export default function SuperAceMachine() {
             </div>
 
             {/* Reel board — bronze western frame */}
-            <div className="relative px-3 py-3 mx-1 rounded-2xl" style={{ backgroundImage: 'linear-gradient(rgba(15,18,29,0.35), rgba(10,12,20,0.45)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/eb5c5abd9_generated_image.png)', backgroundSize: 'cover', backgroundPosition: 'center', boxShadow: '0 0 0 5px rgba(74,44,26,0.95), 0 0 0 8px rgba(40,24,14,0.9), 0 0 0 11px rgba(74,44,26,0.8), 0 0 0 13px rgba(30,18,10,0.95), 0 0 0 15px rgba(90,56,30,0.5), 0 18px 52px rgba(0,0,0,0.85)' }}>
+            <div className="relative px-3 py-3 mx-1 rounded-2xl" style={{ background: 'transparent', boxShadow: '0 0 0 5px rgba(74,44,26,0.95), 0 0 0 8px rgba(40,24,14,0.9), 0 0 0 11px rgba(74,44,26,0.8), 0 0 0 13px rgba(30,18,10,0.95), 0 0 0 15px rgba(90,56,30,0.5), 0 18px 52px rgba(0,0,0,0.85)' }}>
               <div className="relative">
                 {spinning && teaseCols.size > 0 && (
                   <div className="absolute inset-0 pointer-events-none z-0">
