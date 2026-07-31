@@ -486,7 +486,16 @@ export default function SuperAceMachine() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-950 via-amber-950/40 to-stone-950" style={W}>
+    <div
+      className="min-h-screen"
+      style={{
+        ...W,
+        backgroundImage: 'linear-gradient(rgba(6,10,22,0.72), rgba(4,8,18,0.82)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6ff3eec42_generated_image.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+      }}
+    >
       {/* Header */}
       <header className="sticky top-0 z-30 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <GameTitleBar
