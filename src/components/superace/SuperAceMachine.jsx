@@ -9,6 +9,7 @@ import FlyingWilds from '@/components/superace/FlyingWilds';
 import MultiplierBar from '@/components/superace/MultiplierBar';
 import WinOverlay from '@/components/superace/WinOverlay';
 import FreeSpinStart from '@/components/superace/FreeSpinStart';
+import SuperWinBanner from '@/components/superace/SuperWinBanner';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import GameTitleBar from '@/components/GameTitleBar';
 import AnimatedNumber from '@/components/AnimatedNumber';
@@ -105,6 +106,7 @@ export default function SuperAceMachine() {
   const [spinning, setSpinning] = useState(false);
   const [newCells, setNewCells] = useState(new Set()); // cells that just dropped (for anim)
   const [showFreeStart, setShowFreeStart] = useState(false);
+  const [superWin, setSuperWin] = useState(null); // { amount, multiplier }
   const [shatterCells, setShatterCells] = useState(new Set());
   const [flipCells, setFlipCells] = useState(new Set());
   const [flyingWilds, setFlyingWilds] = useState([]);
@@ -130,6 +132,8 @@ export default function SuperAceMachine() {
   const goldenTargetsRef = useRef([]);
   const normalWildSpawnedRef = useRef(false);
   const announcedFirstRef = useRef(false);
+  const maxMultRef = useRef(0);
+  const superWinResolverRef = useRef(null);
 
   useEffect(() => { betRef.current = bet; }, [bet]);
   useEffect(() => { rtpRef.current = rtp; }, [rtp]);
@@ -176,6 +180,7 @@ export default function SuperAceMachine() {
     setFlipCells(new Set());
     setFlyingWilds([]);
     goldenWildIdxRef.current = null;
+    maxMultRef.current = 0;
     goldenTargetsRef.current = [];
     normalWildSpawnedRef.current = false;
     if (!inFreeRef.current) {
@@ -339,6 +344,7 @@ export default function SuperAceMachine() {
       const ev = evaluate(g, betRef.current);
       if (ev.pay === 0) break;
       const mult = multiplierFor(comboCount, inFreeRef.current);
+      if (mult > maxMultRef.current) maxMultRef.current = mult;
       let win = ev.pay * mult;
       // cap
       if (winThisSpinRef.current + win > MAX_WIN_CAP * betRef.current) {
@@ -428,6 +434,15 @@ export default function SuperAceMachine() {
     }
     if (!inFreeRef.current) {
       logActivity('fullhouse', betRef.current, grand, grand > 0 ? 'win' : 'loss');
+    }
+
+    // Super Win banner: x5+ multiplier reached, or a big payout (≥ 15× bet).
+    const maxMult = maxMultRef.current;
+    const isSuper = maxMult >= 5 || (grand >= betRef.current * 15 && grand > 0);
+    if (isSuper && !inFreeRef.current) {
+      setSuperWin({ amount: grand, multiplier: maxMult });
+      await new Promise((resolve) => { superWinResolverRef.current = resolve; });
+      superWinResolverRef.current = null;
     }
 
     if (inFreeRef.current) {
@@ -708,6 +723,14 @@ export default function SuperAceMachine() {
         <FreeSpinStart
           spins={FREE_SPINS_AWARD}
           onStart={() => { playClick(); freeStartResolverRef.current && freeStartResolverRef.current(); }}
+        />
+      )}
+
+      {superWin && (
+        <SuperWinBanner
+          amount={superWin.amount}
+          multiplier={superWin.multiplier}
+          onDone={() => { setSuperWin(null); superWinResolverRef.current && superWinResolverRef.current(); }}
         />
       )}
     </div>
