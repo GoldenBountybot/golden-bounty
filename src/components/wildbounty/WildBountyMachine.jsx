@@ -225,6 +225,14 @@ export default function WildBountyMachine() {
           onDone={g.dismissMegaWin}
         />
       )}
+
+      {g.freeSpinsEndWin && (
+        <WbMegaWinBanner
+          amount={g.freeSpinsEndWin.amount}
+          multiplier={g.freeSpinsEndWin.multiplier}
+          onDone={g.dismissFreeSpinsEndWin}
+        />
+      )}
     </div>
   );
 }

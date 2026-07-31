@@ -37,7 +37,10 @@ export function useWildBounty() {
   const [bulletHit, setBulletHit] = useState(new Set());
   const [superWin, setSuperWin] = useState(null); // { amount, multiplier }
   const [megaWin, setMegaWin] = useState(null);   // { amount, multiplier }
+  const [freeSpinsEndWin, setFreeSpinsEndWin] = useState(null); // total win after 10 free spins
   const peakMultRef = useRef(1); // highest multiplier applied to a winning cascade this round
+  const freeSpinsTotalRef = useRef(0); // accumulated win across the current free-spins round
+  const freeSpinsCountRef = useRef(0); // remaining free spins (synced ref for chain-end checks)
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
@@ -154,6 +157,7 @@ export function useWildBounty() {
     let justAwarded = false;
     if (sc >= 3 && !scatterAwarded) {
       setFreeSpins(f => f + 10);
+      freeSpinsCountRef.current += 10;
       // First trigger shows the START screen; retrigger during free spins
       // just adds the spins and keeps the round going.
       if (!wasFree) setShowFreeSpinStart(true);
@@ -255,16 +259,29 @@ export function useWildBounty() {
       pendingStateRef.current = null;
       if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
 
-      // Super / Mega win banners — based on the peak multiplier reached during
-      // the round (x8–x16 = Super Win, x32+ = Mega Win). Big payouts also
-      // qualify. Mega Win takes priority when both apply.
+      // Accumulate this spin's win into the free-spins running total.
+      if (wasFree) freeSpinsTotalRef.current += totalWin;
+
+      // Free spins just ended — show a Mega Win banner with the accumulated
+      // total from all 10 free spins, counting up the same way. This replaces
+      // the per-spin banner so only the grand total is celebrated.
       const peak = peakMultRef.current;
-      const isMega = peak >= 32 || totalWin >= bet * 30;
-      const isSuper = !isMega && (peak >= 8 || totalWin >= bet * 15);
-      if (isMega && totalWin > 0) {
-        setMegaWin({ amount: totalWin, multiplier: peak });
-      } else if (isSuper && totalWin > 0) {
-        setSuperWin({ amount: totalWin, multiplier: peak });
+      const fsEnding = wasFree && freeSpinsCountRef.current === 0 && freeSpinsTotalRef.current > 0;
+      if (fsEnding) {
+        const fsTotal = freeSpinsTotalRef.current;
+        freeSpinsTotalRef.current = 0;
+        setFreeSpinsEndWin({ amount: fsTotal, multiplier: peak });
+      } else {
+        // Super / Mega win banners — based on the peak multiplier reached during
+        // the round (x8–x16 = Super Win, x32+ = Mega Win). Big payouts also
+        // qualify. Mega Win takes priority when both apply.
+        const isMega = peak >= 32 || totalWin >= bet * 30;
+        const isSuper = !isMega && (peak >= 8 || totalWin >= bet * 15);
+        if (isMega && totalWin > 0) {
+          setMegaWin({ amount: totalWin, multiplier: peak });
+        } else if (isSuper && totalWin > 0) {
+          setSuperWin({ amount: totalWin, multiplier: peak });
+        }
       }
 
       if (!wasFree) setMultIndex(0);
@@ -301,6 +318,7 @@ export function useWildBounty() {
     peakMultRef.current = 1;
     setSuperWin(null);
     setMegaWin(null);
+    setFreeSpinsEndWin(null);
     setStoppedReels(new Set());
     setWinningPositions(new Set());
     setGoldFrames(new Set());
@@ -312,8 +330,8 @@ export function useWildBounty() {
     setScatterGlow(new Set());
     setFlyingMult(null);
     setBulletHit(new Set());
-    if (!usingFree) setBalance(b => b - bet);
-    if (usingFree) setFreeSpins(f => f - 1);
+    if (!usingFree) { setBalance(b => b - bet); freeSpinsTotalRef.current = 0; freeSpinsCountRef.current = 0; }
+    if (usingFree) { setFreeSpins(f => f - 1); freeSpinsCountRef.current = Math.max(0, freeSpinsCountRef.current - 1); }
     // Each free spin (re)starts at 8x; normal spins start at 1x.
     setMultIndex(usingFree ? 3 : 0);
     // Snapshot the free-spins round state for recovery; the running win is
@@ -427,12 +445,12 @@ export function useWildBounty() {
 
   // auto spin — paused while a Super/Mega win banner is on screen
   useEffect(() => {
-    if (autoSpin && !spinning && balance >= bet && !superWin && !megaWin) {
+    if (autoSpin && !spinning && balance >= bet && !superWin && !megaWin && !freeSpinsEndWin) {
       const t = setTimeout(() => spin(), turbo ? 300 : 700);
       return () => clearTimeout(t);
     }
     if (autoSpin && balance < bet) setAutoSpin(false);
-  }, [autoSpin, spinning, balance, bet, turbo, spin, superWin, megaWin]);
+  }, [autoSpin, spinning, balance, bet, turbo, spin, superWin, megaWin, freeSpinsEndWin]);
 
   // free spins auto trigger — paused while a Super/Mega win banner is on screen
   useEffect(() => {
@@ -449,6 +467,7 @@ export function useWildBounty() {
   const clearFlyingMult = useCallback(() => setFlyingMult(null), []);
   const dismissSuperWin = useCallback(() => setSuperWin(null), []);
   const dismissMegaWin = useCallback(() => setMegaWin(null), []);
+  const dismissFreeSpinsEndWin = useCallback(() => setFreeSpinsEndWin(null), []);
 
   // FEATURE BUY — open the confirmation modal first (Start awards the spins).
   const buyFeature = useCallback(() => {
@@ -460,6 +479,8 @@ export function useWildBounty() {
   const confirmFeatureBuy = useCallback(() => {
     setShowFeatureBuyConfirm(false);
     setFreeSpins(10);
+    freeSpinsCountRef.current = 10;
+    freeSpinsTotalRef.current = 0;
     setFreeSpinsActive(true);
     setMultIndex(3); // 8x — free spins start here
     setMessage('FEATURE BUY · 10 FREE SPINS');
@@ -497,6 +518,7 @@ export function useWildBounty() {
     bulletHit,
     flyingMult, clearFlyingMult,
     superWin, megaWin, dismissSuperWin, dismissMegaWin,
+    freeSpinsEndWin, dismissFreeSpinsEndWin,
     spin, setBet, setTurbo, setAutoSpin, reset,
     featureCost: bet * 75,
   };
