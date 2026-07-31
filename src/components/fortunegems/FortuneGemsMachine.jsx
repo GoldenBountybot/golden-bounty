@@ -15,7 +15,7 @@ import {
 } from '@/lib/fortuneGemsSounds';
 import { incBet, decBet } from '@/lib/betStepper';
 
-const BG_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ed2b6b552_generated_image.png';
+const BG_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/aab9c4c29_generated_image.png';
 const QUICK_BETS = [0.10, 1, 10, 100];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -47,6 +47,7 @@ export default function FortuneGemsMachine() {
   const [lastWin, setLastWin] = useState(0);
   const [winningCells, setWinningCells] = useState(new Set());
   const [spinning, setSpinning] = useState(false);
+  const [spinningCols, setSpinningCols] = useState(new Set());
   const [centerMult, setCenterMult] = useState(1);
   const [showMult, setShowMult] = useState(false);
   const [turbo, setTurbo] = useState(false);
@@ -64,11 +65,13 @@ export default function FortuneGemsMachine() {
   const turboRef = useRef(false);
   const autoRef = useRef(false);
   const doSpinRef = useRef(null);
+  const spinningColsRef = useRef(new Set());
 
   useEffect(() => { betRef.current = bet; }, [bet]);
   useEffect(() => { rtpRef.current = rtp; }, [rtp]);
   useEffect(() => { turboRef.current = turbo; }, [turbo]);
   useEffect(() => { autoRef.current = autoSpin; }, [autoSpin]);
+  useEffect(() => { spinningColsRef.current = spinningCols; }, [spinningCols]);
   useEffect(() => { doSpinRef.current = doSpin; });
 
   const share = () => {
@@ -90,7 +93,6 @@ export default function FortuneGemsMachine() {
       return;
     }
     busyRef.current = true;
-    setSpinning(true);
     setWinThisSpin(0);
     setWinningCells(new Set());
     setFloatWin(null);
@@ -101,7 +103,7 @@ export default function FortuneGemsMachine() {
     setMessage('Spinning…');
     playSpinStart();
 
-    // Generate grid with RTP gate
+    // Generate final grid with RTP gate
     let g = makeGrid();
     const forceWin = Math.random() < (rtpRef.current / 100);
     if (forceWin) {
@@ -116,6 +118,7 @@ export default function FortuneGemsMachine() {
         guard++;
       }
     }
+    const finalGrid = g;
 
     // Random center multiplier (20% chance)
     let mult = 1;
@@ -123,17 +126,51 @@ export default function FortuneGemsMachine() {
       mult = randomMultiplier();
     }
 
-    setGrid(g.map((c) => ({ ...c })));
-    const spinDur = turboRef.current ? 400 : 800;
-    await sleep(spinDur);
-    setSpinning(false);
-    playReelLand();
+    // Start spinning all columns
+    setSpinningCols(new Set([0, 1, 2]));
+    setSpinning(true);
 
-    // Mark all cells as new for drop animation
+    // Cycle random symbols for spinning columns
+    const spinInterval = setInterval(() => {
+      setGrid((prevGrid) =>
+        prevGrid.map((cell, i) => {
+          const col = i % COLS;
+          if (spinningColsRef.current.has(col)) {
+            return { ...cell, sym: makeCell(), id: Math.random().toString(36).slice(2) };
+          }
+          return cell;
+        })
+      );
+    }, 80);
+
+    // Stop columns one by one (left to right)
+    const colDelay = turboRef.current ? 180 : 380;
+    for (let c = 0; c < COLS; c++) {
+      await sleep(colDelay);
+      // Set final symbols for this column
+      setGrid((prevGrid) => {
+        const newGrid = [...prevGrid];
+        for (let r = 0; r < ROWS; r++) {
+          newGrid[r * COLS + c] = { ...finalGrid[r * COLS + c] };
+        }
+        return newGrid;
+      });
+      setSpinningCols((prev) => {
+        const next = new Set(prev);
+        next.delete(c);
+        return next;
+      });
+      playReelLand();
+    }
+
+    clearInterval(spinInterval);
+    setSpinning(false);
+
+    // Mark new cells for drop animation
     const newSet = new Set();
     for (let i = 0; i < TOTAL; i++) newSet.add(i);
     setNewCells(newSet);
-    await sleep(turboRef.current ? 200 : 350);
+    await sleep(turboRef.current ? 150 : 250);
     setNewCells(new Set());
 
     // Reveal multiplier
@@ -145,7 +182,7 @@ export default function FortuneGemsMachine() {
     }
 
     // Evaluate win
-    const ev = evaluate(g, b);
+    const ev = evaluate(finalGrid, b);
     const win = ev.pay * mult;
 
     if (win > 0) {
@@ -158,7 +195,7 @@ export default function FortuneGemsMachine() {
       else playWin();
       setMessage(`Won $${win.toFixed(2)}!${mult > 1 ? ` (${mult}× multiplier)` : ''}`);
       logActivity('fortune-gems', b, win, 'win');
-      await sleep(turboRef.current ? 700 : 1100);
+      await sleep(turboRef.current ? 900 : 1400);
       setWinningCells(new Set());
       setFloatWin(null);
     } else {
@@ -191,7 +228,7 @@ export default function FortuneGemsMachine() {
     <div
       className="min-h-screen relative"
       style={{
-        background: `linear-gradient(rgba(8,6,18,0.88), rgba(4,3,10,0.92)), url(${BG_URL})`,
+        background: `linear-gradient(rgba(8,6,18,0.75), rgba(4,3,10,0.82)), url(${BG_URL})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -225,21 +262,21 @@ export default function FortuneGemsMachine() {
       <main className="max-w-md mx-auto px-2 py-3">
         {/* Machine frame — luxury gold border */}
         <div
-          className="w-full rounded-2xl relative p-[3px]"
+          className="w-full rounded-2xl relative p-[4px]"
           style={{
-            background: 'linear-gradient(145deg, #e0b34a, #7a4f17 38%, #c8932e 68%, #5e3d12)',
-            boxShadow: '0 0 0 2px #2e1d0a, 0 0 0 4px rgba(200,150,60,0.4), 0 16px 48px rgba(0,0,0,0.75)',
+            background: 'linear-gradient(145deg, #f5d77a 0%, #c8932e 25%, #7a4f17 50%, #c8932e 75%, #f5d77a 100%)',
+            boxShadow: '0 0 0 2px #2e1d0a, 0 0 0 5px rgba(200,150,60,0.35), 0 0 30px rgba(255,200,80,0.15), 0 16px 48px rgba(0,0,0,0.8)',
           }}
         >
           {/* Corner studs */}
-          <span className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-          <span className="absolute bottom-1.5 left-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-          <span className="absolute bottom-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
+          <span className="absolute top-1.5 left-1.5 w-2.5 h-2.5 rounded-full bg-amber-200 shadow-[0_0_6px_rgba(255,210,100,0.9)] z-20" />
+          <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-amber-200 shadow-[0_0_6px_rgba(255,210,100,0.9)] z-20" />
+          <span className="absolute bottom-1.5 left-1.5 w-2.5 h-2.5 rounded-full bg-amber-200 shadow-[0_0_6px_rgba(255,210,100,0.9)] z-20" />
+          <span className="absolute bottom-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-amber-200 shadow-[0_0_6px_rgba(255,210,100,0.9)] z-20" />
 
           <div
-            className="flex flex-col gap-2 rounded-[13px] overflow-hidden relative p-3"
-            style={{ background: 'linear-gradient(rgba(15,10,25,0.95), rgba(8,6,15,0.98))' }}
+            className="flex flex-col gap-2 rounded-[12px] overflow-hidden relative p-3"
+            style={{ background: 'linear-gradient(160deg, rgba(18,12,30,0.97), rgba(8,5,15,0.99))' }}
           >
             {/* Title */}
             <div className="text-center pt-1">
@@ -258,12 +295,12 @@ export default function FortuneGemsMachine() {
               <p className="text-[9px] tracking-widest text-amber-300/50 mt-0.5">3 OF A KIND · 5 PAYLINES · UP TO 10× MULTIPLIER</p>
             </div>
 
-            {/* Reel board */}
+            {/* Reel board — inner ornate frame */}
             <div
               className="relative p-3 rounded-2xl"
               style={{
-                background: 'linear-gradient(145deg, rgba(20,15,35,0.95), rgba(8,5,15,0.98))',
-                boxShadow: '0 0 0 3px rgba(120,80,30,0.6), 0 0 0 5px rgba(200,150,60,0.3), inset 0 0 24px rgba(0,0,0,0.6)',
+                background: 'linear-gradient(145deg, rgba(30,20,50,0.95), rgba(10,6,18,0.98))',
+                boxShadow: '0 0 0 2px rgba(200,150,60,0.5), 0 0 0 4px rgba(120,80,30,0.4), inset 0 0 30px rgba(0,0,0,0.7)',
               }}
             >
               <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }}>
@@ -273,13 +310,32 @@ export default function FortuneGemsMachine() {
                     cell={cell}
                     idx={idx}
                     isWin={winningCells.has(idx)}
-                    spinning={spinning}
+                    isColSpinning={spinningCols.has(idx % COLS)}
                     isNew={newCells.has(idx)}
                     showMult={showMult}
                     multiplier={centerMult}
                   />
                 ))}
               </div>
+
+              {/* Coin shower on win */}
+              {floatWin && (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+                  {Array.from({ length: 14 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute w-4 h-4 rounded-full"
+                      style={{
+                        left: `${8 + Math.random() * 84}%`,
+                        top: '-8%',
+                        background: 'radial-gradient(circle at 35% 30%, #ffe066, #d4a017 60%, #8b6914)',
+                        boxShadow: '0 0 6px rgba(255,200,50,0.8), inset 0 1px 0 rgba(255,255,255,0.4)',
+                        animation: `fgCoinFall 0.9s ease-in ${i * 0.07}s forwards`,
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
 
               {/* Floating win overlay */}
               {floatWin && (

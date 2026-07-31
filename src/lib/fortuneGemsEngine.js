@@ -9,27 +9,27 @@ export const CENTER_IDX = 4;
 export const SYMBOLS = {
   DIAMOND: {
     id: 'DIAMOND', name: 'Diamond', isWild: true, pay3: 50,
-    img: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9570d716d_generated_image.png',
+    img: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f138fc8b0_generated_image.png',
   },
   RUBY: {
     id: 'RUBY', name: 'Ruby', pay3: 25,
-    img: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4cf695987_generated_image.png',
+    img: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4a41c230f_generated_image.png',
   },
   SAPPHIRE: {
     id: 'SAPPHIRE', name: 'Sapphire', pay3: 15,
-    img: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ba513e103_generated_image.png',
+    img: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a2f75da51_generated_image.png',
   },
   EMERALD: {
     id: 'EMERALD', name: 'Emerald', pay3: 10,
-    img: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2d8df0be5_generated_image.png',
+    img: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/93d1539ce_generated_image.png',
   },
   TOPAZ: {
     id: 'TOPAZ', name: 'Topaz', pay3: 8,
-    img: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/64d4f5ce3_generated_image.png',
+    img: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/55dcdc8cc_generated_image.png',
   },
   AMETHYST: {
     id: 'AMETHYST', name: 'Amethyst', pay3: 5,
-    img: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/dd341c46e_generated_image.png',
+    img: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/902031fbb_generated_image.png',
   },
 };
 
