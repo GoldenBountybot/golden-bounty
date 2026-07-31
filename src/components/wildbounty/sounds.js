@@ -281,14 +281,14 @@ function playBgLoop() {
   // loop=true keeps the buffer playing forever — no restart needed.
 }
 
-function startBackgroundMusic() {
-  if (bgStarted) return;
+export function startBackgroundMusic() {
+  if (bgStarted || bgSource) return;
   bgStarted = true;
   const ac = getCtx();
   if (!ac) return;
   // Load the buffer, then start the loop once the context is running.
   loadBgBuffer().then(() => {
-    if (bgBuffer && !bgSource) playBgLoop();
+    if (bgBuffer && !bgSource && bgStarted) playBgLoop();
   });
   // If autoplay is blocked, resume the context on first interaction —
   // the already-started (but suspended) source begins playing.
@@ -307,7 +307,7 @@ function startBackgroundMusic() {
 }
 
 export const sfx = {
-  preload() { startBackgroundMusic(); loadSpinClickBuffer(); loadSymMatchBuffer(); loadScatterBuffer(); },
+  preload() { loadBgBuffer(); loadSpinClickBuffer(); loadSymMatchBuffer(); loadScatterBuffer(); },
   spin() { startBackgroundMusic(); },
   stopSpin() {},
   win() {},

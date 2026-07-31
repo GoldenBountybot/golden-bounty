@@ -6,18 +6,19 @@ import ShareButton from "@/components/ShareButton";
 import GameTitleBar from "@/components/GameTitleBar";
 import { useCasinoBalance } from "@/lib/useCasinoBalance";
 import { Wallet, Volume2, VolumeX } from "lucide-react";
-import { toggleMute, isMuted, stopBackgroundMusic } from "@/components/wildbounty/sounds";
+import { toggleMute, isMuted, startBackgroundMusic, stopBackgroundMusic } from "@/components/wildbounty/sounds";
 
 export default function SlotGame() {
   const [loaded, setLoaded] = useState(false);
   const { balance } = useCasinoBalance();
   const [muted, setMuted] = useState(isMuted());
 
-  // Stop background music when leaving the game so it doesn't keep playing
-  // on other pages.
+  // Start background music only after the loading screen finishes, and stop
+  // it when leaving the game so it doesn't keep playing on other pages.
   useEffect(() => {
+    if (loaded) startBackgroundMusic();
     return () => { stopBackgroundMusic(); };
-  }, []);
+  }, [loaded]);
 
   const handleToggleMute = () => {
     setMuted(toggleMute());
