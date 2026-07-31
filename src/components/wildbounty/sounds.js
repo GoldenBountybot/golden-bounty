@@ -150,6 +150,7 @@ let bgLoading = false;
 let bgSource = null;
 let bgGain = null;
 let bgStarted = false;
+let bgMuted = false;
 
 async function loadBgBuffer() {
   if (bgBuffer || bgLoading) return;
@@ -246,3 +247,17 @@ export const sfx = {
   scatter() {},
   loss() {},
 };
+
+// Toggle background music mute. Returns the new muted state.
+export function toggleMute() {
+  bgMuted = !bgMuted;
+  const ac = getCtx();
+  if (ac && bgGain) {
+    bgGain.gain.cancelScheduledValues(ac.currentTime);
+    bgGain.gain.setValueAtTime(bgGain.gain.value, ac.currentTime);
+    bgGain.gain.linearRampToValueAtTime(bgMuted ? 0.0001 : BG_VOL, ac.currentTime + 0.15);
+  }
+  return bgMuted;
+}
+
+export function isMuted() { return bgMuted; }
