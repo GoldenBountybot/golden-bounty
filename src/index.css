@@ -691,53 +691,6 @@
 .dash-input::placeholder { color: rgba(255,255,255,0.4); }
 .dash-input:focus { border-color: rgba(212,175,55,0.85); box-shadow: 0 0 0 3px rgba(212,175,55,0.18), inset 0 1px 3px rgba(0,0,0,0.4); }
 
-/* Fortune Gems — symbol drop animation */
-@keyframes fgDrop {
-  0%   { transform: translateY(-50%); opacity: 0; }
-  60%  { opacity: 1; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-
-/* Fortune Gems — win popup */
-@keyframes fgWinPop {
-  0%   { transform: scale(0.3); opacity: 0; }
-  30%  { transform: scale(1.2); opacity: 1; }
-  55%  { transform: scale(0.95); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-/* Fortune Gems — center multiplier badge pop */
-@keyframes fgMultPop {
-  0%   { transform: scale(0.2) rotate(-15deg); opacity: 0; }
-  40%  { transform: scale(1.4) rotate(5deg); opacity: 1; }
-  70%  { transform: scale(0.95) rotate(-2deg); }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
-
-/* Fortune Gems — reel spin blur (vertical shimmer for spinning columns) */
-@keyframes fgReelSpin {
-  0%   { transform: translateY(-15%); }
-  100% { transform: translateY(15%); }
-}
-
-/* Fortune Gems — winning symbol golden glow pulse */
-@keyframes fgWinGlow {
-  0%, 100% { filter: brightness(1.3) drop-shadow(0 0 6px rgba(255,215,0,0.8)); }
-  50%      { filter: brightness(1.6) drop-shadow(0 0 14px rgba(255,215,0,1)); }
-}
-
-/* Fortune Gems — gold coin shower on win */
-@keyframes fgCoinFall {
-  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(320px) rotate(720deg); opacity: 0; }
-}
-
-/* Fortune Gems — BONUS scatter symbol golden glow pulse */
-@keyframes fgScatterGlow {
-  0%, 100% { filter: brightness(1.25) drop-shadow(0 0 6px rgba(255,180,50,0.7)); }
-  50%      { filter: brightness(1.5) drop-shadow(0 0 14px rgba(255,200,80,1)); }
-}
-
 @keyframes plinkoPegHit {
   0%   { box-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 5px rgba(224,185,78,0.55); }
   30%  { box-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 13px rgba(255,238,150,0.9); }
