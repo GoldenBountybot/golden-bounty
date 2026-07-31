@@ -11,7 +11,6 @@ import WinOverlay from '@/components/superace/WinOverlay';
 import FreeSpinStart from '@/components/superace/FreeSpinStart';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import GameTitleBar from '@/components/GameTitleBar';
-import PlaqueBanner from '@/components/wildbounty/PlaqueBanner';
 import WesternStatBanner from '@/components/wildbounty/WesternStatBanner';
 import {
   COLS, ROWS, TOTAL, BASE_MULTS, FREE_MULTS, FREE_SPINS_AWARD, RETRIGGER_AWARD,
@@ -510,11 +509,6 @@ export default function SuperAceMachine() {
                 </span>
               </div>
             </div>
-
-            {/* Message */}
-            <PlaqueBanner glow className="mx-2 py-1 text-center rounded-md">
-              <span className="font-black italic text-base text-yellow-300 drop-shadow-[0_0_6px_rgba(255,200,0,0.7)]" style={{ fontFamily: 'Rye, Georgia, serif' }}>{message}</span>
-            </PlaqueBanner>
 
             {/* Free spins badge */}
             {inFree && (
