@@ -47,15 +47,11 @@ const emboss = (onGold) => ({
     : 'drop-shadow(0 1px 0 rgba(0,0,0,0.65)) drop-shadow(0 -1px 0 rgba(255,220,140,0.25))',
 });
 
-// Board background image shared by the reel frame and control buttons
-const BOARD_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/eb5c5abd9_generated_image.png';
-
-// Metallic circular button base — uses the board background image with a gold
-// gradient overlay so the control icons match the reel frame texture.
+// Metallic circular button base (matches JILI reference)
 const metalBtn = (active) => ({
-  backgroundImage: `linear-gradient(${active ? 'rgba(243,215,122,0.55)' : 'rgba(10,12,20,0.55)'}, ${active ? 'rgba(122,79,23,0.55)' : 'rgba(20,14,8,0.65)'}), url('${BOARD_BG}')`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
+  background: active
+    ? 'linear-gradient(145deg, #f3d77a, #c8932e 45%, #7a4f17 78%, #4a2f10)'
+    : 'linear-gradient(145deg, #5a3a1a, #2e1d0e 50%, #3a2818)',
   border: '2px solid rgba(190,140,55,0.7)',
   boxShadow: active
     ? 'inset 0 2px 3px rgba(255,240,180,0.6), inset 0 -3px 5px rgba(0,0,0,0.4), 0 0 12px rgba(255,200,80,0.55)'
@@ -652,15 +648,10 @@ export default function SuperAceMachine() {
                 {/* SPIN — luxury premium button image */}
                 <button onClick={() => { if (!busyRef.current) { playClick(); doSpin(); } }} disabled={busyRef.current} className="flex flex-col items-center gap-1 disabled:opacity-80">
                   <span
-                    className="relative w-[88px] h-[88px] flex items-center justify-center rounded-full"
+                    className="relative w-[88px] h-[88px] flex items-center justify-center"
                     style={{
                       transform: busyRef.current ? 'scale(1.12)' : 'scale(1)',
                       transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                      backgroundImage: `linear-gradient(rgba(10,12,20,0.35), rgba(20,14,8,0.45)), url('${BOARD_BG}')`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      border: '2px solid rgba(190,140,55,0.7)',
-                      boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.2), 0 2px 4px rgba(0,0,0,0.65)',
                     }}
                   >
                     <img
