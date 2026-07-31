@@ -35,6 +35,9 @@ export function useWildBounty() {
   const [scatterGlow, setScatterGlow] = useState(new Set());
   const [flyingMult, setFlyingMult] = useState(null);
   const [bulletHit, setBulletHit] = useState(new Set());
+  const [superWin, setSuperWin] = useState(null); // { amount, multiplier }
+  const [megaWin, setMegaWin] = useState(null);   // { amount, multiplier }
+  const peakMultRef = useRef(1); // highest multiplier applied to a winning cascade this round
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
@@ -133,6 +136,7 @@ export function useWildBounty() {
     const { wins, scatterCount: sc } = evaluateWins(currentGrid, bet);
     const multiplier = MULTIPLIERS[currentMultIndex];
     const stepWin = wins.reduce((sum, w) => sum + w.pay, 0) * multiplier;
+    if (stepWin > 0 && multiplier > peakMultRef.current) peakMultRef.current = multiplier;
 
     const wpos = new Set();
     wins.forEach(w => {
@@ -255,6 +259,19 @@ export function useWildBounty() {
       clearPendingRound('wild-bounty');
       pendingStateRef.current = null;
       if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
+
+      // Super / Mega win banners — based on the peak multiplier reached during
+      // the round (x8–x16 = Super Win, x32+ = Mega Win). Big payouts also
+      // qualify. Mega Win takes priority when both apply.
+      const peak = peakMultRef.current;
+      const isMega = peak >= 32 || totalWin >= bet * 30;
+      const isSuper = !isMega && (peak >= 8 || totalWin >= bet * 15);
+      if (isMega && totalWin > 0) {
+        setMegaWin({ amount: totalWin, multiplier: peak });
+      } else if (isSuper && totalWin > 0) {
+        setSuperWin({ amount: totalWin, multiplier: peak });
+      }
+
       if (!wasFree) setMultIndex(0);
       if (awarded) {
         setMessage(wasFree ? 'RETRIGGER! +10 FREE SPINS' : '3+ SCATTER! 10 FREE SPINS');
@@ -286,6 +303,9 @@ export function useWildBounty() {
     setSpinning(true);
     sfx.winStop();
     sfx.spin();
+    peakMultRef.current = 1;
+    setSuperWin(null);
+    setMegaWin(null);
     setStoppedReels(new Set());
     setWinningPositions(new Set());
     setGoldFrames(new Set());
@@ -410,18 +430,18 @@ export function useWildBounty() {
     stopReel(0, false);
   }, [spinning, balance, bet, freeSpins, turbo, multIndex, setBet]);
 
-  // auto spin
+  // auto spin — paused while a Super/Mega win banner is on screen
   useEffect(() => {
-    if (autoSpin && !spinning && balance >= bet) {
+    if (autoSpin && !spinning && balance >= bet && !superWin && !megaWin) {
       const t = setTimeout(() => spin(), turbo ? 300 : 700);
       return () => clearTimeout(t);
     }
     if (autoSpin && balance < bet) setAutoSpin(false);
-  }, [autoSpin, spinning, balance, bet, turbo, spin]);
+  }, [autoSpin, spinning, balance, bet, turbo, spin, superWin, megaWin]);
 
-  // free spins auto trigger
+  // free spins auto trigger — paused while a Super/Mega win banner is on screen
   useEffect(() => {
-    if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart) {
+    if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart && !superWin && !megaWin) {
       const t = setTimeout(() => spin(), turbo ? 400 : 800);
       return () => clearTimeout(t);
     }
@@ -429,9 +449,11 @@ export function useWildBounty() {
       setFreeSpinsActive(false);
       setMessage('FREE SPINS ENDED!');
     }
-  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin]);
+  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin, superWin, megaWin]);
 
   const clearFlyingMult = useCallback(() => setFlyingMult(null), []);
+  const dismissSuperWin = useCallback(() => setSuperWin(null), []);
+  const dismissMegaWin = useCallback(() => setMegaWin(null), []);
 
   // FEATURE BUY — open the confirmation modal first (Start awards the spins).
   const buyFeature = useCallback(() => {
@@ -479,6 +501,7 @@ export function useWildBounty() {
     cascadeSlow,
     bulletHit,
     flyingMult, clearFlyingMult,
+    superWin, megaWin, dismissSuperWin, dismissMegaWin,
     spin, setBet, setTurbo, setAutoSpin, reset,
     featureCost: bet * 75,
   };

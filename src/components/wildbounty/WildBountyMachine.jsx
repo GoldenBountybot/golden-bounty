@@ -12,6 +12,8 @@ import InfoBar from './InfoBar';
 import BoardTopBanner from './BoardTopBanner';
 import FlyingMultiplier from './FlyingMultiplier';
 import CountUp from './CountUp';
+import WbSuperWinBanner from './WbSuperWinBanner';
+import WbMegaWinBanner from './WbMegaWinBanner';
 
 export default function WildBountyMachine() {
   const g = useWildBounty();
@@ -205,6 +207,22 @@ export default function WildBountyMachine() {
           holdY={anchor.holdY}
           winY={anchor.winY}
           onComplete={g.clearFlyingMult}
+        />
+      )}
+
+      {g.superWin && (
+        <WbSuperWinBanner
+          amount={g.superWin.amount}
+          multiplier={g.superWin.multiplier}
+          onDone={g.dismissSuperWin}
+        />
+      )}
+
+      {g.megaWin && (
+        <WbMegaWinBanner
+          amount={g.megaWin.amount}
+          multiplier={g.megaWin.multiplier}
+          onDone={g.dismissMegaWin}
         />
       )}
     </div>
