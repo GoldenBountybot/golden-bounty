@@ -53,16 +53,16 @@ export default function MegaWinBanner({ amount, multiplier, onDone }) {
             draggable={false}
             style={{ filter: 'drop-shadow(0 0 26px rgba(128,0,128,0.6)) drop-shadow(0 8px 20px rgba(0,0,0,0.75))' }}
           />
-          {/* Amount overlay — centered over the main title area */}
+          {/* Amount overlay — at the bottom of the banner */}
           <div
             className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center"
             style={{
-              top: '44%',
+              bottom: '8%',
               width: '80%',
             }}
           >
             <span
-              className="text-4xl font-black tabular-nums tracking-wide whitespace-nowrap"
+              className="text-3xl font-black tabular-nums tracking-wide whitespace-nowrap"
               style={{
                 color: '#fff2a8',
                 fontFamily: 'Rye, Georgia, serif',
