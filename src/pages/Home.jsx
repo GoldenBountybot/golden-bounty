@@ -56,7 +56,18 @@ export default function Home() {
                 onClick={() => {
                   const next = !demoMode;
                   setDemoMode(next);
-                  toast({ title: next ? t('Demo Mode ON · $1000 practice balance') : t('Demo Mode OFF · real balance restored') });
+                  toast({
+                    title: next ? t('Demo Mode ON · $1000 practice balance') : t('Demo Mode OFF · real balance restored'),
+                    style: {
+                      background: '#000000',
+                      border: '1px solid rgba(214,178,98,0.7)',
+                      color: '#f5c542',
+                      fontFamily: 'Rye, Georgia, serif',
+                      fontWeight: 700,
+                      boxShadow: '0 4px 18px rgba(0,0,0,0.8), 0 0 12px rgba(214,178,98,0.3)',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.9)',
+                    },
+                  });
                 }}
                 title={demoMode ? 'Demo mode is ON' : 'Enable demo mode'}
                 className="absolute -top-[27px] left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-[6px] transition-all active:scale-95 z-30"
