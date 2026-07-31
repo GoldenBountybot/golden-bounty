@@ -137,13 +137,67 @@ function tone({ freq, type = 'sine', dur = 0.2, gain = VOL, delay = 0, sweepTo }
   osc.stop(t0 + dur + 0.03);
 }
 
+// ── Background music ──────────────────────────────────────────────
+// Loops the uploaded background song continuously. Volume ducks down
+// whenever a spin / win / scatter sound event fires, then restores.
+const BG_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/22fed69b4_backgroundsong.mp3';
+const BG_VOL = 0.45;       // normal background volume
+const BG_DUCK_VOL = 0.12;  // ducked volume while SFX play
+const BG_DUCK_FADE = 0.25; // seconds to fade back up
+let bgAudio = null;
+let bgStarted = false;
+let bgDuckTimer = null;
+
+function startBackgroundMusic() {
+  if (bgStarted) return;
+  bgStarted = true;
+  bgAudio = new Audio(BG_URL);
+  bgAudio.loop = true;
+  bgAudio.volume = 0;
+  const fadeIn = () => {
+    const steps = 20;
+    for (let i = 1; i <= steps; i++) {
+      setTimeout(() => { if (bgAudio) bgAudio.volume = BG_VOL * (i / steps); }, i * 40);
+    }
+  };
+  const tryPlay = () => {
+    bgAudio.play().then(fadeIn).catch(() => {
+      // Autoplay blocked — retry on first interaction (element reused, no dupes)
+      const resume = () => { bgAudio.play().then(fadeIn).catch(() => {}); };
+      document.addEventListener('click', resume, { once: true });
+      document.addEventListener('touchstart', resume, { once: true });
+      document.addEventListener('keydown', resume, { once: true });
+    });
+  };
+  tryPlay();
+}
+
+function duckBackground(durationMs = 1200) {
+  if (!bgAudio) return;
+  if (bgDuckTimer) clearTimeout(bgDuckTimer);
+  bgAudio.volume = BG_DUCK_VOL;
+  bgDuckTimer = setTimeout(() => {
+    if (!bgAudio) return;
+    // smooth fade back up
+    const ac = getCtx();
+    if (ac) {
+      const steps = 15;
+      for (let i = 1; i <= steps; i++) {
+        setTimeout(() => { if (bgAudio) bgAudio.volume = BG_DUCK_VOL + (BG_VOL - BG_DUCK_VOL) * (i / steps); }, i * 30);
+      }
+    } else {
+      bgAudio.volume = BG_VOL;
+    }
+  }, durationMs);
+}
+
 export const sfx = {
-  preload() {},
-  spin() {},
-  stopSpin() {},
-  win() {},
-  winStop() {},
-  anticipation() {},
-  scatter() {},
-  loss() {},
+  preload() { startBackgroundMusic(); },
+  spin() { startBackgroundMusic(); duckBackground(2500); },
+  stopSpin() { duckBackground(400); },
+  win() { duckBackground(1500); },
+  winStop() { duckBackground(400); },
+  anticipation() { duckBackground(2000); },
+  scatter() { duckBackground(900); },
+  loss() { duckBackground(500); },
 };
