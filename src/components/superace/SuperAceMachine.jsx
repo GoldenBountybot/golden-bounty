@@ -610,10 +610,15 @@ export default function SuperAceMachine() {
                   <span className="text-[10px] text-yellow-300 font-black leading-none">$ {bet.toFixed(2)}</span>
                 </button>
 
-                {/* SPIN — large JILI gold button */}
+                {/* SPIN — premium 3D casino spin button */}
                 <button onClick={() => { if (!busyRef.current) { playClick(); doSpin(); } }} disabled={busyRef.current} className="flex flex-col items-center gap-1 disabled:opacity-80">
-                  <span className="relative w-20 h-20 rounded-full flex items-center justify-center transition-transform active:scale-95" style={spinBtnStyle}>
-                    <RotateCw className={`absolute w-16 h-16 text-amber-900/30 ${busyRef.current ? 'animate-spin' : ''}`} strokeWidth={1.5} />
+                  <span className="relative w-24 h-24 rounded-full flex items-center justify-center transition-transform active:scale-95 overflow-hidden" style={{ boxShadow: '0 0 18px rgba(255,190,40,0.55), 0 4px 14px rgba(0,0,0,0.8)' }}>
+                    <img
+                      src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f12fe0e54_file_00000000541c8211a6dd57b4e4dcf69f.png"
+                      alt="SPIN"
+                      className={`w-full h-full object-cover ${busyRef.current ? 'animate-spin' : ''}`}
+                      style={{ animationDuration: '0.8s' }}
+                    />
                   </span>
                 </button>
 
