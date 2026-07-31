@@ -518,9 +518,8 @@ export default function SuperAceMachine() {
         ...W,
         backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/753cb0ea7_file_00000000788881fa92ac18ec92116526.png)',
         backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundPosition: 'center top',
         backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
       }}
     >
       {/* Header */}
