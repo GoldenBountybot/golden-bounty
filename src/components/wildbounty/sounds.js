@@ -213,7 +213,7 @@ function tone({ freq, type = 'sine', dur = 0.2, gain = VOL, delay = 0, sweepTo }
 // gate to suppress quiet background sounds, and EQ boosts the music.
 // Volume ducks down whenever a spin / win / scatter event fires.
 const BG_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/22fed69b4_backgroundsong.mp3';
-const BG_VOL = 0.45;       // background music volume
+const BG_VOL = 0.225;      // background music volume (50% of previous)
 let bgBuffer = null;
 let bgLoading = false;
 let bgSource = null;
@@ -320,6 +320,21 @@ export const sfx = {
 };
 
 // Toggle background music mute. Returns the new muted state.
+// Stop background music and reset state so it can cleanly restart later.
+// Called when leaving the game so the track doesn't keep playing in other pages.
+export function stopBackgroundMusic() {
+  const ac = getCtx();
+  if (ac && bgSource) {
+    try { bgSource.stop(); } catch { /* already stopped */ }
+    bgSource = null;
+  }
+  if (ac && bgGain) {
+    try { bgGain.disconnect(); } catch { /* ignore */ }
+    bgGain = null;
+  }
+  bgStarted = false;
+}
+
 export function toggleMute() {
   bgMuted = !bgMuted;
   const ac = getCtx();

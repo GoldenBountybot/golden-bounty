@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import WildBountyMachine from "@/components/wildbounty/WildBountyMachine";
 import GameLoadingScreen from "@/components/wildbounty/GameLoadingScreen";
 import BackButton from "@/components/BackButton";
@@ -6,12 +6,18 @@ import ShareButton from "@/components/ShareButton";
 import GameTitleBar from "@/components/GameTitleBar";
 import { useCasinoBalance } from "@/lib/useCasinoBalance";
 import { Wallet, Volume2, VolumeX } from "lucide-react";
-import { toggleMute, isMuted } from "@/components/wildbounty/sounds";
+import { toggleMute, isMuted, stopBackgroundMusic } from "@/components/wildbounty/sounds";
 
 export default function SlotGame() {
   const [loaded, setLoaded] = useState(false);
   const { balance } = useCasinoBalance();
   const [muted, setMuted] = useState(isMuted());
+
+  // Stop background music when leaving the game so it doesn't keep playing
+  // on other pages.
+  useEffect(() => {
+    return () => { stopBackgroundMusic(); };
+  }, []);
 
   const handleToggleMute = () => {
     setMuted(toggleMute());
