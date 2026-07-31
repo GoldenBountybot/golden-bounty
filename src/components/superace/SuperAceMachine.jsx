@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, History } from 'lucide-react';
+import { Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, History, ChevronLeft, Volume2, VolumeX } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -108,6 +109,7 @@ export default function SuperAceMachine() {
   const [flyingWilds, setFlyingWilds] = useState([]);
   const [teaseCols, setTeaseCols] = useState(new Set());
   const [teaseStart, setTeaseStart] = useState(-1);
+  const [muted, setMuted] = useState(false);
 
   // refs for async orchestration
   const betRef = useRef(0.10);
@@ -449,6 +451,14 @@ export default function SuperAceMachine() {
     setTimeout(() => { doSpinRef.current && doSpinRef.current(); }, 600);
   };
 
+  const toggleMute = () => {
+    playClick();
+    setMuted((m) => {
+      if (m) startAmbient(); else stopAmbient();
+      return !m;
+    });
+  };
+
   const toggleTurbo = () => { playClick(); setTurbo((t) => !t); };
   const toggleAuto = () => {
     playClick();
@@ -467,6 +477,23 @@ export default function SuperAceMachine() {
       <header className="sticky top-0 z-30 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <GameTitleBar
           title="Super Ace"
+          left={
+            <Link to="/" className="shrink-0">
+              <span className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95" style={metalBtn(false)}>
+                <ChevronLeft className="w-5 h-5 text-amber-300" strokeWidth={2.6} />
+              </span>
+            </Link>
+          }
+          right={
+            <>
+              <span className="text-[11px] font-bold tabular-nums text-yellow-200 whitespace-nowrap" style={{ fontFamily: 'Rye, Georgia, serif' }}>$ {balance.toFixed(2)}</span>
+              <button onClick={toggleMute} className="shrink-0">
+                <span className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95" style={metalBtn(false)}>
+                  {muted ? <VolumeX className="w-4 h-4 text-amber-300/60" /> : <Volume2 className="w-4 h-4 text-amber-300" />}
+                </span>
+              </button>
+            </>
+          }
         />
       </header>
 
