@@ -369,8 +369,8 @@ export default function SuperAceMachine() {
       // Multiplier gate: each extra cascade is increasingly unlikely to chain,
       // so higher multipliers (2×,3×,5×) trigger far less often.
       const stopChance = inFreeRef.current
-        ? [0, 0.05, 0.12, 0.25][Math.min(comboCount, 3)] || 0.38
-        : [0, 0.10, 0.22, 0.40][Math.min(comboCount, 3)] || 0.55;
+        ? [0, 0.02, 0.05, 0.10][Math.min(comboCount, 3)] || 0.18
+        : [0, 0.04, 0.08, 0.15][Math.min(comboCount, 3)] || 0.28;
       if (Math.random() < stopChance) {
         // shatter the winning cells and end the round without further cascades
         const shatterSet = new Set(ev.winCells);
