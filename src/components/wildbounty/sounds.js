@@ -258,11 +258,11 @@ function duckBackground(durationMs = 1200) {
 
 export const sfx = {
   preload() { startBackgroundMusic(); },
-  spin() { startBackgroundMusic(); duckBackground(2500); },
-  stopSpin() { duckBackground(400); },
-  win() { duckBackground(1500); },
-  winStop() { duckBackground(400); },
-  anticipation() { duckBackground(2000); },
-  scatter() { duckBackground(900); },
-  loss() { duckBackground(500); },
+  spin() { startBackgroundMusic(); },
+  stopSpin() {},
+  win() {},
+  winStop() {},
+  anticipation() {},
+  scatter() {},
+  loss() {},
 };
