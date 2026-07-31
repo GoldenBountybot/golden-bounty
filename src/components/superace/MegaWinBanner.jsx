@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const MEGA_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/06473392d_file_00000000a44082089561cf95e968c16a.png';
+const MEGA_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e3c7dc482_file_00000000233881faa2d49279db01c3b7.png';
 
 // Ornate "MEGA WIN" banner shown when the player hits a x8+ multiplier.
 // The winning amount counts up inside the dark purple pill at the bottom.
@@ -53,13 +53,12 @@ export default function MegaWinBanner({ amount, multiplier, onDone }) {
             draggable={false}
             style={{ filter: 'drop-shadow(0 0 26px rgba(128,0,128,0.6)) drop-shadow(0 8px 20px rgba(0,0,0,0.75))' }}
           />
-          {/* Amount overlay — positioned inside the dark purple pill at the bottom */}
+          {/* Amount overlay — centered over the main title area */}
           <div
             className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center"
             style={{
-              bottom: '5.5%',
-              width: '68%',
-              height: '11%',
+              top: '44%',
+              width: '80%',
             }}
           >
             <span

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const SUPER_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e1da22494_file_00000000bfc08211a248975e42a0994d.png';
+const SUPER_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4241239e5_file_0000000057d881fbaa643e8f2dd979ce.png';
 
 // Ornate "SUPER WIN" banner shown when the player hits a x5+ multiplier or a
 // big payout. The winning amount counts up inside the red pill area at the
@@ -56,12 +56,12 @@ export default function SuperWinBanner({ amount, multiplier, onDone }) {
             draggable={false}
             style={{ filter: 'drop-shadow(0 0 26px rgba(245,197,66,0.6)) drop-shadow(0 8px 20px rgba(0,0,0,0.75))' }}
           />
-          {/* Amount overlay — positioned over the red pill area near the bottom */}
+          {/* Amount overlay — centered over the main title area */}
           <div
             className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center"
             style={{
-              bottom: '7.5%',
-              width: '72%',
+              top: '44%',
+              width: '80%',
             }}
           >
             <span
