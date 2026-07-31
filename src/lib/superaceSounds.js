@@ -110,11 +110,33 @@ const MULT_NAMES = {
   5: 'five times', 6: 'six times', 10: 'ten times',
 };
 
+let _femaleVoice = null;
+function pickFemaleVoice() {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return null;
+  if (_femaleVoice) return _femaleVoice;
+  const voices = window.speechSynthesis.getVoices();
+  // Prefer common English female voices (Google US English, Samantha, Zira, etc.)
+  const female = voices.find((v) =>
+    /female|samantha|zira|google us english|karen|tessa|moira|fiona|veena|alice/i.test(v.name)
+  ) || voices.find((v) => v.lang.startsWith('en') && /samantha|zira|karen|veena|google/i.test(v.name))
+  || voices.find((v) => v.lang.startsWith('en'));
+  _femaleVoice = female || null;
+  return _femaleVoice;
+}
+
+// Warm up the voice list (loads asynchronously in some browsers).
+if (typeof window !== 'undefined' && window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = () => { _femaleVoice = null; pickFemaleVoice(); };
+}
+
 function speak(text) {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
   try {
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = 1.1; u.pitch = 1.0; u.volume = 0.9;
+    const v = pickFemaleVoice();
+    if (v) u.voice = v;
+    // Excited female announcer — higher pitch, faster rate, loud.
+    u.rate = 1.35; u.pitch = 1.5; u.volume = 1.0;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(u);
   } catch {}
