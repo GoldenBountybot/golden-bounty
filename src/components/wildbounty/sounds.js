@@ -9,7 +9,7 @@ const SPIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776
 // multiplier chain until the round ends.
 const WINSEQ_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/3d0b01f51_20260717094905_2.mp3';
 // Uploaded scatter-land sting — plays once per scatter that lands.
-const SCATTER_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/eb6fefbfe_20260717094905_3_0.mp3';
+const SCATTER_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/8260a4cd3_scater_0.mp3';
 // Uploaded spin-button click sound — plays once when the player taps Spin.
 const SPIN_CLICK_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/d0ba94ac5_spinbuttonclicksound.mp3';
 // Uploaded symbol-match sound — plays when spinning symbols match.
@@ -85,6 +85,19 @@ async function loadSpinClickBuffer() {
     const ac = getCtx();
     if (ac) spinClickBuffer = await ac.decodeAudioData(arr);
   } catch { /* ignore */ } finally { spinClickLoading = false; }
+}
+
+function playScatter() {
+  const ac = getCtx();
+  if (!ac) return;
+  if (!scatterBuffer) { loadScatterBuffer(); return; }
+  if (bgMuted) return;
+  const src = ac.createBufferSource();
+  src.buffer = scatterBuffer;
+  const g = ac.createGain();
+  g.gain.setValueAtTime(VOL, ac.currentTime);
+  src.connect(g).connect(ac.destination);
+  src.start();
 }
 
 function playSpinClick() {
@@ -294,13 +307,13 @@ function startBackgroundMusic() {
 }
 
 export const sfx = {
-  preload() { startBackgroundMusic(); loadSpinClickBuffer(); loadSymMatchBuffer(); },
+  preload() { startBackgroundMusic(); loadSpinClickBuffer(); loadSymMatchBuffer(); loadScatterBuffer(); },
   spin() { startBackgroundMusic(); },
   stopSpin() {},
   win() {},
   winStop() {},
   anticipation() {},
-  scatter() {},
+  scatter() { playScatter(); },
   loss() {},
   spinClick() { playSpinClick(); },
   symbolMatch() { playSymMatch(); },
