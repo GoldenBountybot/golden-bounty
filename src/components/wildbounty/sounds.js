@@ -144,15 +144,12 @@ function tone({ freq, type = 'sine', dur = 0.2, gain = VOL, delay = 0, sweepTo }
 // gate to suppress quiet background sounds, and EQ boosts the music.
 // Volume ducks down whenever a spin / win / scatter event fires.
 const BG_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/22fed69b4_backgroundsong.mp3';
-const BG_VOL = 0.45;       // normal background volume
-const BG_DUCK_VOL = 0.12;  // ducked volume while SFX play
+const BG_VOL = 0.45;       // background music volume
 let bgBuffer = null;
 let bgLoading = false;
 let bgSource = null;
 let bgGain = null;
 let bgStarted = false;
-let bgDuckTimer = null;
-let bgWantStart = false;
 
 async function loadBgBuffer() {
   if (bgBuffer || bgLoading) return;
@@ -211,25 +208,24 @@ function playBgLoop() {
   comp.connect(bgGain);
   bgGain.connect(ac.destination);
   bgSource.start();
-  // When the buffer ends (shouldn't, since loop=true) restart seamlessly.
-  bgSource.onended = () => { bgSource = null; if (bgStarted) playBgLoop(); };
+  // loop=true keeps the buffer playing forever — no restart needed.
 }
 
 function startBackgroundMusic() {
   if (bgStarted) return;
   bgStarted = true;
-  bgWantStart = true;
   const ac = getCtx();
   if (!ac) return;
+  // Load the buffer, then start the loop once the context is running.
   loadBgBuffer().then(() => {
-    if (bgWantStart) playBgLoop();
+    if (bgBuffer && !bgSource) playBgLoop();
   });
-  // If autoplay is blocked, the AudioContext stays suspended — resume on
-  // first interaction which also kicks off playback.
+  // If autoplay is blocked, resume the context on first interaction —
+  // the already-started (but suspended) source begins playing.
   if (ac.state === 'suspended') {
     const resume = () => {
       const c = getCtx();
-      if (c) c.resume().then(() => { if (bgBuffer) playBgLoop(); else loadBgBuffer().then(() => { if (bgWantStart) playBgLoop(); }); }).catch(() => {});
+      if (c) c.resume().catch(() => {});
       document.removeEventListener('click', resume);
       document.removeEventListener('touchstart', resume);
       document.removeEventListener('keydown', resume);
@@ -238,22 +234,6 @@ function startBackgroundMusic() {
     document.addEventListener('touchstart', resume, { once: true });
     document.addEventListener('keydown', resume, { once: true });
   }
-}
-
-function duckBackground(durationMs = 1200) {
-  const ac = getCtx();
-  if (!ac || !bgGain) return;
-  if (bgDuckTimer) clearTimeout(bgDuckTimer);
-  bgGain.gain.cancelScheduledValues(ac.currentTime);
-  bgGain.gain.setValueAtTime(bgGain.gain.value, ac.currentTime);
-  bgGain.gain.linearRampToValueAtTime(BG_DUCK_VOL, ac.currentTime + 0.08);
-  bgDuckTimer = setTimeout(() => {
-    const c = getCtx();
-    if (!c || !bgGain) return;
-    bgGain.gain.cancelScheduledValues(c.currentTime);
-    bgGain.gain.setValueAtTime(bgGain.gain.value, c.currentTime);
-    bgGain.gain.linearRampToValueAtTime(BG_VOL, c.currentTime + 0.4);
-  }, durationMs);
 }
 
 export const sfx = {
