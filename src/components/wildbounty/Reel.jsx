@@ -1,7 +1,6 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import SymbolTile from './SymbolTile';
 import { randomSymbol } from './symbols';
-import { sfx } from './sounds';
 
 // A single reel column that smoothly scrolls downward while spinning,
 // then snaps to the final symbols when stopped.
@@ -15,9 +14,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
   useEffect(() => {
     if (prevSpinning.current && !spinning) {
       setJustStopped(true);
-      const landMs = wasAnticipation.current ? 1100 : 400;
-      sfx.dropLoop(landMs);
-      const t = setTimeout(() => { setJustStopped(false); wasAnticipation.current = false; }, landMs);
+      const t = setTimeout(() => { setJustStopped(false); wasAnticipation.current = false; }, wasAnticipation.current ? 1100 : 400);
       prevSpinning.current = spinning;
       return () => clearTimeout(t);
     }

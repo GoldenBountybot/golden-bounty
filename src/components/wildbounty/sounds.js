@@ -12,8 +12,6 @@ const WINSEQ_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b66377
 const SCATTER_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/eb6fefbfe_20260717094905_3_0.mp3';
 // Uploaded spin-button click sound — plays once when the player taps Spin.
 const SPIN_CLICK_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/d0ba94ac5_spinbuttonclicksound.mp3';
-// Uploaded symbol-drop sound — plays when a reel lands / cascade symbols drop.
-const DROP_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/ae06afeb6_symboldropsound.mp3';
 let spinBuffer = null;
 let spinLoading = false;
 let spinAudio = null;
@@ -27,8 +25,6 @@ let scatterBuffer = null;
 let scatterLoading = false;
 let spinClickBuffer = null;
 let spinClickLoading = false;
-let dropBuffer = null;
-let dropLoading = false;
 
 async function loadSpinBuffer() {
   if (spinBuffer || spinLoading) return;
@@ -98,49 +94,6 @@ function playSpinClick() {
   g.gain.setValueAtTime(VOL, ac.currentTime);
   src.connect(g).connect(ac.destination);
   src.start();
-}
-
-async function loadDropBuffer() {
-  if (dropBuffer || dropLoading) return;
-  dropLoading = true;
-  try {
-    const res = await fetch(DROP_URL);
-    const arr = await res.arrayBuffer();
-    const ac = getCtx();
-    if (ac) dropBuffer = await ac.decodeAudioData(arr);
-  } catch { /* ignore */ } finally { dropLoading = false; }
-}
-
-function playDrop() {
-  const ac = getCtx();
-  if (!ac) return;
-  if (!dropBuffer) { loadDropBuffer(); return; }
-  if (bgMuted) return;
-  const src = ac.createBufferSource();
-  src.buffer = dropBuffer;
-  const g = ac.createGain();
-  g.gain.setValueAtTime(VOL, ac.currentTime);
-  src.connect(g).connect(ac.destination);
-  src.start();
-}
-
-// Play the drop sound in a tight loop for the given duration (ms) — used while
-// a reel's symbols are still landing so the sound covers the whole drop.
-function playDropLoop(durationMs) {
-  const ac = getCtx();
-  if (!ac || !dropBuffer || bgMuted) { if (!dropBuffer) loadDropBuffer(); return; }
-  const endTime = ac.currentTime + durationMs / 1000;
-  const step = Math.max(0.08, dropBuffer.duration * 0.9);
-  let t = ac.currentTime;
-  while (t < endTime) {
-    const src = ac.createBufferSource();
-    src.buffer = dropBuffer;
-    const g = ac.createGain();
-    g.gain.setValueAtTime(VOL, t);
-    src.connect(g).connect(ac.destination);
-    src.start(t);
-    t += step;
-  }
 }
 
 function startWinSeq(rate = 1) {
@@ -313,7 +266,7 @@ function startBackgroundMusic() {
 }
 
 export const sfx = {
-  preload() { startBackgroundMusic(); loadSpinClickBuffer(); loadDropBuffer(); },
+  preload() { startBackgroundMusic(); loadSpinClickBuffer(); },
   spin() { startBackgroundMusic(); },
   stopSpin() {},
   win() {},
@@ -322,8 +275,6 @@ export const sfx = {
   scatter() {},
   loss() {},
   spinClick() { playSpinClick(); },
-  drop() { playDrop(); },
-  dropLoop(ms) { playDropLoop(ms); },
 };
 
 // Toggle background music mute. Returns the new muted state.
