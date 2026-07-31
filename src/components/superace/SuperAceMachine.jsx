@@ -502,13 +502,6 @@ export default function SuperAceMachine() {
 
               <WinOverlay floatWin={floatWin} combo={combo} />
 
-              {/* WIN display */}
-              <div className="mt-2 text-center">
-                <span className="text-[10px] tracking-widest" style={{ color: '#f5c542', ...W }}>WIN</span>{' '}
-                <span className="text-lg font-black tabular-nums" style={{ color: winThisSpin > 0 ? '#fde68a' : 'rgba(255,235,180,0.5)', fontFamily: 'Rye, Georgia, serif', textShadow: winThisSpin > 0 ? '0 0 10px rgba(245,197,66,0.6)' : 'none' }}>
-                  ${winThisSpin.toFixed(2)}
-                </span>
-              </div>
             </div>
 
             {/* Message */}
