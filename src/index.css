@@ -171,7 +171,7 @@
 @keyframes shatterWin {
   0%   { transform: scale(1.2) rotate(0deg); opacity: 1; filter: brightness(1.6) saturate(1.5) drop-shadow(0 0 8px rgba(255,200,40,0.9)); }
   28%  { transform: scale(1.32) rotate(2deg); opacity: 1; filter: brightness(2.9) saturate(2.1) drop-shadow(0 0 18px rgba(255,235,120,1)); }
-  100% { transform: scale(1.7) rotate(4deg); opacity: 0; filter: brightness(3.4) blur(9px) drop-shadow(0 0 24px rgba(255,210,80,0.9)); }
+  100% { transform: scale(1.7) rotate(4deg); opacity: 0; filter: brightness(3.4) drop-shadow(0 0 24px rgba(255,210,80,0.9)); }
 }
 
 @keyframes cascadeDrop {
@@ -184,8 +184,7 @@
    overshoot — pure translateY with the app's signature ease-out so it feels
    weightless and relaxing. GPU-only transform. */
 @keyframes wbDrop {
-  0%   { transform: translateY(-42%); opacity: 0; }
-  22%  { opacity: 1; }
+  0%   { transform: translateY(-42%); opacity: 1; }
   100% { transform: translateY(0); opacity: 1; }
 }
 
