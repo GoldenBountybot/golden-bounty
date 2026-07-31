@@ -11,6 +11,7 @@ import WinOverlay from '@/components/superace/WinOverlay';
 import FreeSpinStart from '@/components/superace/FreeSpinStart';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import GameTitleBar from '@/components/GameTitleBar';
+import AnimatedNumber from '@/components/AnimatedNumber';
 import WesternStatBanner from '@/components/wildbounty/WesternStatBanner';
 import {
   COLS, ROWS, TOTAL, BASE_MULTS, FREE_MULTS, FREE_SPINS_AWARD, RETRIGGER_AWARD,
@@ -486,7 +487,14 @@ export default function SuperAceMachine() {
           }
           right={
             <>
-              <span className="text-[11px] font-bold tabular-nums text-yellow-200 whitespace-nowrap" style={{ fontFamily: 'Rye, Georgia, serif' }}>$ {balance.toFixed(2)}</span>
+              <span
+                id="game-balance-chip"
+                className="flex items-center gap-1 rounded-[6px] px-2 py-0.5 text-[11px] font-bold tabular-nums text-yellow-100"
+                style={{ border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)' }}
+              >
+                <Wallet className="w-3.5 h-3.5 text-yellow-300" />
+                <AnimatedNumber value={balance} prefix="$" />
+              </span>
               <button onClick={toggleMute} className="shrink-0">
                 <span className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95" style={metalBtn(false)}>
                   {muted ? <VolumeX className="w-4 h-4 text-amber-300/60" /> : <Volume2 className="w-4 h-4 text-amber-300" />}
