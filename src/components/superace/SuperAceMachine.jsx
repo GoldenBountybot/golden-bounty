@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, Sparkles, History } from 'lucide-react';
+import { Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, History } from 'lucide-react';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -467,11 +467,6 @@ export default function SuperAceMachine() {
       <header className="sticky top-0 z-30 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <GameTitleBar
           title="Super Ace"
-          right={
-            <button onClick={buyBonus} disabled={busyRef.current || inFreeRef.current} className="shrink-0 px-2 py-1 rounded-md text-[9px] font-black italic disabled:opacity-50" style={{ background: 'linear-gradient(to bottom, #ef4444, #991b1b)', border: '1px solid rgba(245,197,66,0.8)', color: '#fde68a', boxShadow: '0 0 8px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}>
-              BUY<br />BONUS
-            </button>
-          }
         />
       </header>
 
@@ -480,15 +475,20 @@ export default function SuperAceMachine() {
         <div className="w-full rounded-2xl relative p-[3px]" style={{ background: 'linear-gradient(145deg, #e0b34a, #7a4f17 38%, #c8932e 68%, #5e3d12)', boxShadow: '0 0 0 2px #2e1d0a, 0 0 0 4px rgba(200,150,60,0.4), 0 16px 48px rgba(0,0,0,0.75)' }}>
           <div className="flex flex-col gap-2 rounded-[13px] overflow-hidden relative" style={{ backgroundImage: 'linear-gradient(rgba(15,18,29,0.88), rgba(10,12,20,0.92)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/eb5c5abd9_generated_image.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
             {/* Multiplier + hint */}
-            <div className="pt-1.5 px-2 flex flex-col items-center gap-1">
-              <MultiplierBar mults={mults} combo={combo} inFree={inFree} freeSpinsLeft={freeSpinsLeft} />
-              <div className="flex items-center gap-2">
-                <p className="text-[10px] text-amber-200/70" style={W}>
-                  {inFree ? 'Up to 10× multiplier in Free Game' : 'Golden Card → Wild · 3 SCATTER = 10 Free Games'}
-                </p>
-                <button onClick={() => { playClick(); setShowPay((s) => !s); }} className="text-amber-300/80 hover:text-yellow-300" title="Payout Table">
-                  <Settings className="w-4 h-4" />
-                </button>
+            <div className="pt-1.5 px-2 flex items-start gap-2">
+              <button onClick={buyBonus} disabled={busyRef.current || inFreeRef.current} className="shrink-0 px-2 py-1 rounded-md text-[9px] font-black italic disabled:opacity-50" style={{ background: 'linear-gradient(to bottom, #ef4444, #991b1b)', border: '1px solid rgba(245,197,66,0.8)', color: '#fde68a', boxShadow: '0 0 8px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}>
+                BUY<br />BONUS
+              </button>
+              <div className="flex-1 flex flex-col items-center gap-1">
+                <MultiplierBar mults={mults} combo={combo} inFree={inFree} freeSpinsLeft={freeSpinsLeft} />
+                <div className="flex items-center gap-2">
+                  <p className="text-[10px] text-amber-200/70" style={W}>
+                    {inFree ? 'Up to 10× multiplier in Free Game' : 'Golden Card → Wild · 3 SCATTER = 10 Free Games'}
+                  </p>
+                  <button onClick={() => { playClick(); setShowPay((s) => !s); }} className="text-amber-300/80 hover:text-yellow-300" title="Payout Table">
+                    <Settings className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -623,18 +623,6 @@ export default function SuperAceMachine() {
                 </button>
               </div>
             )}
-
-            {/* Buy Bonus */}
-            <div className="px-2">
-              <button
-                onClick={buyBonus}
-                disabled={busyRef.current || inFreeRef.current || balance < BUY_BONUS_MULT * bet}
-                className="w-full py-2.5 rounded-xl text-sm font-black italic disabled:opacity-40 flex items-center justify-center gap-2"
-                style={{ background: 'linear-gradient(to bottom, #ef4444, #991b1b)', border: '1.5px solid rgba(245,197,66,0.8)', color: '#fde68a', boxShadow: '0 0 10px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}
-              >
-                <Sparkles className="w-4 h-4" /> BUY BONUS · ${(BUY_BONUS_MULT * bet).toFixed(2)} → 10 Free Spins
-              </button>
-            </div>
 
             {/* Payout panel (toggle) */}
             {showPay && (
