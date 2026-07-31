@@ -258,7 +258,6 @@ export function useWildBounty() {
         setGrid(newGrid);
         setCascading(true);
         setCascadePositions(shatterPos);
-        sfx.drop();
 
         const evalT = setTimeout(() => {
           setCascading(false);

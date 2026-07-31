@@ -15,8 +15,9 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
   useEffect(() => {
     if (prevSpinning.current && !spinning) {
       setJustStopped(true);
-      sfx.drop();
-      const t = setTimeout(() => { setJustStopped(false); wasAnticipation.current = false; }, wasAnticipation.current ? 1100 : 400);
+      const landMs = wasAnticipation.current ? 1100 : 400;
+      sfx.dropLoop(landMs);
+      const t = setTimeout(() => { setJustStopped(false); wasAnticipation.current = false; }, landMs);
       prevSpinning.current = spinning;
       return () => clearTimeout(t);
     }

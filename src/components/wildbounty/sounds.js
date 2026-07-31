@@ -124,6 +124,25 @@ function playDrop() {
   src.start();
 }
 
+// Play the drop sound in a tight loop for the given duration (ms) — used while
+// a reel's symbols are still landing so the sound covers the whole drop.
+function playDropLoop(durationMs) {
+  const ac = getCtx();
+  if (!ac || !dropBuffer || bgMuted) { if (!dropBuffer) loadDropBuffer(); return; }
+  const endTime = ac.currentTime + durationMs / 1000;
+  const step = Math.max(0.08, dropBuffer.duration * 0.9);
+  let t = ac.currentTime;
+  while (t < endTime) {
+    const src = ac.createBufferSource();
+    src.buffer = dropBuffer;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(VOL, t);
+    src.connect(g).connect(ac.destination);
+    src.start(t);
+    t += step;
+  }
+}
+
 function startWinSeq(rate = 1) {
   const ac = getCtx();
   if (!ac || !winSeqBuffer || winSeqAudio) return;
@@ -304,6 +323,7 @@ export const sfx = {
   loss() {},
   spinClick() { playSpinClick(); },
   drop() { playDrop(); },
+  dropLoop(ms) { playDropLoop(ms); },
 };
 
 // Toggle background music mute. Returns the new muted state.
