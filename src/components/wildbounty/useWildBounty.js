@@ -170,6 +170,7 @@ export function useWildBounty() {
     if (stepWin > 0) {
       const slow = cascadeCount >= 1 ? 1.6 : 1.2;
       setCascadeSlow(slow);
+      sfx.symbolMatch();
       sfx.win(cascadeCount);
       const newTotal = totalWin + stepWin;
       const newMult = Math.min(currentMultIndex + 1, MULTIPLIERS.length - 1);
