@@ -170,47 +170,53 @@ export function playCardDrop() {
   tone(160, t, 0.12, 'sine', 0.06);
 }
 
-// ── Background gaming ambient — continuous, no music, just atmosphere ──
-let _ambient = null;
-export function startAmbient() {
-  const ac = actx(); if (!ac || _ambient) return;
+// ── Background music — continuous looping chord progression (casino vibe) ──
+// Am – F – C – G  (vi – IV – I – V in C major): uplifting, endless loop.
+const BGM_CHORDS = [
+  { bass: 110.00, notes: [220.00, 261.63, 329.63] },   // Am
+  { bass: 87.31,  notes: [174.61, 220.00, 261.63] },   // F
+  { bass: 130.81, notes: [261.63, 329.63, 392.00] },   // C
+  { bass: 98.00,  notes: [196.00, 246.94, 293.66] },   // G
+];
+const BGM_CHORD_DUR = 2.0; // seconds per chord
+
+let _bgm = null;
+let _bgmTimer = null;
+
+function playChord(idx) {
+  const ac = actx();
+  if (!ac || !_bgm || _bgm.stopped) return;
   const t = ac.currentTime;
-  // Low pulsing drone
-  const bass = ac.createOscillator();
-  const bassGain = ac.createGain();
-  bass.type = 'sine'; bass.frequency.value = 55;
-  bassGain.gain.value = 0.025;
-  bass.connect(bassGain); bassGain.connect(ac.destination);
-  bass.start();
-  // LFO pulse on the bass
-  const lfo = ac.createOscillator();
-  const lfoGain = ac.createGain();
-  lfo.type = 'sine'; lfo.frequency.value = 0.4;
-  lfoGain.gain.value = 0.015;
-  lfo.connect(lfoGain); lfoGain.connect(bassGain.gain);
-  lfo.start();
-  // High shimmer pad
-  const shimmer = ac.createOscillator();
-  const shimmerGain = ac.createGain();
-  shimmer.type = 'triangle'; shimmer.frequency.value = 660;
-  shimmerGain.gain.value = 0.006;
-  shimmer.connect(shimmerGain); shimmerGain.connect(ac.destination);
-  shimmer.start();
-  // Second shimmer layer (fifth above)
-  const shimmer2 = ac.createOscillator();
-  const shimmer2Gain = ac.createGain();
-  shimmer2.type = 'sine'; shimmer2.frequency.value = 990;
-  shimmer2Gain.gain.value = 0.004;
-  shimmer2.connect(shimmer2Gain); shimmer2Gain.connect(ac.destination);
-  shimmer2.start();
-  _ambient = { bass, lfo, shimmer, shimmer2 };
+  const chord = BGM_CHORDS[idx % BGM_CHORDS.length];
+
+  // Bass note (deep, soft)
+  tone(chord.bass, t, BGM_CHORD_DUR * 0.95, 'sine', 0.05);
+  tone(chord.bass / 2, t, BGM_CHORD_DUR * 0.95, 'sine', 0.03);
+
+  // Pad chord (sustained, warm)
+  chord.notes.forEach((f) => tone(f, t, BGM_CHORD_DUR * 0.9, 'triangle', 0.018));
+
+  // Arpeggio melody on top
+  chord.notes.forEach((f, i) => {
+    tone(f * 2, t + i * 0.22, 0.28, 'sine', 0.012);
+    tone(f * 2, t + 0.9 + i * 0.22, 0.28, 'sine', 0.012);
+  });
+
+  // Sparkle accent
+  tone(chord.notes[2] * 4, t + 0.5, 0.15, 'sine', 0.008);
+
+  _bgmTimer = setTimeout(() => playChord(idx + 1), BGM_CHORD_DUR * 1000);
+}
+
+export function startAmbient() {
+  const ac = actx(); if (!ac || _bgm) return;
+  _bgm = { stopped: false };
+  playChord(0);
 }
 
 export function stopAmbient() {
-  if (!_ambient) return;
-  try {
-    _ambient.bass.stop(); _ambient.lfo.stop();
-    _ambient.shimmer.stop(); _ambient.shimmer2.stop();
-  } catch {}
-  _ambient = null;
+  if (!_bgm) return;
+  _bgm.stopped = true;
+  if (_bgmTimer) { clearTimeout(_bgmTimer); _bgmTimer = null; }
+  _bgm = null;
 }
