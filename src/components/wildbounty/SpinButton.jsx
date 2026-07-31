@@ -55,7 +55,7 @@ export default function SpinButton({ spinning, onClick, disabled }) {
         src={BG_IMG}
         alt=""
         draggable={false}
-        className="block w-24 h-24 select-none absolute inset-0 m-auto"
+        className="block w-[120px] h-[120px] select-none absolute inset-0 m-auto"
         style={{
           mixBlendMode: 'screen',
           filter: 'brightness(1.05) saturate(1.1)',
