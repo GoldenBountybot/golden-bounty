@@ -521,7 +521,7 @@ export default function SuperAceMachine() {
       <main className="max-w-md mx-auto px-2 py-2">
         {/* Machine card — Western gold frame */}
         <div className="w-full rounded-2xl relative p-[3px]" style={{ background: 'linear-gradient(145deg, #e0b34a, #7a4f17 38%, #c8932e 68%, #5e3d12)', boxShadow: '0 0 0 2px #2e1d0a, 0 0 0 4px rgba(200,150,60,0.4), 0 16px 48px rgba(0,0,0,0.75)' }}>
-          <div className="flex flex-col gap-2 rounded-[13px] overflow-hidden relative" style={{ backgroundImage: 'linear-gradient(rgba(15,18,29,0.88), rgba(10,12,20,0.92)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/eb5c5abd9_generated_image.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          <div className="flex flex-col gap-2 rounded-[13px] overflow-hidden relative" style={{ backgroundImage: 'linear-gradient(rgba(10,15,30,0.82), rgba(8,12,25,0.88)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6ff3eec42_generated_image.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
             {/* Multiplier + hint */}
             <div className="pt-1.5 px-2 flex items-start gap-2">
               <button onClick={buyBonus} disabled={busyRef.current || inFreeRef.current} className="shrink-0 px-2 py-1 rounded-md text-[9px] font-black italic disabled:opacity-50" style={{ background: 'linear-gradient(to bottom, #ef4444, #991b1b)', border: '1px solid rgba(245,197,66,0.8)', color: '#fde68a', boxShadow: '0 0 8px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}>
