@@ -126,6 +126,7 @@ export default function SuperAceMachine() {
   const goldenWildIdxRef = useRef(null);
   const goldenTargetsRef = useRef([]);
   const normalWildSpawnedRef = useRef(false);
+  const announcedFirstRef = useRef(false);
 
   useEffect(() => { betRef.current = bet; }, [bet]);
   useEffect(() => { rtpRef.current = rtp; }, [rtp]);
@@ -251,6 +252,15 @@ export default function SuperAceMachine() {
     setSpinning(false);
     setTeaseCols(new Set());
     playReelLand();
+
+    // Announce the win immediately as the reels land — no delay.
+    announcedFirstRef.current = false;
+    const evImm = evaluate(g, betRef.current);
+    if (evImm.pay > 0 && evImm.winSymbols && evImm.winSymbols.length > 0) {
+      announceWin(evImm.winSymbols, multiplierFor(0, inFreeRef.current));
+      announcedFirstRef.current = true;
+    }
+
     await sleep(150);
 
     // Golden Wild: flip to reveal, then fly copies to win-line positions.
@@ -324,7 +334,12 @@ export default function SuperAceMachine() {
       setWinningCells(new Set(ev.winCells));
       setFloatWin({ value: win, key: comboCount + '-' + Date.now() + Math.random() });
       playComboWin(comboCount);
-      announceWin(ev.winSymbols, mult);
+      // Skip the first announce if it was already spoken when the reels landed.
+      if (announcedFirstRef.current) {
+        announcedFirstRef.current = false;
+      } else {
+        announceWin(ev.winSymbols, mult);
+      }
       await sleep(turboRef.current ? 380 : 560);
 
       // Multiplier gate: each extra cascade is increasingly unlikely to chain,

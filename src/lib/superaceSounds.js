@@ -144,13 +144,17 @@ if (typeof window !== 'undefined' && window.speechSynthesis) {
 function speak(text) {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
   try {
-    const u = new SpeechSynthesisUtterance(text);
-    const v = pickFemaleVoice();
-    if (v) u.voice = v;
-    // Excited female announcer — thin, shrill, high-pitched winning-call vibe.
-    u.rate = 1.3; u.pitch = 1.9; u.volume = 1.0;
     window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
+    const doSpeak = () => {
+      const u = new SpeechSynthesisUtterance(text);
+      const v = pickFemaleVoice();
+      if (v) u.voice = v;
+      // Thin, shrill, excited female casino announcer — max pitch for thinnest sound.
+      u.rate = 1.3; u.pitch = 2.0; u.volume = 1.0;
+      window.speechSynthesis.speak(u);
+    };
+    // Small delay after cancel — some browsers drop the utterance if speak is immediate.
+    setTimeout(doSpeak, 60);
   } catch {}
 }
 
