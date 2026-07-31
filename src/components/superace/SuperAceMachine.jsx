@@ -492,7 +492,7 @@ export default function SuperAceMachine() {
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
           <span className="absolute bottom-1.5 left-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
           <span className="absolute bottom-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-          <div className="flex flex-col gap-2 rounded-[13px] overflow-hidden relative" style={{ backgroundImage: 'linear-gradient(rgba(30,20,12,0.92), rgba(20,14,8,0.95)), url(https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&q=80)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+          <div className="flex flex-col gap-2 rounded-[13px] overflow-hidden relative" style={{ backgroundImage: 'linear-gradient(rgba(15,18,29,0.88), rgba(10,12,20,0.92)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/eb5c5abd9_generated_image.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
             {/* Multiplier + hint */}
             <div className="pt-1.5 px-2 flex flex-col items-center gap-1">
               <MultiplierBar mults={mults} combo={combo} inFree={inFree} freeSpinsLeft={freeSpinsLeft} />
@@ -507,7 +507,7 @@ export default function SuperAceMachine() {
             </div>
 
             {/* Reel board — bronze western frame */}
-            <div className="relative px-3 py-3 mx-1 rounded-2xl" style={{ backgroundImage: 'linear-gradient(rgba(20,14,8,0.3), rgba(20,14,8,0.4)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a416f3da8_generated_image.png)', backgroundSize: 'cover, cover', backgroundPosition: 'center, center', boxShadow: '0 0 0 7px rgba(74,48,18,0.9), 0 0 0 11px rgba(200,150,60,0.6), 0 0 0 14px rgba(46,30,12,0.85), 0 0 0 16px rgba(120,80,30,0.5), 0 18px 52px rgba(0,0,0,0.85)' }}>
+            <div className="relative px-3 py-3 mx-1 rounded-2xl" style={{ backgroundImage: 'linear-gradient(rgba(15,18,29,0.35), rgba(10,12,20,0.45)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/eb5c5abd9_generated_image.png)', backgroundSize: 'cover', backgroundPosition: 'center', boxShadow: '0 0 0 5px rgba(74,44,26,0.95), 0 0 0 8px rgba(40,24,14,0.9), 0 0 0 11px rgba(74,44,26,0.8), 0 0 0 13px rgba(30,18,10,0.95), 0 0 0 15px rgba(90,56,30,0.5), 0 18px 52px rgba(0,0,0,0.85)' }}>
               <span className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
               <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
               <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />

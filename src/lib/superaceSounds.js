@@ -23,27 +23,43 @@ function tone(freq, t0, dur, type = 'triangle', gain = 0.12) {
 export function playSpinStart() {
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
-  // Mechanical reel spin — rapid ticking + descending whoosh + gear whir.
+
+  // Luxury premium spin — smooth silky sweep + soft chime + elegant whoosh.
+  // 1. Opening crystal chime (luxury sparkle)
+  tone(1318.5, t, 0.15, 'sine', 0.06);
+  tone(1975.5, t + 0.04, 0.12, 'sine', 0.04);
+  tone(2637, t + 0.08, 0.10, 'sine', 0.03);
+
+  // 2. Smooth silky frequency sweep (premium reel whoosh)
   const o = ac.createOscillator(); const g = ac.createGain();
-  o.type = 'sawtooth'; o.frequency.setValueAtTime(1200, t);
-  o.frequency.exponentialRampToValueAtTime(180, t + 0.6);
+  o.type = 'sine'; o.frequency.setValueAtTime(220, t + 0.1);
+  o.frequency.exponentialRampToValueAtTime(880, t + 0.35);
+  o.frequency.exponentialRampToValueAtTime(160, t + 0.9);
   o.connect(g); g.connect(ac.destination);
-  g.gain.setValueAtTime(0.05, t);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
-  o.start(t); o.stop(t + 0.62);
-  // Gear whir (mid-frequency buzz)
-  const w = ac.createOscillator(); const wg = ac.createGain();
-  w.type = 'square'; w.frequency.setValueAtTime(440, t);
-  w.frequency.linearRampToValueAtTime(660, t + 0.3);
-  w.frequency.linearRampToValueAtTime(300, t + 0.6);
-  w.connect(wg); wg.connect(ac.destination);
-  wg.gain.setValueAtTime(0.025, t);
-  wg.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
-  w.start(t); w.stop(t + 0.62);
-  // Rapid ticking (reel teeth)
-  for (let i = 0; i < 14; i++) {
-    tone(900 + (i % 3) * 80, t + i * 0.04, 0.03, 'square', 0.04);
+  g.gain.setValueAtTime(0.0001, t + 0.1);
+  g.gain.exponentialRampToValueAtTime(0.07, t + 0.2);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.95);
+  o.start(t + 0.1); o.stop(t + 0.98);
+
+  // 3. Soft warm pad underneath (luxury body)
+  const p = ac.createOscillator(); const pg = ac.createGain();
+  p.type = 'triangle'; p.frequency.setValueAtTime(110, t + 0.1);
+  p.frequency.linearRampToValueAtTime(165, t + 0.5);
+  p.frequency.linearRampToValueAtTime(110, t + 0.9);
+  p.connect(pg); pg.connect(ac.destination);
+  pg.gain.setValueAtTime(0.0001, t + 0.1);
+  pg.gain.exponentialRampToValueAtTime(0.035, t + 0.25);
+  pg.gain.exponentialRampToValueAtTime(0.001, t + 0.95);
+  p.start(t + 0.1); p.stop(t + 0.98);
+
+  // 4. Elegant soft ticking (refined, not mechanical)
+  for (let i = 0; i < 8; i++) {
+    tone(1200 + i * 40, t + 0.15 + i * 0.08, 0.04, 'sine', 0.025);
   }
+
+  // 5. Closing luxury shimmer
+  tone(2093, t + 0.7, 0.2, 'sine', 0.03);
+  tone(2637, t + 0.75, 0.15, 'sine', 0.02);
 }
 
 export function playReelLand() {
@@ -149,8 +165,8 @@ function speak(text) {
       const u = new SpeechSynthesisUtterance(text);
       const v = pickFemaleVoice();
       if (v) u.voice = v;
-      // Thin, shrill, excited female casino announcer — max pitch for thinnest sound.
-      u.rate = 1.3; u.pitch = 2.0; u.volume = 1.0;
+      // Ultra-thin, beautiful, excited female casino announcer — max pitch + faster rate.
+      u.rate = 1.5; u.pitch = 2.0; u.volume = 1.0;
       window.speechSynthesis.speak(u);
     };
     // Small delay after cancel — some browsers drop the utterance if speak is immediate.

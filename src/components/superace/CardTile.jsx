@@ -104,6 +104,16 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
         transition: 'transform 0.15s',
       }}
     >
+      {/* Golden light flare behind winning cards — JILI Super Ace style */}
+      {isWin && !shatter && (
+        <div
+          className="absolute inset-0 pointer-events-none z-0"
+          style={{
+            background: 'radial-gradient(ellipse at center, rgba(255,215,0,0.85) 0%, rgba(255,180,40,0.5) 35%, rgba(255,140,0,0.15) 65%, transparent 100%)',
+            animation: 'saWinFlare 0.6s ease-in-out infinite alternate',
+          }}
+        />
+      )}
       {isWild && (
         <div className="absolute inset-0 p-0.5">
           {goldenWild ? (
