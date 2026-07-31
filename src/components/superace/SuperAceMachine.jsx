@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, Volume2, Check, Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, Sparkles, Gamepad2, History } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, Sparkles, Gamepad2, History } from 'lucide-react';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -469,18 +468,10 @@ export default function SuperAceMachine() {
         <GameTitleBar
           title="JILI Super ACE"
           icon={<div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0"><Gamepad2 className="w-4 h-4 text-stone-950" /></div>}
-          left={<Link to="/" className="shrink-0"><Medallion size="w-9 h-9" active={false}><ChevronLeft className="w-5 h-5 text-amber-300" strokeWidth={2.6} style={emboss(false)} /></Medallion></Link>}
           right={
-            <>
-              <button onClick={buyBonus} disabled={busyRef.current || inFreeRef.current} className="shrink-0 px-2 py-1 rounded-md text-[9px] font-black italic disabled:opacity-50" style={{ background: 'linear-gradient(to bottom, #ef4444, #991b1b)', border: '1px solid rgba(245,197,66,0.8)', color: '#fde68a', boxShadow: '0 0 8px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}>
-                BUY<br />BONUS
-              </button>
-              <button onClick={share} className="shrink-0">
-                <Medallion size="w-5 h-5" active={copied}>
-                  {copied ? <Check className="w-[7px] h-[7px] text-yellow-300" style={emboss(true)} /> : <Volume2 className="w-[7px] h-[7px] text-amber-300/85" style={emboss(false)} />}
-                </Medallion>
-              </button>
-            </>
+            <button onClick={buyBonus} disabled={busyRef.current || inFreeRef.current} className="shrink-0 px-2 py-1 rounded-md text-[9px] font-black italic disabled:opacity-50" style={{ background: 'linear-gradient(to bottom, #ef4444, #991b1b)', border: '1px solid rgba(245,197,66,0.8)', color: '#fde68a', boxShadow: '0 0 8px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}>
+              BUY<br />BONUS
+            </button>
           }
         />
       </header>
@@ -488,10 +479,6 @@ export default function SuperAceMachine() {
       <main className="max-w-md mx-auto px-2 py-2">
         {/* Machine card — Western gold frame */}
         <div className="w-full rounded-2xl relative p-[3px]" style={{ background: 'linear-gradient(145deg, #e0b34a, #7a4f17 38%, #c8932e 68%, #5e3d12)', boxShadow: '0 0 0 2px #2e1d0a, 0 0 0 4px rgba(200,150,60,0.4), 0 16px 48px rgba(0,0,0,0.75)' }}>
-          <span className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-          <span className="absolute bottom-1.5 left-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
-          <span className="absolute bottom-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,100,0.9)]" />
           <div className="flex flex-col gap-2 rounded-[13px] overflow-hidden relative" style={{ backgroundImage: 'linear-gradient(rgba(15,18,29,0.88), rgba(10,12,20,0.92)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/eb5c5abd9_generated_image.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
             {/* Multiplier + hint */}
             <div className="pt-1.5 px-2 flex flex-col items-center gap-1">
@@ -508,11 +495,6 @@ export default function SuperAceMachine() {
 
             {/* Reel board — bronze western frame */}
             <div className="relative px-3 py-3 mx-1 rounded-2xl" style={{ backgroundImage: 'linear-gradient(rgba(15,18,29,0.35), rgba(10,12,20,0.45)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/eb5c5abd9_generated_image.png)', backgroundSize: 'cover', backgroundPosition: 'center', boxShadow: '0 0 0 5px rgba(74,44,26,0.95), 0 0 0 8px rgba(40,24,14,0.9), 0 0 0 11px rgba(74,44,26,0.8), 0 0 0 13px rgba(30,18,10,0.95), 0 0 0 15px rgba(90,56,30,0.5), 0 18px 52px rgba(0,0,0,0.85)' }}>
-              <span className="absolute -top-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
-              <span className="absolute -bottom-1 -left-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
-              <span className="absolute -bottom-1 -right-1 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_5px_rgba(255,210,120,0.9)] z-20" />
-
               <div className="relative">
                 {spinning && teaseCols.size > 0 && (
                   <div className="absolute inset-0 pointer-events-none z-0">
