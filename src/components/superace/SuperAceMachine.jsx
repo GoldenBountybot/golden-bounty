@@ -368,7 +368,7 @@ export default function SuperAceMachine() {
 
       // Multiplier gate: each extra cascade is increasingly unlikely to chain,
       // so higher multipliers (2×,3×,5×) trigger far less often.
-      const stopChance = [0, 0.18, 0.35, 0.55][Math.min(comboCount, 3)] || 0.68;
+      const stopChance = [0, 0.10, 0.22, 0.40][Math.min(comboCount, 3)] || 0.55;
       if (Math.random() < stopChance) {
         // shatter the winning cells and end the round without further cascades
         const shatterSet = new Set(ev.winCells);
@@ -442,7 +442,7 @@ export default function SuperAceMachine() {
     // Mega Win banner: x8+ multiplier reached. Super Win banner: x5+ (but <8)
     // or a big payout (≥ 15× bet). Mega Win takes priority when both qualify.
     const maxMult = maxMultRef.current;
-    const isMega = maxMult >= 8;
+    const isMega = maxMult >= 10;
     const isSuper = !isMega && (maxMult >= 5 || (grand >= betRef.current * 15 && grand > 0));
     if (isMega && !inFreeRef.current) {
       setMegaWin({ amount: grand, multiplier: maxMult });
