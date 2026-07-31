@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, Volume2, Check, Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, Sparkles, Gamepad2 } from 'lucide-react';
+import { ChevronLeft, Volume2, Check, Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, Sparkles, Gamepad2, History } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -44,6 +44,24 @@ const emboss = (onGold) => ({
     : 'drop-shadow(0 1px 0 rgba(0,0,0,0.65)) drop-shadow(0 -1px 0 rgba(255,220,140,0.25))',
 });
 
+// Metallic circular button base (matches JILI reference)
+const metalBtn = (active) => ({
+  background: active
+    ? 'linear-gradient(145deg, #f3d77a, #c8932e 45%, #7a4f17 78%, #4a2f10)'
+    : 'linear-gradient(145deg, #5a3a1a, #2e1d0e 50%, #3a2818)',
+  border: '2px solid rgba(190,140,55,0.7)',
+  boxShadow: active
+    ? 'inset 0 2px 3px rgba(255,240,180,0.6), inset 0 -3px 5px rgba(0,0,0,0.4), 0 0 12px rgba(255,200,80,0.55)'
+    : 'inset 0 1px 0 rgba(255,210,120,0.2), 0 2px 4px rgba(0,0,0,0.65)',
+});
+
+// Large JILI spin button — thick metallic gold
+const spinBtnStyle = {
+  background: 'radial-gradient(circle at 35% 30%, #ffe066, #d4a017 40%, #8b6914 70%, #5a4400)',
+  border: '3px solid rgba(70,45,15,0.9)',
+  boxShadow: 'inset 0 3px 4px rgba(255,240,180,0.7), inset 0 -4px 6px rgba(0,0,0,0.5), 0 0 20px rgba(255,190,40,0.6), 0 4px 14px rgba(0,0,0,0.8)',
+};
+
 const Stud = ({ pos }) => (
   <span className={`absolute ${pos} w-1 h-1 rounded-full bg-amber-200 shadow-[0_0_3px_rgba(255,210,120,0.9)]`} />
 );
@@ -82,6 +100,7 @@ export default function SuperAceMachine() {
   const [message, setMessage] = useState('Place yer bet an\' spin');
   const [copied, setCopied] = useState(false);
   const [showPay, setShowPay] = useState(false);
+  const [showBets, setShowBets] = useState(false);
   const [spinning, setSpinning] = useState(false);
   const [newCells, setNewCells] = useState(new Set()); // cells that just dropped (for anim)
   const [showFreeStart, setShowFreeStart] = useState(false);
@@ -525,74 +544,89 @@ export default function SuperAceMachine() {
               </WesternFrame>
             )}
 
-            {/* Stats bar */}
-            <div className="flex gap-2 px-2">
-              <WesternStatBanner icon={Wallet} label="BALANCE" value={`$${balance.toFixed(2)}`} />
-              <WesternStatBanner icon={Coins} label="BET" value={`$${bet.toFixed(2)}`} />
-              <WesternStatBanner icon={Trophy} label="WIN" value={`$${lastWin.toFixed(2)}`} />
+            {/* WIN display — centered above controls */}
+            <div className="px-2 py-1 text-center">
+              <span className="text-[10px] tracking-widest" style={{ color: '#f5c542', ...W }}>WIN</span>{' '}
+              <span className="text-lg font-black tabular-nums" style={{ color: winThisSpin > 0 ? '#fde68a' : 'rgba(255,235,180,0.5)', fontFamily: 'Rye, Georgia, serif', textShadow: winThisSpin > 0 ? '0 0 10px rgba(245,197,66,0.6)' : 'none' }}>
+                $ {winThisSpin.toFixed(2)}
+              </span>
             </div>
 
-            {/* Control panel — western medallions */}
-            <div className="px-2 py-2 border-t" style={{ background: 'linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))', borderTop: '1px solid rgba(190,140,55,0.5)' }}>
-              <div className="flex items-center justify-between gap-1" style={W}>
+            {/* Control panel — JILI style matching reference */}
+            <div className="px-2 py-3 border-t" style={{ background: 'linear-gradient(to bottom, rgba(30,20,12,0.95), rgba(20,14,8,0.98))', borderTop: '1px solid rgba(190,140,55,0.5)' }}>
+              <div className="flex items-end justify-between gap-1">
+                {/* Settings (gear) */}
+                <button onClick={() => { playClick(); setShowPay((s) => !s); }} className="flex flex-col items-center gap-1">
+                  <span className="w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95" style={metalBtn(false)}>
+                    <Settings className="w-5 h-5 text-amber-300" strokeWidth={2.2} />
+                  </span>
+                </button>
+
+                {/* Bet (chips +) */}
+                <button onClick={() => { playClick(); setShowBets((s) => !s); }} className="flex flex-col items-center gap-0.5">
+                  <span className="relative w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95" style={metalBtn(false)}>
+                    <Coins className="w-5 h-5 text-amber-300" strokeWidth={2} />
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(145deg, #f3d77a, #c8932e)', border: '1px solid rgba(46,30,12,0.8)' }}>
+                      <Plus className="w-2.5 h-2.5 text-stone-900" strokeWidth={3} />
+                    </span>
+                  </span>
+                  <span className="text-[9px] text-white font-bold leading-none">Bet</span>
+                  <span className="text-[10px] text-yellow-300 font-black leading-none">$ {bet.toFixed(2)}</span>
+                </button>
+
+                {/* SPIN — large JILI gold button */}
+                <button onClick={() => { if (!busyRef.current) { playClick(); doSpin(); } }} disabled={busyRef.current} className="flex flex-col items-center gap-1 disabled:opacity-80">
+                  <span className="relative w-20 h-20 rounded-full flex items-center justify-center transition-transform active:scale-95" style={spinBtnStyle}>
+                    <RotateCw className={`absolute w-16 h-16 text-amber-900/30 ${busyRef.current ? 'animate-spin' : ''}`} strokeWidth={1.5} />
+                    <span className="relative text-base font-black italic" style={{ fontFamily: 'Rye, Georgia, serif', color: '#ffd700', textShadow: '0 1px 2px rgba(0,0,0,0.6), 0 0 8px rgba(255,200,50,0.4)' }}>JILI</span>
+                  </span>
+                </button>
+
+                {/* Auto/History */}
+                <button onClick={toggleAuto} disabled={busyRef.current && !autoSpin} className="flex flex-col items-center gap-1 disabled:opacity-60">
+                  <span className="w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95" style={metalBtn(autoSpin)}>
+                    <History className={`w-5 h-5 ${autoSpin ? 'text-yellow-300' : 'text-amber-300/85'}`} strokeWidth={2.2} />
+                  </span>
+                </button>
+
                 {/* Turbo */}
                 <button onClick={toggleTurbo} className="flex flex-col items-center gap-0.5">
-                  <Medallion size="w-11 h-11" active={turbo}>
-                    <Zap className={`w-5 h-5 ${turbo ? 'text-stone-900' : 'text-amber-300/85'}`} fill={turbo ? 'currentColor' : 'none'} strokeWidth={2.4} style={emboss(turbo)} />
-                  </Medallion>
-                  <span className={`text-[9px] font-bold italic tracking-wide ${turbo ? 'text-yellow-300' : 'text-amber-200/60'}`}>TURBO</span>
-                </button>
-
-                {/* Bet down */}
-                <button onClick={() => changeBet(-1)} disabled={busyRef.current} className="disabled:opacity-40">
-                  <Medallion size="w-10 h-10" active={false}>
-                    <Minus className="w-4 h-4 text-amber-300" strokeWidth={2.6} style={emboss(false)} />
-                  </Medallion>
-                </button>
-
-                {/* SPIN — gold medallion centered */}
-                <button onClick={() => { if (!busyRef.current) { playClick(); doSpin(); } }} disabled={busyRef.current} className="relative flex flex-col items-center gap-0.5 disabled:opacity-80">
-                  <span className="relative w-16 h-16 rounded-full flex items-center justify-center transition-transform active:scale-95" style={{ background: 'radial-gradient(circle at 35% 30%, #f3d77a, #c8932e 45%, #7a4f17 75%, #4a2f10)', border: '2px solid rgba(46,30,12,0.85)', boxShadow: 'inset 0 2px 3px rgba(255,240,180,0.65), inset 0 -3px 5px rgba(0,0,0,0.45), 0 0 18px rgba(255,190,40,0.55), 0 4px 12px rgba(0,0,0,0.75)' }}>
-                    <span className="absolute inset-1 rounded-full opacity-25" style={{ background: 'repeating-conic-gradient(from 0deg, #fff4d0 0deg 8deg, transparent 8deg 16deg)' }} />
-                    <Stud pos="top-0.5 left-0.5" />
-                    <Stud pos="top-0.5 right-0.5" />
-                    <Stud pos="bottom-0.5 left-0.5" />
-                    <Stud pos="bottom-0.5 right-0.5" />
-                    <RotateCw className={`relative w-8 h-8 text-stone-900 ${busyRef.current ? 'animate-spin' : ''}`} strokeWidth={2.6} style={emboss(true)} />
+                  <span className="w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95" style={metalBtn(turbo)}>
+                    <Zap className={`w-5 h-5 ${turbo ? 'text-yellow-300' : 'text-amber-300/85'}`} fill={turbo ? 'currentColor' : 'none'} strokeWidth={2.4} />
                   </span>
-                  <span className="text-[9px] font-black italic text-yellow-300 tracking-[0.2em]">SPIN</span>
-                </button>
-
-                {/* Bet up */}
-                <button onClick={() => changeBet(1)} disabled={busyRef.current} className="disabled:opacity-40">
-                  <Medallion size="w-10 h-10" active={false}>
-                    <Plus className="w-4 h-4 text-amber-300" strokeWidth={2.6} style={emboss(false)} />
-                  </Medallion>
-                </button>
-
-                {/* Auto */}
-                <button onClick={toggleAuto} disabled={busyRef.current && !autoSpin} className="flex flex-col items-center gap-0.5 disabled:opacity-60">
-                  <Medallion size="w-11 h-11" active={autoSpin}>
-                    <Play className={`w-5 h-5 ${autoSpin ? 'text-stone-900' : 'text-amber-300/85'}`} fill={autoSpin ? 'currentColor' : 'none'} strokeWidth={2.4} style={emboss(autoSpin)} />
-                  </Medallion>
-                  <span className={`text-[9px] font-bold italic tracking-wide ${autoSpin ? 'text-yellow-300' : 'text-amber-200/60'}`}>AUTO</span>
+                  <span className="text-[9px] font-black italic leading-none" style={{ color: '#ff8c00', textShadow: '0 0 4px rgba(255,140,0,0.6)' }}>TURBO</span>
+                  <span className="text-[7px] text-white/60 leading-none">Press turbo spin</span>
                 </button>
               </div>
             </div>
 
-            {/* Bet chips — quick shortcuts within the $0.10–$500 range */}
-            <div className="px-2 grid grid-cols-4 gap-1.5">
-              {QUICK_BETS.map((b) => (
-                <button
-                  key={b}
-                  onClick={() => { if (!busyRef.current) { playClick(); setBet(b); } }}
-                  className="py-2 rounded-md text-xs font-bold italic"
-                  style={{ ...woodBtn(Math.abs(bet - b) < 0.001), ...W }}
-                >
-                  ${b}
-                </button>
-              ))}
+            {/* Balance — centered below controls */}
+            <div className="px-2 py-1 text-center">
+              <span className="text-[10px] tracking-widest text-amber-200/70" style={W}>Balance</span>{' '}
+              <span className="text-sm font-bold tabular-nums text-yellow-200" style={{ fontFamily: 'Rye, Georgia, serif' }}>$ {balance.toFixed(2)}</span>
             </div>
+
+            {/* Quick bet panel (toggleable via Bet button) */}
+            {showBets && (
+              <div className="px-2 pb-2 flex items-center gap-1.5">
+                <button onClick={() => changeBet(-1)} disabled={busyRef.current} className="w-9 h-9 rounded-full flex items-center justify-center disabled:opacity-40 shrink-0" style={metalBtn(false)}>
+                  <Minus className="w-4 h-4 text-amber-300" strokeWidth={2.6} />
+                </button>
+                {QUICK_BETS.map((b) => (
+                  <button
+                    key={b}
+                    onClick={() => { if (!busyRef.current) { playClick(); setBet(b); } }}
+                    className="flex-1 py-2 rounded-md text-xs font-bold italic"
+                    style={{ ...woodBtn(Math.abs(bet - b) < 0.001), ...W }}
+                  >
+                    ${b}
+                  </button>
+                ))}
+                <button onClick={() => changeBet(1)} disabled={busyRef.current} className="w-9 h-9 rounded-full flex items-center justify-center disabled:opacity-40 shrink-0" style={metalBtn(false)}>
+                  <Plus className="w-4 h-4 text-amber-300" strokeWidth={2.6} />
+                </button>
+              </div>
+            )}
 
             {/* Buy Bonus */}
             <div className="px-2">
