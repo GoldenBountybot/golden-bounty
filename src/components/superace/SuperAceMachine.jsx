@@ -516,9 +516,10 @@ export default function SuperAceMachine() {
       className="min-h-screen"
       style={{
         ...W,
-        backgroundImage: 'linear-gradient(rgba(6,10,22,0.25), rgba(4,8,18,0.35)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/753cb0ea7_file_00000000788881fa92ac18ec92116526.png)',
+        backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/753cb0ea7_file_00000000788881fa92ac18ec92116526.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed',
       }}
     >
