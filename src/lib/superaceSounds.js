@@ -87,20 +87,26 @@ export function playCascade() {
   for (let i = 0; i < 6; i++) tone(700 + i * 90, t + i * 0.03, 0.08, 'triangle', 0.05);
 }
 
-// Big coin drop — metallic "tang" when a scatter symbol lands on the reels.
+// Luxury premium coin drop — rich metallic "tang" when a scatter lands.
 export function playScatterLand() {
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
-  // 1. Sharp metallic attack (the "tang")
-  tone(2200, t, 0.08, 'triangle', 0.18);
-  tone(3300, t, 0.06, 'sine', 0.12);
-  // 2. Bell-like metallic ring (sustain)
-  tone(1568, t, 0.5, 'sine', 0.14);
-  tone(2093, t, 0.45, 'sine', 0.08);
-  tone(2637, t, 0.4, 'triangle', 0.05);
-  // 3. Low body (coin weight)
-  tone(220, t, 0.3, 'sine', 0.15);
-  tone(110, t, 0.4, 'sine', 0.10);
+  // 1. Crystal-clear premium attack (golden sparkle hit)
+  tone(2637, t, 0.10, 'sine', 0.14);
+  tone(3951, t, 0.07, 'sine', 0.08);
+  tone(5274, t, 0.05, 'sine', 0.04);
+  // 2. Deep metallic tang — luxury bell ring with harmonic richness
+  tone(1568, t + 0.02, 0.7, 'sine', 0.16);
+  tone(2093, t + 0.02, 0.65, 'sine', 0.10);
+  tone(3136, t + 0.02, 0.55, 'triangle', 0.06);
+  tone(4186, t + 0.03, 0.45, 'sine', 0.03);
+  // 3. Warm gold body — heavy premium coin weight
+  tone(330, t + 0.04, 0.4, 'sine', 0.14);
+  tone(165, t + 0.04, 0.5, 'sine', 0.10);
+  tone(82, t + 0.04, 0.6, 'sine', 0.06);
+  // 4. Elegant shimmer tail (luxury fade)
+  tone(5274, t + 0.3, 0.3, 'sine', 0.03);
+  tone(6272, t + 0.35, 0.25, 'sine', 0.02);
 }
 
 export function playScatter() {
