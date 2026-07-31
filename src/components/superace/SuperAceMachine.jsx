@@ -10,6 +10,7 @@ import MultiplierBar from '@/components/superace/MultiplierBar';
 import WinOverlay from '@/components/superace/WinOverlay';
 import FreeSpinStart from '@/components/superace/FreeSpinStart';
 import SuperWinBanner from '@/components/superace/SuperWinBanner';
+import MegaWinBanner from '@/components/superace/MegaWinBanner';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import GameTitleBar from '@/components/GameTitleBar';
 import AnimatedNumber from '@/components/AnimatedNumber';
@@ -107,6 +108,7 @@ export default function SuperAceMachine() {
   const [newCells, setNewCells] = useState(new Set()); // cells that just dropped (for anim)
   const [showFreeStart, setShowFreeStart] = useState(false);
   const [superWin, setSuperWin] = useState(null); // { amount, multiplier }
+  const [megaWin, setMegaWin] = useState(null); // { amount, multiplier }
   const [shatterCells, setShatterCells] = useState(new Set());
   const [flipCells, setFlipCells] = useState(new Set());
   const [flyingWilds, setFlyingWilds] = useState([]);
@@ -134,6 +136,7 @@ export default function SuperAceMachine() {
   const announcedFirstRef = useRef(false);
   const maxMultRef = useRef(0);
   const superWinResolverRef = useRef(null);
+  const megaWinResolverRef = useRef(null);
 
   useEffect(() => { betRef.current = bet; }, [bet]);
   useEffect(() => { rtpRef.current = rtp; }, [rtp]);
@@ -436,10 +439,16 @@ export default function SuperAceMachine() {
       logActivity('fullhouse', betRef.current, grand, grand > 0 ? 'win' : 'loss');
     }
 
-    // Super Win banner: x8+ multiplier reached, or a big payout (≥ 15× bet).
+    // Mega Win banner: x8+ multiplier reached. Super Win banner: x5+ (but <8)
+    // or a big payout (≥ 15× bet). Mega Win takes priority when both qualify.
     const maxMult = maxMultRef.current;
-    const isSuper = maxMult >= 8 || (grand >= betRef.current * 15 && grand > 0);
-    if (isSuper && !inFreeRef.current) {
+    const isMega = maxMult >= 8;
+    const isSuper = !isMega && (maxMult >= 5 || (grand >= betRef.current * 15 && grand > 0));
+    if (isMega && !inFreeRef.current) {
+      setMegaWin({ amount: grand, multiplier: maxMult });
+      await new Promise((resolve) => { megaWinResolverRef.current = resolve; });
+      megaWinResolverRef.current = null;
+    } else if (isSuper && !inFreeRef.current) {
       setSuperWin({ amount: grand, multiplier: maxMult });
       await new Promise((resolve) => { superWinResolverRef.current = resolve; });
       superWinResolverRef.current = null;
@@ -731,6 +740,14 @@ export default function SuperAceMachine() {
           amount={superWin.amount}
           multiplier={superWin.multiplier}
           onDone={() => { setSuperWin(null); superWinResolverRef.current && superWinResolverRef.current(); }}
+        />
+      )}
+
+      {megaWin && (
+        <MegaWinBanner
+          amount={megaWin.amount}
+          multiplier={megaWin.multiplier}
+          onDone={() => { setMegaWin(null); megaWinResolverRef.current && megaWinResolverRef.current(); }}
         />
       )}
     </div>
