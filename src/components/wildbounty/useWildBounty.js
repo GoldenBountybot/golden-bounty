@@ -228,7 +228,7 @@ export function useWildBounty() {
           setLastWin(pendingWinRef.current);
           pendingWinRef.current = 0;
           setMessage(winMsg);
-        }, 1500 * flySlow * 0.86);
+        }, 1300 * flySlow * 0.86);
         timers.current.push(winT);
       } else {
         pendingWinRef.current = newTotal;

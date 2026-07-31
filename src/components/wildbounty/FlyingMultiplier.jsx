@@ -11,7 +11,7 @@ import React, { useEffect } from 'react';
 // Only `transform` is animated (GPU) — never `top` — so it stays smooth, and it
 // never descends below the win banner.
 export default function FlyingMultiplier({ value, onComplete, slow = 1, startY = 0, holdY = 0, winY = 0 }) {
-  const TOTAL = 1500 * slow;
+  const TOTAL = 1300 * slow;
   const holdDy = holdY - startY;
   const winDy = winY - startY;
 
@@ -42,7 +42,7 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1, startY =
         }}
       >
         <span
-          className="block font-black italic leading-none select-none"
+          className="inline-block font-black italic leading-none select-none"
           style={{
             fontSize: '2.25rem',
             fontFamily: 'Rye, Georgia, serif',

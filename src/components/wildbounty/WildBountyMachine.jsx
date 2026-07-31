@@ -59,7 +59,7 @@ export default function WildBountyMachine() {
 
   return (
     <div
-      className="w-full mx-auto relative"
+      className="w-full mx-auto relative overflow-visible"
       ref={machineRef}
     >
       <div
