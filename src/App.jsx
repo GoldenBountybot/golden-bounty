@@ -14,6 +14,7 @@ import HiLo from './pages/HiLo';
 import Plinko from './pages/Plinko';
 import Mines from './pages/Mines';
 import FullHouse from './pages/FullHouse';
+import FortuneGems from './pages/FortuneGems';
 import RocketCrash from './pages/RocketCrash';
 import CrownCoins from './pages/CrownCoins';
 import BigBrown from './pages/BigBrown';
@@ -88,6 +89,7 @@ const AuthenticatedApp = () => {
         <Route path="/games/plinko" element={<Plinko />} />
         <Route path="/games/mines" element={<Mines />} />
         <Route path="/games/fullhouse" element={<FullHouse />} />
+        <Route path="/games/fortune-gems" element={<FortuneGems />} />
         <Route path="/games/rocket-crash" element={<RocketCrash />} />
         <Route path="/games/crown-coins" element={<CrownCoins />} />
         <Route path="/games/big-brown" element={<BigBrown />} />
