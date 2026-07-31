@@ -189,21 +189,21 @@ function playChord(idx) {
   const t = ac.currentTime;
   const chord = BGM_CHORDS[idx % BGM_CHORDS.length];
 
-  // Bass note (deep, soft)
-  tone(chord.bass, t, BGM_CHORD_DUR * 0.95, 'sine', 0.05);
-  tone(chord.bass / 2, t, BGM_CHORD_DUR * 0.95, 'sine', 0.03);
+  // Bass note (deep, soft) — 150% volume
+  tone(chord.bass, t, BGM_CHORD_DUR * 0.95, 'sine', 0.075);
+  tone(chord.bass / 2, t, BGM_CHORD_DUR * 0.95, 'sine', 0.045);
 
-  // Pad chord (sustained, warm)
-  chord.notes.forEach((f) => tone(f, t, BGM_CHORD_DUR * 0.9, 'triangle', 0.018));
+  // Pad chord (sustained, warm) — 150% volume
+  chord.notes.forEach((f) => tone(f, t, BGM_CHORD_DUR * 0.9, 'triangle', 0.027));
 
-  // Arpeggio melody on top
+  // Arpeggio melody on top — 150% volume
   chord.notes.forEach((f, i) => {
-    tone(f * 2, t + i * 0.22, 0.28, 'sine', 0.012);
-    tone(f * 2, t + 0.9 + i * 0.22, 0.28, 'sine', 0.012);
+    tone(f * 2, t + i * 0.22, 0.28, 'sine', 0.018);
+    tone(f * 2, t + 0.9 + i * 0.22, 0.28, 'sine', 0.018);
   });
 
-  // Sparkle accent
-  tone(chord.notes[2] * 4, t + 0.5, 0.15, 'sine', 0.008);
+  // Sparkle accent — 150% volume
+  tone(chord.notes[2] * 4, t + 0.5, 0.15, 'sine', 0.012);
 
   _bgmTimer = setTimeout(() => playChord(idx + 1), BGM_CHORD_DUR * 1000);
 }
