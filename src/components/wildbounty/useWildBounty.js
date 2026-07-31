@@ -41,9 +41,7 @@ export function useWildBounty() {
   const peakMultRef = useRef(1); // highest multiplier applied to a winning cascade this round
   const freeSpinsTotalRef = useRef(0); // accumulated win across the current free-spins round
   const freeSpinsCountRef = useRef(0); // remaining free spins (synced ref for chain-end checks)
-  const flyingMultActiveRef = useRef(false); // true while a flying-multiplier animation is in progress
-  const pendingBannerRef = useRef(null); // banner waiting for the flying animation to finish
-  const [bannerPending, setBannerPending] = useState(false); // blocks auto/free spin until the pending banner shows
+  const [bannerPending, setBannerPending] = useState(false); // blocks auto/free spin while a round-end banner is delayed for the flying animation
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
@@ -218,7 +216,6 @@ export function useWildBounty() {
       // First cascade (X1 round) shows no flying multiplier — the strip just
       // lights up X1. From the X2 round onward the achieved tier flies.
       if (currentMultIndex >= 1) {
-        flyingMultActiveRef.current = true;
         setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: cascadeCount >= 1 ? 1.6 : 1.2 });
       }
       setMessage(justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`);
@@ -284,11 +281,16 @@ export function useWildBounty() {
       }
 
       if (banner) {
-        // Wait for the flying-multiplier animation to finish before showing
-        // the banner so they never overlap.
-        if (flyingMultActiveRef.current) {
-          pendingBannerRef.current = banner;
+        // If a flying-multiplier animation is still playing (peak >= 2 means a
+        // flying mult was triggered this round), delay the banner ~800ms so it
+        // appears right after the animation finishes — never overlapping it.
+        if (peak >= 2) {
           setBannerPending(true);
+          const bt = setTimeout(() => {
+            applyBanner(banner);
+            setBannerPending(false);
+          }, 800);
+          timers.current.push(bt);
         } else {
           applyBanner(banner);
         }
@@ -326,8 +328,6 @@ export function useWildBounty() {
     sfx.winStop();
     sfx.spin();
     peakMultRef.current = 1;
-    flyingMultActiveRef.current = false;
-    pendingBannerRef.current = null;
     setBannerPending(false);
     setSuperWin(null);
     setMegaWin(null);
@@ -486,16 +486,7 @@ export function useWildBounty() {
     else if (banner.type === 'freeSpinsEnd') setFreeSpinsEndWin({ amount: banner.amount, multiplier: banner.multiplier });
   }, []);
 
-  const clearFlyingMult = useCallback(() => {
-    setFlyingMult(null);
-    flyingMultActiveRef.current = false;
-    const pending = pendingBannerRef.current;
-    if (pending) {
-      pendingBannerRef.current = null;
-      setBannerPending(false);
-      applyBanner(pending);
-    }
-  }, [applyBanner]);
+  const clearFlyingMult = useCallback(() => setFlyingMult(null), []);
   const dismissSuperWin = useCallback(() => setSuperWin(null), []);
   const dismissMegaWin = useCallback(() => setMegaWin(null), []);
   const dismissFreeSpinsEndWin = useCallback(() => setFreeSpinsEndWin(null), []);
