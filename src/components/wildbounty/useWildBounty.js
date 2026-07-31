@@ -41,6 +41,9 @@ export function useWildBounty() {
   const peakMultRef = useRef(1); // highest multiplier applied to a winning cascade this round
   const freeSpinsTotalRef = useRef(0); // accumulated win across the current free-spins round
   const freeSpinsCountRef = useRef(0); // remaining free spins (synced ref for chain-end checks)
+  const flyingMultActiveRef = useRef(false); // true while a flying-multiplier animation is in progress
+  const pendingBannerRef = useRef(null); // banner waiting for the flying animation to finish
+  const [bannerPending, setBannerPending] = useState(false); // blocks auto/free spin until the pending banner shows
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
@@ -215,6 +218,7 @@ export function useWildBounty() {
       // First cascade (X1 round) shows no flying multiplier — the strip just
       // lights up X1. From the X2 round onward the achieved tier flies.
       if (currentMultIndex >= 1) {
+        flyingMultActiveRef.current = true;
         setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: cascadeCount >= 1 ? 1.6 : 1.2 });
       }
       setMessage(justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`);
@@ -262,25 +266,31 @@ export function useWildBounty() {
       // Accumulate this spin's win into the free-spins running total.
       if (wasFree) freeSpinsTotalRef.current += totalWin;
 
-      // Free spins just ended — show a Mega Win banner with the accumulated
-      // total from all 10 free spins, counting up the same way. This replaces
-      // the per-spin banner so only the grand total is celebrated.
+      // Decide which banner (if any) to show at round end. Super Win covers
+      // x16–x32; Mega Win covers x64 and every tier beyond. Free-spins rounds
+      // show a Mega Win banner with the accumulated 10-spin total instead.
       const peak = peakMultRef.current;
       const fsEnding = wasFree && freeSpinsCountRef.current === 0 && freeSpinsTotalRef.current > 0;
+      let banner = null;
       if (fsEnding) {
         const fsTotal = freeSpinsTotalRef.current;
         freeSpinsTotalRef.current = 0;
-        setFreeSpinsEndWin({ amount: fsTotal, multiplier: peak });
+        banner = { type: 'freeSpinsEnd', amount: fsTotal, multiplier: peak };
       } else {
-        // Super / Mega win banners — based on the peak multiplier reached during
-        // the round (x8–x16 = Super Win, x32+ = Mega Win). Big payouts also
-        // qualify. Mega Win takes priority when both apply.
-        const isMega = peak >= 32 || totalWin >= bet * 30;
-        const isSuper = !isMega && (peak >= 8 || totalWin >= bet * 15);
-        if (isMega && totalWin > 0) {
-          setMegaWin({ amount: totalWin, multiplier: peak });
-        } else if (isSuper && totalWin > 0) {
-          setSuperWin({ amount: totalWin, multiplier: peak });
+        const isMega = peak >= 64;
+        const isSuper = !isMega && peak >= 16;
+        if (isMega && totalWin > 0) banner = { type: 'mega', amount: totalWin, multiplier: peak };
+        else if (isSuper && totalWin > 0) banner = { type: 'super', amount: totalWin, multiplier: peak };
+      }
+
+      if (banner) {
+        // Wait for the flying-multiplier animation to finish before showing
+        // the banner so they never overlap.
+        if (flyingMultActiveRef.current) {
+          pendingBannerRef.current = banner;
+          setBannerPending(true);
+        } else {
+          applyBanner(banner);
         }
       }
 
@@ -316,6 +326,9 @@ export function useWildBounty() {
     sfx.winStop();
     sfx.spin();
     peakMultRef.current = 1;
+    flyingMultActiveRef.current = false;
+    pendingBannerRef.current = null;
+    setBannerPending(false);
     setSuperWin(null);
     setMegaWin(null);
     setFreeSpinsEndWin(null);
@@ -443,18 +456,18 @@ export function useWildBounty() {
     stopReel(0, false);
   }, [spinning, balance, bet, freeSpins, turbo, multIndex, setBet]);
 
-  // auto spin — paused while a Super/Mega win banner is on screen
+  // auto spin — paused while a Super/Mega win banner is on screen (or pending)
   useEffect(() => {
-    if (autoSpin && !spinning && balance >= bet && !superWin && !megaWin && !freeSpinsEndWin) {
+    if (autoSpin && !spinning && balance >= bet && !superWin && !megaWin && !freeSpinsEndWin && !bannerPending) {
       const t = setTimeout(() => spin(), turbo ? 300 : 700);
       return () => clearTimeout(t);
     }
     if (autoSpin && balance < bet) setAutoSpin(false);
-  }, [autoSpin, spinning, balance, bet, turbo, spin, superWin, megaWin, freeSpinsEndWin]);
+  }, [autoSpin, spinning, balance, bet, turbo, spin, superWin, megaWin, freeSpinsEndWin, bannerPending]);
 
-  // free spins auto trigger — paused while a Super/Mega win banner is on screen
+  // free spins auto trigger — paused while a Super/Mega win banner is on screen (or pending)
   useEffect(() => {
-    if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart && !superWin && !megaWin) {
+    if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart && !superWin && !megaWin && !bannerPending) {
       const t = setTimeout(() => spin(), turbo ? 400 : 800);
       return () => clearTimeout(t);
     }
@@ -462,9 +475,27 @@ export function useWildBounty() {
       setFreeSpinsActive(false);
       setMessage('FREE SPINS ENDED!');
     }
-  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin, superWin, megaWin]);
+  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin, superWin, megaWin, bannerPending]);
 
-  const clearFlyingMult = useCallback(() => setFlyingMult(null), []);
+  // Apply a pending banner to the matching state — used both immediately (no
+  // flying animation active) and after the flying animation completes.
+  const applyBanner = useCallback((banner) => {
+    if (!banner) return;
+    if (banner.type === 'mega') setMegaWin({ amount: banner.amount, multiplier: banner.multiplier });
+    else if (banner.type === 'super') setSuperWin({ amount: banner.amount, multiplier: banner.multiplier });
+    else if (banner.type === 'freeSpinsEnd') setFreeSpinsEndWin({ amount: banner.amount, multiplier: banner.multiplier });
+  }, []);
+
+  const clearFlyingMult = useCallback(() => {
+    setFlyingMult(null);
+    flyingMultActiveRef.current = false;
+    const pending = pendingBannerRef.current;
+    if (pending) {
+      pendingBannerRef.current = null;
+      setBannerPending(false);
+      applyBanner(pending);
+    }
+  }, [applyBanner]);
   const dismissSuperWin = useCallback(() => setSuperWin(null), []);
   const dismissMegaWin = useCallback(() => setMegaWin(null), []);
   const dismissFreeSpinsEndWin = useCallback(() => setFreeSpinsEndWin(null), []);
