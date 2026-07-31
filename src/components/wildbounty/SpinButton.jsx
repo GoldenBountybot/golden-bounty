@@ -3,9 +3,14 @@ import { sfx } from './sounds';
 
 // Metallic circular-arrow spin icon on a black background. The black
 // background is keyed out with mix-blend-mode: screen so only the metallic
-// arrows remain — no medallion / circle container behind it.
+// arrows remain.
 const SPIN_IMG =
   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c6ef02281_file_00000000a90081fa8732fd40e55cc3ef.png';
+
+// Wooden bull-skull disc placed behind the spin arrows. Black background
+// keyed out with mix-blend-mode: screen.
+const BG_IMG =
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a8ec43adf_file_00000000b0cc81faafcdac64067dd1a1.png';
 
 // One full revolution decelerating to a stop.
 const COAST_ANIM = 'saSpinRotate 1.8s cubic-bezier(0.12, 0.55, 0.06, 1) forwards';
@@ -45,11 +50,22 @@ export default function SpinButton({ spinning, onClick, disabled }) {
           box-shadow: 0 0 18px 4px rgba(255,215,0,0.85), 0 0 36px 10px rgba(255,200,80,0.55) !important;
         }
       `}</style>
+      {/* Wooden bull-skull disc behind the arrows (black bg keyed out) */}
+      <img
+        src={BG_IMG}
+        alt=""
+        draggable={false}
+        className="block w-20 h-20 select-none absolute inset-0 m-auto"
+        style={{
+          mixBlendMode: 'screen',
+          filter: 'brightness(1.05) saturate(1.1)',
+        }}
+      />
       <img
         src={SPIN_IMG}
         alt="Spin"
         draggable={false}
-        className="block w-14 h-14 select-none"
+        className="block w-14 h-14 select-none relative z-10"
         style={{
           animation: anim,
           mixBlendMode: 'screen',
