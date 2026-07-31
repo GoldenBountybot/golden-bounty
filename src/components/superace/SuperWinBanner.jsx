@@ -65,34 +65,20 @@ export default function SuperWinBanner({ amount, multiplier, onDone }) {
             }}
           >
             <span
-              className="text-2xl font-black tabular-nums tracking-wide whitespace-nowrap"
+              className="text-4xl font-black tabular-nums tracking-wide whitespace-nowrap"
               style={{
-                color: '#ffe066',
+                color: '#fff2a8',
                 fontFamily: 'Rye, Georgia, serif',
-                textShadow: '0 2px 4px rgba(0,0,0,0.9), 0 0 10px rgba(255,200,40,0.7), 0 0 18px rgba(255,140,0,0.5)',
-                WebkitTextStroke: '0.5px #5a1010',
+                fontWeight: 900,
+                textShadow: '0 2px 5px rgba(0,0,0,0.95), 0 0 14px rgba(255,215,0,0.95), 0 0 26px rgba(255,180,0,0.8), 0 0 40px rgba(255,140,0,0.6)',
+                WebkitTextStroke: '1px #5a1010',
+                filter: 'brightness(1.25) saturate(1.3)',
               }}
             >
               WIN {display.toFixed(2)}
             </span>
           </div>
         </div>
-
-        {/* multiplier badge */}
-        {multiplier >= 2 && (
-          <div
-            className="mt-3 px-5 py-1 rounded-full text-lg font-black italic"
-            style={{
-              background: 'linear-gradient(145deg, #fde68a, #f5c542 45%, #c8881e)',
-              border: '2px solid #fde68a',
-              color: '#5a1010',
-              boxShadow: '0 0 14px rgba(245,197,66,0.85)',
-              fontFamily: 'Rye, Georgia, serif',
-            }}
-          >
-            {multiplier}× MULTIPLIER
-          </div>
-        )}
       </div>
     </div>
   );
