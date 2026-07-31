@@ -222,19 +222,14 @@ export function useWildBounty() {
       const shatterT = setTimeout(() => { setShattering(shatterPos); }, holdMs);
       timers.current.push(shatterT);
 
-      // Cascade: drop new symbols, then re-evaluate
+      // Cascade: drop new symbols, then re-evaluate. When the chain is about to
+      // end (cont=false), collapse the drop + eval delays so the round settles
+      // and the Super/Mega win banner appears immediately at round end.
+      const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex];
       const cascadeT = setTimeout(() => {
-        // Decide whether the next cascade wins (chain continues toward a
-        // higher multiplier tier) per the target reach odds, then rig the
-        // dropped symbols to match that outcome.
-        const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex];
         const newGrid = rigCascadeGrid(gridForCascade, shatterPos, cont);
         setShattering(new Set());
-        // Keep persistent wild symbols highlighted across cascades so their
-        // light burst stays on smoothly instead of flickering off/on.
         setWinningPositions(new Set([...wpos].filter(p => !shatterPos.has(p))));
-        // A shattered framed symbol carries its frame away with it — new
-        // symbols tumbling into those cells don't inherit the frame.
         setGoldFrames(prev => new Set([...prev].filter(p => !shatterPos.has(p))));
         setGrid(newGrid);
         setCascading(true);
@@ -244,9 +239,9 @@ export function useWildBounty() {
           setCascading(false);
           setCascadePositions(new Set());
           evaluateAndCascade(newGrid, cascadeCount + 1, newTotal, newMult, wasFree, awarded, framedPositions);
-        }, 450 * slow);
+        }, cont ? 450 * slow : 80);
         timers.current.push(evalT);
-      }, 1000 * slow);
+      }, cont ? 1000 * slow : 350);
       timers.current.push(cascadeT);
     } else {
       // No more wins — end the chain. Credit the accumulated round total now
