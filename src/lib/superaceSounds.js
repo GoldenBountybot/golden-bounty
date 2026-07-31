@@ -133,11 +133,10 @@ const CARD_NAMES = {
   W: 'Wild', SC: 'Scatter',
 };
 
-// Combo-based announcement words: 0 = first win (name only), 1 = double, 2 = triple, etc.
-const COMBO_NAMES = {
-  0: '', 1: 'double', 2: 'triple', 3: 'four times',
-  4: 'five times', 5: 'six times', 6: 'seven times',
-  7: 'eight times', 8: 'nine times', 9: 'ten times',
+// Multiplier-value-based announcement words: x1 = name only, x2 = double, x3 = triple, etc.
+const MULT_NAMES = {
+  1: '', 2: 'double', 3: 'triple', 4: 'four times',
+  5: 'five times', 6: 'six times', 10: 'ten times',
 };
 
 let _femaleVoice = null;
@@ -176,14 +175,12 @@ function speak(text) {
   } catch {}
 }
 
-// Announce winning card name(s) + combo level (double/triple/four times…).
-// `combo` is the 0-indexed cascade count: 0 = first win (name only),
-// 1 = double, 2 = triple, 3 = four times, and so on.
-export function announceWin(symbols, combo) {
+// Announce winning card name(s) + the lit multiplier value (double/triple/five times…).
+export function announceWin(symbols, mult) {
   if (!symbols || symbols.length === 0) return;
   const names = symbols.map((s) => CARD_NAMES[s] || s).join(', ');
-  const word = COMBO_NAMES[combo] != null ? COMBO_NAMES[combo] : (combo > 0 ? `${combo} times` : '');
-  speak(word ? `${names}, ${word}` : names);
+  const multWord = MULT_NAMES[mult] != null ? MULT_NAMES[mult] : (mult > 1 ? `${mult} times` : '');
+  speak(multWord ? `${names}, ${multWord}` : names);
 }
 
 // Card drop — soft pluck when new cards land after a cascade.
