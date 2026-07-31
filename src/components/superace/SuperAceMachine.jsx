@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, Sparkles, Gamepad2, History } from 'lucide-react';
+import { Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, Sparkles, History } from 'lucide-react';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -466,8 +466,7 @@ export default function SuperAceMachine() {
       {/* Header */}
       <header className="sticky top-0 z-30 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <GameTitleBar
-          title="JILI Super ACE"
-          icon={<div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0"><Gamepad2 className="w-4 h-4 text-stone-950" /></div>}
+          title="Super Ace"
           right={
             <button onClick={buyBonus} disabled={busyRef.current || inFreeRef.current} className="shrink-0 px-2 py-1 rounded-md text-[9px] font-black italic disabled:opacity-50" style={{ background: 'linear-gradient(to bottom, #ef4444, #991b1b)', border: '1px solid rgba(245,197,66,0.8)', color: '#fde68a', boxShadow: '0 0 8px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3)', ...W }}>
               BUY<br />BONUS
