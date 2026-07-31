@@ -12,6 +12,8 @@ const WINSEQ_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b66377
 const SCATTER_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/eb6fefbfe_20260717094905_3_0.mp3';
 // Uploaded spin-button click sound — plays once when the player taps Spin.
 const SPIN_CLICK_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/d0ba94ac5_spinbuttonclicksound.mp3';
+// Uploaded symbol-drop sound — plays when a reel lands / cascade symbols drop.
+const DROP_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/ae06afeb6_symboldropsound.mp3';
 let spinBuffer = null;
 let spinLoading = false;
 let spinAudio = null;
@@ -25,6 +27,8 @@ let scatterBuffer = null;
 let scatterLoading = false;
 let spinClickBuffer = null;
 let spinClickLoading = false;
+let dropBuffer = null;
+let dropLoading = false;
 
 async function loadSpinBuffer() {
   if (spinBuffer || spinLoading) return;
@@ -90,6 +94,30 @@ function playSpinClick() {
   if (bgMuted) return;
   const src = ac.createBufferSource();
   src.buffer = spinClickBuffer;
+  const g = ac.createGain();
+  g.gain.setValueAtTime(VOL, ac.currentTime);
+  src.connect(g).connect(ac.destination);
+  src.start();
+}
+
+async function loadDropBuffer() {
+  if (dropBuffer || dropLoading) return;
+  dropLoading = true;
+  try {
+    const res = await fetch(DROP_URL);
+    const arr = await res.arrayBuffer();
+    const ac = getCtx();
+    if (ac) dropBuffer = await ac.decodeAudioData(arr);
+  } catch { /* ignore */ } finally { dropLoading = false; }
+}
+
+function playDrop() {
+  const ac = getCtx();
+  if (!ac) return;
+  if (!dropBuffer) { loadDropBuffer(); return; }
+  if (bgMuted) return;
+  const src = ac.createBufferSource();
+  src.buffer = dropBuffer;
   const g = ac.createGain();
   g.gain.setValueAtTime(VOL, ac.currentTime);
   src.connect(g).connect(ac.destination);
@@ -266,7 +294,7 @@ function startBackgroundMusic() {
 }
 
 export const sfx = {
-  preload() { startBackgroundMusic(); loadSpinClickBuffer(); },
+  preload() { startBackgroundMusic(); loadSpinClickBuffer(); loadDropBuffer(); },
   spin() { startBackgroundMusic(); },
   stopSpin() {},
   win() {},
@@ -275,6 +303,7 @@ export const sfx = {
   scatter() {},
   loss() {},
   spinClick() { playSpinClick(); },
+  drop() { playDrop(); },
 };
 
 // Toggle background music mute. Returns the new muted state.
