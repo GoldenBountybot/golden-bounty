@@ -62,11 +62,12 @@ export default function Home() {
                 className="absolute -top-[27px] left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-[6px] transition-all active:scale-95 z-30"
                 style={{
                   border: demoMode ? '1px solid rgba(74,222,128,0.85)' : '1px solid rgba(214,178,98,0.55)',
-                  background: demoMode ? 'rgba(34,197,94,0.95)' : 'rgba(20,17,13,0.92)',
+                  background: '#000000',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08)',
                 }}
               >
-                <FlaskConical className={`w-3.5 h-3.5 ${demoMode ? 'text-emerald-200' : 'text-amber-400'}`} />
-                <span className="text-[10px] font-black italic tracking-wide" style={{ fontFamily: 'Georgia, serif', color: demoMode ? '#bbf7d0' : '#e8c878' }}>DEMO</span>
+                <FlaskConical className={`w-3.5 h-3.5 ${demoMode ? 'text-emerald-300' : 'text-amber-400'}`} />
+                <span className="text-[10px] font-black italic tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif', color: demoMode ? '#86efac' : '#f5c542', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>DEMO</span>
               </button>
             </div>
             <div className="flex-1 min-w-0 self-start">
