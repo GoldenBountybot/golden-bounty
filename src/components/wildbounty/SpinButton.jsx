@@ -34,13 +34,22 @@ export default function SpinButton({ spinning, onClick, disabled }) {
     <button
       onClick={(e) => { if (!disabled) sfx.spinClick(); onClick(e); }}
       disabled={disabled}
-      className="relative flex items-center justify-center disabled:opacity-90 active:scale-95 transition-transform"
+      className="wb-spin-btn relative flex items-center justify-center disabled:opacity-90 active:scale-95 transition-transform"
+      style={{
+        boxShadow: '0 0 0 0 rgba(255,215,0,0)',
+        transition: 'box-shadow 0.3s ease',
+      }}
     >
+      <style>{`
+        .wb-spin-btn:active:not(:disabled) {
+          box-shadow: 0 0 18px 4px rgba(255,215,0,0.85), 0 0 36px 10px rgba(255,200,80,0.55) !important;
+        }
+      `}</style>
       <img
         src={SPIN_IMG}
         alt="Spin"
         draggable={false}
-        className="block w-12 h-12 select-none"
+        className="block w-14 h-14 select-none"
         style={{
           animation: anim,
           mixBlendMode: 'screen',
