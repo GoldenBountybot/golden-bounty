@@ -8,11 +8,6 @@ import { useAuth } from '@/lib/AuthContext';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
-const METHODS = [
-  { id: 'binance', label: 'Binance Pay', logo: 'https://cdn.simpleicons.org/binance/F0B90B', color: '#f0b90b', hint: 'Withdraw to your Binance UID' },
-  { id: 'usdt', label: 'USDT (Crypto)', logo: LOGOS.tether, color: '#26a17b', hint: 'Withdraw USDT to your wallet' },
-];
-
 const LOGOS = {
   tether: 'https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661',
   tron: 'https://coin-images.coingecko.com/coins/images/1094/large/photo_2026-04-13_09-59-16.png?1776048311',
@@ -25,6 +20,11 @@ const LOGOS = {
   aptos: 'https://coin-images.coingecko.com/coins/images/26455/large/Aptos-Network-Symbol-Black-RGB-1x.png?1761789140',
   bitcoin: 'https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400',
 };
+
+const METHODS = [
+  { id: 'binance', label: 'Binance Pay', logo: 'https://cdn.simpleicons.org/binance/F0B90B', color: '#f0b90b', hint: 'Withdraw to your Binance UID' },
+  { id: 'usdt', label: 'USDT (Crypto)', logo: LOGOS.tether, color: '#26a17b', hint: 'Withdraw USDT to your wallet' },
+];
 
 const NET_COLORS = {
   trx: '#26a17b', bsc: '#f0b90b', eth: '#627eea', pol: '#8247e5',
