@@ -79,10 +79,10 @@ export default function Home() {
               <img
                 src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png"
                 alt="Golden Bounty"
-                className="-mt-3 translate-x-2 w-full"
+                className="-mt-8 translate-x-2 w-full"
                 style={{ height: '104px', objectFit: 'contain' }}
               />
-              <p className="text-[11px] text-amber-100/55 tracking-wide mt-0 text-center">{playable} {t('Games Live · Play & Win')}</p>
+              <p className="text-[11px] text-amber-100/55 tracking-wide -mt-2 text-center">{playable} {t('Games Live · Play & Win')}</p>
             </div>
           </div>
 
