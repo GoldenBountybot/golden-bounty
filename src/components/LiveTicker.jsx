@@ -84,7 +84,7 @@ export default function LiveTicker() {
           <Volume2 className="w-4 h-4" />
         </span>
         <div className="relative flex-1 overflow-hidden">
-          <div className="flex w-max" style={{ animation: 'liveMarquee 40s linear infinite', willChange: 'transform' }}>
+          <div className="flex w-max" style={{ animation: 'liveMarquee 25s linear infinite', willChange: 'transform' }}>
             <Row k="a" />
             <Row k="b" />
           </div>
