@@ -24,11 +24,13 @@ const START_TS = (() => {
   }
 })();
 
-// Random amount like the examples: 44, 120, 500, 2000 — wide spread.
+// Always-unique random amount: pick a random base in a wide range, then add
+// a random remainder so consecutive entries almost never match.
 function randAmount() {
-  const tiers = [20, 60, 120, 300, 500, 1200, 2000, 4500];
-  const t = tiers[Math.floor(Math.random() * tiers.length)];
-  return Math.round(t + (Math.random() * t * 0.4));
+  const min = 15;
+  const max = 8000;
+  const base = min + Math.random() * (max - min);
+  return Math.round(base * 100) / 100;
 }
 
 function makeEntry() {
