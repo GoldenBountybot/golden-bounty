@@ -41,7 +41,7 @@ export default function Home() {
       {/* Header */}
       <header
         className="sticky top-0 z-20 backdrop-blur-xl"
-        style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}
+        style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.12)' }}
       >
         <div className="max-w-6xl mx-auto pl-4 pr-0 pt-2 pb-0 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -64,7 +64,7 @@ export default function Home() {
                   });
                 }}
                 title={demoMode ? 'Demo mode is ON' : 'Enable demo mode'}
-                className="absolute -top-[27px] left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-[6px] transition-all active:scale-95 z-30"
+                className="absolute -top-[37px] left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-[6px] transition-all active:scale-95 z-30"
                 style={{
                   border: demoMode ? '1px solid rgba(74,222,128,0.85)' : '1px solid rgba(214,178,98,0.55)',
                   background: '#000000',
@@ -86,7 +86,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex flex-col items-end gap-1.5 self-end mr-2">
+          <div className="flex flex-col items-end gap-1.5 self-end mr-2 -translate-y-2.5">
             <NotificationBell />
             <Link
               to="/dashboard"
@@ -103,7 +103,7 @@ export default function Home() {
       </header>
 
       {/* Premium Western game banners */}
-      <div className="max-w-6xl mx-auto px-4 -mt-12">
+      <div className="max-w-6xl mx-auto px-4 -mt-8">
         <WesternGameBanners />
       </div>
 
