@@ -6,6 +6,7 @@ import LiveTicker from '@/components/LiveTicker';
 import BottomNav from '@/components/BottomNav';
 import SiteFooter from '@/components/SiteFooter';
 import NotificationBell from '@/components/NotificationBell';
+import WesternTitleBadge from '@/components/WesternTitleBadge';
 import { Wallet, FlaskConical } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -43,22 +44,13 @@ export default function Home() {
         className="sticky top-0 z-20 backdrop-blur-xl"
         style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}
       >
-        {/* Golden Bounty title banner — centered, flush to the top border */}
-        <div className="flex justify-center px-4 pt-2 pb-1">
-          <img
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9b7ac35f7_file_000000009b1481fba629b8cafb021c56.png"
-            alt="Golden Bounty"
-            className="w-full max-w-[260px]"
-          />
-        </div>
-
-        <div className="max-w-6xl mx-auto pl-4 pr-4 py-2 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto pl-4 pr-0 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="relative shrink-0">
+            <div className="relative shrink-0 self-end translate-y-[13px]">
               <img
                 src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e0ebe2f88_InShot_20260722_150739877.jpg"
                 alt="Golden Bounty"
-                className="w-10 h-10 rounded-[8px] object-cover"
+                className="w-12 h-12 rounded-[8px] object-cover"
                 style={{ border: '1px solid rgba(214,178,98,0.6)', boxShadow: '0 4px 12px rgba(200,136,30,0.4)' }}
               />
               <button
@@ -79,7 +71,7 @@ export default function Home() {
                   });
                 }}
                 title={demoMode ? 'Demo mode is ON' : 'Enable demo mode'}
-                className="absolute -top-[22px] left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-[6px] transition-all active:scale-95 z-30"
+                className="absolute -top-[27px] left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-[6px] transition-all active:scale-95 z-30"
                 style={{
                   border: demoMode ? '1px solid rgba(74,222,128,0.85)' : '1px solid rgba(214,178,98,0.55)',
                   background: '#000000',
@@ -90,10 +82,13 @@ export default function Home() {
                 <span className="text-[10px] font-black italic tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif', color: demoMode ? '#86efac' : '#f5c542', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>DEMO</span>
               </button>
             </div>
-            <p className="text-[11px] text-amber-100/55 tracking-wide text-center flex-1">{playable} {t('Games Live · Play & Win')}</p>
+            <div className="flex-1 min-w-0 self-start">
+              <WesternTitleBadge size="lg" fullWidth className="-mt-3 translate-x-2">Golden Bounty</WesternTitleBadge>
+              <p className="text-[11px] text-amber-100/55 tracking-wide mt-1 text-center">{playable} {t('Games Live · Play & Win')}</p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-end gap-1.5 self-end mr-2">
             <NotificationBell />
             <Link
               to="/dashboard"
