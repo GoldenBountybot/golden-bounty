@@ -83,7 +83,7 @@ export default function Home() {
             </div>
             <div className="flex-1 min-w-0 self-start">
               <img
-                src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/83cb087fb_file_000000009b1481fba629b8cafb021c56.png"
+                src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4846a5644_generated_image.png"
                 alt="Golden Bounty"
                 className="w-full max-w-[260px] h-auto object-contain -mt-3 translate-x-2"
               />
