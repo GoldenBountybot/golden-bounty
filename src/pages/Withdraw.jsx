@@ -13,95 +13,59 @@ const METHODS = [
   { id: 'usdt', label: 'USDT (Crypto)', badge: '₮', color: '#26a17b', hint: 'Withdraw USDT to your wallet' },
 ];
 
-const DEFAULT_USDT_NETS = [
-  { name: 'USDT TRX Network', color: '#26a17b', logo: 'trx' },
-  { name: 'USDT BEP 20', color: '#f0b90b', logo: 'bsc' },
-  { name: 'USDT ETH Network', color: '#627eea', logo: 'eth' },
-  { name: 'USDT POL Polygon Pos', color: '#8247e5', logo: 'pol' },
-  { name: 'USDT SOL Solana Network', color: '#14f195', logo: 'sol' },
-  { name: 'USDT TON Network', color: '#0098ea', logo: 'ton' },
-];
-
-const LOGO_COLORS = {
-  trx: '#26a17b', bsc: '#f0b90b', eth: '#627eea', pol: '#8247e5',
-  sol: '#14f195', ton: '#0098ea', avax: '#e84142', apt: '#06b6d4',
-  btc: '#f7931a', matic: '#8247e5',
+const LOGOS = {
+  tether: 'https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661',
+  tron: 'https://coin-images.coingecko.com/coins/images/1094/large/photo_2026-04-13_09-59-16.png?1776048311',
+  bnb: 'https://coin-images.coingecko.com/coins/images/825/large/bnb-icon2_2x.png?1696501970',
+  ethereum: 'https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628',
+  polygon: 'https://coin-images.coingecko.com/coins/images/4713/large/polygon.png?1698233745',
+  solana: 'https://coin-images.coingecko.com/coins/images/4128/large/solana.png?1718769756',
+  ton: 'https://coin-images.coingecko.com/coins/images/17980/large/Gram_Circular_Badge.png?1781524778',
+  avalanche: 'https://coin-images.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png?1696512369',
+  aptos: 'https://coin-images.coingecko.com/coins/images/26455/large/Aptos-Network-Symbol-Black-RGB-1x.png?1761789140',
+  bitcoin: 'https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400',
 };
 
-function detectLogo(name) {
-  const n = (name || '').toLowerCase();
-  if (n.includes('trx') || n.includes('tron')) return 'trx';
-  if (n.includes('bep') || n.includes('bsc') || n.includes('binance smart')) return 'bsc';
-  if (n.includes('eth') || n.includes('erc')) return 'eth';
-  if (n.includes('pol') || n.includes('polygon') || n.includes('matic')) return 'pol';
-  if (n.includes('sol') || n.includes('solana')) return 'sol';
-  if (n.includes('ton')) return 'ton';
-  if (n.includes('avax') || n.includes('avalanche')) return 'avax';
-  if (n.includes('apt') || n.includes('aptos')) return 'apt';
-  if (n.includes('btc') || n.includes('bitcoin')) return 'btc';
+const NET_COLORS = {
+  trx: '#26a17b', bsc: '#f0b90b', eth: '#627eea', pol: '#8247e5',
+  sol: '#14f195', ton: '#0098ea', avax: '#e84142', apt: '#06b6d4', btc: '#f7931a',
+};
+
+function logoFor(network, name) {
+  const k = String(network || name || '').toLowerCase();
+  if (k.includes('trx') || k.includes('tron') || k.includes('trc')) return LOGOS.tron;
+  if (k.includes('bnb') || k.includes('bep')) return LOGOS.bnb;
+  if (k.includes('eth') || k.includes('erc')) return LOGOS.ethereum;
+  if (k.includes('sol')) return LOGOS.solana;
+  if (k.includes('avax') || k.includes('avalanche')) return LOGOS.avalanche;
+  if (k.includes('apt')) return LOGOS.aptos;
+  if (k.includes('ton')) return LOGOS.ton;
+  if (k.includes('polygon') || k.includes('matic') || k.includes('pol')) return LOGOS.polygon;
+  if (k.includes('btc') || k.includes('bitcoin')) return LOGOS.bitcoin;
+  if (k.includes('usdt') || k.includes('tether')) return LOGOS.tether;
   return null;
 }
 
-function NetworkLogo({ type, color }) {
-  const common = { width: 18, height: 18, viewBox: '0 0 24 24' };
-  switch (type) {
-    case 'trx':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.6 5.2l-1.4 9.3c-.1.6-.4.8-.9.5l-2.5-1.8-1.2 1.2c-.2.2-.4.3-.7.3l.2-2.6 4.7-4.2c.2-.2 0-.3-.3-.1l-5.8 3.6-2.5-.8c-.5-.2-.6-.6.1-.9l9.8-3.8c.5-.2.9.1.7.7z"/>
-        </svg>
-      );
-    case 'bsc':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2l3 1.7v3.5L12 9.2 9 7.2V3.7L12 2zm6 3.5l3 1.7v3.5l-3 1.7-3-1.7V7.2l3-1.7zM6 5.5l3 1.7v3.5l-3 1.7-3-1.7V7.2l3-1.7zm6 7l3 1.7v3.5l-3 1.7-3-1.7v-3.5l3-1.7zm6 0l3 1.7v3.5l-3 1.7-3-1.7v-3.5l3-1.7zm-12 0l3 1.7v3.5l-3 1.7-3-1.7v-3.5l3-1.7z"/>
-        </svg>
-      );
-    case 'eth':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2L5 12.5l7 4 7-4L12 2zm0 16.5l-7-4 7 9.5 7-9.5-7 4z"/>
-        </svg>
-      );
-    case 'pol':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2l3.5 2v4L12 10 8.5 8V4L12 2zm0 8l3.5 2v4L12 18l-3.5-2v-4L12 10zm0 8l3.5 2v0L12 22l-3.5-2v0L12 18z"/>
-        </svg>
-      );
-    case 'sol':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M5 7.5l1.4-1.4h11.2L16.2 7.5H5zm0 3.5l1.4-1.4h11.2L16.2 11H5zm14 3.5l-1.4 1.4H6.4L7.8 18H19z"/>
-        </svg>
-      );
-    case 'ton':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-3.5 6h7c.6 0 1 .5 1 1 0 .2 0 .3-.1.5l-3.5 6.5c-.2.4-.6.5-1 .5s-.8-.2-1-.5L7.6 9.5c-.1-.2-.1-.3-.1-.5 0-.5.4-1 1-1zm3.5 2.2h-3.4l2.9 5.4c.1.2.2.2.3 0l2.9-5.4H12z"/>
-        </svg>
-      );
-    case 'avax':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.2 12.5h-3l1.5-2.6c.2-.3.5-.3.7 0l1.5 2.6c.1.2 0 .4-.2.4zm5.2 1.2c0 .2-.2.4-.4.4h-3.8c-.3 0-.5-.2-.6-.4l-2.8-4.8c-.1-.2-.1-.4 0-.6l1.4-2.4c.2-.3.5-.3.7 0l5.4 9.3c.1.1.1.3.1.5z"/>
-        </svg>
-      );
-    case 'apt':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-4 13.5l3-5.2 3 5.2h-2l-1-1.7-1 1.7H8zm8 0l-1.5-2.6 1.5-2.6 1.5 2.6-1.5 2.6z"/>
-        </svg>
-      );
-    case 'btc':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.5 3v2h1.5v1.5h-1.5v1h1.5V11h-1.5v2c1.7 0 3-1.3 3-3s-1.3-3-3-3zm-3 0v2c-1.7 0-3 1.3-3 3s1.3 3 3 3v2h1.5v-1.5h-1.5V11h1.5V9.5h-1.5v-1H10.5z"/>
-        </svg>
-      );
-    default:
-      return <span className="text-sm font-extrabold" style={{ color }}>₮</span>;
-  }
+const DEFAULT_USDT_NETS = [
+  { name: 'USDT TRX Network', color: '#26a17b', logo: LOGOS.tron },
+  { name: 'USDT BEP 20', color: '#f0b90b', logo: LOGOS.bnb },
+  { name: 'USDT ETH Network', color: '#627eea', logo: LOGOS.ethereum },
+  { name: 'USDT POL Polygon Pos', color: '#8247e5', logo: LOGOS.polygon },
+  { name: 'USDT SOL Solana Network', color: '#14f195', logo: LOGOS.solana },
+  { name: 'USDT TON Network', color: '#0098ea', logo: LOGOS.ton },
+  { name: 'USDT AVAX-C Chain', color: '#e84142', logo: LOGOS.avalanche },
+  { name: 'USDT APT Aptos Network', color: '#06b6d4', logo: LOGOS.aptos },
+];
+
+function CoinLogo({ logo, color }) {
+  return (
+    <div className="flex items-center justify-center w-9 h-9 rounded-full shrink-0 overflow-hidden"
+      style={{ background: logo ? '#fff' : color, boxShadow: '0 0 0 1px rgba(255,255,255,0.12)' }}>
+      {logo
+        ? <img src={logo} alt="" className="w-6 h-6 object-contain" />
+        : <span className="text-sm font-extrabold" style={{ color }}>₮</span>}
+    </div>
+  );
 }
 
 export default function Withdraw() {
@@ -123,8 +87,8 @@ export default function Withdraw() {
       .then(list => {
         if (list.length) setUsdtNets(list.map(r => {
           const name = r.label || r.network;
-          const logo = detectLogo(name) || detectLogo(r.network);
-          return { name, color: r.color || LOGO_COLORS[logo] || '#26a17b', logo };
+          const logo = logoFor(r.network, name);
+          return { name, color: r.color || '#26a17b', logo };
         }));
       })
       .catch(() => {});
@@ -320,9 +284,7 @@ export default function Withdraw() {
                       className="dash-card w-full flex items-center gap-3 p-3 transition-all active:scale-[0.98]"
                       style={active ? { borderColor: `${n.color}aa`, boxShadow: `0 0 14px ${n.color}55` } : undefined}
                     >
-                      <span className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0" style={{ background: `${n.color}22`, border: `1px solid ${n.color}66` }}>
-                        <NetworkLogo type={n.logo || detectLogo(n.name)} color={n.color} />
-                      </span>
+                      <CoinLogo logo={n.logo} color={n.color} />
                       <span className="flex-1 text-left text-sm font-bold" style={{ color: active ? '#fff' : 'rgba(255,255,255,0.8)' }}>{n.name}</span>
                       {active && <span className="text-xs font-bold" style={{ color: n.color }}>✓</span>}
                     </button>
@@ -332,9 +294,7 @@ export default function Withdraw() {
                 {selectedNet && (
                   <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 300ms ease both' }}>
                     <div className="flex items-center gap-2">
-                      <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: `${selectedNet.color}22`, border: `1px solid ${selectedNet.color}66` }}>
-                        <NetworkLogo type={selectedNet.logo || detectLogo(selectedNet.name)} color={selectedNet.color} />
-                      </div>
+                      <CoinLogo logo={selectedNet.logo} color={selectedNet.color} />
                       <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Your Wallet Address")}</h2>
                     </div>
                     <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{t("Network:")} {selectedNet.name}</p>
