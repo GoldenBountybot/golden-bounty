@@ -86,7 +86,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex flex-col items-end gap-1.5 self-end mr-2 -translate-y-4">
+          <div className="flex flex-col items-end gap-1.5 self-end mr-2 -translate-y-2">
             <NotificationBell />
             <Link
               to="/dashboard"
