@@ -37,7 +37,8 @@ export default function Home() {
   const playable = GAMES.filter(g => !g.coming).length;
 
   return (
-    <div className="min-h-screen pb-24 bg-[#0b0b0d]">
+    <div className="relative min-h-screen pb-24 bg-[#0b0b0d]">
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.10), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.05), transparent 60%), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat' }} />
       {/* Header */}
       <header
         className="sticky top-0 z-20 backdrop-blur-xl"
@@ -103,15 +104,15 @@ export default function Home() {
       </header>
 
       {/* Premium Western game banners */}
-      <div className="max-w-6xl mx-auto px-4 mt-0">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 mt-0">
         <WesternGameBanners />
       </div>
 
       {/* Live activity ticker */}
-      <LiveTicker />
+      <div className="relative z-10"><LiveTicker /></div>
 
       {/* Category tabs */}
-      <div className="max-w-6xl mx-auto px-4 mt-6">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 mt-6">
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {CATEGORY_KEYS.map(c => (
             <button
@@ -134,7 +135,7 @@ export default function Home() {
       </div>
 
       {/* Game grid */}
-      <main id="games" className="max-w-6xl mx-auto px-4 py-6 scroll-mt-20">
+      <main id="games" className="relative z-10 max-w-6xl mx-auto px-4 py-6 scroll-mt-20">
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
           {filtered.map(g => (
             <CasinoGameCard key={g.id} game={{ ...g, title: t(g.titleKey) }} />
@@ -143,7 +144,7 @@ export default function Home() {
       </main>
 
       {/* Hero banner */}
-      <section className="max-w-6xl mx-auto px-4 pb-2">
+      <section className="relative z-10 max-w-6xl mx-auto px-4 pb-2">
         <div className="relative overflow-hidden rounded-2xl" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fac3dbda4_file_000000008654821185c00f28c290ba18.png"
@@ -153,7 +154,7 @@ export default function Home() {
         </div>
       </section>
 
-      <SiteFooter />
+      <div className="relative z-10"><SiteFooter /></div>
 
       <BottomNav />
     </div>
