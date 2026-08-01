@@ -56,7 +56,7 @@ export default function SpinButton({ spinning, onClick, disabled }) {
         alt=""
         aria-hidden
         draggable={false}
-        className="block absolute inset-0 m-auto w-[20rem] h-[4.5rem] select-none pointer-events-none"
+        className="block absolute inset-0 m-auto w-20 h-20 select-none pointer-events-none"
         style={{
           mixBlendMode: 'screen',
           filter: 'brightness(1.05) drop-shadow(0 2px 6px rgba(0,0,0,0.6))',
@@ -66,7 +66,7 @@ export default function SpinButton({ spinning, onClick, disabled }) {
         src={SPIN_IMG}
         alt="Spin"
         draggable={false}
-        className="block w-12 h-12 select-none relative z-10"
+        className="block w-11 h-11 select-none relative z-10"
         style={{
           animation: anim,
           mixBlendMode: 'screen',
