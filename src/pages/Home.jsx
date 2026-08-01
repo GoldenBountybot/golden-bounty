@@ -144,24 +144,19 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Hero */}
+      {/* Hero banner */}
       <section className="max-w-6xl mx-auto px-4 pb-2">
-        <div className="relative overflow-hidden rounded-2xl p-6 sm:p-8 text-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.02))', border: '1px solid rgba(212,175,55,0.3)' }}>
-          <div className="pointer-events-none absolute -top-16 -right-10 w-48 h-48 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.18), transparent 70%)' }} />
-          <div className="pointer-events-none absolute -bottom-16 -left-10 w-44 h-44 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.12), transparent 70%)' }} />
-          <h1 className="relative text-3xl sm:text-4xl font-extrabold italic" style={{ fontFamily: 'Rye, Georgia, serif', color: '#f5c542', textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>Welcome to Golden Bounty</h1>
-          <p className="relative mt-3 text-sm sm:text-base" style={{ color: 'rgba(255,255,255,0.72)' }}>Play 12 Premium Casino Games + Earn Daily Profit with Staking Plans</p>
-          <div className="relative mt-5 flex flex-wrap items-center justify-center gap-2.5">
-            <Link to="/register" className="px-5 py-2.5 rounded-xl text-sm font-extrabold transition-all active:scale-95" style={{ background: 'linear-gradient(135deg, #FFD700, #C89B3C)', color: '#1a1408', boxShadow: '0 4px 14px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.45)' }}>Claim 1 Free Spin Now</Link>
-            <button onClick={() => document.getElementById('games')?.scrollIntoView({ behavior: 'smooth' })} className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95" style={{ border: '1px solid rgba(212,175,55,0.5)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>Play Now</button>
-            <Link to="/dashboard?tab=stack" className="px-5 py-2.5 rounded-xl text-sm font-extrabold transition-all active:scale-95" style={{ background: 'linear-gradient(135deg, #34d399, #059669)', color: '#062018', boxShadow: '0 4px 14px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.45)' }}>Start Staking</Link>
-          </div>
-          <div className="relative mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
-            <span>🎁 New players get 1 Free Spin instantly after registration.</span>
-            <span>✅ No KYC required for withdrawals.</span>
-            <span>🕐 24/7 Support available.</span>
-            <span>📜 Licensed under BDS INFO S.A. – CONAJZAR Resolution 07/2026.</span>
-          </div>
+        <div className="relative overflow-hidden rounded-2xl" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
+          <img
+            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fac3dbda4_file_000000008654821185c00f28c290ba18.png"
+            alt="Welcome to Golden Bounty — Play 12 Premium Casino Games + Earn Daily Profit with Staking Plans"
+            className="w-full h-auto block"
+          />
+        </div>
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-2.5">
+          <Link to="/register" className="px-5 py-2.5 rounded-xl text-sm font-extrabold transition-all active:scale-95" style={{ background: 'linear-gradient(135deg, #FFD700, #C89B3C)', color: '#1a1408', boxShadow: '0 4px 14px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.45)' }}>Claim 1 Free Spin Now</Link>
+          <button onClick={() => document.getElementById('games')?.scrollIntoView({ behavior: 'smooth' })} className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95" style={{ border: '1px solid rgba(212,175,55,0.5)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>Play Now</button>
+          <Link to="/dashboard?tab=stack" className="px-5 py-2.5 rounded-xl text-sm font-extrabold transition-all active:scale-95" style={{ background: 'linear-gradient(135deg, #34d399, #059669)', color: '#062018', boxShadow: '0 4px 14px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.45)' }}>Start Staking</Link>
         </div>
       </section>
 
