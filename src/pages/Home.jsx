@@ -88,7 +88,7 @@ export default function Home() {
                 className="-mt-3 translate-x-2 w-full"
                 style={{ height: '92px', objectFit: 'contain' }}
               />
-              <p className="text-[11px] text-amber-100/55 tracking-wide mt-1 text-center">{playable} {t('Games Live · Play & Win')}</p>
+              <p className="text-[11px] text-amber-100/55 tracking-wide mt-0 text-center">{playable} {t('Games Live · Play & Win')}</p>
             </div>
           </div>
 
@@ -109,7 +109,7 @@ export default function Home() {
       </header>
 
       {/* Premium Western game banners */}
-      <div className="max-w-6xl mx-auto px-4 -mt-2">
+      <div className="max-w-6xl mx-auto px-4 -mt-4">
         <WesternGameBanners />
       </div>
 
