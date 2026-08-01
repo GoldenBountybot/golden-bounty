@@ -59,16 +59,17 @@ export default function TotalFundsPanel() {
   const [pulse, setPulse] = useState(null); // {positive, amount} for flash
   const tickRef = useRef(0);
 
-  // Ramp the headline total from 35M → 36M over 10 real days.
+  // Increase by 1M every 10 days, continuously (35M → 36M → 37M → ...).
   useEffect(() => {
     let raf;
     const update = () => {
       const elapsed = Date.now() - START_TS;
-      const pct = Math.min(elapsed / TEN_DAYS_MS, 1);
-      const ramped = BASE + (TARGET - BASE) * pct;
-      // tiny live jitter so the number feels alive even mid-ramp
+      const cycles = Math.floor(elapsed / TEN_DAYS_MS);
+      const within = (elapsed % TEN_DAYS_MS) / TEN_DAYS_MS; // 0..1 in current cycle
+      const ramped = BASE + cycles * (TARGET - BASE) + (TARGET - BASE) * within;
+      // tiny live jitter so the number feels alive
       const jitter = (Math.sin(elapsed / 900) * 250) + (Math.random() * 400 - 200);
-      setTotal(ramped + (pct < 1 ? jitter : 0));
+      setTotal(ramped + jitter);
       raf = requestAnimationFrame(update);
     };
     update();
