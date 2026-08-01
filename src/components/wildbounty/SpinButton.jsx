@@ -66,13 +66,13 @@ export default function SpinButton({ spinning, onClick, disabled }) {
         src={SPIN_IMG}
         alt="Spin"
         draggable={false}
-        className="block w-14 h-14 select-none relative z-10"
+        className="block w-16 h-16 select-none relative z-10"
         style={{
           animation: anim,
           mixBlendMode: 'screen',
           filter: spinning || coasting
-            ? 'brightness(1.3) drop-shadow(0 0 12px rgba(255,220,120,0.5))'
-            : 'brightness(1.1) drop-shadow(0 0 6px rgba(255,190,80,0.3))',
+            ? 'brightness(1.35) contrast(1.15) drop-shadow(0 1px 1px rgba(0,0,0,0.8)) drop-shadow(0 -1px 1px rgba(255,255,255,0.3)) drop-shadow(0 0 14px rgba(255,220,120,0.55))'
+            : 'brightness(1.15) contrast(1.1) drop-shadow(0 1px 1px rgba(0,0,0,0.8)) drop-shadow(0 -1px 1px rgba(255,255,255,0.3)) drop-shadow(0 0 6px rgba(255,190,80,0.3))',
           transition: 'filter 0.3s ease',
         }}
       />
