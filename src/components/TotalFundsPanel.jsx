@@ -10,19 +10,9 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 const BASE = 35_000_000;
 const TARGET = 36_000_000;
 const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
-const START_KEY = 'gb_total_funds_start';
-
-const START_TS = (() => {
-  try {
-    const v = localStorage.getItem(START_KEY);
-    if (v) return Number(v);
-    const now = Date.now();
-    localStorage.setItem(START_KEY, String(now));
-    return now;
-  } catch {
-    return Date.now();
-  }
-})();
+// Fixed global start instant — shared across ALL users so everyone sees the
+// same live total (no per-user localStorage).
+const START_TS = Date.UTC(2026, 6, 1, 0, 0, 0); // 2026-07-01 00:00 UTC
 
 // Always-unique random amount: pick a random base in a wide range, then add
 // a random remainder so consecutive entries almost never match.
@@ -69,8 +59,9 @@ export default function TotalFundsPanel() {
       const cycles = Math.floor(elapsed / TEN_DAYS_MS);
       const within = (elapsed % TEN_DAYS_MS) / TEN_DAYS_MS; // 0..1 in current cycle
       const ramped = BASE + cycles * (TARGET - BASE) + (TARGET - BASE) * within;
-      // tiny live jitter so the number feels alive
-      const jitter = (Math.sin(elapsed / 900) * 250) + (Math.random() * 400 - 200);
+      // Deterministic live jitter (no Math.random) so every user sees the exact
+      // same number at the same instant.
+      const jitter = Math.sin(elapsed / 900) * 250 + Math.sin(elapsed / 370) * 180;
       setTotal(ramped + jitter);
       raf = requestAnimationFrame(update);
     };
