@@ -58,7 +58,7 @@ export default function SpinButton({ spinning, onClick, disabled }) {
         src={SPIN_IMG}
         alt="Spin"
         draggable={false}
-        className="absolute block w-12 h-12 select-none -translate-y-2"
+        className="absolute block w-12 h-12 select-none -translate-y-1"
         style={{
           animation: anim,
           mixBlendMode: 'screen',
