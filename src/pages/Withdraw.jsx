@@ -9,8 +9,8 @@ import { useAuth } from '@/lib/AuthContext';
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
 const METHODS = [
-  { id: 'binance', label: 'Binance Pay', badge: 'B', color: '#f0b90b', hint: 'Withdraw to your Binance UID' },
-  { id: 'usdt', label: 'USDT (Crypto)', badge: '₮', color: '#26a17b', hint: 'Withdraw USDT to your wallet' },
+  { id: 'binance', label: 'Binance Pay', logo: 'https://cdn.simpleicons.org/binance/F0B90B', color: '#f0b90b', hint: 'Withdraw to your Binance UID' },
+  { id: 'usdt', label: 'USDT (Crypto)', logo: LOGOS.tether, color: '#26a17b', hint: 'Withdraw USDT to your wallet' },
 ];
 
 const LOGOS = {
@@ -220,11 +220,9 @@ export default function Withdraw() {
                     onClick={() => setView(m.id)}
                     className="dash-card w-full flex items-center gap-4 p-4 text-left transition-all active:scale-[0.98]"
                   >
-                    <div
-                      className="flex items-center justify-center w-12 h-12 rounded-xl shrink-0"
-                      style={{ background: `${m.color}22`, border: `1px solid ${m.color}66` }}
-                    >
-                      <span className="text-2xl font-extrabold" style={{ color: m.color }}>{m.badge}</span>
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full shrink-0 overflow-hidden"
+                      style={{ background: '#fff', boxShadow: '0 0 0 1px rgba(255,255,255,0.12)' }}>
+                      <img src={m.logo} alt={m.label} className="w-8 h-8 object-contain" />
                     </div>
                     <div className="flex-1">
                       <h2 className="text-base font-bold" style={{ ...heading, color: '#fff' }}>{m.label}</h2>
