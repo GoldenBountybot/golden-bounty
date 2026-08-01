@@ -22,6 +22,26 @@ const DEFAULT_USDT_NETS = [
   { name: 'USDT TON Network', color: '#0098ea', logo: 'ton' },
 ];
 
+const LOGO_COLORS = {
+  trx: '#26a17b', bsc: '#f0b90b', eth: '#627eea', pol: '#8247e5',
+  sol: '#14f195', ton: '#0098ea', avax: '#e84142', apt: '#06b6d4',
+  btc: '#f7931a', matic: '#8247e5',
+};
+
+function detectLogo(name) {
+  const n = (name || '').toLowerCase();
+  if (n.includes('trx') || n.includes('tron')) return 'trx';
+  if (n.includes('bep') || n.includes('bsc') || n.includes('binance smart')) return 'bsc';
+  if (n.includes('eth') || n.includes('erc')) return 'eth';
+  if (n.includes('pol') || n.includes('polygon') || n.includes('matic')) return 'pol';
+  if (n.includes('sol') || n.includes('solana')) return 'sol';
+  if (n.includes('ton')) return 'ton';
+  if (n.includes('avax') || n.includes('avalanche')) return 'avax';
+  if (n.includes('apt') || n.includes('aptos')) return 'apt';
+  if (n.includes('btc') || n.includes('bitcoin')) return 'btc';
+  return null;
+}
+
 function NetworkLogo({ type, color }) {
   const common = { width: 18, height: 18, viewBox: '0 0 24 24' };
   switch (type) {
@@ -61,6 +81,24 @@ function NetworkLogo({ type, color }) {
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-3.5 6h7c.6 0 1 .5 1 1 0 .2 0 .3-.1.5l-3.5 6.5c-.2.4-.6.5-1 .5s-.8-.2-1-.5L7.6 9.5c-.1-.2-.1-.3-.1-.5 0-.5.4-1 1-1zm3.5 2.2h-3.4l2.9 5.4c.1.2.2.2.3 0l2.9-5.4H12z"/>
         </svg>
       );
+    case 'avax':
+      return (
+        <svg {...common} fill={color}>
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.2 12.5h-3l1.5-2.6c.2-.3.5-.3.7 0l1.5 2.6c.1.2 0 .4-.2.4zm5.2 1.2c0 .2-.2.4-.4.4h-3.8c-.3 0-.5-.2-.6-.4l-2.8-4.8c-.1-.2-.1-.4 0-.6l1.4-2.4c.2-.3.5-.3.7 0l5.4 9.3c.1.1.1.3.1.5z"/>
+        </svg>
+      );
+    case 'apt':
+      return (
+        <svg {...common} fill={color}>
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-4 13.5l3-5.2 3 5.2h-2l-1-1.7-1 1.7H8zm8 0l-1.5-2.6 1.5-2.6 1.5 2.6-1.5 2.6z"/>
+        </svg>
+      );
+    case 'btc':
+      return (
+        <svg {...common} fill={color}>
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.5 3v2h1.5v1.5h-1.5v1h1.5V11h-1.5v2c1.7 0 3-1.3 3-3s-1.3-3-3-3zm-3 0v2c-1.7 0-3 1.3-3 3s1.3 3 3 3v2h1.5v-1.5h-1.5V11h1.5V9.5h-1.5v-1H10.5z"/>
+        </svg>
+      );
     default:
       return <span className="text-sm font-extrabold" style={{ color }}>₮</span>;
   }
@@ -82,7 +120,13 @@ export default function Withdraw() {
 
   useEffect(() => {
     base44.entities.PaymentAddress.filter({ method: 'usdt', active: true }, 'order', 100)
-      .then(list => { if (list.length) setUsdtNets(list.map(r => ({ name: r.label || r.network, color: r.color || '#26a17b' }))); })
+      .then(list => {
+        if (list.length) setUsdtNets(list.map(r => {
+          const name = r.label || r.network;
+          const logo = detectLogo(name) || detectLogo(r.network);
+          return { name, color: r.color || LOGO_COLORS[logo] || '#26a17b', logo };
+        }));
+      })
       .catch(() => {});
   }, []);
 
@@ -277,7 +321,7 @@ export default function Withdraw() {
                       style={active ? { borderColor: `${n.color}aa`, boxShadow: `0 0 14px ${n.color}55` } : undefined}
                     >
                       <span className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0" style={{ background: `${n.color}22`, border: `1px solid ${n.color}66` }}>
-                        <NetworkLogo type={n.logo} color={n.color} />
+                        <NetworkLogo type={n.logo || detectLogo(n.name)} color={n.color} />
                       </span>
                       <span className="flex-1 text-left text-sm font-bold" style={{ color: active ? '#fff' : 'rgba(255,255,255,0.8)' }}>{n.name}</span>
                       {active && <span className="text-xs font-bold" style={{ color: n.color }}>✓</span>}
@@ -289,7 +333,7 @@ export default function Withdraw() {
                   <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 300ms ease both' }}>
                     <div className="flex items-center gap-2">
                       <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: `${selectedNet.color}22`, border: `1px solid ${selectedNet.color}66` }}>
-                        <NetworkLogo type={selectedNet.logo} color={selectedNet.color} />
+                        <NetworkLogo type={selectedNet.logo || detectLogo(selectedNet.name)} color={selectedNet.color} />
                       </div>
                       <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Your Wallet Address")}</h2>
                     </div>
