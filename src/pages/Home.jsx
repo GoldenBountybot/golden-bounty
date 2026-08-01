@@ -43,7 +43,7 @@ export default function Home() {
         className="sticky top-0 z-20 backdrop-blur-xl"
         style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}
       >
-        <div className="max-w-6xl mx-auto pl-4 pr-0 py-3 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto pl-4 pr-0 pt-3 pb-1 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className="relative shrink-0 self-end translate-y-[13px]">
               <img
@@ -109,7 +109,7 @@ export default function Home() {
       </header>
 
       {/* Premium Western game banners */}
-      <div className="max-w-6xl mx-auto px-4 pt-2">
+      <div className="max-w-6xl mx-auto px-4 pt-1">
         <WesternGameBanners />
       </div>
 
