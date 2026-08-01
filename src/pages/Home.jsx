@@ -109,7 +109,7 @@ export default function Home() {
       </header>
 
       {/* Premium Western game banners */}
-      <div className="max-w-6xl mx-auto px-4 pt-5">
+      <div className="max-w-6xl mx-auto px-4 pt-2">
         <WesternGameBanners />
       </div>
 
