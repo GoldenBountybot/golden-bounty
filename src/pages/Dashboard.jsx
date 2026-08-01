@@ -5,6 +5,7 @@ import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import { useStake, LOCK_DAYS } from '@/lib/useStake';
 import StackMining from '@/components/StackMining';
 import TotalFundsPanel from '@/components/TotalFundsPanel';
+import StackFaq from '@/components/StackFaq';
 import VipLevels from '@/components/VipLevels';
 import BackButton from '@/components/BackButton';
 import StylishNotify from '@/components/StylishNotify';
@@ -376,6 +377,8 @@ export default function Dashboard() {
             </div>
 
             <TotalFundsPanel />
+
+            <StackFaq />
           </div>
         )}
       </main>
