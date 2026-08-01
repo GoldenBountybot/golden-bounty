@@ -56,7 +56,7 @@ export default function SpinButton({ spinning, onClick, disabled }) {
         alt=""
         aria-hidden
         draggable={false}
-        className="block absolute inset-0 m-auto w-[7.5rem] h-[7.5rem] select-none pointer-events-none"
+        className="block absolute inset-0 m-auto w-[10rem] h-[7.5rem] select-none pointer-events-none"
         style={{
           mixBlendMode: 'screen',
           filter: 'brightness(1.05) drop-shadow(0 2px 6px rgba(0,0,0,0.6))',
