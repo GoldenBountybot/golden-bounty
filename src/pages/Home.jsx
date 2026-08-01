@@ -6,6 +6,7 @@ import LiveTicker from '@/components/LiveTicker';
 import BottomNav from '@/components/BottomNav';
 import SiteFooter from '@/components/SiteFooter';
 import NotificationBell from '@/components/NotificationBell';
+import WesternTitleBadge from '@/components/WesternTitleBadge';
 import { Wallet, FlaskConical } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -82,11 +83,7 @@ export default function Home() {
               </button>
             </div>
             <div className="flex-1 min-w-0 self-start">
-              <img
-                src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4846a5644_generated_image.png"
-                alt="Golden Bounty"
-                className="w-full max-w-[260px] h-auto object-contain -mt-3 translate-x-2"
-              />
+              <WesternTitleBadge size="lg" fullWidth className="-mt-3 translate-x-2">Golden Bounty</WesternTitleBadge>
               <p className="text-[11px] text-amber-100/55 tracking-wide mt-1 text-center">{playable} {t('Games Live · Play & Win')}</p>
             </div>
           </div>
