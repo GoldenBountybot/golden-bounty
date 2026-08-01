@@ -30,6 +30,12 @@ import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
 import PayMethod from './pages/PayMethod';
 import Withdraw from './pages/Withdraw';
+import About from './pages/About';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import ResponsibleGaming from './pages/ResponsibleGaming';
+import Licenses from './pages/Licenses';
+import Faq from './pages/Faq';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import BottomNavLayout from '@/components/BottomNavLayout';
 import AppLoadingImage from '@/components/AppLoadingImage';
@@ -79,6 +85,12 @@ const AuthenticatedApp = () => {
     <Routes>
       {/* Public lobby & auth */}
       <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/responsible-gaming" element={<ResponsibleGaming />} />
+      <Route path="/licenses" element={<Licenses />} />
+      <Route path="/faq" element={<Faq />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       {/* Authenticated casino — signup required to play */}
