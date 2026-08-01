@@ -111,9 +111,13 @@ export default function TotalFundsPanel() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full border-2 border-emerald-200/80 text-emerald-50 font-black text-[11px]"
-            style={{ background: 'radial-gradient(circle at 35% 30%, #4dd6a8, #1e8a63)' }}>₮</span>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(38,161,123,0.9)' }}>Total Funds</p>
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Tether_USDT_logo.svg"
+            alt="USDT"
+            className="w-6 h-6 rounded-full"
+            style={{ filter: 'drop-shadow(0 0 4px rgba(38,161,123,0.6))' }}
+          />
+          <p className="text-[13px] font-extrabold uppercase tracking-[0.2em]" style={{ color: 'rgba(38,161,123,0.95)' }}>Total Funds</p>
         </div>
       </div>
 
