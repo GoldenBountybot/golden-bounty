@@ -19,7 +19,7 @@ export default function SiteFooter() {
       <div className="flex flex-col items-center gap-3 text-center">
         <p className="text-sm font-bold" style={{ color: '#D4AF37' }}>© 2026 Golden Bounty. All rights reserved.</p>
         <p className="text-[11px] leading-relaxed max-w-xl" style={{ color: 'rgba(255,255,255,0.5)' }}>
-          USA-based platform · Licensed by BDS INFO S.A. under CONAJZAR Resolution No. 07/2026 (31 January 2026).<br />
+          Dubai-based platform · Licensed by BDS INFO S.A. under CONAJZAR Resolution No. 07/2026 (31 January 2026).<br />
           Certificate issued 24 April 2026. Authorized for markets outside the territory of Paraguay.
         </p>
         <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>

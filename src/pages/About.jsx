@@ -9,7 +9,7 @@ export default function About() {
       <div className="flex flex-col gap-3">
         <div className="dash-card p-5" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)' }}>
-            Golden Bounty is a USA-based online casino and staking platform that combines exciting casino games with daily earning opportunities.
+            Golden Bounty is a Dubai-based online casino and staking platform that combines exciting casino games with daily earning opportunities.
           </p>
           <p className="text-sm leading-relaxed mt-3" style={{ color: 'rgba(255,255,255,0.72)' }}>
             We offer 12 carefully selected games and flexible Staking Plans that pay daily profit according to the plan you choose.
@@ -19,10 +19,10 @@ export default function About() {
           </p>
         </div>
 
-        <InfoSection title="USA Company Address">
+        <InfoSection title="Dubai Company Address">
           <div className="flex items-start gap-2">
             <MapPin className="w-4 h-4 mt-0.5 shrink-0" style={{ color: '#D4AF37' }} />
-            <span>1209 Orange Street, Wilmington, Delaware 19801, United States</span>
+            <span>Office 2305, Boulevard Plaza Tower 1, Sheikh Mohammed bin Rashid Boulevard, Downtown Dubai, Dubai, United Arab Emirates</span>
           </div>
         </InfoSection>
 
