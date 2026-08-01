@@ -342,7 +342,13 @@ export default function Dashboard() {
             <button
               onClick={doClaimProfit}
               disabled={stake.pendingProfit <= 0}
-              className="dash-btn-gold mx-auto px-6 py-3 text-sm flex items-center gap-2"
+              className="mx-auto px-6 py-3 text-sm flex items-center gap-2 rounded-2xl font-extrabold transition-all active:scale-95 disabled:opacity-45 disabled:cursor-not-allowed"
+              style={{
+                background: 'linear-gradient(135deg, #34d399, #059669)',
+                color: '#062018',
+                border: 'none',
+                boxShadow: '0 4px 14px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.45)',
+              }}
             >
               <Coins className="w-4 h-4" /> {t("CLAIM PROFIT")} ${stake.pendingProfit.toFixed(2)}
             </button>
