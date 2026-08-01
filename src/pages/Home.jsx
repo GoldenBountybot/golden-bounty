@@ -82,7 +82,7 @@ export default function Home() {
                 className="-mt-8 translate-x-2 w-full"
                 style={{ height: '104px', objectFit: 'contain' }}
               />
-              <p className="text-[11px] text-amber-100/55 tracking-wide -mt-2 text-center">{playable} {t('Games Live · Play & Win')}</p>
+              <p className="text-[11px] text-amber-100/55 tracking-wide -mt-4 text-center">{playable} {t('Games Live · Play & Win')}</p>
             </div>
           </div>
 
