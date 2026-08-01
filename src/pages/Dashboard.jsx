@@ -250,7 +250,16 @@ export default function Dashboard() {
                 </div>
                 <div className="flex gap-2 mb-2">
                   <input type="number" value={wdAmt} onChange={e => setWdAmt(e.target.value)} placeholder={t("Amount to withdraw")} className="dash-input flex-1 px-4 py-3 text-sm" />
-                  <button onClick={doWithdraw} className="dash-btn-gold px-6 py-3 text-sm">{t("Withdraw")}</button>
+                  <button
+                    onClick={doWithdraw}
+                    className="px-6 py-3 text-sm rounded-2xl font-extrabold transition-all active:scale-95"
+                    style={{
+                      background: 'linear-gradient(135deg, #34d399, #059669)',
+                      color: '#062018',
+                      border: 'none',
+                      boxShadow: '0 4px 14px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.45)',
+                    }}
+                  >{t("Withdraw")}</button>
                 </div>
                 <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("Withdraw creates a request — funds sent after admin approval.")}</p>
                 {acct.wagerRemaining > 0 && (

@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import BackButton from '@/components/BackButton';
-import WesternTitleBadge from '@/components/WesternTitleBadge';
-import WesternFrame from '@/components/wildbounty/WesternFrame';
-import WesternBackdrop from '@/components/WesternBackdrop';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useLanguage } from '@/lib/LanguageContext';
-import { Wallet, ArrowLeft, Send, AlertTriangle } from 'lucide-react';
+import { Wallet, ArrowLeft, Send, AlertTriangle, ArrowUpFromLine, Menu, Shield } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
 
-const FONT = 'Rye, Georgia, serif';
+const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
 const METHODS = [
-  { id: 'binance', label: 'Binance Pay', badge: 'B', badgeClass: 'bg-amber-400 text-stone-950 ring-amber-200', hintKey: 'Withdraw to your Binance UID' },
-  { id: 'usdt', label: 'USDT (Crypto)', badge: '₮', badgeClass: 'bg-emerald-500 text-white ring-emerald-300', hintKey: 'Withdraw USDT to your wallet' },
+  { id: 'binance', label: 'Binance Pay', badge: 'B', color: '#f0b90b', hint: 'Withdraw to your Binance UID' },
+  { id: 'usdt', label: 'USDT (Crypto)', badge: '₮', color: '#26a17b', hint: 'Withdraw USDT to your wallet' },
 ];
 
 const DEFAULT_USDT_NETS = [
@@ -25,30 +22,14 @@ const DEFAULT_USDT_NETS = [
   { name: 'USDT TON Network', color: '#0098ea' },
 ];
 
-const WOOD_BTN = {
-  border: '1px solid rgba(190,140,55,0.7)',
-  background: 'linear-gradient(to bottom, rgba(74,52,24,0.95), rgba(40,27,12,0.95))',
-  boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.25), 0 1px 3px rgba(0,0,0,0.5)',
-};
-const GOLD_BTN = {
-  border: '1px solid rgba(245,210,120,0.9)',
-  background: 'linear-gradient(to bottom, #f5c542, #c8881e)',
-  boxShadow: 'inset 0 1px 0 rgba(255,240,180,0.5), 0 3px 10px rgba(200,136,30,0.45)',
-  color: '#2a1a06',
-};
-const NET_ACTIVE = {
-  border: '1px solid rgba(245,210,120,0.9)',
-  boxShadow: '0 0 12px rgba(255,200,80,0.35)',
-  background: 'linear-gradient(to bottom, rgba(74,52,24,0.95), rgba(40,27,12,0.95))',
-};
-
 export default function Withdraw() {
   const params = new URLSearchParams(window.location.search);
   const amount = Number(params.get('amount') || 0);
   const { toast } = useToast();
   const { t } = useLanguage();
   const { demoMode, wagerRemaining, maxWithdrawable } = useCasinoBalance();
-  const [view, setView] = useState('choose'); // 'choose' | 'binance' | 'usdt'
+  const { user } = useAuth();
+  const [view, setView] = useState('choose');
   const [usdtNets, setUsdtNets] = useState(DEFAULT_USDT_NETS);
   const [selectedNet, setSelectedNet] = useState(null);
   const [binanceUid, setBinanceUid] = useState('');
@@ -69,8 +50,8 @@ export default function Withdraw() {
     }
     setSubmitting(true);
     try {
-      const user = await base44.auth.me().catch(() => null);
-      if (!user) { toast({ title: t("Please log in first") }); setSubmitting(false); return; }
+      const me = await base44.auth.me().catch(() => null);
+      if (!me) { toast({ title: t("Please log in first") }); setSubmitting(false); return; }
       if (amount > maxWithdrawable) {
         toast({
           title: t("Wagering requirement not met"),
@@ -82,8 +63,8 @@ export default function Withdraw() {
         return;
       }
       await base44.entities.Transaction.create({
-        user_id: user.id,
-        user_email: user.email,
+        user_id: me.id,
+        user_email: me.email,
         type: 'withdraw',
         amount,
         status: 'pending',
@@ -100,145 +81,198 @@ export default function Withdraw() {
     setSubmitting(false);
   };
 
+  const heading = { fontFamily: SANS, fontWeight: 700, letterSpacing: '-0.01em' };
+
   return (
-    <div className="relative min-h-screen bg-[#0b0b0d] pb-24">
-      <WesternBackdrop />
-      <header className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
+    <div className="relative min-h-screen pb-24" style={{ background: '#0D0D0D', fontFamily: SANS }}>
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.12), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.06), transparent 60%)' }} />
+
+      {/* Sticky top navigation */}
+      <header
+        className="sticky top-0 z-30"
+        style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
+      >
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
-          {view !== 'choose' ? (
-            <button onClick={() => { setView('choose'); setSelectedNet(null); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md italic font-bold border border-amber-600/80 text-amber-200 bg-black/40 active:scale-95" style={{ fontFamily: FONT }}>
-              <ArrowLeft className="w-4 h-4" /> {t("Back")}
-            </button>
-          ) : (
-            <BackButton href="/dashboard" />
-          )}
-          <div className="flex-1 text-center">
-            <WesternTitleBadge size="lg">{view === 'choose' ? t("Withdraw") : view === 'binance' ? t("Binance Pay") : t("USDT Withdraw")}</WesternTitleBadge>
+          <button
+            onClick={() => (view !== 'choose' ? (setView('choose'), setSelectedNet(null)) : window.history.back())}
+            title="Back"
+            className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
+            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+
+          <div className="flex-1 flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'linear-gradient(135deg,#34d399,#059669)', boxShadow: '0 0 14px rgba(52,211,153,0.45)' }}>
+              <ArrowUpFromLine className="w-5 h-5" style={{ color: '#062018' }} />
+            </div>
+            <span className="text-lg font-extrabold tracking-tight" style={{ ...heading, color: '#D4AF37' }}>
+              {view === 'choose' ? t("Withdraw") : view === 'binance' ? t("Binance Pay") : t("USDT Withdraw")}
+            </span>
           </div>
+
+          <button
+            onClick={() => window.location.href = '/dashboard'}
+            title="Menu"
+            className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
+            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
         </div>
       </header>
 
-      <main className="relative z-10 max-w-md mx-auto px-4 py-5 flex flex-col gap-4">
+      <main className="relative z-10 max-w-md mx-auto px-4 py-4 flex flex-col gap-4">
         {demoMode ? (
-          <WesternFrame variant="glass" className="p-5 flex flex-col items-center gap-3 text-center">
-            <AlertTriangle className="w-8 h-8 text-amber-400" />
-            <p className="text-amber-100 text-sm italic" style={{ fontFamily: FONT }}>{t("Demo Mode is active.")}</p>
-            <p className="text-amber-100/60 text-xs italic">{t("Deposits are disabled while using the practice balance. Turn off Demo from the home page to deposit real funds.")}</p>
-            <button onClick={() => window.location.href = '/'} className="px-4 py-2 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-bold italic active:scale-95" style={{ fontFamily: FONT }}>{t("Back to Home")}</button>
-          </WesternFrame>
-        ) : (
-        <>
-        <WesternFrame glow variant="glass" className="p-4 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] tracking-widest uppercase text-amber-300/70">{t("Withdrawing")}</p>
-            <p className="text-2xl font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: FONT }}>${amount.toFixed(2)}</p>
-          </div>
-          <Wallet className="w-8 h-8 text-amber-400/60" />
-        </WesternFrame>
-
-        {view === 'choose' && (
-          <div className="flex flex-col gap-3">
-            {METHODS.map(m => (
-              <button
-                key={m.id}
-                onClick={() => setView(m.id)}
-                className="w-full flex items-center gap-4 p-4 rounded-xl border border-amber-700/40 bg-black/30 hover:bg-black/50 transition-all active:scale-[0.98]"
-                style={{ boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.18), 0 2px 6px rgba(0,0,0,0.5)' }}
-              >
-                <div className={`flex items-center justify-center w-12 h-12 rounded-full ring-2 ${m.badgeClass}`}>
-                  <span className="text-2xl font-black" style={{ fontFamily: FONT }}>{m.badge}</span>
-                </div>
-                <div className="flex-1 text-left">
-                  <h2 className="text-base font-black italic text-amber-100" style={{ fontFamily: FONT }}>{m.label}</h2>
-                  <p className="text-[11px] text-amber-100/50">{t(m.hintKey)}</p>
-                </div>
-              </button>
-            ))}
-            <p className="text-[10px] text-amber-100/40 italic text-center mt-2">{t("Choose your preferred withdrawal method · Approved by admin")}</p>
-            {wagerRemaining > 0 && (
-              <WesternFrame variant="glass" className="p-3 flex flex-col gap-1 text-center">
-                <p className="text-[11px] text-amber-200 italic" style={{ fontFamily: FONT }}>{t("Deposit play-through required")}</p>
-                <p className="text-[10px] text-amber-100/70 italic">
-                  {t("{x} of your deposit must be played in games or stacked before withdrawal. Withdrawable now: {y}.", { x: `$${wagerRemaining.toFixed(2)}`, y: `$${maxWithdrawable.toFixed(2)}` })}
-                </p>
-              </WesternFrame>
-            )}
-          </div>
-        )}
-
-        {view === 'binance' && (
-          <WesternFrame variant="glass" className="p-4 flex flex-col gap-3">
-            <h2 className="font-black italic text-amber-200" style={{ fontFamily: FONT }}>{t("Enter Binance UID")}</h2>
-            <p className="text-[11px] text-amber-100/60 italic">{t("Enter your Binance Pay ID where you want to receive the funds.")}</p>
-            <input
-              type="text"
-              value={binanceUid}
-              onChange={e => setBinanceUid(e.target.value)}
-              placeholder="e.g. 384920173"
-              className="w-60 mx-auto px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
-              style={{ fontFamily: FONT }}
-            />
+          <div className="dash-card p-5 flex flex-col items-center gap-3 text-center" style={{ animation: 'dashFadeIn 400ms ease both', borderColor: 'rgba(251,146,60,0.4)' }}>
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl" style={{ background: 'rgba(251,146,60,0.14)', border: '1px solid rgba(251,146,60,0.35)' }}>
+              <AlertTriangle className="w-6 h-6" style={{ color: '#fb923c' }} />
+            </div>
+            <p className="text-sm font-bold" style={{ color: '#fb923c' }}>{t("Demo Mode is active.")}</p>
+            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Deposits are disabled while using the practice balance. Turn off Demo from the home page to deposit real funds.")}</p>
             <button
-              onClick={submit}
-              disabled={submitting}
-              className="w-auto mx-auto px-3 py-1.5 rounded-md font-bold italic flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.98]"
-              style={{ ...GOLD_BTN, fontFamily: FONT }}
+              onClick={() => window.location.href = '/'}
+              className="dash-btn-gold px-6 py-3 text-sm"
+            >{t("Back to Home")}</button>
+          </div>
+        ) : (
+          <>
+            {/* Amount card */}
+            <div
+              className="dash-card relative overflow-hidden p-5"
+              style={{ animation: 'dashFadeIn 400ms ease both', background: 'linear-gradient(135deg, rgba(52,211,153,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(52,211,153,0.35)' }}
             >
-              <Send className="w-4 h-4" /> {submitting ? t("Submitting...") : t("Submit Withdrawal")}
-            </button>
-            <p className="text-[10px] text-amber-100/40 italic text-center">{t("Funds sent after admin approves your request.")}</p>
-          </WesternFrame>
-        )}
+              <div className="pointer-events-none absolute -top-10 -right-8 w-40 h-40 rounded-full" style={{ background: 'radial-gradient(circle, rgba(52,211,153,0.22), transparent 70%)' }} />
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(52,211,153,0.85)' }}>{t("Withdrawing")}</p>
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl" style={{ background: 'linear-gradient(135deg,#34d399,#059669)', boxShadow: '0 0 18px rgba(52,211,153,0.5)' }}>
+                  <Wallet className="w-5 h-5" style={{ color: '#062018' }} />
+                </div>
+              </div>
+              <div className="mt-2 flex items-end gap-1">
+                <span className="text-3xl font-extrabold tabular-nums" style={{ color: '#fff', ...heading }}>
+                  $<span>{amount.toFixed(2)}</span>
+                </span>
+              </div>
+              <div className="mt-3 flex items-center gap-3 text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                <span>{t("Withdrawable:")} <span style={{ color: '#34d399', fontWeight: 700 }}>${maxWithdrawable.toFixed(2)}</span></span>
+                {wagerRemaining > 0 && <span>{t("Locked:")} <span style={{ color: '#fb923c', fontWeight: 700 }}>${wagerRemaining.toFixed(2)}</span></span>}
+              </div>
+            </div>
 
-        {view === 'usdt' && (
-          <div className="flex flex-col gap-3">
-            <p className="text-xs text-amber-100/70 italic">{t("Select a network, then enter your wallet address.")}</p>
-            {usdtNets.map((n, i) => {
-              const active = selectedNet?.name === n.name;
-              return (
-                <button
-                  key={i}
-                  onClick={() => setSelectedNet(n)}
-                  className="w-full flex items-center gap-3 p-3 rounded-md border transition-all"
-                  style={active ? NET_ACTIVE : WOOD_BTN}
-                >
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full shrink-0" style={{ background: n.color, boxShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>
-                    <span className="text-sm font-black text-white">₮</span>
-                  </span>
-                  <span className="flex-1 text-left text-sm font-bold italic" style={{ fontFamily: FONT, color: active ? '#f3e2b3' : '#d9b97a' }}>{n.name}</span>
-                  {active && <span className="text-xs font-bold text-amber-300">✓</span>}
-                </button>
-              );
-            })}
+            {view === 'choose' && (
+              <div className="flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+                {METHODS.map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => setView(m.id)}
+                    className="dash-card w-full flex items-center gap-4 p-4 text-left transition-all active:scale-[0.98]"
+                  >
+                    <div
+                      className="flex items-center justify-center w-12 h-12 rounded-xl shrink-0"
+                      style={{ background: `${m.color}22`, border: `1px solid ${m.color}66` }}
+                    >
+                      <span className="text-2xl font-extrabold" style={{ color: m.color }}>{m.badge}</span>
+                    </div>
+                    <div className="flex-1">
+                      <h2 className="text-base font-bold" style={{ ...heading, color: '#fff' }}>{m.label}</h2>
+                      <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{t(m.hint)}</p>
+                    </div>
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="#D4AF37" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+                  </button>
+                ))}
+                <p className="text-[11px] text-center mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{t("Choose your preferred withdrawal method · Approved by admin")}</p>
+                {wagerRemaining > 0 && (
+                  <div className="dash-card p-3 flex flex-col gap-1 text-center" style={{ borderColor: 'rgba(251,146,60,0.35)' }}>
+                    <p className="text-[11px] font-bold" style={{ color: '#fb923c' }}>{t("Deposit play-through required")}</p>
+                    <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                      {t("{x} of your deposit must be played in games or stacked before withdrawal. Withdrawable now: {y}.", { x: `$${wagerRemaining.toFixed(2)}`, y: `$${maxWithdrawable.toFixed(2)}` })}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
-            {selectedNet && (
-              <WesternFrame variant="glass" className="p-4 flex flex-col gap-3">
-                <h2 className="font-black italic text-amber-200" style={{ fontFamily: FONT }}>{t("Your Wallet Address")}</h2>
-                <p className="text-[11px] text-amber-100/60 italic">{t("Network:")} {selectedNet.name}</p>
+            {view === 'binance' && (
+              <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(240,185,11,0.14)', border: '1px solid rgba(240,185,11,0.35)' }}>
+                    <span className="text-lg font-extrabold" style={{ color: '#f0b90b' }}>B</span>
+                  </div>
+                  <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Enter Binance UID")}</h2>
+                </div>
+                <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Enter your Binance Pay ID where you want to receive the funds.")}</p>
                 <input
                   type="text"
-                  value={walletAddr}
-                  onChange={e => setWalletAddr(e.target.value)}
-                  placeholder={t("Paste your USDT wallet address")}
-                  className="w-60 mx-auto px-3 py-1.5 rounded-md bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none text-sm"
-                  style={{ fontFamily: 'monospace' }}
+                  value={binanceUid}
+                  onChange={e => setBinanceUid(e.target.value)}
+                  placeholder="e.g. 384920173"
+                  className="dash-input w-full px-4 py-3 text-sm"
                 />
                 <button
                   onClick={submit}
                   disabled={submitting}
-                  className="w-auto mx-auto px-3 py-1.5 rounded-md font-bold italic flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-[0.98]"
-                  style={{ ...GOLD_BTN, fontFamily: FONT }}
+                  className="dash-btn-gold w-full px-6 py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   <Send className="w-4 h-4" /> {submitting ? t("Submitting...") : t("Submit Withdrawal")}
                 </button>
-                <p className="text-[10px] text-amber-100/40 italic text-center">{t("Funds sent after admin approves your request.")}</p>
-              </WesternFrame>
+                <p className="text-[11px] text-center" style={{ color: 'rgba(255,255,255,0.4)' }}>{t("Funds sent after admin approves your request.")}</p>
+              </div>
             )}
-            </div>
+
+            {view === 'usdt' && (
+              <div className="flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+                <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Select a network, then enter your wallet address.")}</p>
+                {usdtNets.map((n, i) => {
+                  const active = selectedNet?.name === n.name;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedNet(n)}
+                      className="dash-card w-full flex items-center gap-3 p-3 transition-all active:scale-[0.98]"
+                      style={active ? { borderColor: `${n.color}aa`, boxShadow: `0 0 14px ${n.color}55` } : undefined}
+                    >
+                      <span className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0" style={{ background: `${n.color}22`, border: `1px solid ${n.color}66` }}>
+                        <span className="text-sm font-extrabold" style={{ color: n.color }}>₮</span>
+                      </span>
+                      <span className="flex-1 text-left text-sm font-bold" style={{ color: active ? '#fff' : 'rgba(255,255,255,0.8)' }}>{n.name}</span>
+                      {active && <span className="text-xs font-bold" style={{ color: n.color }}>✓</span>}
+                    </button>
+                  );
+                })}
+
+                {selectedNet && (
+                  <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 300ms ease both' }}>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: `${selectedNet.color}22`, border: `1px solid ${selectedNet.color}66` }}>
+                        <span className="text-sm font-extrabold" style={{ color: selectedNet.color }}>₮</span>
+                      </div>
+                      <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Your Wallet Address")}</h2>
+                    </div>
+                    <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{t("Network:")} {selectedNet.name}</p>
+                    <input
+                      type="text"
+                      value={walletAddr}
+                      onChange={e => setWalletAddr(e.target.value)}
+                      placeholder={t("Paste your USDT wallet address")}
+                      className="dash-input w-full px-4 py-3 text-sm"
+                      style={{ fontFamily: 'ui-monospace, monospace' }}
+                    />
+                    <button
+                      onClick={submit}
+                      disabled={submitting}
+                      className="dash-btn-gold w-full px-6 py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      <Send className="w-4 h-4" /> {submitting ? t("Submitting...") : t("Submit Withdrawal")}
+                    </button>
+                    <p className="text-[11px] text-center" style={{ color: 'rgba(255,255,255,0.4)' }}>{t("Funds sent after admin approves your request.")}</p>
+                  </div>
+                )}
+              </div>
             )}
-            </>
-            )}
-            </main>
-            </div>
-            );
-            }
+          </>
+        )}
+      </main>
+    </div>
+  );
+}
