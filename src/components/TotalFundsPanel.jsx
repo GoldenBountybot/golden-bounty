@@ -32,8 +32,8 @@ function randAmount() {
 }
 
 function makeEntry() {
-  // ~72% additions, 28% subtractions → net positive drift on the feed.
-  const positive = Math.random() < 0.72;
+  // ~55% additions, 45% subtractions → nearly even, slightly more additions.
+  const positive = Math.random() < 0.55;
   const amount = randAmount();
   return {
     id: Math.random().toString(36).slice(2),
