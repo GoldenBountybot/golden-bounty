@@ -52,8 +52,8 @@ export default function StackFaq() {
   return (
     <div className="flex flex-col gap-3" style={{ fontFamily: SANS }}>
       <div className="flex items-center gap-2 px-1">
-        <HelpCircle className="w-4 h-4" style={{ color: '#D4AF37' }} />
-        <h2 className="text-sm font-bold" style={{ color: '#D4AF37' }}>Frequently Asked Questions (FAQ)</h2>
+        <HelpCircle className="w-4 h-4" style={{ color: 'rgba(38,161,123,0.95)' }} />
+        <h2 className="text-sm font-bold" style={{ color: 'rgba(38,161,123,0.95)' }}>Frequently Asked Questions (FAQ)</h2>
       </div>
 
       {FAQS.map((item, i) => {
@@ -71,15 +71,15 @@ export default function StackFaq() {
               <span className="flex items-start gap-2.5 min-w-0">
                 <span
                   className="flex items-center justify-center w-6 h-6 rounded-lg shrink-0 text-[11px] font-extrabold"
-                  style={{ background: 'linear-gradient(135deg,#FFD700,#C89B3C)', color: '#1a1408' }}
+                  style={{ background: 'rgba(38,161,123,0.14)', border: '1px solid rgba(38,161,123,0.4)', color: 'rgba(38,161,123,0.95)' }}
                 >
                   {i + 1}
                 </span>
-                <span className="text-[13px] font-bold" style={{ color: '#fff' }}>{item.q}</span>
+                <span className="text-[13px] font-bold" style={{ color: 'rgba(38,161,123,0.95)' }}>{item.q}</span>
               </span>
               <ChevronDown
                 className="w-4 h-4 shrink-0 transition-transform duration-300"
-                style={{ color: '#D4AF37', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                style={{ color: 'rgba(38,161,123,0.95)', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
               />
             </button>
             <div
