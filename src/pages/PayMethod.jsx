@@ -48,7 +48,6 @@ function logoFor(network, name) {
 }
 
 const METHODS = [
-  { id: 'binance', label: 'Pay with Binance', logo: LOGOS.binance, badge: 'B', badgeClass: 'bg-amber-400 text-stone-950 ring-amber-200', hint: 'Binance Pay wallet' },
   { id: 'usdt', label: 'Pay USDT in Crypto', logo: LOGOS.tether, badge: '₮', badgeClass: 'bg-emerald-500 text-white ring-emerald-300', hint: 'Tether (USDT) transfer' },
   { id: 'crypto', label: 'Pay Crypto', logo: LOGOS.bitcoin, badge: null, icon: Bitcoin, iconClass: 'text-amber-300', hint: 'BTC / ETH / BNB & other coins' },
   { id: 'trust', label: 'Trust Wallet', logo: LOGOS.trustwallet, badge: 'T', badgeClass: 'bg-blue-600 text-white ring-blue-300', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
@@ -117,17 +116,15 @@ export default function PayMethod() {
   const { t } = useLanguage();
   const { demoMode } = useCasinoBalance();
   const [view, setView] = useState('choose'); // 'choose' | 'usdt' | 'crypto' | 'binance'
-  const [payData, setPayData] = useState({ binance: null, usdt: USDT_NETWORKS, crypto: CRYPTO_NETWORKS });
+  const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, crypto: CRYPTO_NETWORKS });
 
   useEffect(() => {
     base44.entities.PaymentAddress.filter({ active: true }, 'order', 100)
       .then(list => {
         const map = (r) => ({ name: r.label, symbol: r.symbol || '', color: r.color || '#f7931a', address: r.address || '', qr_image_url: r.qr_image_url || '', network: r.network, logo: logoFor(r.network, r.label), raw: r });
-        const bin = list.find(r => r.method === 'binance');
         const usdt = list.filter(r => r.method === 'usdt').map(map);
         const crypto = list.filter(r => r.method === 'crypto').map(map);
         setPayData({
-          binance: bin ? map(bin) : null,
           usdt: usdt.length ? usdt : USDT_NETWORKS,
           crypto: crypto.length ? crypto : CRYPTO_NETWORKS,
         });
@@ -136,12 +133,12 @@ export default function PayMethod() {
   }, []);
 
   const choose = (m) => {
-    if (m.id === 'usdt' || m.id === 'crypto' || m.id === 'binance' || m.id === 'trust' || m.id === 'tonkeeper') { setView(m.id); return; }
+    if (m.id === 'usdt' || m.id === 'crypto' || m.id === 'trust' || m.id === 'tonkeeper') { setView(m.id); return; }
     toast({ title: `${m.label} selected`, description: 'Payment processing coming soon.' });
   };
 
   const networks = view === 'usdt' ? payData.usdt : view === 'crypto' ? payData.crypto : [];
-  const methodLabel = view === 'usdt' ? t("USDT Deposit") : view === 'crypto' ? t("Crypto Deposit") : view === 'tonkeeper' ? t("Ton Wallet Deposit") : view === 'trust' ? t("Trust Wallet Pay") : t("Binance Pay Deposit");
+  const methodLabel = view === 'usdt' ? t("USDT Deposit") : view === 'crypto' ? t("Crypto Deposit") : view === 'tonkeeper' ? t("Ton Wallet Deposit") : t("Trust Wallet Pay");
 
   return (
     <div className="relative min-h-screen pb-24" style={{ background: '#0D0D0D', fontFamily: SANS }}>
@@ -223,7 +220,7 @@ export default function PayMethod() {
           </div>
         )}
 
-        {view !== 'choose' && view !== 'binance' && (
+        {view !== 'choose' && (
           <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
             <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>{t("Send to one of the addresses below to deposit.")}</p>
             {networks.map((n, i) => (
@@ -241,17 +238,6 @@ export default function PayMethod() {
                 <TxIdRow amount={amount} method={view} network={n.name} />
               </div>
             ))}
-          </div>
-        )}
-
-        {view === 'binance' && (
-          <div className="flex flex-col gap-4 items-center" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-            <div className="dash-card p-5 flex flex-col items-center gap-3 w-full" style={{ boxShadow: '0 0 24px rgba(212,175,55,0.16), 0 8px 24px rgba(0,0,0,0.5)' }}>
-              <div className="w-56 h-56 rounded-2xl overflow-hidden bg-white p-3 flex items-center justify-center" style={{ boxShadow: '0 0 0 1px rgba(212,175,55,0.4), 0 6px 18px rgba(0,0,0,0.5)' }}>
-                <img src={payData.binance?.qr_image_url || 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2a51a6e74_InShot_20260718_2329057661.jpg'} alt="Binance Pay QR" className="w-full h-full object-contain" />
-              </div>
-              <p className="text-[13px] text-center" style={{ color: 'rgba(255,255,255,0.7)' }}>Scan the QR with your Binance app to pay <span className="font-bold" style={{ color: '#D4AF37' }}>${amount.toFixed(2)}</span></p>
-            </div>
           </div>
         )}
 

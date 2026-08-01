@@ -22,7 +22,6 @@ const LOGOS = {
 };
 
 const METHODS = [
-  { id: 'binance', label: 'Binance Pay', logo: 'https://cdn.simpleicons.org/binance/F0B90B', color: '#f0b90b', hint: 'Withdraw to your Binance UID' },
   { id: 'usdt', label: 'USDT (Crypto)', logo: LOGOS.tether, color: '#26a17b', hint: 'Withdraw USDT to your wallet' },
 ];
 
@@ -78,7 +77,6 @@ export default function Withdraw() {
   const [view, setView] = useState('choose');
   const [usdtNets, setUsdtNets] = useState(DEFAULT_USDT_NETS);
   const [selectedNet, setSelectedNet] = useState(null);
-  const [binanceUid, setBinanceUid] = useState('');
   const [walletAddr, setWalletAddr] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -95,7 +93,6 @@ export default function Withdraw() {
   }, []);
 
   const submit = async () => {
-    if (view === 'binance' && !binanceUid.trim()) { toast({ title: t("Enter your Binance UID") }); return; }
     if (view === 'usdt') {
       if (!selectedNet) { toast({ title: t("Select a network first") }); return; }
       if (!walletAddr.trim()) { toast({ title: t("Enter your wallet address") }); return; }
@@ -120,12 +117,12 @@ export default function Withdraw() {
         type: 'withdraw',
         amount,
         status: 'pending',
-        method: view === 'binance' ? 'binance' : 'usdt',
-        reference: view === 'binance' ? binanceUid.trim() : walletAddr.trim(),
-        note: view === 'binance' ? `Binance Pay · UID ${binanceUid.trim()}` : `${selectedNet.name} · ${walletAddr.trim().slice(0, 14)}...`,
+        method: 'usdt',
+        reference: walletAddr.trim(),
+        note: `${selectedNet.name} · ${walletAddr.trim().slice(0, 14)}...`,
       });
       toast({ title: t("Withdrawal requested"), description: t("Pending admin approval.") });
-      setBinanceUid(''); setWalletAddr(''); setSelectedNet(null);
+      setWalletAddr(''); setSelectedNet(null);
       setTimeout(() => { window.location.href = '/dashboard?tab=wallet'; }, 1000);
     } catch {
       toast({ title: t("Submission failed"), description: t("Please try again.") });
@@ -159,7 +156,7 @@ export default function Withdraw() {
               <ArrowUpFromLine className="w-5 h-5" style={{ color: '#062018' }} />
             </div>
             <span className="text-lg font-extrabold tracking-tight" style={{ ...heading, color: '#D4AF37' }}>
-              {view === 'choose' ? t("Withdraw") : view === 'binance' ? t("Binance Pay") : t("USDT Withdraw")}
+              {view === 'choose' ? t("Withdraw") : t("USDT Withdraw")}
             </span>
           </div>
 
@@ -240,33 +237,6 @@ export default function Withdraw() {
                     </p>
                   </div>
                 )}
-              </div>
-            )}
-
-            {view === 'binance' && (
-              <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(240,185,11,0.14)', border: '1px solid rgba(240,185,11,0.35)' }}>
-                    <span className="text-lg font-extrabold" style={{ color: '#f0b90b' }}>B</span>
-                  </div>
-                  <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Enter Binance UID")}</h2>
-                </div>
-                <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Enter your Binance Pay ID where you want to receive the funds.")}</p>
-                <input
-                  type="text"
-                  value={binanceUid}
-                  onChange={e => setBinanceUid(e.target.value)}
-                  placeholder="e.g. 384920173"
-                  className="dash-input w-full px-4 py-3 text-sm"
-                />
-                <button
-                  onClick={submit}
-                  disabled={submitting}
-                  className="dash-btn-gold w-full px-6 py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  <Send className="w-4 h-4" /> {submitting ? t("Submitting...") : t("Submit Withdrawal")}
-                </button>
-                <p className="text-[11px] text-center" style={{ color: 'rgba(255,255,255,0.4)' }}>{t("Funds sent after admin approves your request.")}</p>
               </div>
             )}
 
