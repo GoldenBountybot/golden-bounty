@@ -4,7 +4,7 @@ import InfoLayout, { InfoSection } from '@/components/InfoLayout';
 import { base44 } from '@/api/base44Client';
 
 export default function Licenses() {
-  const [certImg, setCertImg] = useState('');
+  const [certImg, setCertImg] = useState('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/747317502_Gemini_Generated_Image_wb9p68wb9p68wb9p.png');
 
   useEffect(() => {
     base44.entities.SiteSetting.filter({ name: 'license_certificate', active: true })
@@ -49,7 +49,7 @@ export default function Licenses() {
         <div className="dash-card p-4 flex flex-col items-center gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Certificate of Adhesion</p>
           {certImg ? (
-            <img src={certImg} alt="Certificate of Adhesion" className="w-full rounded-xl" style={{ border: '1px solid rgba(212,175,55,0.3)' }} />
+            <img src={certImg} alt="Certificate of Adhesion" className="w-full h-auto rounded-xl" style={{ border: '1px solid rgba(212,175,55,0.3)' }} />
           ) : (
             <div className="w-full aspect-[4/3] rounded-xl flex flex-col items-center justify-center gap-2 text-center" style={{ border: '2px dashed rgba(212,175,55,0.35)', background: 'rgba(255,255,255,0.02)' }}>
               <Award className="w-10 h-10" style={{ color: 'rgba(212,175,55,0.5)' }} />
