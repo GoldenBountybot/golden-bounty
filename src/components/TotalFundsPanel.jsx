@@ -111,12 +111,10 @@ export default function TotalFundsPanel() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Tether_USDT_logo.svg"
-            alt="USDT"
-            className="w-6 h-6 rounded-full"
-            style={{ filter: 'drop-shadow(0 0 4px rgba(38,161,123,0.6))' }}
-          />
+          <svg viewBox="0 0 2000 2000" className="w-6 h-6" style={{ filter: 'drop-shadow(0 0 4px rgba(38,161,123,0.6))' }} aria-label="USDT">
+            <circle cx="1000" cy="1000" r="1000" fill="#26A17B" />
+            <path fill="#fff" d="M1125 1086v-101h287V831H588v154h287v101c-233 11-408 51-408 99 0 48 175 88 408 99v322h250v-322c233-11 407-51 407-99 0-48-174-88-407-99m0 168v-1c-6 0-35 2-119 2-64 0-109-1-119-2v1c-208-9-363-45-363-87 0-42 155-78 363-87v139c9 1 56 2 119 2 86 0 113-1 119-2v-139c207 9 362 45 362 87 0 42-155 78-362 87" />
+          </svg>
           <p className="text-[13px] font-extrabold uppercase tracking-[0.2em]" style={{ color: 'rgba(38,161,123,0.95)' }}>Total Funds</p>
         </div>
       </div>
