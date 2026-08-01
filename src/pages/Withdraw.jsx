@@ -5,6 +5,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useLanguage } from '@/lib/LanguageContext';
 import { Wallet, ArrowLeft, Send, AlertTriangle, ArrowUpFromLine, Menu, Shield } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
+import { CryptoLogo, detectCrypto, CRYPTO_META } from '@/components/CryptoLogo';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -14,95 +15,13 @@ const METHODS = [
 ];
 
 const DEFAULT_USDT_NETS = [
-  { name: 'USDT TRX Network', color: '#26a17b', logo: 'trx' },
-  { name: 'USDT BEP 20', color: '#f0b90b', logo: 'bsc' },
-  { name: 'USDT ETH Network', color: '#627eea', logo: 'eth' },
-  { name: 'USDT POL Polygon Pos', color: '#8247e5', logo: 'pol' },
-  { name: 'USDT SOL Solana Network', color: '#14f195', logo: 'sol' },
-  { name: 'USDT TON Network', color: '#0098ea', logo: 'ton' },
+  { name: 'USDT TRX Network', cryptoType: 'trx' },
+  { name: 'USDT BEP 20', cryptoType: 'bsc' },
+  { name: 'USDT ETH Network', cryptoType: 'eth' },
+  { name: 'USDT POL Polygon Pos', cryptoType: 'pol' },
+  { name: 'USDT SOL Solana Network', cryptoType: 'sol' },
+  { name: 'USDT TON Network', cryptoType: 'ton' },
 ];
-
-const LOGO_COLORS = {
-  trx: '#26a17b', bsc: '#f0b90b', eth: '#627eea', pol: '#8247e5',
-  sol: '#14f195', ton: '#0098ea', avax: '#e84142', apt: '#06b6d4',
-  btc: '#f7931a', matic: '#8247e5',
-};
-
-function detectLogo(name) {
-  const n = (name || '').toLowerCase();
-  if (n.includes('trx') || n.includes('tron')) return 'trx';
-  if (n.includes('bep') || n.includes('bsc') || n.includes('binance smart')) return 'bsc';
-  if (n.includes('eth') || n.includes('erc')) return 'eth';
-  if (n.includes('pol') || n.includes('polygon') || n.includes('matic')) return 'pol';
-  if (n.includes('sol') || n.includes('solana')) return 'sol';
-  if (n.includes('ton')) return 'ton';
-  if (n.includes('avax') || n.includes('avalanche')) return 'avax';
-  if (n.includes('apt') || n.includes('aptos')) return 'apt';
-  if (n.includes('btc') || n.includes('bitcoin')) return 'btc';
-  return null;
-}
-
-function NetworkLogo({ type, color }) {
-  const common = { width: 18, height: 18, viewBox: '0 0 24 24' };
-  switch (type) {
-    case 'trx':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.6 5.2l-1.4 9.3c-.1.6-.4.8-.9.5l-2.5-1.8-1.2 1.2c-.2.2-.4.3-.7.3l.2-2.6 4.7-4.2c.2-.2 0-.3-.3-.1l-5.8 3.6-2.5-.8c-.5-.2-.6-.6.1-.9l9.8-3.8c.5-.2.9.1.7.7z"/>
-        </svg>
-      );
-    case 'bsc':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2l3 1.7v3.5L12 9.2 9 7.2V3.7L12 2zm6 3.5l3 1.7v3.5l-3 1.7-3-1.7V7.2l3-1.7zM6 5.5l3 1.7v3.5l-3 1.7-3-1.7V7.2l3-1.7zm6 7l3 1.7v3.5l-3 1.7-3-1.7v-3.5l3-1.7zm6 0l3 1.7v3.5l-3 1.7-3-1.7v-3.5l3-1.7zm-12 0l3 1.7v3.5l-3 1.7-3-1.7v-3.5l3-1.7z"/>
-        </svg>
-      );
-    case 'eth':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2L5 12.5l7 4 7-4L12 2zm0 16.5l-7-4 7 9.5 7-9.5-7 4z"/>
-        </svg>
-      );
-    case 'pol':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2l3.5 2v4L12 10 8.5 8V4L12 2zm0 8l3.5 2v4L12 18l-3.5-2v-4L12 10zm0 8l3.5 2v0L12 22l-3.5-2v0L12 18z"/>
-        </svg>
-      );
-    case 'sol':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M5 7.5l1.4-1.4h11.2L16.2 7.5H5zm0 3.5l1.4-1.4h11.2L16.2 11H5zm14 3.5l-1.4 1.4H6.4L7.8 18H19z"/>
-        </svg>
-      );
-    case 'ton':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-3.5 6h7c.6 0 1 .5 1 1 0 .2 0 .3-.1.5l-3.5 6.5c-.2.4-.6.5-1 .5s-.8-.2-1-.5L7.6 9.5c-.1-.2-.1-.3-.1-.5 0-.5.4-1 1-1zm3.5 2.2h-3.4l2.9 5.4c.1.2.2.2.3 0l2.9-5.4H12z"/>
-        </svg>
-      );
-    case 'avax':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.2 12.5h-3l1.5-2.6c.2-.3.5-.3.7 0l1.5 2.6c.1.2 0 .4-.2.4zm5.2 1.2c0 .2-.2.4-.4.4h-3.8c-.3 0-.5-.2-.6-.4l-2.8-4.8c-.1-.2-.1-.4 0-.6l1.4-2.4c.2-.3.5-.3.7 0l5.4 9.3c.1.1.1.3.1.5z"/>
-        </svg>
-      );
-    case 'apt':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-4 13.5l3-5.2 3 5.2h-2l-1-1.7-1 1.7H8zm8 0l-1.5-2.6 1.5-2.6 1.5 2.6-1.5 2.6z"/>
-        </svg>
-      );
-    case 'btc':
-      return (
-        <svg {...common} fill={color}>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.5 3v2h1.5v1.5h-1.5v1h1.5V11h-1.5v2c1.7 0 3-1.3 3-3s-1.3-3-3-3zm-3 0v2c-1.7 0-3 1.3-3 3s1.3 3 3 3v2h1.5v-1.5h-1.5V11h1.5V9.5h-1.5v-1H10.5z"/>
-        </svg>
-      );
-    default:
-      return <span className="text-sm font-extrabold" style={{ color }}>₮</span>;
-  }
-}
 
 export default function Withdraw() {
   const params = new URLSearchParams(window.location.search);
@@ -123,8 +42,9 @@ export default function Withdraw() {
       .then(list => {
         if (list.length) setUsdtNets(list.map(r => {
           const name = r.label || r.network;
-          const logo = detectLogo(name) || detectLogo(r.network);
-          return { name, color: r.color || LOGO_COLORS[logo] || '#26a17b', logo };
+          const ct = detectCrypto(name) || detectCrypto(r.network);
+          const meta = ct ? CRYPTO_META[ct] : null;
+          return { name, cryptoType: ct, color: meta?.color || r.color || '#26a17b' };
         }));
       })
       .catch(() => {});
@@ -320,9 +240,7 @@ export default function Withdraw() {
                       className="dash-card w-full flex items-center gap-3 p-3 transition-all active:scale-[0.98]"
                       style={active ? { borderColor: `${n.color}aa`, boxShadow: `0 0 14px ${n.color}55` } : undefined}
                     >
-                      <span className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0" style={{ background: `${n.color}22`, border: `1px solid ${n.color}66` }}>
-                        <NetworkLogo type={n.logo || detectLogo(n.name)} color={n.color} />
-                      </span>
+                      <CryptoLogo type={n.cryptoType || detectCrypto(n.name)} size={36} color={n.color} />
                       <span className="flex-1 text-left text-sm font-bold" style={{ color: active ? '#fff' : 'rgba(255,255,255,0.8)' }}>{n.name}</span>
                       {active && <span className="text-xs font-bold" style={{ color: n.color }}>✓</span>}
                     </button>
@@ -332,9 +250,7 @@ export default function Withdraw() {
                 {selectedNet && (
                   <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 300ms ease both' }}>
                     <div className="flex items-center gap-2">
-                      <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: `${selectedNet.color}22`, border: `1px solid ${selectedNet.color}66` }}>
-                        <NetworkLogo type={selectedNet.logo || detectLogo(selectedNet.name)} color={selectedNet.color} />
-                      </div>
+                      <CryptoLogo type={selectedNet.cryptoType || detectCrypto(selectedNet.name)} size={36} color={selectedNet.color} />
                       <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Your Wallet Address")}</h2>
                     </div>
                     <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{t("Network:")} {selectedNet.name}</p>

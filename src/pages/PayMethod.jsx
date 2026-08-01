@@ -8,6 +8,7 @@ import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
 import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
 import TxIdRow from '@/components/wallet/TxIdSubmit';
 import { useLanguage } from '@/lib/LanguageContext';
+import { CryptoLogo, detectCrypto, CRYPTO_META } from '@/components/CryptoLogo';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -48,34 +49,34 @@ function logoFor(network, name) {
 }
 
 const METHODS = [
-  { id: 'binance', label: 'Pay with Binance', logo: LOGOS.binance, badge: 'B', badgeClass: 'bg-amber-400 text-stone-950 ring-amber-200', hint: 'Binance Pay wallet' },
-  { id: 'usdt', label: 'Pay USDT in Crypto', logo: LOGOS.tether, badge: '₮', badgeClass: 'bg-emerald-500 text-white ring-emerald-300', hint: 'Tether (USDT) transfer' },
-  { id: 'crypto', label: 'Pay Crypto', logo: LOGOS.bitcoin, badge: null, icon: Bitcoin, iconClass: 'text-amber-300', hint: 'BTC / ETH / BNB & other coins' },
-  { id: 'trust', label: 'Trust Wallet', logo: LOGOS.trustwallet, badge: 'T', badgeClass: 'bg-blue-600 text-white ring-blue-300', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
-  { id: 'tonkeeper', label: 'Ton Wallet (TON)', logo: LOGOS.ton, badge: 'T', badgeClass: 'bg-sky-500 text-white ring-sky-300', hint: 'Connect Ton Wallet & pay USDT (TON) — auto credit' },
+  { id: 'binance', label: 'Pay with Binance', cryptoType: 'binance', hint: 'Binance Pay wallet' },
+  { id: 'usdt', label: 'Pay USDT in Crypto', cryptoType: 'usdt', hint: 'Tether (USDT) transfer' },
+  { id: 'crypto', label: 'Pay Crypto', cryptoType: 'btc', hint: 'BTC / ETH / BNB & other coins' },
+  { id: 'trust', label: 'Trust Wallet', cryptoType: 'trust', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
+  { id: 'tonkeeper', label: 'Ton Wallet (TON)', cryptoType: 'ton', hint: 'Connect Ton Wallet & pay USDT (TON) — auto credit' },
 ];
 
 const USDT_NETWORKS = [
-  { name: 'USDT TRX Network', logo: LOGOS.tron, symbol: '₮', color: '#26a17b', address: 'TLrv3EJEbGfEJgGbjQi3Yi1Yc88mn9mDxn' },
-  { name: 'USDT BEP 20', logo: LOGOS.bnb, symbol: '₮', color: '#f0b90b', address: '0x2a62cd712863028804a5789629c23d842990aded' },
-  { name: 'USDT ETH Network', logo: LOGOS.ethereum, symbol: '₮', color: '#627eea', address: '0x2a62cd712863028804a5789629c23d842990aded' },
-  { name: 'USDT POL Polygon Pos', logo: LOGOS.polygon, symbol: '₮', color: '#8247e5', address: '0x2a62cd712863028804a5789629c23d842990aded' },
-  { name: 'USDT SOL Solana Network', logo: LOGOS.solana, symbol: '₮', color: '#14f195', address: 'ftmbTXAc6XWyT6ieXHLiEZ7zuJFDPVSAdvrvrTveniW' },
-  { name: 'USDT TON Network', logo: LOGOS.ton, symbol: '₮', color: '#0098ea', address: 'UQB5vp_yQ4L-EheVHn4df--zU1XDuRX_tMSCc7WEB-PGuGv6' },
-  { name: 'USDT AVAX-C Chain', logo: LOGOS.avalanche, symbol: '₮', color: '#e84142', address: '0x2a62cd712863028804a5789629c23d842990aded' },
-  { name: 'USDT APT Aptos Network', logo: LOGOS.aptos, symbol: '₮', color: '#06f7c7', address: '0x5eed1ca335fec51a3b18c115c6ceb0f4c774f3bdaa943076d1f58024921501f4' },
+  { name: 'USDT TRX Network', cryptoType: 'trx', address: 'TLrv3EJEbGfEJgGbjQi3Yi1Yc88mn9mDxn' },
+  { name: 'USDT BEP 20', cryptoType: 'bsc', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'USDT ETH Network', cryptoType: 'eth', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'USDT POL Polygon Pos', cryptoType: 'pol', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'USDT SOL Solana Network', cryptoType: 'sol', address: 'ftmbTXAc6XWyT6ieXHLiEZ7zuJFDPVSAdvrvrTveniW' },
+  { name: 'USDT TON Network', cryptoType: 'ton', address: 'UQB5vp_yQ4L-EheVHn4df--zU1XDuRX_tMSCc7WEB-PGuGv6' },
+  { name: 'USDT AVAX-C Chain', cryptoType: 'avax', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'USDT APT Aptos Network', cryptoType: 'apt', address: '0x5eed1ca335fec51a3b18c115c6ceb0f4c774f3bdaa943076d1f58024921501f4' },
 ];
 
 const CRYPTO_NETWORKS = [
-  { name: 'Bitcoin BTC Network', logo: LOGOS.bitcoin, symbol: '₿', color: '#f7931a', address: 'bc1q6j34j85jswe2xmnwvljjax4nemagfmak44glt0' },
-  { name: 'ETH ERC 20', logo: LOGOS.ethereum, symbol: 'Ξ', color: '#627eea', address: '0x2a62cd712863028804a5789629c23d842990aded' },
-  { name: 'BNB BNB Network', logo: LOGOS.bnb, symbol: 'B', color: '#f0b90b', address: '0x2a62cd712863028804a5789629c23d842990aded' },
-  { name: 'TRX Trc 20', logo: LOGOS.tron, symbol: 'T', color: '#ef0027', address: 'TLrv3EJEbGfEJgGbjQi3Yi1Yc88mn9mDxn' },
-  { name: 'LTC Litcoin Network', logo: LOGOS.litecoin, symbol: 'Ł', color: '#345d9d', address: 'ltc1qr3sxhe7uhy7230n67ydvyazj7xl3ktg2594xnq' },
-  { name: 'Doge Dogecoin Network', logo: LOGOS.dogecoin, symbol: 'Ð', color: '#c2a634', address: 'DRia2VvUFipNk5D31AvWd4b3W714hBdbtW' },
-  { name: 'Dot Polkadot Network', logo: LOGOS.polkadot, symbol: '●', color: '#e6007a', address: '12vChQ7pHT3wrgMUmHCjCwBy5ASEbHYEmL3paSjfmymDdngN' },
-  { name: 'APT Aptos Network', logo: LOGOS.aptos, symbol: 'A', color: '#06f7c7', address: '0x5eed1ca335fec51a3b18c115c6ceb0f4c774f3bdaa943076d1f58024921501f4' },
-  { name: 'TON Ton network', logo: LOGOS.ton, symbol: 'T', color: '#0098ea', address: 'UQB5vp_yQ4L-EheVHn4df--zU1XDuRX_tMSCc7WEB-PGuGv6' },
+  { name: 'Bitcoin BTC Network', cryptoType: 'btc', address: 'bc1q6j34j85jswe2xmnwvljjax4nemagfmak44glt0' },
+  { name: 'ETH ERC 20', cryptoType: 'eth', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'BNB BNB Network', cryptoType: 'bsc', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'TRX Trc 20', cryptoType: 'trx', address: 'TLrv3EJEbGfEJgGbjQi3Yi1Yc88mn9mDxn' },
+  { name: 'LTC Litcoin Network', cryptoType: 'ltc', address: 'ltc1qr3sxhe7uhy7230n67ydvyazj7xl3ktg2594xnq' },
+  { name: 'Doge Dogecoin Network', cryptoType: 'doge', address: 'DRia2VvUFipNk5D31AvWd4b3W714hBdbtW' },
+  { name: 'Dot Polkadot Network', cryptoType: 'dot', address: '12vChQ7pHT3wrgMUmHCjCwBy5ASEbHYEmL3paSjfmymDdngN' },
+  { name: 'APT Aptos Network', cryptoType: 'apt', address: '0x5eed1ca335fec51a3b18c115c6ceb0f4c774f3bdaa943076d1f58024921501f4' },
+  { name: 'TON Ton network', cryptoType: 'ton', address: 'UQB5vp_yQ4L-EheVHn4df--zU1XDuRX_tMSCc7WEB-PGuGv6' },
 ];
 
 function CopyAddr({ addr }) {
@@ -101,13 +102,8 @@ function CopyAddr({ addr }) {
   );
 }
 
-function CoinLogo({ symbol, color, logo }) {
-  return (
-    <div className="flex items-center justify-center w-11 h-11 rounded-full shrink-0 overflow-hidden"
-      style={{ background: logo ? '#fff' : color, boxShadow: '0 0 0 2px rgba(255,255,255,0.12), 0 2px 8px rgba(0,0,0,0.5)' }}>
-      {logo ? <img src={logo} alt={symbol} className="w-8 h-8 object-contain" /> : <span className="text-lg font-bold text-white">{symbol}</span>}
-    </div>
-  );
+function CoinLogo({ cryptoType, color }) {
+  return <CryptoLogo type={cryptoType} size={44} color={color} />;
 }
 
 export default function PayMethod() {
@@ -122,7 +118,11 @@ export default function PayMethod() {
   useEffect(() => {
     base44.entities.PaymentAddress.filter({ active: true }, 'order', 100)
       .then(list => {
-        const map = (r) => ({ name: r.label, symbol: r.symbol || '', color: r.color || '#f7931a', address: r.address || '', qr_image_url: r.qr_image_url || '', network: r.network, logo: logoFor(r.network, r.label), raw: r });
+        const map = (r) => {
+          const ct = detectCrypto(r.network) || detectCrypto(r.label);
+          const meta = ct ? CRYPTO_META[ct] : null;
+          return { name: r.label, cryptoType: ct, color: meta?.color || r.color || '#f7931a', address: r.address || '', qr_image_url: r.qr_image_url || '', network: r.network, raw: r };
+        };
         const bin = list.find(r => r.method === 'binance');
         const usdt = list.filter(r => r.method === 'usdt').map(map);
         const crypto = list.filter(r => r.method === 'crypto').map(map);
@@ -203,22 +203,23 @@ export default function PayMethod() {
 
         {view === 'choose' && (
           <div className="flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-            {METHODS.map((m, i) => (
-              <button
-                key={m.id}
-                onClick={() => choose(m)}
-                className="dash-card w-full flex items-center gap-4 p-4 transition-all active:scale-[0.98]"
-                style={{ animation: 'dashFadeIn 400ms ease both', animationDelay: (50 * i) + 'ms' }}
-              >
-                <div className={`flex items-center justify-center w-12 h-12 rounded-full ring-2 overflow-hidden shrink-0 ${m.logo ? 'bg-white/95 ring-white/20' : (m.badgeClass || 'bg-black/40 ring-amber-700/40')}`}>
-                  {m.logo ? <img src={m.logo} alt={m.label} className="w-8 h-8 object-contain" /> : m.badge ? <span className="text-2xl font-bold">{m.badge}</span> : m.icon ? <m.icon className={`w-7 h-7 ${m.iconClass || ''}`} /> : null}
-                </div>
-                <div className="flex-1 text-left">
-                  <h2 className="text-base font-bold" style={{ color: '#fff' }}>{m.label}</h2>
-                  <p className="text-[12px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>{m.hint}</p>
-                </div>
-              </button>
-            ))}
+            {METHODS.map((m, i) => {
+              const meta = CRYPTO_META[m.cryptoType];
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => choose(m)}
+                  className="dash-card w-full flex items-center gap-4 p-4 transition-all active:scale-[0.98]"
+                  style={{ animation: 'dashFadeIn 400ms ease both', animationDelay: (50 * i) + 'ms' }}
+                >
+                  <CryptoLogo type={m.cryptoType} size={48} color={meta?.color} />
+                  <div className="flex-1 text-left">
+                    <h2 className="text-base font-bold" style={{ color: '#fff' }}>{m.label}</h2>
+                    <p className="text-[12px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>{m.hint}</p>
+                  </div>
+                </button>
+              );
+            })}
             <p className="text-[11px] text-center mt-2" style={{ color: 'rgba(255,255,255,0.4)' }}>{t("Minimum deposit $3.00 · Choose your preferred method")}</p>
           </div>
         )}
@@ -229,7 +230,7 @@ export default function PayMethod() {
             {networks.map((n, i) => (
               <div key={i} className="dash-card p-4 flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both', animationDelay: (50 * i) + 'ms' }}>
                 <div className="flex items-center gap-3">
-                  <CoinLogo symbol={n.symbol} color={n.color} logo={n.logo} />
+                  <CoinLogo cryptoType={n.cryptoType} color={n.color} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold" style={{ color: '#fff' }}>{n.name}</p>
                   </div>
