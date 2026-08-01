@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { sfx } from './sounds';
 
-// Metallic circular-arrow spin icon on a black background. The black
-// background is keyed out with mix-blend-mode: screen so only the metallic
-// arrows remain — no medallion / circle container behind it.
+// Metallic circular-arrow spin icon (black bg keyed out via screen blend)
+// layered on top of a carved wooden disk (black corners clipped by rounded-full).
 const SPIN_IMG =
   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c6ef02281_file_00000000a90081fa8732fd40e55cc3ef.png';
+const WOOD_IMG =
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/12ac78246_file_00000000b0cc81faafcdac64067dd1a1.png';
 
 // One full revolution decelerating to a stop.
 const COAST_ANIM = 'saSpinRotate 1.8s cubic-bezier(0.12, 0.55, 0.06, 1) forwards';
@@ -18,7 +19,6 @@ export default function SpinButton({ spinning, onClick, disabled }) {
       setCoasting(false);
       return;
     }
-    // When the spin ends, kick off a slow-motion coast to a stop.
     setCoasting(true);
     const t = setTimeout(() => setCoasting(false), 1850);
     return () => clearTimeout(t);
@@ -45,11 +45,20 @@ export default function SpinButton({ spinning, onClick, disabled }) {
           box-shadow: 0 0 18px 4px rgba(255,215,0,0.85), 0 0 36px 10px rgba(255,200,80,0.55) !important;
         }
       `}</style>
+      {/* Wooden disk background — circular clip removes black corners */}
+      <img
+        src={WOOD_IMG}
+        alt=""
+        draggable={false}
+        className="block w-16 h-16 rounded-full object-cover select-none"
+        style={{ filter: 'brightness(1.05) saturate(1.1)' }}
+      />
+      {/* Metallic arrows on top — screen blend keys out its black background */}
       <img
         src={SPIN_IMG}
         alt="Spin"
         draggable={false}
-        className="block w-14 h-14 select-none"
+        className="absolute block w-12 h-12 select-none"
         style={{
           animation: anim,
           mixBlendMode: 'screen',
