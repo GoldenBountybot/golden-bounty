@@ -23,7 +23,7 @@ export default function SiteFooter() {
           Certificate issued 24 April 2026. Authorized for markets outside the territory of Paraguay.
         </p>
         <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
-          No KYC required for withdrawals · 24/7 Support · 18+ Only · Gamble Responsibly
+          24/7 Support · 18+ Only · Gamble Responsibly
         </p>
         <nav className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5">
           {LINKS.map(l => (
