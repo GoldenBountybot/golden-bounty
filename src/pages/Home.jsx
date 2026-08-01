@@ -153,11 +153,6 @@ export default function Home() {
             className="w-full h-auto block"
           />
         </div>
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-2.5">
-          <Link to="/register" className="px-5 py-2.5 rounded-xl text-sm font-extrabold transition-all active:scale-95" style={{ background: 'linear-gradient(135deg, #FFD700, #C89B3C)', color: '#1a1408', boxShadow: '0 4px 14px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.45)' }}>Claim 1 Free Spin Now</Link>
-          <button onClick={() => document.getElementById('games')?.scrollIntoView({ behavior: 'smooth' })} className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95" style={{ border: '1px solid rgba(212,175,55,0.5)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>Play Now</button>
-          <Link to="/dashboard?tab=stack" className="px-5 py-2.5 rounded-xl text-sm font-extrabold transition-all active:scale-95" style={{ background: 'linear-gradient(135deg, #34d399, #059669)', color: '#062018', boxShadow: '0 4px 14px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.45)' }}>Start Staking</Link>
-        </div>
       </section>
 
       <SiteFooter />
