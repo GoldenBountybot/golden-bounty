@@ -4,6 +4,7 @@ import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, 
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import { useStake, LOCK_DAYS } from '@/lib/useStake';
 import StackMining from '@/components/StackMining';
+import TotalFundsPanel from '@/components/TotalFundsPanel';
 import VipLevels from '@/components/VipLevels';
 import BackButton from '@/components/BackButton';
 import StylishNotify from '@/components/StylishNotify';
@@ -373,6 +374,8 @@ export default function Dashboard() {
               </div>
               <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Stacking again restarts your {LOCK_DAYS}-day lock and profit timer on the total.</p>
             </div>
+
+            <TotalFundsPanel />
           </div>
         )}
       </main>
