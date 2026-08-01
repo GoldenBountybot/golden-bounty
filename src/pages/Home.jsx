@@ -41,8 +41,8 @@ export default function Home() {
       <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.10), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.05), transparent 60%), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat' }} />
       {/* Header */}
       <header
-        className="sticky top-0 z-20 backdrop-blur-xl"
-        style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.06)' }}
+        className="sticky top-0 z-20 backdrop-blur-md"
+        style={{ background: 'rgba(10,9,8,0.35)', borderBottom: '1px solid rgba(214,178,98,0.06)' }}
       >
         <div className="max-w-6xl mx-auto pl-4 pr-0 pt-2 pb-0 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
