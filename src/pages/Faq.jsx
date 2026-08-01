@@ -33,7 +33,7 @@ export default function Faq() {
                 <ChevronDown className="w-4 h-4 shrink-0 transition-transform" style={{ color: '#D4AF37', transform: active ? 'rotate(180deg)' : 'none' }} />
               </div>
               {active && (
-                <p className="text-sm leading-relaxed mt-2.5" style={{ color: 'rgba(255,255,255,0.65)', animation: 'dashFadeIn 250ms ease both' }}>{f.a}</p>
+                <p className="text-sm leading-relaxed mt-2.5" style={{ color: 'rgba(38,161,123,0.95)', animation: 'dashFadeIn 250ms ease both' }}>{f.a}</p>
               )}
             </button>
           );

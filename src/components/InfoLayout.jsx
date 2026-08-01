@@ -46,7 +46,7 @@ export function InfoSection({ n, title, children }) {
         )}
         <div className="flex-1 min-w-0">
           {title && <h2 className="text-base font-bold mb-1.5" style={{ color: '#fff' }}>{title}</h2>}
-          <div className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>{children}</div>
+          <div className="text-sm leading-relaxed" style={{ color: 'rgba(38,161,123,0.95)' }}>{children}</div>
         </div>
       </div>
     </div>

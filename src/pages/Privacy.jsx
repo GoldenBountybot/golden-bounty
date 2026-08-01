@@ -16,7 +16,7 @@ export default function Privacy() {
     <InfoLayout title="Privacy Policy" subtitle="Last updated: 1 August 2026" icon={Shield}>
       <div className="flex flex-col gap-3">
         <div className="dash-card p-5" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-          <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)' }}>
+          <p className="text-sm leading-relaxed" style={{ color: 'rgba(38,161,123,0.95)' }}>
             Golden Bounty ("we", "us", or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information when you use golden-bounty.com (the "Platform").
           </p>
         </div>

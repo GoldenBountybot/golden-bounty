@@ -21,7 +21,7 @@ export default function ResponsibleGaming() {
     <InfoLayout title="Responsible Gaming" icon={ShieldCheck}>
       <div className="flex flex-col gap-3">
         <div className="dash-card p-5" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-          <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)' }}>
+          <p className="text-sm leading-relaxed" style={{ color: 'rgba(38,161,123,0.95)' }}>
             At Golden Bounty, we are committed to promoting responsible gaming.
           </p>
         </div>
@@ -67,7 +67,7 @@ export default function ResponsibleGaming() {
         <div className="dash-card p-5 flex flex-col items-center gap-2 text-center" style={{ animation: 'dashFadeIn 400ms ease both', background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', borderColor: 'rgba(212,175,55,0.4)' }}>
           <Headset className="w-7 h-7" style={{ color: '#D4AF37' }} />
           <p className="text-sm font-bold" style={{ color: '#fff' }}>Need help?</p>
-          <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>Contact our 24/7 Support team through the Platform.</p>
+          <p className="text-[12px]" style={{ color: 'rgba(38,161,123,0.85)' }}>Contact our 24/7 Support team through the Platform.</p>
         </div>
       </div>
     </InfoLayout>
