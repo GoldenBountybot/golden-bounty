@@ -54,7 +54,7 @@ export default function ControlPanel({ bet, setBet, spinning, spin, turbo, setTu
         </div>
 
         {/* Spin — absolutely centered wooden medallion */}
-        <div className="absolute left-1/2 -translate-x-1/2">
+        <div className="absolute left-1/2 -translate-x-1/2 -translate-y-2">
           <SpinButton spinning={spinning} onClick={spin} disabled={spinning} />
         </div>
 
