@@ -79,7 +79,7 @@ export default function TotalFundsPanel() {
   useEffect(() => {
     let timer;
     const schedule = () => {
-      const delay = 2200 + Math.random() * 1800;
+      const delay = 700 + Math.random() * 700;
       timer = setTimeout(() => {
         const e = makeEntry();
         setFeed(prev => [e, ...prev].slice(0, 7));
@@ -126,19 +126,6 @@ export default function TotalFundsPanel() {
 
       {/* 10-day progress to 36M */}
       <div className="mt-3">
-        <div className="flex items-center justify-between text-[10px] mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
-          <span>35M</span>
-          <span>36M</span>
-        </div>
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-          <div className="h-full rounded-full"
-            style={{
-              width: `${Math.min(((total - BASE) / (TARGET - BASE)) * 100, 100)}%`,
-              background: 'linear-gradient(90deg, #26a17b, #7af0c8)',
-              boxShadow: '0 0 8px rgba(122,240,200,0.6)',
-              transition: 'width 400ms ease',
-            }} />
-        </div>
       </div>
 
       {/* Live feed */}
