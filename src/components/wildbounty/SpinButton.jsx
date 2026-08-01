@@ -7,11 +7,6 @@ import { sfx } from './sounds';
 const SPIN_IMG =
   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c6ef02281_file_00000000a90081fa8732fd40e55cc3ef.png';
 
-// Wooden bull-skull medallion placed behind the spin icon. Black background
-// keyed out with mix-blend-mode: screen so only the carved wood shows.
-const BG_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/12ac78246_file_00000000b0cc81faafcdac64067dd1a1.png';
-
 // One full revolution decelerating to a stop.
 const COAST_ANIM = 'saSpinRotate 1.8s cubic-bezier(0.12, 0.55, 0.06, 1) forwards';
 
@@ -50,29 +45,17 @@ export default function SpinButton({ spinning, onClick, disabled }) {
           box-shadow: 0 0 18px 4px rgba(255,215,0,0.85), 0 0 36px 10px rgba(255,200,80,0.55) !important;
         }
       `}</style>
-      {/* Wooden bull-skull medallion behind the spin icon (static) */}
-      <img
-        src={BG_IMG}
-        alt=""
-        aria-hidden
-        draggable={false}
-        className="block absolute inset-0 m-auto w-[28rem] h-[5rem] select-none pointer-events-none"
-        style={{
-          mixBlendMode: 'screen',
-          filter: 'brightness(1.05) drop-shadow(0 2px 6px rgba(0,0,0,0.6))',
-        }}
-      />
       <img
         src={SPIN_IMG}
         alt="Spin"
         draggable={false}
-        className="block w-12 h-12 select-none relative z-10"
+        className="block w-14 h-14 select-none"
         style={{
           animation: anim,
           mixBlendMode: 'screen',
           filter: spinning || coasting
-            ? 'brightness(1.35) contrast(1.15) drop-shadow(0 1px 1px rgba(0,0,0,0.8)) drop-shadow(0 -1px 1px rgba(255,255,255,0.3)) drop-shadow(0 0 14px rgba(255,220,120,0.55))'
-            : 'brightness(1.15) contrast(1.1) drop-shadow(0 1px 1px rgba(0,0,0,0.8)) drop-shadow(0 -1px 1px rgba(255,255,255,0.3)) drop-shadow(0 0 6px rgba(255,190,80,0.3))',
+            ? 'brightness(1.3) drop-shadow(0 0 12px rgba(255,220,120,0.5))'
+            : 'brightness(1.1) drop-shadow(0 0 6px rgba(255,190,80,0.3))',
           transition: 'filter 0.3s ease',
         }}
       />
