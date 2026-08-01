@@ -114,10 +114,6 @@ export default function TotalFundsPanel() {
             style={{ background: 'radial-gradient(circle at 35% 30%, #4dd6a8, #1e8a63)' }}>₮</span>
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(38,161,123,0.9)' }}>Total Funds</p>
         </div>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
-          style={{ color: '#34d399', background: 'rgba(52,211,153,0.14)', border: '1px solid rgba(52,211,153,0.35)' }}>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live
-        </span>
       </div>
 
       {/* Big total */}
@@ -132,7 +128,6 @@ export default function TotalFundsPanel() {
       <div className="mt-3">
         <div className="flex items-center justify-between text-[10px] mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
           <span>35M</span>
-          <span style={{ color: 'rgba(38,161,123,0.85)' }}>Target 36M · 10 days</span>
           <span>36M</span>
         </div>
         <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
