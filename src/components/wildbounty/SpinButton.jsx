@@ -53,21 +53,24 @@ export default function SpinButton({ spinning, onClick, disabled }) {
         className="block w-16 h-16 rounded-full object-cover select-none"
         style={{ filter: 'brightness(1.05) saturate(1.1)' }}
       />
-      {/* Metallic arrows on top — screen blend keys out its black background */}
-      <img
-        src={SPIN_IMG}
-        alt="Spin"
-        draggable={false}
-        className="absolute block w-12 h-12 select-none -translate-y-1"
-        style={{
-          animation: anim,
-          mixBlendMode: 'screen',
-          filter: spinning || coasting
-            ? 'brightness(1.3) drop-shadow(0 0 12px rgba(255,220,120,0.5))'
-            : 'brightness(1.1) drop-shadow(0 0 6px rgba(255,190,80,0.3))',
-          transition: 'filter 0.3s ease',
-        }}
-      />
+      {/* Metallic arrows on top — screen blend keys out its black background.
+          Wrapper holds the vertical offset so the rotation animation (which
+          sets its own transform) doesn't reset the arrows' position. */}
+      <div className="absolute -translate-y-1" style={{ mixBlendMode: 'screen' }}>
+        <img
+          src={SPIN_IMG}
+          alt="Spin"
+          draggable={false}
+          className="block w-12 h-12 select-none"
+          style={{
+            animation: anim,
+            filter: spinning || coasting
+              ? 'brightness(1.3) drop-shadow(0 0 12px rgba(255,220,120,0.5))'
+              : 'brightness(1.1) drop-shadow(0 0 6px rgba(255,190,80,0.3))',
+            transition: 'filter 0.3s ease',
+          }}
+        />
+      </div>
     </button>
   );
 }
