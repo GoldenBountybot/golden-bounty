@@ -152,7 +152,7 @@ export default function WildBountyMachine() {
           style={{ fontFamily: 'Rye, Georgia, serif' }}
         >
           {g.lastWin > 0 ? (
-            (g.multIndex >= 3 || g.endSkull) ? <>TOTAL WIN <CountUp value={g.lastWin} duration={g.totalWinDur} /></> : <>WIN {g.lastWin.toFixed(2)}</>
+            (g.multIndex >= 3 || g.endSkull) ? <>TOTAL WIN <CountUp key={g.totalWinKey} value={g.lastWin} duration={g.totalWinDur} /></> : <>WIN {g.lastWin.toFixed(2)}</>
           ) : g.message}
         </span>
       </PlaqueBanner>

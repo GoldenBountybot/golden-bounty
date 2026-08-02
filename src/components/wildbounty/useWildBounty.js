@@ -40,6 +40,7 @@ export function useWildBounty() {
   const [freeSpinsEndWin, setFreeSpinsEndWin] = useState(null); // total win after 10 free spins
   const [endSkull, setEndSkull] = useState(false); // skull shown at cascade-chain end when peak >= x8
   const [totalWinDur, setTotalWinDur] = useState(650); // count-up duration matched to the total-win sound length (ms)
+  const [totalWinKey, setTotalWinKey] = useState(0); // bump to re-mount CountUp (re-animate from 0) at chain end
   const peakMultRef = useRef(1); // highest multiplier applied to a winning cascade this round
   const freeSpinsTotalRef = useRef(0); // accumulated win across the current free-spins round
   const freeSpinsCountRef = useRef(0); // remaining free spins (synced ref for chain-end checks)
@@ -307,7 +308,14 @@ export function useWildBounty() {
       // x16–x32; Mega Win covers x64 and every tier beyond. Free-spins rounds
       // show a Mega Win banner with the accumulated 10-spin total instead.
       const peak = peakMultRef.current;
-      if (peak >= 8 && totalWin > 0) setEndSkull(true);
+      if (peak >= 8 && totalWin > 0) {
+        setEndSkull(true);
+        // Round-end final reveal: play the total-win sting once more and
+        // re-animate the count-up from 0 to the accumulated round total,
+        // synced to the sound length.
+        setTotalWinDur((sfx.showdown() || 2.2) * 1000);
+        setTotalWinKey(k => k + 1);
+      }
       const fsEnding = wasFree && freeSpinsCountRef.current === 0 && freeSpinsTotalRef.current > 0;
       let banner = null;
       if (fsEnding) {
@@ -587,7 +595,7 @@ export function useWildBounty() {
     superWin, megaWin, dismissSuperWin, dismissMegaWin,
     freeSpinsEndWin, dismissFreeSpinsEndWin,
     endSkull,
-    totalWinDur,
+    totalWinDur, totalWinKey,
     spin, setBet, setTurbo, setAutoSpin, reset,
     featureCost: bet * 75,
   };
