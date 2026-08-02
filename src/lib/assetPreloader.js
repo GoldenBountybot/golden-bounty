@@ -23,7 +23,15 @@ export function preloadImage(url) {
   const p = new Promise((resolve) => {
     const img = new Image();
     img.decoding = 'async';
-    img.onload = () => resolve();
+    img.onload = () => {
+      // Wait for the image to be fully decoded and ready to paint, so it
+      // never pops in after the loading screen disappears.
+      if (typeof img.decode === 'function') {
+        img.decode().then(resolve).catch(() => resolve());
+      } else {
+        resolve();
+      }
+    };
     img.onerror = () => resolve(); // never reject — a broken image shouldn't block the game
     img.src = url;
   });

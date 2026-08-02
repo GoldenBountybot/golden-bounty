@@ -17,7 +17,6 @@ export default function GameAssetLoader({
   onDone,
   bgImage,
   minDuration = 1200,
-  timeout = 12000,
 }) {
   const [progress, setProgress] = useState(0);
   const doneRef = useRef(false);
@@ -38,9 +37,9 @@ export default function GameAssetLoader({
       if (progress >= 100) finish();
     }, minDuration);
 
-    // Safety timeout: never trap the user on the loading screen if a request
-    // hangs. After `timeout` ms we proceed regardless.
-    const safety = setTimeout(finish, timeout);
+    // No safety timeout: the user explicitly wants to wait as long as needed
+    // so that no symbol/image pops in after the game appears. The browser's
+    // own network timeout handles truly dead requests.
 
     preloadAssets(assets, (p) => {
       if (cancelled) return;
@@ -62,7 +61,6 @@ export default function GameAssetLoader({
     return () => {
       cancelled = true;
       clearTimeout(minTimer);
-      clearTimeout(safety);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
