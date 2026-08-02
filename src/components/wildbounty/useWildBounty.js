@@ -219,11 +219,12 @@ export function useWildBounty() {
       // X1 (first cascade) has no flying multiplier, so it shows after a
       // short delay instead.
       const flySlow = cascadeCount >= 1 ? 1.6 : 1.2;
-      const winMsg = justAwarded ? `WIN ${newTotal.toFixed(2)} · +10 FREE SPINS` : `WIN ${newTotal.toFixed(2)}`;
+      // Show only THIS cascade round's win in the banner — not the accumulated total.
+      const winMsg = justAwarded ? `WIN ${stepWin.toFixed(2)} · +10 FREE SPINS` : `WIN ${stepWin.toFixed(2)}`;
       if (currentMultIndex >= 1) {
         setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
         // The multiplier arrives at the banner at ~86% of the fly duration.
-        pendingWinRef.current = newTotal;
+        pendingWinRef.current = stepWin;
         const winT = setTimeout(() => {
           setLastWin(pendingWinRef.current);
           pendingWinRef.current = 0;
@@ -231,7 +232,7 @@ export function useWildBounty() {
         }, 1300 * flySlow * 0.86);
         timers.current.push(winT);
       } else {
-        pendingWinRef.current = newTotal;
+        pendingWinRef.current = stepWin;
         const winT = setTimeout(() => {
           setLastWin(pendingWinRef.current);
           pendingWinRef.current = 0;
