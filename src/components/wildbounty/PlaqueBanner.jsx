@@ -28,7 +28,7 @@ const PlaqueBanner = forwardRef(function PlaqueBanner({ children, className = ''
       <img
         src={SKULL_URL}
         alt=""
-        className="absolute left-1/2 -translate-x-1/2 top-[55px] w-[21%] max-w-[90px] h-auto select-none pointer-events-none z-20"
+        className="absolute left-1/2 -translate-x-1/2 top-[58px] w-[21%] max-w-[90px] h-auto select-none pointer-events-none z-20"
         draggable={false}
         style={{ mixBlendMode: 'screen', filter: 'brightness(1.05) saturate(1.05)' }}
       />
