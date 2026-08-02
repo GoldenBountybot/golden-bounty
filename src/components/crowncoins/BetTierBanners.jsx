@@ -64,8 +64,8 @@ function TierBanner({ tierKey, bet }) {
 function Corner({ pos, children }) {
   const base = 'absolute z-10';
   const styles = {
-    'top-left':    { top: '22px', left: '-44px' },
-    'top-right':   { top: '22px', right: '-44px' },
+    'top-left':    { top: '42px', left: '-44px' },
+    'top-right':   { top: '42px', right: '-44px' },
     'bottom-left': { bottom: '90px', left: '-44px' },
     'bottom-right':{ bottom: '90px', right: '-44px' },
   };
