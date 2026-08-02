@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import WildBountyMachine from "@/components/wildbounty/WildBountyMachine";
 import GameLoadingScreen from "@/components/wildbounty/GameLoadingScreen";
 import BackButton from "@/components/BackButton";
-import ShareButton from "@/components/ShareButton";
 import GameTitleBar from "@/components/GameTitleBar";
 import { useCasinoBalance } from "@/lib/useCasinoBalance";
 import { Wallet } from "lucide-react";
@@ -44,7 +43,6 @@ export default function SlotGame() {
                   ${balance.toFixed(2)}
                 </span>
               </div>
-              <ShareButton />
             </>
           }
           maxWidth="max-w-4xl"

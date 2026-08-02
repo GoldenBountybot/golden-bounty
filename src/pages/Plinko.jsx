@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { RotateCw, ChevronLeft, DollarSign, Plus, Pencil, Share2, Check, Wallet, History, X } from 'lucide-react';
+import { RotateCw, ChevronLeft, DollarSign, Plus, Pencil, Wallet, History, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -187,7 +187,6 @@ export default function Plinko() {
   const [hitPeg, setHitPeg] = useState(null);
   const [message, setMessage] = useState('Drop the ball');
   const [lastWin, setLastWin] = useState(0);
-  const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const timers = useRef([]);
   const bet = customBet != null ? customBet : BETS[betIdx];
@@ -204,10 +203,6 @@ export default function Plinko() {
   const logActivity = useLogActivity();
 
   useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
-
-  const share = () => {
-    try { navigator.clipboard?.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 1400); } catch {}
-  };
 
   const drop = () => {
     if (dropping) return;
@@ -318,9 +313,6 @@ export default function Plinko() {
             <Link to="/dashboard" className="w-8 h-8 flex items-center justify-center" style={{ ...goldBtn }}>
               <Plus className="w-4 h-4" />
             </Link>
-            <button onClick={share} className="w-5 h-5 flex items-center justify-center bg-transparent border-0 shadow-none" style={{ color: '#f3e2b3' }}>
-              {copied ? <Check className="w-[7px] h-[7px]" style={{ color: '#f5c542' }} /> : <Share2 className="w-[7px] h-[7px]" />}
-            </button>
           </div>
         </div>
       </header>

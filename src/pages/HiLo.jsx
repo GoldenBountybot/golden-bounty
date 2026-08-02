@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus, Wallet, CircleDollarSign, Trophy } from 'lucide-react';
 import BackButton from '@/components/BackButton';
-import ShareButton from '@/components/ShareButton';
 import GameTitleBar from '@/components/GameTitleBar';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -225,7 +224,7 @@ export default function HiLo() {
 
       {/* Header */}
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-emerald-600/30">
-        <GameTitleBar title="High or Low" left={<BackButton />} right={<ShareButton />} />
+        <GameTitleBar title="High or Low" left={<BackButton />} />
       </header>
 
       <main className="max-w-md mx-auto px-3 py-4 flex flex-col items-center gap-4 relative z-10">

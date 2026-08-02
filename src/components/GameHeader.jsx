@@ -1,6 +1,5 @@
 import React from 'react';
 import BackButton from '@/components/BackButton';
-import ShareButton from '@/components/ShareButton';
 import GameTitleBar from '@/components/GameTitleBar';
 import { Wallet } from 'lucide-react';
 import AnimatedNumber from '@/components/AnimatedNumber';
@@ -31,7 +30,6 @@ export default function GameHeader({ title, balance }) {
                 <AnimatedNumber value={balance} prefix="$" />
               </span>
             )}
-            <ShareButton />
           </>
         }
         padLeft={hasBalance ? 'pl-36' : 'pl-32'}
