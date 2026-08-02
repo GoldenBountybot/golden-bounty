@@ -144,6 +144,16 @@ export default function WildBountyMachine() {
 
       </div>
 
+      {/* Steer-skull emblem between the board and the win banner */}
+      <div className="relative z-30 flex justify-center -mt-6 -mb-2 pointer-events-none">
+        <img
+          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2bbef1a0e_file_000000002a3c820b808b197402106ca0.png"
+          alt=""
+          className="h-10 w-auto opacity-80"
+          draggable={false}
+        />
+      </div>
+
       {/* Win / message banner — shows a counting-up win amount while a round
           is paying, otherwise the status message */}
       <PlaqueBanner ref={winBannerRef} glow className="-mt-28 mx-auto py-1 text-center relative z-30 w-[94%]">
