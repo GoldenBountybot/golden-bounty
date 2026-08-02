@@ -519,7 +519,7 @@ export default function CrownCoinsMachine() {
           <span className="w-6" />
         </div>
 
-        <div ref={bannerRef} className="relative flex items-center justify-center -mt-2 mx-auto" style={{ width: '82%' }}>
+        <div ref={bannerRef} className="relative flex items-center justify-center -mt-4 mx-auto" style={{ width: '78%' }}>
           <BetTierBanners bet={bet} />
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9e18b75a6_file_00000000700081fab7c3b36c02964e06.png"
@@ -530,7 +530,7 @@ export default function CrownCoinsMachine() {
         </div>
 
         <div
-          className="relative rounded-lg p-1 overflow-hidden -mt-24 w-full"
+          className="relative rounded-lg p-1 overflow-hidden -mt-28 w-full"
           style={{
             border: '2px solid #d4af37',
             boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 1px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)',
