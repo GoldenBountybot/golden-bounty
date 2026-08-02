@@ -100,7 +100,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   return (
     <div
       className={`relative ${highlighted || showHalo || scatterBeam || goldFramed || decorFrame ? 'overflow-visible' : 'overflow-hidden'}`}
-      style={{ aspectRatio: '1 / 1', willChange: shattering ? 'transform, filter' : 'auto', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards` : undefined, zIndex: shattering ? 20 : undefined, contain: 'layout style', transform: 'translate3d(0,0,0)' }}
+      style={{ aspectRatio: '1 / 1', willChange: shattering ? 'transform, filter' : 'auto', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards` : undefined, zIndex: shattering ? 20 : undefined, contain: 'layout style paint', transform: shattering ? 'translate3d(0,0,0)' : undefined }}
     >
       {/* Golden light-burst behind matching symbols (not wilds) — slightly
           larger than the symbol so the flare bleeds around it */}

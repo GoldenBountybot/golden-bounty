@@ -42,15 +42,19 @@ export function buildReel(rows) {
   return Array.from({ length: rows }, () => randomSymbol());
 }
 
+// Cached base symbols — avoids recreating this array on every evaluateWins
+// call, which happens many times per cascade (including the rigCascadeGrid
+// while-loop that can call it up to 12× per cascade).
+const BASE_SYMBOLS = Object.values(SYMBOLS).filter(s => s.type !== 'scatter' && s.type !== 'wild');
+
 // Ways-to-win evaluation. Wild substitutes for all base symbols.
 // grid: array of 6 arrays. bet: current stake (base unit = 100).
 export function evaluateWins(grid, bet) {
   // 20-coin ways structure: each way pays paytable × (bet / 20) × ways
   const betUnit = bet / 20;
   const wins = [];
-  const baseSymbols = Object.values(SYMBOLS).filter(s => s.type !== 'scatter' && s.type !== 'wild');
 
-  for (const sym of baseSymbols) {
+  for (const sym of BASE_SYMBOLS) {
     let reels = 0;
     const countsPerReel = [];
     for (let r = 0; r < 6; r++) {

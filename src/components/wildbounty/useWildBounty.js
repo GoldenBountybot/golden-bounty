@@ -119,7 +119,7 @@ export function useWildBounty() {
       // Force a non-win: break any 3-reel contiguity by swapping a blasted
       // cell on reel 2 (then 1, then 0) to a symbol different from the win.
       let guard = 0;
-      while (guard++ < 12 && evaluateWins(grid, bet).wins.length > 0) {
+      while (guard++ < 5 && evaluateWins(grid, bet).wins.length > 0) {
         const wins = evaluateWins(grid, bet).wins;
         let fixed = false;
         for (const w of wins) {
