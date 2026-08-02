@@ -96,18 +96,18 @@
 }
 
 @keyframes reelFall {
-  0% { transform: translateY(-75%); }
-  100% { transform: translateY(0%); }
+  0% { transform: translate3d(0, -75%, 0); }
+  100% { transform: translate3d(0, 0%, 0); }
 }
 
 @keyframes reelLand {
-  0%   { transform: translateY(-9%); }
-  100% { transform: translateY(0%); }
+  0%   { transform: translate3d(0, -9%, 0); }
+  100% { transform: translate3d(0, 0%, 0); }
 }
 
 @keyframes reelLandSlow {
-  0%   { transform: translateY(-16%); }
-  100% { transform: translateY(0%); }
+  0%   { transform: translate3d(0, -16%, 0); }
+  100% { transform: translate3d(0, 0%, 0); }
 }
 
 /* Spin button — bright pulsing white glow while a spin is in progress */
@@ -177,8 +177,8 @@
 }
 
 @keyframes cascadeDrop {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(0%); }
+  0% { transform: translate3d(0, -100%, 0); }
+  100% { transform: translate3d(0, 0%, 0); }
 }
 
 /* Wild Bounty — calm cascade symbol drop: a soft, bounce-free glide from
@@ -186,8 +186,8 @@
    overshoot — pure translateY with the app's signature ease-out so it feels
    weightless and relaxing. GPU-only transform. */
 @keyframes wbDrop {
-  0%   { transform: translateY(-42%); opacity: 1; }
-  100% { transform: translateY(0); opacity: 1; }
+  0%   { transform: translate3d(0, -42%, 0); opacity: 1; }
+  100% { transform: translate3d(0, 0, 0); opacity: 1; }
 }
 
 @keyframes multCenterFly {

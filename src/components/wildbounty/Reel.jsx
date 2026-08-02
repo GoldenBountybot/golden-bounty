@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useEffect, useLayoutEffect } from 'react';
 import SymbolTile from './SymbolTile';
 import { randomSymbol } from './symbols';
 
@@ -11,7 +11,10 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
 
   useEffect(() => { if (spinning && anticipationGlow) wasAnticipation.current = true; }, [spinning, anticipationGlow]);
 
-  useEffect(() => {
+  // useLayoutEffect — sets justStopped BEFORE the browser paints, so there's
+  // no one-frame gap where the reel shows static (stuck) symbols between the
+  // spin animation ending and the land animation starting.
+  useLayoutEffect(() => {
     if (prevSpinning.current && !spinning) {
       setJustStopped(true);
       const t = setTimeout(() => { setJustStopped(false); wasAnticipation.current = false; }, wasAnticipation.current ? 1100 : 400);
@@ -44,7 +47,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
   }, [spinning, symbols, rowCount, anticipationGlow]);
 
   return (
-    <div className={`relative w-full ${spinning ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount, contain: 'layout style' }}>
+    <div className={`relative w-full ${spinning ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount, contain: 'layout style', transform: 'translate3d(0,0,0)' }}>
       {/* Anticipation golden edge glow on both sides (brighter) */}
       {anticipationGlow && spinning && (
         <>
@@ -70,7 +73,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
       )}
       <div
         className="flex flex-col w-full"
-        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s cubic-bezier(0.16, 1, 0.3, 1)' : 'reelLand 0.4s cubic-bezier(0.16, 1, 0.3, 1)') : 'none', willChange: (spinning || justStopped) ? 'transform' : 'auto', backfaceVisibility: 'hidden', transform: (spinning || justStopped) ? 'translateZ(0)' : 'none' }}
+        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s cubic-bezier(0.16, 1, 0.3, 1)' : 'reelLand 0.4s cubic-bezier(0.16, 1, 0.3, 1)') : 'none', willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translate3d(0,0,0)' }}
       >
         {strip.map((sym, i) => {
           const isDropping = cascading && cascadePositions && cascadePositions.has(`${reelIndex}-${i}`);
