@@ -7,6 +7,7 @@ import GameAssetLoader from '@/components/GameAssetLoader';
 import { FREE_SPIN_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import SpinWheel from '@/components/freespin/SpinWheel';
 import WoodFrame from '@/components/freespin/WoodFrame';
+import { startWheelSpin, stopWheelSpin } from '@/components/freespin/wheelSounds';
 
 // Wheel segments in the uploaded board's clockwise order (segment 1 is the
 // first slice immediately clockwise of the top divider). Colors are kept for the
@@ -120,7 +121,7 @@ export default function FreeSpin() {
   // 1-second tick for the countdown.
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
+    return () => { clearInterval(t); stopWheelSpin(); };
   }, []);
 
   const remaining = lastSpinAt == null ? null : Math.max(0, COOLDOWN_MS - (now - lastSpinAt));
@@ -150,6 +151,7 @@ export default function FreeSpin() {
     const delta = (targetMod - currentMod + 360) % 360;
     const turns = 6;
     setRotation(rotation + turns * 360 + delta);
+    startWheelSpin(10);
   }, [spinning, available, rotation, spinCount, spinGroup]);
 
   const handleRest = useCallback(async () => {
@@ -173,6 +175,7 @@ export default function FreeSpin() {
     setLastSpinAt(ts);
     setSpinning(false);
     setSpinCount(nextCount);
+    stopWheelSpin();
     try {
       await base44.auth.updateMe({
         last_daily_spin_at: ts,
