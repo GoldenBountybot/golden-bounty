@@ -341,9 +341,6 @@ export default function ArgonautsMachine() {
                   className="block w-full h-full object-contain"
                   style={{ filter: 'url(#argoSpinDropBlack)' }}
                 />
-                {g.spinning && (
-                  <span className="absolute block w-7 h-7 rounded-full border-[3px] border-white/30 border-t-white" style={{ animation: 'saSpinRotate 0.6s linear infinite' }} />
-                )}
               </button>
               <IconButton onClick={() => g.setBet(incBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet >= MAX_BET} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
             </div>
