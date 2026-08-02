@@ -112,32 +112,10 @@ export function startWheelSpin(durationSec = 10) {
   tickHp.connect(tickGain);
   tickGain.connect(master);
 
-  // 4) Luxury shimmer — high sine pair with slow vibrato for a golden
-  //    premium sparkle riding on top of the mechanics.
-  const shim1 = ac.createOscillator();
-  shim1.type = 'sine';
-  shim1.frequency.value = 1760;
-  const shim2 = ac.createOscillator();
-  shim2.type = 'sine';
-  shim2.frequency.value = 2640;
-  const shimGain = ac.createGain();
-  shimGain.gain.value = 0.045;
-  const vib = ac.createOscillator();
-  vib.type = 'sine';
-  vib.frequency.value = 4.5;
-  const vibGain = ac.createGain();
-  vibGain.gain.value = 6;
-  vib.connect(vibGain);
-  vibGain.connect(shim1.frequency);
-  vibGain.connect(shim2.frequency);
-  shim1.connect(shimGain);
-  shim2.connect(shimGain);
-  shimGain.connect(master);
-
   hum1.start(); hum2.start(); noise.start(); lfo.start();
-  tick.start(); tickLfo.start(); shim1.start(); shim2.start(); vib.start();
+  tick.start(); tickLfo.start();
 
-  nodes = { master, hum1, hum2, noise, lfo, tick, tickLfo, shim1, shim2, vib };
+  nodes = { master, hum1, hum2, noise, lfo, tick, tickLfo };
 }
 
 // Stop the wheel sound with a quick fade-out. Called when the wheel rests.
@@ -155,5 +133,5 @@ export function stopWheelSpin() {
   }
   const stop = (o) => { try { o.stop(ac ? ac.currentTime + 0.3 : 0); } catch { /* ignore */ } };
   stop(n.hum1); stop(n.hum2); stop(n.noise); stop(n.lfo);
-  stop(n.tick); stop(n.tickLfo); stop(n.shim1); stop(n.shim2); stop(n.vib);
+  stop(n.tick); stop(n.tickLfo);
 }
