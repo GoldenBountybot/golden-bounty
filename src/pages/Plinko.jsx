@@ -6,7 +6,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameAssetLoader from '@/components/GameAssetLoader';
-import { PLINKO_ASSETS } from '@/lib/gameAssets';
+import { PLINKO_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { isMuted, useMute } from '@/lib/soundMute';
 
 const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
@@ -290,7 +290,7 @@ export default function Plinko() {
 
   return (
     <div className="min-h-screen text-white flex flex-col" style={{ background: 'radial-gradient(circle at 50% 0%, #1a0f2e 0%, #0a0a12 55%, #000 100%)', fontFamily: FONT }}>
-      {!loaded && <GameAssetLoader title="Plinko Drop" assets={PLINKO_ASSETS} onDone={() => setLoaded(true)} />}
+      {!loaded && <GameAssetLoader title="Plinko Drop" assets={PLINKO_ASSETS} bgImage={GAME_BG.plinko} onDone={() => setLoaded(true)} />}
       <div className="fixed inset-0 pointer-events-none opacity-50" style={{ backgroundImage: 'radial-gradient(1px 1px at 20% 30%, #fff, transparent), radial-gradient(1px 1px at 70% 60%, #b9a, transparent), radial-gradient(1px 1px at 40% 80%, #fff, transparent), radial-gradient(1.5px 1.5px at 85% 20%, #c8e, transparent), radial-gradient(1px 1px at 10% 70%, #fff, transparent)', backgroundSize: '300px 300px' }} />
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9908875c4_file_00000000fcd081fa8582ee43f34c550f.png')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.35 }} />
 

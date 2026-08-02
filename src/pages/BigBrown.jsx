@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import GameAssetLoader from '@/components/GameAssetLoader';
-import { BIG_BROWN_ASSETS } from '@/lib/gameAssets';
+import { BIG_BROWN_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import GameHeader from '@/components/GameHeader';
 import BigBrownMachine from '@/components/bigbrown/BigBrownMachine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -15,7 +15,7 @@ export default function BigBrown() {
         title="Big Brown"
         assets={BIG_BROWN_ASSETS}
         onDone={() => setReady(true)}
-        bgImage="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9a6ce937b_generated_image.png"
+        bgImage={GAME_BG.bigBrown}
       />
     );
   }

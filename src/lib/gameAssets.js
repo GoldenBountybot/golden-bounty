@@ -15,6 +15,22 @@ const SHARED = [
   u('670fa1a3e_generated_image.png'),          // plaque bg (GameTitleBar)
 ];
 
+// ---- Full-screen category/feature background per game (from the lobby cards) ----
+export const GAME_BG = {
+  wildBounty:  u('af2b94fcd_InShot_20260717_194156078.jpg'),
+  superAce:    u('199c00bd0_generated_image.png'),
+  crownCoins:  u('ef3b69c4c_generated_image.png'),
+  gates:       u('2125c8cfd_generated_image.png'),
+  bigBrown:    u('a6f715d21_generated_image.png'),
+  argonauts:   u('766629235_generated_image.png'),
+  rocketCrash: u('61f59a253_aviator-game-cover.png'),
+  plinko:      u('22ada4a2e_generated_image.png'),
+  mines:       u('446327a76_mines.jpg'),
+  hiLo:        u('162440517_generated_image.png'),
+  thimbles:    u('25ec953a6_generated_image.png'),
+  freeSpin:    u('580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png'),
+};
+
 // ---- Wild Bounty (SlotGame) ----
 export const WILD_BOUNTY_ASSETS = [
   ...SHARED,

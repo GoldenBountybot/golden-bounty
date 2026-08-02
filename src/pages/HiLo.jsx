@@ -3,7 +3,7 @@ import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus, Wallet, CircleDollarSign, T
 import BackButton from '@/components/BackButton';
 import GameTitleBar from '@/components/GameTitleBar';
 import GameAssetLoader from '@/components/GameAssetLoader';
-import { HILO_ASSETS } from '@/lib/gameAssets';
+import { HILO_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -213,7 +213,7 @@ export default function HiLo() {
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at 50% 0%, #071D14 0%, #03150F 55%, #050806 100%)', fontFamily: SERIF }}>
-      {!loaded && <GameAssetLoader title="High or Low" assets={HILO_ASSETS} onDone={() => setLoaded(true)} />}
+      {!loaded && <GameAssetLoader title="High or Low" assets={HILO_ASSETS} bgImage={GAME_BG.hiLo} onDone={() => setLoaded(true)} />}
 
       {/* Ambient casino backdrop — soft golden glow + emerald haze */}
       <div className="fixed inset-0 pointer-events-none" style={{

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ArgonautsMachine from '@/components/argonauts/ArgonautsMachine';
 import GameAssetLoader from '@/components/GameAssetLoader';
-import { ARGONAUTS_ASSETS } from '@/lib/gameAssets';
+import { ARGONAUTS_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { base44 } from '@/api/base44Client';
 
 export default function Argonauts() {
@@ -13,7 +13,7 @@ export default function Argonauts() {
       <GameAssetLoader
         title="ARGONAUTS"
         assets={ARGONAUTS_ASSETS}
-        bgImage="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png"
+        bgImage={GAME_BG.argonauts}
         onDone={() => setAssetsReady(true)}
       />
     );

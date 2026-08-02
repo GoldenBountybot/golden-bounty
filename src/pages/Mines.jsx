@@ -6,7 +6,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameAssetLoader from '@/components/GameAssetLoader';
-import { MINES_ASSETS } from '@/lib/gameAssets';
+import { MINES_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { isMuted } from '@/lib/soundMute';
 
 const TOTAL = 25;
@@ -204,7 +204,7 @@ export default function Mines() {
 
   return (
     <div className="min-h-screen text-amber-100 flex flex-col relative" style={{ background: 'linear-gradient(to bottom, #1a1108, #0d0905)', ...W }}>
-      {!loaded && <GameAssetLoader title="Mines" assets={MINES_ASSETS} onDone={() => setLoaded(true)} />}
+      {!loaded && <GameAssetLoader title="Mines" assets={MINES_ASSETS} bgImage={GAME_BG.mines} onDone={() => setLoaded(true)} />}
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7ad5415af_.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5, mixBlendMode: 'screen' }} />
       <GameHeader title="Mines" balance={Number(balance || 0)} />
 
