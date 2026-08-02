@@ -140,7 +140,7 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, 
     phase === 'spin'
       ? `reelFall ${spinSpeed}s linear infinite`
       : phase === 'land'
-      ? 'reelLand 0.4s ease-out'
+      ? 'ccReelLand 0.45s ease-out'
       : 'none';
 
   const showGlow = anticipate && phase !== 'idle';
