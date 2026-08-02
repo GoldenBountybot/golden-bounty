@@ -203,7 +203,7 @@ export default function FreeSpin() {
       {/* Header */}
       <GameHeader title="Daily Free Spin" balance={balance} />
 
-      <main className="max-w-md mx-auto px-4 pt-6 pb-6 flex flex-col items-center">
+      <main className="max-w-md mx-auto px-4 pt-6 pb-2 flex flex-col items-center">
         {/* Reserved slot above the wheel — win message floats up into it */}
         <div className="relative w-full max-w-xs mx-auto mb-2" style={{ height: result?.held ? 108 : 56 }}>
           {result && (
@@ -240,7 +240,7 @@ export default function FreeSpin() {
             </feComponentTransfer>
           </filter>
         </svg>
-        <div className="mt-2 w-full max-w-[260px]">
+        <div className="-mt-1 w-full max-w-[260px]">
           {available ? (
             <button
               onClick={handleSpin}
@@ -269,7 +269,7 @@ export default function FreeSpin() {
           )}
         </div>
 
-        <p className="mt-1 text-center text-[11px] text-amber-200/60 italic" style={{ fontFamily: 'Georgia, serif' }}>
+        <p className="mt-0.5 text-center text-[11px] text-amber-200/60 italic" style={{ fontFamily: 'Georgia, serif' }}>
           One free spin every 24 hours · prizes credited to your balance instantly
         </p>
         {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
