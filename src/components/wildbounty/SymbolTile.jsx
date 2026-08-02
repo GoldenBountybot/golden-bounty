@@ -99,8 +99,8 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
 
   return (
     <div
-      className={`relative ${highlighted || showHalo || scatterBeam || goldFramed || decorFrame ? 'overflow-visible' : 'overflow-hidden'} transition-transform`}
-      style={{ aspectRatio: '1 / 1', willChange: shattering ? 'transform, filter' : 'auto', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards` : undefined, zIndex: shattering ? 20 : undefined }}
+      className={`relative ${highlighted || showHalo || scatterBeam || goldFramed || decorFrame ? 'overflow-visible' : 'overflow-hidden'}`}
+      style={{ aspectRatio: '1 / 1', willChange: shattering ? 'transform, filter' : 'auto', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards` : undefined, zIndex: shattering ? 20 : undefined, contain: 'layout style' }}
     >
       {/* Golden light-burst behind matching symbols (not wilds) — slightly
           larger than the symbol so the flare bleeds around it */}
