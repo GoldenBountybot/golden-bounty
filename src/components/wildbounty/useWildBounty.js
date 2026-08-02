@@ -337,6 +337,12 @@ export function useWildBounty() {
       }
       setSpinning(false);
       logActivity('wild-bounty', bet, totalWin, totalWin > 0 ? 'win' : 'loss');
+      // Clear the win amount from the banner after a short delay so the next
+      // round starts fresh showing only its own win.
+      if (totalWin > 0) {
+        const clearT = setTimeout(() => { setLastWin(0); }, 2500);
+        timers.current.push(clearT);
+      }
     }
   };
 
