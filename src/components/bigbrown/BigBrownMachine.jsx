@@ -358,7 +358,7 @@ export default function BigBrownMachine() {
           <button
             onClick={spin}
             disabled={spinning}
-            className="relative w-20 h-20 disabled:opacity-70 active:scale-95 transition-transform flex items-center justify-center"
+            className="relative w-16 h-16 disabled:opacity-70 active:scale-110 transition-transform flex items-center justify-center"
             style={{ background: 'transparent', border: 'none', padding: 0, cursor: spinning ? 'not-allowed' : 'pointer' }}
           >
             <img
