@@ -102,7 +102,7 @@ export default function WildBountyMachine() {
               symbols={reel}
               spinning={!g.stoppedReels.has(ri)}
               speed={g.anticipation && !g.stoppedReels.has(ri) ? (g.turbo ? 1.9 : 2.8) : (g.turbo ? 0.24 : 0.5)}
-              anticipationGlow={g.anticipation && !g.stoppedReels.has(ri)}
+              anticipationGlow={g.anticipation}
               winningPositions={g.winningPositions}
               goldFrames={g.goldFrames}
               shatteringPositions={g.shattering}

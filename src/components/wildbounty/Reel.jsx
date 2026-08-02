@@ -49,7 +49,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
   return (
     <div className={`relative w-full ${spinning ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount, contain: 'layout style', transform: 'translate3d(0,0,0)' }}>
       {/* Anticipation golden edge glow on both sides (brighter) */}
-      {anticipationGlow && spinning && (
+      {anticipationGlow && (
         <>
           <span
             className="absolute top-0 bottom-0 left-0 w-2 z-40 pointer-events-none"
