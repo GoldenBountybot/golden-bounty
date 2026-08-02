@@ -212,3 +212,21 @@ export const FREE_SPIN_ASSETS = [
   u('580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png'), // wheel
   u('664f53d7d_file_00000000bc488207a04754014a812972.png'), // pointer
 ];
+
+// Map game card IDs to their full asset list, so the lobby can start
+// preloading a game's assets the moment the player hovers its card —
+// long before they click through to the loading screen.
+export const GAME_ASSET_MAP = {
+  'wild-bounty': WILD_BOUNTY_ASSETS,
+  'fullhouse': SUPER_ACE_ASSETS,
+  'crown-coins': CROWN_COINS_ASSETS,
+  'gates-of-olympus': GATES_ASSETS,
+  'big-brown': BIG_BROWN_ASSETS,
+  'argonauts': ARGONAUTS_ASSETS,
+  'rocket-crash': ROCKET_CRASH_ASSETS,
+  'plinko': PLINKO_ASSETS,
+  'mines': MINES_ASSETS,
+  'hi-lo': HILO_ASSETS,
+  'thimbles': THIMBLES_ASSETS,
+  'free-spin': FREE_SPIN_ASSETS,
+};

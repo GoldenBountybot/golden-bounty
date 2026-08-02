@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Lock, Play, Share2, Check } from 'lucide-react';
+import { preloadAssets, isCached } from '@/lib/assetPreloader';
+import { GAME_ASSET_MAP } from '@/lib/gameAssets';
 
 // Minimal Play-Store style game tile — sharp golden frame, clean image.
 export default function CasinoGameCard({ game }) {
   const [copied, setCopied] = useState(false);
 
   const path = game.path || `/games/${game.id}`;
+
+  // Start preloading this game's assets the moment the player hovers or
+  // touches the card, so most images are already cached by the time the
+  // loading screen appears — making the wait much shorter.
+  const warm = () => {
+    const assets = GAME_ASSET_MAP[game.id];
+    if (assets && !isCached(assets[0])) preloadAssets(assets);
+  };
   const share = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -80,5 +90,5 @@ export default function CasinoGameCard({ game }) {
   if (game.coming) {
     return <div className="cursor-default select-none">{inner}</div>;
   }
-  return <Link to={path}>{inner}</Link>;
+  return <Link to={path} onMouseEnter={warm} onTouchStart={warm}>{inner}</Link>;
 }
