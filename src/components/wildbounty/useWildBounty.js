@@ -236,12 +236,6 @@ export function useWildBounty() {
           setLastWin(pendingWinRef.current);
           pendingWinRef.current = 0;
           setMessage(winMsg);
-          // At x8+ the banner shows the accumulated total — play the total-win
-          // sting and match the count-up duration to the sound length so the
-          // amount keeps counting up for as long as the sound plays.
-          if (showTotal) {
-            setTotalWinDur((sfx.showdown() || 2.2) * 1000);
-          }
         }, 1150 * flySlow * 0.86);
         timers.current.push(winT);
       } else {
