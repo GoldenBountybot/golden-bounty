@@ -151,7 +151,7 @@ export default function FreeSpin() {
     const delta = (targetMod - currentMod + 360) % 360;
     const turns = 6;
     setRotation(rotation + turns * 360 + delta);
-    startWheelSpin(10);
+    startWheelSpin(12);
   }, [spinning, available, rotation, spinCount, spinGroup]);
 
   const handleRest = useCallback(async () => {
