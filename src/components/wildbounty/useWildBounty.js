@@ -290,8 +290,10 @@ export function useWildBounty() {
       setCascadeSlow(1);
       setWinningPositions(new Set());
       if (totalWin > 0) setBalance(b => b + totalWin);
-      // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
-      if (pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
+      // At chain end, replace the last cascade's step win with the accumulated
+      // round total so the plaque shows the full TOTAL WIN (or WIN total below x8).
+      pendingWinRef.current = 0;
+      if (totalWin > 0) setLastWin(totalWin);
       clearPendingRound('wild-bounty');
       pendingStateRef.current = null;
       if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
