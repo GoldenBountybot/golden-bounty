@@ -66,8 +66,8 @@ function Corner({ pos, children }) {
   const styles = {
     'top-left':    { top: '22px', left: '-2px' },
     'top-right':   { top: '22px', right: '-2px' },
-    'bottom-left': { bottom: '-10px', left: '-2px' },
-    'bottom-right':{ bottom: '-10px', right: '-2px' },
+    'bottom-left': { bottom: '52px', left: '-2px' },
+    'bottom-right':{ bottom: '52px', right: '-2px' },
   };
   return <div className={base} style={styles[pos]}>{children}</div>;
 }
