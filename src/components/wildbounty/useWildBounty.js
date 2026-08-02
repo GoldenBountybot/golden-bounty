@@ -290,13 +290,11 @@ export function useWildBounty() {
       setCascadeSlow(1);
       setWinningPositions(new Set());
       if (totalWin > 0) setBalance(b => b + totalWin);
-      // Round over — clear the cascade step-win from the plaque so the win
-      // banner is empty before the next round (TOTAL WIN, if any, is set below).
-      pendingWinRef.current = 0;
-      setLastWin(0);
-      if (cascadeCount === 0) sfx.loss();
+      // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
+      if (pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
       clearPendingRound('wild-bounty');
       pendingStateRef.current = null;
+      if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
 
       // Accumulate this spin's win into the free-spins running total.
       if (wasFree) freeSpinsTotalRef.current += totalWin;
@@ -305,19 +303,18 @@ export function useWildBounty() {
       // x16–x32; Mega Win covers x64 and every tier beyond. Free-spins rounds
       // show a Mega Win banner with the accumulated 10-spin total instead.
       const peak = peakMultRef.current;
-      const fsEnding = wasFree && freeSpinsCountRef.current === 0 && freeSpinsTotalRef.current > 0;
       if (peak >= 8 && totalWin > 0) {
         setEndSkull(true);
         // Only count up from 0 + play the total-win sting when NO Super/Mega
-        // win banner is showing (peak < 32 and not free-spins end) — those
-        // banners have their own count-up + sound, so the plaque stays clear.
-        if (peak < 32 && !fsEnding) {
+        // win banner is showing (peak < 32) — those banners have their own
+        // count-up + sound, so the plaque just shows the plain total.
+        if (peak < 32) {
           setTotalWinCountUp(true);
           setTotalWinDur((sfx.showdown() || 2.2) * 1000);
           setTotalWinKey(k => k + 1);
-          setLastWin(totalWin);
         }
       }
+      const fsEnding = wasFree && freeSpinsCountRef.current === 0 && freeSpinsTotalRef.current > 0;
       let banner = null;
       if (fsEnding) {
         const fsTotal = freeSpinsTotalRef.current;
