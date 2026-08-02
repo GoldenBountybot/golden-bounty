@@ -232,7 +232,7 @@ export default function FreeSpin() {
         <SpinWheel segments={SEGMENTS} rotation={rotation} onRest={handleRest} size={420} />
 
         {/* Spin / cooldown control — western wooden frame */}
-        <div className="mt-6 w-full max-w-xs">
+        <div className="mt-2 w-full max-w-xs">
           {available ? (
             <WoodFrame variant="btn">
               <button
