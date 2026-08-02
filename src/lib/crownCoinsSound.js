@@ -10,9 +10,11 @@ function getCtx() {
   return ctx;
 }
 
-const SPIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/bd25f7dae_soinbatoom.mp3';
+const SPIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/b8ed8e296_spinrelldrop.mp3';
 let spinBuffer = null;
 let spinLoaded = false;
+let spinSource = null;
+let spinGain = null;
 
 function loadSpinSound() {
   if (spinLoaded) return;
@@ -25,21 +27,36 @@ function loadSpinSound() {
     .catch(() => {});
 }
 
+// Starts the spin sound looping. Call stopSpinSound() when the reels land.
 export function playSpinSound() {
   if (isMuted()) return;
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
   if (!spinBuffer) { loadSpinSound(); return; }
+  stopSpinSound();
   try {
-    const src = ac.createBufferSource();
-    src.buffer = spinBuffer;
-    const g = ac.createGain();
-    g.gain.value = 0.7;
-    src.connect(g);
-    g.connect(ac.destination);
-    src.start();
+    spinSource = ac.createBufferSource();
+    spinSource.buffer = spinBuffer;
+    spinSource.loop = true;
+    spinGain = ac.createGain();
+    spinGain.gain.value = 0.7;
+    spinSource.connect(spinGain);
+    spinGain.connect(ac.destination);
+    spinSource.start();
   } catch { /* ignore */ }
+}
+
+export function stopSpinSound() {
+  try {
+    if (spinSource) {
+      spinSource.loop = false;
+      spinSource.stop();
+      spinSource.disconnect();
+    }
+  } catch { /* ignore */ }
+  spinSource = null;
+  spinGain = null;
 }
 
 export function playCoinSound() {
