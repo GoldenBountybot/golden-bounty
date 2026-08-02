@@ -66,11 +66,13 @@ export function playReelDropSound() {
   try {
     const src = ac.createBufferSource();
     src.buffer = dropBuffer;
+    src.loop = true;
     const g = ac.createGain();
     g.gain.value = 0.6;
     src.connect(g);
     g.connect(ac.destination);
     src.start();
+    return () => { try { src.stop(); } catch {} };
   } catch { /* ignore */ }
 }
 

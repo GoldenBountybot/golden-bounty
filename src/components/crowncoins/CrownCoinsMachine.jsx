@@ -298,6 +298,7 @@ export default function CrownCoinsMachine() {
     // start all reels spinning
     setReels(cols);
     setPhases(['spin', 'spin', 'spin']);
+    const stopDrop = playReelDropSound();
 
     const base = turbo ? 420 : 720;
     const step = turbo ? 160 : 260;
@@ -309,7 +310,6 @@ export default function CrownCoinsMachine() {
       const extra = (i === 2 && anticipate) ? anticiDelay : 0;
       const t1 = setTimeout(() => {
         setPhases(prev => prev.map((p, idx) => (idx === i ? 'land' : p)));
-        playReelDropSound();
       }, base + i * step + extra);
       timers.current.push(t1);
     });
@@ -318,6 +318,7 @@ export default function CrownCoinsMachine() {
     const settleAt = base + 2 * step + anticiDelay + landMs;
     const tEnd = setTimeout(async () => {
       setPhases(['idle', 'idle', 'idle']);
+      if (stopDrop) stopDrop();
 
       // Free spins: coins accumulate and stick; no line wins, no flying coins.
       if (isFree) {
