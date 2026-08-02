@@ -145,7 +145,7 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, 
   const showGlow = anticipate && phase !== 'idle';
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 2.1', background: 'transparent', borderRight: colIndex < 2 ? '1px solid rgba(212,175,55,0.35)' : 'none' }}>
+    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3', background: 'transparent', borderRight: colIndex < 2 ? '1px solid rgba(212,175,55,0.35)' : 'none' }}>
       {showGlow && (
         <>
           <div
