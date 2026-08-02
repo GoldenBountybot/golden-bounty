@@ -136,7 +136,12 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, 
 
   // Slow-motion drop for the anticipated reel: longer loop duration.
   const spinSpeed = anticipate ? speed * 2.6 : speed;
-  const anim = phase === 'spin' ? `reelFall ${spinSpeed}s linear infinite` : 'none';
+  const anim =
+    phase === 'spin'
+      ? `reelFall ${spinSpeed}s linear infinite`
+      : phase === 'land'
+      ? 'reelLand 0.4s ease-out'
+      : 'none';
 
   const showGlow = anticipate && phase !== 'idle';
 
@@ -163,15 +168,11 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, 
         </>
       )}
       <div className={showResult ? "absolute inset-0 grid grid-rows-3" : "flex flex-col w-full"} style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto', backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        {strip.map((k, i) => {
-          const dropDelay = phase === 'land' ? `${(2 - i) * 0.1}s` : '0s';
-          const symAnim = phase === 'land' ? `ccReelLand 0.4s ease-out ${dropDelay} both` : 'none';
-          return (
-          <div key={i} className={showResult ? "overflow-hidden h-full" : ""} style={showResult ? { animation: symAnim, willChange: phase === 'land' ? 'transform' : 'auto' } : { width: '100%', aspectRatio: '1 / 0.7' }}>
+        {strip.map((k, i) => (
+          <div key={i} className={showResult ? "overflow-hidden h-full" : ""} style={showResult ? {} : { width: '100%', aspectRatio: '1 / 0.7' }}>
             <Tile symKey={k} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i]} bet={bet} amount={amountCell && amountCell.col === colIndex && amountCell.row === i ? amountCell.amount : null} />
           </div>
-          );
-        })}
+        ))}
       </div>
     </div>
   );
@@ -298,7 +299,7 @@ export default function CrownCoinsMachine() {
 
     const base = turbo ? 420 : 720;
     const step = turbo ? 160 : 260;
-    const landMs = 680;
+    const landMs = 460;
     const anticiDelay = anticipate ? 900 : 0;
 
     // staggered land per reel; the anticipated third reel lingers longer
