@@ -90,7 +90,7 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
           width: boardPx,
           height: boardPx,
           transform: `translateX(-50%) rotate(${rotation}deg)`,
-          transition: 'transform 14s cubic-bezier(0.16,0.92,0.02,1)',
+          transition: 'transform 18s cubic-bezier(0.16,0.92,0.02,1)',
           willChange: 'transform',
           borderRadius: '50%',
           overflow: 'hidden',
