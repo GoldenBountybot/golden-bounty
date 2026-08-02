@@ -54,7 +54,7 @@ function Tile({ symKey, win, dim, bet, amount }) {
   const vcVal = isVC ? valueCoinMult(symKey) * bet : 0;
   return (
     <div
-      className="relative flex items-center justify-center overflow-hidden p-[3px]"
+      className="relative flex items-center justify-center overflow-hidden"
       style={{
         background: 'transparent',
         border: win ? '2px solid #ffd24a' : 'none',
@@ -66,7 +66,7 @@ function Tile({ symKey, win, dim, bet, amount }) {
       }}
     >
       <div
-        className="relative w-full h-full flex items-center justify-center overflow-hidden rounded-[2px]"
+        className="relative w-full h-full flex items-center justify-center overflow-hidden"
         style={{ background: 'transparent' }}
       >
         {isVC ? (
@@ -78,7 +78,7 @@ function Tile({ symKey, win, dim, bet, amount }) {
           <img
             src={s.image}
             alt={s.name}
-            className="w-full h-full object-contain p-0.5"
+            className="w-full h-full object-contain"
             draggable={false}
             style={{ mixBlendMode: 'screen' }}
           />
@@ -541,12 +541,12 @@ export default function CrownCoinsMachine() {
             className="absolute inset-0 w-full h-full object-cover rounded-md pointer-events-none"
             style={{ opacity: 1 }}
           />
-          <div ref={reelsRef} className="relative flex gap-1 rounded-md overflow-hidden p-1" style={{ background: 'transparent' }}>
+          <div ref={reelsRef} className="relative flex rounded-md overflow-hidden" style={{ background: 'transparent' }}>
             {reels.map((col, i) => (
               <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.24 : 0.5} bet={bet} colIndex={i} amountCell={amountCell} anticipate={anticipateCol === i} />
             ))}
             {stuckView.some(k => !!k) && (
-              <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-20" style={{ gap: '2px' }}>
+              <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-20" style={{ gap: '0' }}>
                 {stuckView.map((k, i) => (
                   <div key={i} className="flex items-center justify-center">
                     {k && (
@@ -655,7 +655,7 @@ export default function CrownCoinsMachine() {
               </div>
             )}
             {triggerGlow.length > 0 && (
-              <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-30" style={{ gap: '2px' }}>
+              <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-30" style={{ gap: '0' }}>
                 {Array.from({ length: 9 }).map((_, i) => (
                   <div key={i} className="flex items-center justify-center">
                     {triggerGlow.includes(i) && (
