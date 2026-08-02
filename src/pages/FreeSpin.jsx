@@ -282,7 +282,7 @@ export default function FreeSpin() {
           )}
         </div>
 
-        <p className="-mt-2 text-center text-[11px] text-amber-200/60 italic" style={{ fontFamily: 'Georgia, serif' }}>
+        <p className="mt-3 text-center text-[11px] text-amber-200/60 italic" style={{ fontFamily: 'Georgia, serif' }}>
           One free spin every 24 hours · prizes credited to your balance instantly
         </p>
         {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
