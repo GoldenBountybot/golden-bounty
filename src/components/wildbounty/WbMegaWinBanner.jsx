@@ -4,7 +4,7 @@ const MEGA_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5
 
 // "MEGA WIN" banner for Wild Bounty — triggers at x32+ multiplier or a huge
 // payout. The winning amount counts up below the banner as "Win [amount]".
-export default function WbMegaWinBanner({ amount, multiplier, onDone }) {
+export default function WbMegaWinBanner({ amount, multiplier, onDone, label }) {
   const [display, setDisplay] = useState(0);
   const rafRef = useRef(null);
   const startRef = useRef(null);
@@ -51,7 +51,20 @@ export default function WbMegaWinBanner({ amount, multiplier, onDone }) {
           style={{ filter: 'drop-shadow(0 0 26px rgba(128,0,128,0.65)) drop-shadow(0 8px 20px rgba(0,0,0,0.75))' }}
         />
         {/* Win amount — below the banner, counting up */}
-        <div className="mt-3 flex items-center justify-center">
+        <div className="mt-3 flex flex-col items-center justify-center">
+          {label && (
+            <span
+              className="text-lg font-bold tracking-[0.18em] mb-1 whitespace-nowrap"
+              style={{
+                color: '#ffd86a',
+                fontFamily: 'Rye, Georgia, serif',
+                textShadow: '0 2px 4px rgba(0,0,0,0.9), 0 0 10px rgba(255,200,80,0.8)',
+                filter: 'brightness(1.2) saturate(1.2)',
+              }}
+            >
+              {label}
+            </span>
+          )}
           <span
             className="text-4xl font-black tabular-nums tracking-wide whitespace-nowrap"
             style={{

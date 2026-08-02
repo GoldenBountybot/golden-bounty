@@ -233,6 +233,7 @@ export default function WildBountyMachine() {
           amount={g.freeSpinsEndWin.amount}
           multiplier={g.freeSpinsEndWin.multiplier}
           onDone={g.dismissFreeSpinsEndWin}
+          label="FREE SPINS TOTAL"
         />
       )}
     </div>
