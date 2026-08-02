@@ -23,7 +23,7 @@ export function randomCoinKey() {
   if (Math.random() < 0.15) {
     return TIER_COIN_KEYS[Math.floor(Math.random() * TIER_COIN_KEYS.length)];
   }
-  return randomCoinKey();
+  return VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
 }
 export function isValueCoin(key) { return typeof key === 'string' && key.startsWith('vc'); }
 export function valueCoinMult(key) {
