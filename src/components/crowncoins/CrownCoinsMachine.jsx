@@ -298,14 +298,14 @@ export default function CrownCoinsMachine() {
     // start all reels spinning
     setReels(cols);
     setPhases(['spin', 'spin', 'spin']);
-    let stopDrop = null;
-    const tStartDrop = setTimeout(() => { stopDrop = playReelDropSound(); }, base);
-    timers.current.push(tStartDrop);
-
     const base = turbo ? 420 : 720;
     const step = turbo ? 160 : 260;
     const landMs = 460;
     const anticiDelay = anticipate ? 3000 : 0;
+
+    let stopDrop = null;
+    const tStartDrop = setTimeout(() => { stopDrop = playReelDropSound(); }, base);
+    timers.current.push(tStartDrop);
 
     // staggered land per reel; the anticipated third reel lingers longer
     cols.forEach((col, i) => {
