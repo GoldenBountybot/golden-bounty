@@ -6,6 +6,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
+import { isMuted } from '@/lib/soundMute';
 
 const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1; // 12 rows: bottom row has 12 pegs between 13 slots
@@ -30,6 +31,7 @@ function actx() {
 
 // Metallic bell chime — rich harmonics, pleasant ping
 function playPeg() {
+  if (isMuted()) return;
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
   const freqs = [1568, 2349, 3136];
@@ -48,6 +50,7 @@ function playPeg() {
 
 // Soft whoosh for drop start
 function playDropStart() {
+  if (isMuted()) return;
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
   // noise sweep
@@ -77,6 +80,7 @@ function playDropStart() {
 
 // Major chord arpeggio with shimmer — triumphant win
 function playWin() {
+  if (isMuted()) return;
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
   const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
@@ -105,6 +109,7 @@ function playWin() {
 
 // Gentle descending soft tone — calm, non-harsh loss
 function playLose() {
+  if (isMuted()) return;
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
   const notes = [440, 369.99, 293.66];

@@ -6,12 +6,13 @@ import ShareButton from "@/components/ShareButton";
 import GameTitleBar from "@/components/GameTitleBar";
 import { useCasinoBalance } from "@/lib/useCasinoBalance";
 import { Wallet, Volume2, VolumeX } from "lucide-react";
-import { toggleMute, isMuted, startBackgroundMusic, stopBackgroundMusic } from "@/components/wildbounty/sounds";
+import { startBackgroundMusic, stopBackgroundMusic } from "@/components/wildbounty/sounds";
+import { useMute } from "@/lib/soundMute";
 
 export default function SlotGame() {
   const [loaded, setLoaded] = useState(false);
   const { balance } = useCasinoBalance();
-  const [muted, setMuted] = useState(isMuted());
+  const [muted, toggleMute] = useMute();
 
   // Start background music only after the loading screen finishes, and stop
   // it when leaving the game so it doesn't keep playing on other pages.
@@ -19,10 +20,6 @@ export default function SlotGame() {
     if (loaded) startBackgroundMusic();
     return () => { stopBackgroundMusic(); };
   }, [loaded]);
-
-  const handleToggleMute = () => {
-    setMuted(toggleMute());
-  };
 
   return (
     <div
@@ -51,14 +48,14 @@ export default function SlotGame() {
               </div>
               <button
                 type="button"
-                onClick={handleToggleMute}
-                className="inline-flex items-center justify-center w-7 h-7 rounded-md active:scale-90 transition-transform"
+                onClick={toggleMute}
+                className="inline-flex items-center justify-center w-9 h-9 rounded-md active:scale-90 transition-transform"
                 style={{ border: '1px solid rgba(214,178,98,0.6)', background: 'rgba(20,17,13,0.7)' }}
                 aria-label={muted ? "Unmute" : "Mute"}
               >
                 {muted
-                  ? <VolumeX className="w-4 h-4 text-amber-300" />
-                  : <Volume2 className="w-4 h-4 text-amber-300" />}
+                  ? <VolumeX className="w-5 h-5 text-amber-300" />
+                  : <Volume2 className="w-5 h-5 text-amber-300" />}
               </button>
               <ShareButton />
             </>

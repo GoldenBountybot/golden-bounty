@@ -1,4 +1,5 @@
 // Web Audio synth for SuperAce — no assets needed.
+import { isMuted } from '@/lib/soundMute';
 let _actx = null;
 function actx() {
   if (typeof window === 'undefined') return null;
@@ -9,6 +10,7 @@ function actx() {
 }
 
 function tone(freq, t0, dur, type = 'triangle', gain = 0.12) {
+  if (isMuted()) return;
   const ac = actx(); if (!ac) return;
   const o = ac.createOscillator();
   const g = ac.createGain();
@@ -181,6 +183,7 @@ if (typeof window !== 'undefined' && window.speechSynthesis) {
 }
 
 function speak(text) {
+  if (isMuted()) return;
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
   try {
     window.speechSynthesis.cancel();

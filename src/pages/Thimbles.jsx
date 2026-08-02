@@ -7,6 +7,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
+import { isMuted } from '@/lib/soundMute';
 
 const MIN_BET = 0.1;
 const MAX_BET = 500;
@@ -27,6 +28,7 @@ function actx() {
   return _actx;
 }
 function playTone(freq, t0, dur, type = 'triangle', gain = 0.12) {
+  if (isMuted()) return;
   const ac = actx(); if (!ac) return;
   const o = ac.createOscillator();
   const g = ac.createGain();

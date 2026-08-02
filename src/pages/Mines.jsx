@@ -6,6 +6,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
+import { isMuted } from '@/lib/soundMute';
 
 const TOTAL = 25;
 const COLS = 5;
@@ -24,6 +25,7 @@ function actx() {
   return _actx;
 }
 function playDing(freq, t0, dur, type = 'triangle', gain = 0.18) {
+  if (isMuted()) return;
   const ac = actx(); if (!ac) return;
   const o = ac.createOscillator();
   const g = ac.createGain();
@@ -42,6 +44,7 @@ function playCorrect() {
   playDing(1175, t + 0.18, 0.22);
 }
 function playBoom() {
+  if (isMuted()) return;
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
   // noise burst

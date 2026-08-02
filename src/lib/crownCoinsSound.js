@@ -1,4 +1,5 @@
 // Crown Coins — coin-drop sound (Web Audio API). Purely cosmetic; no balance effect.
+import { isMuted } from '@/lib/soundMute';
 let ctx = null;
 function getCtx() {
   if (typeof window === 'undefined') return null;
@@ -10,6 +11,7 @@ function getCtx() {
 }
 
 export function playCoinSound() {
+  if (isMuted()) return;
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});

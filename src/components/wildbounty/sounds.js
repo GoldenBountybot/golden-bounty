@@ -1,5 +1,6 @@
 // Simple Web Audio sound engine for Wild Bounty (no external files).
 // All sounds synthesised; volume pushed to 150% per request.
+import { isMuted as isGlobalMuted, toggleMute as toggleGlobalMute } from '@/lib/soundMute';
 let ctx = null;
 const VOL = 1.5;
 
@@ -91,7 +92,7 @@ function playScatter() {
   const ac = getCtx();
   if (!ac) return;
   if (!scatterBuffer) { loadScatterBuffer(); return; }
-  if (bgMuted) return;
+  if (bgMuted || isGlobalMuted()) return;
   const src = ac.createBufferSource();
   src.buffer = scatterBuffer;
   const g = ac.createGain();
@@ -104,7 +105,7 @@ function playSpinClick() {
   const ac = getCtx();
   if (!ac) return;
   if (!spinClickBuffer) { loadSpinClickBuffer(); return; }
-  if (bgMuted) return;
+  if (bgMuted || isGlobalMuted()) return;
   const src = ac.createBufferSource();
   src.buffer = spinClickBuffer;
   const g = ac.createGain();
@@ -128,7 +129,7 @@ function playSymMatch() {
   const ac = getCtx();
   if (!ac) return;
   if (!symMatchBuffer) { loadSymMatchBuffer(); return; }
-  if (bgMuted) return;
+  if (bgMuted || isGlobalMuted()) return;
   const src = ac.createBufferSource();
   src.buffer = symMatchBuffer;
   const g = ac.createGain();
@@ -336,7 +337,9 @@ export function stopBackgroundMusic() {
 }
 
 export function toggleMute() {
-  bgMuted = !bgMuted;
+  // Delegate to the shared global mute so every game's sound icon stays in
+  // sync, then mirror the state onto the local bgMuted flag + bgGain ramp.
+  bgMuted = toggleGlobalMute();
   const ac = getCtx();
   if (ac && bgGain) {
     bgGain.gain.cancelScheduledValues(ac.currentTime);
@@ -347,4 +350,4 @@ export function toggleMute() {
   return bgMuted;
 }
 
-export function isMuted() { return bgMuted; }
+export function isMuted() { return isGlobalMuted(); }

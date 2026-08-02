@@ -2,14 +2,17 @@ import React from 'react';
 import BackButton from '@/components/BackButton';
 import ShareButton from '@/components/ShareButton';
 import GameTitleBar from '@/components/GameTitleBar';
-import { Wallet } from 'lucide-react';
+import { Wallet, Volume2, VolumeX } from 'lucide-react';
 import AnimatedNumber from '@/components/AnimatedNumber';
+import { useMute } from '@/lib/soundMute';
 
 // Shared header for casino game pages: a full-width western plaque with the
 // game title centered, back button on the left, share on the right. Optional
-// `balance` renders a wallet chip next to the share button.
+// `balance` renders a wallet chip next to the share button. A sound toggle
+// mutes/unmutes every game's audio with a single tap.
 export default function GameHeader({ title, balance }) {
   const hasBalance = typeof balance === 'number';
+  const [muted, toggleMute] = useMute();
   return (
     <header
       className="sticky top-0 z-20 backdrop-blur-xl"
@@ -30,11 +33,22 @@ export default function GameHeader({ title, balance }) {
                 <AnimatedNumber value={balance} prefix="$" />
               </span>
             )}
+            <button
+              type="button"
+              onClick={toggleMute}
+              className="inline-flex items-center justify-center w-9 h-9 rounded-md active:scale-90 transition-transform"
+              style={{ border: '1px solid rgba(214,178,98,0.6)', background: 'rgba(20,17,13,0.7)' }}
+              aria-label={muted ? 'Unmute' : 'Mute'}
+            >
+              {muted
+                ? <VolumeX className="w-5 h-5 text-amber-300" />
+                : <Volume2 className="w-5 h-5 text-amber-300" />}
+            </button>
             <ShareButton />
           </>
         }
-        padLeft={hasBalance ? 'pl-28' : 'pl-24'}
-        padRight={hasBalance ? 'pr-28' : 'pr-24'}
+        padLeft={hasBalance ? 'pl-36' : 'pl-32'}
+        padRight={hasBalance ? 'pr-36' : 'pr-32'}
       />
     </header>
   );
