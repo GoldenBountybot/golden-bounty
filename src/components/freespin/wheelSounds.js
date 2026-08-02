@@ -87,45 +87,18 @@ export function startWheelSpin(durationSec = 18, totalRotationDeg = 2160, segCou
   // Master gain — smooth fade-in
   const master = ac.createGain();
   master.gain.setValueAtTime(0.0001, now);
-  master.gain.exponentialRampToValueAtTime(0.85, now + 0.3);
+  master.gain.exponentialRampToValueAtTime(0.9, now + 0.3);
   master.connect(ac.destination);
-
-  // Gear texture — band-passed white noise with an LFO breathing it
-  const noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
-  const ch = noiseBuf.getChannelData(0);
-  for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
-  const noise = ac.createBufferSource();
-  noise.buffer = noiseBuf;
-  noise.loop = true;
-  const noiseBp = ac.createBiquadFilter();
-  noiseBp.type = 'bandpass';
-  noiseBp.frequency.value = 1600;
-  noiseBp.Q.value = 1.4;
-  const noiseGain = ac.createGain();
-  noiseGain.gain.value = 0.14;
-  const lfo = ac.createOscillator();
-  lfo.type = 'sine';
-  lfo.frequency.setValueAtTime(8, now);
-  lfo.frequency.exponentialRampToValueAtTime(2.5, now + durationSec);
-  const lfoGain = ac.createGain();
-  lfoGain.gain.value = 0.07;
-  lfo.connect(lfoGain);
-  lfoGain.connect(noiseGain.gain);
-  noise.connect(noiseBp);
-  noiseBp.connect(noiseGain);
-  noiseGain.connect(master);
-
-  noise.start(); lfo.start();
 
   // Tick bus — a gentle compressor keeps the clicks punchy without clipping
   const tickBus = ac.createGain();
-  tickBus.gain.value = 0.9;
+  tickBus.gain.value = 1;
   const comp = ac.createDynamicsCompressor();
   comp.threshold.value = -18;
   comp.ratio.value = 4;
   tickBus.connect(comp); comp.connect(master);
 
-  nodes = { master, noise, lfo, tickBus };
+  nodes = { master, tickBus };
 
   // Schedule one tick per segment boundary crossed. Ticks get louder as the
   // wheel slows so the final clicks are crisp and distinct.
@@ -166,6 +139,5 @@ export function stopWheelSpin() {
       n.master.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.25);
     } catch { /* ignore */ }
   }
-  const stop = (o) => { try { o.stop(ac ? ac.currentTime + 0.3 : 0); } catch { /* ignore */ } };
-  stop(n.noise); stop(n.lfo);
+
 }
