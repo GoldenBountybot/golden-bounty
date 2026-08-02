@@ -342,6 +342,141 @@ export function startBackgroundMusic() {
   }
 }
 
+// ── Premium free-spin reel sound ───────────────────────────────────
+// A luxury mechanical reel-spinning ambience synthesised in real time:
+// a warm low mechanical hum, mid-range gear texture, subtle ticking,
+// and a shimmering high "gold" overtone — the signature sound of a
+// premium slot cabinet while the free-spin reels are in motion.
+let freeReelNodes = null;
+
+function startFreeSpinReel() {
+  const ac = getCtx();
+  if (!ac || freeReelNodes) return;
+  if (bgMuted || isGlobalMuted()) return;
+
+  // Master gain with a smooth fade-in
+  const master = ac.createGain();
+  master.gain.setValueAtTime(0.0001, ac.currentTime);
+  master.gain.exponentialRampToValueAtTime(0.9, ac.currentTime + 0.25);
+
+  // 1) Warm low mechanical hum — two detuned sawtooth oscillators
+  //    through a low-pass filter for a smooth, powerful motor tone.
+  const lp = ac.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 320;
+  lp.Q.value = 0.8;
+  const hum1 = ac.createOscillator();
+  hum1.type = 'sawtooth';
+  hum1.frequency.value = 58;
+  const hum2 = ac.createOscillator();
+  hum2.type = 'sawtooth';
+  hum2.frequency.value = 62; // slight detune for richness
+  const humGain = ac.createGain();
+  humGain.gain.value = 0.32;
+  hum1.connect(humGain);
+  hum2.connect(humGain);
+  humGain.connect(lp);
+  lp.connect(master);
+
+  // 2) Mid-range gear texture — filtered white noise modulated by an LFO
+  //    so it breathes like real spinning gears.
+  const noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+  const ch = noiseBuf.getChannelData(0);
+  for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+  const noise = ac.createBufferSource();
+  noise.buffer = noiseBuf;
+  noise.loop = true;
+  const noiseBp = ac.createBiquadFilter();
+  noiseBp.type = 'bandpass';
+  noiseBp.frequency.value = 1400;
+  noiseBp.Q.value = 1.2;
+  const noiseGain = ac.createGain();
+  noiseGain.gain.value = 0.12;
+  // LFO to modulate the noise gain — gives a "shhh-shhh-shhh" gear breath
+  const lfo = ac.createOscillator();
+  lfo.type = 'sine';
+  lfo.frequency.value = 7;
+  const lfoGain = ac.createGain();
+  lfoGain.gain.value = 0.06;
+  lfo.connect(lfoGain);
+  lfoGain.connect(noiseGain.gain);
+  noise.connect(noiseBp);
+  noiseBp.connect(noiseGain);
+  noiseGain.connect(master);
+
+  // 3) Subtle mechanical ticking — short periodic clicks from a fast
+  //    LFO gating a high-passed noise burst.
+  const tickBuf = ac.createBuffer(1, ac.sampleRate * 0.5, ac.sampleRate);
+  const tch = tickBuf.getChannelData(0);
+  for (let i = 0; i < tch.length; i++) tch[i] = Math.random() * 2 - 1;
+  const tick = ac.createBufferSource();
+  tick.buffer = tickBuf;
+  tick.loop = true;
+  const tickHp = ac.createBiquadFilter();
+  tickHp.type = 'highpass';
+  tickHp.frequency.value = 4000;
+  const tickGain = ac.createGain();
+  tickGain.gain.value = 0.0001; // normally silent
+  const tickLfo = ac.createOscillator();
+  tickLfo.type = 'square';
+  tickLfo.frequency.value = 18; // ~18 clicks/sec
+  const tickLfoGain = ac.createGain();
+  tickLfoGain.gain.value = 0.05;
+  tickLfo.connect(tickLfoGain);
+  tickLfoGain.connect(tickGain.gain);
+  tick.connect(tickHp);
+  tickHp.connect(tickGain);
+  tickGain.connect(master);
+
+  // 4) Luxury shimmer — two high sine oscillators with a slow vibrato
+  //    for a golden, premium "sparkle" sitting on top of the mechanics.
+  const shim1 = ac.createOscillator();
+  shim1.type = 'sine';
+  shim1.frequency.value = 1760;
+  const shim2 = ac.createOscillator();
+  shim2.type = 'sine';
+  shim2.frequency.value = 2640;
+  const shimGain = ac.createGain();
+  shimGain.gain.value = 0.05;
+  const vib = ac.createOscillator();
+  vib.type = 'sine';
+  vib.frequency.value = 4.5;
+  const vibGain = ac.createGain();
+  vibGain.gain.value = 6;
+  vib.connect(vibGain);
+  vibGain.connect(shim1.frequency);
+  vibGain.connect(shim2.frequency);
+  shim1.connect(shimGain);
+  shim2.connect(shimGain);
+  shimGain.connect(master);
+
+  master.connect(ac.destination);
+
+  hum1.start(); hum2.start(); noise.start(); lfo.start();
+  tick.start(); tickLfo.start(); shim1.start(); shim2.start(); vib.start();
+
+  freeReelNodes = {
+    master, hum1, hum2, noise, lfo, tick, tickLfo, shim1, shim2, vib,
+  };
+}
+
+function stopFreeSpinReel() {
+  if (!freeReelNodes) return;
+  const ac = getCtx();
+  const n = freeReelNodes;
+  freeReelNodes = null;
+  if (ac && n.master) {
+    try {
+      n.master.gain.cancelScheduledValues(ac.currentTime);
+      n.master.gain.setValueAtTime(n.master.gain.value, ac.currentTime);
+      n.master.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.3);
+    } catch { /* ignore */ }
+  }
+  const stop = (o) => { try { o.stop(ac ? ac.currentTime + 0.35 : 0); } catch { /* ignore */ } };
+  stop(n.hum1); stop(n.hum2); stop(n.noise); stop(n.lfo);
+  stop(n.tick); stop(n.tickLfo); stop(n.shim1); stop(n.shim2); stop(n.vib);
+}
+
 export const sfx = {
   preload() { loadBgBuffer(); loadSpinClickBuffer(); loadSymMatchBuffer(); loadScatterBuffer(); loadTotalWinBuffer(); },
   spin() { startBackgroundMusic(); },
@@ -354,6 +489,8 @@ export const sfx = {
   spinClick() { playSpinClick(); },
   symbolMatch() { playSymMatch(); },
   showdown() { return playTotalWin(); },
+  startFreeSpinReel,
+  stopFreeSpinReel,
 };
 
 // Toggle background music mute. Returns the new muted state.

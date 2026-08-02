@@ -66,7 +66,7 @@ export function useWildBounty() {
   const timers = useRef([]);
   const pendingStateRef = useRef(null);
 
-  useEffect(() => () => { timers.current.forEach(clearTimeout); timers.current.forEach(clearInterval); }, []);
+  useEffect(() => () => { timers.current.forEach(clearTimeout); timers.current.forEach(clearInterval); sfx.stopFreeSpinReel(); }, []);
 
   const assignGoldFrames = (newGrid) => {
     // Golden frames only appear on the two center reels (indices 2 & 3),
@@ -358,6 +358,7 @@ export function useWildBounty() {
   const settle = (finalGrid, frames, wasFree) => {
     setAnticipation(false);
     sfx.stopSpin();
+    sfx.stopFreeSpinReel();
     // Free spins always evaluate from 8x; normal spins from 1x.
     evaluateAndCascade(finalGrid, 0, 0, wasFree ? 3 : 0, wasFree, false, frames);
   };
@@ -375,6 +376,7 @@ export function useWildBounty() {
     setSpinning(true);
     sfx.winStop();
     sfx.spin();
+    if (usingFree) sfx.startFreeSpinReel();
     peakMultRef.current = 1;
     pendingWinRef.current = 0;
     setBannerPending(false);
