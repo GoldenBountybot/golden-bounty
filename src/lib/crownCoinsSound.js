@@ -14,31 +14,45 @@ const SPIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6
 let spinBuffer = null;
 let spinLoaded = false;
 
+// Preload + decode once so every click after the first plays instantly.
 function loadSpinSound() {
   if (spinLoaded) return;
   spinLoaded = true;
-  const ac = getCtx();
   fetch(SPIN_SOUND_URL)
     .then(r => r.arrayBuffer())
-    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(ab => {
+      const ac = getCtx();
+      return ac ? ac.decodeAudioData(ab) : null;
+    })
     .then(buf => { if (buf) spinBuffer = buf; })
     .catch(() => {});
 }
+if (typeof window !== 'undefined') loadSpinSound();
 
 export function playSpinSound() {
   if (isMuted()) return;
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
-  if (!spinBuffer) { loadSpinSound(); return; }
+  // Buffer ready → instant Web Audio playback.
+  if (spinBuffer) {
+    try {
+      const src = ac.createBufferSource();
+      src.buffer = spinBuffer;
+      const g = ac.createGain();
+      g.gain.value = 0.7;
+      src.connect(g);
+      g.connect(ac.destination);
+      src.start();
+      return;
+    } catch { /* fall through */ }
+  }
+  // Buffer not decoded yet (first click) → stream via HTML Audio so the
+  // sound still plays immediately on click.
   try {
-    const src = ac.createBufferSource();
-    src.buffer = spinBuffer;
-    const g = ac.createGain();
-    g.gain.value = 0.7;
-    src.connect(g);
-    g.connect(ac.destination);
-    src.start();
+    const a = new Audio(SPIN_SOUND_URL);
+    a.volume = 0.7;
+    a.play().catch(() => {});
   } catch { /* ignore */ }
 }
 
