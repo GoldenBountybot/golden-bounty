@@ -205,25 +205,38 @@ export default function FreeSpin() {
 
       <main className="max-w-md mx-auto px-4 pt-6 pb-2 flex flex-col items-center">
         {/* Reserved slot above the wheel — win message floats up into it */}
-        <div className="relative w-full max-w-xs mx-auto mb-2" style={{ height: result?.held ? 108 : 56 }}>
+        <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+          <filter id="winBannerDropBlack" colorInterpolationFilters="sRGB">
+            <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="1.5" intercept="-0.12" />
+            </feComponentTransfer>
+          </filter>
+        </svg>
+        <div className="relative w-full max-w-[230px] mx-auto mb-1" style={{ height: result?.held ? 96 : 52 }}>
           {result && (
             <div className="absolute inset-0 flex items-center justify-center animate-[freeWinFloat_0.6s_ease-out]">
-              <WoodFrame variant="msg" className="w-full text-center"
-                style={{ boxShadow: '0 0 22px rgba(255,200,80,0.5)' }}>
-                <div className="flex flex-col items-center justify-center gap-1 px-2">
-                  <div className="flex items-center justify-center gap-2">
-                    <Trophy className="w-5 h-5" style={{ color: '#c5a059' }} />
-                    <span className="font-black italic text-base" style={{ color: '#c5a059', textShadow: '0 1px 2px rgba(0,0,0,0.75)' }}>
+              <div className="relative w-full" style={{ filter: 'url(#winBannerDropBlack) drop-shadow(0 0 14px rgba(255,200,80,0.45))' }}>
+                <img
+                  src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/58482abdf_file_0000000099f08207bd615be46766e77b.png"
+                  alt="Win banner"
+                  draggable={false}
+                  className="block w-full h-auto"
+                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-6">
+                  <div className="flex items-center justify-center gap-1.5">
+                    <Trophy className="w-4 h-4" style={{ color: '#ffe9a8' }} />
+                    <span className="font-black italic text-sm" style={{ color: '#ffe9a8', textShadow: '0 1px 2px rgba(0,0,0,0.85)' }}>
                       {result.jackpot ? `JACKPOT! $${result.win.toFixed(2)}` : `You won $${result.win.toFixed(2)}!`}
                     </span>
                   </div>
                   {result.held && (
-                    <p className="text-[11px] italic leading-tight" style={{ color: '#f5d77a', fontFamily: 'Georgia, serif' }}>
-                      This amount will be added to your wallet once you deposit the same amount and Stack it
+                    <p className="text-[9px] italic leading-tight text-center" style={{ color: '#ffe9a8', fontFamily: 'Georgia, serif', textShadow: '0 1px 2px rgba(0,0,0,0.85)' }}>
+                      Added to wallet once you deposit & Stack the same amount
                     </p>
                   )}
                 </div>
-              </WoodFrame>
+              </div>
             </div>
           )}
         </div>
