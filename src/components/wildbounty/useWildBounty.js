@@ -41,6 +41,7 @@ export function useWildBounty() {
   const [endSkull, setEndSkull] = useState(false); // skull shown at cascade-chain end when peak >= x8
   const [totalWinDur, setTotalWinDur] = useState(650); // count-up duration matched to the total-win sound length (ms)
   const [totalWinKey, setTotalWinKey] = useState(0); // bump to re-mount CountUp (re-animate from 0) at chain end
+  const [totalWinCountUp, setTotalWinCountUp] = useState(false); // true only when the plaque should count up from 0 (peak x8–x16, no Super/Mega banner)
   const peakMultRef = useRef(1); // highest multiplier applied to a winning cascade this round
   const freeSpinsTotalRef = useRef(0); // accumulated win across the current free-spins round
   const freeSpinsCountRef = useRef(0); // remaining free spins (synced ref for chain-end checks)
@@ -304,11 +305,14 @@ export function useWildBounty() {
       const peak = peakMultRef.current;
       if (peak >= 8 && totalWin > 0) {
         setEndSkull(true);
-        // Round-end final reveal: play the total-win sting once more and
-        // re-animate the count-up from 0 to the accumulated round total,
-        // synced to the sound length.
-        setTotalWinDur((sfx.showdown() || 2.2) * 1000);
-        setTotalWinKey(k => k + 1);
+        // Only count up from 0 + play the total-win sting when NO Super/Mega
+        // win banner is showing (peak < 32) — those banners have their own
+        // count-up + sound, so the plaque just shows the plain total.
+        if (peak < 32) {
+          setTotalWinCountUp(true);
+          setTotalWinDur((sfx.showdown() || 2.2) * 1000);
+          setTotalWinKey(k => k + 1);
+        }
       }
       const fsEnding = wasFree && freeSpinsCountRef.current === 0 && freeSpinsTotalRef.current > 0;
       let banner = null;
@@ -377,6 +381,7 @@ export function useWildBounty() {
     setMegaWin(null);
     setFreeSpinsEndWin(null);
     setEndSkull(false);
+    setTotalWinCountUp(false);
     setStoppedReels(new Set());
     setWinningPositions(new Set());
     setGoldFrames(new Set());
@@ -589,7 +594,7 @@ export function useWildBounty() {
     superWin, megaWin, dismissSuperWin, dismissMegaWin,
     freeSpinsEndWin, dismissFreeSpinsEndWin,
     endSkull,
-    totalWinDur, totalWinKey,
+    totalWinDur, totalWinKey, totalWinCountUp,
     spin, setBet, setTurbo, setAutoSpin, reset,
     featureCost: bet * 75,
   };
