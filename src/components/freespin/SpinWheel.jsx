@@ -25,7 +25,7 @@ const POINTER_IMG =
 // and its diameter is ~54.7% of the frame width (fills the gold frame opening
 // up to the inner rim, so no black ring shows around the wheel).
 const BOARD_DIAM_FRAC = 0.547;   // board diameter = opening diameter
-const CENTER_X_FRAC = 0.505;     // opening center X
+const CENTER_X_FRAC = 0.5;     // opening center X
 const CENTER_Y_FRAC = 0.424;     // opening center Y
 
 export default function SpinWheel({ rotation, onRest, size = 340 }) {
