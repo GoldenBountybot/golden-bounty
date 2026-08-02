@@ -7,6 +7,7 @@ import { savePendingRound, clearPendingRound, getPendingRound } from '@/lib/pend
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isTierCoin, tierCoinLabel, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
 import { incBet, decBet } from '@/lib/betStepper';
+import { playSpinSound } from '@/lib/crownCoinsSound';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import BetTierBanners from './BetTierBanners';
@@ -223,6 +224,7 @@ export default function CrownCoinsMachine() {
   const doSpin = useCallback(async () => {
     if (spinning) return;
     const isFree = freeSpinsRef.current > 0;
+    if (!isFree) playSpinSound();
     if (!isFree) {
       if (bet <= 0) { toast({ title: 'Set a bet amount' }); return; }
       if (balance < bet) { toast({ title: 'Insufficient balance' }); autoRef.current = false; setAutoSpin(false); return; }
