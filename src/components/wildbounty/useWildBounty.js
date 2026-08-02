@@ -248,7 +248,7 @@ export function useWildBounty() {
         }, 600);
         timers.current.push(winT);
       }
-      setMessage(justAwarded ? `+${wasFree ? 5 : 10} FREE SPINS!` : 'MATCH!');
+      setMessage(justAwarded ? `+${wasFree ? 5 : 10} FREE SPINS!` : '');
 
       // From the second cascade, run everything in a slight slow motion so the
       // shatter/drop animation lines up with the (also slowed) win sound.
