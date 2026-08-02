@@ -64,10 +64,10 @@ function TierBanner({ tierKey, bet }) {
 function Corner({ pos, children }) {
   const base = 'absolute z-10';
   const styles = {
-    'top-left':    { top: '22px', left: '-2px' },
-    'top-right':   { top: '22px', right: '-2px' },
-    'bottom-left': { bottom: '90px', left: '-2px' },
-    'bottom-right':{ bottom: '90px', right: '-2px' },
+    'top-left':    { top: '22px', left: '-22px' },
+    'top-right':   { top: '22px', right: '-22px' },
+    'bottom-left': { bottom: '90px', left: '-22px' },
+    'bottom-right':{ bottom: '90px', right: '-22px' },
   };
   return <div className={base} style={styles[pos]}>{children}</div>;
 }
