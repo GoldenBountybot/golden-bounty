@@ -174,7 +174,8 @@ export function useWildBounty() {
       const slow = cascadeCount >= 1 ? 1.6 : 1.2;
       setCascadeSlow(slow);
       // High-value symbols (bandit, revolver) play a distinct match sound.
-      sfx.symbolMatch();
+      const hasHighValue = wins.some(w => w.symbol === 'bandit' || w.symbol === 'revolver');
+      if (hasHighValue) sfx.highValueMatch(); else sfx.symbolMatch();
       sfx.win(cascadeCount);
       const newTotal = totalWin + stepWin;
       const newMult = Math.min(currentMultIndex + 1, MULTIPLIERS.length - 1);
