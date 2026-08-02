@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, History, ChevronLeft, Volume2, VolumeX } from 'lucide-react';
+import { Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, History, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -114,7 +114,6 @@ export default function SuperAceMachine() {
   const [flyingWilds, setFlyingWilds] = useState([]);
   const [teaseCols, setTeaseCols] = useState(new Set());
   const [teaseStart, setTeaseStart] = useState(-1);
-  const [muted, setMuted] = useState(false);
   const [scatterLand, setScatterLand] = useState(new Set());
 
   // refs for async orchestration
@@ -491,14 +490,6 @@ export default function SuperAceMachine() {
     setTimeout(() => { doSpinRef.current && doSpinRef.current(); }, 600);
   };
 
-  const toggleMute = () => {
-    playClick();
-    setMuted((m) => {
-      if (m) startAmbient(); else stopAmbient();
-      return !m;
-    });
-  };
-
   const toggleTurbo = () => { playClick(); setTurbo((t) => !t); };
   const toggleAuto = () => {
     playClick();
@@ -543,11 +534,6 @@ export default function SuperAceMachine() {
                 <Wallet className="w-3.5 h-3.5 text-yellow-300" />
                 <AnimatedNumber value={balance} prefix="$" />
               </span>
-              <button onClick={toggleMute} className="shrink-0">
-                <span className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95" style={metalBtn(false)}>
-                  {muted ? <VolumeX className="w-4 h-4 text-amber-300/60" /> : <Volume2 className="w-4 h-4 text-amber-300" />}
-                </span>
-              </button>
             </>
           }
         />
