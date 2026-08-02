@@ -9,6 +9,7 @@ import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellV
 import { incBet, decBet } from '@/lib/betStepper';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
+import BetTierBanners from './BetTierBanners';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
 // Falling-money backdrop used inside each reel strip so screen-blended symbols
@@ -518,7 +519,8 @@ export default function CrownCoinsMachine() {
           <span className="w-6" />
         </div>
 
-        <div ref={bannerRef} className="flex items-center justify-center -mt-2">
+        <div ref={bannerRef} className="flex flex-col items-center -mt-2 gap-1">
+          <BetTierBanners bet={bet} />
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9e18b75a6_file_00000000700081fab7c3b36c02964e06.png"
             alt="Crown Coins"
