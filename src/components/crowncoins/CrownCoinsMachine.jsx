@@ -520,7 +520,7 @@ export default function CrownCoinsMachine() {
 
         <div ref={bannerRef} className="flex items-center justify-center -mt-6">
           <img
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d353befdc_generated_image.png"
+            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9e18b75a6_file_00000000700081fab7c3b36c02964e06.png"
             alt="Crown Coins"
             className="w-4/5"
             style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
