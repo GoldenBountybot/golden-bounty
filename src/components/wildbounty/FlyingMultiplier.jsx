@@ -39,6 +39,10 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1, startY =
           transform: 'translate(-50%, -50%)',
           willChange: 'transform',
           animation: `multFlyToWin ${(TOTAL / 1000).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) both`,
+          // Filter on the PARENT (not the child span) so the GPU compositing
+          // layer created by willChange accounts for the drop-shadow extent —
+          // preventing the glow from being clipped at the layer boundary.
+          filter: 'drop-shadow(0 3px 4px rgba(0,0,0,0.55)) drop-shadow(0 0 10px rgba(255,210,90,0.9)) drop-shadow(0 0 20px rgba(255,180,50,0.5))',
         }}
       >
         <span
@@ -51,7 +55,6 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1, startY =
             WebkitBackgroundClip: 'text',
             backgroundClip: 'text',
             color: 'transparent',
-            filter: 'drop-shadow(0 3px 4px rgba(0,0,0,0.55)) drop-shadow(0 0 10px rgba(255,210,90,0.9)) drop-shadow(0 0 20px rgba(255,180,50,0.5))',
             backfaceVisibility: 'hidden',
           }}
         >
