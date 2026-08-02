@@ -42,6 +42,7 @@ export function useWildBounty() {
   const [totalWinDur, setTotalWinDur] = useState(650); // count-up duration matched to the total-win sound length (ms)
   const [totalWinKey, setTotalWinKey] = useState(0); // bump to re-mount CountUp (re-animate from 0) at chain end
   const [totalWinCountUp, setTotalWinCountUp] = useState(false); // true only when the plaque should count up from 0 (peak x8–x16, no Super/Mega banner)
+  const [showTotalLabel, setShowTotalLabel] = useState(false); // true when the plaque should show "TOTAL WIN" (current cascade multiplier >= x8)
   const peakMultRef = useRef(1); // highest multiplier applied to a winning cascade this round
   const freeSpinsTotalRef = useRef(0); // accumulated win across the current free-spins round
   const freeSpinsCountRef = useRef(0); // remaining free spins (synced ref for chain-end checks)
@@ -225,10 +226,11 @@ export function useWildBounty() {
       const flySlow = cascadeCount >= 1 ? 1.6 : 1.2;
       // Show only THIS cascade round's win in the banner — not the accumulated total.
       const winMsg = justAwarded ? `WIN ${stepWin.toFixed(2)} · +${wasFree ? 5 : 10} FREE SPINS` : `WIN ${stepWin.toFixed(2)}`;
-      // Below x8 (newMult < 3): show this cascade's individual win separately.
-      // x8 and above (newMult >= 3): show the accumulated total win, counting up.
-      const showTotal = newMult >= 3;
+      // Below x8 (current multiplier < x8): show this cascade's individual win.
+      // x8 and above: show the accumulated total win.
+      const showTotal = currentMultIndex >= 3;
       const winValue = showTotal ? newTotal : stepWin;
+      setShowTotalLabel(showTotal);
       if (currentMultIndex >= 1) {
         setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
         // The multiplier arrives at the banner at ~86% of the fly duration.
@@ -382,6 +384,7 @@ export function useWildBounty() {
     setFreeSpinsEndWin(null);
     setEndSkull(false);
     setTotalWinCountUp(false);
+    setShowTotalLabel(false);
     setStoppedReels(new Set());
     setWinningPositions(new Set());
     setGoldFrames(new Set());
@@ -401,7 +404,7 @@ export function useWildBounty() {
     // updated each cascade and the whole total is credited at chain end.
     pendingStateRef.current = { freeSpins: usingFree ? Math.max(0, freeSpins - 1) : 0, freeSpinsActive: usingFree };
     savePendingRound('wild-bounty', { win: 0, bet, state: pendingStateRef.current });
-    setMessage('Spinning...');
+    setMessage('SPINNING...');
 
     let finalGrid = REEL_ROWS.map(r => buildReel(r));
     // Match chance = admin RTP (default 35%): 65% no-match, 35% match.
@@ -594,7 +597,7 @@ export function useWildBounty() {
     superWin, megaWin, dismissSuperWin, dismissMegaWin,
     freeSpinsEndWin, dismissFreeSpinsEndWin,
     endSkull,
-    totalWinDur, totalWinKey, totalWinCountUp,
+    totalWinDur, totalWinKey, totalWinCountUp, showTotalLabel,
     spin, setBet, setTurbo, setAutoSpin, reset,
     featureCost: bet * 75,
   };
