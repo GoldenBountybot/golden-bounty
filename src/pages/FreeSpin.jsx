@@ -231,19 +231,31 @@ export default function FreeSpin() {
         {/* Wheel — transparent surroundings, floats on the page bg */}
         <SpinWheel segments={SEGMENTS} rotation={rotation} onRest={handleRest} size={420} />
 
-        {/* Spin / cooldown control — western wooden frame */}
+        {/* Spin / cooldown control — ornate gold SPIN button (black bg keyed out) */}
+        <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+          <filter id="spinBtnDropBlack" colorInterpolationFilters="sRGB">
+            <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="1.5" intercept="-0.12" />
+            </feComponentTransfer>
+          </filter>
+        </svg>
         <div className="mt-2 w-full max-w-xs">
           {available ? (
-            <WoodFrame variant="btn">
-              <button
-                onClick={handleSpin}
-                disabled={spinning}
-                className="w-full text-base font-black italic tracking-widest disabled:opacity-60 active:scale-95 transition-transform flex items-center justify-center gap-2"
-                style={{ color: '#c5a059', textShadow: '0 1px 2px rgba(0,0,0,0.75)' }}
-              >
-                <Sparkles className="w-5 h-5" /> {spinning ? 'SPINNING…' : 'SPIN NOW'}
-              </button>
-            </WoodFrame>
+            <button
+              onClick={handleSpin}
+              disabled={spinning}
+              className="w-full disabled:opacity-60 active:scale-95 transition-transform"
+              style={{ background: 'transparent', border: 'none', padding: 0, cursor: spinning ? 'not-allowed' : 'pointer' }}
+            >
+              <img
+                src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2856c6533_file_00000000a3c8820ba092dc2cb1951125.png"
+                alt="Spin"
+                draggable={false}
+                className="block w-full h-auto"
+                style={{ filter: 'url(#spinBtnDropBlack)' }}
+              />
+            </button>
           ) : (
             <WoodFrame variant="msg" className="w-full text-center">
               <div className="flex items-center justify-center gap-2">
