@@ -84,6 +84,16 @@ export default function BigBrownMachine() {
       className="relative w-full max-w-md mx-auto min-h-screen flex flex-col overflow-hidden"
       style={{ background: FOREST_BG, isolation: 'isolate' }}
     >
+      {/* SVG filter — keys out the black background of the SPIN button image */}
+      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+        <filter id="bbSpinDropBlack" colorInterpolationFilters="sRGB">
+          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
+          <feComponentTransfer>
+            <feFuncA type="linear" slope="1.5" intercept="-0.12" />
+          </feComponentTransfer>
+        </filter>
+      </svg>
+
       {showInfo && <BigBrownInfo bet={bet} onClose={() => setShowInfo(false)} />}
 
       {/* Info button — top-left, large circular */}
@@ -344,23 +354,27 @@ export default function BigBrownMachine() {
             </button>
           </div>
 
-          {/* Center: Large circular white spin button */}
+          {/* Center: Western SPIN button image (black bg keyed out) */}
           <button
             onClick={spin}
             disabled={spinning}
-            className="relative w-16 h-16 rounded-full disabled:opacity-70 active:scale-95 transition-transform flex items-center justify-center"
-            style={{
-              background: spinning
-                ? 'radial-gradient(circle, #4a5a6a, #2a3a4a)'
-                : 'radial-gradient(circle at 35% 30%, #ffffff, #e8edf2 60%, #c0c8d0 100%)',
-              border: '2px solid rgba(255,255,255,0.5)',
-              boxShadow: spinning ? 'none' : '0 0 16px rgba(255,255,255,0.35), 0 2px 8px rgba(0,0,0,0.5)',
-            }}
+            className="relative w-20 h-20 disabled:opacity-70 active:scale-95 transition-transform flex items-center justify-center"
+            style={{ background: 'transparent', border: 'none', padding: 0, cursor: spinning ? 'not-allowed' : 'pointer' }}
           >
-            {freeSpinsActive ? (
-              <span className="text-lg font-black text-slate-800" style={{ fontFamily: 'Georgia, serif' }}>{freeSpins}</span>
-            ) : (
-              <Play className="w-6 h-6 text-slate-800" fill="currentColor" style={{ marginLeft: 2 }} />
+            <img
+              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/86dd448f2_file_00000000c7fc81fa80de66b90930e468.png"
+              alt="SPIN"
+              draggable={false}
+              className="block w-full h-full object-contain"
+              style={{ filter: 'url(#bbSpinDropBlack)' }}
+            />
+            {freeSpinsActive && (
+              <span
+                className="absolute inset-0 flex items-center justify-center text-xl font-black"
+                style={{ fontFamily: 'Rye, Georgia, serif', color: '#ffe9a8', textShadow: '0 1px 2px #000, 0 0 6px rgba(0,0,0,0.9)' }}
+              >
+                {freeSpins}
+              </span>
             )}
           </button>
 
