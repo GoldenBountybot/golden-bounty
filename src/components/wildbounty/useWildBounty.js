@@ -517,7 +517,8 @@ export function useWildBounty() {
   // flying animation active) and after the flying animation completes.
   const applyBanner = useCallback((banner) => {
     if (!banner) return;
-    sfx.showdown();
+    // The banner component itself plays the total-win sound and matches its
+    // count-up to the sound length, so we don't trigger the sound here.
     if (banner.type === 'mega') setMegaWin({ amount: banner.amount, multiplier: banner.multiplier });
     else if (banner.type === 'super') setSuperWin({ amount: banner.amount, multiplier: banner.multiplier });
     else if (banner.type === 'freeSpinsEnd') setFreeSpinsEndWin({ amount: banner.amount, multiplier: banner.multiplier });

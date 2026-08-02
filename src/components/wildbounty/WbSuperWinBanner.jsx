@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { sfx } from './sounds';
 
 const SUPER_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bc8844e96_file_0000000057d881fbaa643e8f2dd979ce.png';
 
@@ -10,7 +11,9 @@ export default function WbSuperWinBanner({ amount, multiplier, onDone }) {
   const startRef = useRef(null);
 
   useEffect(() => {
-    const duration = 1800;
+    // Play the total-win sting and count up the amount for exactly as long
+    // as the sound plays.
+    const duration = (sfx.showdown() || 1.8) * 1000;
     const to = amount;
     const step = (ts) => {
       if (startRef.current == null) startRef.current = ts;

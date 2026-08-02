@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { sfx } from './sounds';
 
 const MEGA_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/abe2184b1_file_00000000233881faa2d49279db01c3b7.png';
 
@@ -10,7 +11,9 @@ export default function WbMegaWinBanner({ amount, multiplier, onDone, label }) {
   const startRef = useRef(null);
 
   useEffect(() => {
-    const duration = 2200;
+    // Play the total-win sting and count up the amount for exactly as long
+    // as the sound plays.
+    const duration = (sfx.showdown() || 2.2) * 1000;
     const to = amount;
     const step = (ts) => {
       if (startRef.current == null) startRef.current = ts;
