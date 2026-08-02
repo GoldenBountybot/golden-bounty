@@ -99,9 +99,9 @@ export default function ArgonautsMachine() {
       {/* SVG filter — keys out the black background of the SPIN button image */}
       <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
         <filter id="argoSpinDropBlack" colorInterpolationFilters="sRGB">
-          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
+          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1 1 1 0 0" />
           <feComponentTransfer>
-            <feFuncA type="linear" slope="1.5" intercept="-0.12" />
+            <feFuncA type="linear" slope="2.2" intercept="-0.08" />
           </feComponentTransfer>
         </filter>
       </svg>
