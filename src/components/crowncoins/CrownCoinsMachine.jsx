@@ -518,7 +518,7 @@ export default function CrownCoinsMachine() {
           <span className="w-6" />
         </div>
 
-        <div ref={bannerRef} className="flex items-center justify-center -mt-6">
+        <div ref={bannerRef} className="flex items-center justify-center -mt-2">
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9e18b75a6_file_00000000700081fab7c3b36c02964e06.png"
             alt="Crown Coins"
