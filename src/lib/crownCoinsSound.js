@@ -10,7 +10,7 @@ function getCtx() {
   return ctx;
 }
 
-const SPIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/bd25f7dae_soinbatoom.mp3';
+const SPIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/7bee91e9e_spinbutton.mp3';
 let spinBuffer = null;
 let spinLoaded = false;
 
