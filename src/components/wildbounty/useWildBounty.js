@@ -290,8 +290,7 @@ export function useWildBounty() {
       setCascadeSlow(1);
       setWinningPositions(new Set());
       if (totalWin > 0) setBalance(b => b + totalWin);
-      // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
-      if (pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
+      pendingWinRef.current = 0;
       clearPendingRound('wild-bounty');
       pendingStateRef.current = null;
       if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
@@ -304,15 +303,18 @@ export function useWildBounty() {
       // show a Mega Win banner with the accumulated 10-spin total instead.
       const peak = peakMultRef.current;
       if (peak >= 8 && totalWin > 0) {
+        // Reveal the accumulated round total (count-up from 0 for peak < x32,
+        // plain total when a Super/Mega banner handles the reveal).
+        setLastWin(totalWin);
         setEndSkull(true);
-        // Only count up from 0 + play the total-win sting when NO Super/Mega
-        // win banner is showing (peak < 32) — those banners have their own
-        // count-up + sound, so the plaque just shows the plain total.
         if (peak < 32) {
           setTotalWinCountUp(true);
           setTotalWinDur((sfx.showdown() || 2.2) * 1000);
           setTotalWinKey(k => k + 1);
         }
+      } else if (cascadeCount > 0) {
+        // Round ended with wins below x8 — clear the cascade step-win text.
+        setLastWin(0);
       }
       const fsEnding = wasFree && freeSpinsCountRef.current === 0 && freeSpinsTotalRef.current > 0;
       let banner = null;
