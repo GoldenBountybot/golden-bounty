@@ -66,6 +66,7 @@ const BRANCH_FRAME = `
 export default function BigBrownMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
+  const [spinPulse, setSpinPulse] = useState(false);
   const g = useBigBrown();
   const {
     grid, balance, bet, spinning, stoppedReels,
@@ -356,10 +357,10 @@ export default function BigBrownMachine() {
 
           {/* Center: Western SPIN button image (black bg keyed out) */}
           <button
-            onClick={spin}
+            onClick={() => { setSpinPulse(true); setTimeout(() => setSpinPulse(false), 220); spin(); }}
             disabled={spinning}
-            className="relative w-16 h-16 disabled:opacity-70 active:scale-110 transition-transform flex items-center justify-center"
-            style={{ background: 'transparent', border: 'none', padding: 0, cursor: spinning ? 'not-allowed' : 'pointer' }}
+            className="relative w-16 h-16 disabled:opacity-70 transition-transform flex items-center justify-center"
+            style={{ background: 'transparent', border: 'none', padding: 0, cursor: spinning ? 'not-allowed' : 'pointer', transform: spinPulse ? 'scale(1.18)' : 'scale(1)', transition: 'transform 180ms ease-out' }}
           >
             <img
               src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/86dd448f2_file_00000000c7fc81fa80de66b90930e468.png"
