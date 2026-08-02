@@ -1,27 +1,27 @@
 import React from 'react';
 
-// Four bet-tier banners (MIN / MID / MAX / ULTRA) shown around the Crown Coins
-// top banner. The displayed amount scales with the current bet so the tiers
-// always stay proportional to the base bet ($0.10 → 3 / 5 / 15 / 100).
-const TIERS = [
-  { key: 'MIN',  mult: 30,   bg: '#0a6b2a', border: '#1ea64a' }, // forest green
-  { key: 'MID',  mult: 50,   bg: '#0a2a8a', border: '#2a55d4' }, // royal blue
-  { key: 'MAX',  mult: 150,  bg: '#5a0a8a', border: '#9a3ad4' }, // rich purple
-  { key: 'ULTRA', mult: 1000, bg: '#7a0e1c', border: '#c43040' }, // deep burgundy
-];
+// Four bet-tier banners positioned around the main CROWN COINS banner.
+// Layout (matching the reference): MAX top-left, ULTRA top-right,
+// MID bottom-left, MIN bottom-right. Amounts scale with the current bet.
+const TIERS = {
+  MAX:   { mult: 150,  bg: '#5a0a8a', border: '#9a3ad4' }, // rich purple
+  ULTRA: { mult: 1000, bg: '#7a0e1c', border: '#c43040' }, // deep burgundy
+  MID:   { mult: 50,   bg: '#0a2a8a', border: '#2a55d4' }, // royal blue
+  MIN:   { mult: 30,   bg: '#0a6b2a', border: '#1ea64a' }, // forest green
+};
 
-function TierBanner({ tier, bet }) {
+function TierBanner({ tierKey, bet }) {
+  const tier = TIERS[tierKey];
   const amount = bet * tier.mult;
   return (
     <div
-      className="relative flex flex-col items-center justify-center px-1 py-0.5"
+      className="relative flex flex-col items-center justify-center px-1.5 py-0.5"
       style={{
         background: `linear-gradient(to bottom, ${tier.border}, ${tier.bg})`,
         border: '2px solid #d4af37',
         boxShadow:
           'inset 0 0 0 1px #8a5a00, inset 0 1px 0 rgba(255,255,255,0.25), 0 2px 5px rgba(0,0,0,0.6)',
-        clipPath: 'polygon(8% 0, 92% 0, 100% 50%, 92% 100%, 8% 100%, 0 50%)',
-        minWidth: 0,
+        clipPath: 'polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%)',
       }}
     >
       <span
@@ -37,12 +37,12 @@ function TierBanner({ tier, bet }) {
           filter: 'drop-shadow(0 1px 0 #5a3a06) drop-shadow(0 0 2px rgba(0,0,0,0.9))',
         }}
       >
-        {tier.key}
+        {tierKey}
       </span>
       <span
         className="leading-none tabular-nums"
         style={{
-          fontSize: '12px',
+          fontSize: '11px',
           fontFamily: 'Georgia, serif',
           fontWeight: 900,
           background: 'linear-gradient(to bottom, #fff7d6, #ffe9a8 30%, #f5c542 60%, #c8881e)',
@@ -58,12 +58,27 @@ function TierBanner({ tier, bet }) {
   );
 }
 
+// Corner wrapper — absolutely places a banner at one of the four corners
+// of the relative banner container, offset outward so it never overlaps
+// the centered main banner.
+function Corner({ pos, children }) {
+  const base = 'absolute z-10';
+  const styles = {
+    'top-left':    { top: '-6px', left: '-2px' },
+    'top-right':   { top: '-6px', right: '-2px' },
+    'bottom-left': { bottom: '-6px', left: '-2px' },
+    'bottom-right':{ bottom: '-6px', right: '-2px' },
+  };
+  return <div className={base} style={styles[pos]}>{children}</div>;
+}
+
 export default function BetTierBanners({ bet }) {
   return (
-    <div className="grid grid-cols-4 gap-1 w-full">
-      {TIERS.map((t) => (
-        <TierBanner key={t.key} tier={t} bet={bet} />
-      ))}
-    </div>
+    <>
+      <Corner pos="top-left"><TierBanner tierKey="MAX" bet={bet} /></Corner>
+      <Corner pos="top-right"><TierBanner tierKey="ULTRA" bet={bet} /></Corner>
+      <Corner pos="bottom-left"><TierBanner tierKey="MID" bet={bet} /></Corner>
+      <Corner pos="bottom-right"><TierBanner tierKey="MIN" bet={bet} /></Corner>
+    </>
   );
 }
