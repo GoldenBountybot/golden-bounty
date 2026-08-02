@@ -151,7 +151,9 @@ export default function WildBountyMachine() {
           className="wb-deep-gold text-lg sm:text-xl italic leading-none tracking-wide block w-full"
           style={{ fontFamily: 'Rye, Georgia, serif' }}
         >
-          {g.lastWin > 0 ? <>WIN <CountUp value={g.lastWin} /></> : g.message}
+          {g.lastWin > 0 ? (
+            g.multIndex >= 3 ? <>WIN <CountUp value={g.lastWin} /></> : <>WIN {g.lastWin.toFixed(2)}</>
+          ) : g.message}
         </span>
       </PlaqueBanner>
 
