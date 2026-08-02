@@ -203,15 +203,10 @@ export function useWildBounty() {
         const room = Math.max(0, 3 - (existingWilds[tr] || 0));
         keys.slice(0, room).forEach(k => convertSet.add(k));
       });
-      let gridForCascade = currentGrid;
-      if (convertSet.size) {
-        gridForCascade = currentGrid.map(reel => [...reel]);
-        convertSet.forEach(pos => { const [r, row] = pos.split('-').map(Number); gridForCascade[r][row] = 'wild'; });
-        setGrid(gridForCascade);
-        setScatterGlow(prev => new Set([...prev, ...convertSet]));
-      }
-      // Converted wilds persist — shatter only the remaining winning positions
-      const shatterPos = new Set([...wpos].filter(p => !convertSet.has(p)));
+      // The symbols that will convert to wilds blast (shatter) along with
+      // the other winning symbols, then become wilds after the blast.
+      const gridForCascade = currentGrid;
+      const shatterPos = new Set([...wpos]);
 
       setWinningPositions(wpos);
       // Credit the whole round at the end (see chain-end branch), not per
@@ -262,6 +257,11 @@ export function useWildBounty() {
       const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex];
       const cascadeT = setTimeout(() => {
         const newGrid = rigCascadeGrid(gridForCascade, shatterPos, cont);
+        // The blasted convert positions now become wilds.
+        if (convertSet.size) {
+          convertSet.forEach(pos => { const [r, row] = pos.split('-').map(Number); newGrid[r][row] = 'wild'; });
+          setScatterGlow(prev => new Set([...prev, ...convertSet]));
+        }
         setShattering(new Set());
         setWinningPositions(new Set([...wpos].filter(p => !shatterPos.has(p))));
         setGoldFrames(prev => new Set([...prev].filter(p => !shatterPos.has(p))));
