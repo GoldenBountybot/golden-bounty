@@ -270,12 +270,12 @@ export default function FreeSpin() {
               />
             </button>
           ) : (
-            <WoodFrame variant="msg" className="w-full text-center">
-              <div className="flex items-center justify-center gap-2">
-                <Clock className="w-4 h-4" style={{ color: '#c5a059' }} />
-                <span className="text-xs font-bold italic tracking-wide" style={{ color: '#c5a059' }}>NEXT SPIN IN</span>
+            <WoodFrame variant="msg" className="w-full max-w-[130px] text-center">
+              <div className="flex items-center justify-center gap-1.5">
+                <Clock className="w-3 h-3" style={{ color: '#c5a059' }} />
+                <span className="text-[10px] font-bold italic tracking-wide" style={{ color: '#c5a059' }}>NEXT SPIN IN</span>
               </div>
-              <div className="mt-0.5 text-2xl font-black tabular-nums" style={{ color: '#f5d77a', textShadow: '0 0 10px rgba(255,200,80,0.6)' }}>
+              <div className="mt-0.5 text-lg font-black tabular-nums" style={{ color: '#f5d77a', textShadow: '0 0 10px rgba(255,200,80,0.6)' }}>
                 {remaining == null ? '—:—:—' : fmt(remaining)}
               </div>
             </WoodFrame>
