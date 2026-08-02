@@ -11,36 +11,18 @@ function getCtx() {
 }
 
 const SPIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/bd25f7dae_soinbatoom.mp3';
-let spinBuffer = null;
-let spinLoading = null;
+let spinAudio = null;
 
 export function playSpinSound() {
   if (isMuted()) return;
-  const ac = getCtx();
-  if (!ac) return;
-  if (ac.state === 'suspended') ac.resume().catch(() => {});
-
-  const play = (buf) => {
-    const src = ac.createBufferSource();
-    src.buffer = buf;
-    const g = ac.createGain();
-    g.gain.value = 0.7;
-    src.connect(g);
-    g.connect(ac.destination);
-    src.start();
-  };
-
-  if (spinBuffer) { play(spinBuffer); return; }
-
-  if (!spinLoading) {
-    spinLoading = fetch(SPIN_SOUND_URL)
-      .then(r => r.arrayBuffer())
-      .then(ab => ac.decodeAudioData(ab))
-      .then(buf => { spinBuffer = buf; play(buf); })
-      .catch(() => {});
-  } else {
-    spinLoading.then(buf => { if (buf) play(buf); }).catch(() => {});
-  }
+  try {
+    if (!spinAudio) {
+      spinAudio = new Audio(SPIN_SOUND_URL);
+      spinAudio.volume = 0.7;
+    }
+    spinAudio.currentTime = 0;
+    spinAudio.play().catch(() => {});
+  } catch { /* ignore */ }
 }
 
 export function playCoinSound() {
