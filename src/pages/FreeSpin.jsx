@@ -242,7 +242,7 @@ export default function FreeSpin() {
         </div>
 
         {/* Wheel — transparent surroundings, floats on the page bg */}
-        <SpinWheel segments={SEGMENTS} rotation={rotation} onRest={handleRest} size={420} />
+        <SpinWheel segments={SEGMENTS} rotation={rotation} onRest={handleRest} size={380} />
 
         {/* Spin / cooldown control — ornate gold SPIN button (black bg keyed out) */}
         <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
