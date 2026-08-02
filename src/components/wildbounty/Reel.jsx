@@ -34,7 +34,12 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
       const b1 = block();
       return [...b1, ...block(), ...block(), ...b1];
     }
-    if (spinning) return Array.from({ length: rowCount * 4 }, () => randomSymbol());
+    if (spinning) {
+      // First & last blocks identical → seamless -75%→0% reelFall loop (no jump).
+      const block = () => Array.from({ length: rowCount }, () => randomSymbol());
+      const b1 = block();
+      return [...b1, ...block(), ...block(), ...b1];
+    }
     return symbols;
   }, [spinning, symbols, rowCount, anticipationGlow]);
 
