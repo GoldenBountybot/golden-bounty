@@ -309,7 +309,7 @@ export default function CrownCoinsMachine() {
       const extra = (i === 2 && anticipate) ? anticiDelay : 0;
       const t1 = setTimeout(() => {
         setPhases(prev => prev.map((p, idx) => (idx === i ? 'land' : p)));
-        playReelDropSound();
+        if (i === 2) playReelDropSound();
       }, base + i * step + extra);
       timers.current.push(t1);
     });
