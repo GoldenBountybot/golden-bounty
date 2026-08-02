@@ -25,7 +25,7 @@ export const SYMBOLS = {
 const POOL = [
   'scatter',
   'bandit',
-  'revolver', 'revolver', 'revolver', 'revolver', 'revolver',
+  'revolver', 'revolver',
   'hat', 'hat', 'hat', 'hat', 'hat',
   'whiskey', 'whiskey', 'whiskey', 'whiskey', 'whiskey',
   'A', 'A', 'A', 'A', 'A', 'A', 'A',
