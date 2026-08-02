@@ -46,16 +46,9 @@ export default function FlyingMultiplier({ value, onComplete, slow = 1, startY =
         }}
       >
         <span
-          className="inline-block font-black italic leading-none select-none"
+          className="wb-deep-gold inline-block select-none"
           style={{
             fontSize: '2.25rem',
-            fontFamily: 'Rye, Georgia, serif',
-            whiteSpace: 'nowrap',
-            backgroundImage: 'linear-gradient(180deg, #fffbe6 0%, #ffe57a 18%, #ffd24a 38%, #e7b53a 58%, #b8861f 80%, #7c5818 100%)',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            color: 'transparent',
-            backfaceVisibility: 'hidden',
           }}
         >
           X{value}
