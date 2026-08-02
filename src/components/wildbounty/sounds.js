@@ -14,8 +14,6 @@ const SCATTER_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637
 const SPIN_CLICK_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/d0ba94ac5_spinbuttonclicksound.mp3';
 // Uploaded symbol-match sound — plays when spinning symbols match.
 const SYM_MATCH_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/08650935f_SpinSymbleMachSound_0.mp3';
-// Uploaded high-value symbol match sound — plays when bandit/revolver match.
-const HIGH_VALUE_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/78a467a23_highvaluesymbolmachsound.mp3';
 let spinBuffer = null;
 let spinLoading = false;
 let spinAudio = null;
@@ -31,8 +29,6 @@ let spinClickBuffer = null;
 let spinClickLoading = false;
 let symMatchBuffer = null;
 let symMatchLoading = false;
-let highValueBuffer = null;
-let highValueLoading = false;
 
 async function loadSpinBuffer() {
   if (spinBuffer || spinLoading) return;
@@ -135,30 +131,6 @@ function playSymMatch() {
   if (bgMuted) return;
   const src = ac.createBufferSource();
   src.buffer = symMatchBuffer;
-  const g = ac.createGain();
-  g.gain.setValueAtTime(VOL, ac.currentTime);
-  src.connect(g).connect(ac.destination);
-  src.start();
-}
-
-async function loadHighValueBuffer() {
-  if (highValueBuffer || highValueLoading) return;
-  highValueLoading = true;
-  try {
-    const res = await fetch(HIGH_VALUE_URL);
-    const arr = await res.arrayBuffer();
-    const ac = getCtx();
-    if (ac) highValueBuffer = await ac.decodeAudioData(arr);
-  } catch { /* ignore */ } finally { highValueLoading = false; }
-}
-
-function playHighValueMatch() {
-  const ac = getCtx();
-  if (!ac) return;
-  if (!highValueBuffer) { loadHighValueBuffer(); return; }
-  if (bgMuted) return;
-  const src = ac.createBufferSource();
-  src.buffer = highValueBuffer;
   const g = ac.createGain();
   g.gain.setValueAtTime(VOL, ac.currentTime);
   src.connect(g).connect(ac.destination);
@@ -335,7 +307,7 @@ export function startBackgroundMusic() {
 }
 
 export const sfx = {
-  preload() { loadBgBuffer(); loadSpinClickBuffer(); loadSymMatchBuffer(); loadScatterBuffer(); loadHighValueBuffer(); },
+  preload() { loadBgBuffer(); loadSpinClickBuffer(); loadSymMatchBuffer(); loadScatterBuffer(); },
   spin() { startBackgroundMusic(); },
   stopSpin() {},
   win() {},
@@ -345,7 +317,6 @@ export const sfx = {
   loss() {},
   spinClick() { playSpinClick(); },
   symbolMatch() { playSymMatch(); },
-  highValueMatch() { playHighValueMatch(); },
 };
 
 // Toggle background music mute. Returns the new muted state.
