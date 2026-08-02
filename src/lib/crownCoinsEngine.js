@@ -119,7 +119,7 @@ export function spinGrid(rtp = 50) {
     rows.forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     const avail = rows.filter(i => grid[i] !== 'coin');
     // Center column: when the Crown Coin is present, value coin chance drops to 0.05%.
-    const chance = (col === 1 && grid[4] === 'coin') ? 0.0005 : 0.10;
+    const chance = (col === 1 && grid[4] === 'coin') ? 0.0005 : 0.18;
     if (Math.random() < chance && avail.length) {
       grid[avail[Math.floor(Math.random() * avail.length)]] = randomCoinKey();
     }
