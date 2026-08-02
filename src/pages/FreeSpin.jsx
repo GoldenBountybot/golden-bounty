@@ -3,6 +3,8 @@ import { Clock, Sparkles, Trophy } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import GameHeader from '@/components/GameHeader';
+import GameAssetLoader from '@/components/GameAssetLoader';
+import { FREE_SPIN_ASSETS } from '@/lib/gameAssets';
 import SpinWheel from '@/components/freespin/SpinWheel';
 import WoodFrame from '@/components/freespin/WoodFrame';
 
@@ -78,6 +80,7 @@ const woodBtn = {
 
 export default function FreeSpin() {
   const { balance, setBalance, demoMode, addRealBalance } = useCasinoBalance();
+  const [assetsReady, setAssetsReady] = useState(false);
   const [lastSpinAt, setLastSpinAt] = useState(null); // null = still loading
   const [spinCount, setSpinCount] = useState(0); // total daily spins done (drives the prize ladder)
   const [spinGroup, setSpinGroup] = useState(null); // 'mask' | 'ladder' — masks the uniform ladder
@@ -182,6 +185,14 @@ export default function FreeSpin() {
       /* cooldown persist is best-effort */
     }
   }, [setBalance, demoMode, addRealBalance, spinCount]);
+
+  if (!assetsReady) {
+    return (
+      <div className="min-h-screen relative" style={{ ...W, backgroundImage: 'linear-gradient(rgba(10,8,6,0.8), rgba(10,8,6,0.8)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bd52e9c49_file_00000000a50c8207b70a5b0acc15d3dc.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+        <GameAssetLoader title="Daily Free Spin" assets={FREE_SPIN_ASSETS} onDone={() => setAssetsReady(true)} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen relative" style={{ ...W, backgroundImage: 'linear-gradient(rgba(10,8,6,0.8), rgba(10,8,6,0.8)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bd52e9c49_file_00000000a50c8207b70a5b0acc15d3dc.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>

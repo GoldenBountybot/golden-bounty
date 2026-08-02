@@ -6,7 +6,8 @@ import GameHeader from '@/components/GameHeader';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
-import GameLoadingScreen from '@/components/GameLoadingScreen';
+import GameAssetLoader from '@/components/GameAssetLoader';
+import { THIMBLES_ASSETS } from '@/lib/gameAssets';
 import { isMuted } from '@/lib/soundMute';
 
 const MIN_BET = 0.1;
@@ -243,7 +244,7 @@ export default function Thimbles() {
           zIndex: 0,
         }}
       />
-      {!loaded && <GameLoadingScreen title="Thimbles" onDone={() => setLoaded(true)} />}
+      {!loaded && <GameAssetLoader title="Thimbles" assets={THIMBLES_ASSETS} onDone={() => setLoaded(true)} />}
       <GameHeader title="Thimbles" balance={balance} />
 
       <main className="max-w-md w-full mx-auto px-3 py-1 flex flex-col gap-1 flex-1 relative z-10" style={{ marginTop: '-60px' }}>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import WildBountyMachine from "@/components/wildbounty/WildBountyMachine";
-import GameLoadingScreen from "@/components/wildbounty/GameLoadingScreen";
+import GameAssetLoader from "@/components/GameAssetLoader";
+import { WILD_BOUNTY_ASSETS } from "@/lib/gameAssets";
 import BackButton from "@/components/BackButton";
 import GameTitleBar from "@/components/GameTitleBar";
 import { useCasinoBalance } from "@/lib/useCasinoBalance";
@@ -28,7 +29,7 @@ export default function SlotGame() {
           'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/25cab1181_file_00000000b50c8230a0ebee9ef44b2ebe.png)',
       }}
     >
-      {!loaded && <GameLoadingScreen onDone={() => setLoaded(true)} />}
+      {!loaded && <GameAssetLoader title="Wild Bounty" assets={WILD_BOUNTY_ASSETS} onDone={() => setLoaded(true)} />}
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <GameTitleBar
           title="Wild Bounty Showdown"

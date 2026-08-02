@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import GameLoadingScreen from '@/components/GameLoadingScreen';
+import GameAssetLoader from '@/components/GameAssetLoader';
+import { GATES_ASSETS } from '@/lib/gameAssets';
 import GameHeader from '@/components/GameHeader';
 import GatesMachine from '@/components/gates/GatesMachine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -10,8 +11,9 @@ export default function GatesOfOlympus() {
 
   if (!ready) {
     return (
-      <GameLoadingScreen
+      <GameAssetLoader
         title="Gates of Olympus"
+        assets={GATES_ASSETS}
         onDone={() => setReady(true)}
         bgImage="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1f0dcd8e1_file_00000000534882308373132046ad84c6.png"
       />
