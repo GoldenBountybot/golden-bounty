@@ -57,7 +57,7 @@ function Tile({ symKey, win, dim, bet, amount }) {
       className="relative flex items-center justify-center overflow-hidden p-[3px]"
       style={{
         background: 'transparent',
-        border: win ? '2px solid #ffd24a' : '1px solid rgba(212,175,55,0.35)',
+        border: win ? '2px solid #ffd24a' : 'none',
         boxShadow: win
           ? '0 0 12px rgba(255,210,80,0.9), inset 0 0 0 2px rgba(255,235,150,0.9)'
           : 'none',
@@ -145,7 +145,7 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, 
   const showGlow = anticipate && phase !== 'idle';
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 2.1', background: 'transparent' }}>
+    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 2.1', background: 'transparent', borderRight: colIndex < 2 ? '1px solid rgba(212,175,55,0.35)' : 'none' }}>
       {showGlow && (
         <>
           <div
