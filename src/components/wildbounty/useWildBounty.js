@@ -297,8 +297,8 @@ export function useWildBounty() {
         freeSpinsTotalRef.current = 0;
         banner = { type: 'freeSpinsEnd', amount: fsTotal, multiplier: peak };
       } else {
-        const isMega = peak >= 64;
-        const isSuper = !isMega && peak >= 16;
+        const isMega = peak >= 128;
+        const isSuper = !isMega && peak >= 32;
         if (isMega && totalWin > 0) banner = { type: 'mega', amount: totalWin, multiplier: peak };
         else if (isSuper && totalWin > 0) banner = { type: 'super', amount: totalWin, multiplier: peak };
       }
