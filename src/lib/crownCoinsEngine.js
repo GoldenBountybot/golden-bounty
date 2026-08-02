@@ -8,8 +8,28 @@ export const VALUE_COIN_IMG = 'https://media.base44.com/images/public/6a5698edff
 // Purely visual; do NOT add to balance. Dollar value = mult × bet.
 export const VALUE_COIN_MULTS = [1, 3, 5, 7, 10, 15, 20];
 export const VALUE_COIN_KEYS = VALUE_COIN_MULTS.map(m => 'vc' + m);
+// Tier coins — special value coins displaying a label (MIN/MID/MAX/ULTRA)
+// instead of a dollar amount. They behave exactly like value coins: land on
+// the reels, fly to the Crown Coins banner, and stick during free spins.
+export const TIER_COIN_MULTS = { MIN: 30, MID: 50, MAX: 150, ULTRA: 1000 };
+export const TIER_COIN_KEYS = Object.keys(TIER_COIN_MULTS).map(t => 'vc' + t);
+export function isTierCoin(key) {
+  if (typeof key !== 'string' || !key.startsWith('vc')) return false;
+  return Object.prototype.hasOwnProperty.call(TIER_COIN_MULTS, key.slice(2));
+}
+export function tierCoinLabel(key) { return key.slice(2); }
+// Weighted random coin key — 15% chance of a tier coin, otherwise a regular value coin.
+export function randomCoinKey() {
+  if (Math.random() < 0.15) {
+    return TIER_COIN_KEYS[Math.floor(Math.random() * TIER_COIN_KEYS.length)];
+  }
+  return randomCoinKey();
+}
 export function isValueCoin(key) { return typeof key === 'string' && key.startsWith('vc'); }
-export function valueCoinMult(key) { return Number(String(key).slice(2)) || 0; }
+export function valueCoinMult(key) {
+  if (isTierCoin(key)) return TIER_COIN_MULTS[tierCoinLabel(key)];
+  return Number(String(key).slice(2)) || 0;
+}
 // True for a Royal Treasury bonus cell that upgraded to a fixed jackpot coin.
 // Accepts a bonus cell object ({ type: 'jackpot', tier }) — kept for legacy imports.
 export function isJackpotCoin(cell) {
@@ -101,7 +121,7 @@ export function spinGrid(rtp = 50) {
     // Center column: when the Crown Coin is present, value coin chance drops to 0.05%.
     const chance = (col === 1 && grid[4] === 'coin') ? 0.0005 : 0.10;
     if (Math.random() < chance && avail.length) {
-      grid[avail[Math.floor(Math.random() * avail.length)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
+      grid[avail[Math.floor(Math.random() * avail.length)]] = randomCoinKey();
     }
   });
 
@@ -115,17 +135,17 @@ export function spinGrid(rtp = 50) {
     grid[4] = 'coin';
     [0, 3, 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
-    grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
-    grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
+    grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = randomCoinKey();
+    grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = randomCoinKey();
   } else if (triggerRoll < 0.1505) {
     grid[4] = 'coin';
     [0, 3, 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
-    grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
+    grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = randomCoinKey();
     // Anticipation payoff: 5% chance a value coin drops on the slow-motion
     // third reel (right side column), completing the free-spin trigger.
     if (Math.random() < 0.05) {
-      grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
+      grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = randomCoinKey();
     }
   }
 
@@ -179,7 +199,7 @@ export function spinFreeAccum(stuck) {
     const empty = rows.filter(i => !newStuck[i]);
     if (empty.length && Math.random() < FREE_COIN_CHANCE) {
       const cell = empty[Math.floor(Math.random() * empty.length)];
-      const k = VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
+      const k = randomCoinKey();
       newStuck[cell] = k;
       grid[cell] = k;
       dropped += 1;

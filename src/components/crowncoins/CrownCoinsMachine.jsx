@@ -5,7 +5,7 @@ import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, getPendingRound } from '@/lib/pendingRound';
 import { useToast } from '@/components/ui/use-toast';
-import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
+import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isTierCoin, tierCoinLabel, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
 import { incBet, decBet } from '@/lib/betStepper';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
@@ -73,7 +73,7 @@ function Tile({ symKey, win, dim, bet, amount }) {
         {isVC ? (
           <div className="relative w-full h-full flex items-center justify-center">
             <img src={VALUE_COIN_IMG} alt="coin" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen' }} />
-            <span className="absolute font-black text-yellow-100" style={{ fontSize: '10px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${vcVal.toFixed(2)}</span>
+            <span className="absolute font-black text-yellow-100" style={{ fontSize: isTierCoin(symKey) ? '9px' : '10px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>{isTierCoin(symKey) ? tierCoinLabel(symKey) : `$${vcVal.toFixed(2)}`}</span>
           </div>
         ) : (
           <img
@@ -424,7 +424,7 @@ export default function CrownCoinsMachine() {
             const col = i % 3, row = Math.floor(i / 3);
             const fx = rc.left + (col + 0.5) * cellW;
             const fy = rc.top + (row + 0.5) * cellH;
-            coins.push({ id: i + '-' + Date.now(), fx, fy, dx: bc.left + bc.width / 2 - fx, dy: bc.top + bc.height / 2 - fy, mult: valueCoinMult(k) });
+            coins.push({ id: i + '-' + Date.now(), fx, fy, dx: bc.left + bc.width / 2 - fx, dy: bc.top + bc.height / 2 - fy, mult: valueCoinMult(k), label: isTierCoin(k) ? tierCoinLabel(k) : null });
           }
         });
         if (coins.length) {
@@ -648,7 +648,7 @@ export default function CrownCoinsMachine() {
                         ))}
                         <img src={k === 'coin' ? symbolByKey('coin').image : VALUE_COIN_IMG} alt="" className="relative w-full h-full object-contain" draggable={false} style={{ filter: 'drop-shadow(0 0 8px rgba(255,210,80,0.85))', mixBlendMode: 'screen' }} />
                         {k !== 'coin' && (
-                          <span className="absolute font-black text-yellow-100 z-10" style={{ fontSize: '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>${(valueCoinMult(k) * bet).toFixed(2)}</span>
+                          <span className="absolute font-black text-yellow-100 z-10" style={{ fontSize: isTierCoin(k) ? '10px' : '11px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>{isTierCoin(k) ? tierCoinLabel(k) : `$${(valueCoinMult(k) * bet).toFixed(2)}`}</span>
                         )}
                       </div>
                     )}
@@ -838,7 +838,7 @@ export default function CrownCoinsMachine() {
           <div className="relative" style={{ animation: 'ccCoinFly 1.8s ease-in forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}>
             <div className="relative w-9 h-9 flex items-center justify-center">
               <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" style={{ WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain' }} />
-              <span className="absolute font-black text-yellow-100" style={{ fontSize: '8px', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}>${(c.mult * bet).toFixed(2)}</span>
+              <span className="absolute font-black text-yellow-100" style={{ fontSize: c.label ? '7px' : '8px', textShadow: '0 1px 2px #000', fontFamily: 'Georgia, serif' }}>{c.label || `$${(c.mult * bet).toFixed(2)}`}</span>
             </div>
           </div>
         </div>
