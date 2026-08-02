@@ -146,13 +146,13 @@ export default function WildBountyMachine() {
 
       {/* Win / message banner — shows a counting-up win amount while a round
           is paying, otherwise the status message */}
-      <PlaqueBanner ref={winBannerRef} glow showSkull={g.multIndex >= 3} className="-mt-32 mx-auto py-1 text-center relative z-30 w-[94%]">
+      <PlaqueBanner ref={winBannerRef} glow showSkull={g.endSkull} className="-mt-32 mx-auto py-1 text-center relative z-30 w-[94%]">
         <span
           className="wb-deep-gold text-lg sm:text-xl italic leading-none tracking-wide block w-full"
           style={{ fontFamily: 'Rye, Georgia, serif' }}
         >
           {g.lastWin > 0 ? (
-            g.multIndex >= 3 ? <>WIN <CountUp value={g.lastWin} /></> : <>WIN {g.lastWin.toFixed(2)}</>
+            (g.multIndex >= 3 || g.endSkull) ? <>WIN <CountUp value={g.lastWin} /></> : <>WIN {g.lastWin.toFixed(2)}</>
           ) : g.message}
         </span>
       </PlaqueBanner>
