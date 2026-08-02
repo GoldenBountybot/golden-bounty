@@ -158,8 +158,10 @@ export function useWildBounty() {
     let awarded = scatterAwarded;
     let justAwarded = false;
     if (sc >= 3 && !scatterAwarded) {
-      setFreeSpins(f => f + 10);
-      freeSpinsCountRef.current += 10;
+      // First trigger awards 10 free spins; retrigger during free spins adds 5.
+      const awardCount = wasFree ? 5 : 10;
+      setFreeSpins(f => f + awardCount);
+      freeSpinsCountRef.current += awardCount;
       // First trigger shows the START screen; retrigger during free spins
       // just adds the spins and keeps the round going.
       if (!wasFree) setShowFreeSpinStart(true);
@@ -222,7 +224,7 @@ export function useWildBounty() {
       // short delay instead.
       const flySlow = cascadeCount >= 1 ? 1.6 : 1.2;
       // Show only THIS cascade round's win in the banner — not the accumulated total.
-      const winMsg = justAwarded ? `WIN ${stepWin.toFixed(2)} · +10 FREE SPINS` : `WIN ${stepWin.toFixed(2)}`;
+      const winMsg = justAwarded ? `WIN ${stepWin.toFixed(2)} · +${wasFree ? 5 : 10} FREE SPINS` : `WIN ${stepWin.toFixed(2)}`;
       // Below x8 (newMult < 3): show this cascade's individual win instantly.
       // x8 and above (newMult >= 3): show the accumulated total win, counting up.
       const showTotal = newMult >= 3;
@@ -246,7 +248,7 @@ export function useWildBounty() {
         }, 600);
         timers.current.push(winT);
       }
-      setMessage(justAwarded ? '+10 FREE SPINS!' : 'MATCH!');
+      setMessage(justAwarded ? `+${wasFree ? 5 : 10} FREE SPINS!` : 'MATCH!');
 
       // From the second cascade, run everything in a slight slow motion so the
       // shatter/drop animation lines up with the (also slowed) win sound.
@@ -327,7 +329,7 @@ export function useWildBounty() {
 
       if (!wasFree) setMultIndex(0);
       if (awarded) {
-        setMessage(wasFree ? 'RETRIGGER! +10 FREE SPINS' : '3+ SCATTER! 10 FREE SPINS');
+        setMessage(wasFree ? 'RETRIGGER! +5 FREE SPINS' : '3+ SCATTER! 10 FREE SPINS');
       } else if (cascadeCount === 0) {
         setMessage(sc === 2 ? 'ONE MORE SCATTER!' : 'WIN UP TO 3600 WAYS!');
       }
