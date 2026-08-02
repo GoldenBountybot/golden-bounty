@@ -20,6 +20,7 @@ export default function GameAssetLoader({
 }) {
   const [progress, setProgress] = useState(0);
   const doneRef = useRef(false);
+  const assetsDoneRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,8 +34,8 @@ export default function GameAssetLoader({
 
     // Wait for BOTH: all assets loaded AND the minimum display time elapsed.
     const minTimer = setTimeout(() => {
-      // if assets already done, finish now; otherwise the asset promise will finish
-      if (progress >= 100) finish();
+      // If assets finished before the minimum display time, finish now.
+      if (assetsDoneRef.current) finish();
     }, minDuration);
 
     // No safety timeout: the user explicitly wants to wait as long as needed
@@ -45,14 +46,14 @@ export default function GameAssetLoader({
       if (cancelled) return;
       setProgress(p);
       if (p >= 100) {
+        assetsDoneRef.current = true;
         const elapsed = performance.now() - start;
-        if (elapsed >= minDuration) {
-          finish();
-        }
+        if (elapsed >= minDuration) finish();
         // else: minTimer will fire finish() once minDuration is reached
       }
     }).then(() => {
       if (cancelled) return;
+      assetsDoneRef.current = true;
       setProgress(100);
       const elapsed = performance.now() - start;
       if (elapsed >= minDuration) finish();
