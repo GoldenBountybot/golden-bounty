@@ -138,6 +138,41 @@ function playSymMatch() {
   src.start();
 }
 
+// Showdown fanfare — a triumphant rising arpeggio into a sustained bright
+// chord, played when a Super/Mega Win banner appears. Fully synthesised so
+// no upload is needed.
+function playShowdown() {
+  const ac = getCtx();
+  if (!ac) return;
+  if (bgMuted || isGlobalMuted()) return;
+  const t0 = ac.currentTime;
+  // Rising arpeggio: C4 → E4 → G4 → C5 → E5
+  const arp = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+  arp.forEach((f, i) => {
+    tone({ freq: f, type: 'triangle', dur: 0.18, gain: VOL * 0.9, delay: i * 0.09, sweepTo: f * 1.02 });
+  });
+  // Sustained triumphant chord (C major + shimmer) after the arpeggio peaks
+  const chord = [523.25, 659.25, 783.99, 1046.5];
+  chord.forEach((f) => {
+    const osc = ac.createOscillator();
+    const g = ac.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(f, t0 + 0.5);
+    g.gain.setValueAtTime(0.0001, t0 + 0.5);
+    g.gain.exponentialRampToValueAtTime(VOL * 0.7, t0 + 0.56);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.7);
+    const lp = ac.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 4200;
+    osc.connect(lp).connect(g).connect(ac.destination);
+    osc.start(t0 + 0.5);
+    osc.stop(t0 + 1.75);
+  });
+  // High shimmer sparkle on top
+  tone({ freq: 2093, type: 'sine', dur: 1.1, gain: VOL * 0.5, delay: 0.55, sweepTo: 2637 });
+  tone({ freq: 2637, type: 'sine', dur: 0.9, gain: VOL * 0.4, delay: 0.7, sweepTo: 3136 });
+}
+
 function startWinSeq(rate = 1) {
   const ac = getCtx();
   if (!ac || !winSeqBuffer || winSeqAudio) return;
@@ -318,6 +353,7 @@ export const sfx = {
   loss() {},
   spinClick() { playSpinClick(); },
   symbolMatch() { playSymMatch(); },
+  showdown() { playShowdown(); },
 };
 
 // Toggle background music mute. Returns the new muted state.
