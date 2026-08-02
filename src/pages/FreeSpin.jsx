@@ -253,7 +253,7 @@ export default function FreeSpin() {
             </feComponentTransfer>
           </filter>
         </svg>
-        <div className="-mt-10 w-full max-w-[130px]">
+        <div className="-mt-5 w-full max-w-[160px]">
           {available ? (
             <button
               onClick={handleSpin}
