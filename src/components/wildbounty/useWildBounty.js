@@ -214,16 +214,8 @@ export function useWildBounty() {
       const shatterPos = new Set([...wpos].filter(p => !convertSet.has(p)));
 
       setWinningPositions(wpos);
-      // Credit the whole round at the end (see chain-end branch), not per
-      // cascade, so a mid-cascade exit can be recovered exactly.
-      savePendingRound('wild-bounty', { win: newTotal - newCredited, bet, state: pendingStateRef.current });
       setMultIndex(newMult);
-      // Don't show the win in the banner immediately — wait for the flying
-      // multiplier to land on the win banner, then the amount counts up.
-      // X1 (first cascade) has no flying multiplier, so it shows after a
-      // short delay instead.
       const flySlow = cascadeCount >= 1 ? 1.6 : 1.2;
-      // Show only THIS cascade round's win in the banner — not the accumulated total.
       const winMsg = justAwarded ? `WIN ${stepWin.toFixed(2)} · +${wasFree ? 5 : 10} FREE SPINS` : `WIN ${stepWin.toFixed(2)}`;
       // Below x8 (newMult < 3): show this cascade's individual win instantly and
       // credit it to the balance immediately. x8 and above (newMult >= 3): show
@@ -235,6 +227,8 @@ export function useWildBounty() {
         setBalance(b => b + stepWin);
         newCredited = creditedWin + stepWin;
       }
+      // Persist only the uncredited portion so recovery never double-pays.
+      savePendingRound('wild-bounty', { win: newTotal - newCredited, bet, state: pendingStateRef.current });
       if (currentMultIndex >= 1) {
         setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
         // The multiplier arrives at the banner at ~86% of the fly duration.
