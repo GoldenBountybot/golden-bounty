@@ -226,11 +226,9 @@ export function useWildBounty() {
       const flySlow = cascadeCount >= 1 ? 1.6 : 1.2;
       // Show only THIS cascade round's win in the banner — not the accumulated total.
       const winMsg = justAwarded ? `WIN ${stepWin.toFixed(2)} · +${wasFree ? 5 : 10} FREE SPINS` : `WIN ${stepWin.toFixed(2)}`;
-      // Below x8 (current multiplier < x8): show this cascade's individual win.
-      // x8 and above: show the accumulated total win.
-      const showTotal = currentMultIndex >= 3;
-      const winValue = showTotal ? newTotal : stepWin;
-      setShowTotalLabel(showTotal);
+      // During cascades, always show the individual step win — the accumulated
+      // TOTAL WIN is only revealed at round end.
+      const winValue = stepWin;
       if (currentMultIndex >= 1) {
         setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
         // The multiplier arrives at the banner at ~86% of the fly duration.
