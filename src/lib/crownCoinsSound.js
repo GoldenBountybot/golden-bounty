@@ -42,6 +42,38 @@ export function playSpinSound() {
   } catch { /* ignore */ }
 }
 
+const REEL_DROP_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/ac74277f6_spinrelldropx.mp3';
+let dropBuffer = null;
+let dropLoaded = false;
+
+function loadDropSound() {
+  if (dropLoaded) return;
+  dropLoaded = true;
+  const ac = getCtx();
+  fetch(REEL_DROP_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) dropBuffer = buf; })
+    .catch(() => {});
+}
+
+export function playReelDropSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!dropBuffer) { loadDropSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = dropBuffer;
+    const g = ac.createGain();
+    g.gain.value = 0.6;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 export function playCoinSound() {
   if (isMuted()) return;
   const ac = getCtx();
