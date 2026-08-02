@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { RotateCw, ChevronLeft, DollarSign, Plus, Pencil, Wallet, History, X } from 'lucide-react';
+import { RotateCw, ChevronLeft, DollarSign, Plus, Pencil, Wallet, History, X, Volume2, VolumeX } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
-import { isMuted } from '@/lib/soundMute';
+import { isMuted, useMute } from '@/lib/soundMute';
 
 const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1; // 12 rows: bottom row has 12 pegs between 13 slots
@@ -188,6 +188,7 @@ export default function Plinko() {
   const [message, setMessage] = useState('Drop the ball');
   const [lastWin, setLastWin] = useState(0);
   const [showHistory, setShowHistory] = useState(false);
+  const [muted, toggleMute] = useMute();
   const timers = useRef([]);
   const bet = customBet != null ? customBet : BETS[betIdx];
 
@@ -313,6 +314,14 @@ export default function Plinko() {
             <Link to="/dashboard" className="w-8 h-8 flex items-center justify-center" style={{ ...goldBtn }}>
               <Plus className="w-4 h-4" />
             </Link>
+            <button
+              onClick={toggleMute}
+              className="w-8 h-8 flex items-center justify-center transition-transform active:scale-90"
+              style={{ ...woodBtn, color: '#f3e2b3' }}
+              aria-label={muted ? 'Unmute' : 'Mute'}
+            >
+              {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </button>
           </div>
         </div>
       </header>

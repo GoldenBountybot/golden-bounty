@@ -4,12 +4,14 @@ import GameLoadingScreen from "@/components/wildbounty/GameLoadingScreen";
 import BackButton from "@/components/BackButton";
 import GameTitleBar from "@/components/GameTitleBar";
 import { useCasinoBalance } from "@/lib/useCasinoBalance";
-import { Wallet } from "lucide-react";
+import { Wallet, Volume2, VolumeX } from "lucide-react";
 import { startBackgroundMusic, stopBackgroundMusic } from "@/components/wildbounty/sounds";
+import { useMute } from "@/lib/soundMute";
 
 export default function SlotGame() {
   const [loaded, setLoaded] = useState(false);
   const { balance } = useCasinoBalance();
+  const [muted, toggleMute] = useMute();
 
   // Start background music only after the loading screen finishes, and stop
   // it when leaving the game so it doesn't keep playing on other pages.
@@ -43,6 +45,17 @@ export default function SlotGame() {
                   ${balance.toFixed(2)}
                 </span>
               </div>
+              <button
+                type="button"
+                onClick={toggleMute}
+                className="inline-flex items-center justify-center w-9 h-9 rounded-md active:scale-90 transition-transform"
+                style={{ border: '1px solid rgba(214,178,98,0.6)', background: 'rgba(20,17,13,0.7)' }}
+                aria-label={muted ? "Unmute" : "Mute"}
+              >
+                {muted
+                  ? <VolumeX className="w-5 h-5 text-amber-300" />
+                  : <Volume2 className="w-5 h-5 text-amber-300" />}
+              </button>
             </>
           }
           maxWidth="max-w-4xl"

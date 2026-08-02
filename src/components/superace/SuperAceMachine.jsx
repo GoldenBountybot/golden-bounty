@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, History, ChevronLeft } from 'lucide-react';
+import { Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, History, ChevronLeft, Volume2, VolumeX } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -13,6 +13,7 @@ import SuperWinBanner from '@/components/superace/SuperWinBanner';
 import MegaWinBanner from '@/components/superace/MegaWinBanner';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import GameTitleBar from '@/components/GameTitleBar';
+import { useMute } from '@/lib/soundMute';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import WesternStatBanner from '@/components/wildbounty/WesternStatBanner';
 import {
@@ -115,6 +116,7 @@ export default function SuperAceMachine() {
   const [teaseCols, setTeaseCols] = useState(new Set());
   const [teaseStart, setTeaseStart] = useState(-1);
   const [scatterLand, setScatterLand] = useState(new Set());
+  const [muted, toggleMute] = useMute();
 
   // refs for async orchestration
   const betRef = useRef(0.10);
@@ -534,6 +536,11 @@ export default function SuperAceMachine() {
                 <Wallet className="w-3.5 h-3.5 text-yellow-300" />
                 <AnimatedNumber value={balance} prefix="$" />
               </span>
+              <button onClick={toggleMute} className="shrink-0">
+                <span className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95" style={metalBtn(false)}>
+                  {muted ? <VolumeX className="w-4 h-4 text-amber-300/60" /> : <Volume2 className="w-4 h-4 text-amber-300" />}
+                </span>
+              </button>
             </>
           }
         />

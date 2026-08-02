@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus, Wallet, CircleDollarSign, Trophy } from 'lucide-react';
+import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus, Wallet, CircleDollarSign, Trophy, Volume2, VolumeX } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import GameTitleBar from '@/components/GameTitleBar';
 import GameLoadingScreen from '@/components/GameLoadingScreen';
@@ -7,6 +7,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { incBet, decBet } from '@/lib/betStepper';
+import { useMute } from '@/lib/soundMute';
 
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -144,6 +145,7 @@ const dealBtn = {
 
 export default function HiLo() {
   const { balance, setBalance } = useCasinoBalance();
+  const [muted, toggleMute] = useMute();
   const [loaded, setLoaded] = useState(false);
   const { rtp } = useGameSettings('hi-lo');
   const [bet, setBet] = useState(0.10);
@@ -224,7 +226,34 @@ export default function HiLo() {
 
       {/* Header */}
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-emerald-600/30">
-        <GameTitleBar title="High or Low" left={<BackButton />} />
+        <GameTitleBar
+          title="High or Low"
+          left={<BackButton />}
+          right={
+            <>
+              <span
+                className="flex items-center gap-1 rounded-[6px] px-2 py-0.5 text-[11px] font-bold tabular-nums"
+                style={{ border: `1px solid ${GOLD}`, background: DEEP_BLACK, color: GOLD_BRIGHT }}
+              >
+                <Wallet className="w-3.5 h-3.5" style={{ color: GOLD_BRIGHT }} />
+                ${balance.toFixed(2)}
+              </span>
+              <button
+                type="button"
+                onClick={toggleMute}
+                className="inline-flex items-center justify-center w-9 h-9 rounded-md active:scale-90 transition-transform"
+                style={{ border: `1px solid ${GOLD}`, background: DEEP_BLACK }}
+                aria-label={muted ? 'Unmute' : 'Mute'}
+              >
+                {muted
+                  ? <VolumeX className="w-5 h-5" style={{ color: GOLD_BRIGHT }} />
+                  : <Volume2 className="w-5 h-5" style={{ color: GOLD_BRIGHT }} />}
+              </button>
+            </>
+          }
+          padLeft="pl-44"
+          padRight="pr-44"
+        />
       </header>
 
       <main className="max-w-md mx-auto px-3 py-4 flex flex-col items-center gap-4 relative z-10">

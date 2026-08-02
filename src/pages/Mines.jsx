@@ -205,7 +205,7 @@ export default function Mines() {
     <div className="min-h-screen text-amber-100 flex flex-col relative" style={{ background: 'linear-gradient(to bottom, #1a1108, #0d0905)', ...W }}>
       {!loaded && <GameLoadingScreen title="Mines" emoji="💣" onDone={() => setLoaded(true)} />}
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7ad5415af_.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5, mixBlendMode: 'screen' }} />
-      <GameHeader title="Mines" accent="text-amber-200" border="border-amber-600/40" />
+      <GameHeader title="Mines" balance={Number(balance || 0)} />
 
       <main className="max-w-md w-full mx-auto px-4 py-5 flex flex-col gap-4 flex-1">
         {/* Balance bar */}
