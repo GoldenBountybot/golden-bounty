@@ -31,7 +31,7 @@ const PlaqueBanner = forwardRef(function PlaqueBanner({ children, className = ''
           alt=""
           className="absolute left-1/2 -translate-x-1/2 top-[61px] w-[21%] max-w-[90px] h-auto select-none pointer-events-none z-20"
           draggable={false}
-          style={{ mixBlendMode: 'screen', filter: 'brightness(1.05) saturate(1.05)' }}
+          style={{ filter: 'brightness(1.15) contrast(1.12) saturate(1.1) drop-shadow(0 2px 5px rgba(0,0,0,0.85))' }}
         />
       )}
     </div>
