@@ -519,13 +519,13 @@ export default function CrownCoinsMachine() {
           <span className="w-6" />
         </div>
 
-        <div ref={bannerRef} className="relative flex items-center justify-center -mt-2 mx-auto" style={{ width: '82%' }}>
+        <div ref={bannerRef} className="relative flex items-center justify-center -mt-2 mx-auto" style={{ width: '100%' }}>
           <BetTierBanners bet={bet} />
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9e18b75a6_file_00000000700081fab7c3b36c02964e06.png"
             alt="Crown Coins"
-            className="w-full relative z-0"
-            style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
+            className="relative z-0"
+            style={{ width: '62%', mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
           />
         </div>
 
