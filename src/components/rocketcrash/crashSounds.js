@@ -2,6 +2,7 @@
 // files needed. Takeoff = rising filtered-noise whoosh; flying = subtle
 // looping jet rumble; blast = low-pass noise burst + sine boom.
 
+import { isMuted } from '@/lib/soundMute';
 let ctx = null;
 let flyingNodes = null;
 
@@ -23,6 +24,7 @@ function noiseBuffer(c, dur) {
 }
 
 export function playTakeoff() {
+  if (isMuted()) return;
   const c = ac();
   if (!c) return;
   const now = c.currentTime;
@@ -44,6 +46,7 @@ export function playTakeoff() {
 }
 
 export function startFlying() {
+  if (isMuted()) return;
   const c = ac();
   if (!c) return;
   stopFlying();
@@ -76,6 +79,7 @@ export function stopFlying() {
 }
 
 export function playBlast() {
+  if (isMuted()) return;
   const c = ac();
   if (!c) return;
   stopFlying();
