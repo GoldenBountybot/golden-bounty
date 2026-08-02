@@ -59,33 +59,7 @@ export function startWheelSpin(durationSec = 10) {
   humGain.connect(lp);
   lp.connect(master);
 
-  // 2) Gear texture — band-passed white noise with an LFO breathing it
-  //    like real spinning gears. The LFO slows down over the spin.
-  const noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
-  const ch = noiseBuf.getChannelData(0);
-  for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
-  const noise = ac.createBufferSource();
-  noise.buffer = noiseBuf;
-  noise.loop = true;
-  const noiseBp = ac.createBiquadFilter();
-  noiseBp.type = 'bandpass';
-  noiseBp.frequency.value = 1600;
-  noiseBp.Q.value = 1.4;
-  const noiseGain = ac.createGain();
-  noiseGain.gain.value = 0.14;
-  const lfo = ac.createOscillator();
-  lfo.type = 'sine';
-  lfo.frequency.setValueAtTime(8, now);
-  lfo.frequency.exponentialRampToValueAtTime(2.5, now + durationSec);
-  const lfoGain = ac.createGain();
-  lfoGain.gain.value = 0.07;
-  lfo.connect(lfoGain);
-  lfoGain.connect(noiseGain.gain);
-  noise.connect(noiseBp);
-  noiseBp.connect(noiseGain);
-  noiseGain.connect(master);
-
-  // 3) Peg ticking — the iconic "tick-tick-tick" of the wheel pegs hitting
+  // 2) Peg ticking — the iconic "tick-tick-tick" of the wheel pegs hitting
   //    the pointer. A square-wave LFO gates high-passed noise bursts. The
   //    tick rate slows down as the wheel loses momentum.
   const tickBuf = ac.createBuffer(1, ac.sampleRate * 0.5, ac.sampleRate);
@@ -112,10 +86,10 @@ export function startWheelSpin(durationSec = 10) {
   tickHp.connect(tickGain);
   tickGain.connect(master);
 
-  hum1.start(); hum2.start(); noise.start(); lfo.start();
+  hum1.start(); hum2.start();
   tick.start(); tickLfo.start();
 
-  nodes = { master, hum1, hum2, noise, lfo, tick, tickLfo };
+  nodes = { master, hum1, hum2, tick, tickLfo };
 }
 
 // Stop the wheel sound with a quick fade-out. Called when the wheel rests.
@@ -132,6 +106,6 @@ export function stopWheelSpin() {
     } catch { /* ignore */ }
   }
   const stop = (o) => { try { o.stop(ac ? ac.currentTime + 0.3 : 0); } catch { /* ignore */ } };
-  stop(n.hum1); stop(n.hum2); stop(n.noise); stop(n.lfo);
+  stop(n.hum1); stop(n.hum2);
   stop(n.tick); stop(n.tickLfo);
 }
