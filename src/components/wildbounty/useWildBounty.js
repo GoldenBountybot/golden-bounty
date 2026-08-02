@@ -234,7 +234,7 @@ export function useWildBounty() {
           setLastWin(pendingWinRef.current);
           pendingWinRef.current = 0;
           setMessage(winMsg);
-        }, 1300 * flySlow * 0.86);
+        }, 1150 * flySlow * 0.86);
         timers.current.push(winT);
       } else {
         pendingWinRef.current = winValue;
@@ -323,7 +323,7 @@ export function useWildBounty() {
           const bt = setTimeout(() => {
             applyBanner(banner);
             setBannerPending(false);
-          }, 800);
+          }, 700);
           timers.current.push(bt);
         } else {
           applyBanner(banner);
