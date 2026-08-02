@@ -81,7 +81,7 @@ function Tile({ symKey, win, dim, bet, amount }) {
             alt={s.name}
             className="w-full h-full object-contain"
             draggable={false}
-            style={{ mixBlendMode: 'screen' }}
+            style={{ mixBlendMode: 'screen', transform: ['orange', 'watermelon', 'grape'].includes(symKey) ? 'scale(1.18)' : 'none' }}
           />
         )}
         {win && (
