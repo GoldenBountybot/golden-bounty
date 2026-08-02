@@ -7,7 +7,7 @@ import { savePendingRound, clearPendingRound, getPendingRound } from '@/lib/pend
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isTierCoin, tierCoinLabel, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
 import { incBet, decBet } from '@/lib/betStepper';
-import { playSpinSound, stopSpinSound } from '@/lib/crownCoinsSound';
+import { playSpinSound } from '@/lib/crownCoinsSound';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import BetTierBanners from './BetTierBanners';
@@ -219,7 +219,7 @@ export default function CrownCoinsMachine() {
 
   const clearTimers = () => { timers.current.forEach(t => clearTimeout(t)); timers.current = []; };
 
-  useEffect(() => () => { clearTimers(); stopSpinSound(); }, []);
+  useEffect(() => () => clearTimers(), []);
 
   const doSpin = useCallback(async () => {
     if (spinning) return;
@@ -316,7 +316,6 @@ export default function CrownCoinsMachine() {
     // after the last reel lands, settle + evaluate
     const settleAt = base + 2 * step + anticiDelay + landMs;
     const tEnd = setTimeout(async () => {
-      stopSpinSound();
       setPhases(['idle', 'idle', 'idle']);
 
       // Free spins: coins accumulate and stick; no line wins, no flying coins.
