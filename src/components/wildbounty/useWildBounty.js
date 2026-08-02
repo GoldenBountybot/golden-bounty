@@ -203,10 +203,12 @@ export function useWildBounty() {
         const room = Math.max(0, 3 - (existingWilds[tr] || 0));
         keys.slice(0, room).forEach(k => convertSet.add(k));
       });
-      // The symbols that will convert to wilds blast (shatter) along with
-      // the other winning symbols, then become wilds after the blast.
+      // The symbols that will convert to wilds blast in place then become
+      // wilds right there (no drop). Other winning positions blast and get
+      // replaced by new symbols dropping in from above.
       const gridForCascade = currentGrid;
-      const shatterPos = new Set([...wpos]);
+      const shatterPos = new Set([...wpos]);        // for the blast visual
+      const removePositions = new Set([...wpos].filter(p => !convertSet.has(p))); // for rigCascadeGrid
 
       setWinningPositions(wpos);
       // Credit the whole round at the end (see chain-end branch), not per
@@ -256,8 +258,8 @@ export function useWildBounty() {
       // every multiplier round feels deliberate — no collapsed timing at chain end.
       const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex];
       const cascadeT = setTimeout(() => {
-        const newGrid = rigCascadeGrid(gridForCascade, shatterPos, cont);
-        // The blasted convert positions now become wilds.
+        const newGrid = rigCascadeGrid(gridForCascade, removePositions, cont);
+        // The blasted convert positions become wilds in place (no drop).
         if (convertSet.size) {
           convertSet.forEach(pos => { const [r, row] = pos.split('-').map(Number); newGrid[r][row] = 'wild'; });
           setScatterGlow(prev => new Set([...prev, ...convertSet]));
@@ -267,7 +269,7 @@ export function useWildBounty() {
         setGoldFrames(prev => new Set([...prev].filter(p => !shatterPos.has(p))));
         setGrid(newGrid);
         setCascading(true);
-        setCascadePositions(shatterPos);
+        setCascadePositions(removePositions);
 
         const evalT = setTimeout(() => {
           setCascading(false);
