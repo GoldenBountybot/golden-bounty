@@ -300,7 +300,7 @@ export default function CrownCoinsMachine() {
     const base = turbo ? 420 : 720;
     const step = turbo ? 160 : 260;
     const landMs = 460;
-    const anticiDelay = anticipate ? 900 : 0;
+    const anticiDelay = anticipate ? 3000 : 0;
 
     // staggered land per reel; the anticipated third reel lingers longer
     cols.forEach((col, i) => {
