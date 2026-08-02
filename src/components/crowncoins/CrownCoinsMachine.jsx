@@ -145,7 +145,7 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, 
   const showGlow = anticipate && phase !== 'idle';
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 3', background: 'transparent' }}>
+    <div className="relative flex-1 overflow-hidden" style={{ aspectRatio: '1 / 2.1', background: 'transparent' }}>
       {showGlow && (
         <>
           <div
@@ -168,7 +168,7 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, 
       )}
       <div className="flex flex-col w-full" style={{ animation: anim, willChange: phase === 'spin' ? 'transform' : 'auto', backgroundImage: `linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url(${MONEY_BG})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {strip.map((k, i) => (
-          <div key={i} style={{ width: '100%', aspectRatio: '1 / 1' }}>
+          <div key={i} style={{ width: '100%', aspectRatio: '1 / 0.7' }}>
             <Tile symKey={k} win={showResult && winMask[i]} dim={showResult && winMask.some(Boolean) && !winMask[i]} bet={bet} amount={amountCell && amountCell.col === colIndex && amountCell.row === i ? amountCell.amount : null} />
           </div>
         ))}
@@ -528,7 +528,7 @@ export default function CrownCoinsMachine() {
         </div>
 
         <div
-          className="relative rounded-lg p-1 overflow-hidden -mt-24 w-full max-w-[300px] mx-auto"
+          className="relative rounded-lg p-1 overflow-hidden -mt-24 w-full"
           style={{
             border: '2px solid #d4af37',
             boxShadow: 'inset 0 2px 6px rgba(255,235,150,0.4), inset 0 0 0 1px #8a5a00, 0 4px 14px rgba(0,0,0,0.6)',
