@@ -298,7 +298,9 @@ export default function CrownCoinsMachine() {
     // start all reels spinning
     setReels(cols);
     setPhases(['spin', 'spin', 'spin']);
-    const stopDrop = playReelDropSound();
+    let stopDrop = null;
+    const tStartDrop = setTimeout(() => { stopDrop = playReelDropSound(); }, base);
+    timers.current.push(tStartDrop);
 
     const base = turbo ? 420 : 720;
     const step = turbo ? 160 : 260;
