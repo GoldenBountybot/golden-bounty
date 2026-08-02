@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { sfx } from './sounds';
 
 const SUPER_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bc8844e96_file_0000000057d881fbaa643e8f2dd979ce.png';
 
 // "SUPER WIN" banner for Wild Bounty — triggers at x8–x16 multiplier or a
 // big payout. The winning amount counts up below the banner as "Win [amount]".
+//
+// Uses a ref + direct DOM textContent update instead of state so the 60fps
+// count-up never triggers React re-renders (avoids jank during the showdown).
 export default function WbSuperWinBanner({ amount, multiplier, onDone }) {
-  const [display, setDisplay] = useState(0);
+  const numRef = useRef(null);
   const rafRef = useRef(null);
   const startRef = useRef(null);
 
@@ -20,11 +23,11 @@ export default function WbSuperWinBanner({ amount, multiplier, onDone }) {
       const elapsed = ts - startRef.current;
       const t = Math.min(1, elapsed / duration);
       const eased = 1 - Math.pow(1 - t, 3);
-      setDisplay(to * eased);
+      if (numRef.current) numRef.current.textContent = (to * eased).toFixed(2);
       if (t < 1) {
         rafRef.current = requestAnimationFrame(step);
       } else {
-        setDisplay(to);
+        if (numRef.current) numRef.current.textContent = to.toFixed(2);
         if (onDone) setTimeout(onDone, 1000);
       }
     };
@@ -66,7 +69,7 @@ export default function WbSuperWinBanner({ amount, multiplier, onDone }) {
               filter: 'brightness(1.25) saturate(1.3)',
             }}
           >
-            WIN {display.toFixed(2)}
+            WIN <span ref={numRef} style={{ fontVariantNumeric: 'tabular-nums' }}>0.00</span>
           </span>
         </div>
       </div>

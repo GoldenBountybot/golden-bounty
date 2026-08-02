@@ -214,11 +214,17 @@ function startWinSeq(rate = 1) {
   winSeqAudio = { source: src, gainNode: g };
 }
 
+let ctxResuming = false;
 function getCtx() {
   if (typeof window === 'undefined') return null;
   try {
     if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-    if (ctx.state === 'suspended') ctx.resume();
+    // Only resume once per suspension — calling resume() on every getCtx()
+    // created dozens of pending Promises per spin (microtask overhead + GC).
+    if (ctx.state === 'suspended' && !ctxResuming) {
+      ctxResuming = true;
+      ctx.resume().then(() => { ctxResuming = false; }).catch(() => { ctxResuming = false; });
+    }
     return ctx;
   } catch {
     return null;

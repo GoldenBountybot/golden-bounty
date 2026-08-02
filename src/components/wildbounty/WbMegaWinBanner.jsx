@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { sfx } from './sounds';
 
 const MEGA_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/abe2184b1_file_00000000233881faa2d49279db01c3b7.png';
 
 // "MEGA WIN" banner for Wild Bounty — triggers at x32+ multiplier or a huge
 // payout. The winning amount counts up below the banner as "Win [amount]".
+//
+// Uses a ref + direct DOM textContent update instead of state so the 60fps
+// count-up never triggers React re-renders (avoids jank during the showdown).
 export default function WbMegaWinBanner({ amount, multiplier, onDone, label }) {
-  const [display, setDisplay] = useState(0);
+  const numRef = useRef(null);
   const rafRef = useRef(null);
   const startRef = useRef(null);
 
@@ -20,11 +23,11 @@ export default function WbMegaWinBanner({ amount, multiplier, onDone, label }) {
       const elapsed = ts - startRef.current;
       const t = Math.min(1, elapsed / duration);
       const eased = 1 - Math.pow(1 - t, 3);
-      setDisplay(to * eased);
+      if (numRef.current) numRef.current.textContent = (to * eased).toFixed(2);
       if (t < 1) {
         rafRef.current = requestAnimationFrame(step);
       } else {
-        setDisplay(to);
+        if (numRef.current) numRef.current.textContent = to.toFixed(2);
         if (onDone) setTimeout(onDone, 1200);
       }
     };
@@ -79,7 +82,7 @@ export default function WbMegaWinBanner({ amount, multiplier, onDone, label }) {
               filter: 'brightness(1.25) saturate(1.3)',
             }}
           >
-            WIN {display.toFixed(2)}
+            WIN <span ref={numRef} style={{ fontVariantNumeric: 'tabular-nums' }}>0.00</span>
           </span>
         </div>
       </div>
