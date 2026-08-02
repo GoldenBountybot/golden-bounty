@@ -349,16 +349,6 @@ export function useWildBounty() {
       } else if (cascadeCount === 0) {
         setMessage(sc === 2 ? 'ONE MORE SCATTER!' : 'WIN UP TO 3600 WAYS!');
       }
-      // Clear the step-win amount from the banner shortly after the round
-      // ends (only when no TOTAL WIN reveal is shown), so the banner resets
-      // to the default message before the next round.
-      if (peak < 8 && totalWin > 0 && !wasFree) {
-        const clearT = setTimeout(() => {
-          setLastWin(0);
-          setMessage('WIN UP TO 3600 WAYS!');
-        }, 1500);
-        timers.current.push(clearT);
-      }
       setSpinning(false);
       logActivity('wild-bounty', bet, totalWin, totalWin > 0 ? 'win' : 'loss');
     }
