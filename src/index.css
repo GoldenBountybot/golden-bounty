@@ -661,6 +661,14 @@
   50%      { filter: drop-shadow(0 0 10px rgba(255,235,160,1)) drop-shadow(0 0 22px rgba(255,200,80,0.95)) brightness(1.65); }
 }
 
+/* Wild Bounty — light golden screen flash that washes over the whole screen
+   for ~2s when a round-end win banner is revealed. */
+@keyframes wbGoldFlash {
+  0%   { opacity: 0; }
+  10%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 /* Wild Bounty — deep metallic gold with a strong 3D extruded bevel,
    shared by the win banner and the top multiplier strip text. */
 .wb-deep-gold {

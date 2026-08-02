@@ -43,6 +43,7 @@ export function useWildBounty() {
   const [totalWinKey, setTotalWinKey] = useState(0); // bump to re-mount CountUp (re-animate from 0) at chain end
   const [totalWinCountUp, setTotalWinCountUp] = useState(false); // true only when the plaque should count up from 0 (peak x8–x16, no Super/Mega banner)
   const [showTotalLabel, setShowTotalLabel] = useState(false); // true when the plaque should show "TOTAL WIN" (current cascade multiplier >= x8)
+  const [winFlashKey, setWinFlashKey] = useState(0); // bump to re-trigger the golden screen flash at round-end win
   const peakMultRef = useRef(1); // highest multiplier applied to a winning cascade this round
   const freeSpinsTotalRef = useRef(0); // accumulated win across the current free-spins round
   const freeSpinsCountRef = useRef(0); // remaining free spins (synced ref for chain-end checks)
@@ -289,7 +290,7 @@ export function useWildBounty() {
       sfx.winStop();
       setCascadeSlow(1);
       setWinningPositions(new Set());
-      if (totalWin > 0) setBalance(b => b + totalWin);
+      if (totalWin > 0) { setBalance(b => b + totalWin); setWinFlashKey(k => k + 1); }
       // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
       if (pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
       clearPendingRound('wild-bounty');
@@ -596,6 +597,7 @@ export function useWildBounty() {
     freeSpinsEndWin, dismissFreeSpinsEndWin,
     endSkull,
     totalWinDur, totalWinKey, totalWinCountUp, showTotalLabel,
+    winFlashKey,
     spin, setBet, setTurbo, setAutoSpin, reset,
     featureCost: bet * 75,
   };

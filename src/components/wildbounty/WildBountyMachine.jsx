@@ -240,6 +240,19 @@ export default function WildBountyMachine() {
           label="FREE SPINS TOTAL"
         />
       )}
+
+      {/* Light golden screen flash — washes over the screen for ~2s when a
+          round-end win is revealed. Keyed so each new win re-triggers it. */}
+      {g.winFlashKey > 0 && (
+        <div
+          key={g.winFlashKey}
+          className="pointer-events-none fixed inset-0 z-[200]"
+          style={{
+            background: 'radial-gradient(ellipse at center, rgba(255,215,0,0.28) 0%, rgba(255,180,40,0.1) 45%, transparent 75%)',
+            animation: 'wbGoldFlash 2s ease-out forwards',
+          }}
+        />
+      )}
     </div>
   );
 }
