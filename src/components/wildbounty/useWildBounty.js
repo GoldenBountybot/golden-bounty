@@ -137,7 +137,7 @@ export function useWildBounty() {
   };
 
   // Evaluate wins, shatter winners, cascade new symbols, repeat until no win.
-  const evaluateAndCascade = (currentGrid, cascadeCount, totalWin, currentMultIndex, wasFree, scatterAwarded = false, framedPositions = new Set()) => {
+  const evaluateAndCascade = (currentGrid, cascadeCount, totalWin, currentMultIndex, wasFree, scatterAwarded = false, framedPositions = new Set(), creditedWin = 0) => {
     const { wins, scatterCount: sc } = evaluateWins(currentGrid, bet);
     const multiplier = MULTIPLIERS[currentMultIndex];
     const stepWin = wins.reduce((sum, w) => sum + w.pay, 0) * multiplier;
@@ -216,7 +216,7 @@ export function useWildBounty() {
       setWinningPositions(wpos);
       // Credit the whole round at the end (see chain-end branch), not per
       // cascade, so a mid-cascade exit can be recovered exactly.
-      savePendingRound('wild-bounty', { win: newTotal, bet, state: pendingStateRef.current });
+      savePendingRound('wild-bounty', { win: newTotal - newCredited, bet, state: pendingStateRef.current });
       setMultIndex(newMult);
       // Don't show the win in the banner immediately — wait for the flying
       // multiplier to land on the win banner, then the amount counts up.
@@ -225,10 +225,16 @@ export function useWildBounty() {
       const flySlow = cascadeCount >= 1 ? 1.6 : 1.2;
       // Show only THIS cascade round's win in the banner — not the accumulated total.
       const winMsg = justAwarded ? `WIN ${stepWin.toFixed(2)} · +${wasFree ? 5 : 10} FREE SPINS` : `WIN ${stepWin.toFixed(2)}`;
-      // Below x8 (newMult < 3): show this cascade's individual win instantly.
-      // x8 and above (newMult >= 3): show the accumulated total win, counting up.
+      // Below x8 (newMult < 3): show this cascade's individual win instantly and
+      // credit it to the balance immediately. x8 and above (newMult >= 3): show
+      // the accumulated total win counting up; credit the total at chain end.
       const showTotal = newMult >= 3;
       const winValue = showTotal ? newTotal : stepWin;
+      let newCredited = creditedWin;
+      if (!showTotal) {
+        setBalance(b => b + stepWin);
+        newCredited = creditedWin + stepWin;
+      }
       if (currentMultIndex >= 1) {
         setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
         // The multiplier arrives at the banner at ~86% of the fly duration.
@@ -272,7 +278,7 @@ export function useWildBounty() {
         const evalT = setTimeout(() => {
           setCascading(false);
           setCascadePositions(new Set());
-          evaluateAndCascade(newGrid, cascadeCount + 1, newTotal, newMult, wasFree, awarded, framedPositions);
+          evaluateAndCascade(newGrid, cascadeCount + 1, newTotal, newMult, wasFree, awarded, framedPositions, newCredited);
         }, 450 * slow);
         timers.current.push(evalT);
       }, 1000 * slow);
@@ -284,7 +290,9 @@ export function useWildBounty() {
       sfx.winStop();
       setCascadeSlow(1);
       setWinningPositions(new Set());
-      if (totalWin > 0) setBalance(b => b + totalWin);
+      // Credit only the portion not already credited per-cascade (below x8).
+      const remaining = totalWin - creditedWin;
+      if (remaining > 0) setBalance(b => b + remaining);
       // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
       if (pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
       clearPendingRound('wild-bounty');
