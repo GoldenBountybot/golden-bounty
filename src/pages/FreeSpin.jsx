@@ -33,7 +33,7 @@ const SEGMENTS = [
   { label: '1000$',  value: 1000,  color: '#c5a34d', gold: true },
 ];
 
-const COOLDOWN_MS = 24 * 60 * 60 * 1000; // One free spin every 24 hours.
+const COOLDOWN_MS = 0; // TESTING: cooldown disabled — spin always available.
 
 // Deterministic daily streak prizes (Western bounty ladder). Direct prizes
 // credit to the balance instantly. "held" prizes do NOT credit yet — they are
