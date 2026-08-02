@@ -75,6 +75,7 @@ export default function ArgonautsMachine() {
   const [showPaytable, setShowPaytable] = useState(false);
   const [showRules, setShowRules] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
+  const [spinPulse, setSpinPulse] = useState(false);
 
   const spinDisabled = g.spinning || g.freeSpinsActive || g.bonusActive || g.riskMode || g.coinMode;
 
@@ -109,6 +110,16 @@ export default function ArgonautsMachine() {
         }}
       />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(7,13,30,0.25), rgba(7,13,30,0.55))' }} />
+
+      {/* SVG filter — keys out the black background of the SPIN button image */}
+      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+        <filter id="argoSpinDropBlack" colorInterpolationFilters="sRGB">
+          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
+          <feComponentTransfer>
+            <feFuncA type="linear" slope="1.5" intercept="-0.12" />
+          </feComponentTransfer>
+        </filter>
+      </svg>
 
       <GameHeader title="ARGONAUTS" balance={balance} />
 
@@ -309,21 +320,25 @@ export default function ArgonautsMachine() {
             <div className="flex items-center gap-2">
               <IconButton onClick={() => g.setBet(decBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet <= MIN_BET} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
               <button
-                onClick={g.spin}
+                onClick={() => { setSpinPulse(true); setTimeout(() => setSpinPulse(false), 220); g.spin(); }}
                 disabled={spinDisabled}
-                className="relative flex items-center justify-center rounded-full transition-all active:scale-95 disabled:opacity-70"
-                style={{
-                  width: 72,
-                  height: 72,
-                  background: 'radial-gradient(circle, rgba(255,215,0,0.18), rgba(0,0,0,0.55))',
-                  border: '4px solid #FFD700',
-                  boxShadow: '0 0 22px rgba(255,215,0,0.6), inset 0 0 14px rgba(255,215,0,0.3)',
-                }}
+                className="relative flex items-center justify-center disabled:opacity-70 transition-transform"
+                style={{ background: 'transparent', border: 'none', padding: 0, width: 64, height: 64, cursor: spinDisabled ? 'not-allowed' : 'pointer', transform: spinPulse ? 'scale(1.18)' : 'scale(1)', transition: 'transform 180ms ease-out' }}
               >
-                {g.spinning ? (
-                  <span className="block w-7 h-7 rounded-full border-[3px] border-white/30 border-t-white" style={{ animation: 'saSpinRotate 0.6s linear infinite' }} />
-                ) : (
-                  <Play className="w-7 h-7 text-white" fill="white" style={{ marginLeft: 3 }} />
+                <img
+                  src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/86dd448f2_file_00000000c7fc81fa80de66b90930e468.png"
+                  alt="SPIN"
+                  draggable={false}
+                  className="block w-full h-full object-contain"
+                  style={{ filter: 'url(#argoSpinDropBlack)' }}
+                />
+                {g.freeSpinsActive && (
+                  <span
+                    className="absolute inset-0 flex items-center justify-center text-xl font-black"
+                    style={{ fontFamily: 'Rye, Georgia, serif', color: '#ffe9a8', textShadow: '0 1px 2px #000, 0 0 6px rgba(0,0,0,0.9)' }}
+                  >
+                    {g.freeSpins}
+                  </span>
                 )}
               </button>
               <IconButton onClick={() => g.setBet(incBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet >= MAX_BET} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
