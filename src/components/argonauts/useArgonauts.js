@@ -9,7 +9,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
-import { playReelLandSound, playValueCoinSound, playDoveSound, playAmphoraSound, playLyreSound, playSpartanSound, playDragonSound, playBowSound, playScatterSound, playScatterLongSound, stopScatterLongSound } from './argoSounds';
+import { playReelLandSound, playValueCoinSound, playDoveSound, playAmphoraSound, playLyreSound, playSpartanSound, playGoddessSound, playDragonSound, playBowSound, playScatterSound, playScatterLongSound, stopScatterLongSound } from './argoSounds';
 
 // ---- Risk (Gamble) card helpers ----
 const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -206,6 +206,8 @@ export function useArgonauts() {
     if (wins.some((w) => w.symbol === 'harp')) playLyreSound();
     // Spartan Warrior (Jason) symbol line win → play the spartan sound.
     if (wins.some((w) => w.symbol === 'jason')) playSpartanSound();
+    // Goddess (Atlanta) symbol line win → play the goddess sound.
+    if (wins.some((w) => w.symbol === 'atlanta')) playGoddessSound();
     // Green Dragon (lizard/serpent) symbol line win → play the dragon sound.
     if (wins.some((w) => w.symbol === 'lizard')) playDragonSound();
     // Bow (arrow) symbol line win → play the bow sound.

@@ -492,6 +492,110 @@ export function playSpartanSound() {
   } catch { /* ignore */ }
 }
 
+// Goddess (Atlanta) symbol win sound — procedurally synthesized.
+// Premium, luxurious, and divine: an ethereal harp glissando cascading
+// into angelic bell chimes over a warm choir pad. Distinct from the
+// Spartan Warrior's battle-cry character — this is graceful and heavenly.
+export function playGoddessSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  const t = ac.currentTime;
+
+  // Shared reverb-ish bus for a lush, cavernous tail.
+  const bus = ac.createGain();
+  bus.gain.value = 1;
+  const delay = ac.createDelay(1.0);
+  delay.delayTime.value = 0.22;
+  const fb = ac.createGain();
+  fb.gain.value = 0.34;
+  const delayMix = ac.createGain();
+  delayMix.gain.value = 0.38;
+  bus.connect(ac.destination);
+  bus.connect(delay);
+  delay.connect(fb);
+  fb.connect(delay);
+  delay.connect(delayMix);
+  delayMix.connect(ac.destination);
+
+  // 1) Heavenly harp glissando — a rapid cascade of plucked notes rising in
+  //    pitch, like a divine hand sweeping across a golden harp. Each note is
+  //    a triangle wave with a fast pluck attack and a long ringing decay.
+  const glissFreqs = [523.25, 587.33, 659.25, 783.99, 880, 1046.50, 1318.51]; // C5→E6
+  glissFreqs.forEach((f, i) => {
+    const start = t + i * 0.06;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(f * 0.99, start);
+    o.frequency.exponentialRampToValueAtTime(f, start + 0.02);
+    const peak = 0.12 - i * 0.01;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(peak, start + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.9);
+    o.connect(g);
+    g.connect(bus);
+    o.start(start);
+    o.stop(start + 0.92);
+  });
+
+  // 2) Angelic bell chimes — two shimmering high bell strikes that ring out
+  //    after the glissando, giving the sound a divine, crystalline quality.
+  const bellFreqs = [1567.98, 2093.00]; // G6, C7
+  bellFreqs.forEach((f, i) => {
+    const start = t + 0.35 + i * 0.15;
+    // Fundamental + inharmonic partials for a true bell character.
+    const partials = [1, 2.0, 2.76, 5.4];
+    const amps = [0.10, 0.05, 0.03, 0.015];
+    partials.forEach((p, pi) => {
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(f * p, start);
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.linearRampToValueAtTime(amps[pi], start + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + 1.4 - pi * 0.2);
+      o.connect(g);
+      g.connect(bus);
+      o.start(start);
+      o.stop(start + 1.42);
+    });
+  });
+
+  // 3) Warm choir pad — a soft sustained chord underneath that gives the
+  //    sound a luxurious, enveloping body. A major add9 chord for a divine,
+  //    heavenly feel. Slow swell in and gentle release.
+  const padFreqs = [261.63, 329.63, 392.00, 493.88]; // C4, E4, G4, B4 — Cmaj9
+  padFreqs.forEach((f, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.045 - i * 0.005, t + 0.25);
+    g.gain.setValueAtTime(0.045 - i * 0.005, t + 0.9);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+    o.connect(g);
+    g.connect(bus);
+    o.start(t);
+    o.stop(t + 1.62);
+
+    // Slight detune octave-up sine for a choir "ahh" overtone.
+    const o2 = ac.createOscillator();
+    const g2 = ac.createGain();
+    o2.type = 'sine';
+    o2.frequency.setValueAtTime(f * 2, t);
+    g2.gain.setValueAtTime(0.0001, t);
+    g2.gain.linearRampToValueAtTime(0.015, t + 0.3);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+    o2.connect(g2);
+    g2.connect(bus);
+    o2.start(t);
+    o2.stop(t + 1.42);
+  });
+}
+
 export function playSpinSound() {
   if (isMuted()) return;
   const ac = getCtx();
