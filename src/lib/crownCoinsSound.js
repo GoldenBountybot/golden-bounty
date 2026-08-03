@@ -85,40 +85,40 @@ export function playReelLandSound() {
   delay.connect(delayMix);
   delayMix.connect(ac.destination);
 
-  // 1) Warm wooden body — soft low thud for weight.
+  // 1) Warm wooden body — soft low thud for weight (kept light).
   const thud = ac.createOscillator();
   const thudG = ac.createGain();
   thud.type = 'sine';
-  thud.frequency.setValueAtTime(220, t);
-  thud.frequency.exponentialRampToValueAtTime(110, t + 0.14);
+  thud.frequency.setValueAtTime(180, t);
+  thud.frequency.exponentialRampToValueAtTime(120, t + 0.1);
   thudG.gain.setValueAtTime(0.0001, t);
-  thudG.gain.linearRampToValueAtTime(0.26, t + 0.006);
-  thudG.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+  thudG.gain.linearRampToValueAtTime(0.1, t + 0.006);
+  thudG.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
   thud.connect(thudG);
   thudG.connect(bus);
   thud.start(t);
-  thud.stop(t + 0.22);
+  thud.stop(t + 0.16);
 
-  // 2) Crystal bell — bright fundamental + two shimmering harmonics.
-  const bellFreqs = [1760, 2640, 3520];
+  // 2) Crystal bell — bright fundamental + two shimmering harmonics (delicate).
+  const bellFreqs = [2080, 3120, 4160];
   bellFreqs.forEach((f, i) => {
     const o = ac.createOscillator();
     const g = ac.createGain();
     o.type = 'sine';
     o.frequency.setValueAtTime(f, t);
-    o.frequency.exponentialRampToValueAtTime(f * 0.92, t + 0.3);
-    const peak = [0.16, 0.09, 0.05][i];
+    o.frequency.exponentialRampToValueAtTime(f * 0.94, t + 0.26);
+    const peak = [0.1, 0.05, 0.03][i];
     g.gain.setValueAtTime(0.0001, t);
     g.gain.linearRampToValueAtTime(peak, t + 0.004);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.32 - i * 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28 - i * 0.04);
     o.connect(g);
     g.connect(bus);
     o.start(t);
-    o.stop(t + 0.34);
+    o.stop(t + 0.3);
   });
 
-  // 3) Mechanical stop — short filtered noise transient.
-  const dur = 0.05;
+  // 3) Mechanical stop — short filtered noise transient (soft).
+  const dur = 0.04;
   const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
   const data = buf.getChannelData(0);
   for (let i = 0; i < data.length; i++) {
@@ -128,10 +128,10 @@ export function playReelLandSound() {
   n.buffer = buf;
   const bp = ac.createBiquadFilter();
   bp.type = 'bandpass';
-  bp.frequency.value = 3000;
+  bp.frequency.value = 3400;
   bp.Q.value = 1.0;
   const nG = ac.createGain();
-  nG.gain.value = 0.18;
+  nG.gain.value = 0.1;
   n.connect(bp);
   bp.connect(nG);
   nG.connect(bus);
