@@ -42,7 +42,7 @@ export default function Airdrop() {
     return () => { active = false; };
   }, []);
 
-  const allocation = totalDeposits; // 1 Bounty per 1 USDT deposited
+  const allocation = totalDeposits * 2; // 2 Bounty per 1 USDT deposited
   const alreadyClaimed = claimed > 0;
 
   const claim = async () => {
@@ -103,7 +103,7 @@ export default function Airdrop() {
           </div>
           <h2 className="text-2xl font-extrabold" style={{ ...heading, color: '#D4AF37' }}>BOUNTY</h2>
           <p className="text-[12px] text-center" style={{ color: 'rgba(255,255,255,0.6)' }}>
-            {t("The Golden Bounty platform token. Earn 1 BOUNTY for every 1 USDT you deposit.")}
+            {t("The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit.")}
           </p>
         </div>
 
@@ -127,7 +127,7 @@ export default function Airdrop() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>{t("Allocation Rate")}</span>
-                  <span className="text-sm font-bold" style={{ color: '#D4AF37' }}>1 USDT = 1 BOUNTY</span>
+                  <span className="text-sm font-bold" style={{ color: '#D4AF37' }}>1 USDT = 2 BOUNTY</span>
                 </div>
                 <div className="h-px my-1" style={{ background: 'rgba(212,175,55,0.2)' }} />
                 <div className="flex items-center justify-between">
@@ -179,7 +179,7 @@ export default function Airdrop() {
           <h4 className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("How it works")}</h4>
           <ul className="flex flex-col gap-1.5 text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
             <li>• {t("Deposit USDT into your account.")}</li>
-            <li>• {t("Earn 1 BOUNTY token for every 1 USDT deposited.")}</li>
+            <li>• {t("Earn 2 BOUNTY tokens for every 1 USDT deposited.")}</li>
             <li>• {t("Claim your allocation anytime — it stays in your profile.")}</li>
           </ul>
         </div>
