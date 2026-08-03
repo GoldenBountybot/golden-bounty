@@ -68,6 +68,21 @@
       "type": "number",
       "default": 0,
       "description": "Total 5% referral commission earned from referred players' deposits."
+    },
+    "bounty_allocation": {
+      "type": "number",
+      "default": 0,
+      "description": "Claimed BOUNTY token allocation persisted after claiming on the Airdrop page."
+    },
+    "bounty_claimed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp of the last BOUNTY airdrop claim."
+    },
+    "referral_bounty": {
+      "type": "number",
+      "default": 0,
+      "description": "BOUNTY tokens earned from referral commissions (2 BOUNTY per 1 USDT commission)."
     }
   },
   "required": [

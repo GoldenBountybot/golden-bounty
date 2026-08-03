@@ -20,9 +20,11 @@ export async function applyReferralCommission(depositorId, depositAmount) {
     if (commission <= 0) return null;
     const nextBal = Number(referrer.balance ?? 0) + commission;
     const nextEarnings = Number(referrer.referral_earnings ?? 0) + commission;
+    const nextReferralBounty = Number(referrer.referral_bounty ?? 0) + commission * 2;
     await base44.entities.User.update(referrer.id, {
       balance: nextBal,
       referral_earnings: nextEarnings,
+      referral_bounty: nextReferralBounty,
     });
     await base44.entities.Transaction.create({
       user_id: referrer.id,

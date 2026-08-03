@@ -19,6 +19,7 @@ export default function Airdrop() {
   const { t } = useLanguage();
   const [totalDeposits, setTotalDeposits] = useState(0);
   const [claimed, setClaimed] = useState(0);
+  const [referralBounty, setReferralBounty] = useState(0);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
   const [notify, setNotify] = useState(null);
@@ -31,6 +32,7 @@ export default function Airdrop() {
         const me = await base44.auth.me();
         if (!active) return;
         setClaimed(Number(me?.bounty_allocation ?? 0));
+        setReferralBounty(Number(me?.referral_bounty ?? 0));
         const txs = await base44.entities.Transaction.filter({ user_id: me.id, type: 'deposit' }, '-created_date', 500);
         const td = txs
           .filter(tx => tx.status === 'approved' || tx.status === 'completed')
@@ -42,7 +44,7 @@ export default function Airdrop() {
     return () => { active = false; };
   }, []);
 
-  const allocation = totalDeposits * 2; // 2 Bounty per 1 USDT deposited
+  const allocation = totalDeposits * 2 + referralBounty; // 2 Bounty per USDT deposited + referral bounty
   const alreadyClaimed = claimed > 0;
 
   const claim = async () => {
@@ -129,6 +131,12 @@ export default function Airdrop() {
                   <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>{t("Allocation Rate")}</span>
                   <span className="text-sm font-bold" style={{ color: '#D4AF37' }}>1 USDT = 2 BOUNTY</span>
                 </div>
+                {referralBounty > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>{t("Referral Bounty")}</span>
+                    <span className="text-sm font-bold tabular-nums" style={{ color: '#34d399' }}>+{referralBounty.toFixed(2)} BOUNTY</span>
+                  </div>
+                )}
                 <div className="h-px my-1" style={{ background: 'rgba(212,175,55,0.2)' }} />
                 <div className="flex items-center justify-between">
                   <span className="text-[13px] font-semibold" style={{ color: 'rgba(212,175,55,0.85)' }}>{t("Your BOUNTY Allocation")}</span>
@@ -180,6 +188,7 @@ export default function Airdrop() {
           <ul className="flex flex-col gap-1.5 text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
             <li>• {t("Deposit USDT into your account.")}</li>
             <li>• {t("Earn 2 BOUNTY tokens for every 1 USDT deposited.")}</li>
+            <li>• {t("Earn 2 BOUNTY for every 1 USDT of referral commission too.")}</li>
             <li>• {t("Claim your allocation anytime — it stays in your profile.")}</li>
           </ul>
         </div>
