@@ -167,9 +167,7 @@ export default function ArgonautsMachine() {
               border: '4px solid transparent',
               borderRadius: '12px',
               boxShadow: '0 0 0 1px rgba(60,35,12,0.9), 0 0 18px rgba(0,0,0,0.6), 0 0 24px rgba(255,215,0,0.4), inset 0 0 0 2px rgba(255,215,0,0.55)',
-              background: g.coinMode
-                ? 'linear-gradient(135deg, #FFD700, #B8860B) padding-box'
-                : 'transparent',
+              background: 'transparent',
             }}
           >
             {!g.coinMode && (
