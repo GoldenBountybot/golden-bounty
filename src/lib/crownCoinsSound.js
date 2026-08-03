@@ -57,11 +57,10 @@ function loadDropSound() {
     .catch(() => {});
 }
 
-// Luxury reel-land sound — a premium "jewel clink" played once per reel when
-// it stops. Layered: a warm wooden body (low sine thud), a crystal bell tone
-// with shimmering harmonics, and a soft noise transient for the mechanical
-// stop. A gentle reverb tail gives it a high-end arcade-cabinet feel. No
-// sustained drone, so no buzz.
+// Luxury reel-land sound — a soft "golden chime" played once per reel when
+// it stops. A warm marimba-like wooden note with a gentle bell overtone and a
+// soft felt-knock transient, finished with a short reverb tail. Light,
+// musical, and pleasant — no heavy thud, no sustained drone.
 export function playReelLandSound() {
   if (isMuted()) return;
   const ac = getCtx();
@@ -73,11 +72,11 @@ export function playReelLandSound() {
   const bus = ac.createGain();
   bus.gain.value = 1;
   const delay = ac.createDelay(1.0);
-  delay.delayTime.value = 0.09;
+  delay.delayTime.value = 0.11;
   const fb = ac.createGain();
-  fb.gain.value = 0.28;
+  fb.gain.value = 0.22;
   const delayMix = ac.createGain();
-  delayMix.gain.value = 0.35;
+  delayMix.gain.value = 0.3;
   bus.connect(ac.destination);
   bus.connect(delay);
   delay.connect(fb);
@@ -85,55 +84,54 @@ export function playReelLandSound() {
   delay.connect(delayMix);
   delayMix.connect(ac.destination);
 
-  // 1) Warm wooden body — soft low thud for weight (kept light).
-  const thud = ac.createOscillator();
-  const thudG = ac.createGain();
-  thud.type = 'sine';
-  thud.frequency.setValueAtTime(180, t);
-  thud.frequency.exponentialRampToValueAtTime(120, t + 0.1);
-  thudG.gain.setValueAtTime(0.0001, t);
-  thudG.gain.linearRampToValueAtTime(0.1, t + 0.006);
-  thudG.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
-  thud.connect(thudG);
-  thudG.connect(bus);
-  thud.start(t);
-  thud.stop(t + 0.16);
-
-  // 2) Crystal bell — bright fundamental + two shimmering harmonics (delicate).
-  const bellFreqs = [2080, 3120, 4160];
-  bellFreqs.forEach((f, i) => {
+  // 1) Marimba note — warm wooden fundamental with a soft fifth overtone.
+  const noteFreqs = [880, 1320];
+  noteFreqs.forEach((f, i) => {
     const o = ac.createOscillator();
     const g = ac.createGain();
-    o.type = 'sine';
+    o.type = 'triangle';
     o.frequency.setValueAtTime(f, t);
-    o.frequency.exponentialRampToValueAtTime(f * 0.94, t + 0.26);
-    const peak = [0.1, 0.05, 0.03][i];
+    o.frequency.exponentialRampToValueAtTime(f * 0.97, t + 0.22);
+    const peak = [0.12, 0.05][i];
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.linearRampToValueAtTime(peak, t + 0.004);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28 - i * 0.04);
+    g.gain.linearRampToValueAtTime(peak, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.26 - i * 0.05);
     o.connect(g);
     g.connect(bus);
     o.start(t);
-    o.stop(t + 0.3);
+    o.stop(t + 0.28);
   });
 
-  // 3) Mechanical stop — short filtered noise transient (soft).
-  const dur = 0.04;
+  // 2) Gentle bell shimmer — a single high sine for sparkle.
+  const bell = ac.createOscillator();
+  const bellG = ac.createGain();
+  bell.type = 'sine';
+  bell.frequency.setValueAtTime(2640, t);
+  bell.frequency.exponentialRampToValueAtTime(2480, t + 0.24);
+  bellG.gain.setValueAtTime(0.0001, t);
+  bellG.gain.linearRampToValueAtTime(0.05, t + 0.004);
+  bellG.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+  bell.connect(bellG);
+  bellG.connect(bus);
+  bell.start(t);
+  bell.stop(t + 0.26);
+
+  // 3) Soft felt-knock — short low-passed noise transient.
+  const dur = 0.045;
   const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
   const data = buf.getChannelData(0);
   for (let i = 0; i < data.length; i++) {
-    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2.5);
   }
   const n = ac.createBufferSource();
   n.buffer = buf;
-  const bp = ac.createBiquadFilter();
-  bp.type = 'bandpass';
-  bp.frequency.value = 3400;
-  bp.Q.value = 1.0;
+  const lp = ac.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 1800;
   const nG = ac.createGain();
-  nG.gain.value = 0.1;
-  n.connect(bp);
-  bp.connect(nG);
+  nG.gain.value = 0.08;
+  n.connect(lp);
+  lp.connect(nG);
   nG.connect(bus);
   n.start(t);
 }
