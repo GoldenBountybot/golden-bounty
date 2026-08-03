@@ -72,6 +72,7 @@ export function useArgonauts() {
   const [coinDroppingReels, setCoinDroppingReels] = useState(new Set());
   const [coinWin, setCoinWin] = useState(null);
   const [anticipateReels, setAnticipateReels] = useState(new Set());
+  const [slowMoReels, setSlowMoReels] = useState(new Set());
 
   const settings = useGameSettings('argonauts');
   const logActivity = useLogActivity('argonauts');
@@ -285,6 +286,8 @@ export function useArgonauts() {
     setWinningLines([]);
     setLastWin(0);
     setSpinningReels(new Set());
+    setAnticipateReels(new Set());
+    setSlowMoReels(new Set());
     if (riskActive && pendingWin > 0) setBalance((b) => b + pendingWin);
     setPendingWin(0);
     setRiskActive(false);
@@ -342,6 +345,7 @@ export function useArgonauts() {
           n.add(i);
           return n;
         });
+        if (slowMo) setSlowMoReels((prev) => new Set(prev).add(i));
         playReelLandSound();
         if (finalGrid[i].some(isValueCoin)) playValueCoinSound();
         if (finalGrid[i].some((s) => s === 'bonus')) playValueCoinSound();
@@ -532,7 +536,7 @@ export function useArgonauts() {
     startRisk, riskPick, riskContinue, collectRisk, loseRisk,
     coinMode, coinSpins, coinStuck, coinDropped, coinDroppingReels, showCoinBanner, coinTriggerCount, beginCoinSpins,
     coinWin, dismissCoinWin,
-    anticipateReels,
+    anticipateReels, slowMoReels,
     spin, reset,
   };
 }

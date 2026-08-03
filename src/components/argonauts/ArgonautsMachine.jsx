@@ -222,6 +222,7 @@ export default function ArgonautsMachine() {
                 );
               }
               const stopped = g.spinningReels.has(ri);
+              const slowDrop = g.slowMoReels.has(ri);
               return (
                 <div key={ri} className="relative flex flex-col gap-1">
                   {reel.map((sym, row) => {
@@ -230,7 +231,7 @@ export default function ArgonautsMachine() {
                     return (
                       <div key={key} className="relative rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1', opacity: stopped ? 1 : 0 }}>
                         {stopped ? (
-                          <div className="w-full h-full" style={{ animation: `bbSymbolDrop 0.34s ease-out both` }}>
+                          <div className="w-full h-full" style={{ animation: `bbSymbolDrop ${slowDrop ? '1.2s' : '0.34s'} ${slowDrop ? 'cubic-bezier(0.16, 1, 0.3, 1)' : 'ease-out'} both` }}>
                             <ArgoSymbolTile sym={sym} win={isWin} dim={g.winningPositions.size > 0 && !isWin} bet={g.bet} />
                           </div>
                         ) : (
