@@ -28,57 +28,33 @@ function loadSpinSound() {
 }
 
 // Value coin drop sound — plays when a value coin lands during the coin round.
+// Uses an HTML5 Audio element for reliable playback without AudioContext
+// resume restrictions.
 const VALUE_COIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/7680e8d95_valuecoin_0.mp3';
-let valueCoinBuffer = null;
-let valueCoinArrayBuffer = null;
-let valueCoinLoaded = false;
+let valueCoinAudio = null;
 
-function loadValueCoinSound() {
-  if (valueCoinLoaded) return;
-  valueCoinLoaded = true;
-  // Fetch the raw bytes first (no AudioContext needed) so decoding can happen
-  // even before the first user interaction.
-  fetch(VALUE_COIN_URL)
-    .then(r => r.arrayBuffer())
-    .then(ab => {
-      valueCoinArrayBuffer = ab;
-      // Try to decode immediately if a context exists.
-      const ac = getCtx();
-      if (ac) {
-        ac.decodeAudioData(ab.slice(0))
-          .then(buf => { valueCoinBuffer = buf; })
-          .catch(() => {});
-      }
-    })
-    .catch(() => {});
+function getValueCoinAudio() {
+  if (typeof window === 'undefined') return null;
+  if (!valueCoinAudio) {
+    try {
+      valueCoinAudio = new Audio(VALUE_COIN_URL);
+      valueCoinAudio.preload = 'auto';
+      valueCoinAudio.volume = 1.0;
+    } catch { valueCoinAudio = null; }
+  }
+  return valueCoinAudio;
 }
 
-// Preload immediately so the sound is ready before the first coin drop.
-loadValueCoinSound();
+// Preload immediately.
+getValueCoinAudio();
 
-export async function playValueCoinSound() {
+export function playValueCoinSound() {
   if (isMuted()) return;
-  const ac = getCtx();
-  if (!ac) return;
-  // Await resume so the context is actually running before we start the source.
-  if (ac.state === 'suspended') {
-    try { await ac.resume(); } catch { /* ignore */ }
-  }
-  // If the buffer isn't decoded yet but we have the raw bytes, decode now.
-  if (!valueCoinBuffer && valueCoinArrayBuffer) {
-    try {
-      valueCoinBuffer = await ac.decodeAudioData(valueCoinArrayBuffer.slice(0));
-    } catch { /* ignore */ }
-  }
-  if (!valueCoinBuffer) return;
+  const a = getValueCoinAudio();
+  if (!a) return;
   try {
-    const src = ac.createBufferSource();
-    src.buffer = valueCoinBuffer;
-    const g = ac.createGain();
-    g.gain.value = 1.0;
-    src.connect(g);
-    g.connect(ac.destination);
-    src.start();
+    a.currentTime = 0;
+    a.play().catch(() => {});
   } catch { /* ignore */ }
 }
 
