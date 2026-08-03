@@ -56,11 +56,37 @@ export function playValueCoinSound() {
   if (ac.state === 'suspended') ac.resume().catch(() => {});
   if (!valueCoinBuffer) { loadValueCoinSound(); return; }
   try {
+    const t = ac.currentTime;
     const src = ac.createBufferSource();
     src.buffer = valueCoinBuffer;
+
+    // Cleanup chain: high-pass removes low rumble, peaking boosts clarity,
+    // low-pass tames harshness, and a gentle gain envelope keeps it clean.
+    const hp = ac.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 180;
+    hp.Q.value = 0.7;
+
+    const peak = ac.createBiquadFilter();
+    peak.type = 'peaking';
+    peak.frequency.value = 2600;
+    peak.Q.value = 1.0;
+    peak.gain.value = 3.0;
+
+    const lp = ac.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 9000;
+    lp.Q.value = 0.7;
+
     const g = ac.createGain();
-    g.gain.value = 1.0;
-    src.connect(g);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(1.1, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + valueCoinBuffer.duration);
+
+    src.connect(hp);
+    hp.connect(peak);
+    peak.connect(lp);
+    lp.connect(g);
     g.connect(ac.destination);
     src.start();
   } catch { /* ignore */ }
