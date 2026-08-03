@@ -60,9 +60,9 @@ function Tile({ symKey, win, dim, bet, amount }) {
       className="relative flex items-center justify-center overflow-hidden w-full h-full"
       style={{
         background: 'transparent',
-        border: win ? '2px solid #ffe066' : 'none',
+        border: win ? '2px solid #ffd24a' : 'none',
         boxShadow: win
-          ? '0 0 16px rgba(255,210,80,1), 0 0 28px rgba(255,235,150,0.7), inset 0 0 0 2px rgba(255,235,150,1)'
+          ? '0 0 12px rgba(255,210,80,0.9), inset 0 0 0 2px rgba(255,235,150,0.9)'
           : 'none',
         opacity: dim ? 0.5 : 1,
         transition: 'opacity .2s',
@@ -74,7 +74,7 @@ function Tile({ symKey, win, dim, bet, amount }) {
       >
         {isVC ? (
           <div className="relative w-full h-full flex items-center justify-center">
-            <img src={VALUE_COIN_IMG} alt="coin" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen', animation: win ? 'ccWinGlow 1s ease-in-out infinite' : 'none' }} />
+            <img src={VALUE_COIN_IMG} alt="coin" className="w-full h-full object-contain" draggable={false} style={{ mixBlendMode: 'screen' }} />
             <span className="absolute font-black text-yellow-100" style={{ fontSize: isTierCoin(symKey) ? '9px' : '10px', textShadow: '0 1px 2px #000, 0 0 3px rgba(0,0,0,0.85)', fontFamily: 'Georgia, serif' }}>{isTierCoin(symKey) ? tierCoinLabel(symKey) : `$${vcVal.toFixed(2)}`}</span>
           </div>
         ) : (
@@ -83,13 +83,13 @@ function Tile({ symKey, win, dim, bet, amount }) {
             alt={s.name}
             className="w-full h-full object-contain"
             draggable={false}
-            style={{ mixBlendMode: 'screen', transform: ['orange', 'watermelon', 'grape'].includes(symKey) ? 'scale(1.18)' : 'none', animation: win ? 'ccWinGlow 1s ease-in-out infinite' : 'none' }}
+            style={{ mixBlendMode: 'screen', transform: ['orange', 'watermelon', 'grape'].includes(symKey) ? 'scale(1.18)' : 'none' }}
           />
         )}
         {win && (
           <span
             className="absolute inset-0 pointer-events-none"
-            style={{ boxShadow: 'inset 0 0 16px rgba(255,220,120,0.9)', background: 'radial-gradient(circle at center, rgba(255,235,150,0.35), transparent 70%)' }}
+            style={{ boxShadow: 'inset 0 0 12px rgba(255,220,120,0.8)', background: 'radial-gradient(circle at center, rgba(255,235,150,0.25), transparent 70%)' }}
           />
         )}
         {amount != null && (
