@@ -201,7 +201,8 @@ export default function Airdrop() {
               <button
                 onClick={claim}
                 disabled={claiming || allocation <= 0 || alreadyClaimed}
-                className="dash-btn-gold w-full py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-45 disabled:cursor-not-allowed"
+                className="w-full py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-45 disabled:cursor-not-allowed transition-all active:scale-95"
+                style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', border: 'none', borderRadius: '14px', fontWeight: 800, boxShadow: '0 4px 14px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.45)' }}
               >
                 {claiming ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> {t("Claiming...")}</>
