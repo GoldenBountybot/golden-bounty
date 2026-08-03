@@ -169,6 +169,47 @@ export function playFlyCoinSound() {
   } catch { /* ignore */ }
 }
 
+const SLOW_MO_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/267bdd3bb_slowmoson_0.mp3';
+let slowMoBuffer = null;
+let slowMoLoaded = false;
+
+function loadSlowMoSound() {
+  if (slowMoLoaded) return;
+  slowMoLoaded = true;
+  const ac = getCtx();
+  fetch(SLOW_MO_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) slowMoBuffer = buf; })
+    .catch(() => {});
+}
+
+// Preload immediately so the duration is known before the first anticipation.
+loadSlowMoSound();
+
+// Returns the slow-motion sound duration in ms (0 if not loaded yet).
+export function getSlowMoDuration() {
+  return slowMoBuffer ? slowMoBuffer.duration * 1000 : 0;
+}
+
+// Plays the slow-motion sound. Called at the start of the anticipation linger.
+export function playSlowMoSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!slowMoBuffer) { loadSlowMoSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = slowMoBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 export function playCoinSound() {
   if (isMuted()) return;
   const ac = getCtx();

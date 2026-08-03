@@ -7,7 +7,7 @@ import { savePendingRound, clearPendingRound, getPendingRound } from '@/lib/pend
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isTierCoin, tierCoinLabel, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
 import { incBet, decBet } from '@/lib/betStepper';
-import { playSpinSound, playReelLandSound, playFlyCoinSound } from '@/lib/crownCoinsSound';
+import { playSpinSound, playReelLandSound, playFlyCoinSound, playSlowMoSound, getSlowMoDuration } from '@/lib/crownCoinsSound';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import BetTierBanners from './BetTierBanners';
@@ -304,7 +304,8 @@ export default function CrownCoinsMachine() {
     const base = turbo ? 420 : 720;
     const step = turbo ? 160 : 260;
     const landMs = 460;
-    const anticiDelay = anticipate ? 3000 : 0;
+    // Slow-motion linger lasts exactly as long as the slow-mo sound plays.
+    const anticiDelay = anticipate ? (getSlowMoDuration() || 3000) : 0;
 
     // staggered land per reel; the anticipated third reel lingers longer.
     // A luxury drop sound plays once per reel as it lands.
@@ -316,6 +317,12 @@ export default function CrownCoinsMachine() {
       }, base + i * step + extra);
       timers.current.push(t1);
     });
+
+    // Slow-mo sound plays during the anticipation linger (3rd reel slow drop).
+    if (anticipate) {
+      const tSlow = setTimeout(() => playSlowMoSound(), base + 2 * step);
+      timers.current.push(tSlow);
+    }
 
     // after the last reel lands, settle + evaluate
     const settleAt = base + 2 * step + anticiDelay + landMs;
