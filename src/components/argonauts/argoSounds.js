@@ -262,6 +262,40 @@ export function playDragonSound() {
   } catch { /* ignore */ }
 }
 
+// Scatter (Argo Ship) symbol landing sound — played once per scatter that lands.
+const SCATTER_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/4f5418b9b_Scattersas.mp3';
+let scatterBuffer = null;
+let scatterLoaded = false;
+
+function loadScatterSound() {
+  if (scatterLoaded) return;
+  scatterLoaded = true;
+  const ac = getCtx();
+  fetch(SCATTER_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) scatterBuffer = buf; })
+    .catch(() => {});
+}
+loadScatterSound();
+
+export function playScatterSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!scatterBuffer) { loadScatterSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = scatterBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 // Spartan Warrior (Jason) symbol win sound — played when a Jason line wins.
 const SPARTAN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/478cbdd23_SpartanWarrior.mp3';
 let spartanBuffer = null;
