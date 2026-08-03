@@ -135,8 +135,8 @@ export function useArgonauts() {
       setGrid(newGrid);
       setSpinning(false);
       setCoinDroppingReels(new Set());
+      playValueCoinSound();
       if (dropped.length > 0) {
-        playValueCoinSound();
         coinSpinsRef.current = COIN_SPINS_START;
         setCoinSpins(COIN_SPINS_START);
         setMessage(`COIN +${dropped.length} · 3 SPINS`);
