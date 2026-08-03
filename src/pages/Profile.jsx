@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   User as UserIcon, Phone, Hash, LogOut, Loader2, Check,
   Wallet, ArrowDownToLine, ArrowUpFromLine, Crown, Gamepad2, Copy, Coins, History,
-  Menu, Pencil, Ticket, Gift, Users,
+  Menu, Pencil, Ticket, Gift, Users, Sparkles,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -73,6 +73,7 @@ export default function Profile() {
   const [view, setView] = useState('profile');
   const [rewards, setRewards] = useState([]);
   const [loadingRewards, setLoadingRewards] = useState(false);
+  const [bountyAllocation, setBountyAllocation] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -87,6 +88,7 @@ export default function Profile() {
         setProfile(u);
         setUsername(u.username || '');
         setPhone(u.phone || '');
+        setBountyAllocation(Number(u?.bounty_allocation ?? 0));
       } catch {
         /* ignore */
       }
@@ -280,6 +282,26 @@ export default function Profile() {
               </div>
             </div>
             <Copy className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.7)' }} />
+          </button>
+
+          {/* Bounty token allocation — shown above VIP & Promo */}
+          <button
+            onClick={() => window.location.href = '/airdrop'}
+            className="w-full px-4 py-3 rounded-2xl flex items-center justify-between gap-2 transition-all active:scale-[0.98]"
+            style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.4)' }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(212,175,55,0.14)', border: '1px solid rgba(212,175,55,0.35)' }}>
+                <Sparkles className="w-4 h-4" style={{ color: '#D4AF37' }} />
+              </div>
+              <div className="text-left">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Bounty Token Allocation")}</p>
+                <p className="text-[14px] font-bold mt-0.5 tabular-nums" style={{ color: bountyAllocation > 0 ? '#34d399' : 'rgba(255,255,255,0.5)' }}>
+                  {bountyAllocation.toFixed(2)} BOUNTY
+                </p>
+              </div>
+            </div>
+            <Gift className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.7)' }} />
           </button>
 
           {/* VIP Level + Stack Rate — two equal info cards */}

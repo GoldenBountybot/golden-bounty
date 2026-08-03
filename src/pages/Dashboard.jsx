@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History, Menu, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History, Menu, CheckCircle2, Clock, XCircle, Gift } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import { useStake, LOCK_DAYS } from '@/lib/useStake';
 import StackMining from '@/components/StackMining';
@@ -312,8 +312,14 @@ export default function Dashboard() {
 
         {tab === 'vip' && (
           <div className="relative -mx-4 -my-4 px-4 py-4 min-h-[calc(100vh-72px)]" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-            <div className="relative z-10">
+            <div className="relative z-10 flex flex-col gap-4">
               <VipLevels totalDeposits={stake.totalDeposits} />
+              <button
+                onClick={() => window.location.href = '/airdrop'}
+                className="dash-btn-gold w-full py-3.5 text-sm flex items-center justify-center gap-2"
+              >
+                <Gift className="w-4 h-4" /> {t("Claim Airdrop")}
+              </button>
             </div>
           </div>
         )}

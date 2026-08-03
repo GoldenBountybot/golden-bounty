@@ -36,6 +36,7 @@ import Privacy from './pages/Privacy';
 import ResponsibleGaming from './pages/ResponsibleGaming';
 import Licenses from './pages/Licenses';
 import Faq from './pages/Faq';
+import Airdrop from './pages/Airdrop';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import BottomNavLayout from '@/components/BottomNavLayout';
 import AppLoadingImage from '@/components/AppLoadingImage';
@@ -114,6 +115,7 @@ const AuthenticatedApp = () => {
           <Route path="/pay" element={<PayMethod />} />
           <Route path="/withdraw" element={<Withdraw />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/airdrop" element={<Airdrop />} />
           <Route path="/notifications" element={<Notifications />} />
         </Route>
         <Route path="/admin" element={<Admin />} />
