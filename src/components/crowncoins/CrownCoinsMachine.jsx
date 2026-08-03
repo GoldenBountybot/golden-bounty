@@ -7,7 +7,7 @@ import { savePendingRound, clearPendingRound, getPendingRound } from '@/lib/pend
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isTierCoin, tierCoinLabel, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
 import { incBet, decBet } from '@/lib/betStepper';
-import { playSpinSound, playReelLandSound, playFlyCoinSound, playSlowMoSound, getSlowMoDuration, playMachSound } from '@/lib/crownCoinsSound';
+import { playSpinSound, playReelLandSound, playFlyCoinSound, playSlowMoSound, getSlowMoDuration, playMachSound, playLowValueSound } from '@/lib/crownCoinsSound';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import BetTierBanners from './BetTierBanners';
@@ -382,6 +382,12 @@ export default function CrownCoinsMachine() {
           mask[col][row] = true;
         });
       });
+      // Low-value symbol (cherry, lemon, orange) line win → play low-value sound.
+      const hasLowValueWin = lines.some(ln => {
+        const sym = symbolByKey(ln.symbol);
+        return sym && sym.pay <= 8;
+      });
+      if (hasLowValueWin) playLowValueSound();
       // Free spin trigger: Crown Coin in center + value coins in both side columns.
       let triggered = false;
       if (!isFree && isFreeSpinTrigger(resultGrid)) {

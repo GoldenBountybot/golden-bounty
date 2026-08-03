@@ -243,6 +243,39 @@ export function playMachSound() {
   } catch { /* ignore */ }
 }
 
+const LOW_VALUE_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/bf9aec464_lowvalue.mp3';
+let lowValueBuffer = null;
+let lowValueLoaded = false;
+
+function loadLowValueSound() {
+  if (lowValueLoaded) return;
+  lowValueLoaded = true;
+  const ac = getCtx();
+  fetch(LOW_VALUE_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) lowValueBuffer = buf; })
+    .catch(() => {});
+}
+
+// Plays when a low-value symbol (cherry, lemon, orange) forms a winning line.
+export function playLowValueSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!lowValueBuffer) { loadLowValueSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = lowValueBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 export function playCoinSound() {
   if (isMuted()) return;
   const ac = getCtx();
