@@ -15,8 +15,8 @@ function getCtx() {
   return ctx;
 }
 
-const NORMAL_VOL = 0.225; // 22.5% — matches the app's background music level
-const DUCK_VOL = 0.06;
+const NORMAL_VOL = 0.30; // slightly raised for a fuller background level
+const DUCK_VOL = 0.08;
 
 let musicGain = null;   // duck / restore volume
 let muteGain = null;    // global mute (1 or 0), in series with musicGain
