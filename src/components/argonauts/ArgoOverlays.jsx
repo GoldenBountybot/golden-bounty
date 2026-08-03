@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SYMBOLS, PAYTABLE, FREE_SPINS_AWARD, BONUS_TRIGGER_COUNT, SCATTER_PAY } from './argonautsEngine';
 import GoldenFleeceBanner from './GoldenFleeceBanner';
 import CoinWinBanner from './CoinWinBanner';
+import ArgoFreeSpinEndBanner from './ArgoFreeSpinEndBanner';
 import ArgoPaytable from './ArgoPaytable';
 import ArgoRules from './ArgoRules';
 
@@ -196,6 +197,14 @@ export default function ArgoOverlays({ g, showPaytable, setShowPaytable, showRul
           coins={g.coinWin.coins}
           bet={g.coinWin.bet}
           onDismiss={g.dismissCoinWin}
+        />
+      )}
+
+      {/* Scatter free-spin end — SUPER WIN banner with counting total */}
+      {g.freeSpinEnd && (
+        <ArgoFreeSpinEndBanner
+          total={g.freeSpinEnd.total}
+          onDismiss={g.dismissFreeSpinEnd}
         />
       )}
 

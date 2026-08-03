@@ -71,6 +71,7 @@ export function useArgonauts() {
   const [coinDropped, setCoinDropped] = useState(new Set());
   const [coinDroppingReels, setCoinDroppingReels] = useState(new Set());
   const [coinWin, setCoinWin] = useState(null);
+  const [freeSpinEnd, setFreeSpinEnd] = useState(null);
   const [anticipateReels, setAnticipateReels] = useState(new Set());
   const [slowMoReels, setSlowMoReels] = useState(new Set());
 
@@ -404,6 +405,7 @@ export function useArgonauts() {
       setFreeSpinsActive(false);
       setMessage(`FREE SPINS ENDED · TOTAL $${totalWin.toFixed(2)}`);
       setSpinning(false);
+      if (totalWin > 0) setFreeSpinEnd({ total: totalWin });
       logActivity('argonauts', 0, totalWin, totalWin > 0 ? 'win' : 'loss', 0);
     }
   }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, bonusActive, coinMode, turbo, spin, totalWin, logActivity]);
@@ -515,6 +517,7 @@ export function useArgonauts() {
   }, [logActivity, bet]);
 
   const dismissCoinWin = useCallback(() => setCoinWin(null), []);
+  const dismissFreeSpinEnd = useCallback(() => setFreeSpinEnd(null), []);
 
   const reset = () => {
     resetBalance();
@@ -532,6 +535,7 @@ export function useArgonauts() {
     setShowCoinBanner(false);
     setCoinTriggerCount(0);
     setCoinWin(null);
+    setFreeSpinEnd(null);
     coinModeRef.current = false;
     coinStuckRef.current = {};
     coinSpinsRef.current = 0;
@@ -549,6 +553,7 @@ export function useArgonauts() {
     startRisk, riskPick, riskContinue, collectRisk, loseRisk,
     coinMode, coinSpins, coinStuck, coinDropped, coinDroppingReels, showCoinBanner, coinTriggerCount, beginCoinSpins,
     coinWin, dismissCoinWin,
+    freeSpinEnd, dismissFreeSpinEnd,
     anticipateReels, slowMoReels,
     spin, reset,
   };
