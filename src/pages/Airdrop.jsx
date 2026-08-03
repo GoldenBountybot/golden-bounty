@@ -109,7 +109,7 @@ export default function Airdrop() {
           </div>
           <div className="flex-1 overflow-hidden">
             <iframe
-              src={`${PDF_URL}#toolbar=0&navpanes=0`}
+              src={`https://docs.google.com/viewer?url=${encodeURIComponent(PDF_URL)}&embedded=true`}
               className="w-full h-full"
               title="Golden Bounty Roadmap"
               style={{ border: 'none' }}
