@@ -1,6 +1,7 @@
 // Argonauts — spin button click sound (Web Audio API).
 // Reuses the same spin-button sound as Crown Coins for consistency.
 import { isMuted } from '@/lib/soundMute';
+import { duckBg } from './argoBackgroundMusic';
 
 let ctx = null;
 function getCtx() {
@@ -54,6 +55,7 @@ export function playValueCoinSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   if (!valueCoinBuffer) { loadValueCoinSound(); return; }
   try {
     const t = ac.currentTime;
@@ -114,6 +116,7 @@ export function playDoveSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   if (!doveBuffer) { loadDoveSound(); return; }
   try {
     const src = ac.createBufferSource();
@@ -148,6 +151,7 @@ export function playAmphoraSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   if (!amphoraBuffer) { loadAmphoraSound(); return; }
   try {
     const src = ac.createBufferSource();
@@ -182,6 +186,7 @@ export function playLyreSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   if (!lyreBuffer) { loadLyreSound(); return; }
   try {
     const src = ac.createBufferSource();
@@ -216,6 +221,7 @@ export function playBowSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   if (!bowBuffer) { loadBowSound(); return; }
   try {
     const src = ac.createBufferSource();
@@ -250,6 +256,7 @@ export function playDragonSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   if (!dragonBuffer) { loadDragonSound(); return; }
   try {
     const src = ac.createBufferSource();
@@ -271,6 +278,7 @@ export function playScatterSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   const t = ac.currentTime;
 
   // Shared reverb-ish bus for a tasteful tail.
@@ -354,6 +362,7 @@ export function playScatterLongSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   stopScatterLongSound();
   try {
     const t = ac.currentTime;
@@ -467,6 +476,7 @@ export function playPotionSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   const t = ac.currentTime;
 
   // Shared reverb-ish bus for a lush, cavernous tail.
@@ -575,6 +585,7 @@ export function playWildSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   const t = ac.currentTime;
 
   // Shared reverb-ish bus for a cinematic tail.
@@ -711,6 +722,7 @@ export function playSpartanSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   if (!spartanBuffer) { loadSpartanSound(); return; }
   try {
     const src = ac.createBufferSource();
@@ -732,6 +744,7 @@ export function playGoddessSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   const t = ac.currentTime;
 
   // Shared reverb-ish bus for a lush, cavernous tail.
@@ -836,6 +849,7 @@ export function playScatterWinSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   const t = ac.currentTime;
 
   // Shared reverb-ish bus for a lush, cavernous tail.
@@ -966,6 +980,7 @@ export function playCoinFeatureSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   const t = ac.currentTime;
 
   // Shared reverb-ish bus for a lush, cavernous tail.
@@ -1128,6 +1143,7 @@ export function playCoinCountSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   const t = ac.currentTime;
 
   // Shared reverb-ish bus for a tasteful tail.
@@ -1190,6 +1206,7 @@ export function playCoinWinSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   const t = ac.currentTime;
 
   // Shared reverb-ish bus for a lush, cavernous tail.
@@ -1327,6 +1344,7 @@ export function playSpinSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   if (!spinBuffer) { loadSpinSound(); return; }
   try {
     const src = ac.createBufferSource();
@@ -1348,6 +1366,7 @@ export function playReelLandSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   const t = ac.currentTime;
 
   // Shared reverb-ish bus: a short feedback delay for a tasteful tail.

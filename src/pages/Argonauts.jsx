@@ -3,11 +3,16 @@ import ArgonautsMachine from '@/components/argonauts/ArgonautsMachine';
 import GameAssetLoader from '@/components/GameAssetLoader';
 import { ARGONAUTS_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { base44 } from '@/api/base44Client';
+import { startBgMusic, stopBgMusic } from '@/components/argonauts/argoBackgroundMusic';
 
 export default function Argonauts() {
   const [authReady, setAuthReady] = useState(false);
   const [assetsReady, setAssetsReady] = useState(false);
   useEffect(() => { base44.auth.me().catch(() => {}).finally(() => setAuthReady(true)); }, []);
+  useEffect(() => {
+    if (authReady && assetsReady) startBgMusic();
+    return () => stopBgMusic();
+  }, [authReady, assetsReady]);
   if (!authReady || !assetsReady) {
     return (
       <GameAssetLoader
