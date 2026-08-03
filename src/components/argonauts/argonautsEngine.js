@@ -63,7 +63,7 @@ export const VALUE_COIN_IMG = 'https://media.base44.com/images/public/6a5698edff
 export const VALUE_COIN_CHANCE = 0.12;   // per reel, base game
 export const COIN_TRIGGER_COUNT = 5;     // 5+ value coins (bonus symbols count) triggers coin round
 export const COIN_SPINS_START = 3;
-export const COIN_DROP_CHANCE = 0.055;    // per reel, per coin spin
+export const COIN_DROP_CHANCE = 0.02;    // per reel, per coin spin
 
 export function isValueCoin(key) { return typeof key === 'string' && key.startsWith('vc'); }
 export function valueCoinMult(key) { return Number(String(key).slice(2)) || 0; }
