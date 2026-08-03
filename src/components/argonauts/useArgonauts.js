@@ -3,7 +3,7 @@ import {
   REELS, ROWS, generateGrid, evaluate, resolveBonus, forceWinGrid,
   FREE_SPINS_AWARD, BONUS_TRIGGER_COUNT, MAX_RISK_STEPS,
   coinTriggered, collectCoins, spinCoinRound, coinTotal, COIN_SPINS_START,
-  valueCoinKey,
+  valueCoinKey, isValueCoin,
 } from './argonautsEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
@@ -324,6 +324,7 @@ export function useArgonauts() {
           return n;
         });
         playReelLandSound();
+        if (finalGrid[i].some((s) => isValueCoin(s))) playValueCoinSound();
         if (i < REELS - 1) stopReel(i + 1);
         else {
           const t2 = setTimeout(() => settle(finalGrid, usingFree), turbo ? 150 : 320);
