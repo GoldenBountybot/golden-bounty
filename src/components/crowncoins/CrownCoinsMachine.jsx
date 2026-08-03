@@ -7,7 +7,7 @@ import { savePendingRound, clearPendingRound, getPendingRound } from '@/lib/pend
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isTierCoin, tierCoinLabel, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
 import { incBet, decBet } from '@/lib/betStepper';
-import { playSpinSound, playReelLandSound, playFlyCoinSound, playSlowMoSound, getSlowMoDuration } from '@/lib/crownCoinsSound';
+import { playSpinSound, playReelLandSound, playFlyCoinSound, playSlowMoSound, getSlowMoDuration, playMachSound } from '@/lib/crownCoinsSound';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import BetTierBanners from './BetTierBanners';
@@ -322,6 +322,12 @@ export default function CrownCoinsMachine() {
     if (anticipate) {
       const tSlow = setTimeout(() => playSlowMoSound(), base + 2 * step);
       timers.current.push(tSlow);
+      // If the third reel lands with a value coin during slow-motion, play the mach sound.
+      const col2HasValue = [2, 5, 8].some(i => isValueCoin(resultGrid[i]));
+      if (col2HasValue) {
+        const tMach = setTimeout(() => playMachSound(), base + 2 * step + anticiDelay);
+        timers.current.push(tMach);
+      }
     }
 
     // after the last reel lands, settle + evaluate

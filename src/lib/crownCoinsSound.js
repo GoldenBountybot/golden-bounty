@@ -210,6 +210,39 @@ export function playSlowMoSound() {
   } catch { /* ignore */ }
 }
 
+const MACH_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/8377373e5_mach.mp3';
+let machBuffer = null;
+let machLoaded = false;
+
+function loadMachSound() {
+  if (machLoaded) return;
+  machLoaded = true;
+  const ac = getCtx();
+  fetch(MACH_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) machBuffer = buf; })
+    .catch(() => {});
+}
+
+// Plays when a value coin lands on the third reel during slow-motion anticipation.
+export function playMachSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!machBuffer) { loadMachSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = machBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 export function playCoinSound() {
   if (isMuted()) return;
   const ac = getCtx();
