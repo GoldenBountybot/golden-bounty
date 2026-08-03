@@ -210,43 +210,6 @@ export function playSlowMoSound() {
   } catch { /* ignore */ }
 }
 
-const VALUE_COIN_LAND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/8377373e5_mach.mp3';
-let valueCoinLandBuffer = null;
-let valueCoinLandLoaded = false;
-
-function loadValueCoinLandSound() {
-  if (valueCoinLandLoaded) return;
-  valueCoinLandLoaded = true;
-  const ac = getCtx();
-  fetch(VALUE_COIN_LAND_URL)
-    .then(r => r.arrayBuffer())
-    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
-    .then(buf => { if (buf) valueCoinLandBuffer = buf; })
-    .catch(() => {});
-}
-
-// Preload so it's ready when the anticipated reel lands.
-loadValueCoinLandSound();
-
-// Played when a value coin lands on the anticipated (3rd) reel, right after
-// the slow-motion sound finishes.
-export function playValueCoinLandSound() {
-  if (isMuted()) return;
-  const ac = getCtx();
-  if (!ac) return;
-  if (ac.state === 'suspended') ac.resume().catch(() => {});
-  if (!valueCoinLandBuffer) { loadValueCoinLandSound(); return; }
-  try {
-    const src = ac.createBufferSource();
-    src.buffer = valueCoinLandBuffer;
-    const g = ac.createGain();
-    g.gain.value = 1.0;
-    src.connect(g);
-    g.connect(ac.destination);
-    src.start();
-  } catch { /* ignore */ }
-}
-
 export function playCoinSound() {
   if (isMuted()) return;
   const ac = getCtx();
