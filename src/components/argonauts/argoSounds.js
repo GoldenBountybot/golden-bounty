@@ -296,6 +296,53 @@ export function playScatterSound() {
   } catch { /* ignore */ }
 }
 
+// Long scatter anticipation sound — loops during slow-motion reels after
+// 2 scatters have landed, building tension for a potential 3rd scatter.
+// Stopped when the slow-motion reels finish landing.
+const SCATTER_LONG_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/af6161d16_scaterlong.mp3';
+let scatterLongBuffer = null;
+let scatterLongLoaded = false;
+let scatterLongSource = null;
+
+function loadScatterLongSound() {
+  if (scatterLongLoaded) return;
+  scatterLongLoaded = true;
+  const ac = getCtx();
+  fetch(SCATTER_LONG_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) scatterLongBuffer = buf; })
+    .catch(() => {});
+}
+loadScatterLongSound();
+
+export function playScatterLongSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!scatterLongBuffer) { loadScatterLongSound(); return; }
+  try {
+    stopScatterLongSound();
+    const src = ac.createBufferSource();
+    src.buffer = scatterLongBuffer;
+    src.loop = true;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+    scatterLongSource = src;
+  } catch { /* ignore */ }
+}
+
+export function stopScatterLongSound() {
+  if (scatterLongSource) {
+    try { scatterLongSource.stop(); } catch { /* ignore */ }
+    scatterLongSource = null;
+  }
+}
+
 // Spartan Warrior (Jason) symbol win sound — played when a Jason line wins.
 const SPARTAN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/478cbdd23_SpartanWarrior.mp3';
 let spartanBuffer = null;

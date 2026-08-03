@@ -9,7 +9,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
-import { playReelLandSound, playValueCoinSound, playDoveSound, playAmphoraSound, playLyreSound, playSpartanSound, playDragonSound, playBowSound, playScatterSound } from './argoSounds';
+import { playReelLandSound, playValueCoinSound, playDoveSound, playAmphoraSound, playLyreSound, playSpartanSound, playDragonSound, playBowSound, playScatterSound, playScatterLongSound, stopScatterLongSound } from './argoSounds';
 
 // ---- Risk (Gamble) card helpers ----
 const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -71,6 +71,7 @@ export function useArgonauts() {
   const [coinDropped, setCoinDropped] = useState(new Set());
   const [coinDroppingReels, setCoinDroppingReels] = useState(new Set());
   const [coinWin, setCoinWin] = useState(null);
+  const [anticipateReels, setAnticipateReels] = useState(new Set());
 
   const settings = useGameSettings('argonauts');
   const logActivity = useLogActivity('argonauts');
@@ -94,7 +95,7 @@ export function useArgonauts() {
   const coinStuckRef = useRef({});
   const coinSpinsRef = useRef(0);
 
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => () => { timers.current.forEach(clearTimeout); stopScatterLongSound(); }, []);
 
   // ---- Coin round ----
   const endCoinRound = useCallback((stuck) => {
@@ -324,7 +325,10 @@ export function useArgonauts() {
     }
 
     const baseGap = turbo ? 300 : 460;
-    const stopReel = (i) => {
+    const slowGap = turbo ? 900 : 1400;
+    const reelHasScatter = (r) => finalGrid[r].some((s) => s === 'scatter');
+    const stopReel = (i, slowMo) => {
+      const gap = slowMo ? slowGap : baseGap;
       const t = setTimeout(() => {
         setGrid((prev) => {
           const next = prev.map((r) => [...r]);
@@ -340,15 +344,35 @@ export function useArgonauts() {
         if (finalGrid[i].some(isValueCoin)) playValueCoinSound();
         if (finalGrid[i].some((s) => s === 'bonus')) playValueCoinSound();
         if (finalGrid[i].some((s) => s === 'scatter')) playScatterSound();
-        if (i < REELS - 1) stopReel(i + 1);
-        else {
+        // Count scatters landed so far (reels 0..i)
+        let scattersSoFar = 0;
+        for (let r = 0; r <= i; r++) if (reelHasScatter(r)) scattersSoFar++;
+        // Check if any remaining reel has a scatter (potential for 3rd)
+        let remainingHasScatter = false;
+        for (let r = i + 1; r < REELS; r++) if (reelHasScatter(r)) { remainingHasScatter = true; break; }
+        // Enter slow motion if 2+ scatters landed and remaining reels could have another
+        const enterSlowMo = !slowMo && scattersSoFar >= 2 && remainingHasScatter;
+        if (enterSlowMo) playScatterLongSound();
+        setAnticipateReels((prev) => {
+          const n = new Set(prev);
+          n.delete(i);
+          if (enterSlowMo) for (let r = i + 1; r < REELS; r++) n.add(r);
+          return n;
+        });
+        if (i < REELS - 1) {
+          stopReel(i + 1, enterSlowMo || slowMo);
+        } else {
+          if (enterSlowMo || slowMo) {
+            stopScatterLongSound();
+            setAnticipateReels(new Set());
+          }
           const t2 = setTimeout(() => settle(finalGrid, usingFree), turbo ? 150 : 320);
           timers.current.push(t2);
         }
-      }, baseGap);
+      }, gap);
       timers.current.push(t);
     };
-    stopReel(0);
+    stopReel(0, false);
   }, [spinning, balance, bet, freeSpins, turbo, lineBet, settle, riskActive, pendingWin]);
 
   // Free spins auto-trigger
@@ -506,6 +530,7 @@ export function useArgonauts() {
     startRisk, riskPick, riskContinue, collectRisk, loseRisk,
     coinMode, coinSpins, coinStuck, coinDropped, coinDroppingReels, showCoinBanner, coinTriggerCount, beginCoinSpins,
     coinWin, dismissCoinWin,
+    anticipateReels,
     spin, reset,
   };
 }

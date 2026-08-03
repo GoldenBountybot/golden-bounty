@@ -19,7 +19,7 @@ const COIN_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776
 // seamlessly (Big Brown style). 4 blocks, last = first for a seamless loop.
 const SPIN_IDS = Object.keys(SYMBOLS);
 
-const ArgoSpinStrip = React.memo(function ArgoSpinStrip({ reelIndex, turbo }) {
+const ArgoSpinStrip = React.memo(function ArgoSpinStrip({ reelIndex, turbo, slowMo }) {
   const strip = React.useMemo(() => {
     const block = () => Array.from({ length: ROWS }, () => SPIN_IDS[Math.floor(Math.random() * SPIN_IDS.length)]);
     const b = block();
@@ -30,7 +30,7 @@ const ArgoSpinStrip = React.memo(function ArgoSpinStrip({ reelIndex, turbo }) {
     <div className="absolute inset-0 overflow-hidden rounded-[7px] pointer-events-none">
       <div
         className="flex flex-col gap-1 w-full"
-        style={{ animation: `reelFall ${turbo ? 0.4 : 0.6}s linear infinite`, willChange: 'transform' }}
+        style={{ animation: `reelFall ${slowMo ? 1.5 : turbo ? 0.4 : 0.6}s linear infinite`, willChange: 'transform' }}
       >
         {strip.map((s, i) => (
           <div key={i} className="rounded-[7px] overflow-hidden" style={{ aspectRatio: '1 / 1' }}>
@@ -239,7 +239,7 @@ export default function ArgonautsMachine() {
                       </div>
                     );
                   })}
-                  {!stopped && <ArgoSpinStrip reelIndex={ri} turbo={g.turbo} />}
+                  {!stopped && <ArgoSpinStrip reelIndex={ri} turbo={g.turbo} slowMo={g.anticipateReels.has(ri)} />}
                 </div>
               );
             })}
