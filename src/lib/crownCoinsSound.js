@@ -57,10 +57,11 @@ function loadDropSound() {
     .catch(() => {});
 }
 
-// Luxury reel-land sound — a single weighted "thunk" played once per reel
-// when it stops. Layered: a soft low thud for weight, a short noise burst for
-// the mechanical stop, and a bright metallic ping that decays fast for a
-// premium jewel-machine feel. No sustained tone, so no buzz.
+// Luxury reel-land sound — a premium "jewel clink" played once per reel when
+// it stops. Layered: a warm wooden body (low sine thud), a crystal bell tone
+// with shimmering harmonics, and a soft noise transient for the mechanical
+// stop. A gentle reverb tail gives it a high-end arcade-cabinet feel. No
+// sustained drone, so no buzz.
 export function playReelLandSound() {
   if (isMuted()) return;
   const ac = getCtx();
@@ -68,22 +69,56 @@ export function playReelLandSound() {
   if (ac.state === 'suspended') ac.resume().catch(() => {});
   const t = ac.currentTime;
 
-  // 1) Low thud — weight of the reel settling.
+  // Shared reverb-ish bus: a short feedback delay for a tasteful tail.
+  const bus = ac.createGain();
+  bus.gain.value = 1;
+  const delay = ac.createDelay(1.0);
+  delay.delayTime.value = 0.09;
+  const fb = ac.createGain();
+  fb.gain.value = 0.28;
+  const delayMix = ac.createGain();
+  delayMix.gain.value = 0.35;
+  bus.connect(ac.destination);
+  bus.connect(delay);
+  delay.connect(fb);
+  fb.connect(delay);
+  delay.connect(delayMix);
+  delayMix.connect(ac.destination);
+
+  // 1) Warm wooden body — soft low thud for weight.
   const thud = ac.createOscillator();
   const thudG = ac.createGain();
   thud.type = 'sine';
-  thud.frequency.setValueAtTime(180, t);
-  thud.frequency.exponentialRampToValueAtTime(90, t + 0.12);
+  thud.frequency.setValueAtTime(220, t);
+  thud.frequency.exponentialRampToValueAtTime(110, t + 0.14);
   thudG.gain.setValueAtTime(0.0001, t);
-  thudG.gain.linearRampToValueAtTime(0.3, t + 0.008);
-  thudG.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+  thudG.gain.linearRampToValueAtTime(0.26, t + 0.006);
+  thudG.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
   thud.connect(thudG);
-  thudG.connect(ac.destination);
+  thudG.connect(bus);
   thud.start(t);
-  thud.stop(t + 0.2);
+  thud.stop(t + 0.22);
 
-  // 2) Mechanical stop — short filtered noise burst.
-  const dur = 0.06;
+  // 2) Crystal bell — bright fundamental + two shimmering harmonics.
+  const bellFreqs = [1760, 2640, 3520];
+  bellFreqs.forEach((f, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, t);
+    o.frequency.exponentialRampToValueAtTime(f * 0.92, t + 0.3);
+    const peak = [0.16, 0.09, 0.05][i];
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(peak, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.32 - i * 0.04);
+    o.connect(g);
+    g.connect(bus);
+    o.start(t);
+    o.stop(t + 0.34);
+  });
+
+  // 3) Mechanical stop — short filtered noise transient.
+  const dur = 0.05;
   const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
   const data = buf.getChannelData(0);
   for (let i = 0; i < data.length; i++) {
@@ -93,28 +128,14 @@ export function playReelLandSound() {
   n.buffer = buf;
   const bp = ac.createBiquadFilter();
   bp.type = 'bandpass';
-  bp.frequency.value = 2600;
-  bp.Q.value = 1.2;
+  bp.frequency.value = 3000;
+  bp.Q.value = 1.0;
   const nG = ac.createGain();
-  nG.gain.value = 0.22;
+  nG.gain.value = 0.18;
   n.connect(bp);
   bp.connect(nG);
-  nG.connect(ac.destination);
+  nG.connect(bus);
   n.start(t);
-
-  // 3) Bright metallic ping — luxury shimmer, fast decay.
-  const ping = ac.createOscillator();
-  const pingG = ac.createGain();
-  ping.type = 'triangle';
-  ping.frequency.setValueAtTime(2400, t);
-  ping.frequency.exponentialRampToValueAtTime(1800, t + 0.14);
-  pingG.gain.setValueAtTime(0.0001, t);
-  pingG.gain.linearRampToValueAtTime(0.12, t + 0.004);
-  pingG.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
-  ping.connect(pingG);
-  pingG.connect(ac.destination);
-  ping.start(t);
-  ping.stop(t + 0.18);
 }
 
 export function playCoinSound() {
