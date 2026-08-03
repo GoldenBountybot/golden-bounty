@@ -7,7 +7,7 @@ import { savePendingRound, clearPendingRound, getPendingRound } from '@/lib/pend
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isTierCoin, tierCoinLabel, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
 import { incBet, decBet } from '@/lib/betStepper';
-import { playSpinSound, playReelLandSound, playFlyCoinSound, playSlowMoSound, getSlowMoDuration, playMachSound, playLowValueSound } from '@/lib/crownCoinsSound';
+import { playSpinSound, playReelLandSound, playFlyCoinSound, playSlowMoSound, getSlowMoDuration, playMachSound, playLowValueSound, playHighValueSound } from '@/lib/crownCoinsSound';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import BetTierBanners from './BetTierBanners';
@@ -388,6 +388,12 @@ export default function CrownCoinsMachine() {
         return sym && sym.pay <= 8;
       });
       if (hasLowValueWin) playLowValueSound();
+      // High-value symbol (grape, bell, bar, seven) line win → play high-value sound.
+      const hasHighValueWin = lines.some(ln => {
+        const sym = symbolByKey(ln.symbol);
+        return sym && sym.pay >= 20;
+      });
+      if (hasHighValueWin) playHighValueSound();
       // Free spin trigger: Crown Coin in center + value coins in both side columns.
       let triggered = false;
       if (!isFree && isFreeSpinTrigger(resultGrid)) {

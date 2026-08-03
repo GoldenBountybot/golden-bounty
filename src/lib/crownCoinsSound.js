@@ -279,6 +279,42 @@ export function playLowValueSound() {
   } catch { /* ignore */ }
 }
 
+const HIGH_VALUE_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/d7690f0ab_highvalue.mp3';
+let highValueBuffer = null;
+let highValueLoaded = false;
+
+function loadHighValueSound() {
+  if (highValueLoaded) return;
+  highValueLoaded = true;
+  const ac = getCtx();
+  fetch(HIGH_VALUE_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) highValueBuffer = buf; })
+    .catch(() => {});
+}
+
+// Preload immediately so the sound is ready before the first high-value win.
+loadHighValueSound();
+
+// Plays when a high-value symbol (grape, bell, bar, seven) forms a winning line.
+export function playHighValueSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!highValueBuffer) { loadHighValueSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = highValueBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 export function playCoinSound() {
   if (isMuted()) return;
   const ac = getCtx();
