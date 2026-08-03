@@ -47,10 +47,10 @@ export function playSpinSound() {
   } catch { /* ignore */ }
 }
 
-// Premium luxury reel-land sound — a warm, gilded chime played once per reel
-// when it stops. A rich marimba/celesta note with a crystalline bell overtone,
-// a soft felt-knock transient, and a tasteful reverb tail. Light, musical, and
-// elegant — no heavy thud, no sustained drone.
+// Premium luxury reel-land sound — a soft golden harp string pluck with warm
+// wooden resonance, a gentle overtone cascade, and a tasteful reverb tail.
+// Distinct from a marimba chime: a plucked-string character that rings and
+// decays naturally. Light, elegant, and relaxing — no heavy thud.
 export function playReelLandSound() {
   if (isMuted()) return;
   const ac = getCtx();
@@ -62,11 +62,11 @@ export function playReelLandSound() {
   const bus = ac.createGain();
   bus.gain.value = 1;
   const delay = ac.createDelay(1.0);
-  delay.delayTime.value = 0.13;
+  delay.delayTime.value = 0.15;
   const fb = ac.createGain();
-  fb.gain.value = 0.24;
+  fb.gain.value = 0.26;
   const delayMix = ac.createGain();
-  delayMix.gain.value = 0.32;
+  delayMix.gain.value = 0.30;
   bus.connect(ac.destination);
   bus.connect(delay);
   delay.connect(fb);
@@ -74,54 +74,58 @@ export function playReelLandSound() {
   delay.connect(delayMix);
   delayMix.connect(ac.destination);
 
-  // 1) Celesta/marimba note — warm fundamental with a soft fifth overtone.
-  const noteFreqs = [784, 1175];
-  noteFreqs.forEach((f, i) => {
+  // 1) Golden harp pluck — a warm fundamental with two soft overtones that
+  //    ring out like a plucked string. Slight pitch glide up on the attack
+  //    gives it a living, organic feel.
+  const pluckFreqs = [523.25, 659.25, 783.99]; // C5, E5, G5 — a warm major chord
+  pluckFreqs.forEach((f, i) => {
     const o = ac.createOscillator();
     const g = ac.createGain();
     o.type = 'triangle';
-    o.frequency.setValueAtTime(f, t);
-    o.frequency.exponentialRampToValueAtTime(f * 0.97, t + 0.24);
-    const peak = [0.13, 0.055][i];
+    o.frequency.setValueAtTime(f * 0.992, t);
+    o.frequency.exponentialRampToValueAtTime(f, t + 0.02);
+    const peak = [0.14, 0.07, 0.045][i];
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.linearRampToValueAtTime(peak, t + 0.005);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28 - i * 0.05);
+    g.gain.linearRampToValueAtTime(peak, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.42 - i * 0.08);
     o.connect(g);
     g.connect(bus);
     o.start(t);
-    o.stop(t + 0.30);
+    o.stop(t + 0.44);
   });
 
-  // 2) Crystalline bell shimmer — a single high sine for sparkle.
-  const bell = ac.createOscillator();
-  const bellG = ac.createGain();
-  bell.type = 'sine';
-  bell.frequency.setValueAtTime(2349, t);
-  bell.frequency.exponentialRampToValueAtTime(2217, t + 0.26);
-  bellG.gain.setValueAtTime(0.0001, t);
-  bellG.gain.linearRampToValueAtTime(0.055, t + 0.004);
-  bellG.gain.exponentialRampToValueAtTime(0.0001, t + 0.26);
-  bell.connect(bellG);
-  bellG.connect(bus);
-  bell.start(t);
-  bell.stop(t + 0.28);
+  // 2) Warm wooden body resonance — a low sine that breathes gently under
+  //    the pluck, giving it a grounded, crafted character.
+  const body = ac.createOscillator();
+  const bodyG = ac.createGain();
+  body.type = 'sine';
+  body.frequency.setValueAtTime(130.81, t); // C3
+  bodyG.gain.setValueAtTime(0.0001, t);
+  bodyG.gain.linearRampToValueAtTime(0.06, t + 0.01);
+  bodyG.gain.exponentialRampToValueAtTime(0.0001, t + 0.30);
+  body.connect(bodyG);
+  bodyG.connect(bus);
+  body.start(t);
+  body.stop(t + 0.32);
 
-  // 3) Soft felt-knock — short low-passed noise transient.
-  const dur = 0.045;
+  // 3) Airy breath transient — a whisper of filtered noise at the pluck
+  //    attack so the string feels like it was just touched.
+  const dur = 0.05;
   const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
   const data = buf.getChannelData(0);
   for (let i = 0; i < data.length; i++) {
-    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2.5);
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 3);
   }
   const n = ac.createBufferSource();
   n.buffer = buf;
-  const lp = ac.createBiquadFilter();
-  lp.type = 'lowpass';
-  lp.frequency.value = 1700;
+  const bp = ac.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = 2400;
+  bp.Q.value = 1.2;
   const nG = ac.createGain();
-  nG.gain.value = 0.07;
-  n.connect(lp);
-  lp.connect(nG);
+  nG.gain.value = 0.04;
+  n.connect(bp);
+  bp.connect(nG);
   nG.connect(bus);
   n.start(t);
 }
