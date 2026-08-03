@@ -149,16 +149,20 @@ function generateBurstGrid() {
     for (let row = 0; row < ROWS; row++)
       if (isValueCoin(grid[r][row])) grid[r][row] = pickWeighted(reelWeights(r, false));
   const burstCount = 3 + Math.floor(Math.random() * 3); // 3..5
-  const reelOrder = [0, 1, 2, 3, 4].sort(() => Math.random() - 0.5).slice(0, burstCount);
   const used = new Set();
-  reelOrder.forEach((r) => {
+  let placed = 0;
+  // Place coins at random cells — allows 2-3 to stack on the same reel/line.
+  while (placed < burstCount) {
+    const r = Math.floor(Math.random() * REELS);
     const row = Math.floor(Math.random() * ROWS);
+    if (isValueCoin(grid[r][row])) continue;
     let mult;
     do { mult = VALUE_COIN_MULTS[Math.floor(Math.random() * VALUE_COIN_MULTS.length)]; }
     while (used.has(mult) && used.size < VALUE_COIN_MULTS.length);
     used.add(mult);
     grid[r][row] = valueCoinKey(mult);
-  });
+    placed++;
+  }
   return grid;
 }
 
