@@ -160,6 +160,40 @@ export function playAmphoraSound() {
   } catch { /* ignore */ }
 }
 
+// Golden Lyre (harp) symbol win sound — played when a Lyre line wins.
+const LYRE_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/a42c40c82_GoldenLyre.mp3';
+let lyreBuffer = null;
+let lyreLoaded = false;
+
+function loadLyreSound() {
+  if (lyreLoaded) return;
+  lyreLoaded = true;
+  const ac = getCtx();
+  fetch(LYRE_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) lyreBuffer = buf; })
+    .catch(() => {});
+}
+loadLyreSound();
+
+export function playLyreSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!lyreBuffer) { loadLyreSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = lyreBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 export function playSpinSound() {
   if (isMuted()) return;
   const ac = getCtx();
