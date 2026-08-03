@@ -57,36 +57,46 @@ function loadDropSound() {
     .catch(() => {});
 }
 
+// Procedurally synthesized reel-drop clicks — no recorded file, so there is
+// no sustained background tone (the "mosquito buzz") to fight with. A short
+// noise burst through a band-pass filter gives a clean mechanical tick that
+// repeats on a loose interval for as long as the reels are spinning.
+function playDropTick(ac, when) {
+  const dur = 0.05;
+  const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2.5);
+  }
+  const src = ac.createBufferSource();
+  src.buffer = buf;
+  const bp = ac.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = 2200;
+  bp.Q.value = 1.4;
+  const g = ac.createGain();
+  g.gain.value = 0.35;
+  src.connect(bp);
+  bp.connect(g);
+  g.connect(ac.destination);
+  src.start(when);
+}
+
 export function playReelDropSound() {
   if (isMuted()) return;
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
-  if (!dropBuffer) { loadDropSound(); return; }
-  try {
-    const src = ac.createBufferSource();
-    src.buffer = dropBuffer;
-    src.loop = true;
-    // High-pass keeps the crisp mechanical reel-drop clicks; a narrow notch
-    // cuts only the sustained flute-like background tone without losing the
-    // drop transients.
-    const hp = ac.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.value = 200;
-    hp.Q.value = 0.7;
-    const notch = ac.createBiquadFilter();
-    notch.type = 'notch';
-    notch.frequency.value = 1600;
-    notch.Q.value = 3.5;
-    const g = ac.createGain();
-    g.gain.value = 0.6;
-    src.connect(hp);
-    hp.connect(notch);
-    notch.connect(g);
-    g.connect(ac.destination);
-    src.start();
-    return () => { try { src.stop(); } catch {} };
-  } catch { /* ignore */ }
+  let stopped = false;
+  let timer = null;
+  const tick = () => {
+    if (stopped || !ac) return;
+    playDropTick(ac, ac.currentTime);
+    // Slightly randomized interval so it feels like physical reels, not a metronome.
+    timer = setTimeout(tick, 90 + Math.random() * 60);
+  };
+  tick();
+  return () => { stopped = true; if (timer) clearTimeout(timer); };
 }
 
 export function playCoinSound() {
