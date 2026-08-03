@@ -258,6 +258,9 @@ function loadLowValueSound() {
     .catch(() => {});
 }
 
+// Preload immediately so the sound is ready before the first low-value win.
+loadLowValueSound();
+
 // Plays when a low-value symbol (cherry, lemon, orange) forms a winning line.
 export function playLowValueSound() {
   if (isMuted()) return;
