@@ -154,6 +154,17 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Airdrop banner */}
+      <section className="relative z-10 max-w-6xl mx-auto px-4 pb-2">
+        <Link to="/airdrop" className="block relative overflow-hidden rounded-2xl transition-transform active:scale-[0.99]" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
+          <img
+            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/954aff594_file_00000000d7b081fab9598b09e1590c28.png"
+            alt="Golden Bounty Airdrop — Claim BOUNTY tokens"
+            className="w-full h-auto block"
+          />
+        </Link>
+      </section>
+
       <div className="relative z-10"><SiteFooter /></div>
 
       <BottomNav />
