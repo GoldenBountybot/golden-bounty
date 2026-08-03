@@ -9,7 +9,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
-import { playReelLandSound, playValueCoinSound, playDoveSound, playAmphoraSound, playLyreSound, playSpartanSound, playGoddessSound, playDragonSound, playBowSound, playScatterSound, playScatterLongSound, stopScatterLongSound } from './argoSounds';
+import { playReelLandSound, playValueCoinSound, playDoveSound, playAmphoraSound, playLyreSound, playSpartanSound, playGoddessSound, playDragonSound, playBowSound, playPotionSound, playScatterSound, playScatterLongSound, stopScatterLongSound } from './argoSounds';
 
 // ---- Risk (Gamble) card helpers ----
 const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -213,6 +213,8 @@ export function useArgonauts() {
     if (wins.some((w) => w.symbol === 'lizard')) playDragonSound();
     // Bow (arrow) symbol line win → play the bow sound.
     if (wins.some((w) => w.symbol === 'bow')) playBowSound();
+    // Potion symbol line win → play the potion sound.
+    if (wins.some((w) => w.symbol === 'potion')) playPotionSound();
 
     const baseWin = lineWin + scatterPay;
 

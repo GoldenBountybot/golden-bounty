@@ -458,6 +458,113 @@ export function stopScatterLongSound() {
   }
 }
 
+// Potion symbol win sound — procedurally synthesized.
+// Premium and luxurious: a crystalline glass-vial clink cascading into a
+// magical bubbling brew with a warm mystical pad underneath. Evokes the
+// feel of a precious elixir being poured — elegant, alchemical, and divine.
+export function playPotionSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  const t = ac.currentTime;
+
+  // Shared reverb-ish bus for a lush, cavernous tail.
+  const bus = ac.createGain();
+  bus.gain.value = 1;
+  const delay = ac.createDelay(1.0);
+  delay.delayTime.value = 0.20;
+  const fb = ac.createGain();
+  fb.gain.value = 0.32;
+  const delayMix = ac.createGain();
+  delayMix.gain.value = 0.36;
+  bus.connect(ac.destination);
+  bus.connect(delay);
+  delay.connect(fb);
+  fb.connect(delay);
+  delay.connect(delayMix);
+  delayMix.connect(ac.destination);
+
+  // 1) Crystalline glass-vial clinks — a rapid cascade of high bell-like
+  //    partials that evoke the gentle clink of a precious glass vial. Each
+  //    clink uses inharmonic partials for a true glass character.
+  const clinkFreqs = [1318.51, 1567.98, 1760, 2093.00]; // E6, G6, A6, C7
+  clinkFreqs.forEach((f, i) => {
+    const start = t + i * 0.07;
+    const partials = [1, 2.0, 2.76, 5.4];
+    const amps = [0.10, 0.05, 0.03, 0.015];
+    partials.forEach((p, pi) => {
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(f * p, start);
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.linearRampToValueAtTime(amps[pi] * (1 - i * 0.12), start + 0.003);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + 1.2 - pi * 0.18);
+      o.connect(g);
+      g.connect(bus);
+      o.start(start);
+      o.stop(start + 1.22);
+    });
+  });
+
+  // 2) Magical bubbling — a low filtered oscillator that slowly rises and
+  //    falls in pitch, evoking the gentle bubbling of a brewing elixir.
+  const bubble = ac.createOscillator();
+  const bubbleG = ac.createGain();
+  const bubbleFilter = ac.createBiquadFilter();
+  bubble.type = 'sine';
+  bubble.frequency.setValueAtTime(180, t);
+  bubble.frequency.linearRampToValueAtTime(280, t + 0.3);
+  bubble.frequency.linearRampToValueAtTime(220, t + 0.6);
+  bubbleFilter.type = 'lowpass';
+  bubbleFilter.frequency.value = 600;
+  bubbleFilter.Q.value = 2.0;
+  bubbleG.gain.setValueAtTime(0.0001, t);
+  bubbleG.gain.linearRampToValueAtTime(0.08, t + 0.05);
+  bubbleG.gain.setValueAtTime(0.08, t + 0.5);
+  bubbleG.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+  bubble.connect(bubbleFilter);
+  bubbleFilter.connect(bubbleG);
+  bubbleG.connect(bus);
+  bubble.start(t);
+  bubble.stop(t + 0.92);
+
+  // 3) Sparkle shimmer — a high sine sweep that adds fairy-dust magic on top
+  //    of the bubbling, giving the potion a radiant, enchanted quality.
+  const sparkle = ac.createOscillator();
+  const sparkleG = ac.createGain();
+  sparkle.type = 'sine';
+  sparkle.frequency.setValueAtTime(3200, t + 0.15);
+  sparkle.frequency.exponentialRampToValueAtTime(5200, t + 0.5);
+  sparkleG.gain.setValueAtTime(0.0001, t + 0.15);
+  sparkleG.gain.linearRampToValueAtTime(0.04, t + 0.22);
+  sparkleG.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+  sparkle.connect(sparkleG);
+  sparkleG.connect(bus);
+  sparkle.start(t + 0.15);
+  sparkle.stop(t + 0.72);
+
+  // 4) Warm mystical pad — a soft sustained chord underneath that gives the
+  //    sound a luxurious, enveloping body. A minor add9 chord for a mystical,
+  //    alchemical feel. Slow swell in and gentle release.
+  const padFreqs = [261.63, 311.13, 392.00, 466.16]; // C4, Eb4, G4, Bb4 — Cm add9
+  padFreqs.forEach((f, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.04 - i * 0.005, t + 0.2);
+    g.gain.setValueAtTime(0.04 - i * 0.005, t + 0.8);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+    o.connect(g);
+    g.connect(bus);
+    o.start(t);
+    o.stop(t + 1.42);
+  });
+}
+
 // Spartan Warrior (Jason) symbol win sound — played when a Jason line wins.
 const SPARTAN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/478cbdd23_SpartanWarrior.mp3';
 let spartanBuffer = null;
