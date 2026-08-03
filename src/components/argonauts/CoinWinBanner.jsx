@@ -49,28 +49,45 @@ export default function CoinWinBanner({ total, coins, bet, onDismiss }) {
         ))}
       </div>
 
-      {/* Banner image with the total win amount centered */}
-      <div className="relative" style={{ width: 'min(86vw, 360px)' }}>
-        <img
-          src={BANNER}
-          alt="Bonus Game Winnings"
-          draggable={false}
-          className="w-full select-none"
-          style={{ filter: 'drop-shadow(0 0 18px rgba(255,180,40,0.7))', mixBlendMode: 'screen' }}
-        />
-        <div className="absolute inset-x-0 flex items-center justify-center" style={{ top: '45%' }}>
-          <span
-            className="font-black tabular-nums"
-            style={{
-              fontFamily: 'Rye, Georgia, serif',
-              fontSize: '1.7rem',
-              color: '#FFD24A',
-              textShadow:
-                '2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px rgba(255,200,40,0.95)',
-            }}
-          >
-            ${total.toFixed(2)}
-          </span>
+      {/* Banner image with the total win amount centered — full width with wooden frame */}
+      <div
+        className="relative w-full mx-3"
+        style={{
+          padding: '10px',
+          borderRadius: '14px',
+          background: 'linear-gradient(135deg, #6b4a1e 0%, #8a5a2a 15%, #5b3a12 30%, #a06a30 45%, #6b4a1e 60%, #4a2e0e 75%, #8a5a2a 90%, #6b4a1e 100%)',
+          boxShadow: '0 0 0 2px rgba(40,25,8,0.95), 0 0 0 4px rgba(255,215,0,0.4), 0 8px 30px rgba(0,0,0,0.7), 0 0 24px rgba(255,180,40,0.5), inset 0 0 0 1px rgba(255,235,150,0.3), inset 0 2px 6px rgba(255,235,150,0.2), inset 0 -2px 6px rgba(0,0,0,0.4)',
+        }}
+      >
+        <div
+          className="relative w-full"
+          style={{
+            borderRadius: '8px',
+            background: 'linear-gradient(135deg, rgba(60,38,14,0.6), rgba(30,18,6,0.7))',
+            boxShadow: 'inset 0 0 0 1px rgba(255,215,0,0.25)',
+          }}
+        >
+          <img
+            src={BANNER}
+            alt="Bonus Game Winnings"
+            draggable={false}
+            className="w-full select-none"
+            style={{ filter: 'drop-shadow(0 0 18px rgba(255,180,40,0.7))', mixBlendMode: 'screen' }}
+          />
+          <div className="absolute inset-x-0 flex items-center justify-center" style={{ top: '45%' }}>
+            <span
+              className="font-black tabular-nums"
+              style={{
+                fontFamily: 'Rye, Georgia, serif',
+                fontSize: '1.7rem',
+                color: '#FFD24A',
+                textShadow:
+                  '2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px rgba(255,200,40,0.95)',
+              }}
+            >
+              ${total.toFixed(2)}
+            </span>
+          </div>
         </div>
       </div>
     </div>
