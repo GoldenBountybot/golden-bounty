@@ -110,9 +110,7 @@ export default function Airdrop() {
         {/* Allocation card */}
         <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(212,175,55,0.14)', border: '1px solid rgba(212,175,55,0.35)' }}>
-              <Sparkles className="w-4 h-4" style={{ color: '#D4AF37' }} />
-            </div>
+            <img src={BOUNTY_LOGO} alt="Bounty" className="w-9 h-9" style={{ mixBlendMode: 'screen' }} />
             <h3 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Your Allocation")}</h3>
           </div>
 
