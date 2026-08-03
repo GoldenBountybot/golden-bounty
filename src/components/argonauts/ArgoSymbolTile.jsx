@@ -62,7 +62,10 @@ function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 0, stuck = fals
           alt={meta.name}
           className="relative z-10 w-full h-full object-cover"
           draggable={false}
-          style={{ transform: 'scale(1.2)' }}
+          style={{
+            transform: 'scale(1.2)',
+            animation: (isScatter && !spinning) ? 'argoScatterGlow 1.4s ease-in-out infinite' : undefined,
+          }}
         />
       ) : (
         <span
