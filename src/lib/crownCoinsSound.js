@@ -151,6 +151,9 @@ function loadFlySound() {
     .catch(() => {});
 }
 
+// Preload immediately so the sound is ready before the first coin lands.
+loadFlySound();
+
 // Played when a flying value coin lands on the Crown Coins banner.
 export function playFlyCoinSound() {
   if (isMuted()) return;
