@@ -16,15 +16,25 @@ export default function FreeGamesBanner({ count = 8, onStart }) {
     >
       <div
         className="relative w-full h-full transition-transform active:scale-95"
-        style={{ mixBlendMode: 'screen' }}
+        style={{
+          borderRadius: '50%',
+          padding: '6px',
+          background: 'linear-gradient(135deg, #FFE9A8 0%, #FFD700 25%, #FFFBE0 50%, #FFB300 75%, #FFE9A8 100%)',
+          boxShadow: '0 0 0 2px rgba(90,58,12,0.9), 0 0 22px rgba(255,215,0,0.7), 0 0 40px rgba(255,180,40,0.5), inset 0 0 12px rgba(255,235,150,0.4)',
+        }}
       >
-        <img
-          src={BANNER}
-          alt={`${count} Free Games`}
-          draggable={false}
-          className="w-full h-full object-contain select-none"
-          style={{ filter: 'drop-shadow(0 0 22px rgba(255,180,40,0.55))' }}
-        />
+        <div
+          className="relative w-full h-full overflow-hidden"
+          style={{ borderRadius: '50%', mixBlendMode: 'screen' }}
+        >
+          <img
+            src={BANNER}
+            alt={`${count} Free Games`}
+            draggable={false}
+            className="w-full h-full object-contain select-none"
+            style={{ filter: 'drop-shadow(0 0 22px rgba(255,180,40,0.55))' }}
+          />
+        </div>
       </div>
     </div>
   );
