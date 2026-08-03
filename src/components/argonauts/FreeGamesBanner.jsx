@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2aad0232d_file_00000000092c81faa3ee3d2dae21cb97.png';
+const BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4ba013c10_file_00000000142481fabe264564bd974c86.png';
 
 // The "8 FREE GAMES!" feature-trigger banner. Shown when 3+ scatter ships
 // land during the base game. The whole banner is clickable to start the free
@@ -16,8 +16,7 @@ export default function FreeGamesBanner({ count = 8, onStart }) {
       className="absolute inset-0 z-40 flex items-center justify-center cursor-pointer"
     >
       <div
-        className="relative w-full h-full transition-transform active:scale-95"
-        style={{ mixBlendMode: 'screen' }}
+        className="relative w-full h-full flex items-center justify-center transition-transform active:scale-95"
       >
         <img
           src={BANNER}
