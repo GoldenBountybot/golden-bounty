@@ -31,7 +31,7 @@ function loadSpinSound() {
 loadSpinSound();
 
 // Value-coin landing sound — played when a value coin drops onto the reels.
-const VALUE_COIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/81fcf78d0_valuecoin_0_0.mp3';
+const VALUE_COIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/b5a389fb5_valuecn.mp3';
 let valueCoinBuffer = null;
 let valueCoinLoaded = false;
 
