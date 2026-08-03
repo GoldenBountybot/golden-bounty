@@ -30,28 +30,47 @@ function loadSpinSound() {
 // Value coin drop sound — plays when a value coin lands during the coin round.
 const VALUE_COIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/7680e8d95_valuecoin_0.mp3';
 let valueCoinBuffer = null;
+let valueCoinArrayBuffer = null;
 let valueCoinLoaded = false;
 
 function loadValueCoinSound() {
   if (valueCoinLoaded) return;
   valueCoinLoaded = true;
-  const ac = getCtx();
+  // Fetch the raw bytes first (no AudioContext needed) so decoding can happen
+  // even before the first user interaction.
   fetch(VALUE_COIN_URL)
     .then(r => r.arrayBuffer())
-    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
-    .then(buf => { if (buf) valueCoinBuffer = buf; })
+    .then(ab => {
+      valueCoinArrayBuffer = ab;
+      // Try to decode immediately if a context exists.
+      const ac = getCtx();
+      if (ac) {
+        ac.decodeAudioData(ab.slice(0))
+          .then(buf => { valueCoinBuffer = buf; })
+          .catch(() => {});
+      }
+    })
     .catch(() => {});
 }
 
 // Preload immediately so the sound is ready before the first coin drop.
 loadValueCoinSound();
 
-export function playValueCoinSound() {
+export async function playValueCoinSound() {
   if (isMuted()) return;
   const ac = getCtx();
   if (!ac) return;
-  if (ac.state === 'suspended') ac.resume().catch(() => {});
-  if (!valueCoinBuffer) { loadValueCoinSound(); return; }
+  // Await resume so the context is actually running before we start the source.
+  if (ac.state === 'suspended') {
+    try { await ac.resume(); } catch { /* ignore */ }
+  }
+  // If the buffer isn't decoded yet but we have the raw bytes, decode now.
+  if (!valueCoinBuffer && valueCoinArrayBuffer) {
+    try {
+      valueCoinBuffer = await ac.decodeAudioData(valueCoinArrayBuffer.slice(0));
+    } catch { /* ignore */ }
+  }
+  if (!valueCoinBuffer) return;
   try {
     const src = ac.createBufferSource();
     src.buffer = valueCoinBuffer;
