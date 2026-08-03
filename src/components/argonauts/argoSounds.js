@@ -194,6 +194,40 @@ export function playLyreSound() {
   } catch { /* ignore */ }
 }
 
+// Bow (arrow) symbol win sound — played when a Bow line wins.
+const BOW_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/e3ff9a2c4_CrossedSwords.mp3';
+let bowBuffer = null;
+let bowLoaded = false;
+
+function loadBowSound() {
+  if (bowLoaded) return;
+  bowLoaded = true;
+  const ac = getCtx();
+  fetch(BOW_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) bowBuffer = buf; })
+    .catch(() => {});
+}
+loadBowSound();
+
+export function playBowSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!bowBuffer) { loadBowSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = bowBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 // Green Dragon (lizard/serpent) symbol win sound — played when a Serpent line wins.
 const DRAGON_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/865659119_GreenDragon.mp3';
 let dragonBuffer = null;
