@@ -67,21 +67,21 @@ export function playReelDropSound() {
     const src = ac.createBufferSource();
     src.buffer = dropBuffer;
     src.loop = true;
-    // Low-pass filter strips out the high-pitched flute-like background tone
-    // while keeping the mechanical reel-drop clicks intact.
-    const lp = ac.createBiquadFilter();
-    lp.type = 'lowpass';
-    lp.frequency.value = 900;
-    lp.Q.value = 0.7;
-    // Notch filter to further suppress any lingering mid-range melodic tone.
+    // High-pass keeps the crisp mechanical reel-drop clicks; a narrow notch
+    // cuts only the sustained flute-like background tone without losing the
+    // drop transients.
+    const hp = ac.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 200;
+    hp.Q.value = 0.7;
     const notch = ac.createBiquadFilter();
     notch.type = 'notch';
-    notch.frequency.value = 1400;
-    notch.Q.value = 1.2;
+    notch.frequency.value = 1600;
+    notch.Q.value = 3.5;
     const g = ac.createGain();
     g.gain.value = 0.6;
-    src.connect(lp);
-    lp.connect(notch);
+    src.connect(hp);
+    hp.connect(notch);
     notch.connect(g);
     g.connect(ac.destination);
     src.start();
