@@ -316,7 +316,8 @@ export default function Dashboard() {
               <VipLevels totalDeposits={stake.totalDeposits} />
               <button
                 onClick={() => window.location.href = '/airdrop'}
-                className="dash-btn-gold w-full py-3.5 text-sm flex items-center justify-center gap-2"
+                className="w-full py-3.5 text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+                style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', border: 'none', borderRadius: '14px', fontWeight: 800, boxShadow: '0 4px 14px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.45)' }}
               >
                 <Gift className="w-4 h-4" /> {t("Claim Airdrop")}
               </button>

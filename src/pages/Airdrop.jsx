@@ -209,7 +209,7 @@ export default function Airdrop() {
                 ) : alreadyClaimed ? (
                   <><Check className="w-4 h-4" /> {t("Already Claimed")}</>
                 ) : (
-                  <><Gift className="w-4 h-4" /> {t("Claim Airdrop")}</>
+                  <><Gift className="w-4 h-4" /> {t("Claim Bounty")}</>
                 )}
               </button>
 
