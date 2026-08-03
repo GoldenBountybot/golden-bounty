@@ -83,7 +83,7 @@ export default function Airdrop() {
             <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
           </button>
           <div className="flex-1 flex items-center justify-center gap-2">
-            <img src={BOUNTY_LOGO} alt="Bounty" className="w-9 h-9 rounded-full" style={{ boxShadow: '0 0 14px rgba(212,175,55,0.45)' }} />
+            <img src={BOUNTY_LOGO} alt="Bounty" className="w-9 h-9" style={{ boxShadow: '0 0 14px rgba(212,175,55,0.45)' }} />
             <span className="text-lg font-extrabold tracking-tight" style={{ ...heading, color: '#D4AF37' }}>{t("Airdrop")}</span>
           </div>
           <div className="w-10" />
@@ -99,7 +99,7 @@ export default function Airdrop() {
           <div className="pointer-events-none absolute -top-12 -right-10 w-44 h-44 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.22), transparent 70%)' }} />
           <div className="relative">
             <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 22px rgba(212,175,55,0.4)', transform: 'scale(1.15)' }} />
-            <img src={BOUNTY_LOGO} alt="Bounty Token" className="w-20 h-20 rounded-full relative" style={{ border: '2px solid rgba(255,255,255,0.3)' }} />
+            <img src={BOUNTY_LOGO} alt="Bounty Token" className="w-20 h-20 relative" />
           </div>
           <h2 className="text-2xl font-extrabold" style={{ ...heading, color: '#D4AF37' }}>BOUNTY</h2>
           <p className="text-[12px] text-center" style={{ color: 'rgba(255,255,255,0.6)' }}>
