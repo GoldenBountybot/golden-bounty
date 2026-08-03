@@ -137,7 +137,33 @@ export function generateReel(reelIndex, freeSpins) {
   return [0, 1, 2].map(() => pickWeighted(w));
 }
 
+// Coin burst: occasionally 3-5 value coins drop together across distinct reels
+// (max 1 per reel, so the burst itself never reaches 6). Exclusive with the
+// per-reel independent coin logic — the rare 6+ trigger still comes only from
+// the independent multi-reel hits on non-burst spins, keeping that rate as before.
+const COIN_BURST_CHANCE = 0.025;
+function generateBurstGrid() {
+  const grid = Array.from({ length: REELS }, (_, r) => generateReel(r, false));
+  // Clear any value coins that landed independently so the burst is clean.
+  for (let r = 0; r < REELS; r++)
+    for (let row = 0; row < ROWS; row++)
+      if (isValueCoin(grid[r][row])) grid[r][row] = pickWeighted(reelWeights(r, false));
+  const burstCount = 3 + Math.floor(Math.random() * 3); // 3..5
+  const reelOrder = [0, 1, 2, 3, 4].sort(() => Math.random() - 0.5).slice(0, burstCount);
+  const used = new Set();
+  reelOrder.forEach((r) => {
+    const row = Math.floor(Math.random() * ROWS);
+    let mult;
+    do { mult = VALUE_COIN_MULTS[Math.floor(Math.random() * VALUE_COIN_MULTS.length)]; }
+    while (used.has(mult) && used.size < VALUE_COIN_MULTS.length);
+    used.add(mult);
+    grid[r][row] = valueCoinKey(mult);
+  });
+  return grid;
+}
+
 export function generateGrid(freeSpins = false) {
+  if (!freeSpins && Math.random() < COIN_BURST_CHANCE) return generateBurstGrid();
   return Array.from({ length: REELS }, (_, r) => generateReel(r, freeSpins));
 }
 
