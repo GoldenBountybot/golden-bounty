@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Gift, Coins, Loader2, Check, Sparkles, ArrowDownToLine } from 'lucide-react';
+import { Gift, Coins, Loader2, Check, Sparkles, ArrowDownToLine, Map, X } from 'lucide-react';
+
+const PDF_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/d622ddbca_Golden_Bounty_Roadmap_2026_2027_Perfect.pdf';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -17,6 +19,7 @@ export default function Airdrop() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const [roadmapOpen, setRoadmapOpen] = useState(false);
   const [totalDeposits, setTotalDeposits] = useState(0);
   const [claimed, setClaimed] = useState(0);
   const [referralBounty, setReferralBounty] = useState(0);
@@ -92,7 +95,47 @@ export default function Airdrop() {
         </div>
       </header>
 
+      {/* Roadmap PDF Modal */}
+      {roadmapOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(12px)' }}>
+          <div className="flex items-center justify-between px-4 py-3 shrink-0" style={{ borderBottom: '1px solid rgba(212,175,55,0.25)' }}>
+            <div className="flex items-center gap-2">
+              <Map className="w-5 h-5" style={{ color: '#D4AF37' }} />
+              <span className="font-bold text-base" style={{ color: '#D4AF37' }}>Roadmap 2026–2027</span>
+            </div>
+            <button onClick={() => setRoadmapOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-xl transition-all active:scale-95" style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.05)', color: '#D4AF37' }}>
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <iframe
+              src={`${PDF_URL}#toolbar=0&navpanes=0`}
+              className="w-full h-full"
+              title="Golden Bounty Roadmap"
+              style={{ border: 'none' }}
+            />
+          </div>
+        </div>
+      )}
+
       <main className="relative z-10 max-w-md mx-auto px-4 py-4 flex flex-col gap-4">
+        {/* Roadmap button */}
+        <button
+          onClick={() => setRoadmapOpen(true)}
+          className="w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all active:scale-[0.98]"
+          style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(212,175,55,0.35)', boxShadow: '0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)' }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.25), rgba(212,175,55,0.08))', border: '1px solid rgba(212,175,55,0.4)' }}>
+              <Map className="w-4 h-4" style={{ color: '#D4AF37' }} />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-bold" style={{ color: '#fff' }}>Roadmap</p>
+              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>2026 – 2027 Platform Vision</p>
+            </div>
+          </div>
+          <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'rgba(212,175,55,0.7)' }}><path d="M9 18l6-6-6-6" /></svg>
+        </button>
         {/* Hero — Bounty token */}
         <div
           className="dash-card relative overflow-hidden p-6 flex flex-col items-center gap-3"
