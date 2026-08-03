@@ -13,6 +13,7 @@ import { getVipLevel, getNextVipLevel, BASE_RATE } from '@/lib/vipLevels';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/lib/LanguageContext';
+import TaskSystem from '@/components/TaskSystem';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -74,6 +75,7 @@ export default function Profile() {
   const [rewards, setRewards] = useState([]);
   const [loadingRewards, setLoadingRewards] = useState(false);
   const [bountyAllocation, setBountyAllocation] = useState(0);
+  const [taskBounty, setTaskBounty] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -89,6 +91,7 @@ export default function Profile() {
         setUsername(u.username || '');
         setPhone(u.phone || '');
         setBountyAllocation(Number(u?.bounty_allocation ?? 0));
+        setTaskBounty(Number(u?.task_bounty ?? 0));
       } catch {
         /* ignore */
       }
@@ -294,8 +297,8 @@ export default function Profile() {
               <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png" alt="Bounty" className="w-9 h-9" />
               <div className="text-left">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Bounty Token Allocation")}</p>
-                <p className="text-[14px] font-bold mt-0.5 tabular-nums" style={{ color: bountyAllocation > 0 ? '#34d399' : 'rgba(255,255,255,0.5)' }}>
-                  {bountyAllocation.toFixed(2)} BOUNTY
+                <p className="text-[14px] font-bold mt-0.5 tabular-nums" style={{ color: (bountyAllocation + taskBounty) > 0 ? '#34d399' : 'rgba(255,255,255,0.5)' }}>
+                  {(bountyAllocation + taskBounty).toFixed(2)} BOUNTY
                 </p>
               </div>
             </div>
@@ -458,6 +461,9 @@ export default function Profile() {
 
         {view === 'profile' && (
         <>
+        {/* Social tasks — earn BOUNTY */}
+        <TaskSystem profile={profile} onClaimed={setTaskBounty} />
+
         {/* Segmented tabs — Wallet & Games */}
         <div className="grid grid-cols-2 gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           {TABS.map(tb => {

@@ -83,6 +83,16 @@
       "type": "number",
       "default": 0,
       "description": "BOUNTY tokens earned from referral commissions (2 BOUNTY per 1 USDT commission)."
+    },
+    "task_bounty": {
+      "type": "number",
+      "default": 0,
+      "description": "BOUNTY tokens earned from completing social tasks (X follow, Telegram subscribe, etc.)."
+    },
+    "claimed_tasks": {
+      "type": "string",
+      "default": "",
+      "description": "Comma-separated list of task names the user has already claimed (e.g. 'x,telegram')."
     }
   },
   "required": [

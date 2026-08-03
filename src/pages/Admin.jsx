@@ -12,7 +12,8 @@ import AdminBanners from '@/components/admin/AdminBanners';
 import AdminPaymentAddresses from '@/components/admin/AdminPaymentAddresses';
 import AdminStackBanner from '@/components/admin/AdminStackBanner';
 import AdminNotices from '@/components/admin/AdminNotices';
-import { Image, Layers, Megaphone } from 'lucide-react';
+import AdminTasks from '@/components/admin/AdminTasks';
+import { Image, Layers, Megaphone, CheckCircle } from 'lucide-react';
 
 const TABS = [
   { id: 'players', label: 'Players', icon: Users, comp: AdminPlayers },
@@ -23,6 +24,7 @@ const TABS = [
   { id: 'pay', label: 'Pay Addr', icon: Wallet, comp: AdminPaymentAddresses },
   { id: 'stack', label: 'Stack', icon: Layers, comp: AdminStackBanner },
   { id: 'notices', label: 'Notices', icon: Megaphone, comp: AdminNotices },
+  { id: 'tasks', label: 'Tasks', icon: CheckCircle, comp: AdminTasks },
 ];
 
 export default function Admin() {

@@ -1,0 +1,54 @@
+{
+  "name": "TaskLink",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Unique task key, e.g. 'x', 'telegram'"
+    },
+    "label": {
+      "type": "string",
+      "description": "Display label shown to users, e.g. 'Follow on X'"
+    },
+    "url": {
+      "type": "string",
+      "description": "External link the user must follow/subscribe to"
+    },
+    "reward": {
+      "type": "number",
+      "default": 5,
+      "description": "BOUNTY tokens awarded for completing this task"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "order": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "name",
+    "label",
+    "url"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": true,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
