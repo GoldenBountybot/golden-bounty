@@ -9,7 +9,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
-import { playReelLandSound } from './argoSounds';
+import { playReelLandSound, playValueCoinSound } from './argoSounds';
 
 // ---- Risk (Gamble) card helpers ----
 const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -136,6 +136,7 @@ export function useArgonauts() {
       setSpinning(false);
       setCoinDroppingReels(new Set());
       if (dropped.length > 0) {
+        playValueCoinSound();
         coinSpinsRef.current = COIN_SPINS_START;
         setCoinSpins(COIN_SPINS_START);
         setMessage(`COIN +${dropped.length} · 3 SPINS`);
