@@ -593,38 +593,39 @@ export function playWildSound() {
   delay.connect(delayMix);
   delayMix.connect(ac.destination);
 
-  // 1) Deep roar fundamental — a sawtooth at ~85 Hz that rises in pitch,
+  // 1) Deep roar fundamental — a sawtooth at ~110 Hz that rises in pitch,
   //    giving the roar its building, surging intensity. The sawtooth's
   //    rich harmonics give the roar its beastly, powerful character.
+  //    (110 Hz base — high enough for mobile speakers to reproduce.)
   const roar = ac.createOscillator();
   const roarG = ac.createGain();
   roar.type = 'sawtooth';
-  roar.frequency.setValueAtTime(75, t);
-  roar.frequency.linearRampToValueAtTime(95, t + 0.15);
-  roar.frequency.linearRampToValueAtTime(82, t + 0.5);
+  roar.frequency.setValueAtTime(110, t);
+  roar.frequency.linearRampToValueAtTime(140, t + 0.15);
+  roar.frequency.linearRampToValueAtTime(120, t + 0.5);
   roarG.gain.setValueAtTime(0.0001, t);
-  roarG.gain.linearRampToValueAtTime(0.22, t + 0.04);
-  roarG.gain.setValueAtTime(0.22, t + 0.45);
+  roarG.gain.linearRampToValueAtTime(0.32, t + 0.04);
+  roarG.gain.setValueAtTime(0.32, t + 0.45);
   roarG.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
 
-  // 2) Formant filter sweep — a bandpass filter that sweeps from low to
-  //    mid frequencies, shaping the roar into a vowel-like "RRROOAAR"
+  // 2) Formant filter sweep — a bandpass filter that sweeps through mid
+  //    frequencies, shaping the roar into a vowel-like "RRROOAAR"
   //    character. This is what makes it sound like an actual animal vocal.
   const formant = ac.createBiquadFilter();
   formant.type = 'bandpass';
-  formant.frequency.setValueAtTime(220, t);
-  formant.frequency.linearRampToValueAtTime(480, t + 0.2);
-  formant.frequency.linearRampToValueAtTime(340, t + 0.55);
-  formant.Q.value = 3.5;
+  formant.frequency.setValueAtTime(400, t);
+  formant.frequency.linearRampToValueAtTime(800, t + 0.2);
+  formant.frequency.linearRampToValueAtTime(560, t + 0.55);
+  formant.Q.value = 3.0;
 
   // 3) Second formant — a higher bandpass that adds the "ahh" vowel overtone,
   //    giving the roar a richer, more expressive vocal character.
   const formant2 = ac.createBiquadFilter();
   formant2.type = 'bandpass';
-  formant2.frequency.setValueAtTime(900, t);
-  formant2.frequency.linearRampToValueAtTime(1400, t + 0.2);
-  formant2.frequency.linearRampToValueAtTime(1100, t + 0.55);
-  formant2.Q.value = 4.0;
+  formant2.frequency.setValueAtTime(1200, t);
+  formant2.frequency.linearRampToValueAtTime(1800, t + 0.2);
+  formant2.frequency.linearRampToValueAtTime(1400, t + 0.55);
+  formant2.Q.value = 3.5;
 
   // 4) Amplitude modulation — a slow LFO on the gain that creates the
   //    pulsing, surging quality of a real animal roar.
@@ -632,7 +633,7 @@ export function playWildSound() {
   const lfoG = ac.createGain();
   lfo.frequency.setValueAtTime(7, t);
   lfo.frequency.linearRampToValueAtTime(12, t + 0.3);
-  lfoG.gain.setValueAtTime(0.06, t);
+  lfoG.gain.setValueAtTime(0.08, t);
   lfo.connect(lfoG);
   lfoG.connect(roarG.gain);
   lfo.start(t);
@@ -650,20 +651,20 @@ export function playWildSound() {
   const sub = ac.createOscillator();
   const subG = ac.createGain();
   sub.type = 'sine';
-  sub.frequency.setValueAtTime(42, t);
-  sub.frequency.linearRampToValueAtTime(48, t + 0.15);
-  sub.frequency.linearRampToValueAtTime(40, t + 0.5);
+  sub.frequency.setValueAtTime(65, t);
+  sub.frequency.linearRampToValueAtTime(72, t + 0.15);
+  sub.frequency.linearRampToValueAtTime(62, t + 0.5);
   subG.gain.setValueAtTime(0.0001, t);
-  subG.gain.linearRampToValueAtTime(0.14, t + 0.06);
-  subG.gain.setValueAtTime(0.14, t + 0.4);
+  subG.gain.linearRampToValueAtTime(0.18, t + 0.06);
+  subG.gain.setValueAtTime(0.18, t + 0.4);
   subG.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
   sub.connect(subG);
   subG.connect(bus);
   sub.start(t);
   sub.stop(t + 0.87);
 
-  // 6) Growl component — filtered noise with a resonant lowpass that adds
-  //    the raspy, guttural texture of a beast's growl underneath the roar.
+  // 6) Growl component — filtered noise with a resonant bandpass that adds
+  //    the raspy, guttural texture of a beast's growl in the mid range.
   const dur = 0.7;
   const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
   const data = buf.getChannelData(0);
@@ -673,14 +674,14 @@ export function playWildSound() {
   const n = ac.createBufferSource();
   n.buffer = buf;
   const growlFilter = ac.createBiquadFilter();
-  growlFilter.type = 'lowpass';
-  growlFilter.frequency.setValueAtTime(300, t);
-  growlFilter.frequency.linearRampToValueAtTime(600, t + 0.2);
-  growlFilter.frequency.linearRampToValueAtTime(380, t + 0.55);
-  growlFilter.Q.value = 6.0;
+  growlFilter.type = 'bandpass';
+  growlFilter.frequency.setValueAtTime(500, t);
+  growlFilter.frequency.linearRampToValueAtTime(900, t + 0.2);
+  growlFilter.frequency.linearRampToValueAtTime(650, t + 0.55);
+  growlFilter.Q.value = 4.0;
   const nG = ac.createGain();
   nG.gain.setValueAtTime(0.0001, t);
-  nG.gain.linearRampToValueAtTime(0.08, t + 0.05);
+  nG.gain.linearRampToValueAtTime(0.12, t + 0.05);
   nG.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
   n.connect(growlFilter);
   growlFilter.connect(nG);
