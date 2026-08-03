@@ -956,6 +956,148 @@ export function playScatterWinSound() {
   sparkle.stop(t + 1.42);
 }
 
+// Coin feature trigger sound — played when the Golden Fleece coin banner
+// floats up to start the hold-and-spin round. Premium, luxurious, and
+// celebratory: a deep golden gong strike, a rising brass fanfare, a
+// shimmering coin cascade, and a warm triumphant chord with a long reverb
+// tail. Evokes the feel of unlocking a royal treasury.
+export function playCoinFeatureSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  const t = ac.currentTime;
+
+  // Shared reverb-ish bus for a lush, cavernous tail.
+  const bus = ac.createGain();
+  bus.gain.value = 1;
+  const delay = ac.createDelay(1.0);
+  delay.delayTime.value = 0.24;
+  const fb = ac.createGain();
+  fb.gain.value = 0.38;
+  const delayMix = ac.createGain();
+  delayMix.gain.value = 0.42;
+  bus.connect(ac.destination);
+  bus.connect(delay);
+  delay.connect(fb);
+  fb.connect(delay);
+  delay.connect(delayMix);
+  delayMix.connect(ac.destination);
+
+  // 1) Deep golden gong strike — a rich, resonant strike with inharmonic
+  //    partials that evoke a large ceremonial gong. Sets a grand, royal tone.
+  const gongFreqs = [110, 165, 220, 330, 440]; // inharmonic stack
+  gongFreqs.forEach((f, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, t);
+    const peak = [0.22, 0.14, 0.10, 0.06, 0.04][i];
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(peak, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 2.5 - i * 0.2);
+    o.connect(g);
+    g.connect(bus);
+    o.start(t);
+    o.stop(t + 2.52);
+  });
+
+  // 2) Rising brass fanfare — a cascade of sawtooth notes climbing in pitch,
+  //    like a triumphant royal trumpet fanfare announcing the treasure.
+  const fanfareFreqs = [392.00, 523.25, 659.25, 783.99, 1046.50]; // G4→C6
+  fanfareFreqs.forEach((f, i) => {
+    const start = t + 0.15 + i * 0.10;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(f * 0.985, start);
+    o.frequency.exponentialRampToValueAtTime(f, start + 0.04);
+    const peak = 0.15 - i * 0.012;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(peak, start + 0.02);
+    g.gain.setValueAtTime(peak, start + 0.14);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.55);
+
+    const lp = ac.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 3400;
+    lp.Q.value = 0.8;
+
+    o.connect(lp);
+    lp.connect(g);
+    g.connect(bus);
+    o.start(start);
+    o.stop(start + 0.57);
+  });
+
+  // 3) Shimmering coin cascade — a rapid sequence of high bell-like partials
+  //    that evoke a shower of golden coins spilling from a treasure chest.
+  const coinFreqs = [1318.51, 1567.98, 1760, 2093.00, 2637.02, 3135.96]; // E6→G7
+  coinFreqs.forEach((f, i) => {
+    const start = t + 0.3 + i * 0.055;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(f, start);
+    const peak = 0.11 - i * 0.012;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(peak, start + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.9);
+    o.connect(g);
+    g.connect(bus);
+    o.start(start);
+    o.stop(start + 0.92);
+  });
+
+  // 4) Triumphant sustained chord — a warm major chord underneath that gives
+  //    the fanfare a luxurious, regal body. C major with an added 9th for a
+  //    bright, victorious feel. Slow swell in and a long, proud release.
+  const chordFreqs = [261.63, 329.63, 392.00, 493.88, 587.33]; // C4, E4, G4, B4, D5 — Cmaj9
+  chordFreqs.forEach((f, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, t + 0.2);
+    g.gain.setValueAtTime(0.0001, t + 0.2);
+    g.gain.linearRampToValueAtTime(0.055 - i * 0.006, t + 0.4);
+    g.gain.setValueAtTime(0.055 - i * 0.006, t + 1.4);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 2.4);
+    o.connect(g);
+    g.connect(bus);
+    o.start(t + 0.2);
+    o.stop(t + 2.42);
+
+    // Octave-up sine for a choir "ahh" overtone that makes the chord shimmer.
+    const o2 = ac.createOscillator();
+    const g2 = ac.createGain();
+    o2.type = 'sine';
+    o2.frequency.setValueAtTime(f * 2, t + 0.2);
+    g2.gain.setValueAtTime(0.0001, t + 0.2);
+    g2.gain.linearRampToValueAtTime(0.02, t + 0.45);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t + 2.1);
+    o2.connect(g2);
+    g2.connect(bus);
+    o2.start(t + 0.2);
+    o2.stop(t + 2.12);
+  });
+
+  // 5) Sparkle shimmer — a very high sine sweep that adds fairy-dust magic on
+  //    top of the whole fanfare, peaking as the banner floats up.
+  const sparkle = ac.createOscillator();
+  const sparkleG = ac.createGain();
+  sparkle.type = 'sine';
+  sparkle.frequency.setValueAtTime(3200, t + 0.3);
+  sparkle.frequency.exponentialRampToValueAtTime(6800, t + 1.0);
+  sparkleG.gain.setValueAtTime(0.0001, t + 0.3);
+  sparkleG.gain.linearRampToValueAtTime(0.045, t + 0.5);
+  sparkleG.gain.setValueAtTime(0.045, t + 1.1);
+  sparkleG.gain.exponentialRampToValueAtTime(0.0001, t + 1.7);
+  sparkle.connect(sparkleG);
+  sparkleG.connect(bus);
+  sparkle.start(t + 0.3);
+  sparkle.stop(t + 1.72);
+}
+
 export function playSpinSound() {
   if (isMuted()) return;
   const ac = getCtx();
