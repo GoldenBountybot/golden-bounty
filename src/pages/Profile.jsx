@@ -291,9 +291,7 @@ export default function Profile() {
             style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.4)' }}
           >
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(212,175,55,0.14)', border: '1px solid rgba(212,175,55,0.35)' }}>
-                <Sparkles className="w-4 h-4" style={{ color: '#D4AF37' }} />
-              </div>
+              <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png" alt="Bounty" className="w-9 h-9 rounded-full" style={{ border: '1px solid rgba(212,175,55,0.35)' }} />
               <div className="text-left">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Bounty Token Allocation")}</p>
                 <p className="text-[14px] font-bold mt-0.5 tabular-nums" style={{ color: bountyAllocation > 0 ? '#34d399' : 'rgba(255,255,255,0.5)' }}>
