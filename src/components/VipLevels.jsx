@@ -62,7 +62,29 @@ export default function VipLevels({ totalDeposits }) {
         )}
       </div>
 
-      {/* Tier ladder: Bronze → Diamond */}
+      {/* Tier ladder: Regular (No level) → Diamond */}
+      <div
+        className="dash-card p-4 flex items-center gap-4"
+        style={{ animation: 'dashFadeIn 400ms ease both', border: '1px solid rgba(212,175,55,0.25)' }}
+      >
+        <div className="relative shrink-0">
+          <div className="w-12 h-12 rounded-full flex items-center justify-center relative" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.3)' }}>
+            <Crown className="w-6 h-6" style={{ color: 'rgba(255,255,255,0.4)' }} />
+          </div>
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-bold" style={{ color: '#fff' }}>No Level · Regular</h3>
+          <p className="text-[12px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>Any deposit amount</p>
+        </div>
+        <div className="text-right shrink-0">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.7)' }}>Rate</p>
+          <p className="text-base font-extrabold tabular-nums leading-tight" style={{ color: (!current) ? '#34d399' : 'rgba(255,255,255,0.4)' }}>
+            {(BASE_RATE * 100).toFixed(2)}%
+          </p>
+          <p className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)' }}>/ day</p>
+        </div>
+      </div>
+
       {VIP_LEVELS.map((lv, i) => {
         const reached = totalDeposits >= lv.minDeposit;
         const isCurrent = current?.level === lv.level;
