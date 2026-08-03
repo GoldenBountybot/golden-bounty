@@ -60,7 +60,7 @@ export const MAX_RISK_STEPS = 10;
 // resets the counter to 3. Coin value = mult × bet (at $0.10 → $0.10…$1.50).
 export const VALUE_COIN_MULTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 export const VALUE_COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5e1ba97ff_file_000000008624820bb05d279226f89912.png';
-export const VALUE_COIN_CHANCE = 0.03;   // per reel, base game
+export const VALUE_COIN_CHANCE = 0.05;   // per reel, base game
 export const COIN_TRIGGER_COUNT = 5;     // 5+ value coins (bonus symbols count) triggers coin round
 export const COIN_SPINS_START = 3;
 export const COIN_DROP_CHANCE = 0.12;    // per reel, per coin spin
@@ -108,7 +108,7 @@ export function generateReel(reelIndex, freeSpins) {
   // each coin a distinct multiplier, placed in random rows.
   if (!freeSpins && Math.random() < VALUE_COIN_CHANCE) {
     const w = reelWeights(reelIndex, freeSpins);
-    const count = 1 + Math.floor(Math.random() * 2); // 1..2
+    const count = Math.random() < 0.78 ? 1 : 2; // mostly 1 coin, rarely 2
     const rows = [0, 1, 2].sort(() => Math.random() - 0.5).slice(0, count);
     const reel = [0, 1, 2].map(() => pickWeighted(w));
     const used = new Set();
