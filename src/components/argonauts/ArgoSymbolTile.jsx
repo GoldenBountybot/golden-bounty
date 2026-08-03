@@ -64,7 +64,9 @@ function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 0, stuck = fals
           draggable={false}
           style={{
             transform: 'scale(1.2)',
-            animation: (isScatter && !spinning) ? 'argoScatterGlow 1.4s ease-in-out infinite' : undefined,
+            animation: (isScatter && !spinning) ? 'argoScatterGlow 1.4s ease-in-out infinite'
+              : (isBonus && !spinning) ? 'argoBonusGlow 1.8s ease-in-out infinite'
+              : undefined,
           }}
         />
       ) : (

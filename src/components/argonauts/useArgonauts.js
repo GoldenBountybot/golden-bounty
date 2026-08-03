@@ -343,6 +343,7 @@ export function useArgonauts() {
         });
         playReelLandSound();
         if (finalGrid[i].some(isValueCoin)) playValueCoinSound();
+        if (finalGrid[i].some((s) => s === 'bonus')) playValueCoinSound();
         if (i < REELS - 1) stopReel(i + 1);
         else {
           const t2 = setTimeout(() => settle(finalGrid, usingFree), turbo ? 150 : 320);

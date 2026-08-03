@@ -616,6 +616,13 @@
   100% { filter: brightness(1.3) drop-shadow(0 0 8px rgba(255,215,0,0.5)); transform: scale(1.2); }
 }
 
+/* Argonauts — subtle glow pulse for the bonus (Golden Fleece) symbol image,
+   gentler than the scatter glow: a soft warm breathe of brightness + shadow. */
+@keyframes argoBonusGlow {
+  0%, 100% { filter: brightness(1.1) drop-shadow(0 0 4px rgba(255,200,80,0.5)); transform: scale(1.2); }
+  50%      { filter: brightness(1.5) drop-shadow(0 0 10px rgba(255,215,0,0.85)); transform: scale(1.26); }
+}
+
 /* Argonauts — shiny golden glow pulse for scatter / bonus borders */
 @keyframes argoGoldPulse {
   0%, 100% { box-shadow: 0 0 8px rgba(255,215,0,0.85), 0 0 16px rgba(255,200,80,0.55), inset 0 0 10px rgba(255,235,150,0.5); }
