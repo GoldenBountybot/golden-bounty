@@ -343,50 +343,118 @@ export function playScatterSound() {
   });
 }
 
-// Long scatter anticipation sound — loops during slow-motion reels after
-// 2 scatters have landed, building tension for a potential 3rd scatter.
-// Stopped when the slow-motion reels finish landing.
-const SCATTER_LONG_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/af6161d16_scaterlong.mp3';
-let scatterLongBuffer = null;
-let scatterLongLoaded = false;
-let scatterLongSource = null;
-
-function loadScatterLongSound() {
-  if (scatterLongLoaded) return;
-  scatterLongLoaded = true;
-  const ac = getCtx();
-  fetch(SCATTER_LONG_URL)
-    .then(r => r.arrayBuffer())
-    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
-    .then(buf => { if (buf) scatterLongBuffer = buf; })
-    .catch(() => {});
-}
-loadScatterLongSound();
+// Long scatter anticipation sound — procedurally synthesized, loops during
+// slow-motion reels after 2 scatters have landed, building tension for a
+// potential 3rd scatter. Matches the scatter sound character (bell partials +
+// sparkle + warm pad) but sustained and slowly rising in intensity.
+let scatterLongNodes = null; // { oscs: [], gain: GainNode }
 
 export function playScatterLongSound() {
   if (isMuted()) return;
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
-  if (!scatterLongBuffer) { loadScatterLongSound(); return; }
+  stopScatterLongSound();
   try {
-    stopScatterLongSound();
-    const src = ac.createBufferSource();
-    src.buffer = scatterLongBuffer;
-    src.loop = true;
-    const g = ac.createGain();
-    g.gain.value = 1.0;
-    src.connect(g);
-    g.connect(ac.destination);
-    src.start();
-    scatterLongSource = src;
+    const t = ac.currentTime;
+
+    // Master gain with a gentle fade-in so the loop doesn't pop in.
+    const master = ac.createGain();
+    master.gain.setValueAtTime(0.0001, t);
+    master.gain.linearRampToValueAtTime(0.5, t + 0.3);
+    master.connect(ac.destination);
+
+    // Reverb-ish bus for a tasteful tail.
+    const delay = ac.createDelay(1.0);
+    delay.delayTime.value = 0.2;
+    const fb = ac.createGain();
+    fb.gain.value = 0.32;
+    const delayMix = ac.createGain();
+    delayMix.gain.value = 0.3;
+    master.connect(delay);
+    delay.connect(fb);
+    fb.connect(delay);
+    delay.connect(delayMix);
+    delayMix.connect(ac.destination);
+
+    const oscs = [];
+
+    // 1) Sustained shimmering partials — the same bell frequencies as the
+    //    scatter sound, but held as a continuous drone with a slow tremolo
+    //    so it feels alive and building tension.
+    const droneFreqs = [880, 1108.73, 1318.51, 1760]; // A5, C#6, E6, A6
+    droneFreqs.forEach((f, i) => {
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.06 - i * 0.008, t + 0.4);
+
+      // Slow tremolo — LFO modulates the gain so the shimmer breathes.
+      const lfo = ac.createOscillator();
+      const lfoG = ac.createGain();
+      lfo.frequency.setValueAtTime(0.6 + i * 0.15, t);
+      lfoG.gain.setValueAtTime(0.025, t);
+      lfo.connect(lfoG);
+      lfoG.connect(g.gain);
+      lfo.start(t);
+
+      o.connect(g);
+      g.connect(master);
+      o.start(t);
+      oscs.push(o, lfo);
+    });
+
+    // 2) High sparkle shimmer — a continuous high sine that slowly rises in
+    //    volume, adding fairy-dust tension on top of the drone.
+    const sparkle = ac.createOscillator();
+    const sparkleG = ac.createGain();
+    sparkle.type = 'sine';
+    sparkle.frequency.setValueAtTime(2800, t);
+    sparkle.frequency.linearRampToValueAtTime(3600, t + 4);
+    sparkleG.gain.setValueAtTime(0.0001, t);
+    sparkleG.gain.linearRampToValueAtTime(0.03, t + 0.5);
+    sparkle.connect(sparkleG);
+    sparkleG.connect(master);
+    sparkle.start(t);
+    oscs.push(sparkle);
+
+    // 3) Warm pad underneath — a soft sustained A major chord that gives the
+    //    loop body and matches the scatter sound's resolving pad.
+    const padFreqs = [220, 277.18, 329.63]; // A3, C#4, E4
+    padFreqs.forEach((f) => {
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.04, t + 0.5);
+      o.connect(g);
+      g.connect(master);
+      o.start(t);
+      oscs.push(o);
+    });
+
+    scatterLongNodes = { oscs, gain: master };
   } catch { /* ignore */ }
 }
 
 export function stopScatterLongSound() {
-  if (scatterLongSource) {
-    try { scatterLongSource.stop(); } catch { /* ignore */ }
-    scatterLongSource = null;
+  if (scatterLongNodes) {
+    try {
+      const ac = getCtx();
+      // Quick fade-out to avoid a click, then stop everything.
+      if (ac && scatterLongNodes.gain) {
+        scatterLongNodes.gain.gain.cancelScheduledValues(ac.currentTime);
+        scatterLongNodes.gain.gain.setValueAtTime(scatterLongNodes.gain.gain.value, ac.currentTime);
+        scatterLongNodes.gain.gain.linearRampToValueAtTime(0.0001, ac.currentTime + 0.15);
+      }
+      scatterLongNodes.oscs.forEach((o) => {
+        try { o.stop(ac ? ac.currentTime + 0.2 : 0); } catch { /* ignore */ }
+      });
+    } catch { /* ignore */ }
+    scatterLongNodes = null;
   }
 }
 
