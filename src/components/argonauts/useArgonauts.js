@@ -9,6 +9,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
+import { playReelLandSound } from './argoSounds';
 
 // ---- Risk (Gamble) card helpers ----
 const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -321,6 +322,7 @@ export function useArgonauts() {
           n.add(i);
           return n;
         });
+        playReelLandSound();
         if (i < REELS - 1) stopReel(i + 1);
         else {
           const t2 = setTimeout(() => settle(finalGrid, usingFree), turbo ? 150 : 320);
