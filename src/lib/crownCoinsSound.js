@@ -35,7 +35,7 @@ export function playSpinSound() {
     const src = ac.createBufferSource();
     src.buffer = spinBuffer;
     const g = ac.createGain();
-    g.gain.value = 1.4;
+    g.gain.value = 2.2;
     src.connect(g);
     g.connect(ac.destination);
     src.start();
