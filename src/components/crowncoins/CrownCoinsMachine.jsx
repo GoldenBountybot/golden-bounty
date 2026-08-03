@@ -12,6 +12,7 @@ import { playSpinSound, playReelLandSound, playFlyCoinSound, playSlowMoSound, ge
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import BetTierBanners from './BetTierBanners';
 import BannerBlast from './BannerBlast';
+import WinLineOverlay from './WinLineOverlay';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
 // Falling-money backdrop used inside each reel strip so screen-blended symbols
@@ -195,6 +196,7 @@ export default function CrownCoinsMachine() {
   const [phases, setPhases] = useState(['idle', 'idle', 'idle']);
   const [spinning, setSpinning] = useState(false);
   const [winMask, setWinMask] = useState(() => [[false, false, false], [false, false, false], [false, false, false]]);
+  const [winLines, setWinLines] = useState([]);
   const [lastWin, setLastWin] = useState(0);
   const [amountCell, setAmountCell] = useState(null);
   const [bet, setBet] = useState(0.10);
@@ -234,6 +236,7 @@ export default function CrownCoinsMachine() {
     }
     setSpinning(true);
     setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
+    setWinLines([]);
     setLastWin(0);
     setAmountCell(null);
     if (!isFree) setBalance(b => Math.max(0, b - bet));
@@ -419,6 +422,7 @@ export default function CrownCoinsMachine() {
         setShowRoyalBanner(true);
       }
       setWinMask(mask);
+      setWinLines(triggered ? [] : lines);
 
       let bonusResult = preBonusRef.current;
       if (bonusResult) win += bonusResult.total;
@@ -700,6 +704,7 @@ export default function CrownCoinsMachine() {
                 ))}
               </div>
             )}
+            <WinLineOverlay lines={winLines} />
           </div>
         </div>
 
