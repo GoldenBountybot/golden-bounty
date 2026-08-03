@@ -194,6 +194,40 @@ export function playLyreSound() {
   } catch { /* ignore */ }
 }
 
+// Spartan Warrior (Jason) symbol win sound — played when a Jason line wins.
+const SPARTAN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/478cbdd23_SpartanWarrior.mp3';
+let spartanBuffer = null;
+let spartanLoaded = false;
+
+function loadSpartanSound() {
+  if (spartanLoaded) return;
+  spartanLoaded = true;
+  const ac = getCtx();
+  fetch(SPARTAN_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) spartanBuffer = buf; })
+    .catch(() => {});
+}
+loadSpartanSound();
+
+export function playSpartanSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!spartanBuffer) { loadSpartanSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = spartanBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 export function playSpinSound() {
   if (isMuted()) return;
   const ac = getCtx();
