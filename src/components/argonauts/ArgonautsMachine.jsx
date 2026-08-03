@@ -9,6 +9,7 @@ import ArgoSymbolTile from './ArgoSymbolTile';
 import WinLineOverlay from './WinLineOverlay';
 import ArgoOverlays from './ArgoOverlays';
 import FreeGamesBanner from './FreeGamesBanner';
+import { playSpinSound } from './argoSounds';
 
 const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png';
 // Palace-with-golden-coins backdrop, fades in during the coin free-spin round.
@@ -320,7 +321,7 @@ export default function ArgonautsMachine() {
             <div className="flex items-center gap-2">
               <IconButton onClick={() => g.setBet(decBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet <= MIN_BET} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
               <button
-                onClick={() => { setSpinPulse(true); setTimeout(() => setSpinPulse(false), 220); g.spin(); }}
+                onClick={() => { playSpinSound(); setSpinPulse(true); setTimeout(() => setSpinPulse(false), 220); g.spin(); }}
                 disabled={spinDisabled}
                 className="relative flex items-center justify-center disabled:opacity-70"
                 style={{
