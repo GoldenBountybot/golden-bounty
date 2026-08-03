@@ -195,7 +195,12 @@ export function useArgonauts() {
     wins.forEach((w) => w.positions.forEach((p) => positions.add(p)));
     setWinningPositions(positions);
     setWinningLines(wins.map((w) => ({ line: w.line, symbol: w.symbol, count: w.count, pay: w.pay })));
-    if (wins.length > 0) playSymbolWinSound(wins[0].symbol);
+    if (wins.length > 0) {
+      const uniqSyms = [...new Set(wins.map((w) => w.symbol))];
+      uniqSyms.forEach((sym, i) => {
+        setTimeout(() => playSymbolWinSound(sym), i * 180);
+      });
+    }
 
     const baseWin = lineWin + scatterPay;
 
