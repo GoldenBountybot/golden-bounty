@@ -1,17 +1,57 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { VALUE_COIN_IMG } from './argonautsEngine';
+import { playCoinCountSound, playCoinWinSound } from './argoSounds';
 
 const BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f030b6e26_file_0000000052ac81fab76972aeff43998f.png';
 
 // Shown when the coin hold-and-spin round ends: the laurel-wreath "BONUS GAME
 // WINNINGS" banner carries the total win amount in its center, while the
-// winning coins shimmer behind it. The banner's black background is dropped
-// via screen blend over a warm golden glow, and the panel auto-dismisses.
+// winning coins shimmer behind it. The total counts up from zero with a
+// premium casino coin-counter tick, then a luxury celebration fanfare plays
+// when the final total is revealed. The banner auto-dismisses.
 export default function CoinWinBanner({ total, coins, bet, onDismiss }) {
   const entries = Object.entries(coins || {});
+  const [displayTotal, setDisplayTotal] = useState(0);
+  const [popping, setPopping] = useState(false);
+  const celebratedRef = useRef(false);
 
+  // Count-up animation: ramp from 0 → total over ~1.6s, ticking a coin clink
+  // sound on each increment. When the count finishes, play the celebration.
   useEffect(() => {
-    const t = setTimeout(() => onDismiss && onDismiss(), 4000);
+    if (total <= 0) {
+      setDisplayTotal(0);
+      return;
+    }
+    const duration = 1600;
+    const steps = Math.min(60, Math.max(20, Math.round(total / Math.max(bet, 0.01))));
+    const stepDur = duration / steps;
+    const increment = total / steps;
+    let current = 0;
+    let idx = 0;
+    const tick = () => {
+      idx++;
+      current = Math.min(total, increment * idx);
+      setDisplayTotal(current);
+      playCoinCountSound();
+      if (idx < steps) {
+        timer = setTimeout(tick, stepDur);
+      } else {
+        setDisplayTotal(total);
+        if (!celebratedRef.current) {
+          celebratedRef.current = true;
+          setPopping(true);
+          playCoinWinSound();
+          setTimeout(() => setPopping(false), 600);
+        }
+      }
+    };
+    let timer = setTimeout(tick, stepDur);
+    return () => clearTimeout(timer);
+  }, [total, bet]);
+
+  // Auto-dismiss after the count-up + celebration has finished.
+  useEffect(() => {
+    const t = setTimeout(() => onDismiss && onDismiss(), 4200);
     return () => clearTimeout(t);
   }, [onDismiss]);
 
@@ -83,9 +123,12 @@ export default function CoinWinBanner({ total, coins, bet, onDismiss }) {
                 color: '#FFD24A',
                 textShadow:
                   '2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px rgba(255,200,40,0.95)',
+                transform: popping ? 'scale(1.25)' : 'scale(1)',
+                transition: 'transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+                display: 'inline-block',
               }}
             >
-              ${total.toFixed(2)}
+              ${displayTotal.toFixed(2)}
             </span>
           </div>
         </div>
