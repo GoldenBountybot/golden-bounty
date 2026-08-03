@@ -92,6 +92,40 @@ export function playValueCoinSound() {
   } catch { /* ignore */ }
 }
 
+// Dove (pigeon) symbol win sound — played when a Dove line wins.
+const DOVE_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/2c0205154_mixkobutor.mp3';
+let doveBuffer = null;
+let doveLoaded = false;
+
+function loadDoveSound() {
+  if (doveLoaded) return;
+  doveLoaded = true;
+  const ac = getCtx();
+  fetch(DOVE_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) doveBuffer = buf; })
+    .catch(() => {});
+}
+loadDoveSound();
+
+export function playDoveSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!doveBuffer) { loadDoveSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = doveBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 export function playSpinSound() {
   if (isMuted()) return;
   const ac = getCtx();

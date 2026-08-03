@@ -9,7 +9,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
-import { playReelLandSound, playValueCoinSound } from './argoSounds';
+import { playReelLandSound, playValueCoinSound, playDoveSound } from './argoSounds';
 
 // ---- Risk (Gamble) card helpers ----
 const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -196,6 +196,9 @@ export function useArgonauts() {
     wins.forEach((w) => w.positions.forEach((p) => positions.add(p)));
     setWinningPositions(positions);
     setWinningLines(wins.map((w) => ({ line: w.line, symbol: w.symbol, count: w.count, pay: w.pay })));
+
+    // Dove (pigeon) symbol line win → play the dove sound.
+    if (wins.some((w) => w.symbol === 'dove')) playDoveSound();
 
     const baseWin = lineWin + scatterPay;
 
