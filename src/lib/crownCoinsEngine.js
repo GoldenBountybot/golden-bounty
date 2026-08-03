@@ -69,16 +69,16 @@ const IMG = {
 };
 
 export const SYMBOLS = [
-  { key: 'cherry',     image: IMG.cherry,     pay: 4,  name: 'Cherries' },
-  { key: 'lemon',      image: IMG.lemon,      pay: 6,  name: 'Lemons' },
-  { key: 'orange',     image: IMG.orange,     pay: 8,  name: 'Oranges' },
-  { key: 'plum',       image: IMG.plum,       pay: 10, name: 'Plums' },
-  { key: 'watermelon', image: IMG.watermelon, pay: 15, name: 'Watermelon' },
-  { key: 'grape',      image: IMG.grape,      pay: 20, name: 'Grapes' },
-  { key: 'bell',       image: IMG.bell,       pay: 30, name: 'Bell' },
-  { key: 'bar',        image: IMG.bar,        pay: 40, name: 'BAR' },
-  { key: 'seven',      image: IMG.seven,      pay: 50, name: 'Lucky 7' },
-  { key: 'coin',       image: IMG.coin,       pay: 0,  bonus: true, scatter: 2, name: 'Crown Coin' },
+  { key: 'cherry',     image: IMG.cherry,     pay: 5,   name: 'Cherries' },
+  { key: 'lemon',      image: IMG.lemon,      pay: 20,  name: 'Lemons' },
+  { key: 'orange',     image: IMG.orange,     pay: 20,  name: 'Oranges' },
+  { key: 'plum',       image: IMG.plum,       pay: 20,  name: 'Plums' },
+  { key: 'watermelon', image: IMG.watermelon, pay: 80,  name: 'Watermelon' },
+  { key: 'grape',      image: IMG.grape,      pay: 80,  name: 'Grapes' },
+  { key: 'bell',       image: IMG.bell,       pay: 100, name: 'Bell' },
+  { key: 'bar',        image: IMG.bar,        pay: 150, name: 'BAR' },
+  { key: 'seven',      image: IMG.seven,      pay: 250, name: 'Lucky 7' },
+  { key: 'coin',       image: IMG.coin,       pay: 0,   bonus: true, scatter: 2, name: 'Crown Coin' },
 ];
 
 const SYMBOL_MAP = Object.fromEntries(SYMBOLS.map(s => [s.key, s]));
