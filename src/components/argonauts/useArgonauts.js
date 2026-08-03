@@ -150,7 +150,7 @@ export function useArgonauts() {
         setMessage(`${nc} SPINS LEFT`);
       }
       if (dropped.length > 0 || coinSpinsRef.current > 0) {
-        const t2 = setTimeout(() => coinSpin(), turboRef.current ? 380 : 620);
+        const t2 = setTimeout(() => coinSpin(), turboRef.current ? 380 : 1000);
         timers.current.push(t2);
       }
     }, turboRef.current ? 300 : 520);
