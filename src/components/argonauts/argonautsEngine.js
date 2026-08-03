@@ -98,7 +98,7 @@ export function reelWeights(reelIndex, freeSpins) {
     return w;
   }
   const w = { ...BASE_WEIGHTS };
-  if (reelIndex >= 1 && reelIndex <= 3) w.scatter = 5;
+  if (reelIndex >= 1 && reelIndex <= 3) w.scatter = 9;
   else delete w.scatter;
   return w;
 }
