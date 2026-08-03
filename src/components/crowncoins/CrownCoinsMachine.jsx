@@ -11,6 +11,7 @@ import { playSpinSound, playReelLandSound, playFlyCoinSound } from '@/lib/crownC
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import BetTierBanners from './BetTierBanners';
+import BannerBlast from './BannerBlast';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
 // Falling-money backdrop used inside each reel strip so screen-blended symbols
@@ -216,6 +217,7 @@ export default function CrownCoinsMachine() {
   const [showRoyalBanner, setShowRoyalBanner] = useState(false);
   const [royalWin, setRoyalWin] = useState(null);
   const [anticipateCol, setAnticipateCol] = useState(-1);
+  const [bannerBlast, setBannerBlast] = useState(false);
 
   const clearTimers = () => { timers.current.forEach(t => clearTimeout(t)); timers.current = []; };
 
@@ -435,7 +437,12 @@ export default function CrownCoinsMachine() {
           const tClear = setTimeout(() => setFlyCoins([]), 1950);
           timers.current.push(tClear);
           // Coins land on the banner at the end of the fly animation (~1.8s).
-          const tLand = setTimeout(() => playFlyCoinSound(), 1700);
+          const tLand = setTimeout(() => {
+            playFlyCoinSound();
+            setBannerBlast(true);
+            const tBlast = setTimeout(() => setBannerBlast(false), 800);
+            timers.current.push(tBlast);
+          }, 1700);
           timers.current.push(tLand);
         }
       }
@@ -533,6 +540,7 @@ export default function CrownCoinsMachine() {
             className="w-full relative z-0"
             style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
           />
+          {bannerBlast && <BannerBlast />}
         </div>
 
         <div
