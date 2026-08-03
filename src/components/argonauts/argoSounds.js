@@ -194,6 +194,40 @@ export function playLyreSound() {
   } catch { /* ignore */ }
 }
 
+// Green Dragon (lizard/serpent) symbol win sound — played when a Serpent line wins.
+const DRAGON_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/865659119_GreenDragon.mp3';
+let dragonBuffer = null;
+let dragonLoaded = false;
+
+function loadDragonSound() {
+  if (dragonLoaded) return;
+  dragonLoaded = true;
+  const ac = getCtx();
+  fetch(DRAGON_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) dragonBuffer = buf; })
+    .catch(() => {});
+}
+loadDragonSound();
+
+export function playDragonSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!dragonBuffer) { loadDragonSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = dragonBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 // Spartan Warrior (Jason) symbol win sound — played when a Jason line wins.
 const SPARTAN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/478cbdd23_SpartanWarrior.mp3';
 let spartanBuffer = null;
