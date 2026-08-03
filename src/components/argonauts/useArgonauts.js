@@ -209,11 +209,6 @@ export function useArgonauts() {
     if (wins.some((w) => w.symbol === 'lizard')) playDragonSound();
     // Bow (arrow) symbol line win → play the bow sound.
     if (wins.some((w) => w.symbol === 'bow')) playBowSound();
-    // Scatter (Argo Ship) — play the scatter sound once per scatter that landed.
-    for (let i = 0; i < scatterCount; i++) {
-      const ts = setTimeout(() => playScatterSound(), i * 180);
-      timers.current.push(ts);
-    }
 
     const baseWin = lineWin + scatterPay;
 
@@ -344,6 +339,7 @@ export function useArgonauts() {
         playReelLandSound();
         if (finalGrid[i].some(isValueCoin)) playValueCoinSound();
         if (finalGrid[i].some((s) => s === 'bonus')) playValueCoinSound();
+        if (finalGrid[i].some((s) => s === 'scatter')) playScatterSound();
         if (i < REELS - 1) stopReel(i + 1);
         else {
           const t2 = setTimeout(() => settle(finalGrid, usingFree), turbo ? 150 : 320);

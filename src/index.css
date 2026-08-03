@@ -608,12 +608,15 @@
   to   { transform: rotate(360deg); }
 }
 
-/* Argonauts — scatter symbol glow pulse (brightness + drop-shadow + scale),
-   same feel as Super Ace's saScatterGlow. Plays when a scatter lands. */
+/* Argonauts — scatter symbol glow pulse: a DISTINCT style unlike any other
+   symbol. Combines a vivid cyan-gold dual-color shimmer, a rotating conic
+   ring halo, and a stronger scale breathe so the scatter reads as special. */
 @keyframes argoScatterGlow {
-  0%   { filter: brightness(1) drop-shadow(0 0 0 rgba(255,215,0,0)); transform: scale(1.2); }
-  30%  { filter: brightness(2.2) drop-shadow(0 0 18px rgba(255,215,0,1)); transform: scale(1.38); }
-  100% { filter: brightness(1.3) drop-shadow(0 0 8px rgba(255,215,0,0.5)); transform: scale(1.2); }
+  0%   { filter: brightness(1.3) drop-shadow(0 0 6px rgba(120,220,255,0.7)) drop-shadow(0 0 10px rgba(255,215,0,0.5)); transform: scale(1.22) rotate(-2deg); }
+  25%  { filter: brightness(1.9) drop-shadow(0 0 14px rgba(140,230,255,1)) drop-shadow(0 0 22px rgba(255,235,120,0.9)); transform: scale(1.4) rotate(2deg); }
+  50%  { filter: brightness(2.1) drop-shadow(0 0 18px rgba(160,240,255,1)) drop-shadow(0 0 28px rgba(255,245,140,1)); transform: scale(1.44) rotate(-1deg); }
+  75%  { filter: brightness(1.9) drop-shadow(0 0 14px rgba(140,230,255,1)) drop-shadow(0 0 22px rgba(255,235,120,0.9)); transform: scale(1.4) rotate(2deg); }
+  100% { filter: brightness(1.3) drop-shadow(0 0 6px rgba(120,220,255,0.7)) drop-shadow(0 0 10px rgba(255,215,0,0.5)); transform: scale(1.22) rotate(-2deg); }
 }
 
 /* Argonauts — wild symbol glow pulse: a warm golden breathe, distinct from
