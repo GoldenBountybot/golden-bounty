@@ -9,7 +9,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
-import { playReelLandSound, playValueCoinSound, playDoveSound, playAmphoraSound, playLyreSound, playSpartanSound, playGoddessSound, playDragonSound, playBowSound, playPotionSound, playScatterSound, playScatterLongSound, stopScatterLongSound } from './argoSounds';
+import { playReelLandSound, playValueCoinSound, playDoveSound, playAmphoraSound, playLyreSound, playSpartanSound, playGoddessSound, playDragonSound, playBowSound, playPotionSound, playWildSound, playScatterSound, playScatterLongSound, stopScatterLongSound } from './argoSounds';
 
 // ---- Risk (Gamble) card helpers ----
 const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -215,6 +215,15 @@ export function useArgonauts() {
     if (wins.some((w) => w.symbol === 'bow')) playBowSound();
     // Potion symbol line win → play the potion sound.
     if (wins.some((w) => w.symbol === 'potion')) playPotionSound();
+    // Wild Bull — play the bull roar when a Wild is part of any winning line
+    // (either an all-wild line or a line where wild substitutes for a symbol).
+    const wildInWin = wins.some((w) =>
+      w.positions.some((pos) => {
+        const [r, row] = pos.split('-');
+        return finalGrid[Number(r)][Number(row)] === 'wild';
+      })
+    );
+    if (wildInWin) playWildSound();
 
     const baseWin = lineWin + scatterPay;
 

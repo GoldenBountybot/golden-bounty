@@ -565,6 +565,129 @@ export function playPotionSound() {
   });
 }
 
+// Wild Bull symbol win sound — procedurally synthesized.
+// Premium and luxurious: a deep, powerful bull roar with a formant filter
+// sweep that gives it a majestic, commanding character. A subharmonic
+// rumble underneath, a growl component, and a warm reverb tail for a
+// cinematic, premium feel. Played when a Wild is part of a winning line.
+export function playWildSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  const t = ac.currentTime;
+
+  // Shared reverb-ish bus for a cinematic tail.
+  const bus = ac.createGain();
+  bus.gain.value = 1;
+  const delay = ac.createDelay(1.0);
+  delay.delayTime.value = 0.24;
+  const fb = ac.createGain();
+  fb.gain.value = 0.30;
+  const delayMix = ac.createGain();
+  delayMix.gain.value = 0.28;
+  bus.connect(ac.destination);
+  bus.connect(delay);
+  delay.connect(fb);
+  fb.connect(delay);
+  delay.connect(delayMix);
+  delayMix.connect(ac.destination);
+
+  // 1) Deep roar fundamental — a sawtooth at ~85 Hz that rises in pitch,
+  //    giving the roar its building, surging intensity. The sawtooth's
+  //    rich harmonics give the roar its beastly, powerful character.
+  const roar = ac.createOscillator();
+  const roarG = ac.createGain();
+  roar.type = 'sawtooth';
+  roar.frequency.setValueAtTime(75, t);
+  roar.frequency.linearRampToValueAtTime(95, t + 0.15);
+  roar.frequency.linearRampToValueAtTime(82, t + 0.5);
+  roarG.gain.setValueAtTime(0.0001, t);
+  roarG.gain.linearRampToValueAtTime(0.22, t + 0.04);
+  roarG.gain.setValueAtTime(0.22, t + 0.45);
+  roarG.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+
+  // 2) Formant filter sweep — a bandpass filter that sweeps from low to
+  //    mid frequencies, shaping the roar into a vowel-like "RRROOAAR"
+  //    character. This is what makes it sound like an actual animal vocal.
+  const formant = ac.createBiquadFilter();
+  formant.type = 'bandpass';
+  formant.frequency.setValueAtTime(220, t);
+  formant.frequency.linearRampToValueAtTime(480, t + 0.2);
+  formant.frequency.linearRampToValueAtTime(340, t + 0.55);
+  formant.Q.value = 3.5;
+
+  // 3) Second formant — a higher bandpass that adds the "ahh" vowel overtone,
+  //    giving the roar a richer, more expressive vocal character.
+  const formant2 = ac.createBiquadFilter();
+  formant2.type = 'bandpass';
+  formant2.frequency.setValueAtTime(900, t);
+  formant2.frequency.linearRampToValueAtTime(1400, t + 0.2);
+  formant2.frequency.linearRampToValueAtTime(1100, t + 0.55);
+  formant2.Q.value = 4.0;
+
+  // 4) Amplitude modulation — a slow LFO on the gain that creates the
+  //    pulsing, surging quality of a real animal roar.
+  const lfo = ac.createOscillator();
+  const lfoG = ac.createGain();
+  lfo.frequency.setValueAtTime(7, t);
+  lfo.frequency.linearRampToValueAtTime(12, t + 0.3);
+  lfoG.gain.setValueAtTime(0.06, t);
+  lfo.connect(lfoG);
+  lfoG.connect(roarG.gain);
+  lfo.start(t);
+  lfo.stop(t + 0.92);
+
+  roar.connect(formant);
+  formant.connect(formant2);
+  formant2.connect(roarG);
+  roarG.connect(bus);
+  roar.start(t);
+  roar.stop(t + 0.92);
+
+  // 5) Subharmonic rumble — a low sine an octave below the fundamental
+  //    that gives the roar a chest-rattling, earth-shaking depth.
+  const sub = ac.createOscillator();
+  const subG = ac.createGain();
+  sub.type = 'sine';
+  sub.frequency.setValueAtTime(42, t);
+  sub.frequency.linearRampToValueAtTime(48, t + 0.15);
+  sub.frequency.linearRampToValueAtTime(40, t + 0.5);
+  subG.gain.setValueAtTime(0.0001, t);
+  subG.gain.linearRampToValueAtTime(0.14, t + 0.06);
+  subG.gain.setValueAtTime(0.14, t + 0.4);
+  subG.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
+  sub.connect(subG);
+  subG.connect(bus);
+  sub.start(t);
+  sub.stop(t + 0.87);
+
+  // 6) Growl component — filtered noise with a resonant lowpass that adds
+  //    the raspy, guttural texture of a beast's growl underneath the roar.
+  const dur = 0.7;
+  const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 1.5);
+  }
+  const n = ac.createBufferSource();
+  n.buffer = buf;
+  const growlFilter = ac.createBiquadFilter();
+  growlFilter.type = 'lowpass';
+  growlFilter.frequency.setValueAtTime(300, t);
+  growlFilter.frequency.linearRampToValueAtTime(600, t + 0.2);
+  growlFilter.frequency.linearRampToValueAtTime(380, t + 0.55);
+  growlFilter.Q.value = 6.0;
+  const nG = ac.createGain();
+  nG.gain.setValueAtTime(0.0001, t);
+  nG.gain.linearRampToValueAtTime(0.08, t + 0.05);
+  nG.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+  n.connect(growlFilter);
+  growlFilter.connect(nG);
+  nG.connect(bus);
+  n.start(t);
+}
+
 // Spartan Warrior (Jason) symbol win sound — played when a Jason line wins.
 const SPARTAN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/478cbdd23_SpartanWarrior.mp3';
 let spartanBuffer = null;
