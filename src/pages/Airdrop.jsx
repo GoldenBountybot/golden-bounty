@@ -191,9 +191,7 @@ export default function Airdrop() {
          className="dash-card p-4 flex items-center gap-3"
          style={{ animation: 'dashFadeIn 400ms ease both', background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.02))', border: '1px solid rgba(212,175,55,0.3)' }}
        >
-         <div className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0" style={{ background: 'rgba(212,175,55,0.14)', border: '1px solid rgba(212,175,55,0.35)' }}>
-           <Coins className="w-4 h-4" style={{ color: '#D4AF37' }} />
-         </div>
+         <img src={BOUNTY_LOGO} alt="Bounty" className="w-9 h-9 shrink-0" style={{ mixBlendMode: 'screen' }} />
          <p className="text-[12px] font-semibold leading-snug" style={{ color: 'rgba(255,255,255,0.85)' }}>
            {t("Token will be listed in Quarter 4 2026 on top-tier exchanges.")}
          </p>
