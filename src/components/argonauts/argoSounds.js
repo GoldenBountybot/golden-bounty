@@ -126,6 +126,40 @@ export function playDoveSound() {
   } catch { /* ignore */ }
 }
 
+// Amphora (cup) symbol win sound — played when an Amphora line wins.
+const AMPHORA_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/f95aef0f5_AmphoraSymbol.mp3';
+let amphoraBuffer = null;
+let amphoraLoaded = false;
+
+function loadAmphoraSound() {
+  if (amphoraLoaded) return;
+  amphoraLoaded = true;
+  const ac = getCtx();
+  fetch(AMPHORA_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) amphoraBuffer = buf; })
+    .catch(() => {});
+}
+loadAmphoraSound();
+
+export function playAmphoraSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!amphoraBuffer) { loadAmphoraSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = amphoraBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 export function playSpinSound() {
   if (isMuted()) return;
   const ac = getCtx();
