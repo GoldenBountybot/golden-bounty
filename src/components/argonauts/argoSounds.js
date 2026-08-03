@@ -229,7 +229,7 @@ export function playDragonSound() {
 }
 
 // Spartan Warrior (Jason) symbol win sound — played when a Jason line wins.
-const SPARTAN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/e3ff9a2c4_CrossedSwords.mp3';
+const SPARTAN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/478cbdd23_SpartanWarrior.mp3';
 let spartanBuffer = null;
 let spartanLoaded = false;
 
