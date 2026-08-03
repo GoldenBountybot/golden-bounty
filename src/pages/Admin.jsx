@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Shield, Users, Receipt, SlidersHorizontal, Gift, Wallet } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import BackButton from '@/components/BackButton';
@@ -29,7 +29,15 @@ const TABS = [
 
 export default function Admin() {
   const { user, isAuthenticated, isLoadingAuth } = useAuth();
+  const navigate = useNavigate();
   const [tab, setTab] = useState('players');
+
+  // Redirect non-admins away from the admin page entirely.
+  useEffect(() => {
+    if (!isLoadingAuth && (!isAuthenticated || user?.role !== 'admin')) {
+      navigate('/', { replace: true });
+    }
+  }, [isLoadingAuth, isAuthenticated, user, navigate]);
 
   if (isLoadingAuth) {
     return (
@@ -39,24 +47,8 @@ export default function Admin() {
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-stone-950 text-center px-4">
-        <Shield className="w-10 h-10 text-amber-400" />
-        <p className="text-amber-100" style={{ fontFamily: 'Georgia, serif' }}>Admin access requires sign in.</p>
-        <Link to="/login" className="px-5 py-2 rounded-lg bg-amber-400 text-stone-900 font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>Sign In</Link>
-      </div>
-    );
-  }
-
-  if (user?.role !== 'admin') {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-stone-950 text-center px-4">
-        <Shield className="w-10 h-10 text-rose-400" />
-        <p className="text-amber-100" style={{ fontFamily: 'Georgia, serif' }}>Admins only. Your account does not have admin access.</p>
-        <button onClick={() => { window.location.href = '/'; }} className="text-amber-300 italic">← Back to lobby</button>
-      </div>
-    );
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return null;
   }
 
   const Active = TABS.find(t => t.id === tab).comp;
