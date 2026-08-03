@@ -9,7 +9,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
-import { playReelLandSound } from './argoSounds';
+import { playReelLandSound, playSymbolWinSound } from './argoSounds';
 
 // ---- Risk (Gamble) card helpers ----
 const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -195,6 +195,7 @@ export function useArgonauts() {
     wins.forEach((w) => w.positions.forEach((p) => positions.add(p)));
     setWinningPositions(positions);
     setWinningLines(wins.map((w) => ({ line: w.line, symbol: w.symbol, count: w.count, pay: w.pay })));
+    if (wins.length > 0) playSymbolWinSound(wins[0].symbol);
 
     const baseWin = lineWin + scatterPay;
 
