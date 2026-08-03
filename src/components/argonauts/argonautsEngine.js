@@ -60,7 +60,7 @@ export const MAX_RISK_STEPS = 10;
 // resets the counter to 3. Coin value = mult × bet (at $0.10 → $0.10…$1.50).
 export const VALUE_COIN_MULTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 export const VALUE_COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5e1ba97ff_file_000000008624820bb05d279226f89912.png';
-export const VALUE_COIN_CHANCE = 0.05;   // per reel, base game
+export const VALUE_COIN_CHANCE = 0.12;   // per reel, base game
 export const COIN_TRIGGER_COUNT = 5;     // 5+ value coins (bonus symbols count) triggers coin round
 export const COIN_SPINS_START = 3;
 export const COIN_DROP_CHANCE = 0.12;    // per reel, per coin spin
@@ -141,14 +141,14 @@ export function generateReel(reelIndex, freeSpins) {
 // (max 1 per reel, so the burst itself never reaches 6). Exclusive with the
 // per-reel independent coin logic — the rare 6+ trigger still comes only from
 // the independent multi-reel hits on non-burst spins, keeping that rate as before.
-const COIN_BURST_CHANCE = 0.025;
+const COIN_BURST_CHANCE = 0.06;
 function generateBurstGrid() {
   const grid = Array.from({ length: REELS }, (_, r) => generateReel(r, false));
   // Clear any value coins that landed independently so the burst is clean.
   for (let r = 0; r < REELS; r++)
     for (let row = 0; row < ROWS; row++)
       if (isValueCoin(grid[r][row])) grid[r][row] = pickWeighted(reelWeights(r, false));
-  const burstCount = 3 + Math.floor(Math.random() * 3); // 3..5
+  const burstCount = 4 + Math.floor(Math.random() * 4); // 4..7
   const used = new Set();
   let placed = 0;
   // Place coins at random cells — allows 2-3 to stack on the same reel/line.
