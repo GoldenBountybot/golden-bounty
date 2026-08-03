@@ -27,37 +27,6 @@ function loadSpinSound() {
     .catch(() => {});
 }
 
-// Value coin drop sound — plays when a value coin lands during the coin round.
-// Uses an HTML5 Audio element for reliable playback without AudioContext
-// resume restrictions.
-const VALUE_COIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/7680e8d95_valuecoin_0.mp3';
-let valueCoinAudio = null;
-
-function getValueCoinAudio() {
-  if (typeof window === 'undefined') return null;
-  if (!valueCoinAudio) {
-    try {
-      valueCoinAudio = new Audio(VALUE_COIN_URL);
-      valueCoinAudio.preload = 'auto';
-      valueCoinAudio.volume = 1.0;
-    } catch { valueCoinAudio = null; }
-  }
-  return valueCoinAudio;
-}
-
-// Preload immediately.
-getValueCoinAudio();
-
-export function playValueCoinSound() {
-  if (isMuted()) return;
-  const a = getValueCoinAudio();
-  if (!a) return;
-  try {
-    a.currentTime = 0;
-    a.play().catch(() => {});
-  } catch { /* ignore */ }
-}
-
 // Preload immediately so the sound is ready before the first spin.
 loadSpinSound();
 
