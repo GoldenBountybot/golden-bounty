@@ -7,7 +7,7 @@ import { savePendingRound, clearPendingRound, getPendingRound } from '@/lib/pend
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isTierCoin, tierCoinLabel, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
 import { incBet, decBet } from '@/lib/betStepper';
-import { playSpinSound, playReelLandSound } from '@/lib/crownCoinsSound';
+import { playSpinSound, playReelLandSound, playFlyCoinSound } from '@/lib/crownCoinsSound';
 
 import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import BetTierBanners from './BetTierBanners';
@@ -434,6 +434,9 @@ export default function CrownCoinsMachine() {
           setFlyCoins(coins);
           const tClear = setTimeout(() => setFlyCoins([]), 1950);
           timers.current.push(tClear);
+          // Coins land on the banner at the end of the fly animation (~1.8s).
+          const tLand = setTimeout(() => playFlyCoinSound(), 1700);
+          timers.current.push(tLand);
         }
       }
       if (bonusResult) { setBonus(bonusResult); setRevealStep(0); autoRef.current = false; setAutoSpin(false); }

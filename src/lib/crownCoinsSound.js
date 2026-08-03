@@ -136,6 +136,39 @@ export function playReelLandSound() {
   n.start(t);
 }
 
+const FLY_COIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/f5879041c_Flycoin.mp3';
+let flyBuffer = null;
+let flyLoaded = false;
+
+function loadFlySound() {
+  if (flyLoaded) return;
+  flyLoaded = true;
+  const ac = getCtx();
+  fetch(FLY_COIN_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) flyBuffer = buf; })
+    .catch(() => {});
+}
+
+// Played when a flying value coin lands on the Crown Coins banner.
+export function playFlyCoinSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!flyBuffer) { loadFlySound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = flyBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 export function playCoinSound() {
   if (isMuted()) return;
   const ac = getCtx();
