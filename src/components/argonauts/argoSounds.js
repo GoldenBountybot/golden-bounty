@@ -262,38 +262,85 @@ export function playDragonSound() {
   } catch { /* ignore */ }
 }
 
-// Scatter (Argo Ship) symbol landing sound — played once per scatter that lands.
-const SCATTER_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/4f5418b9b_Scattersas.mp3';
-let scatterBuffer = null;
-let scatterLoaded = false;
-
-function loadScatterSound() {
-  if (scatterLoaded) return;
-  scatterLoaded = true;
-  const ac = getCtx();
-  fetch(SCATTER_URL)
-    .then(r => r.arrayBuffer())
-    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
-    .then(buf => { if (buf) scatterBuffer = buf; })
-    .catch(() => {});
-}
-loadScatterSound();
-
+// Scatter (Argo Ship) symbol landing sound — procedurally synthesized for a
+// clean, complete magical shimmer with NO coin clink in the background.
+// A rising cascade of bell-like partials + a sparkle tail, finished with a
+// soft warm pad so the sound resolves fully instead of feeling cut off.
 export function playScatterSound() {
   if (isMuted()) return;
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
-  if (!scatterBuffer) { loadScatterSound(); return; }
-  try {
-    const src = ac.createBufferSource();
-    src.buffer = scatterBuffer;
+  const t = ac.currentTime;
+
+  // Shared reverb-ish bus for a tasteful tail.
+  const bus = ac.createGain();
+  bus.gain.value = 1;
+  const delay = ac.createDelay(1.0);
+  delay.delayTime.value = 0.18;
+  const fb = ac.createGain();
+  fb.gain.value = 0.3;
+  const delayMix = ac.createGain();
+  delayMix.gain.value = 0.35;
+  bus.connect(ac.destination);
+  bus.connect(delay);
+  delay.connect(fb);
+  fb.connect(delay);
+  delay.connect(delayMix);
+  delayMix.connect(ac.destination);
+
+  // 1) Rising bell cascade — a sequence of shimmering partials that climb in
+  //    pitch, giving the scatter a magical "appear" feel. Each partial is a
+  //    triangle wave with a fast attack and a long, natural exponential decay.
+  const cascadeFreqs = [880, 1108.73, 1318.51, 1760, 2217.46]; // A5, C#6, E6, A6, C#7
+  cascadeFreqs.forEach((f, i) => {
+    const start = t + i * 0.05;
+    const o = ac.createOscillator();
     const g = ac.createGain();
-    g.gain.value = 1.0;
-    src.connect(g);
-    g.connect(ac.destination);
-    src.start();
-  } catch { /* ignore */ }
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(f, start);
+    const peak = 0.16 - i * 0.015;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(peak, start + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.7);
+    o.connect(g);
+    g.connect(bus);
+    o.start(start);
+    o.stop(start + 0.72);
+  });
+
+  // 2) High sparkle shimmer — a very high-frequency sine sweep that adds
+  //    fairy-dust sparkle on top of the bell cascade.
+  const sparkle = ac.createOscillator();
+  const sparkleG = ac.createGain();
+  sparkle.type = 'sine';
+  sparkle.frequency.setValueAtTime(2400, t);
+  sparkle.frequency.exponentialRampToValueAtTime(4800, t + 0.3);
+  sparkleG.gain.setValueAtTime(0.0001, t);
+  sparkleG.gain.linearRampToValueAtTime(0.05, t + 0.05);
+  sparkleG.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+  sparkle.connect(sparkleG);
+  sparkleG.connect(bus);
+  sparkle.start(t);
+  sparkle.stop(t + 0.52);
+
+  // 3) Warm resolving pad — a soft sustained chord underneath that gives the
+  //    sound a complete, finished ending instead of trailing off abruptly.
+  const padFreqs = [440, 554.37, 659.25]; // A4, C#5, E5 — A major
+  padFreqs.forEach((f) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.05, t + 0.08);
+    g.gain.setValueAtTime(0.05, t + 0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
+    o.connect(g);
+    g.connect(bus);
+    o.start(t);
+    o.stop(t + 0.87);
+  });
 }
 
 // Long scatter anticipation sound — loops during slow-motion reels after
