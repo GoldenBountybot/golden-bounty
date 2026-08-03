@@ -19,9 +19,17 @@ export function isTierCoin(key) {
 }
 export function tierCoinLabel(key) { return key.slice(2); }
 // Weighted random coin key — 15% chance of a tier coin, otherwise a regular value coin.
+// Tier coins are weighted so MIN/MID are common and MAX/ULTRA are very rare.
+const TIER_WEIGHTS = { MIN: 50, MID: 30, MAX: 15, ULTRA: 5 };
+const TIER_TOTAL = Object.values(TIER_WEIGHTS).reduce((a, b) => a + b, 0);
 export function randomCoinKey() {
   if (Math.random() < 0.15) {
-    return TIER_COIN_KEYS[Math.floor(Math.random() * TIER_COIN_KEYS.length)];
+    let roll = Math.random() * TIER_TOTAL;
+    for (const [tier, w] of Object.entries(TIER_WEIGHTS)) {
+      roll -= w;
+      if (roll <= 0) return 'vc' + tier;
+    }
+    return 'vcMIN';
   }
   return VALUE_COIN_KEYS[Math.floor(Math.random() * VALUE_COIN_KEYS.length)];
 }
