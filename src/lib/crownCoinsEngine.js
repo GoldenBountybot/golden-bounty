@@ -156,9 +156,17 @@ export function spinGrid(rtp = 50) {
       const { lines } = evaluateGrid(grid);
       if (!lines.length) break;
       for (const ln of lines) {
-        const last = ln.idxs[ln.idxs.length - 1];
-        const alt = ['cherry','lemon','orange'][Math.floor(Math.random() * 3)];
-        if (grid[last] !== alt) grid[last] = alt;
+        // If the line has a wild (seven), break it by replacing the wild
+        // with a low-value symbol that doesn't match the line's symbol.
+        const wildPos = ln.idxs.find(i => grid[i] === 'seven');
+        if (wildPos != null) {
+          const opts = ['cherry','lemon','orange'].filter(s => s !== ln.symbol);
+          grid[wildPos] = opts[Math.floor(Math.random() * opts.length)];
+        } else {
+          const last = ln.idxs[ln.idxs.length - 1];
+          const alt = ['cherry','lemon','orange'][Math.floor(Math.random() * 3)];
+          if (grid[last] !== alt) grid[last] = alt;
+        }
       }
     }
   } else {
@@ -217,13 +225,30 @@ export function evaluateGrid(grid) {
   const betPerLine = 1; // caller scales by bet/5
   const lines = [];
   let totalMul = 0;
+  const WILD = 'seven';
   for (const ln of PAYLINES) {
     const keys = ln.idxs.map(i => grid[i]);
+    // All three the same regular symbol (includes 3 sevens)
     if (keys[0] === keys[1] && keys[1] === keys[2] && keys[0] !== 'coin' && !isValueCoin(keys[0])) {
       const sym = symbolByKey(keys[0]);
       if (sym && sym.pay) {
         lines.push({ ...ln, symbol: keys[0], mul: sym.pay });
         totalMul += sym.pay;
+        continue;
+      }
+    }
+    // Wild substitution: seven acts as wild for any regular symbol.
+    // The non-wild cells must all be the same regular symbol (no coin / value-coin blockers).
+    const hasWild = keys.includes(WILD);
+    if (hasWild) {
+      const nonWild = keys.filter(k => k !== WILD);
+      if (nonWild.length > 0 && nonWild.length < 3 && nonWild.every(k => k === nonWild[0] && k !== 'coin' && !isValueCoin(k))) {
+        const sym = symbolByKey(nonWild[0]);
+        if (sym && sym.pay) {
+          lines.push({ ...ln, symbol: nonWild[0], mul: sym.pay });
+          totalMul += sym.pay;
+          continue;
+        }
       }
     }
   }
