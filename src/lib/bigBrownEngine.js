@@ -10,18 +10,16 @@ export const BETS = [0.10, 0.20, 0.50, 1.00, 2.00, 5.00, 10.00, 25.00, 50.00, 10
 export const WILD_REELS = new Set([0, 1, 2, 3, 4]);
 
 // Full-height (4-cell) wild graphic shown when a wild reel expands.
-// Wolf wild image (black bg, dropped via mix-blend-mode:screen). The WILD
+// Bear-only image (black bg, dropped via mix-blend-mode:screen). The WILD
 // label is rendered as an HTML gold plaque so it's always legible.
-// PREV (bear): https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42a9ab939_generated_image.png
 export const WILD_EXPAND_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/642093394_generated_image.png';
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42a9ab939_generated_image.png';
 
 // Symbol image URLs (generated to match reference screenshots).
 const IMG = {
   scatter: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/98a234d10_generated_image.png',
-  // Wolf wild (small, single-cell, golden frame top/bottom). PREV (bear): 31ddcdcb0_generated_image.png
-  brown:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ec2d95fa4_generated_image.png',
-  spirit:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ec2d95fa4_generated_image.png',
+  brown:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/31ddcdcb0_generated_image.png',
+  spirit:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/31ddcdcb0_generated_image.png',
   buffalo: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d5e8a8396_generated_image.png',
   eagle:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/049e21afd_file_00000000263c820eb39538b113dcdcdc.png',
   cougar:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/678cbc6de_generated_image.png',
