@@ -48,29 +48,6 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
 
   return (
     <div className={`relative w-full ${spinning ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount, contain: 'layout style', transform: 'translate3d(0,0,0)' }}>
-      {/* Anticipation golden edge glow on both sides (brighter) */}
-      {anticipationGlow && spinning && (
-        <>
-          <span
-            className="absolute top-0 bottom-0 left-0 w-2 z-40 pointer-events-none"
-            style={{
-              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,235,150,0.95) 35%, rgba(255,252,225,1) 50%, rgba(255,235,150,0.95) 65%, rgba(255,215,0,0) 100%)',
-              filter: 'blur(1px)',
-              boxShadow: '0 0 22px rgba(255,200,80,0.95), 0 0 44px rgba(255,180,50,0.6)',
-              mixBlendMode: 'screen',
-            }}
-          />
-          <span
-            className="absolute top-0 bottom-0 right-0 w-2 z-40 pointer-events-none"
-            style={{
-              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,235,150,0.95) 35%, rgba(255,252,225,1) 50%, rgba(255,235,150,0.95) 65%, rgba(255,215,0,0) 100%)',
-              filter: 'blur(1px)',
-              boxShadow: '0 0 22px rgba(255,200,80,0.95), 0 0 44px rgba(255,180,50,0.6)',
-              mixBlendMode: 'screen',
-            }}
-          />
-        </>
-      )}
       <div
         className="flex flex-col w-full"
         style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s cubic-bezier(0.16, 1, 0.3, 1)' : 'reelLand 0.4s cubic-bezier(0.16, 1, 0.3, 1)') : 'none', willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translate3d(0,0,0)' }}
