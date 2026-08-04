@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState, useCallback } from 'react';
 import { useWildBounty } from './useWildBounty';
 import { REEL_ROWS } from './symbols';
 import Reel from './Reel';
@@ -30,6 +30,11 @@ export default function WildBountyMachine() {
   const winBannerRef = useRef(null);
   const topStripRef = useRef(null);
   const centerMultRef = useRef(null);
+  const [totalShake, setTotalShake] = useState(false);
+  const triggerTotalShake = useCallback(() => {
+    setTotalShake(true);
+    setTimeout(() => setTotalShake(false), 600);
+  }, []);
 
   // Measure anchor positions ONCE per flying-multiplier (keyed by its key) so
   // the many re-renders during a cascade / multiplier round don't force-layout
@@ -152,11 +157,18 @@ export default function WildBountyMachine() {
           style={{ fontFamily: 'Rye, Georgia, serif' }}
         >
           {g.lastWin > 0 ? (
-            g.endSkull && g.totalWinCountUp
-              ? <>TOTAL WIN <CountUp key={g.totalWinKey} value={g.lastWin} duration={g.totalWinDur} shakeOnComplete /></>
-              : g.endSkull
-                ? <>TOTAL WIN {g.lastWin.toFixed(2)}</>
-                : <>WIN {g.lastWin.toFixed(2)}</>
+            g.endSkull && g.totalWinCountUp ? (
+              <span
+                key={g.totalWinKey}
+                className="flex flex-col items-center leading-none"
+                style={{ animation: totalShake ? 'wbAmountShake 0.6s ease-out' : 'none' }}
+              >
+                <span className="text-sm sm:text-base tracking-[0.15em]">TOTAL WIN</span>
+                <CountUp value={g.lastWin} duration={g.totalWinDur} onComplete={triggerTotalShake} />
+              </span>
+            ) : g.endSkull
+              ? <>TOTAL WIN {g.lastWin.toFixed(2)}</>
+              : <>WIN {g.lastWin.toFixed(2)}</>
           ) : g.message}
         </span>
       </PlaqueBanner>

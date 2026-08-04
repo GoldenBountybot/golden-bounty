@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 // Animates a number counting up from its previous value to the new target,
 // used in the win banner so the win amount visibly multiplies up cascade by
@@ -7,17 +7,17 @@ import React, { useEffect, useRef, useState } from 'react';
 // Uses a ref + direct DOM textContent update instead of state so the 60fps
 // animation never triggers React re-renders (which would cascade up to the
 // whole machine and cause jank during the showdown sequence).
-export default function CountUp({ value = 0, duration = 650, decimals = 2, shakeOnComplete = false }) {
+export default function CountUp({ value = 0, duration = 650, decimals = 2, onComplete }) {
   const spanRef = useRef(null);
   const fromRef = useRef(0);
   const rafRef = useRef();
-  const [shaking, setShaking] = useState(false);
 
   useEffect(() => {
     const from = fromRef.current;
     const to = value;
     if (from === to) {
       if (spanRef.current) spanRef.current.textContent = to.toFixed(decimals);
+      if (onComplete) onComplete();
       return;
     }
     const start = performance.now();
@@ -30,26 +30,15 @@ export default function CountUp({ value = 0, duration = 650, decimals = 2, shake
         rafRef.current = requestAnimationFrame(tick);
       } else {
         fromRef.current = to;
-        if (shakeOnComplete) {
-          setShaking(true);
-          const st = setTimeout(() => setShaking(false), 600);
-          return () => clearTimeout(st);
-        }
+        if (onComplete) onComplete();
       }
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [value, duration, shakeOnComplete]);
+  }, [value, duration, onComplete]);
 
   return (
-    <span
-      ref={spanRef}
-      style={{
-        fontVariantNumeric: 'tabular-nums',
-        display: 'inline-block',
-        animation: shaking ? 'wbAmountShake 0.6s ease-out' : 'none',
-      }}
-    >
+    <span ref={spanRef} style={{ fontVariantNumeric: 'tabular-nums', display: 'inline-block' }}>
       {fromRef.current.toFixed(decimals)}
     </span>
   );
