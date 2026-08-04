@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
-import { playReelDropSound, playScatterDropSound, playLowValueWinSound, playHighValueWinSound, playAnimalRoar } from '@/lib/bigBrownSound';
+import { playReelDropSound, playScatterDropSound, playLowValueWinSound, playHighValueWinSound } from '@/lib/bigBrownSound';
 import { SYMBOLS } from '@/lib/bigBrownEngine';
 
 export function useBigBrown() {
@@ -117,13 +117,6 @@ export function useBigBrown() {
       });
       if (animalWins.length > 0) {
         playHighValueWinSound();
-        const played = new Set();
-        animalWins.forEach((w, idx) => {
-          if (played.has(w.symbol)) return;
-          played.add(w.symbol);
-          // Stagger roars slightly so multiple animals don't overlap into mush.
-          setTimeout(() => playAnimalRoar(w.symbol), idx * 350);
-        });
       }
     } else {
       setLastWin(0);
