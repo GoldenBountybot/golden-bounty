@@ -439,12 +439,33 @@ export function useWildBounty() {
     if (roll < 0.004) targetScatters = 3;              // 0.4%  (free-spin trigger)
     else if (roll < 0.06) targetScatters = 2;           // 5%
     else if (roll < 0.16) targetScatters = 1;          // 10%
+    // Place scatters so the slow-motion anticipation can reveal one. When 3
+    // scatters are rolled (0.4% chance), put 2 on the early reels (0-2) and 1
+    // on a late reel (3-5) so it lands during the slow-motion phase. For 1-2
+    // scatters the placement stays fully random.
     const cells = [];
     finalGrid.forEach((reel, ri) => reel.forEach((_, row) => cells.push([ri, row])));
-    for (let i = 0; i < targetScatters && cells.length; i++) {
-      const idx = Math.floor(Math.random() * cells.length);
-      const [ri, row] = cells.splice(idx, 1)[0];
-      finalGrid[ri][row] = 'scatter';
+    if (targetScatters === 3) {
+      const early = cells.filter(([ri]) => ri <= 2);
+      const late = cells.filter(([ri]) => ri >= 3);
+      // 2 scatters on early reels
+      for (let i = 0; i < 2 && early.length; i++) {
+        const idx = Math.floor(Math.random() * early.length);
+        const [ri, row] = early.splice(idx, 1)[0];
+        finalGrid[ri][row] = 'scatter';
+      }
+      // 1 scatter on a late reel (revealed during slow motion)
+      if (late.length) {
+        const idx = Math.floor(Math.random() * late.length);
+        const [ri, row] = late.splice(idx, 1)[0];
+        finalGrid[ri][row] = 'scatter';
+      }
+    } else {
+      for (let i = 0; i < targetScatters && cells.length; i++) {
+        const idx = Math.floor(Math.random() * cells.length);
+        const [ri, row] = cells.splice(idx, 1)[0];
+        finalGrid[ri][row] = 'scatter';
+      }
     }
 
     const frames = assignGoldFrames(finalGrid);
