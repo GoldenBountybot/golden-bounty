@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { computeSpin, BETS, buildGrid, FREE_SPINS_AWARD, REELS, ROWS, MIN_BET } from '@/lib/gatesEngine';
+import { playSpinSound } from '@/lib/gatesSound';
 
 // every board position `${c}-${r}` — used so the first spin drops all symbols
 const ALL_CELLS = (() => {
@@ -85,6 +86,7 @@ export function useGates() {
     if (!usingFree) setBalance((b) => b - bet);
     if (usingFree) setFreeSpins((f) => f - 1);
     setMessage('Spinning…');
+    playSpinSound();
 
     // RTP-biased forced win/loss gate. Free spins get a slightly higher chance
     // of landing 8+ matching symbols so the bonus round feels more rewarding.

@@ -11,6 +11,7 @@ import GatesMultBanner from './GatesMultBanner';
 import GatesTumbleWinBanner from './GatesTumbleWinBanner';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
+import { playReelDropSound, playScatterDropSound } from '@/lib/gatesSound';
 
 const REELS = 6;
 const ROWS = 5;
@@ -65,6 +66,10 @@ export default function GatesMachine() {
     for (let c = 0; c < REELS; c++) {
       revealTimers.current.push(setTimeout(() => {
         setStoppedReels((prev) => new Set([...prev, c]));
+        playReelDropSound(c);
+        // Play the scatter chime if this reel's final column contains a scatter.
+        const reel = g.grid[c];
+        if (reel && reel.some((s) => s === 'scatter')) playScatterDropSound();
       }, c * gap));
     }
     return () => { revealTimers.current.forEach(clearTimeout); };
