@@ -25,13 +25,13 @@ function Reel({ reelIndex, rowCount, symbols, finalSymbols, spinning, speed, win
   }, [spinning]);
 
   const strip = useMemo(() => {
-    // During slow anticipation, show the FINAL symbols descending smoothly
-    // from above into their landing positions (a single glide, not a random
-    // loop) so the user sees exactly which symbol will stick — no confusing
-    // snap to a different symbol when the reel stops.
+    // During slow anticipation, scroll the ACTUAL final symbols in a seamless
+    // reelFall loop (4 copies, first==last) so the user sees exactly which
+    // symbols will land — no random symbols, no one-shot descent that can
+    // freeze and look "stuck" before the reel stops.
     if (spinning && anticipationGlow) {
-      const filler = Array.from({ length: rowCount }, () => randomSymbol());
-      return [...(finalSymbols || symbols), ...filler];
+      const fs = finalSymbols || symbols;
+      return [...fs, ...fs, ...fs, ...fs];
     }
     if (spinning) {
       // First & last blocks identical → seamless -75%→0% reelFall loop (no jump).
@@ -84,7 +84,7 @@ function Reel({ reelIndex, rowCount, symbols, finalSymbols, spinning, speed, win
       )}
       <div
         className="flex flex-col w-full"
-        style={{ animation: spinning ? (anticipationGlow ? `wbSlowDescent ${speed}s linear forwards` : `reelFall ${speed}s linear infinite`) : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s cubic-bezier(0.16, 1, 0.3, 1)' : 'reelLand 0.4s cubic-bezier(0.16, 1, 0.3, 1)') : 'none', willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translate3d(0,0,0)' }}
+        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s cubic-bezier(0.16, 1, 0.3, 1)' : 'reelLand 0.4s cubic-bezier(0.16, 1, 0.3, 1)') : 'none', willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translate3d(0,0,0)' }}
       >
         {strip.map((sym, i) => {
           const isDropping = cascading && cascadePositions && cascadePositions.has(`${reelIndex}-${i}`);
