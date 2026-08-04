@@ -48,6 +48,7 @@ export function useWildBounty() {
   const peakMultRef = useRef(1); // highest multiplier applied to a winning cascade this round
   const freeSpinsTotalRef = useRef(0); // accumulated win across the current free-spins round
   const freeSpinsCountRef = useRef(0); // remaining free spins (synced ref for chain-end checks)
+  const roundEndSoundDurRef = useRef(800); // ms to wait for the round-end sound to finish before the next free spin
   const pendingWinRef = useRef(0); // win amount waiting to be revealed when the flying multiplier lands on the banner
   const [bannerPending, setBannerPending] = useState(false); // blocks auto/free spin while a round-end banner is delayed for the flying animation
 
@@ -308,14 +309,16 @@ export function useWildBounty() {
       // x16–x32; Mega Win covers x64 and every tier beyond. Free-spins rounds
       // show a Mega Win banner with the accumulated 10-spin total instead.
       const peak = peakMultRef.current;
+      let showdownDurMs = 0;
       if (peak >= 8 && totalWin > 0) {
         setEndSkull(true);
         // Only count up from 0 + play the total-win sting when NO Super/Mega
         // win banner is showing (peak < 32) — those banners have their own
         // count-up + sound, so the plaque just shows the plain total.
         if (peak < 32) {
+          showdownDurMs = (sfx.showdown() || 2.2) * 1000;
           setTotalWinCountUp(true);
-          setTotalWinDur((sfx.showdown() || 2.2) * 1000 * 0.9);
+          setTotalWinDur(showdownDurMs * 0.9);
           setTotalWinKey(k => k + 1);
         }
       }
@@ -346,6 +349,16 @@ export function useWildBounty() {
         } else {
           applyBanner(banner);
         }
+        // Banners have their own sound + dismiss timing — the free-spin
+        // auto-trigger already waits for !superWin/!megaWin/!bannerPending, so
+        // a short fallback delay is enough after the banner is dismissed.
+        roundEndSoundDurRef.current = 600;
+      } else if (showdownDurMs > 0) {
+        // Showdown sting is playing — wait for it to finish (+ small buffer)
+        // before the next free spin starts.
+        roundEndSoundDurRef.current = showdownDurMs + 400;
+      } else {
+        roundEndSoundDurRef.current = turbo ? 400 : 800;
       }
 
       if (!wasFree) setMultIndex(0);
@@ -576,7 +589,7 @@ export function useWildBounty() {
   // free spins auto trigger — paused while a Super/Mega win banner is on screen (or pending)
   useEffect(() => {
     if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart && !superWin && !megaWin && !bannerPending) {
-      const t = setTimeout(() => spin(), turbo ? 400 : 800);
+      const t = setTimeout(() => spin(), turbo ? 400 : roundEndSoundDurRef.current);
       return () => clearTimeout(t);
     }
     if (freeSpinsActive && freeSpins === 0) {
