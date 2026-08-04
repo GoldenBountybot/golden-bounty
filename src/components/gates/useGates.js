@@ -198,8 +198,12 @@ export function useGates() {
         if (freeMode) freeSpinsTotalRef.current += win;
         setMessage(`WIN $${win.toFixed(2)}`);
         // Big win / huge win celebration based on win-to-bet ratio.
+        // During free spins, suppress the super/mega banner per spin — it
+        // is shown once at the end of the whole round based on the total.
         const ratio = bet > 0 ? win / bet : 0;
-        if (ratio >= 50) {
+        if (freeMode) {
+          if (ratio >= 10) playBigWin();
+        } else if (ratio >= 50) {
           playMegaWin();
           setBigWinBanner({ variant: 'mega', amount: win, key: Date.now() });
         } else if (ratio >= 20) {
@@ -257,9 +261,22 @@ export function useGates() {
       freeSpinsTotalRef.current = 0;
       setMessage('FREE SPINS ENDED');
       playFeatureEnd();
-      if (total > 0) setFreeSpinEndBanner({ amount: total, key: Date.now() });
+      if (total > 0) {
+        // Super/mega win banner based on the whole round's total vs bet;
+        // otherwise show the standard free-spins-complete banner.
+        const ratio = bet > 0 ? total / bet : 0;
+        if (ratio >= 50) {
+          playMegaWin();
+          setBigWinBanner({ variant: 'mega', amount: total, key: Date.now() });
+        } else if (ratio >= 20) {
+          playSuperWin();
+          setBigWinBanner({ variant: 'super', amount: total, key: Date.now() });
+        } else {
+          setFreeSpinEndBanner({ amount: total, key: Date.now() });
+        }
+      }
     }
-  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin]);
+  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin, bet]);
 
   const startFreeSpins = useCallback(() => {
     setShowFreeSpinStart(false);
