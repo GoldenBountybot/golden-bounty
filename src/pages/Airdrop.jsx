@@ -144,7 +144,7 @@ export default function Airdrop() {
             alt="BOUNTY — The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit."
             className="block select-none w-full"
             draggable={false}
-            style={{ transform: 'scale(1.22)', transformOrigin: 'center center' }}
+            style={{ transform: 'scale(1.22) translateY(8px)', transformOrigin: 'center center' }}
           />
         </div>
 
