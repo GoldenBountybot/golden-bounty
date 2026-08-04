@@ -48,6 +48,41 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
 
   return (
     <div className={`relative w-full ${spinning ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount, contain: 'layout style', transform: 'translate3d(0,0,0)' }}>
+      {/* Anticipation golden border glow — bright vertical beams on both
+          sides of the reel with heavy bloom that spills onto adjacent reels */}
+      {anticipationGlow && spinning && (
+        <>
+          <span
+            className="absolute top-0 bottom-0 left-0 z-40 pointer-events-none"
+            style={{
+              width: '3px',
+              transform: 'translateX(-1.5px)',
+              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,245,180,1) 30%, rgba(255,255,240,1) 50%, rgba(255,245,180,1) 70%, rgba(255,215,0,0) 100%)',
+              boxShadow: '0 0 10px rgba(255,255,220,1), 0 0 24px rgba(255,220,100,1), 0 0 48px rgba(255,200,60,0.85), 0 0 80px rgba(255,180,40,0.5)',
+              mixBlendMode: 'screen',
+            }}
+          />
+          <span
+            className="absolute top-0 bottom-0 right-0 z-40 pointer-events-none"
+            style={{
+              width: '3px',
+              transform: 'translateX(1.5px)',
+              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,245,180,1) 30%, rgba(255,255,240,1) 50%, rgba(255,245,180,1) 70%, rgba(255,215,0,0) 100%)',
+              boxShadow: '0 0 10px rgba(255,255,220,1), 0 0 24px rgba(255,220,100,1), 0 0 48px rgba(255,200,60,0.85), 0 0 80px rgba(255,180,40,0.5)',
+              mixBlendMode: 'screen',
+            }}
+          />
+          {/* Spillover halo — soft diffused glow covering the reel area that
+              bleeds onto adjacent reels for the bloom effect */}
+          <span
+            className="absolute inset-0 z-30 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(255,220,120,0.18) 0%, rgba(255,200,80,0.08) 50%, transparent 80%)',
+              mixBlendMode: 'screen',
+            }}
+          />
+        </>
+      )}
       <div
         className="flex flex-col w-full"
         style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s cubic-bezier(0.16, 1, 0.3, 1)' : 'reelLand 0.4s cubic-bezier(0.16, 1, 0.3, 1)') : 'none', willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translate3d(0,0,0)' }}
