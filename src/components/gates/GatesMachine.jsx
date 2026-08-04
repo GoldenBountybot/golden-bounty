@@ -9,6 +9,7 @@ import GatesMultReveal from './GatesMultReveal';
 import GatesBolt from './GatesBolt';
 import GatesMultBanner from './GatesMultBanner';
 import GatesTumbleWinBanner from './GatesTumbleWinBanner';
+import GatesBigWinBanner from './GatesBigWinBanner';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 import {
@@ -85,6 +86,7 @@ export default function GatesMachine() {
     freeSpins, turbo, autoSpin, spinMult, winList, winHistory, scatterGlow,
     showFreeSpinStart, freeSpinsActive, startFreeSpins,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, buyFreeSpins,
+    bigWinBanner, setBigWinBanner,
   } = g;
 
   const allReelsStopped = stoppedReels.size >= REELS;
@@ -382,6 +384,17 @@ export default function GatesMachine() {
             );
           })}
         </div>
+      )}
+
+      {/* SUPER WIN / MEGA WIN overlay banner — floats up at round end for
+          x20+ / x50+ win ratios with a premium count-up animation. */}
+      {bigWinBanner && (
+        <GatesBigWinBanner
+          key={bigWinBanner.key}
+          variant={bigWinBanner.variant}
+          amount={bigWinBanner.amount}
+          onDone={() => setBigWinBanner(null)}
+        />
       )}
 
       {/* Lightning bolts — strike down from the banner (sky) onto fresh

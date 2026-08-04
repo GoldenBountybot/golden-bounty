@@ -3,7 +3,7 @@ import { computeSpin, BETS, buildGrid, FREE_SPINS_AWARD, REELS, ROWS, MIN_BET } 
 import {
   playSpinSound, playWinSound, playBigWin, playHugeWin,
   playFreeSpinsTrigger, playFreeSpinStart, playFeatureEnd,
-  playMultCollect, playError,
+  playMultCollect, playError, playSuperWin, playMegaWin,
 } from '@/lib/gatesSound';
 
 // every board position `${c}-${r}` — used so the first spin drops all symbols
@@ -38,6 +38,7 @@ export function useGates() {
   const [winList, setWinList] = useState([]); // current tumble winners: {symbol,count,pay}[]
   const [winHistory, setWinHistory] = useState([]); // per-tumble winners list across the whole spin
   const [scatterGlow, setScatterGlow] = useState(new Set()); // scatter cells glowing when 4+ land together
+  const [bigWinBanner, setBigWinBanner] = useState(null); // { variant: 'super'|'mega', amount } | null
 
   const settings = useGameSettings('gates-of-olympus');
   const logActivity = useLogActivity();
@@ -195,8 +196,15 @@ export function useGates() {
         setMessage(`WIN $${win.toFixed(2)}`);
         // Big win / huge win celebration based on win-to-bet ratio.
         const ratio = bet > 0 ? win / bet : 0;
-        if (ratio >= 50) playHugeWin();
-        else if (ratio >= 10) playBigWin();
+        if (ratio >= 50) {
+          playMegaWin();
+          setBigWinBanner({ variant: 'mega', amount: win, key: Date.now() });
+        } else if (ratio >= 20) {
+          playSuperWin();
+          setBigWinBanner({ variant: 'super', amount: win, key: Date.now() });
+        } else if (ratio >= 10) {
+          playBigWin();
+        }
       } else {
         setLastWin(0);
         setMessage(usingFree ? 'FREE SPIN · NO WIN' : 'GATES OF OLYMPUS · 8+ PAYS');
@@ -293,7 +301,7 @@ export function useGates() {
     grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells,
     freeSpins, turbo, autoSpin, spinMult, winFlash, winList, winHistory, scatterGlow,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
-    cancelFreeSpinStart,
+    cancelFreeSpinStart, bigWinBanner, setBigWinBanner,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, reset, buyFreeSpins,
   };
 }

@@ -503,6 +503,214 @@ export function playHugeWin() {
   finalThunder.stop(finalT + 1.1);
 }
 
+// ── SUPER WIN — premium luxury celebration: golden fanfare + chimes + thunder
+// Triggered at x20+ win ratio. Rich, warm, triumphant — but not as massive as mega.
+export function playSuperWin() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  const t = ac.currentTime;
+  const { bus } = makeReverbBus(ac, 0.16, 0.32, 0.38);
+
+  // Warm brass fanfare — ascending major arpeggio.
+  const fanfare = [
+    { f: 392.0, time: 0, dur: 0.18 },
+    { f: 523.25, time: 0.16, dur: 0.18 },
+    { f: 659.25, time: 0.32, dur: 0.18 },
+    { f: 783.99, time: 0.48, dur: 0.35 },
+    { f: 1046.5, time: 0.78, dur: 0.6 },
+  ];
+  fanfare.forEach(({ f, time: dt, dur }) => {
+    const start = t + dt;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    const lp = ac.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 3200;
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(f, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.07, start + 0.02);
+    g.gain.linearRampToValueAtTime(0.045, start + dur * 0.7);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    o.connect(lp); lp.connect(g); g.connect(bus);
+    o.start(start); o.stop(start + dur + 0.05);
+  });
+
+  // Layered golden chimes — bright arpeggio on top.
+  const chimes = [1046.5, 1318.51, 1568, 2093, 2637];
+  chimes.forEach((f, i) => {
+    const start = t + i * 0.1;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.09, start + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.6);
+    o.connect(g); g.connect(bus);
+    o.start(start); o.stop(start + 0.65);
+  });
+
+  // Deep thunder impact.
+  const thunder = ac.createOscillator();
+  const thG = ac.createGain();
+  thunder.type = 'sine';
+  thunder.frequency.setValueAtTime(55, t + 0.5);
+  thunder.frequency.exponentialRampToValueAtTime(35, t + 1.4);
+  thG.gain.setValueAtTime(0.0001, t + 0.5);
+  thG.gain.linearRampToValueAtTime(0.16, t + 0.55);
+  thG.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
+  thunder.connect(thG); thG.connect(bus);
+  thunder.start(t + 0.5); thunder.stop(t + 1.55);
+
+  // Sparkling magical tail.
+  const shimmer = ac.createOscillator();
+  const shimmerG = ac.createGain();
+  shimmer.type = 'sine';
+  shimmer.frequency.setValueAtTime(2093, t + 0.4);
+  shimmer.frequency.exponentialRampToValueAtTime(4186, t + 1.3);
+  shimmerG.gain.setValueAtTime(0.0001, t + 0.4);
+  shimmerG.gain.linearRampToValueAtTime(0.045, t + 0.5);
+  shimmerG.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+  shimmer.connect(shimmerG); shimmerG.connect(bus);
+  shimmer.start(t + 0.4); shimmer.stop(t + 1.45);
+}
+
+// ── MEGA WIN — epic cinematic luxury: full orchestra, choir, thunder, sparkle
+// Triggered at x50+ win ratio. The grandest celebration — long, rich, majestic.
+export function playMegaWin() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  const t = ac.currentTime;
+  const { bus } = makeReverbBus(ac, 0.2, 0.38, 0.42);
+
+  // Cinematic orchestral build — slow ascending chord progression over 2.5s.
+  const chords = [
+    { time: 0,    notes: [130.81, 196.0, 261.63] },
+    { time: 0.5,  notes: [146.83, 220.0, 293.66] },
+    { time: 1.0,  notes: [174.61, 261.63, 349.23] },
+    { time: 1.5,  notes: [196.0, 293.66, 392.0] },
+    { time: 2.0,  notes: [261.63, 392.0, 523.25, 659.25] },
+    { time: 2.5,  notes: [523.25, 659.25, 783.99, 1046.5] },
+  ];
+  chords.forEach(({ time: dt, notes }) => {
+    const start = t + dt;
+    notes.forEach((f) => {
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      const lp = ac.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 4000;
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(f, start);
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.linearRampToValueAtTime(0.055, start + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + 0.7);
+      o.connect(lp); lp.connect(g); g.connect(bus);
+      o.start(start); o.stop(start + 0.75);
+    });
+  });
+
+  // Heavenly choir — stacked high sine partials (major chord).
+  const choir = [523.25, 659.25, 783.99, 1046.5, 1318.51];
+  choir.forEach((f) => {
+    const start = t + 0.3;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, start);
+    o.frequency.exponentialRampToValueAtTime(f * 1.006, start + 2.0);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.035, start + 0.3);
+    g.gain.linearRampToValueAtTime(0.03, start + 1.6);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 2.1);
+    o.connect(g); g.connect(bus);
+    o.start(start); o.stop(start + 2.15);
+    const o2 = ac.createOscillator();
+    const g2 = ac.createGain();
+    o2.type = 'sine';
+    o2.frequency.setValueAtTime(f * 1.006, start);
+    g2.gain.setValueAtTime(0.0001, start);
+    g2.gain.linearRampToValueAtTime(0.018, start + 0.3);
+    g2.gain.exponentialRampToValueAtTime(0.0001, start + 2.1);
+    o2.connect(g2); g2.connect(bus);
+    o2.start(start); o2.stop(start + 2.15);
+  });
+
+  // Multiple thunder impacts at key moments.
+  [0, 0.8, 1.6, 2.5, 3.2].forEach((dt) => {
+    const start = t + dt;
+    const thunder = ac.createOscillator();
+    const thG = ac.createGain();
+    thunder.type = 'sine';
+    thunder.frequency.setValueAtTime(48, start);
+    thunder.frequency.exponentialRampToValueAtTime(28, start + 0.6);
+    thG.gain.setValueAtTime(0.0001, start);
+    thG.gain.linearRampToValueAtTime(0.14, start + 0.04);
+    thG.gain.exponentialRampToValueAtTime(0.0001, start + 0.7);
+    thunder.connect(thG); thG.connect(bus);
+    thunder.start(start); thunder.stop(start + 0.75);
+  });
+
+  // Continuous celestial shimmer sweeps.
+  [0.3, 1.1, 1.9, 2.7].forEach((dt) => {
+    const start = t + dt;
+    const shimmer = ac.createOscillator();
+    const shimmerG = ac.createGain();
+    shimmer.type = 'sine';
+    shimmer.frequency.setValueAtTime(1568, start);
+    shimmer.frequency.exponentialRampToValueAtTime(4186, start + 0.5);
+    shimmerG.gain.setValueAtTime(0.0001, start);
+    shimmerG.gain.linearRampToValueAtTime(0.04, start + 0.06);
+    shimmerG.gain.exponentialRampToValueAtTime(0.0001, start + 0.6);
+    shimmer.connect(shimmerG); shimmerG.connect(bus);
+    shimmer.start(start); shimmer.stop(start + 0.65);
+  });
+
+  // Golden chime cascade — bright arpeggio throughout.
+  const chimes = [1046.5, 1318.51, 1568, 2093, 2637, 3136];
+  chimes.forEach((f, i) => {
+    const start = t + i * 0.12;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.08, start + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.7);
+    o.connect(g); g.connect(bus);
+    o.start(start); o.stop(start + 0.75);
+  });
+
+  // Powerful final resolution — big chord + thunder.
+  const finalT = t + 3.2;
+  [523.25, 659.25, 783.99, 1046.5, 1318.51].forEach((f) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, finalT);
+    g.gain.setValueAtTime(0.0001, finalT);
+    g.gain.linearRampToValueAtTime(0.09, finalT + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, finalT + 1.2);
+    o.connect(g); g.connect(bus);
+    o.start(finalT); o.stop(finalT + 1.3);
+  });
+  const finalThunder = ac.createOscillator();
+  const ftG = ac.createGain();
+  finalThunder.type = 'sine';
+  finalThunder.frequency.setValueAtTime(42, finalT);
+  finalThunder.frequency.exponentialRampToValueAtTime(25, finalT + 1.0);
+  ftG.gain.setValueAtTime(0.0001, finalT);
+  ftG.gain.linearRampToValueAtTime(0.2, finalT + 0.05);
+  ftG.gain.exponentialRampToValueAtTime(0.0001, finalT + 1.1);
+  finalThunder.connect(ftG); ftG.connect(bus);
+  finalThunder.start(finalT); finalThunder.stop(finalT + 1.2);
+}
+
 // ── MULTIPLIER LAND — dramatic lightning strike + magical resonance ─────
 export function playMultLand() {
   if (isMuted()) return;
