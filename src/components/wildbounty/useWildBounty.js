@@ -52,6 +52,7 @@ export function useWildBounty() {
   const pendingWinRef = useRef(0); // win amount waiting to be revealed when the flying multiplier lands on the banner
   const [bannerPending, setBannerPending] = useState(false); // blocks auto/free spin while a round-end banner is delayed for the flying animation
   const forceScatterBuyRef = useRef(false); // Feature Buy: force 3 scatters on the next spin to trigger the free-spins banner
+  const skipBetDeductRef = useRef(false); // Feature Buy: the triggering spin's bet is already covered by the feature cost
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
@@ -415,7 +416,15 @@ export function useWildBounty() {
     setScatterGlow(new Set());
     setFlyingMult(null);
     setBulletHit(new Set());
-    if (!usingFree) { setBalance(b => b - bet); freeSpinsTotalRef.current = 0; freeSpinsCountRef.current = 0; }
+    if (!usingFree) {
+      if (skipBetDeductRef.current) {
+        skipBetDeductRef.current = false;
+      } else {
+        setBalance(b => b - bet);
+      }
+      freeSpinsTotalRef.current = 0;
+      freeSpinsCountRef.current = 0;
+    }
     if (usingFree) { setFreeSpins(f => f - 1); freeSpinsCountRef.current = Math.max(0, freeSpinsCountRef.current - 1); }
     // Each free spin (re)starts at 8x; normal spins start at 1x.
     setMultIndex(usingFree ? 3 : 0);
@@ -641,11 +650,19 @@ export function useWildBounty() {
   // trigger the normal free-spins banner, and the 10 free spins begin after
   // the user dismisses it (exactly like a natural 3-scatter trigger).
   const confirmFeatureBuy = useCallback(() => {
+    const cost = bet * 75;
+    if (balance < cost) {
+      setMessage('Insufficient balance for Feature Buy');
+      setShowFeatureBuyConfirm(false);
+      return;
+    }
+    setBalance(b => b - cost);
+    skipBetDeductRef.current = true;
     setShowFeatureBuyConfirm(false);
     forceScatterBuyRef.current = true;
     setMessage('FEATURE BUY · SPINNING...');
     spin();
-  }, [spin]);
+  }, [bet, balance, spin]);
 
   // CANCEL — just close the modal, nothing awarded.
   const cancelFeatureBuy = useCallback(() => setShowFeatureBuyConfirm(false), []);
