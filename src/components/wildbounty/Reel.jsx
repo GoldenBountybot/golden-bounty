@@ -72,14 +72,16 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
               mixBlendMode: 'screen',
             }}
           />
-          {/* Spillover flood — wide diffused golden glow that bleeds well past
-              the reel edges onto neighbouring reel lines */}
+          {/* Spillover flood — wide diffused golden glow (wild-halo style) that
+              bleeds well past the reel edges onto neighbouring reel lines */}
           <span
             className="absolute z-30 pointer-events-none"
             style={{
-              top: '-10%', bottom: '-10%', left: '-45%', right: '-45%',
-              background: 'radial-gradient(ellipse at center, rgba(255,225,130,0.32) 0%, rgba(255,210,80,0.18) 35%, rgba(255,190,50,0.06) 65%, transparent 85%)',
+              top: '-50%', bottom: '-50%', left: '-70%', right: '-70%',
+              background: 'radial-gradient(circle at center, rgba(255,250,225,0.55) 0%, rgba(255,225,120,0.38) 30%, rgba(255,195,70,0.18) 55%, transparent 82%)',
+              filter: 'blur(5px)',
               mixBlendMode: 'screen',
+              animation: 'wildHaloPulse 2.4s ease-in-out infinite',
             }}
           />
         </>
