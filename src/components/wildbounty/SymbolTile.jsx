@@ -100,7 +100,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
   return (
     <div
       className={`relative ${highlighted || showHalo || scatterBeam || goldFramed || decorFrame ? 'overflow-visible' : 'overflow-hidden'}`}
-      style={{ aspectRatio: '1 / 1', willChange: shattering ? 'transform, filter' : 'auto', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards` : undefined, zIndex: shattering ? 20 : undefined, contain: 'layout style', transform: 'translate3d(0,0,0)' }}
+      style={{ aspectRatio: '1 / 1', willChange: shattering ? 'transform, opacity' : 'auto', animation: shattering ? `shatterWin ${(0.6 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards` : undefined, zIndex: shattering ? 20 : undefined, contain: 'layout style paint', transform: 'translate3d(0,0,0)' }}
     >
       {/* Golden light-burst behind matching symbols (not wilds) — slightly
           larger than the symbol so the flare bleeds around it */}
@@ -140,7 +140,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             alt={symbolId}
             loading="lazy"
             className="w-full h-full object-cover"
-            style={{ '--bs': baseScale, transform: `scale(${baseScale})`, zIndex: 5, willChange: popAnim ? 'transform, filter' : 'auto', animation: popAnim }}
+            style={{ '--bs': baseScale, transform: `scale(${baseScale})`, zIndex: 5, willChange: popAnim ? 'transform' : 'auto', animation: popAnim }}
           />
         </>
       ) : img ? (
@@ -166,7 +166,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
             alt={symbolId}
             loading="lazy"
             className="w-full h-full object-cover"
-            style={{ '--bs': baseScale, transform: `scale(${baseScale})`, willChange: popAnim ? 'transform, filter' : 'auto', animation: popAnim, filter: spinning ? undefined : (isScatter ? 'brightness(1.4) drop-shadow(0 0 6px rgba(255,235,150,0.75))' : undefined) }}
+            style={{ '--bs': baseScale, transform: `scale(${baseScale})`, willChange: popAnim ? 'transform' : 'auto', animation: popAnim, filter: spinning ? undefined : (isScatter ? 'brightness(1.4) drop-shadow(0 0 6px rgba(255,235,150,0.75))' : undefined) }}
           />
         </>
       ) : isCard ? (
