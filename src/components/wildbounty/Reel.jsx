@@ -55,20 +55,20 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
           <span
             className="absolute top-0 bottom-0 left-0 z-40 pointer-events-none"
             style={{
-              width: '4px',
-              transform: 'translateX(-2px)',
-              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,250,200,1) 25%, rgba(255,255,250,1) 50%, rgba(255,250,200,1) 75%, rgba(255,215,0,0) 100%)',
-              boxShadow: '0 0 14px rgba(255,255,230,1), 0 0 32px rgba(255,230,120,1), 0 0 64px rgba(255,210,70,1), 0 0 110px rgba(255,190,40,0.8), 0 0 160px rgba(255,170,30,0.45)',
+              width: '5px',
+              transform: 'translateX(-2.5px)',
+              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,252,210,1) 20%, rgba(255,255,255,1) 50%, rgba(255,252,210,1) 80%, rgba(255,215,0,0) 100%)',
+              boxShadow: '0 0 18px rgba(255,255,240,1), 0 0 40px rgba(255,235,130,1), 0 0 78px rgba(255,215,80,1), 0 0 130px rgba(255,200,50,0.95), 0 0 190px rgba(255,185,30,0.6)',
               mixBlendMode: 'screen',
             }}
           />
           <span
             className="absolute top-0 bottom-0 right-0 z-40 pointer-events-none"
             style={{
-              width: '4px',
-              transform: 'translateX(2px)',
-              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,250,200,1) 25%, rgba(255,255,250,1) 50%, rgba(255,250,200,1) 75%, rgba(255,215,0,0) 100%)',
-              boxShadow: '0 0 14px rgba(255,255,230,1), 0 0 32px rgba(255,230,120,1), 0 0 64px rgba(255,210,70,1), 0 0 110px rgba(255,190,40,0.8), 0 0 160px rgba(255,170,30,0.45)',
+              width: '5px',
+              transform: 'translateX(2.5px)',
+              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,252,210,1) 20%, rgba(255,255,255,1) 50%, rgba(255,252,210,1) 80%, rgba(255,215,0,0) 100%)',
+              boxShadow: '0 0 18px rgba(255,255,240,1), 0 0 40px rgba(255,235,130,1), 0 0 78px rgba(255,215,80,1), 0 0 130px rgba(255,200,50,0.95), 0 0 190px rgba(255,185,30,0.6)',
               mixBlendMode: 'screen',
             }}
           />
