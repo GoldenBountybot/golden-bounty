@@ -61,11 +61,11 @@ export function getSymbolImg(id) {
 // Weighted pool for non-wild reels. Scatter is rare; lows are common.
 // High-value animal weights kept very low so high-value matches are rare.
 const BASE_POOL = [
-  'buffalo', 'buffalo', 'buffalo',
-  'eagle', 'eagle', 'eagle',
-  'cougar', 'cougar', 'cougar',
-  'wolf', 'wolf', 'wolf',
-  'deer', 'deer', 'deer', 'deer',
+  'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo',
+  'eagle', 'eagle', 'eagle', 'eagle', 'eagle', 'eagle', 'eagle',
+  'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar',
+  'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf',
+  'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer',
   'A', 'A', 'A', 'A', 'A', 'A',
   'K', 'K', 'K', 'K', 'K', 'K',
   'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q',
@@ -82,7 +82,7 @@ const WILD_CHANCE = { 0: 0.02, 1: 0.01, 2: 0.02, 3: 0.06, 4: 0.06 };
 // High-value animal symbols are gated: even when the pool picks one, it is
 // downgraded to a low card most of the time so high-value matches stay rare.
 const HIGH_VALUE_IDS = new Set(['buffalo', 'eagle', 'cougar', 'wolf']);
-const HIGH_VALUE_KEEP_CHANCE = 0.65;
+const HIGH_VALUE_KEEP_CHANCE = 0.88;
 
 export function randomSymbol(reelIndex = -1) {
   if (!WILD_REELS.has(reelIndex)) {
