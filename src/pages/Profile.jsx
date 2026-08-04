@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   User as UserIcon, Phone, Hash, LogOut, Loader2, Check,
   Wallet, ArrowDownToLine, ArrowUpFromLine, Crown, Gamepad2, Copy, Coins, History,
-  Menu, Pencil, Ticket, Gift, Users, Sparkles,
+  Menu, Pencil, Ticket, Gift, Users, Sparkles, Clock, CheckCircle2, XCircle,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -502,6 +502,57 @@ export default function Profile() {
               </div>
               <Coins className="w-5 h-5" style={{ color: 'rgba(212,175,55,0.5)' }} />
             </div>
+
+            {/* Withdrawal status — current request state */}
+            {(() => {
+              const withdrawTxs = txs.filter(x => x.type === 'withdraw');
+              const pending = withdrawTxs.filter(x => x.status === 'pending');
+              const latest = withdrawTxs[0];
+              if (pending.length > 0) {
+                const total = pending.reduce((s, x) => s + (Number(x.amount) || 0), 0);
+                return (
+                  <div className="dash-card p-4 flex items-center gap-3" style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.4)', animation: 'dashFadeIn 400ms ease both' }}>
+                    <div className="flex items-center justify-center w-11 h-11 rounded-xl shrink-0" style={{ background: 'rgba(251,146,60,0.14)', border: '1px solid rgba(251,146,60,0.4)' }}>
+                      <Clock className="w-5 h-5" style={{ color: '#fb923c' }} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(251,146,60,0.9)' }}>{t("Withdrawal Pending")}</p>
+                      <p className="text-base font-extrabold tabular-nums mt-0.5" style={{ color: '#fff' }}>${total.toFixed(2)}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Awaiting admin approval · we'll notify you once processed")}</p>
+                    </div>
+                  </div>
+                );
+              }
+              if (latest && (latest.status === 'approved' || latest.status === 'completed')) {
+                return (
+                  <div className="dash-card p-4 flex items-center gap-3" style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.4)', animation: 'dashFadeIn 400ms ease both' }}>
+                    <div className="flex items-center justify-center w-11 h-11 rounded-xl shrink-0" style={{ background: 'rgba(52,211,153,0.14)', border: '1px solid rgba(52,211,153,0.4)' }}>
+                      <CheckCircle2 className="w-5 h-5" style={{ color: '#34d399' }} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(52,211,153,0.9)' }}>{t("Withdrawal Confirmed")}</p>
+                      <p className="text-base font-extrabold tabular-nums mt-0.5" style={{ color: '#fff' }}>${Number(latest.amount).toFixed(2)}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Approved · funds sent to your wallet")}</p>
+                    </div>
+                  </div>
+                );
+              }
+              if (latest && latest.status === 'rejected') {
+                return (
+                  <div className="dash-card p-4 flex items-center gap-3" style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.4)', animation: 'dashFadeIn 400ms ease both' }}>
+                    <div className="flex items-center justify-center w-11 h-11 rounded-xl shrink-0" style={{ background: 'rgba(248,113,113,0.14)', border: '1px solid rgba(248,113,113,0.4)' }}>
+                      <XCircle className="w-5 h-5" style={{ color: '#f87171' }} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(248,113,113,0.9)' }}>{t("Withdrawal Rejected")}</p>
+                      <p className="text-base font-extrabold tabular-nums mt-0.5" style={{ color: '#fff' }}>${Number(latest.amount).toFixed(2)}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Your request was rejected · please contact support")}</p>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
 
             {/* History header */}
             <div className="flex items-center gap-2 px-1">
