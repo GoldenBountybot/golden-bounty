@@ -61,22 +61,16 @@ export function getSymbolImg(id) {
 // Weighted pool for non-wild reels. Scatter is rare; lows are common.
 // High-value animal weights kept very low so high-value matches are rare.
 const BASE_POOL = [
-  'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo',
-  'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo',
-  'eagle', 'eagle', 'eagle', 'eagle', 'eagle', 'eagle', 'eagle',
-  'eagle', 'eagle', 'eagle', 'eagle', 'eagle', 'eagle', 'eagle',
-  'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar',
-  'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar',
-  'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf',
-  'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf',
-  'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer',
-  'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer',
-  'deer', 'deer', 'deer', 'deer',
-  'A', 'A', 'A', 'A', 'A', 'A',
-  'K', 'K', 'K', 'K', 'K', 'K',
-  'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q',
-  'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J',
-  '10', '10', '10', '10', '10', '10', '10', '10',
+  'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo', 'buffalo',
+  'eagle', 'eagle', 'eagle', 'eagle', 'eagle', 'eagle', 'eagle', 'eagle', 'eagle', 'eagle',
+  'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar',
+  'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf',
+  'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer',
+  'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A',
+  'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K',
+  'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q',
+  'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J',
+  '10', '10', '10', '10', '10', '10', '10', '10', '10', '10',
   '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
 ];
 
