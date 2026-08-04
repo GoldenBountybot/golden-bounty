@@ -51,6 +51,7 @@ export function useWildBounty() {
   const roundEndSoundDurRef = useRef(800); // ms to wait for the round-end sound to finish before the next free spin
   const pendingWinRef = useRef(0); // win amount waiting to be revealed when the flying multiplier lands on the banner
   const [bannerPending, setBannerPending] = useState(false); // blocks auto/free spin while a round-end banner is delayed for the flying animation
+  const forceScatterBuyRef = useRef(false); // Feature Buy: force 3 scatters on the next spin to trigger the free-spins banner
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
@@ -495,6 +496,11 @@ export function useWildBounty() {
     if (roll < 0.004) targetScatters = 3;              // 0.4%  (free-spin trigger)
     else if (roll < 0.06) targetScatters = 2;           // 5%
     else if (roll < 0.16) targetScatters = 1;          // 10%
+    // Feature Buy: force 3 scatters so the spin triggers the free-spins banner
+    if (forceScatterBuyRef.current) {
+      targetScatters = 3;
+      forceScatterBuyRef.current = false;
+    }
     // Place scatters so the slow-motion anticipation can reveal one. When 3
     // scatters are rolled (0.4% chance), put 2 on the early reels (0-2) and 1
     // on a late reel (3-5) so it lands during the slow-motion phase. For 1-2
@@ -631,16 +637,15 @@ export function useWildBounty() {
     setShowFeatureBuyConfirm(true);
   }, [spinning, showFreeSpinStart, showFeatureBuyConfirm]);
 
-  // START — award 10 free spins and let the free-spins loop begin.
+  // START — run a single spin that forces 3 scatters to land. The scatters
+  // trigger the normal free-spins banner, and the 10 free spins begin after
+  // the user dismisses it (exactly like a natural 3-scatter trigger).
   const confirmFeatureBuy = useCallback(() => {
     setShowFeatureBuyConfirm(false);
-    setFreeSpins(10);
-    freeSpinsCountRef.current = 10;
-    freeSpinsTotalRef.current = 0;
-    setFreeSpinsActive(true);
-    setMultIndex(3); // 8x — free spins start here
-    setMessage('FEATURE BUY · 10 FREE SPINS');
-  }, []);
+    forceScatterBuyRef.current = true;
+    setMessage('FEATURE BUY · SPINNING...');
+    spin();
+  }, [spin]);
 
   // CANCEL — just close the modal, nothing awarded.
   const cancelFeatureBuy = useCallback(() => setShowFeatureBuyConfirm(false), []);
