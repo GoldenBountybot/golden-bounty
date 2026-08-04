@@ -48,36 +48,37 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
 
   return (
     <div className={`relative w-full ${spinning ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount, contain: 'layout style', transform: 'translate3d(0,0,0)' }}>
-      {/* Anticipation golden border glow — bright vertical beams on both
-          sides of the reel with heavy bloom that spills onto adjacent reels */}
+      {/* Anticipation golden border glow — intense vertical beams on both
+          sides of the reel with massive bloom that floods adjacent reel lines */}
       {anticipationGlow && spinning && (
         <>
           <span
             className="absolute top-0 bottom-0 left-0 z-40 pointer-events-none"
             style={{
-              width: '3px',
-              transform: 'translateX(-1.5px)',
-              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,245,180,1) 30%, rgba(255,255,240,1) 50%, rgba(255,245,180,1) 70%, rgba(255,215,0,0) 100%)',
-              boxShadow: '0 0 10px rgba(255,255,220,1), 0 0 24px rgba(255,220,100,1), 0 0 48px rgba(255,200,60,0.85), 0 0 80px rgba(255,180,40,0.5)',
+              width: '4px',
+              transform: 'translateX(-2px)',
+              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,250,200,1) 25%, rgba(255,255,250,1) 50%, rgba(255,250,200,1) 75%, rgba(255,215,0,0) 100%)',
+              boxShadow: '0 0 14px rgba(255,255,230,1), 0 0 32px rgba(255,230,120,1), 0 0 64px rgba(255,210,70,1), 0 0 110px rgba(255,190,40,0.8), 0 0 160px rgba(255,170,30,0.45)',
               mixBlendMode: 'screen',
             }}
           />
           <span
             className="absolute top-0 bottom-0 right-0 z-40 pointer-events-none"
             style={{
-              width: '3px',
-              transform: 'translateX(1.5px)',
-              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,245,180,1) 30%, rgba(255,255,240,1) 50%, rgba(255,245,180,1) 70%, rgba(255,215,0,0) 100%)',
-              boxShadow: '0 0 10px rgba(255,255,220,1), 0 0 24px rgba(255,220,100,1), 0 0 48px rgba(255,200,60,0.85), 0 0 80px rgba(255,180,40,0.5)',
+              width: '4px',
+              transform: 'translateX(2px)',
+              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,250,200,1) 25%, rgba(255,255,250,1) 50%, rgba(255,250,200,1) 75%, rgba(255,215,0,0) 100%)',
+              boxShadow: '0 0 14px rgba(255,255,230,1), 0 0 32px rgba(255,230,120,1), 0 0 64px rgba(255,210,70,1), 0 0 110px rgba(255,190,40,0.8), 0 0 160px rgba(255,170,30,0.45)',
               mixBlendMode: 'screen',
             }}
           />
-          {/* Spillover halo — soft diffused glow covering the reel area that
-              bleeds onto adjacent reels for the bloom effect */}
+          {/* Spillover flood — wide diffused golden glow that bleeds well past
+              the reel edges onto neighbouring reel lines */}
           <span
-            className="absolute inset-0 z-30 pointer-events-none"
+            className="absolute z-30 pointer-events-none"
             style={{
-              background: 'radial-gradient(ellipse at center, rgba(255,220,120,0.18) 0%, rgba(255,200,80,0.08) 50%, transparent 80%)',
+              top: '-10%', bottom: '-10%', left: '-45%', right: '-45%',
+              background: 'radial-gradient(ellipse at center, rgba(255,225,130,0.32) 0%, rgba(255,210,80,0.18) 35%, rgba(255,190,50,0.06) 65%, transparent 85%)',
               mixBlendMode: 'screen',
             }}
           />
