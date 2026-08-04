@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import GameAssetLoader from '@/components/GameAssetLoader';
 import { BIG_BROWN_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import GameHeader from '@/components/GameHeader';
 import BigBrownMachine from '@/components/bigbrown/BigBrownMachine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import { startBgMusic, stopBgMusic } from '@/lib/bigBrownBackgroundMusic';
 
 export default function BigBrown() {
   const [ready, setReady] = useState(false);
   const { balance } = useCasinoBalance();
+
+  useEffect(() => {
+    startBgMusic();
+    return () => stopBgMusic();
+  }, []);
 
   if (!ready) {
     return (
