@@ -17,8 +17,8 @@ function getCtx() {
   return ctx;
 }
 
-const NORMAL_VOL = 0.30;
-const DUCK_VOL = 0.08;
+const NORMAL_VOL = 0.42;
+const DUCK_VOL = 0.12;
 
 let musicGain = null;
 let muteGain = null;
