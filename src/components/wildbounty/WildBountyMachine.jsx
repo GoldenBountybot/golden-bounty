@@ -30,10 +30,10 @@ export default function WildBountyMachine() {
   const winBannerRef = useRef(null);
   const topStripRef = useRef(null);
   const centerMultRef = useRef(null);
-  const [totalShake, setTotalShake] = useState(false);
-  const triggerTotalShake = useCallback(() => {
-    setTotalShake(true);
-    setTimeout(() => setTotalShake(false), 600);
+  const [totalGlow, setTotalGlow] = useState(false);
+  const triggerTotalGlow = useCallback(() => {
+    setTotalGlow(true);
+    setTimeout(() => setTotalGlow(false), 600);
   }, []);
 
   // Measure anchor positions ONCE per flying-multiplier (keyed by its key) so
@@ -161,10 +161,10 @@ export default function WildBountyMachine() {
               <span
                 key={g.totalWinKey}
                 className="flex flex-col items-center leading-none"
-                style={{ animation: totalShake ? 'wbAmountShake 0.6s ease-out' : 'none' }}
+                style={{ animation: totalGlow ? 'wbTotalGlowPulse 0.6s ease-out' : 'none' }}
               >
                 <span className="text-sm sm:text-base tracking-[0.15em]">TOTAL WIN</span>
-                <CountUp value={g.lastWin} duration={g.totalWinDur} onComplete={triggerTotalShake} />
+                <CountUp value={g.lastWin} duration={g.totalWinDur} onComplete={triggerTotalGlow} />
               </span>
             ) : g.endSkull
               ? <>TOTAL WIN {g.lastWin.toFixed(2)}</>
