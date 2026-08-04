@@ -11,6 +11,7 @@ sfx.preload && sfx.preload();
 
 export function useWildBounty() {
   const [grid, setGrid] = useState(() => REEL_ROWS.map(r => buildReel(r)));
+  const [finalGrid, setFinalGrid] = useState(null);
   const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
   const [bet, setBet] = useState(0.10);
   const [spinning, setSpinning] = useState(false);
@@ -499,6 +500,7 @@ export function useWildBounty() {
       }
     }
 
+    setFinalGrid(finalGrid);
     const frames = assignGoldFrames(finalGrid);
     // Pre-load the frame layout so each frame appears the instant its reel
     // stops (dropping in with the symbol), instead of popping in after every
@@ -637,7 +639,7 @@ export function useWildBounty() {
   };
 
   return {
-    grid, balance, bet, spinning, stoppedReels,
+    grid, finalGrid, balance, bet, spinning, stoppedReels,
     multiplier: MULTIPLIERS[multIndex], multIndex,
     lastWin, message, winningPositions, goldFrames, shattering, cascading, cascadePositions,
     freeSpins, scatterCount, turbo, autoSpin,

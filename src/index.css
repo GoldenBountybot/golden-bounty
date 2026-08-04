@@ -189,6 +189,15 @@
   100% { transform: translate3d(0, 0%, 0); }
 }
 
+/* Wild Bounty — slow-motion anticipation descent: the FINAL symbols glide
+   down smoothly from above into their landing positions over the slow-gap
+   duration so the user sees exactly which symbol will stick — no random
+   scroll, no sudden snap to a different symbol. */
+@keyframes wbSlowDescent {
+  0%   { transform: translate3d(0, -50%, 0); }
+  100% { transform: translate3d(0, 0%, 0); }
+}
+
 /* Wild Bounty — calm cascade symbol drop: a soft, bounce-free glide from
    above with a gentle fade-in, settling smoothly into place. No squash or
    overshoot — pure translateY with the app's signature ease-out so it feels

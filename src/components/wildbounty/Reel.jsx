@@ -4,7 +4,7 @@ import { randomSymbol } from './symbols';
 
 // A single reel column that smoothly scrolls downward while spinning,
 // then snaps to the final symbols when stopped.
-function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions, goldFrames, shatteringPositions, cascading, cascadePositions, scatterGlow, anticipationGlow, bulletHit, slow = 1 }) {
+function Reel({ reelIndex, rowCount, symbols, finalSymbols, spinning, speed, winningPositions, goldFrames, shatteringPositions, cascading, cascadePositions, scatterGlow, anticipationGlow, bulletHit, slow = 1 }) {
   const [justStopped, setJustStopped] = useState(false);
   const prevSpinning = useRef(false);
   const wasAnticipation = useRef(false);
@@ -25,17 +25,13 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
   }, [spinning]);
 
   const strip = useMemo(() => {
-    // During slow anticipation, scroll a consistent repeating sequence so the
-    // symbols cascade smoothly in slow motion. 4 copies make the -75% reelFall
-    // loop seamless (bottom copy == top copy), so no chaotic jump is visible.
+    // During slow anticipation, show the FINAL symbols descending smoothly
+    // from above into their landing positions (a single glide, not a random
+    // loop) so the user sees exactly which symbol will stick — no confusing
+    // snap to a different symbol when the reel stops.
     if (spinning && anticipationGlow) {
-      // 4 blocks where the last matches the first → seamless -75%→0% loop,
-      // but the middle two blocks are random so the slow scroll is VISIBLE
-      // (4 identical copies made the reel look frozen, not slow-motion).
-      const rc = rowCount;
-      const block = () => Array.from({ length: rc }, () => randomSymbol());
-      const b1 = block();
-      return [...b1, ...block(), ...block(), ...b1];
+      const filler = Array.from({ length: rowCount }, () => randomSymbol());
+      return [...(finalSymbols || symbols), ...filler];
     }
     if (spinning) {
       // First & last blocks identical → seamless -75%→0% reelFall loop (no jump).
@@ -44,7 +40,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
       return [...b1, ...block(), ...block(), ...b1];
     }
     return symbols;
-  }, [spinning, symbols, rowCount, anticipationGlow]);
+  }, [spinning, symbols, finalSymbols, rowCount, anticipationGlow]);
 
   return (
     <div className={`relative w-full ${spinning ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount, contain: 'layout style', transform: 'translate3d(0,0,0)' }}>
@@ -88,7 +84,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
       )}
       <div
         className="flex flex-col w-full"
-        style={{ animation: spinning ? `reelFall ${speed}s linear infinite` : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s cubic-bezier(0.16, 1, 0.3, 1)' : 'reelLand 0.4s cubic-bezier(0.16, 1, 0.3, 1)') : 'none', willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translate3d(0,0,0)' }}
+        style={{ animation: spinning ? (anticipationGlow ? `wbSlowDescent ${speed}s linear forwards` : `reelFall ${speed}s linear infinite`) : justStopped ? (wasAnticipation.current ? 'reelLandSlow 1.1s cubic-bezier(0.16, 1, 0.3, 1)' : 'reelLand 0.4s cubic-bezier(0.16, 1, 0.3, 1)') : 'none', willChange: 'transform', backfaceVisibility: 'hidden', transform: 'translate3d(0,0,0)' }}
       >
         {strip.map((sym, i) => {
           const isDropping = cascading && cascadePositions && cascadePositions.has(`${reelIndex}-${i}`);
