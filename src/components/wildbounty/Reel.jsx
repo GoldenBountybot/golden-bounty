@@ -84,19 +84,6 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
               animation: 'wildHaloPulse 2.4s ease-in-out infinite',
             }}
           />
-          {/* Golden wash over the symbols themselves — a bright pulsing overlay
-              that floods every symbol in the reel with warm golden light so the
-              anticipation reads as the whole reel glowing, not just the edges. */}
-          <span
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              zIndex: 35,
-              background: 'linear-gradient(180deg, rgba(255,240,180,0.28) 0%, rgba(255,220,120,0.42) 50%, rgba(255,240,180,0.28) 100%)',
-              boxShadow: 'inset 0 0 24px rgba(255,235,140,0.85), inset 0 0 48px rgba(255,210,90,0.55)',
-              mixBlendMode: 'screen',
-              animation: 'wildHaloPulse 1.8s ease-in-out infinite',
-            }}
-          />
         </>
       )}
       <div
