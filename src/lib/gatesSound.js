@@ -50,44 +50,95 @@ export function playSpinSound() {
   } catch { /* ignore */ }
 }
 
-// ── Symbol drop — real casino reel-land sample ──────────────────────────
-const REEL_DROP_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/ac74277f6_spinrelldropx.mp3';
-let dropBuffer = null;
-let dropLoaded = false;
-
-function loadDropSound() {
-  if (dropLoaded) return;
-  dropLoaded = true;
-  const ac = getCtx();
-  fetch(REEL_DROP_URL)
-    .then(r => r.arrayBuffer())
-    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
-    .then(buf => { if (buf) dropBuffer = buf; })
-    .catch(() => {});
-}
-loadDropSound();
-
-// Plays the real reel-drop sample with a slight pitch shift per reel so the
-// 6-reel cascade reads as a descending→ascending sequence (low → high).
+// ── Symbol drop — golden coin tinkle ───────────────────────────────────
+// A premium metallic gold-coin drop: a bright metallic "ting" with rich
+// inharmonic partials (like a real gold coin landing on marble), a soft
+// body resonance, and a short reverb tail. Pitch climbs per reel for a
+// cascading sequence. Luxurious and satisfying — no heavy thud.
 export function playReelDropSound(reelIndex = 0) {
   if (isMuted()) return;
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
-  if (!dropBuffer) { loadDropSound(); return; }
-  try {
-    const src = ac.createBufferSource();
-    src.buffer = dropBuffer;
-    // Pitch climbs from reel 0 → reel 5 (semitone steps: 0 → +5 semitones).
-    const semitones = reelIndex * 1;
-    src.playbackRate.value = Math.pow(2, semitones / 12);
+  const t = ac.currentTime;
+
+  // Shared reverb-ish bus: a short feedback delay for a tasteful tail.
+  const bus = ac.createGain();
+  bus.gain.value = 1;
+  const delay = ac.createDelay(1.0);
+  delay.delayTime.value = 0.09;
+  const fb = ac.createGain();
+  fb.gain.value = 0.18;
+  const delayMix = ac.createGain();
+  delayMix.gain.value = 0.28;
+  bus.connect(ac.destination);
+  bus.connect(delay);
+  delay.connect(fb);
+  fb.connect(delay);
+  delay.connect(delayMix);
+  delayMix.connect(ac.destination);
+
+  // Pitch climbs from reel 0 → reel 5 (C5 → F5, +1 semitone per reel).
+  const baseFreq = 523.25 * Math.pow(2, reelIndex / 12);
+
+  // Metallic coin "ting" — inharmonic partials that mimic a real gold coin.
+  // A gold coin's ring has partials at roughly 1×, 2.76×, 5.4×, 8.9× of the
+  // fundamental — these inharmonic ratios give the bright metallic character.
+  const partials = [
+    { ratio: 1.0, peak: 0.14, dur: 0.30 },
+    { ratio: 2.76, peak: 0.09, dur: 0.22 },
+    { ratio: 5.4, peak: 0.05, dur: 0.16 },
+    { ratio: 8.9, peak: 0.025, dur: 0.10 },
+  ];
+  partials.forEach((p) => {
+    const f = baseFreq * p.ratio;
+    const o = ac.createOscillator();
     const g = ac.createGain();
-    // Slightly lower volume for higher-pitched reels to keep it balanced.
-    g.gain.value = 1.4 - reelIndex * 0.08;
-    src.connect(g);
-    g.connect(ac.destination);
-    src.start();
-  } catch { /* ignore */ }
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, t);
+    o.frequency.exponentialRampToValueAtTime(f * 0.995, t + p.dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(p.peak, t + 0.003);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + p.dur);
+    o.connect(g);
+    g.connect(bus);
+    o.start(t);
+    o.stop(t + p.dur + 0.02);
+  });
+
+  // Soft body resonance — a warm low sine for the coin's "thud" body.
+  const body = ac.createOscillator();
+  const bodyG = ac.createGain();
+  body.type = 'sine';
+  body.frequency.setValueAtTime(baseFreq * 0.5, t);
+  body.frequency.exponentialRampToValueAtTime(baseFreq * 0.48, t + 0.12);
+  bodyG.gain.setValueAtTime(0.0001, t);
+  bodyG.gain.linearRampToValueAtTime(0.06, t + 0.005);
+  bodyG.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+  body.connect(bodyG);
+  bodyG.connect(bus);
+  body.start(t);
+  body.stop(t + 0.16);
+
+  // Tiny metallic transient — very short high-passed noise for the initial
+  // "clink" attack when the coin hits the surface.
+  const dur = 0.02;
+  const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 4);
+  }
+  const n = ac.createBufferSource();
+  n.buffer = buf;
+  const hp = ac.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 4000;
+  const nG = ac.createGain();
+  nG.gain.value = 0.05;
+  n.connect(hp);
+  hp.connect(nG);
+  nG.connect(bus);
+  n.start(t);
 }
 
 // ── Scatter landing — premium golden chime arpeggio ───────────────────
