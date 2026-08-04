@@ -376,6 +376,137 @@ function stopFreeSpinReel() {
   stop(n.tick); stop(n.tickLfo);
 }
 
+// ── Free-Spin Trigger celebration ───────────────────────────────────
+// A triumphant fanfare + crowd-cheering texture that plays when the
+// FreeSpinStart banner floats up after 3+ scatters land. Synthesised
+// entirely in the Web Audio API — no external file needed.
+function playFreeSpinTrigger() {
+  const ac = getCtx();
+  if (!ac) return;
+  if (bgMuted || isGlobalMuted()) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  const t = ac.currentTime;
+
+  // Master bus with a touch of reverb-like delay.
+  const master = ac.createGain();
+  master.gain.value = 1.2;
+  const delay = ac.createDelay(1.0);
+  delay.delayTime.value = 0.14;
+  const fb = ac.createGain();
+  fb.gain.value = 0.22;
+  const delayMix = ac.createGain();
+  delayMix.gain.value = 0.25;
+  master.connect(ac.destination);
+  master.connect(delay);
+  delay.connect(fb);
+  fb.connect(delay);
+  delay.connect(delayMix);
+  delayMix.connect(ac.destination);
+
+  // ── Triumphant brass fanfare — ascending major arpeggio ──
+  const fanfare = [
+    { f: 392.0, time: 0, dur: 0.16 },
+    { f: 523.25, time: 0.14, dur: 0.16 },
+    { f: 659.25, time: 0.28, dur: 0.16 },
+    { f: 783.99, time: 0.42, dur: 0.3 },
+    { f: 1046.5, time: 0.7, dur: 0.5 },
+  ];
+  fanfare.forEach(({ f, time: dt, dur }) => {
+    const start = t + dt;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    const lp = ac.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 3200;
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(f, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.09, start + 0.02);
+    g.gain.linearRampToValueAtTime(0.06, start + dur * 0.7);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    o.connect(lp); lp.connect(g); g.connect(master);
+    o.start(start); o.stop(start + dur + 0.05);
+  });
+
+  // ── Bright chime layer on top ──
+  const chimes = [1046.5, 1318.51, 1568, 2093];
+  chimes.forEach((f, i) => {
+    const start = t + i * 0.1;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.08, start + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.6);
+    o.connect(g); g.connect(master);
+    o.start(start); o.stop(start + 0.65);
+  });
+
+  // ── Crowd cheering texture — swells of filtered noise ──
+  // Simulates a crowd roar: bursts of pink-ish noise that swell up and
+  // slowly decay, layered over ~1.5s for a stadium-cheer feel.
+  const cheerDur = 1.8;
+  const cheerBuf = ac.createBuffer(1, Math.floor(ac.sampleRate * cheerDur), ac.sampleRate);
+  const cdata = cheerBuf.getChannelData(0);
+  for (let i = 0; i < cdata.length; i++) {
+    // Pink-ish noise via simple averaging — smoother than white noise.
+    cdata[i] = (Math.random() * 2 - 1) * 0.5;
+  }
+  const cheer = ac.createBufferSource();
+  cheer.buffer = cheerBuf;
+  // Bandpass centered on the "crowd roar" frequencies (500–2000 Hz).
+  const bp1 = ac.createBiquadFilter();
+  bp1.type = 'bandpass';
+  bp1.frequency.value = 900;
+  bp1.Q.value = 0.6;
+  const bp2 = ac.createBiquadFilter();
+  bp2.type = 'bandpass';
+  bp2.frequency.value = 1600;
+  bp2.Q.value = 0.5;
+  const cheerG = ac.createGain();
+  // Crowd swells up then slowly fades — the "roar" shape.
+  cheerG.gain.setValueAtTime(0.0001, t);
+  cheerG.gain.linearRampToValueAtTime(0.14, t + 0.25);   // swell up
+  cheerG.gain.linearRampToValueAtTime(0.16, t + 0.6);    // peak roar
+  cheerG.gain.linearRampToValueAtTime(0.12, t + 1.0);    // hold
+  cheerG.gain.exponentialRampToValueAtTime(0.0001, t + cheerDur); // fade
+  cheer.connect(bp1);
+  bp1.connect(bp2);
+  bp2.connect(cheerG);
+  cheerG.connect(master);
+  cheer.start(t);
+  cheer.stop(t + cheerDur);
+
+  // ── Whistle-like high spikes — a few "woo!" whistles in the crowd ──
+  [0.3, 0.7, 1.1].forEach((dt, i) => {
+    const start = t + dt;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(1800 + i * 200, start);
+    o.frequency.linearRampToValueAtTime(2400 + i * 200, start + 0.15);
+    o.frequency.linearRampToValueAtTime(2000 + i * 150, start + 0.3);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.05, start + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+    o.connect(g); g.connect(master);
+    o.start(start); o.stop(start + 0.4);
+  });
+
+  // ── Deep thunder impact under the fanfare ──
+  const thunder = ac.createOscillator();
+  const thG = ac.createGain();
+  thunder.type = 'sine';
+  thunder.frequency.setValueAtTime(55, t + 0.4);
+  thunder.frequency.exponentialRampToValueAtTime(35, t + 1.2);
+  thG.gain.setValueAtTime(0.0001, t + 0.4);
+  thG.gain.linearRampToValueAtTime(0.12, t + 0.45);
+  thG.gain.exponentialRampToValueAtTime(0.0001, t + 1.3);
+  thunder.connect(thG); thG.connect(master);
+  thunder.start(t + 0.4); thunder.stop(t + 1.35);
+}
+
 export const sfx = {
   preload() { loadBgBuffer(); loadSpinClickBuffer(); loadSymMatchBuffer(); loadScatterBuffer(); loadTotalWinBuffer(); },
   spin() { startBackgroundMusic(); },
@@ -388,6 +519,7 @@ export const sfx = {
   spinClick() { playSpinClick(); },
   symbolMatch() { playSymMatch(); },
   showdown() { return playTotalWin(); },
+  freeSpinTrigger() { playFreeSpinTrigger(); },
   startFreeSpinReel,
   stopFreeSpinReel,
 };

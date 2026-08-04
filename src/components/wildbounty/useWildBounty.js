@@ -170,7 +170,7 @@ export function useWildBounty() {
       freeSpinsCountRef.current += awardCount;
       // First trigger shows the START screen; retrigger during free spins
       // just adds the spins and keeps the round going.
-      if (!wasFree) setShowFreeSpinStart(true);
+      if (!wasFree) { setShowFreeSpinStart(true); sfx.freeSpinTrigger(); }
       awarded = true;
       justAwarded = true;
     }
