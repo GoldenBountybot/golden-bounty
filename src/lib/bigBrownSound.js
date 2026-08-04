@@ -1,5 +1,6 @@
 // Big Brown — spin button + reel-drop sounds (Web Audio API). Purely cosmetic.
 import { isMuted } from '@/lib/soundMute';
+import { duckBg } from '@/lib/bigBrownBackgroundMusic';
 
 let ctx = null;
 function getCtx() {
@@ -33,6 +34,7 @@ export function playSpinSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   if (!spinBuffer) { loadSpinSound(); return; }
   try {
     const src = ac.createBufferSource();
@@ -54,6 +56,7 @@ export function playReelDropSound(reelIndex = 0) {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   const t = ac.currentTime;
 
   // Pitch climbs from reel 0 → reel 5 (220Hz → 660Hz).
@@ -135,6 +138,7 @@ export function playHighValueWinSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   if (!highWinBuffer) { loadHighWinSound(); return; }
   try {
     const src = ac.createBufferSource();
@@ -155,6 +159,7 @@ export function playAnimalRoar(symbolId) {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   const t = ac.currentTime;
 
   // Helper: a growl = low sawtooth with vibrato + lowpass sweep + noise breath.
@@ -311,6 +316,7 @@ export function playLowValueWinSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   if (!lowWinBuffer) { loadLowWinSound(); return; }
   try {
     const src = ac.createBufferSource();
@@ -332,6 +338,7 @@ export function playScatterDropSound() {
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
+  duckBg();
   const t0 = ac.currentTime;
 
   // Crystal bell arpeggio — C6, E6, G6, C7 (bright, magical, ascending).
