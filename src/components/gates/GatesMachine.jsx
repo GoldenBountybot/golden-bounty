@@ -270,7 +270,7 @@ export default function GatesMachine() {
           {freeSpinsActive ? (
             <GatesMultBanner value={spinMult} />
           ) : (
-            <div className="flex flex-col items-center gap-1.5" style={{ transform: 'translateX(-10px)' }}>
+            <div className="flex flex-col items-center gap-1.5" style={{ transform: 'translateX(-22px)' }}>
               {/* Main spin button */}
               <button onClick={() => { playButtonPress(); spin(); }} disabled={spinning}
                 onMouseEnter={playButtonHover}
