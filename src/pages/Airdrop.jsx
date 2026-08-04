@@ -136,20 +136,14 @@ export default function Airdrop() {
           </div>
           <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'rgba(212,175,55,0.7)' }}><path d="M9 18l6-6-6-6" /></svg>
         </button>
-        {/* Hero — Bounty token */}
-        <div
-          className="dash-card relative overflow-hidden p-6 flex flex-col items-center gap-3"
-          style={{ animation: 'dashFadeIn 400ms ease both', background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.4)' }}
-        >
-          <div className="pointer-events-none absolute -top-12 -right-10 w-44 h-44 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.22), transparent 70%)' }} />
-          <div className="relative">
-            <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 22px rgba(212,175,55,0.4)', transform: 'scale(1.15)' }} />
-            <img src={BOUNTY_LOGO} alt="Bounty Token" className="w-20 h-20 relative" />
-          </div>
-          <h2 className="text-2xl font-extrabold" style={{ ...heading, color: '#D4AF37' }}>BOUNTY</h2>
-          <p className="text-[12px] text-center" style={{ color: 'rgba(255,255,255,0.6)' }}>
-            {t("The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit.")}
-          </p>
+        {/* Hero — Bounty token banner */}
+        <div className="relative overflow-hidden rounded-2xl" style={{ animation: 'dashFadeIn 400ms ease both', border: '1px solid rgba(212,175,55,0.4)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+          <img
+            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6b0feb46f_file_00000000a2c082079005efbe99d662d8.png"
+            alt="BOUNTY — The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit."
+            className="w-full h-auto block select-none"
+            draggable={false}
+          />
         </div>
 
         {/* Allocation card */}
