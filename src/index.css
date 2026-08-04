@@ -101,14 +101,12 @@
 }
 
 @keyframes reelLand {
-  0%   { transform: translate3d(0, -12%, 0); }
-  58%  { transform: translate3d(0, 1.2%, 0); }
+  0%   { transform: translate3d(0, -9%, 0); }
   100% { transform: translate3d(0, 0%, 0); }
 }
 
 @keyframes reelLandSlow {
-  0%   { transform: translate3d(0, -18%, 0); }
-  54%  { transform: translate3d(0, 1.5%, 0); }
+  0%   { transform: translate3d(0, -16%, 0); }
   100% { transform: translate3d(0, 0%, 0); }
 }
 
