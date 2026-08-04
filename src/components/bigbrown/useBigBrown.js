@@ -21,6 +21,9 @@ export function useBigBrown() {
   const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
   const [awardedFreeSpins, setAwardedFreeSpins] = useState(8);
+  const [freeSpinTotalWin, setFreeSpinTotalWin] = useState(0);
+  const [showSuperWin, setShowSuperWin] = useState(false);
+  const [superWinAmount, setSuperWinAmount] = useState(0);
   const [turbo, setTurbo] = useState(false);
   const [autoSpin, setAutoSpin] = useState(false);
   const [stoppedReels, setStoppedReels] = useState(new Set([0, 1, 2, 3, 4, 5]));
@@ -98,6 +101,8 @@ export function useBigBrown() {
       setLastWin(totalWin);
       setWinningPositions(wpos);
       setMessage(`WIN ${totalWin.toFixed(2)}`);
+      // Accumulate free-spin winnings for the Super Win banner.
+      if (wasFree) setFreeSpinTotalWin(t => t + totalWin);
       // Play the user-supplied BigBrown sample when the win includes any
       // low-value card symbol (A, K, Q, J, 10, 9).
       const hasLowWin = wins.some(w => SYMBOLS[w.symbol] && SYMBOLS[w.symbol].type === 'low');
@@ -263,6 +268,15 @@ export function useBigBrown() {
     if (freeSpinsActive && freeSpins === 0) {
       setFreeSpinsActive(false);
       setMessage('FREE GAMES ENDED!');
+      // Show the Super Win banner when the total free-spin winnings reach a
+      // decent amount (at least 3× the bet). Otherwise just reset the counter.
+      setFreeSpinTotalWin((total) => {
+        if (total >= bet * 3) {
+          setSuperWinAmount(total);
+          setShowSuperWin(true);
+        }
+        return 0;
+      });
     }
   }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin]);
 
@@ -319,6 +333,8 @@ export function useBigBrown() {
     setFreeSpins(0);
     setFreeSpinsActive(false);
     setShowFreeSpinStart(false);
+    setFreeSpinTotalWin(0);
+    setShowSuperWin(false);
     setMessage('Balance reset');
   };
 
@@ -328,6 +344,7 @@ export function useBigBrown() {
     freeSpins, turbo, autoSpin,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,
+    showSuperWin, superWinAmount, setShowSuperWin,
     anticipation,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, reset,
     bonusCost, bonusCosts, buyBonus,

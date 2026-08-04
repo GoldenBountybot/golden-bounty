@@ -4,6 +4,7 @@ import BigBrownSymbol from './BigBrownSymbol';
 import BigBrownInfo from './BigBrownInfo';
 import BigBrownFreeSpinStart from './BigBrownFreeSpinStart';
 import BigBrownBonusPop from './BigBrownBonusPop';
+import BigBrownSuperWinBanner from './BigBrownSuperWinBanner';
 import { useBigBrown } from './useBigBrown';
 import { WAYS, BETS, WILD_EXPAND_IMG, randomSymbol, SYMBOLS } from '@/lib/bigBrownEngine';
 import { incBet } from '@/lib/betStepper';
@@ -75,6 +76,7 @@ export default function BigBrownMachine() {
     freeSpins, turbo, autoSpin,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart,
+    showSuperWin, superWinAmount, setShowSuperWin,
     anticipation, bonusCost, bonusCosts, buyBonus,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin,
   } = g;
@@ -97,6 +99,13 @@ export default function BigBrownMachine() {
       </svg>
 
       {showInfo && <BigBrownInfo bet={bet} onClose={() => setShowInfo(false)} />}
+
+      {showSuperWin && (
+        <BigBrownSuperWinBanner
+          amount={superWinAmount}
+          onClose={() => setShowSuperWin(false)}
+        />
+      )}
 
       {/* Info button — top-left, large circular */}
       <button
