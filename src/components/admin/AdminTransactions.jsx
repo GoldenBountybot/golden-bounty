@@ -4,6 +4,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { pushNotification } from '@/lib/notify';
 import { applyReferralCommission } from '@/lib/referral';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import WithdrawalRiskPanel from '@/components/admin/WithdrawalRiskPanel';
 
 export default function AdminTransactions() {
   const [txs, setTxs] = useState([]);
@@ -12,6 +13,7 @@ export default function AdminTransactions() {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ user_id: '', amount: '', type: 'deposit', note: '' });
+  const [review, setReview] = useState(null);
   const { toast } = useToast();
 
   const load = async () => {
@@ -152,12 +154,21 @@ export default function AdminTransactions() {
           </div>
           {t.status === 'pending' && (
             <div className="flex gap-1">
+              <button onClick={() => setReview(t)} className="px-2 py-1 rounded bg-amber-500 text-stone-950 text-xs font-bold">Review</button>
               <button onClick={() => setStatus(t, 'completed')} className="px-2 py-1 rounded bg-emerald-500 text-white text-xs font-bold">Approve</button>
               <button onClick={() => setStatus(t, 'rejected')} className="px-2 py-1 rounded bg-rose-600 text-white text-xs font-bold">Reject</button>
             </div>
           )}
         </WesternFrame>
       ))}
+
+      {review && (
+        <WithdrawalRiskPanel
+          userId={review.user_id}
+          userEmail={review.user_email}
+          onClose={() => setReview(null)}
+        />
+      )}
     </div>
   );
 }
