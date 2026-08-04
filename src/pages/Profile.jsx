@@ -90,7 +90,7 @@ export default function Profile() {
         setProfile(u);
         setUsername(u.username || '');
         setPhone(u.phone || '');
-        setBountyAllocation(Number(u?.bounty_allocation ?? 0));
+        setBountyAllocation(Number(u?.bounty_allocation ?? 0) + Number(u?.task_bounty ?? 0));
         setTaskBounty(Number(u?.task_bounty ?? 0));
       } catch {
         /* ignore */
@@ -467,7 +467,7 @@ export default function Profile() {
         {view === 'profile' && (
         <>
         {/* Social tasks — earn BOUNTY */}
-        <TaskSystem profile={profile} onClaimed={setTaskBounty} />
+        <TaskSystem profile={profile} onClaimed={(b) => { setTaskBounty(b); setBountyAllocation((a) => a + (b - taskBounty)); }} />
 
         {/* Segmented tabs — Wallet & Games */}
         <div className="grid grid-cols-2 gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
