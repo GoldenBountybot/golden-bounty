@@ -107,12 +107,14 @@ export default function ReferralStats({ profile, onBack }) {
         </span>
       </div>
 
-      {/* Ranking leaderboard */}
+      {/* Ranking leaderboard — hidden for now */}
+      {false && (
       <div className="flex items-center gap-2 px-1">
         <Trophy className="w-4 h-4" style={{ color: '#D4AF37' }} />
         <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>{t("Top Referrers")}</h3>
       </div>
-      {ranking.length === 0 ? (
+      )}
+      {false && ranking.length === 0 ? (
         <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("No referrals yet. Share your promo code to climb the leaderboard.")}</p>
       ) : (
         <div className="flex flex-col gap-2">
