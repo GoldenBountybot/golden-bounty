@@ -238,10 +238,10 @@ export function useGates() {
     }, acc));
   }, [spinning, balance, bet, freeSpins, turbo, setBalance, logActivity]);
 
-  // auto spin (base game)
+  // auto spin (base game) — pause briefly so the win amount is readable
   useEffect(() => {
     if (autoSpin && !spinning && !freeSpinsActive && balance >= bet) {
-      const t = setTimeout(() => spin(), turbo ? 250 : 650);
+      const t = setTimeout(() => spin(), turbo ? 700 : 1200);
       return () => clearTimeout(t);
     }
     if (autoSpin && balance < bet) setAutoSpin(false);
@@ -250,7 +250,7 @@ export function useGates() {
   // free spins auto trigger
   useEffect(() => {
     if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart) {
-      const t = setTimeout(() => spin(), turbo ? 350 : 750);
+      const t = setTimeout(() => spin(), turbo ? 800 : 1300);
       return () => clearTimeout(t);
     }
     if (freeSpinsActive && freeSpins === 0) {
