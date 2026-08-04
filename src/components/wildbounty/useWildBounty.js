@@ -471,6 +471,40 @@ export function useWildBounty() {
       }
     }
 
+    // Limit to a single winning symbol type per spin so many symbols don't
+    // match at once. When a forced win was placed, break every natural win
+    // whose symbol isn't the forced one; when no forced win, break all wins
+    // except at most one (keep the first, break the rest).
+    {
+      const forcedSym = wantWin ? 'A' : null;
+      let guard = 0;
+      const lows = ['Q', 'J', 'K'];
+      while (guard++ < 14) {
+        const { wins } = evaluateWins(finalGrid, bet);
+        if (wins.length === 0) break;
+        // Keep only the forced symbol's win (or the first win if no forced).
+        const keepSym = forcedSym || wins[0].symbol;
+        const extras = wins.filter(w => w.symbol !== keepSym);
+        if (extras.length === 0) break;
+        let fixed = false;
+        for (const w of extras) {
+          for (const targetReel of [2, 1, 0]) {
+            const reel = finalGrid[targetReel];
+            for (let row = 0; row < reel.length; row++) {
+              if (reel[row] === w.symbol) {
+                reel[row] = lows[Math.floor(Math.random() * lows.length)];
+                fixed = true;
+                break;
+              }
+            }
+            if (fixed) break;
+          }
+          if (fixed) break;
+        }
+        if (!fixed) break;
+      }
+    }
+
     // Suppress natural high-value (bandit / revolver) matches: if a 3+
     // contiguous-from-left win formed on either, break it by swapping one
     // matching cell on an early reel to a low symbol (Q/J) so high-value wins
