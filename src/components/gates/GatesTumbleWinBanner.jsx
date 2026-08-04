@@ -22,21 +22,36 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
     const entry = winHistory[idx];
     const amount = Number(entry.subtotal) || 0;
     const mult = Number(entry.mult) || 0;
-    const total = mult > 0 ? amount * mult : amount;
+    const bannerBefore = Number(entry.bannerBefore) || 0;
+    const total = Number(entry.tumbleWin) || (mult > 0 ? amount * mult : amount);
     const balTotal = (Number(balance) || 0) + (Number(winFlash) || 0);
 
     timers.current.forEach(clearTimeout);
     timers.current = [];
 
-    if (mult > 0) {
-      setDisplay({ amount, mult, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'multiply' }), 1300));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'result' }), 2900));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, total, balTotal, phase: 'balance' }), 3900));
+    // Free spins with cascading banner: show base → × cell mult → × banner → result
+    if (mult > 0 && bannerBefore > 0) {
+      setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'amount' });
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'multiply' }), 1300));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'banner' }), 2200));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'result' }), 3100));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'balance' }), 4100));
+      timers.current.push(setTimeout(() => setDisplay(null), 5100));
+    } else if (mult > 0) {
+      setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'amount' });
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'multiply' }), 1300));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'result' }), 2900));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'balance' }), 3900));
       timers.current.push(setTimeout(() => setDisplay(null), 4900));
+    } else if (bannerBefore > 0) {
+      setDisplay({ amount, mult: 0, bannerBefore, total, balTotal, phase: 'amount' });
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult: 0, bannerBefore, total, balTotal, phase: 'banner' }), 1100));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult: 0, bannerBefore, total, balTotal, phase: 'result' }), 2200));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult: 0, bannerBefore, total, balTotal, phase: 'balance' }), 3200));
+      timers.current.push(setTimeout(() => setDisplay(null), 4200));
     } else {
-      setDisplay({ amount, mult: 0, total: amount, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult: 0, total: amount, balTotal, phase: 'balance' }), 850));
+      setDisplay({ amount, mult: 0, bannerBefore: 0, total: amount, balTotal, phase: 'amount' });
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult: 0, bannerBefore: 0, total: amount, balTotal, phase: 'balance' }), 850));
       timers.current.push(setTimeout(() => setDisplay(null), 1900));
     }
   }, [winHistory, balance, winFlash]);
@@ -63,8 +78,11 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
   const value =
     display.phase === 'amount' ? fmt(display.amount) :
     display.phase === 'multiply' ? `${fmt(display.amount)} × ${display.mult}X` :
+    display.phase === 'banner' ? `${fmt(display.amount)} × ${display.mult}X × ${display.bannerBefore}X` :
     display.phase === 'result' ? fmt(display.total) :
-    display.phase === 'balance' ? (display.mult > 0 ? `${fmt(display.total)} × ${display.mult}X` : fmt(display.total)) : '';
+    display.phase === 'balance' ? (display.mult > 0 || display.bannerBefore > 0
+      ? `${fmt(display.total)}`
+      : fmt(display.total)) : '';
 
   return (
     <div key={winHistory?.length || 0}

@@ -230,12 +230,42 @@ export function computeSpin(bet, wantWin, freeMode, runningMult) {
   if (!freeMode) grid = capMults(grid, 1);
   let spinHasMult = freeMode ? false : gridHasMult(grid);
   const tumbles = [];
-  let totalWin = 0;
-  let spinMultSum = 0;
+  let totalWin = 0;      // sum of base wins (before multiplier) — for display
+  let spinWin = 0;       // sum of per-tumble multiplied wins — the actual payout
+  let spinMultSum = 0;   // sum of all multiplier values in winning tumbles
   let scatterMax = 0;
+  // In free spins the banner accumulates value symbols across tumbles AND
+  // across spins. Each winning tumble's win is multiplied by BOTH the value
+  // symbols landing in that tumble AND the accumulated banner from prior
+  // tumbles. The tumble's value symbols are then added to the banner so
+  // subsequent tumbles (and the next free spin) benefit from them.
+  let banner = freeMode ? runningMult : 0;
   let t = 0;
   while (t < 20) {
     const ev = evaluate(grid, bet);
+    let tumbleWin = 0;
+    let tumbleMult = 0;
+    let effectiveMult = 1;
+    let bannerBefore = banner;
+    if (ev.win > 0) {
+      tumbleMult = ev.multipliers.reduce((s, m) => s + m.value, 0);
+      if (freeMode) {
+        // value symbol multiplies the win AND the accumulated banner
+        // multiplier also multiplies the win. Then the value symbol is
+        // added to the banner for future tumbles.
+        const bannerMult = banner > 0 ? banner : 1;
+        const cellMult = tumbleMult > 0 ? tumbleMult : 1;
+        effectiveMult = bannerMult * cellMult;
+        tumbleWin = Math.round(ev.win * effectiveMult * 100) / 100;
+        banner += tumbleMult;
+      } else {
+        // Base game: per-tumble display win with this tumble's own multiplier.
+        // The actual spin payout uses totalWin × summed multipliers (unchanged).
+        effectiveMult = tumbleMult > 0 ? tumbleMult : 1;
+        tumbleWin = Math.round(ev.win * effectiveMult * 100) / 100;
+      }
+      spinMultSum += tumbleMult;
+    }
     tumbles.push({
       grid: grid.map((reel) => [...reel]),
       wins: ev.wins,
@@ -243,14 +273,12 @@ export function computeSpin(bet, wantWin, freeMode, runningMult) {
       multipliers: ev.multipliers,
       scatterCount: ev.scatterCount,
       win: ev.win,
+      tumbleWin,
+      effectiveMult,
+      bannerBefore,
     });
     totalWin += ev.win;
-    // Multiplier symbols only count when that tumble actually produced a win.
-    // A multiplier landing in a no-win tumble (incl. the final settling tumble)
-    // is ignored.
-    if (ev.win > 0) {
-      spinMultSum += ev.multipliers.reduce((s, m) => s + m.value, 0);
-    }
+    if (freeMode) spinWin += tumbleWin;
     scatterMax = Math.max(scatterMax, ev.scatterCount);
     if (ev.win === 0) break;
     grid = tumble(grid, ev.winPositions, freeMode, freeMode ? true : !spinHasMult);
@@ -259,17 +287,21 @@ export function computeSpin(bet, wantWin, freeMode, runningMult) {
   }
   const triggeredFree = scatterMax >= 4;
   const effectiveMult = freeMode
-    ? (runningMult + spinMultSum)
+    ? banner
     : (spinMultSum > 0 ? spinMultSum : 1);
-  const spinWin = Math.round(totalWin * (effectiveMult || 1) * 100) / 100;
+  // Base game: entire spin win × summed multipliers (unchanged).
+  // Free spins: sum of per-tumble cascading wins already computed above.
+  const finalWin = freeMode
+    ? Math.round(spinWin * 100) / 100
+    : Math.round(totalWin * (effectiveMult || 1) * 100) / 100;
   return {
     tumbles,
     totalWin,
     spinMultSum,
     effectiveMult,
-    spinWin,
+    spinWin: finalWin,
     scatterMax,
     triggeredFree,
-    newRunningMult: freeMode ? runningMult + spinMultSum : 0,
+    newRunningMult: freeMode ? banner : 0,
   };
 }

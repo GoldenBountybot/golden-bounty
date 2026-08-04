@@ -128,13 +128,23 @@ export function useGates() {
         setGrid(tb.grid);
         setWinPositions(tb.winPositions);
         setDropCells(fresh);
-        runningWin += tb.win;
+        // Base game: show base wins during the spin (multiplier applied at settle).
+        // Free spins: show the actual per-tumble cascading multiplied win.
+        runningWin += freeMode ? tb.tumbleWin : tb.win;
         // Multipliers only count on a winning tumble (matches the engine rule).
         if (tb.win > 0 && tb.multipliers.length) multSeen += tb.multipliers.reduce((s, m) => s + m.value, 0);
         setWinFlash(runningWin);
         if (tb.wins.length) {
           setWinList(tb.wins);
-          setWinHistory((h) => [...h, { wins: tb.wins, subtotal: tb.win, mult: tb.multipliers.length ? tb.multipliers.reduce((s, m) => s + m.value, 0) : 0 }]);
+          setWinHistory((h) => [...h, {
+            wins: tb.wins,
+            subtotal: tb.win,
+            tumbleWin: tb.tumbleWin,
+            mult: tb.multipliers.length ? tb.multipliers.reduce((s, m) => s + m.value, 0) : 0,
+            bannerBefore: tb.bannerBefore,
+            effectiveMult: tb.effectiveMult,
+            freeMode,
+          }]);
         }
         const scatPos = new Set();
         for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) if (tb.grid[c][r] === 'scatter') scatPos.add(`${c}-${r}`);

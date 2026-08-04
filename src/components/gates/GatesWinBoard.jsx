@@ -35,9 +35,12 @@ export default function GatesWinBoard({ history, amount }) {
               {t.mult > 0 && (
                 <span style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#ff9040', fontWeight: 800 }}>×{t.mult}</span>
               )}
+              {t.freeMode && t.bannerBefore > 0 && (
+                <span style={{ fontFamily: 'Georgia,serif', fontSize: '10px', color: '#60a0ff', fontWeight: 800 }}>×{t.bannerBefore}</span>
+              )}
               <span style={{ fontFamily: 'Georgia,serif', fontSize: '11px', color: '#ffd060', fontWeight: 900,
                 textShadow: '0 0 5px rgba(255,200,0,0.5)' }}>
-                {fmt(t.subtotal)}
+                {fmt(t.freeMode ? (t.tumbleWin || t.subtotal) : t.subtotal)}
               </span>
             </div>
           </div>
