@@ -88,7 +88,7 @@ export function useWildBounty() {
   // CONTINUE_PROB[i] = chance the NEXT cascade wins after a win paid at tier i,
   // derived from the requested cumulative reach odds:
   //   reach X2 5%, X4 3.33%, X8 1.67%, X16 0.1%, X32 0.02%, X64 0.01%, X128 0.0006%.
-  const CONTINUE_PROB = [0.012, 0.0025, 0.0012, 0.001, 0.00012, 0.00012, 0.00012];
+  const CONTINUE_PROB = [0.006, 0.0012, 0.0006, 0.0005, 0.00006, 0.00006, 0.00006];
 
   // Drop new symbols into the blasted positions and rig them so the next
   // cascade either wins (chain continues toward a higher multiplier tier) or
@@ -426,16 +426,27 @@ export function useWildBounty() {
 
     let finalGrid = REEL_ROWS.map(r => buildReel(r));
     // Match chance = admin RTP (default 35%): 65% no-match, 35% match.
-    const wantWin = Math.random() < (rtpRef.current / 100);
+    // During free spins, lower the base win chance so fewer value symbols land
+    // and multiplier cascade rounds trigger less often.
+    const wantWin = Math.random() < (rtpRef.current / 100) * (usingFree ? 0.55 : 1);
     if (wantWin) {
       const X = 'A';
       finalGrid = finalGrid.map((reel, ri) => {
-        if (ri < 3 && !reel.includes(X)) {
-          const copy = [...reel];
-          copy[Math.floor(Math.random() * copy.length)] = X;
-          return copy;
+        const copy = [...reel];
+        if (ri < 3) {
+          // Cap to exactly 1 matching symbol per early reel to keep ways low
+          const aIdx = copy.map((s, i) => s === X ? i : -1).filter(i => i >= 0);
+          if (aIdx.length === 0) {
+            copy[Math.floor(Math.random() * copy.length)] = X;
+          } else {
+            aIdx.slice(1).forEach(i => { let s = randomSymbol(); while (s === X) s = randomSymbol(); copy[i] = s; });
+          }
+        } else {
+          // Strip the matching symbol from late reels so the win stays at 3
+          // reels (no 4/5-of-a-kind → far fewer symbols match at once)
+          copy.forEach((s, i) => { if (s === X) { let ns = randomSymbol(); while (ns === X) ns = randomSymbol(); copy[i] = ns; } });
         }
-        return reel;
+        return copy;
       });
     } else {
       // Only suppress natural wins briefly so matches still happen often.
