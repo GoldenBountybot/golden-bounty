@@ -429,6 +429,34 @@ export function useWildBounty() {
       }
     }
 
+    // Suppress natural high-value (bandit / revolver) matches: if a 3+
+    // contiguous-from-left win formed on either, break it by swapping one
+    // matching cell on an early reel to a low symbol (Q/J) so high-value wins
+    // only land very rarely. The forced 'A' win above is unaffected.
+    {
+      let guard = 0;
+      const lows = ['Q', 'J'];
+      while (guard++ < 8) {
+        const { wins } = evaluateWins(finalGrid, bet);
+        const hv = wins.find(w => w.symbol === 'bandit' || w.symbol === 'revolver');
+        if (!hv) break;
+        // Break contiguity: replace a matching (non-wild) cell on reel 2, 1, or 0.
+        let fixed = false;
+        for (const targetReel of [2, 1, 0]) {
+          const reel = finalGrid[targetReel];
+          for (let row = 0; row < reel.length; row++) {
+            if (reel[row] === hv.symbol) {
+              reel[row] = lows[Math.floor(Math.random() * lows.length)];
+              fixed = true;
+              break;
+            }
+          }
+          if (fixed) break;
+        }
+        if (!fixed) break;
+      }
+    }
+
     // Scatter distribution per spin: 3+ = 1% (free-spin trigger), 2 = 5%, 1 = 10%.
     finalGrid = finalGrid.map(reel => [...reel]);
     const nonScatter = () => { let s = randomSymbol(); while (s === 'scatter') s = randomSymbol(); return s; };
