@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
-import { playReelDropSound, playScatterDropSound, playLowValueWinSound } from '@/lib/bigBrownSound';
+import { playReelDropSound, playScatterDropSound, playLowValueWinSound, playHighValueWinSound, playAnimalRoar } from '@/lib/bigBrownSound';
 import { SYMBOLS } from '@/lib/bigBrownEngine';
 
 export function useBigBrown() {
@@ -102,6 +102,24 @@ export function useBigBrown() {
       // low-value card symbol (A, K, Q, J, 10, 9).
       const hasLowWin = wins.some(w => SYMBOLS[w.symbol] && SYMBOLS[w.symbol].type === 'low');
       if (hasLowWin) playLowValueWinSound();
+      // High-value / mid-value animal win → play the user-supplied bgbn_0
+      // sample, plus a distinct synthesized roar/call for each animal that
+      // matched (wolf howl, buffalo growl, eagle screech, cougar snarl, deer
+      // grunt) so the player hears the beast that lined up.
+      const animalWins = wins.filter(w => {
+        const ty = SYMBOLS[w.symbol] && SYMBOLS[w.symbol].type;
+        return ty === 'high' || ty === 'mid';
+      });
+      if (animalWins.length > 0) {
+        playHighValueWinSound();
+        const played = new Set();
+        animalWins.forEach((w, idx) => {
+          if (played.has(w.symbol)) return;
+          played.add(w.symbol);
+          // Stagger roars slightly so multiple animals don't overlap into mush.
+          setTimeout(() => playAnimalRoar(w.symbol), idx * 350);
+        });
+      }
     } else {
       setLastWin(0);
       setMessage(wasFree ? 'FREE SPIN · NO WIN' : '4096 WAYS · BIG BROWN');
