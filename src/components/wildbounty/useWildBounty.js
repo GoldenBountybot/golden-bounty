@@ -106,8 +106,11 @@ export function useWildBounty() {
     if (forceWin) {
       // Guarantee a 3+ contiguous-from-left win: drop the same symbol on the
       // first blasted cell of reels 0, 1 and 2 (a wild already on one of those
-      // reels substitutes, so a reel with no blasted cell is fine).
-      const S = randBase();
+      // reels substitutes, so a reel with no blasted cell is fine). Exclude
+      // high-value symbols (bandit/revolver) so multiplier rounds rarely form
+      // high-value matches.
+      const lowMids = ['whiskey', 'hat', 'A', 'K', 'Q', 'J'];
+      const S = lowMids[Math.floor(Math.random() * lowMids.length)];
       [0, 1, 2].forEach(r => {
         const pos = removed.find(p => Number(p.split('-')[0]) === r);
         if (pos) {
