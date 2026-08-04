@@ -218,16 +218,56 @@ function playShaker(ac, t) {
 }
 
 // ---- Melody generation ----
-// A slow, wandering pentatonic flute line. Each bar picks a phrase: a long
-// sustained note, a two-note rise, or a three-note flourish. Notes are
-// chosen from the pentatonic set with a gentle random walk so the melody
-// feels organic and never repeats exactly.
-let lastDegree = 2; // start mid-scale
-function nextFluteNote() {
-  const step = Math.floor(Math.random() * 5) - 2; // -2..+2
-  lastDegree = Math.max(0, Math.min(PENTATONIC.length + FLUTE_HIGH.length - 1, lastDegree + step));
-  const pool = [...PENTATONIC, ...FLUTE_HIGH];
-  return pool[lastDegree];
+// A delicate, singable pentatonic flute line. Rather than a random walk,
+// the melody follows a curated 8-bar phrase structure (call → response →
+// rise → resolve) so the tune feels composed and beautiful, not aimless.
+// Grace notes and a soft trill ornament the long notes for a "চিকন সুর"
+// (fine, slender melody) feel.
+const POOL = [...PENTATONIC, ...FLUTE_HIGH]; // 10 notes, index 0..9
+
+// Curated melodic phrases. Each entry = [degreeIndex, durationInSteps].
+// Phrases are chained to form a complete 8-bar melody that repeats with
+// subtle variation, like a folk flute tune around a campfire.
+const PHRASES = [
+  // Phrase A — call: a long low note, then a gentle rise.
+  [[2, 6], [3, 2]],
+  // Phrase B — response: step down and hold.
+  [[1, 4], [0, 4]],
+  // Phrase C — rise: a climbing three-note flourish.
+  [[2, 2], [3, 2], [4, 4]],
+  // Phrase D — resolve: a high sustained note settling back down.
+  [[6, 4], [4, 2], [3, 2]],
+  // Phrase E — echo: a delicate high answer.
+  [[5, 4], [4, 4]],
+  // Phrase F — fall: a cascading descent home.
+  [[4, 2], [3, 2], [2, 2], [1, 2]],
+];
+
+let phraseQueue = [];
+function refillPhrases() {
+  // Build a full melody: A B C D E F, then loop with slight variation.
+  [0, 1, 2, 3, 4, 5].forEach(i => phraseQueue.push(...PHRASES[i]));
+}
+
+// A soft trill ornament — two quick grace notes just before a long note,
+// for a delicate, fluttering "চিকন" embellishment.
+function playGraceNotes(ac, t, baseFreq) {
+  const gFreq = baseFreq * Math.pow(2, 2 / 12); // a whole step up
+  [0, 0.07].forEach((off, i) => {
+    const start = t + off;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'triangle';
+    o.frequency.value = i === 0 ? gFreq : baseFreq;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.05, start + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.06);
+    o.connect(g);
+    g.connect(musicGain);
+    g.connect(reverbBus);
+    o.start(start);
+    o.stop(start + 0.07);
+  });
 }
 
 // Schedule one 8th-note step.
@@ -235,26 +275,32 @@ function scheduleStep(ac, step, time) {
   const s = step % STEPS_PER_BAR;
   const bar = Math.floor(step / STEPS_PER_BAR);
 
-  // Tribal drum groove — slow, hypnotic 4/4.
-  // Bass drum on beat 1 & 3; conga accents on the off-beats; shaker on 8ths.
+  // Tribal drum groove — slow, hypnotic 4/4, kept gentle so the flute leads.
   if (s === 0) playDjembeBass(ac, time);
   if (s === 4) playDjembeBass(ac, time);
   if (s === 2) playConga(ac, time, 196.00); // G3
   if (s === 6) playConga(ac, time, 261.63); // C4
   if (s % 2 === 1) playShaker(ac, time);
 
-  // Flute melody — one long note every two bars, plus occasional passing
-  // notes, so the flute breathes slowly over the drums.
-  if (s === 0 && bar % 2 === 0) {
-    const freq = nextFluteNote();
-    playFlute(ac, time, freq, STEP_DUR * 7.5);
+  // Flute melody — pull the next note from the phrase queue whenever a
+  // step is free (no flute currently sounding). The queue drives a
+  // continuous, composed melody across bars.
+  if (phraseQueue.length === 0) refillPhrases();
+  // Use a dedicated "flute voice" tracker: we schedule a note only when the
+  // previous one has finished. Track remaining steps of the current note.
+  if (fluteRemaining <= 0 && phraseQueue.length > 0) {
+    const [degree, durSteps] = phraseQueue.shift();
+    const freq = POOL[Math.max(0, Math.min(POOL.length - 1, degree))];
+    const dur = STEP_DUR * durSteps;
+    // Grace-note ornament on longer notes for a delicate flourish.
+    if (durSteps >= 4) playGraceNotes(ac, time, freq);
+    playFlute(ac, time, freq, dur);
+    fluteRemaining = durSteps;
   }
-  // A shorter answering note in the alternate bar.
-  if (s === 4 && bar % 2 === 1) {
-    const freq = nextFluteNote();
-    playFlute(ac, time, freq, STEP_DUR * 3.5);
-  }
+  if (fluteRemaining > 0) fluteRemaining--;
 }
+
+let fluteRemaining = 0;
 
 function scheduler() {
   const ac = getCtx();
@@ -298,7 +344,8 @@ export function startBgMusic() {
   startDrone(ac);
   nextStepTime = ac.currentTime + 0.1;
   stepIndex = 0;
-  lastDegree = 2;
+  fluteRemaining = 0;
+  phraseQueue = [];
   if (schedulerTimer) clearInterval(schedulerTimer);
   schedulerTimer = setInterval(scheduler, TICK);
   const resume = () => { try { ac.resume(); } catch { /* ignore */ } };
