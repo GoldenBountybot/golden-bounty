@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { computeSpin, BETS, buildGrid, FREE_SPINS_AWARD, REELS, ROWS, MIN_BET } from '@/lib/gatesEngine';
-import { playSpinSound, playWinSound } from '@/lib/gatesSound';
+import {
+  playSpinSound, playWinSound, playBigWin, playHugeWin,
+  playFreeSpinsTrigger, playFreeSpinStart, playFeatureEnd,
+  playMultCollect, playError,
+} from '@/lib/gatesSound';
 
 // every board position `${c}-${r}` — used so the first spin drops all symbols
 const ALL_CELLS = (() => {
@@ -69,6 +73,7 @@ export function useGates() {
     const usingFree = freeSpins > 0;
     if (!usingFree && balance < bet) {
       setMessage('Insufficient balance');
+      playError();
       return;
     }
     timers.current.forEach(clearTimeout);
@@ -119,6 +124,7 @@ export function useGates() {
 
     let prevWinners = ALL_CELLS;
     const lastIdx = result.tumbles.length - 1;
+    let cascadeIdx = 0; // counts winning tumbles for the cascade chain sound
     result.tumbles.forEach((tb, i) => {
       const showDelay = i === 0 ? firstGap : 0;
       acc += showDelay;
@@ -152,8 +158,14 @@ export function useGates() {
         for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) if (tb.grid[c][r] === 'scatter') scatPos.add(`${c}-${r}`);
         setScatterGlow(scatPos.size >= 4 ? scatPos : new Set());
         setSpinMult(freeMode ? (baseStart + multSeen) : multSeen);
-        // Play the golden win chime when matching symbols land.
-        if (tb.win > 0) playWinSound(tb.win, bet);
+        // Play the golden win chime when matching symbols land. Each
+        // consecutive cascade gets slightly more energetic.
+        if (tb.win > 0) {
+          playWinSound(tb.win, bet, cascadeIdx);
+          cascadeIdx++;
+          // Multiplier collect — when a winning tumble has value symbols.
+          if (tb.multipliers.length) playMultCollect();
+        }
       }, showAt));
       // winners glow, then shatter away. The final tumble has no winners, so
       // it skips the glow/shatter wait and settles as soon as its symbols
@@ -181,6 +193,10 @@ export function useGates() {
         setBalance((b) => b + win);
         setLastWin(win);
         setMessage(`WIN $${win.toFixed(2)}`);
+        // Big win / huge win celebration based on win-to-bet ratio.
+        const ratio = bet > 0 ? win / bet : 0;
+        if (ratio >= 50) playHugeWin();
+        else if (ratio >= 10) playBigWin();
       } else {
         setLastWin(0);
         setMessage(usingFree ? 'FREE SPIN · NO WIN' : 'GATES OF OLYMPUS · 8+ PAYS');
@@ -193,6 +209,7 @@ export function useGates() {
       if (result.triggeredFree) {
         setAwardedFreeSpins(FREE_SPINS_AWARD);
         setFreeSpins((f) => f + FREE_SPINS_AWARD);
+        playFreeSpinsTrigger();
         if (!usingFree) {
           setShowFreeSpinStart(true);
           setMessage(`${result.scatterMax} SCATTERS · +${FREE_SPINS_AWARD} FREE SPINS`);
@@ -226,6 +243,7 @@ export function useGates() {
       runningMultRef.current = 0;
       setSpinMult(0);
       setMessage('FREE SPINS ENDED');
+      playFeatureEnd();
     }
   }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin]);
 
@@ -234,6 +252,7 @@ export function useGates() {
     setFreeSpinsActive(true);
     runningMultRef.current = 0;
     setSpinMult(0);
+    playFreeSpinStart();
     spin();
   }, [spin]);
 

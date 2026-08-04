@@ -11,7 +11,10 @@ import GatesMultBanner from './GatesMultBanner';
 import GatesTumbleWinBanner from './GatesTumbleWinBanner';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
-import { playReelDropSound, playScatterDropSound } from '@/lib/gatesSound';
+import {
+  playReelDropSound, playScatterDropSound, playMultLand,
+  playUIClick, playButtonPress, playButtonHover,
+} from '@/lib/gatesSound';
 
 const REELS = 6;
 const ROWS = 5;
@@ -117,6 +120,7 @@ export default function GatesMachine() {
     }
     if (!fire.length) return;
     fire.forEach((b) => struckRef.current.add(b.key));
+    playMultLand();
     setBolts((prev) => ({ ...prev, ...Object.fromEntries(fire.map((b) => [b.key, b])) }));
     const dur = (turbo ? 420 : 700) + 120;
     const t = setTimeout(() => {
@@ -268,7 +272,8 @@ export default function GatesMachine() {
           ) : (
             <div className="flex flex-col items-center gap-1.5" style={{ transform: 'translateX(-10px)' }}>
               {/* Main spin button */}
-              <button onClick={spin} disabled={spinning}
+              <button onClick={() => { playButtonPress(); spin(); }} disabled={spinning}
+                onMouseEnter={playButtonHover}
                 className="rounded-[22px] flex items-center justify-center active:scale-95 transition-transform"
                 style={{ width: 68, height: 68,
                   background: 'transparent',
@@ -300,7 +305,8 @@ export default function GatesMachine() {
                 textShadow: '0 0 10px rgba(255,200,0,0.7)' }}>{freeSpins}</span>
             </div>
           ) : (
-            <button onClick={buyFreeSpins} disabled={spinning}
+            <button onClick={() => { playButtonPress(); buyFreeSpins(); }} disabled={spinning}
+              onMouseEnter={playButtonHover}
               className="flex flex-col items-center rounded-[8px] px-2 py-1.5 shrink-0 active:scale-95 transition-transform disabled:opacity-50"
               style={{ background: 'linear-gradient(135deg,#3a1052,#7a30a0,#3a1052)', border: '2px solid #b070e0',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.5)', minWidth: 72 }}>
@@ -315,32 +321,37 @@ export default function GatesMachine() {
         {/* Bottom controls bar — moved up to sit closer to the spin button */}
         <div className="relative z-20 flex items-center justify-between pt-2"
           style={{ marginTop: 6, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
-          <button onClick={() => setShowInfo(true)}
+          <button onClick={() => { playUIClick(); setShowInfo(true); }}
+            onMouseEnter={playButtonHover}
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
             style={{ background: 'rgba(0,0,0,0.35)', border: '1.5px solid rgba(255,255,255,0.4)' }}>
             <Info className="w-4 h-4 text-white/80" />
           </button>
 
-          <button onClick={() => setAutoSpin(a => !a)}
+          <button onClick={() => { playUIClick(); setAutoSpin(a => !a); }}
+            onMouseEnter={playButtonHover}
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
             style={{ background: autoSpin ? 'rgba(80,200,120,0.3)' : 'rgba(0,0,0,0.35)', border: `1.5px solid ${autoSpin ? 'rgba(80,220,120,0.8)' : 'rgba(255,255,255,0.4)'}` }}>
             <RotateCcw className={`w-4 h-4 ${autoSpin ? 'text-emerald-300' : 'text-white/80'}`} />
           </button>
 
-          <button onClick={() => setBet(Math.max(MIN_BET, Math.round((bet - BET_STEP) * 100) / 100))}
+          <button onClick={() => { playUIClick(); setBet(Math.max(MIN_BET, Math.round((bet - BET_STEP) * 100) / 100)); }}
             disabled={spinning}
+            onMouseEnter={playButtonHover}
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40"
             style={{ background: 'rgba(0,0,0,0.35)', border: '1.5px solid rgba(255,255,255,0.4)' }}>
             <Minus className="w-4 h-4 text-white/80" />
           </button>
 
-          <button onClick={() => setBet(Math.min(MAX_BET, Math.round((bet + BET_STEP) * 100) / 100))} disabled={spinning}
+          <button onClick={() => { playUIClick(); setBet(Math.min(MAX_BET, Math.round((bet + BET_STEP) * 100) / 100)); }} disabled={spinning}
+            onMouseEnter={playButtonHover}
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40"
             style={{ background: 'rgba(0,0,0,0.35)', border: '1.5px solid rgba(255,255,255,0.4)' }}>
             <Plus className="w-4 h-4 text-white/80" />
           </button>
 
-          <button onClick={() => setShowBetMenu(s => !s)}
+          <button onClick={() => { playUIClick(); setShowBetMenu(s => !s); }}
+            onMouseEnter={playButtonHover}
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
             style={{ background: 'rgba(0,0,0,0.35)', border: '1.5px solid rgba(255,255,255,0.4)' }}>
             <AlignJustify className="w-4 h-4 text-white/80" />
@@ -363,7 +374,7 @@ export default function GatesMachine() {
           {BETS.map((b) => {
             const active = Math.abs(bet - b) < 0.001;
             return (
-              <button key={b} onClick={() => { setBet(b); setShowBetMenu(false); }}
+              <button key={b} onClick={() => { playUIClick(); setBet(b); setShowBetMenu(false); }}
                 className="px-3 py-1 rounded text-[12px] italic font-bold text-left transition-colors"
                 style={{ fontFamily: 'Georgia,serif', color: active ? '#ffe060' : '#c0a870', background: active ? 'rgba(200,140,10,0.2)' : 'transparent' }}>
                 {fmt(b)}
