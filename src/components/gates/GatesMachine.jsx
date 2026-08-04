@@ -10,6 +10,7 @@ import GatesBolt from './GatesBolt';
 import GatesMultBanner from './GatesMultBanner';
 import GatesTumbleWinBanner from './GatesTumbleWinBanner';
 import GatesBigWinBanner from './GatesBigWinBanner';
+import GatesFreeSpinEndBanner from './GatesFreeSpinEndBanner';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 import {
@@ -87,6 +88,7 @@ export default function GatesMachine() {
     showFreeSpinStart, freeSpinsActive, startFreeSpins,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, buyFreeSpins,
     bigWinBanner, setBigWinBanner,
+    freeSpinEndBanner, setFreeSpinEndBanner,
   } = g;
 
   const allReelsStopped = stoppedReels.size >= REELS;
@@ -394,6 +396,16 @@ export default function GatesMachine() {
           variant={bigWinBanner.variant}
           amount={bigWinBanner.amount}
           onDone={() => setBigWinBanner(null)}
+        />
+      )}
+
+      {/* FREE SPINS COMPLETE — shown when the entire free spins round ends,
+          displaying the total win accumulated across all free spins. */}
+      {freeSpinEndBanner && (
+        <GatesFreeSpinEndBanner
+          key={freeSpinEndBanner.key}
+          amount={freeSpinEndBanner.amount}
+          onDone={() => setFreeSpinEndBanner(null)}
         />
       )}
 

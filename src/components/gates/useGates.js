@@ -39,6 +39,7 @@ export function useGates() {
   const [winHistory, setWinHistory] = useState([]); // per-tumble winners list across the whole spin
   const [scatterGlow, setScatterGlow] = useState(new Set()); // scatter cells glowing when 4+ land together
   const [bigWinBanner, setBigWinBanner] = useState(null); // { variant: 'super'|'mega', amount } | null
+  const [freeSpinEndBanner, setFreeSpinEndBanner] = useState(null); // { amount } | null
 
   const settings = useGameSettings('gates-of-olympus');
   const logActivity = useLogActivity();
@@ -61,6 +62,7 @@ export function useGates() {
 
   const timers = useRef([]);
   const runningMultRef = useRef(0);
+  const freeSpinsTotalRef = useRef(0); // accumulated win across the whole free spins round
 
   const setCustomBet = useCallback((amount) => {
     const n = Math.max(minBet, Math.min(maxBet, Number(amount) || minBet));
@@ -193,6 +195,7 @@ export function useGates() {
       if (win > 0) {
         setBalance((b) => b + win);
         setLastWin(win);
+        if (freeMode) freeSpinsTotalRef.current += win;
         setMessage(`WIN $${win.toFixed(2)}`);
         // Big win / huge win celebration based on win-to-bet ratio.
         const ratio = bet > 0 ? win / bet : 0;
@@ -250,8 +253,11 @@ export function useGates() {
       setFreeSpinsActive(false);
       runningMultRef.current = 0;
       setSpinMult(0);
+      const total = freeSpinsTotalRef.current;
+      freeSpinsTotalRef.current = 0;
       setMessage('FREE SPINS ENDED');
       playFeatureEnd();
+      if (total > 0) setFreeSpinEndBanner({ amount: total, key: Date.now() });
     }
   }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin]);
 
@@ -259,6 +265,7 @@ export function useGates() {
     setShowFreeSpinStart(false);
     setFreeSpinsActive(true);
     runningMultRef.current = 0;
+    freeSpinsTotalRef.current = 0;
     setSpinMult(0);
     playFreeSpinStart();
     spin();
@@ -302,6 +309,7 @@ export function useGates() {
     freeSpins, turbo, autoSpin, spinMult, winFlash, winList, winHistory, scatterGlow,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart, bigWinBanner, setBigWinBanner,
+    freeSpinEndBanner, setFreeSpinEndBanner,
     spin, setBet, setCustomBet, minBet, maxBet, setTurbo, setAutoSpin, reset, buyFreeSpins,
   };
 }
