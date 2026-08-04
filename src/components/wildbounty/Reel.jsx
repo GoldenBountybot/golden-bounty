@@ -48,28 +48,34 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
 
   return (
     <div className={`relative w-full ${spinning ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount, contain: 'layout style', transform: 'translate3d(0,0,0)' }}>
-      {/* Anticipation golden border glow — intense vertical beams on both
-          sides of the reel with massive bloom that floods adjacent reel lines */}
+      {/* Anticipation golden god-ray — a bright vertical beam of intense
+          golden-yellow light running through the CENTER of the reel strip
+          with a strong bloom / radiating aura, matching the reference image. */}
       {anticipationGlow && spinning && (
         <>
+          {/* Central vertical god-ray beam */}
           <span
-            className="absolute top-0 bottom-0 left-0 z-40 pointer-events-none"
+            className="absolute top-0 bottom-0 left-1/2 z-40 pointer-events-none"
             style={{
-              width: '5px',
-              transform: 'translateX(-2.5px)',
-              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,252,210,1) 20%, rgba(255,255,255,1) 50%, rgba(255,252,210,1) 80%, rgba(255,215,0,0) 100%)',
-              boxShadow: '0 0 18px rgba(255,255,240,1), 0 0 40px rgba(255,235,130,1), 0 0 78px rgba(255,215,80,1), 0 0 130px rgba(255,200,50,0.95), 0 0 190px rgba(255,185,30,0.6)',
+              width: '38%',
+              transform: 'translateX(-50%)',
+              background: 'linear-gradient(to right, rgba(255,215,0,0) 0%, rgba(255,250,205,0.85) 30%, rgba(255,255,255,1) 50%, rgba(255,250,205,0.85) 70%, rgba(255,215,0,0) 100%)',
+              boxShadow: '0 0 24px rgba(255,255,240,1), 0 0 52px rgba(255,235,130,1), 0 0 96px rgba(255,215,80,1), 0 0 160px rgba(255,200,50,0.95), 0 0 240px rgba(255,185,30,0.7)',
+              filter: 'blur(1.5px)',
               mixBlendMode: 'screen',
+              animation: 'wildHaloPulse 1.8s ease-in-out infinite',
             }}
           />
+          {/* Inner hot-white core of the beam */}
           <span
-            className="absolute top-0 bottom-0 right-0 z-40 pointer-events-none"
+            className="absolute top-0 bottom-0 left-1/2 z-40 pointer-events-none"
             style={{
-              width: '5px',
-              transform: 'translateX(2.5px)',
-              background: 'linear-gradient(to top, rgba(255,215,0,0) 0%, rgba(255,252,210,1) 20%, rgba(255,255,255,1) 50%, rgba(255,252,210,1) 80%, rgba(255,215,0,0) 100%)',
-              boxShadow: '0 0 18px rgba(255,255,240,1), 0 0 40px rgba(255,235,130,1), 0 0 78px rgba(255,215,80,1), 0 0 130px rgba(255,200,50,0.95), 0 0 190px rgba(255,185,30,0.6)',
+              width: '8%',
+              transform: 'translateX(-50%)',
+              background: 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%)',
+              boxShadow: '0 0 16px rgba(255,255,255,1), 0 0 34px rgba(255,250,210,1)',
               mixBlendMode: 'screen',
+              animation: 'wildHaloPulse 1.8s ease-in-out infinite',
             }}
           />
           {/* Spillover flood — wide diffused golden glow (wild-halo style) that
@@ -78,7 +84,7 @@ function Reel({ reelIndex, rowCount, symbols, spinning, speed, winningPositions,
             className="absolute z-30 pointer-events-none"
             style={{
               top: '-50%', bottom: '-50%', left: '-70%', right: '-70%',
-              background: 'radial-gradient(circle at center, rgba(255,250,225,0.55) 0%, rgba(255,225,120,0.38) 30%, rgba(255,195,70,0.18) 55%, transparent 82%)',
+              background: 'radial-gradient(circle at center, rgba(255,250,225,0.6) 0%, rgba(255,225,120,0.42) 30%, rgba(255,195,70,0.2) 55%, transparent 82%)',
               filter: 'blur(5px)',
               mixBlendMode: 'screen',
               animation: 'wildHaloPulse 2.4s ease-in-out infinite',
