@@ -271,7 +271,7 @@ export function useWildBounty() {
 
       // Cascade: drop new symbols, then re-evaluate at the normal pacing so
       // every multiplier round feels deliberate — no collapsed timing at chain end.
-      const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex];
+      const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex] * (wasFree ? 0.5 : 1);
       const cascadeT = setTimeout(() => {
         const newGrid = rigCascadeGrid(gridForCascade, removePositions, cont, wasFree);
         // The blasted convert positions become wilds in place (no drop).
