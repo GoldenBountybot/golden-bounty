@@ -102,7 +102,7 @@ const WILD_CHANCE = { 0: 0.02, 1: 0.01, 2: 0.02, 3: 0.06, 4: 0.06 };
 // High-value animal symbols are gated: even when the pool picks one, it is
 // downgraded to a low card most of the time so high-value matches stay rare.
 const HIGH_VALUE_IDS = new Set(['buffalo', 'eagle', 'cougar', 'wolf']);
-const HIGH_VALUE_KEEP_CHANCE = 0.97;
+const HIGH_VALUE_KEEP_CHANCE = 5;
 
 export function randomSymbol(reelIndex = -1) {
   if (!WILD_REELS.has(reelIndex)) {
