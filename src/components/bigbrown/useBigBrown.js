@@ -4,7 +4,8 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
-import { playReelDropSound, playScatterDropSound } from '@/lib/bigBrownSound';
+import { playReelDropSound, playScatterDropSound, playLowValueWinSound } from '@/lib/bigBrownSound';
+import { SYMBOLS } from '@/lib/bigBrownEngine';
 
 export function useBigBrown() {
   const [grid, setGrid] = useState(() => buildGrid());
@@ -97,6 +98,10 @@ export function useBigBrown() {
       setLastWin(totalWin);
       setWinningPositions(wpos);
       setMessage(`WIN ${totalWin.toFixed(2)}`);
+      // Play the user-supplied BigBrown sample when the win includes any
+      // low-value card symbol (A, K, Q, J, 10, 9).
+      const hasLowWin = wins.some(w => SYMBOLS[w.symbol] && SYMBOLS[w.symbol].type === 'low');
+      if (hasLowWin) playLowValueWinSound();
     } else {
       setLastWin(0);
       setMessage(wasFree ? 'FREE SPIN · NO WIN' : '4096 WAYS · BIG BROWN');

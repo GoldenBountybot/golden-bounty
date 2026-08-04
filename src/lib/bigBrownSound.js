@@ -111,6 +111,41 @@ export function playReelDropSound(reelIndex = 0) {
   n.start(t);
 }
 
+// Low-value win sound — the user-supplied BigBrown.mp3 sample, played when a
+// winning combination is made up of low-value card symbols (A, K, Q, J, 10, 9).
+const LOW_WIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/b0087b27a_BigBrown.mp3';
+let lowWinBuffer = null;
+let lowWinLoaded = false;
+
+function loadLowWinSound() {
+  if (lowWinLoaded) return;
+  lowWinLoaded = true;
+  const ac = getCtx();
+  fetch(LOW_WIN_SOUND_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) lowWinBuffer = buf; })
+    .catch(() => {});
+}
+loadLowWinSound();
+
+export function playLowValueWinSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!lowWinBuffer) { loadLowWinSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = lowWinBuffer;
+    const g = ac.createGain();
+    g.gain.value = 1.6;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
 // Scatter landing sound — a bright, magical chime that plays the instant a
 // reel containing a scatter symbol stops. Distinct from the wooden reel-drop
 // tick: a shimmering ascending arpeggio of crystal bells with a soft reverb
