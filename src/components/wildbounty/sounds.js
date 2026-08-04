@@ -389,7 +389,7 @@ function playFreeSpinTrigger() {
 
   // Master bus with a touch of reverb-like delay.
   const master = ac.createGain();
-  master.gain.value = 1.2;
+  master.gain.value = 1.4;
   const delay = ac.createDelay(1.0);
   delay.delayTime.value = 0.14;
   const fb = ac.createGain();
@@ -421,8 +421,8 @@ function playFreeSpinTrigger() {
     o.type = 'sawtooth';
     o.frequency.setValueAtTime(f, start);
     g.gain.setValueAtTime(0.0001, start);
-    g.gain.linearRampToValueAtTime(0.09, start + 0.02);
-    g.gain.linearRampToValueAtTime(0.06, start + dur * 0.7);
+    g.gain.linearRampToValueAtTime(0.28, start + 0.02);
+    g.gain.linearRampToValueAtTime(0.2, start + dur * 0.7);
     g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
     o.connect(lp); lp.connect(g); g.connect(master);
     o.start(start); o.stop(start + dur + 0.05);
@@ -437,7 +437,7 @@ function playFreeSpinTrigger() {
     o.type = 'sine';
     o.frequency.setValueAtTime(f, start);
     g.gain.setValueAtTime(0.0001, start);
-    g.gain.linearRampToValueAtTime(0.08, start + 0.005);
+    g.gain.linearRampToValueAtTime(0.25, start + 0.005);
     g.gain.exponentialRampToValueAtTime(0.0001, start + 0.6);
     o.connect(g); g.connect(master);
     o.start(start); o.stop(start + 0.65);
@@ -467,9 +467,9 @@ function playFreeSpinTrigger() {
   const cheerG = ac.createGain();
   // Crowd swells up then slowly fades — the "roar" shape.
   cheerG.gain.setValueAtTime(0.0001, t);
-  cheerG.gain.linearRampToValueAtTime(0.14, t + 0.25);   // swell up
-  cheerG.gain.linearRampToValueAtTime(0.16, t + 0.6);    // peak roar
-  cheerG.gain.linearRampToValueAtTime(0.12, t + 1.0);    // hold
+  cheerG.gain.linearRampToValueAtTime(0.4, t + 0.25);    // swell up
+  cheerG.gain.linearRampToValueAtTime(0.45, t + 0.6);    // peak roar
+  cheerG.gain.linearRampToValueAtTime(0.35, t + 1.0);   // hold
   cheerG.gain.exponentialRampToValueAtTime(0.0001, t + cheerDur); // fade
   cheer.connect(bp1);
   bp1.connect(bp2);
@@ -488,7 +488,7 @@ function playFreeSpinTrigger() {
     o.frequency.linearRampToValueAtTime(2400 + i * 200, start + 0.15);
     o.frequency.linearRampToValueAtTime(2000 + i * 150, start + 0.3);
     g.gain.setValueAtTime(0.0001, start);
-    g.gain.linearRampToValueAtTime(0.05, start + 0.05);
+    g.gain.linearRampToValueAtTime(0.15, start + 0.05);
     g.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
     o.connect(g); g.connect(master);
     o.start(start); o.stop(start + 0.4);
@@ -501,7 +501,7 @@ function playFreeSpinTrigger() {
   thunder.frequency.setValueAtTime(55, t + 0.4);
   thunder.frequency.exponentialRampToValueAtTime(35, t + 1.2);
   thG.gain.setValueAtTime(0.0001, t + 0.4);
-  thG.gain.linearRampToValueAtTime(0.12, t + 0.45);
+  thG.gain.linearRampToValueAtTime(0.3, t + 0.45);
   thG.gain.exponentialRampToValueAtTime(0.0001, t + 1.3);
   thunder.connect(thG); thG.connect(master);
   thunder.start(t + 0.4); thunder.stop(t + 1.35);
