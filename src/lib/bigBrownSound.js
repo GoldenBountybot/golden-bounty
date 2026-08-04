@@ -110,3 +110,60 @@ export function playReelDropSound(reelIndex = 0) {
   nG.connect(ac.destination);
   n.start(t);
 }
+
+// Scatter landing sound — a bright, magical chime that plays the instant a
+// reel containing a scatter symbol stops. Distinct from the wooden reel-drop
+// tick: a shimmering ascending arpeggio of crystal bells with a soft reverb
+// tail so each scatter reads as a special, rewarding event.
+export function playScatterDropSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  const t0 = ac.currentTime;
+
+  // Crystal bell arpeggio — C6, E6, G6, C7 (bright, magical, ascending).
+  const notes = [1046.5, 1318.5, 1568.0, 2093.0];
+  notes.forEach((f, i) => {
+    const start = t0 + i * 0.06;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, start);
+    o.frequency.exponentialRampToValueAtTime(f * 1.005, start + 0.5);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.14, start + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.55);
+    o.connect(g);
+    g.connect(ac.destination);
+    o.start(start);
+    o.stop(start + 0.6);
+  });
+
+  // Sparkle shimmer — high sine sweep on top for magic sparkle.
+  const shimmer = ac.createOscillator();
+  const shimmerG = ac.createGain();
+  shimmer.type = 'sine';
+  shimmer.frequency.setValueAtTime(2637, t0);
+  shimmer.frequency.exponentialRampToValueAtTime(4186, t0 + 0.4);
+  shimmerG.gain.setValueAtTime(0.0001, t0);
+  shimmerG.gain.linearRampToValueAtTime(0.05, t0 + 0.05);
+  shimmerG.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
+  shimmer.connect(shimmerG);
+  shimmerG.connect(ac.destination);
+  shimmer.start(t0);
+  shimmer.stop(t0 + 0.5);
+
+  // Soft reverb tail — delayed faint echo of the first note.
+  const echo = ac.createOscillator();
+  const echoG = ac.createGain();
+  echo.type = 'sine';
+  echo.frequency.setValueAtTime(1046.5, t0 + 0.18);
+  echoG.gain.setValueAtTime(0.0001, t0 + 0.18);
+  echoG.gain.linearRampToValueAtTime(0.05, t0 + 0.19);
+  echoG.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.7);
+  echo.connect(echoG);
+  echoG.connect(ac.destination);
+  echo.start(t0 + 0.18);
+  echo.stop(t0 + 0.75);
+}

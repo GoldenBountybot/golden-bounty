@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
-import { playReelDropSound } from '@/lib/bigBrownSound';
+import { playReelDropSound, playScatterDropSound } from '@/lib/bigBrownSound';
 
 export function useBigBrown() {
   const [grid, setGrid] = useState(() => buildGrid());
@@ -204,6 +204,7 @@ export function useBigBrown() {
         setStoppedReels(prev => new Set([...prev, i]));
         playReelDropSound(i);
         const scattersInReel = finalGrid[i].filter(s => s === 'scatter').length;
+        if (scattersInReel > 0) playScatterDropSound();
         stoppedScatter += scattersInReel;
         if (stoppedScatter >= 2 && i < 5) {
           if (!slow) { setAnticipation(true); }
