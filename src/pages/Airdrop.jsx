@@ -137,11 +137,11 @@ export default function Airdrop() {
           <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'rgba(212,175,55,0.7)' }}><path d="M9 18l6-6-6-6" /></svg>
         </button>
         {/* Hero — Bounty token banner */}
-        <div className="relative overflow-hidden rounded-2xl" style={{ animation: 'dashFadeIn 400ms ease both', border: '1px solid rgba(212,175,55,0.4)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+        <div className="relative" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6b0feb46f_file_00000000a2c082079005efbe99d662d8.png"
             alt="BOUNTY — The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit."
-            className="w-full h-auto block select-none"
+            className="w-full h-auto block select-none rounded-2xl"
             draggable={false}
           />
         </div>
