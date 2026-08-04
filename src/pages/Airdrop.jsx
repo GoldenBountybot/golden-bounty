@@ -142,9 +142,9 @@ export default function Airdrop() {
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6b0feb46f_file_00000000a2c082079005efbe99d662d8.png"
             alt="BOUNTY — The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit."
-            className="block select-none"
+            className="block select-none w-full"
             draggable={false}
-            style={{ width: '116%', maxWidth: '116%', transform: 'translateX(-50%)', marginLeft: '50%' }}
+            style={{ transform: 'scale(1.22)', transformOrigin: 'center center' }}
           />
         </div>
 
