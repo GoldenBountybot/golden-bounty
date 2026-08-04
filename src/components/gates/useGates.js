@@ -117,7 +117,7 @@ export function useGates() {
     });
     if (freeMode) runningMultRef.current = result.newRunningMult;
 
-    const hold = turbo ? 520 : 950;        // winners glow long enough to read which matched
+    const hold = turbo ? 180 : 300;        // winners grow big, then blast quickly
     const shatterDur = turbo ? 240 : 420;  // winners blast away
     const firstGap = turbo ? 360 : 660;    // reels stop, first grid drops in
     let acc = 0;

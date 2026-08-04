@@ -201,13 +201,13 @@ export default function GatesMachine() {
                             boxSizing: 'border-box',
                             border: '1.5px solid transparent',
                             boxShadow: 'none',
-                            animation: isWin ? 'gatesWinGlow 0.55s linear infinite' : 'none',
-                            transition: 'box-shadow 0.15s' }}>
+                            animation: 'none' }}>
                           {stopped ? (
                             <div key={animKey} className="relative w-full h-full"
                               style={{ animation: isScatterGlow ? 'gatesScatterGlow 0.9s ease-in-out infinite'
                                 : isShatter
                                 ? `shatterWin ${g.turbo ? 0.24 : 0.4}s ease-out forwards`
+                                : isWin ? `gatesMatchGrow ${g.turbo ? 0.18 : 0.25}s ease-out forwards`
                                 : dropAnim ? `gatesDrop ${g.turbo ? 0.18 : 0.26}s cubic-bezier(0.22,0.7,0.32,1) both` : 'none' }}>
                               <GatesSymbol sym={sym} highlight={isWin || isScatterGlow} />
                               {symIsMult && (
