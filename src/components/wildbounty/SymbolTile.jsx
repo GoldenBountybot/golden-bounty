@@ -210,6 +210,20 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           ring, fireball flash core, and flying embers. */}
       {shattering && (
         <>
+          {/* Golden glow overlay — replaces expensive filter:drop-shadow with
+              cheap box-shadow for the same golden glow around the shattering
+              symbol. GPU-promoted so it never causes repaint jank. */}
+          <span
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              borderRadius: '50%',
+              animation: `shatterGlow ${(0.6 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards`,
+              zIndex: 22,
+              willChange: 'transform, opacity',
+              transform: 'translate3d(0,0,0)',
+              backfaceVisibility: 'hidden',
+            }}
+          />
           {/* Shockwave ring */}
           <span
             className="absolute inset-0 pointer-events-none"
@@ -219,6 +233,9 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
               transformOrigin: 'center center',
               animation: `blastRing ${(0.5 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards`,
               zIndex: 25,
+              willChange: 'transform, opacity',
+              transform: 'translate3d(0,0,0)',
+              backfaceVisibility: 'hidden',
             }}
           />
           {/* Fireball flash core */}
@@ -228,10 +245,12 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
               left: '15%', top: '15%', width: '70%', height: '70%',
               borderRadius: '50%',
               background: 'radial-gradient(circle, #fff7d6 0%, #ffcf5a 28%, #ff7a1a 58%, #b22a00 82%, transparent 100%)',
-              filter: 'blur(1px)',
               transformOrigin: 'center center',
               animation: `blastCore ${(0.5 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) forwards`,
               zIndex: 24,
+              willChange: 'transform, opacity',
+              transform: 'translate3d(0,0,0)',
+              backfaceVisibility: 'hidden',
             }}
           />
           {/* Flying embers */}
@@ -249,6 +268,9 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
                 '--ex': `${e.dx}px`, '--ey': `${e.dy}px`,
                 animation: `blastEmber ${(0.6 * slow).toFixed(2)}s cubic-bezier(0.16, 1, 0.3, 1) ${e.delay}s forwards`,
                 zIndex: 23,
+                willChange: 'transform, opacity',
+                transform: 'translate3d(0,0,0)',
+                backfaceVisibility: 'hidden',
               }}
             />
           ))}
