@@ -314,7 +314,7 @@ export function useWildBounty() {
         // count-up + sound, so the plaque just shows the plain total.
         if (peak < 32) {
           setTotalWinCountUp(true);
-          setTotalWinDur((sfx.showdown() || 2.2) * 1000);
+          setTotalWinDur((sfx.showdown() || 2.2) * 1000 + 900);
           setTotalWinKey(k => k + 1);
         }
       }
