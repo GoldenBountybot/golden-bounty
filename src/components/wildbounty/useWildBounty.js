@@ -87,7 +87,7 @@ export function useWildBounty() {
   // CONTINUE_PROB[i] = chance the NEXT cascade wins after a win paid at tier i,
   // derived from the requested cumulative reach odds:
   //   reach X2 5%, X4 3.33%, X8 1.67%, X16 0.1%, X32 0.02%, X64 0.01%, X128 0.0006%.
-  const CONTINUE_PROB = [0.05, 0.01, 0.005, 0.004, 0.0005, 0.0005, 0.0005];
+  const CONTINUE_PROB = [0.025, 0.005, 0.0025, 0.002, 0.00025, 0.00025, 0.00025];
 
   // Drop new symbols into the blasted positions and rig them so the next
   // cascade either wins (chain continues toward a higher multiplier tier) or
