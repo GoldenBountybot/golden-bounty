@@ -96,11 +96,15 @@ export function useWildBounty() {
   // cascade either wins (chain continues toward a higher multiplier tier) or
   // loses (chain ends), hitting the target odds. Only blasted positions are
   // replaced; unchanged reels keep their array reference (React.memo skip).
-  const rigCascadeGrid = (currentGrid, removePositions, forceWin) => {
+  const rigCascadeGrid = (currentGrid, removePositions, forceWin, wasFree) => {
     const removed = [...removePositions];
     const changedReels = new Set(removed.map(p => Number(p.split('-')[0])));
     const grid = currentGrid.map((reel, ri) => changedReels.has(ri) ? [...reel] : reel);
-    const baseIds = ['bandit', 'revolver', 'whiskey', 'hat', 'A', 'K', 'Q', 'J'];
+    // During free spins, halve the high-value (bandit/revolver) frequency in
+    // the random fill pool so high-value matches form far less often.
+    const baseIds = wasFree
+      ? ['bandit', 'revolver', 'whiskey', 'whiskey', 'hat', 'hat', 'A', 'A', 'K', 'K', 'Q', 'Q', 'J', 'J']
+      : ['bandit', 'revolver', 'whiskey', 'hat', 'A', 'K', 'Q', 'J'];
     const randBase = () => baseIds[Math.floor(Math.random() * baseIds.length)];
     removed.forEach(pos => {
       const [r, row] = pos.split('-').map(Number);
@@ -269,7 +273,7 @@ export function useWildBounty() {
       // every multiplier round feels deliberate — no collapsed timing at chain end.
       const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex];
       const cascadeT = setTimeout(() => {
-        const newGrid = rigCascadeGrid(gridForCascade, removePositions, cont);
+        const newGrid = rigCascadeGrid(gridForCascade, removePositions, cont, wasFree);
         // The blasted convert positions become wilds in place (no drop).
         if (convertSet.size) {
           convertSet.forEach(pos => { const [r, row] = pos.split('-').map(Number); newGrid[r][row] = 'wild'; });
