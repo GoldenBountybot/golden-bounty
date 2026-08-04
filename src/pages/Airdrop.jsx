@@ -136,15 +136,15 @@ export default function Airdrop() {
           </div>
           <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'rgba(212,175,55,0.7)' }}><path d="M9 18l6-6-6-6" /></svg>
         </button>
-        {/* Hero — Bounty token banner — screen blend keys out the pure-black
-            background so only the ornate gold frame remains visible. */}
-        <div className="relative" style={{ animation: 'dashFadeIn 400ms ease both', isolation: 'isolate' }}>
+        {/* Hero — Bounty token banner — scaled up + clipped so the black
+            border falls outside the visible area. */}
+        <div className="relative overflow-hidden" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6b0feb46f_file_00000000a2c082079005efbe99d662d8.png"
             alt="BOUNTY — The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit."
-            className="w-full h-auto block select-none"
+            className="block select-none"
             draggable={false}
-            style={{ mixBlendMode: 'screen' }}
+            style={{ width: '116%', maxWidth: '116%', transform: 'translateX(-50%)', marginLeft: '50%' }}
           />
         </div>
 
