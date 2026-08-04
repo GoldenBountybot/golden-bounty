@@ -14,7 +14,6 @@ import AnimatedNumber from '@/components/AnimatedNumber';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/lib/LanguageContext';
 import TaskSystem from '@/components/TaskSystem';
-import ReferralStats from '@/components/ReferralStats';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -229,11 +228,11 @@ export default function Profile() {
                 style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
                 <Gift className="w-4 h-4" style={{ color: '#D4AF37' }} /> {t("Rewards")}
               </button>
-              <button onClick={() => { setView('referrals'); setMenuOpen(false); }}
+              <Link to="/referrals" onClick={() => setMenuOpen(false)}
                 className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
                 style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
                 <Users className="w-4 h-4" style={{ color: '#D4AF37' }} /> {t("Referrals")}
-              </button>
+              </Link>
               <div className="px-3 py-2.5" style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
                 <LanguageSwitcher />
               </div>
@@ -463,10 +462,6 @@ export default function Profile() {
               </div>
             ))}
           </div>
-        )}
-
-        {view === 'referrals' && (
-          <ReferralStats profile={profile} onBack={() => setView('profile')} />
         )}
 
         {view === 'profile' && (
