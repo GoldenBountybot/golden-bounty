@@ -86,7 +86,7 @@ export function useWildBounty() {
   // CONTINUE_PROB[i] = chance the NEXT cascade wins after a win paid at tier i,
   // derived from the requested cumulative reach odds:
   //   reach X2 5%, X4 3.33%, X8 1.67%, X16 0.1%, X32 0.02%, X64 0.01%, X128 0.0006%.
-  const CONTINUE_PROB = [0.05, 0.02, 0.01, 0.008, 0.001, 0.001, 0.001];
+  const CONTINUE_PROB = [0.05, 0.01, 0.005, 0.004, 0.0005, 0.0005, 0.0005];
 
   // Drop new symbols into the blasted positions and rig them so the next
   // cascade either wins (chain continues toward a higher multiplier tier) or
@@ -436,7 +436,7 @@ export function useWildBounty() {
     finalGrid.forEach(reel => { for (let i = 0; i < reel.length; i++) if (reel[i] === 'scatter') reel[i] = nonScatter(); });
     const roll = Math.random();
     let targetScatters = 0;
-    if (roll < 0.01) targetScatters = 3;               // 1%  (free-spin trigger)
+    if (roll < 0.004) targetScatters = 3;              // 0.4%  (free-spin trigger)
     else if (roll < 0.06) targetScatters = 2;           // 5%
     else if (roll < 0.16) targetScatters = 1;          // 10%
     const cells = [];
