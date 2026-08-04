@@ -183,7 +183,7 @@ export function playAnimalRoar(symbolId) {
     lp.frequency.setValueAtTime(lpStart, t);
     lp.frequency.exponentialRampToValueAtTime(lpEnd, t + dur);
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.linearRampToValueAtTime(0.22, t + 0.04);
+    g.gain.linearRampToValueAtTime(0.15, t + 0.04);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     o.connect(lp);
     lp.connect(g);
@@ -228,8 +228,8 @@ export function playAnimalRoar(symbolId) {
       lfo.start(t);
       lfo.stop(t + dur);
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(0.2, t + 0.18);
-      g.gain.setValueAtTime(0.2, t + dur - 0.4);
+      g.gain.linearRampToValueAtTime(0.14, t + 0.18);
+      g.gain.setValueAtTime(0.14, t + dur - 0.4);
       g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       o.connect(g);
       g.connect(ac.destination);
@@ -251,7 +251,7 @@ export function playAnimalRoar(symbolId) {
         o.frequency.setValueAtTime(2200, start);
         o.frequency.exponentialRampToValueAtTime(1400, start + 0.16);
         g.gain.setValueAtTime(0.0001, start);
-        g.gain.linearRampToValueAtTime(0.12, start + 0.02);
+        g.gain.linearRampToValueAtTime(0.08, start + 0.02);
         g.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
         const hp = ac.createBiquadFilter();
         hp.type = 'highpass';
@@ -279,7 +279,7 @@ export function playAnimalRoar(symbolId) {
       lp.type = 'lowpass';
       lp.frequency.value = 600;
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(0.16, t + 0.03);
+      g.gain.linearRampToValueAtTime(0.11, t + 0.03);
       g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
       o.connect(lp);
       lp.connect(g);
