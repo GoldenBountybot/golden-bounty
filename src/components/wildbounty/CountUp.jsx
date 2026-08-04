@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 // Animates a number counting up from its previous value to the new target,
 // used in the win banner so the win amount visibly multiplies up cascade by
@@ -7,10 +7,11 @@ import React, { useEffect, useRef } from 'react';
 // Uses a ref + direct DOM textContent update instead of state so the 60fps
 // animation never triggers React re-renders (which would cascade up to the
 // whole machine and cause jank during the showdown sequence).
-export default function CountUp({ value = 0, duration = 650, decimals = 2 }) {
+export default function CountUp({ value = 0, duration = 650, decimals = 2, shakeOnComplete = false }) {
   const spanRef = useRef(null);
   const fromRef = useRef(0);
   const rafRef = useRef();
+  const [shaking, setShaking] = useState(false);
 
   useEffect(() => {
     const from = fromRef.current;
@@ -29,11 +30,27 @@ export default function CountUp({ value = 0, duration = 650, decimals = 2 }) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
         fromRef.current = to;
+        if (shakeOnComplete) {
+          setShaking(true);
+          const st = setTimeout(() => setShaking(false), 600);
+          return () => clearTimeout(st);
+        }
       }
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [value, duration]);
+  }, [value, duration, shakeOnComplete]);
 
-  return <span ref={spanRef} style={{ fontVariantNumeric: 'tabular-nums' }}>{fromRef.current.toFixed(decimals)}</span>;
+  return (
+    <span
+      ref={spanRef}
+      style={{
+        fontVariantNumeric: 'tabular-nums',
+        display: 'inline-block',
+        animation: shaking ? 'wbAmountShake 0.6s ease-out' : 'none',
+      }}
+    >
+      {fromRef.current.toFixed(decimals)}
+    </span>
+  );
 }

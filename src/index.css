@@ -730,6 +730,17 @@
   100% { opacity: 0; }
 }
 
+/* Wild Bounty — total win amount shakes/jolts once the count-up finishes */
+@keyframes wbAmountShake {
+  0%   { transform: translateX(0) scale(1) rotate(0deg); }
+  15%  { transform: translateX(-4px) scale(1.12) rotate(-2deg); }
+  30%  { transform: translateX(5px) scale(1.14) rotate(2deg); }
+  45%  { transform: translateX(-3px) scale(1.1) rotate(-1.5deg); }
+  60%  { transform: translateX(4px) scale(1.12) rotate(1.5deg); }
+  75%  { transform: translateX(-2px) scale(1.08) rotate(-1deg); }
+  100% { transform: translateX(0) scale(1) rotate(0deg); }
+}
+
 /* Wild Bounty — deep metallic gold with a strong 3D extruded bevel,
    shared by the win banner and the top multiplier strip text. */
 .wb-deep-gold {

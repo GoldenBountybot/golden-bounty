@@ -153,7 +153,7 @@ export default function WildBountyMachine() {
         >
           {g.lastWin > 0 ? (
             g.endSkull && g.totalWinCountUp
-              ? <>TOTAL WIN <CountUp key={g.totalWinKey} value={g.lastWin} duration={g.totalWinDur} /></>
+              ? <>TOTAL WIN <CountUp key={g.totalWinKey} value={g.lastWin} duration={g.totalWinDur} shakeOnComplete /></>
               : g.endSkull
                 ? <>TOTAL WIN {g.lastWin.toFixed(2)}</>
                 : <>WIN {g.lastWin.toFixed(2)}</>
