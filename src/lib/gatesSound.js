@@ -1103,6 +1103,68 @@ export function playError() {
   o2.stop(t + 0.25);
 }
 
+// ── COUNT UP — rapid golden ticks while the win amount counts up ──────────
+// Plays a stream of bright metallic chime ticks that climb in pitch as the
+// count rises, creating a premium "counting money" feel. Duration matches
+// the banner count-up (~2.6s).
+export function playCountUp(duration = 2600) {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  const t = ac.currentTime;
+  const { bus } = makeReverbBus(ac, 0.06, 0.12, 0.18);
+
+  // Number of ticks — roughly 2 per beat, accelerating slightly near the end.
+  const tickCount = Math.max(8, Math.floor(duration / 90));
+  for (let i = 0; i < tickCount; i++) {
+    const p = i / tickCount;
+    const start = t + p * duration;
+    // Pitch climbs from ~880Hz to ~1760Hz across the count.
+    const freq = 880 * Math.pow(2, (p * 12) / 12);
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(freq, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.05, start + 0.003);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.07);
+    o.connect(g);
+    g.connect(bus);
+    o.start(start);
+    o.stop(start + 0.08);
+
+    // Metallic edge partial for a "coin" character.
+    const o2 = ac.createOscillator();
+    const g2 = ac.createGain();
+    o2.type = 'sine';
+    o2.frequency.setValueAtTime(freq * 2.76, start);
+    g2.gain.setValueAtTime(0.0001, start);
+    g2.gain.linearRampToValueAtTime(0.015, start + 0.002);
+    g2.gain.exponentialRampToValueAtTime(0.0001, start + 0.05);
+    o2.connect(g2);
+    g2.connect(bus);
+    o2.start(start);
+    o2.stop(start + 0.06);
+  }
+
+  // Final resolution chime at the end of the count.
+  const finalT = t + duration;
+  [1046.5, 1318.51, 1568].forEach((f) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, finalT);
+    g.gain.setValueAtTime(0.0001, finalT);
+    g.gain.linearRampToValueAtTime(0.06, finalT + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, finalT + 0.5);
+    o.connect(g);
+    g.connect(bus);
+    o.start(finalT);
+    o.stop(finalT + 0.55);
+  });
+}
+
 // ── Scatter landing — premium golden chime arpeggio (kept for scatter) ──
 export function playScatterDropSound() {
   if (isMuted()) return;

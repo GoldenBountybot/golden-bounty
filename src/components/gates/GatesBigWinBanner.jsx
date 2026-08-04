@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { playCountUp } from '@/lib/gatesSound';
 
 const IMAGES = {
   super: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/422880cd4_file_0000000057d881fbaa643e8f2dd979ce.png',
@@ -33,6 +34,7 @@ export default function GatesBigWinBanner({ variant, amount, onDone }) {
       }
     };
     rafRef.current = requestAnimationFrame(tick);
+    playCountUp(duration);
     return () => {
       cancelAnimationFrame(rafRef.current);
       timersRef.current.forEach(clearTimeout);

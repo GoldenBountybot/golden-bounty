@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { playCountUp } from '@/lib/gatesSound';
 
 // Floating "FREE SPINS COMPLETE" overlay banner shown when the entire free
 // spins round ends. Shows the total win accumulated across all free spins,
@@ -26,6 +27,7 @@ export default function GatesFreeSpinEndBanner({ amount, onDone }) {
       }
     };
     rafRef.current = requestAnimationFrame(tick);
+    playCountUp(duration);
     return () => {
       cancelAnimationFrame(rafRef.current);
       timersRef.current.forEach(clearTimeout);
