@@ -141,7 +141,7 @@ export default function GatesMachine() {
 
       {/* ── GATES OF OLYMPUS TITLE BANNER ── sits just above the board border */}
       <div className="relative flex items-center justify-start shrink-0 pt-10 pb-0 pl-1"
-        style={{ background: 'linear-gradient(to bottom,rgba(50,10,90,0.95),transparent)', marginTop: 14, marginBottom: 10, marginLeft: -6, zIndex: 20 }}>
+        style={{ background: 'linear-gradient(to bottom,rgba(50,10,90,0.95),transparent)', marginBottom: 10, marginLeft: -6, zIndex: 20 }}>
         <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5a4c02bcc_file_000000003af0820bb4a62aa92952a91e.png"
           alt="Gates of Olympus"
           style={{ width: '60%', maxWidth: 240, height: 'auto', objectFit: 'contain',
@@ -158,7 +158,7 @@ export default function GatesMachine() {
       </div>
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
-      <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 14 }}>
+      <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 0 }}>
         <GatesTumbleWinBanner winHistory={winHistory} balance={balance} winFlash={winFlash} />
         {/* Outer golden border */}
         <div className="relative rounded-[10px]"
