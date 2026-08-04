@@ -1,0 +1,112 @@
+// Big Brown — spin button + reel-drop sounds (Web Audio API). Purely cosmetic.
+import { isMuted } from '@/lib/soundMute';
+
+let ctx = null;
+function getCtx() {
+  if (typeof window === 'undefined') return null;
+  if (!ctx) {
+    try { ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch { ctx = null; }
+  }
+  return ctx;
+}
+
+// Spin button click sound — same sample as Crown Coins for consistency.
+const SPIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/8c2379326_spinbuttonx.mp3';
+let spinBuffer = null;
+let spinLoaded = false;
+
+function loadSpinSound() {
+  if (spinLoaded) return;
+  spinLoaded = true;
+  const ac = getCtx();
+  fetch(SPIN_SOUND_URL)
+    .then(r => r.arrayBuffer())
+    .then(ab => (ac ? ac.decodeAudioData(ab) : null))
+    .then(buf => { if (buf) spinBuffer = buf; })
+    .catch(() => {});
+}
+loadSpinSound();
+
+export function playSpinSound() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (!spinBuffer) { loadSpinSound(); return; }
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = spinBuffer;
+    const g = ac.createGain();
+    g.gain.value = 2.0;
+    src.connect(g);
+    g.connect(ac.destination);
+    src.start();
+  } catch { /* ignore */ }
+}
+
+// Reel drop sound — a light, high-frequency wooden "tick" played once per reel
+// when it lands. Pitch rises slightly per consecutive reel so the sequence of
+// 6 drops reads as a single descending cascade: first reel lands lowest, last
+// reel lands highest. Soft and short so it never sounds heavy or mechanical.
+export function playReelDropSound(reelIndex = 0) {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  const t = ac.currentTime;
+
+  // Pitch climbs from reel 0 → reel 5 (220Hz → 660Hz).
+  const baseFreq = 220 + reelIndex * 88;
+
+  // Wooden marimba-style tick — triangle fundamental + soft fifth overtone.
+  const noteFreqs = [baseFreq, baseFreq * 1.5];
+  noteFreqs.forEach((f, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(f, t);
+    o.frequency.exponentialRampToValueAtTime(f * 0.97, t + 0.12);
+    const peak = [0.10, 0.04][i];
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(peak, t + 0.003);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14 - i * 0.03);
+    o.connect(g);
+    g.connect(ac.destination);
+    o.start(t);
+    o.stop(t + 0.16);
+  });
+
+  // Soft high bell shimmer for sparkle.
+  const bell = ac.createOscillator();
+  const bellG = ac.createGain();
+  bell.type = 'sine';
+  bell.frequency.setValueAtTime(baseFreq * 3, t);
+  bell.frequency.exponentialRampToValueAtTime(baseFreq * 2.8, t + 0.12);
+  bellG.gain.setValueAtTime(0.0001, t);
+  bellG.gain.linearRampToValueAtTime(0.03, t + 0.003);
+  bellG.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+  bell.connect(bellG);
+  bellG.connect(ac.destination);
+  bell.start(t);
+  bell.stop(t + 0.14);
+
+  // Short felt-knock transient — low-passed noise for a soft "thip".
+  const dur = 0.035;
+  const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2.5);
+  }
+  const n = ac.createBufferSource();
+  n.buffer = buf;
+  const lp = ac.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 2200;
+  const nG = ac.createGain();
+  nG.gain.value = 0.06;
+  n.connect(lp);
+  lp.connect(nG);
+  nG.connect(ac.destination);
+  n.start(t);
+}
