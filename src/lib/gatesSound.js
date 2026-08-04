@@ -141,6 +141,91 @@ export function playReelDropSound(reelIndex = 0) {
   n.start(t);
 }
 
+// ── Symbol match — golden win chime ─────────────────────────────────────
+// A luxurious ascending golden arpeggio that plays the instant matching
+// symbols land on a tumble. Scales with win size: small wins get a short
+// 3-note sparkle, bigger wins get a richer 5-note flourish with a shimmer
+// layer on top. Premium and celebratory — never harsh.
+export function playWinSound(winAmount = 0, bet = 1) {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  const t = ac.currentTime;
+
+  // Shared reverb-ish bus for a tasteful tail.
+  const bus = ac.createGain();
+  bus.gain.value = 1;
+  const delay = ac.createDelay(1.0);
+  delay.delayTime.value = 0.11;
+  const fb = ac.createGain();
+  fb.gain.value = 0.22;
+  const delayMix = ac.createGain();
+  delayMix.gain.value = 0.3;
+  bus.connect(ac.destination);
+  bus.connect(delay);
+  delay.connect(fb);
+  fb.connect(delay);
+  delay.connect(delayMix);
+  delayMix.connect(ac.destination);
+
+  // Win tier: bigger wins relative to bet → richer arpeggio.
+  const ratio = bet > 0 ? winAmount / bet : 0;
+  const big = ratio >= 10;
+  const huge = ratio >= 50;
+  const notes = huge
+    ? [523.25, 659.25, 783.99, 1046.5, 1318.51]   // C5 E5 G5 C6 E6
+    : big
+      ? [523.25, 659.25, 783.99, 1046.5]          // C5 E5 G5 C6
+      : [523.25, 659.25, 783.99];                 // C5 E5 G5
+
+  // Main arpeggio — warm sine bells with a slight metallic edge.
+  notes.forEach((f, i) => {
+    const start = t + i * 0.06;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, start);
+    o.frequency.exponentialRampToValueAtTime(f * 1.003, start + 0.5);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.12, start + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.55);
+    o.connect(g);
+    g.connect(bus);
+    o.start(start);
+    o.stop(start + 0.6);
+
+    // Metallic shimmer partial on top for a golden coin ring.
+    const o2 = ac.createOscillator();
+    const g2 = ac.createGain();
+    o2.type = 'sine';
+    o2.frequency.setValueAtTime(f * 2.76, start);
+    g2.gain.setValueAtTime(0.0001, start);
+    g2.gain.linearRampToValueAtTime(0.035, start + 0.008);
+    g2.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+    o2.connect(g2);
+    g2.connect(bus);
+    o2.start(start);
+    o2.stop(start + 0.4);
+  });
+
+  // Divine shimmer sweep on top for big/huge wins.
+  if (big) {
+    const shimmer = ac.createOscillator();
+    const shimmerG = ac.createGain();
+    shimmer.type = 'sine';
+    shimmer.frequency.setValueAtTime(1568, t);
+    shimmer.frequency.exponentialRampToValueAtTime(huge ? 4186 : 3136, t + 0.6);
+    shimmerG.gain.setValueAtTime(0.0001, t);
+    shimmerG.gain.linearRampToValueAtTime(0.04, t + 0.08);
+    shimmerG.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+    shimmer.connect(shimmerG);
+    shimmerG.connect(bus);
+    shimmer.start(t);
+    shimmer.stop(t + 0.75);
+  }
+}
+
 // ── Scatter landing — premium golden chime arpeggio ───────────────────
 // A luxurious ascending arpeggio of crystal bells with a reverb tail,
 // played the instant a reel containing a scatter stops. Distinct from the

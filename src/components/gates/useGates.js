@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { computeSpin, BETS, buildGrid, FREE_SPINS_AWARD, REELS, ROWS, MIN_BET } from '@/lib/gatesEngine';
-import { playSpinSound } from '@/lib/gatesSound';
+import { playSpinSound, playWinSound } from '@/lib/gatesSound';
 
 // every board position `${c}-${r}` — used so the first spin drops all symbols
 const ALL_CELLS = (() => {
@@ -152,6 +152,8 @@ export function useGates() {
         for (let c = 0; c < REELS; c++) for (let r = 0; r < ROWS; r++) if (tb.grid[c][r] === 'scatter') scatPos.add(`${c}-${r}`);
         setScatterGlow(scatPos.size >= 4 ? scatPos : new Set());
         setSpinMult(freeMode ? (baseStart + multSeen) : multSeen);
+        // Play the golden win chime when matching symbols land.
+        if (tb.win > 0) playWinSound(tb.win, bet);
       }, showAt));
       // winners glow, then shatter away. The final tumble has no winners, so
       // it skips the glow/shatter wait and settles as soon as its symbols
