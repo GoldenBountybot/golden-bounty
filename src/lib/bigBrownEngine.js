@@ -61,13 +61,13 @@ export function getSymbolImg(id) {
 // Weighted pool for non-wild reels. Scatter is rare; lows are common.
 // High-value animal weights kept very low so high-value matches are rare.
 const BASE_POOL = [
-  'buffalo',
-  'eagle',
-  'cougar',
-  'wolf',
-  'deer', 'deer',
-  'A', 'A', 'A', 'A',
-  'K', 'K', 'K', 'K',
+  'buffalo', 'buffalo', 'buffalo',
+  'eagle', 'eagle', 'eagle',
+  'cougar', 'cougar', 'cougar',
+  'wolf', 'wolf', 'wolf',
+  'deer', 'deer', 'deer', 'deer',
+  'A', 'A', 'A', 'A', 'A', 'A',
+  'K', 'K', 'K', 'K', 'K', 'K',
   'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q',
   'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J',
   '10', '10', '10', '10', '10', '10', '10', '10',
@@ -77,12 +77,12 @@ const BASE_POOL = [
 // Wild reels use the base pool plus a reel-specific chance to inject a wild
 // (brown/spirit). The 1st column (reel 0) takes the chance removed from the
 // 3rd column (reel 2). At most one wild is kept per spin via capWildsToOne.
-const WILD_CHANCE = { 0: 0.002, 1: 0.0005, 2: 0.002, 3: 0.03, 4: 0.03 };
+const WILD_CHANCE = { 0: 0.02, 1: 0.01, 2: 0.02, 3: 0.06, 4: 0.06 };
 
 // High-value animal symbols are gated: even when the pool picks one, it is
 // downgraded to a low card most of the time so high-value matches stay rare.
 const HIGH_VALUE_IDS = new Set(['buffalo', 'eagle', 'cougar', 'wolf']);
-const HIGH_VALUE_KEEP_CHANCE = 0.2;
+const HIGH_VALUE_KEEP_CHANCE = 0.65;
 
 export function randomSymbol(reelIndex = -1) {
   if (!WILD_REELS.has(reelIndex)) {
