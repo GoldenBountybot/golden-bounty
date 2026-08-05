@@ -662,11 +662,12 @@ export default function SuperAceMachine() {
                   <PlayerHistoryButton iconOnly />
                 </div>
 
-                {/* Auto/History */}
+                {/* Auto Spin */}
                 <button onClick={toggleAuto} disabled={busyRef.current && !autoSpin} className="flex flex-col items-center gap-1 disabled:opacity-60">
                   <span className="w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95" style={metalBtn(autoSpin)}>
-                    <History className={`w-5 h-5 ${autoSpin ? 'text-yellow-300' : 'text-amber-300/85'}`} strokeWidth={2.2} />
+                    <RotateCw className={`w-5 h-5 ${autoSpin ? 'text-yellow-300' : 'text-amber-300/85'}`} strokeWidth={2.2} />
                   </span>
+                  <span className="text-[9px] font-black italic leading-none" style={{ color: autoSpin ? '#facc15' : '#ff8c00', textShadow: '0 0 4px rgba(255,140,0,0.6)' }}>AUTO</span>
                 </button>
 
                 {/* Turbo */}
