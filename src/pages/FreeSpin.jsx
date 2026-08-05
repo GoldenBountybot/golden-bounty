@@ -2,9 +2,12 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Clock, Sparkles, Trophy } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
-import GameHeader from '@/components/GameHeader';
+import BackButton from '@/components/BackButton';
+import GameTitleBar from '@/components/GameTitleBar';
 import GameAssetLoader from '@/components/GameAssetLoader';
 import { FREE_SPIN_ASSETS, GAME_BG } from '@/lib/gameAssets';
+import { Wallet, Volume2, VolumeX } from 'lucide-react';
+import { useMute } from '@/lib/soundMute';
 import SpinWheel from '@/components/freespin/SpinWheel';
 import WoodFrame from '@/components/freespin/WoodFrame';
 import { startWheelSpin, stopWheelSpin } from '@/components/freespin/wheelSounds';
@@ -81,6 +84,7 @@ const woodBtn = {
 
 export default function FreeSpin() {
   const { balance, setBalance, demoMode, addRealBalance } = useCasinoBalance();
+  const [muted, toggleMute] = useMute();
   const [assetsReady, setAssetsReady] = useState(false);
   const [lastSpinAt, setLastSpinAt] = useState(null); // null = still loading
   const [spinCount, setSpinCount] = useState(0); // total daily spins done (drives the prize ladder)
@@ -201,7 +205,37 @@ export default function FreeSpin() {
   return (
     <div className="min-h-screen relative" style={{ ...W, backgroundImage: 'linear-gradient(rgba(10,8,6,0.8), rgba(10,8,6,0.8)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bd52e9c49_file_00000000a50c8207b70a5b0acc15d3dc.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Header */}
-      <GameHeader title="Daily Free Spin" balance={balance} titleClassName="text-lg" plaquePy="py-0.5" outerPy="py-1" />
+      <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
+        <GameTitleBar
+          title="Daily Free Spin"
+          left={<BackButton />}
+          right={
+            <>
+              <div
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-md"
+                style={{ border: '1px solid rgba(214,178,98,0.6)', background: 'rgba(20,17,13,0.7)' }}
+              >
+                <Wallet className="w-3.5 h-3.5 text-amber-300" />
+                <span className="text-[11px] font-black tabular-nums text-amber-100" style={{ fontFamily: 'Georgia, serif' }}>
+                  ${balance.toFixed(2)}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={toggleMute}
+                className="inline-flex items-center justify-center w-9 h-9 rounded-md active:scale-90 transition-transform"
+                style={{ border: '1px solid rgba(214,178,98,0.6)', background: 'rgba(20,17,13,0.7)' }}
+                aria-label={muted ? 'Unmute' : 'Mute'}
+              >
+                {muted
+                  ? <VolumeX className="w-5 h-5 text-amber-300" />
+                  : <Volume2 className="w-5 h-5 text-amber-300" />}
+              </button>
+            </>
+          }
+          maxWidth="max-w-4xl"
+        />
+      </header>
 
       <main className="max-w-md mx-auto px-4 pt-6 pb-2 flex flex-col items-center">
         {/* Reserved slot above the wheel — win message floats up into it */}
