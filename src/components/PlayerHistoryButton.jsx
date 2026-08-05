@@ -20,8 +20,10 @@ function fmtDate(d) {
   } catch { return String(d); }
 }
 
-export default function PlayerHistoryButton({ iconOnly = false }) {
-  const [open, setOpen] = useState(false);
+export default function PlayerHistoryButton({ iconOnly = false, externalOpen = false, onExternalClose, renderButton = true }) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = internalOpen || externalOpen;
+  const setOpen = (v) => { if (!v) onExternalClose && onExternalClose(); setInternalOpen(v); };
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -47,9 +49,9 @@ export default function PlayerHistoryButton({ iconOnly = false }) {
 
   return (
     <>
-      {iconOnly ? (
+      {renderButton && (iconOnly ? (
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => setInternalOpen(true)}
           className="shrink-0"
           title="My History"
         >
@@ -59,14 +61,14 @@ export default function PlayerHistoryButton({ iconOnly = false }) {
         </button>
       ) : (
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => setInternalOpen(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/40 border border-indigo-700/40 text-indigo-100 text-xs font-bold italic hover:bg-black/60 transition-colors"
           style={{ fontFamily: 'Georgia, serif' }}
         >
           <History className="w-4 h-4" />
           My History
         </button>
-      )}
+      ))}
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setOpen(false)}>

@@ -3,13 +3,19 @@ import { Zap, Minus, Plus, Play, Menu } from 'lucide-react';
 import { incBet, decBet } from '@/lib/betStepper';
 import SpinButton from './SpinButton';
 import WildBountyPaytable from './WildBountyPaytable';
+import WildBountyGameRules from './WildBountyGameRules';
+import WildBountyMenu from './WildBountyMenu';
+import PlayerHistoryButton from '@/components/PlayerHistoryButton';
 
 // Control bar matching the reference:
 //  - Turbo / Auto : thin circular outlines with coloured icon + label
 //  - Minus / Plus : thin gold circular outlines
 //  - Spin         : large wood-grain circle with white/silver arrows
 export default function ControlPanel({ bet, setBet, spinning, spin, turbo, setTurbo, autoSpin, setAutoSpin }) {
+  const [showMenu, setShowMenu] = useState(false);
   const [showPaytable, setShowPaytable] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const changeBet = (dir) => {
     if (spinning) return;
     setBet(b => (dir > 0 ? incBet(b) : decBet(b)));
@@ -93,7 +99,7 @@ export default function ControlPanel({ bet, setBet, spinning, spin, turbo, setTu
           </button>
 
           <button
-            onClick={() => setShowPaytable(true)}
+            onClick={() => setShowMenu(true)}
             className="flex flex-col items-center gap-1"
           >
             <span
@@ -110,7 +116,20 @@ export default function ControlPanel({ bet, setBet, spinning, spin, turbo, setTu
         </div>
       </div>
 
+      <WildBountyMenu
+        open={showMenu}
+        onClose={() => setShowMenu(false)}
+        onOpenPaytable={() => setShowPaytable(true)}
+        onOpenRules={() => setShowRules(true)}
+        onOpenHistory={() => setShowHistory(true)}
+      />
       <WildBountyPaytable open={showPaytable} onClose={() => setShowPaytable(false)} />
+      <WildBountyGameRules open={showRules} onClose={() => setShowRules(false)} />
+      <PlayerHistoryButton
+        renderButton={false}
+        externalOpen={showHistory}
+        onExternalClose={() => setShowHistory(false)}
+      />
     </div>
   );
 }
