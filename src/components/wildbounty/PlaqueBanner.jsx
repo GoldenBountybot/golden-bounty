@@ -18,7 +18,10 @@ const PlaqueBanner = forwardRef(function PlaqueBanner({ children, className = ''
         draggable={false}
         style={{
           mixBlendMode: 'screen',
-          filter: 'brightness(1.08) saturate(1.1)',
+          filter: glow
+            ? 'brightness(1.25) saturate(1.3) drop-shadow(0 0 10px rgba(255,215,80,0.95)) drop-shadow(0 0 22px rgba(255,190,50,0.7))'
+            : 'brightness(1.08) saturate(1.1)',
+          animation: glow ? 'wbTotalGlowPulse 1.4s ease-in-out infinite' : 'none',
         }}
       />
       <div className="absolute inset-0 flex items-center justify-center px-[14%]">
