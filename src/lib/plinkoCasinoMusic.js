@@ -54,7 +54,7 @@ export function startPlinkoMusic() {
   if (bgNodes) return; // already playing
 
   const master = ac.createGain();
-  master.gain.value = 0.40;
+  master.gain.value = 0.50; // raised so the lounge groove is clearly audible
   master.connect(ac.destination);
 
   // Warm master low-pass to keep it smooth and rounded.
@@ -81,7 +81,7 @@ export function startPlinkoMusic() {
 
   // ── Rhodes-style piano comping ──
   const pianoGain = ac.createGain();
-  pianoGain.gain.value = 0.5;
+  pianoGain.gain.value = 0.6;
   pianoGain.connect(lp);
 
   function playPiano() {
@@ -146,7 +146,7 @@ export function startPlinkoMusic() {
 
   // ── Walking upright bass ──
   const bassGain = ac.createGain();
-  bassGain.gain.value = 0.55;
+  bassGain.gain.value = 0.62;
   bassGain.connect(lp);
 
   function playBass() {
@@ -170,7 +170,7 @@ export function startPlinkoMusic() {
 
   // ── Brushed swing drums ──
   const drumGain = ac.createGain();
-  drumGain.gain.value = 0.32;
+  drumGain.gain.value = 0.38;
   drumGain.connect(lp);
 
   function playKick(t) {
