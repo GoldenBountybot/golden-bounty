@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Zap, Minus, Plus, Play, Menu, Info } from 'lucide-react';
+import { Zap, Minus, Plus, Play, Menu } from 'lucide-react';
 import { incBet, decBet } from '@/lib/betStepper';
 import SpinButton from './SpinButton';
 import WildBountyPaytable from './WildBountyPaytable';
@@ -99,16 +98,6 @@ export default function ControlPanel({ bet, setBet, spinning, spin, turbo, setTu
           >
             <span
               className="w-9 h-9 rounded-full flex items-center justify-center transition-transform active:scale-95"
-              style={outline('#fcc419', false)}
-            >
-              <Info className="w-4 h-4" style={{ color: '#fcc419' }} strokeWidth={2.4} />
-            </span>
-            <span className="text-[8px] font-bold tracking-wide" style={{ color: '#fcc419' }}>PAYS</span>
-          </button>
-
-          <Link to="/dashboard" className="flex flex-col items-center gap-1">
-            <span
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-transform active:scale-95"
               style={{
                 border: '2px solid rgba(197,160,89,0.9)',
                 background: 'rgba(40,28,16,0.5)',
@@ -117,7 +106,7 @@ export default function ControlPanel({ bet, setBet, spinning, spin, turbo, setTu
               <Menu className="w-4 h-4" style={{ color: '#ffffff' }} strokeWidth={2.6} />
             </span>
             <span className="text-[8px] font-bold tracking-wide" style={{ color: '#e8d8b8' }}>MENU</span>
-          </Link>
+          </button>
         </div>
       </div>
 
