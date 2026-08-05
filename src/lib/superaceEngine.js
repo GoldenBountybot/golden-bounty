@@ -34,8 +34,8 @@ export const GOLDEN_CHANCE = 0.20;
 // Reel-strip weights. Suits common, faces mid, A rarer, SCATTER rare.
 // WILD never spawns directly — it only appears via golden-card transformation.
 const WEIGHTS = {
-  A: 4, K: 5, Q: 6, J: 7,
-  S: 20, H: 20, D: 20, C: 20,
+  A: 2, K: 3, Q: 4, J: 5,
+  S: 24, H: 24, D: 24, C: 24,
   SC: 3,
 };
 
