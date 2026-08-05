@@ -881,7 +881,7 @@ export default function CrownCoinsMachine() {
               blastArmedRef.current = false;
               playFlyCoinSound();
               setBannerBlast(true);
-              const tBlast = setTimeout(() => setBannerBlast(false), 800);
+              const tBlast = setTimeout(() => setBannerBlast(false), 1000);
               timers.current.push(tBlast);
             }}
           >
