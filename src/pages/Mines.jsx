@@ -38,6 +38,30 @@ function playDing(freq, t0, dur, type = 'triangle', gain = 0.18) {
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
   o.start(t0); o.stop(t0 + dur + 0.02);
 }
+function playClick() {
+  if (isMuted()) return;
+  const ac = actx(); if (!ac) return;
+  const t = ac.currentTime;
+  // sharp wooden thunk + metallic click
+  const o = ac.createOscillator();
+  const g = ac.createGain();
+  o.type = 'square';
+  o.frequency.setValueAtTime(420, t);
+  o.frequency.exponentialRampToValueAtTime(180, t + 0.05);
+  g.gain.setValueAtTime(0.22, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+  o.connect(g); g.connect(ac.destination);
+  o.start(t); o.stop(t + 0.1);
+  // metallic ping overlay
+  const o2 = ac.createOscillator();
+  const g2 = ac.createGain();
+  o2.type = 'triangle';
+  o2.frequency.setValueAtTime(1200, t);
+  g2.gain.setValueAtTime(0.12, t);
+  g2.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+  o2.connect(g2); g2.connect(ac.destination);
+  o2.start(t); o2.stop(t + 0.07);
+}
 function playCorrect() {
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
@@ -148,6 +172,7 @@ export default function Mines() {
     if (phase === 'playing') return;
     if (!bet || bet < MIN_BET) { setMessage('Min bet is $0.05'); return; }
     if (balance < bet) { setMessage('Not enough gold, partner'); return; }
+    playClick();
     setBalance((b) => b - bet);
     const positions = Array.from({ length: TOTAL }, (_, i) => i);
     for (let i = positions.length - 1; i > 0; i--) {
