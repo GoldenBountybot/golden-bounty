@@ -8,6 +8,7 @@ import { useLogActivity } from '@/lib/useLogActivity';
 import GameAssetLoader from '@/components/GameAssetLoader';
 import { PLINKO_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { isMuted, useMute } from '@/lib/soundMute';
+import { startPlinkoMusic, stopPlinkoMusic } from '@/lib/plinkoSound';
 
 const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1; // 12 rows: bottom row has 12 pegs between 13 slots
@@ -16,7 +17,7 @@ const DROP_BTN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b66
 const BETS = [0.1, 1, 5, 10];
 // Absolute per-bucket landing chance (percent), symmetric across both edges.
 // 100x: 0.1% · 50x: 0.3% · 25x: 0.5% · 10x: 1% · 5x: 2% · 2x: 26% (split each side).
-const WEIGHTS = [0.05, 0.15, 0.25, 0.5, 1, 13, 70, 13, 1, 0.5, 0.25, 0.15, 0.05];
+const WEIGHTS = [0.02, 0.06, 0.1, 0.2, 0.4, 13, 80, 13, 0.4, 0.2, 0.1, 0.06, 0.02];
 const WEIGHT_TOTAL = WEIGHTS.reduce((a, b) => a + b, 0);
 
 const FONT = "Rye, Georgia, serif";
@@ -191,6 +192,14 @@ export default function Plinko() {
   const [showHistory, setShowHistory] = useState(false);
   const [muted, toggleMute] = useMute();
   const timers = useRef([]);
+  const musicStartedRef = useRef(false);
+
+  // Sync background music with the mute toggle (only after first interaction).
+  useEffect(() => {
+    if (!musicStartedRef.current) return;
+    if (muted) stopPlinkoMusic();
+    else startPlinkoMusic();
+  }, [muted]);
   const bet = customBet != null ? customBet : BETS[betIdx];
 
   const applyCustomBet = () => {
@@ -204,7 +213,25 @@ export default function Plinko() {
   };
   const logActivity = useLogActivity();
 
-  useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
+  useEffect(() => {
+    let started = false;
+    const begin = () => {
+      if (started) return;
+      started = true;
+      startPlinkoMusic();
+      musicStartedRef.current = true;
+      window.removeEventListener('pointerdown', begin);
+      window.removeEventListener('keydown', begin);
+    };
+    window.addEventListener('pointerdown', begin);
+    window.addEventListener('keydown', begin);
+    return () => {
+      window.removeEventListener('pointerdown', begin);
+      window.removeEventListener('keydown', begin);
+      stopPlinkoMusic();
+      timers.current.forEach(clearTimeout);
+    };
+  }, []);
 
   const drop = () => {
     if (dropping) return;
