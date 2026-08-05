@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Bomb, Pickaxe, DollarSign, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import GameHeader from '@/components/GameHeader';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
@@ -7,7 +7,8 @@ import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import GameAssetLoader from '@/components/GameAssetLoader';
 import { MINES_ASSETS, GAME_BG } from '@/lib/gameAssets';
-import { isMuted } from '@/lib/soundMute';
+import { isMuted, useMute } from '@/lib/soundMute';
+import { startMinesMusic, stopMinesMusic } from '@/lib/minesSound';
 
 const TOTAL = 25;
 const COLS = 5;
@@ -92,6 +93,8 @@ const woodBtn = (active, color = 'amber') => ({
 export default function Mines() {
   const { balance, setBalance } = useCasinoBalance();
   const [loaded, setLoaded] = useState(false);
+  const [muted] = useMute();
+  const musicStartedRef = useRef(false);
   const { rtp } = useGameSettings('mines');
   const [betIdx, setBetIdx] = useState(0);
   const [customBet, setCustomBet] = useState('');
@@ -111,6 +114,35 @@ export default function Mines() {
 
   const currentMult = pot;
   const nextMult = multiplierFor(revealedOrder.length + 1, mines);
+
+  // Start the ambient luxury casino loop on the first user gesture (browsers
+  // block AudioContext until a user interacts), then keep it playing. Stop
+  // on unmount.
+  useEffect(() => {
+    let started = false;
+    const begin = () => {
+      if (started) return;
+      started = true;
+      startMinesMusic();
+      musicStartedRef.current = true;
+      window.removeEventListener('pointerdown', begin);
+      window.removeEventListener('keydown', begin);
+    };
+    window.addEventListener('pointerdown', begin);
+    window.addEventListener('keydown', begin);
+    return () => {
+      window.removeEventListener('pointerdown', begin);
+      window.removeEventListener('keydown', begin);
+      stopMinesMusic();
+    };
+  }, []);
+
+  // Sync background music with the mute toggle (only after first interaction).
+  useEffect(() => {
+    if (!musicStartedRef.current) return;
+    if (muted) stopMinesMusic();
+    else startMinesMusic();
+  }, [muted]);
 
   const start = () => {
     if (phase === 'playing') return;
