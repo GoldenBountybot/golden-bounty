@@ -36,19 +36,19 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash, co
     const subtotal = mult > 0 ? amount * mult : amount;
     if (mult > 0 && bannerBefore > 0) {
       setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'flyMult' }), 450));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'multResult' }), 1900));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'flyBanner' }), 2500));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'result' }), 3950));
-      timers.current.push(setTimeout(() => setDisplay(null), 4800));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'flyMult' }), 300));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'multResult' }), 1300));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'flyBanner' }), 1700));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'result' }), 2700));
+      timers.current.push(setTimeout(() => setDisplay(null), 3200));
     } else if (mult > 0) {
       setDisplay({ amount, mult, bannerBefore: 0, total, subtotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, subtotal, phase: 'flyMult' }), 450));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, subtotal, phase: 'result' }), 1900));
-      timers.current.push(setTimeout(() => setDisplay(null), 2900));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, subtotal, phase: 'flyMult' }), 300));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, subtotal, phase: 'result' }), 1300));
+      timers.current.push(setTimeout(() => setDisplay(null), 1700));
     } else {
       setDisplay({ amount, mult: 0, bannerBefore: 0, total: amount, subtotal: amount, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay(null), 2000));
+      timers.current.push(setTimeout(() => setDisplay(null), 1500));
     }
   }, [winHistory, balance, winFlash]);
 

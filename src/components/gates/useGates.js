@@ -184,6 +184,11 @@ export function useGates() {
             setShatter(new Set());
             setWinPositions(new Set());
           }, acc));
+          // Extend the gap after a winning tumble with multipliers so every
+          // multiplier chip's flying animation plays before the next tumble.
+          if (tb.multipliers.length) {
+            acc += tb.bannerBefore > 0 ? 2500 : 1000;
+          }
         }
       }
       prevWinners = tb.winPositions;
@@ -235,18 +240,10 @@ export function useGates() {
         }
       }
       setScatterGlow(new Set());
-      // Dynamic gap before the next auto/free spin: spins whose final winning
-      // tumble has a multiplier play the flying chip animation and need a
-      // longer pause; spins with no multiplier start the next spin right away.
-      const lastWinTumble = [...result.tumbles].reverse().find((t) => t.win > 0);
-      let delay = turbo ? 800 : 1200;
-      if (lastWinTumble && !turbo) {
-        const m = lastWinTumble.multipliers.reduce((s, mm) => s + mm.value, 0);
-        if (m > 0 && lastWinTumble.bannerBefore > 0) delay = 4900;
-        else if (m > 0) delay = 2900;
-        else delay = 1200;
-      }
-      nextSpinDelayRef.current = delay;
+      // The flying chip animation now plays during the tumble sequence (each
+      // multiplier tumble gets its own gap), so by settle the banner is done.
+      // A short gap lets the settle message show before the next spin.
+      nextSpinDelayRef.current = turbo ? 800 : 1200;
       setSpinning(false);
       logActivity('gates-of-olympus', bet, win, win > 0 ? 'win' : 'loss', result.effectiveMult || 0);
     }, acc));
