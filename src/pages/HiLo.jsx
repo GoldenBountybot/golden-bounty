@@ -329,7 +329,7 @@ export default function HiLo() {
           ))}
           {/* Card area */}
           <div className="flex items-center justify-center gap-5 py-2">
-            <CardSlot card={current} label="Current" />
+            <CardSlot card={current} label="Current" flip />
             <span className="text-2xl" style={{ color: GOLD_BRIGHT, textShadow: '0 0 8px rgba(246,201,74,0.6)' }}>→</span>
             <CardSlot card={revealed} label="Next" flip />
           </div>
