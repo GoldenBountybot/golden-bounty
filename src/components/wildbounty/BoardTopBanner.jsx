@@ -16,11 +16,12 @@ import MultiplierStrip from './MultiplierStrip';
 const BANNER_IMG =
   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/34377a521_file_00000000ce28820b9b425fc57f1c795e.png';
 
-// Clean hard key — no feathering, so kept pixels are always fully opaque and
-// never blend with the board behind (which is what created the smudge).
-const BG_VALUE_FLOOR = 38;
-const SAT_FLOOR = 0.33;
-const GREY_VALUE_CEIL = 205;
+// Clean hard key — only pure/near-black background is cut; every other pixel
+// (including the dark wood and the dark halo fringe) stays FULLY OPAQUE so
+// the game background never shows through the banner.
+const BG_VALUE_FLOOR = 10;
+const SAT_FLOOR = 0;
+const GREY_VALUE_CEIL = 0;
 
 export default function BoardTopBanner({ multIndex = 0, lit = false, className = '', centerMultRef }) {
   const [src, setSrc] = useState(null);
@@ -47,11 +48,9 @@ export default function BoardTopBanner({ multIndex = 0, lit = false, className =
           const min = r < g ? (r < b ? r : b) : (g < b ? g : b);
           const sat = max === 0 ? 0 : (max - min) / max;
           if (max < BG_VALUE_FLOOR) {
-            px[i + 3] = 0; // pure black background
-          } else if (sat < SAT_FLOOR && max < GREY_VALUE_CEIL) {
-            px[i + 3] = 0; // grey halo (dark + desaturated)
+            px[i + 3] = 0; // pure black background only
           } else {
-            px[i + 3] = 255; // kept art is always fully opaque — no smudge
+            px[i + 3] = 255; // all wood + halo stays fully opaque
           }
         }
         ctx.putImageData(data, 0, 0);
