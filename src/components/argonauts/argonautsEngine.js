@@ -76,8 +76,9 @@ const BASE_WEIGHTS = {
   wild: 2, bonus: 0.5,
 };
 const FREE_WEIGHTS = {
-  jason: 22, atlanta: 14, lizard: 16, dove: 14,
-  wild: 12, bonus: 3, scatter: 6,
+  jason: 10, atlanta: 8, lizard: 8, dove: 8,
+  harp: 14, cup: 14, potion: 14, bow: 14,
+  wild: 6, bonus: 3, scatter: 6,
 };
 
 function pickWeighted(weights) {
