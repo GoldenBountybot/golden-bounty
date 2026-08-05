@@ -304,7 +304,7 @@ export default function FreeSpin() {
               />
             </button>
           ) : (
-            <WoodFrame variant="msg" className="w-full max-w-[130px] text-center translate-x-[5px]">
+            <WoodFrame variant="msg" className="w-full max-w-[130px] text-center translate-x-[7px]">
               <div className="flex items-center justify-center gap-1.5">
                 <Clock className="w-3 h-3" style={{ color: '#c5a059' }} />
                 <span className="text-[10px] font-bold italic tracking-wide" style={{ color: '#c5a059' }}>NEXT SPIN IN</span>
