@@ -172,8 +172,8 @@ export function spinGrid(rtp = 50) {
     }
   }
 
-  // Win gate: 8% chance the spin is a winner (symbol line match).
-  const forceLoss = Math.random() * 100 > 8;
+  // Win gate: 12% chance the spin is a winner (symbol line match).
+  const forceLoss = Math.random() * 100 > 12;
   if (forceLoss) {
     for (let iter = 0; iter < 4; iter++) {
       const { lines } = evaluateGrid(grid);
@@ -199,7 +199,7 @@ export function spinGrid(rtp = 50) {
       const candLines = PAYLINES.filter(ln => ln.idxs.every(i => grid[i] !== 'coin' && !isValueCoin(grid[i])));
       const ln = candLines.length ? candLines[Math.floor(Math.random() * candLines.length)] : PAYLINES[Math.floor(Math.random() * PAYLINES.length)];
       // Weight toward low-value symbols so high-value matches stay rare.
-      const LOW = ['cherry','cherry','cherry','lemon','lemon','orange','orange','plum','plum','watermelon','grape','bell','bar','seven'];
+      const LOW = ['cherry','cherry','cherry','cherry','lemon','lemon','lemon','orange','orange','orange','plum','plum','watermelon','grape','bell','bar','seven'];
       const sym = LOW[Math.floor(Math.random() * LOW.length)];
       ln.idxs.forEach(i => { grid[i] = sym; });
     }
