@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Minus, Plus, Play, Menu } from 'lucide-react';
+import { Zap, Minus, Plus, Play, Menu, Info } from 'lucide-react';
 import { incBet, decBet } from '@/lib/betStepper';
 import SpinButton from './SpinButton';
+import WildBountyPaytable from './WildBountyPaytable';
 
 // Control bar matching the reference:
 //  - Turbo / Auto : thin circular outlines with coloured icon + label
 //  - Minus / Plus : thin gold circular outlines
 //  - Spin         : large wood-grain circle with white/silver arrows
 export default function ControlPanel({ bet, setBet, spinning, spin, turbo, setTurbo, autoSpin, setAutoSpin }) {
+  const [showPaytable, setShowPaytable] = useState(false);
   const changeBet = (dir) => {
     if (spinning) return;
     setBet(b => (dir > 0 ? incBet(b) : decBet(b)));
@@ -91,6 +93,19 @@ export default function ControlPanel({ bet, setBet, spinning, spin, turbo, setTu
             <span className="text-[8px] font-bold tracking-wide" style={{ color: autoSpin ? '#4ade80' : '#ffd700' }}>AUTO</span>
           </button>
 
+          <button
+            onClick={() => setShowPaytable(true)}
+            className="flex flex-col items-center gap-1"
+          >
+            <span
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-transform active:scale-95"
+              style={outline('#fcc419', false)}
+            >
+              <Info className="w-4 h-4" style={{ color: '#fcc419' }} strokeWidth={2.4} />
+            </span>
+            <span className="text-[8px] font-bold tracking-wide" style={{ color: '#fcc419' }}>PAYS</span>
+          </button>
+
           <Link to="/dashboard" className="flex flex-col items-center gap-1">
             <span
               className="w-9 h-9 rounded-full flex items-center justify-center transition-transform active:scale-95"
@@ -105,6 +120,8 @@ export default function ControlPanel({ bet, setBet, spinning, spin, turbo, setTu
           </Link>
         </div>
       </div>
+
+      <WildBountyPaytable open={showPaytable} onClose={() => setShowPaytable(false)} />
     </div>
   );
 }
