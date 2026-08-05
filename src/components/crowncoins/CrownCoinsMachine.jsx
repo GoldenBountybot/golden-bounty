@@ -227,7 +227,6 @@ export default function CrownCoinsMachine() {
   const [royalWin, setRoyalWin] = useState(null);
   const [anticipateCol, setAnticipateCol] = useState(-1);
   const [bannerBlast, setBannerBlast] = useState(false);
-  const blastArmedRef = useRef(false);
 
   const clearTimers = () => { timers.current.forEach(t => clearTimeout(t)); timers.current = []; };
 
@@ -471,7 +470,14 @@ export default function CrownCoinsMachine() {
         });
         if (coins.length) {
           setFlyCoins(coins);
-          blastArmedRef.current = true;
+          // Blast fires exactly when the coin reaches the banner (1.8s fly).
+          const tBlast = setTimeout(() => {
+            playFlyCoinSound();
+            setBannerBlast(true);
+            const tBlastOff = setTimeout(() => setBannerBlast(false), 1000);
+            timers.current.push(tBlastOff);
+          }, 1800);
+          timers.current.push(tBlast);
           const tClear = setTimeout(() => setFlyCoins([]), 1950);
           timers.current.push(tClear);
         }
@@ -883,14 +889,7 @@ export default function CrownCoinsMachine() {
           <div
             className="relative"
             style={{ animation: 'ccCoinFly 1.8s ease-in forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}
-            onAnimationEnd={() => {
-              if (!blastArmedRef.current) return;
-              blastArmedRef.current = false;
-              playFlyCoinSound();
-              setBannerBlast(true);
-              const tBlast = setTimeout(() => setBannerBlast(false), 1000);
-              timers.current.push(tBlast);
-            }}
+            onAnimationEnd={() => {}}
           >
             <div className="relative w-9 h-9 flex items-center justify-center">
               <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" style={{ WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain' }} />
