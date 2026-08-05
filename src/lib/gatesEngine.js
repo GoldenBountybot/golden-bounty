@@ -82,7 +82,7 @@ export function pickSymbol(freeMode, allowMult = true, winningTumble = false) {
   // for the rest of that spin's tumbles.
   // `winningTumble` reduces the multiplier chance further when refilling
   // cells after a match, so multipliers land less often on winning cascades.
-  let mChance = allowMult ? (freeMode ? 0.07 : 0.012) : 0;
+  let mChance = allowMult ? (freeMode ? 0.03 : 0.005) : 0;
   if (winningTumble) mChance *= freeMode ? 0.002 : 0.35;
   const sChance = freeMode ? 0.02 : 0.014;
   const r = Math.random();
