@@ -49,7 +49,7 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
         <filter id="dropBlackBg" colorInterpolationFilters="sRGB">
           <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
           <feComponentTransfer>
-            <feFuncA type="linear" slope="1.5" intercept="-0.12" />
+            <feFuncA type="linear" slope="20" intercept="-1" />
           </feComponentTransfer>
         </filter>
       </svg>
