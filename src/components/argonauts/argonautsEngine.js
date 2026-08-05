@@ -78,7 +78,7 @@ const BASE_WEIGHTS = {
 const FREE_WEIGHTS = {
   jason: 10, atlanta: 8, lizard: 8, dove: 8,
   harp: 14, cup: 14, potion: 14, bow: 14,
-  wild: 6, bonus: 3, scatter: 6,
+  wild: 6, bonus: 3, scatter: 3,
 };
 
 function pickWeighted(weights) {
@@ -99,7 +99,7 @@ export function reelWeights(reelIndex, freeSpins) {
     return w;
   }
   const w = { ...BASE_WEIGHTS };
-  if (reelIndex >= 1 && reelIndex <= 3) w.scatter = 9;
+  if (reelIndex >= 1 && reelIndex <= 3) w.scatter = 4;
   else delete w.scatter;
   return w;
 }
