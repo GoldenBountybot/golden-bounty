@@ -73,7 +73,7 @@ export default function PromoWelcome() {
     <div className="relative min-h-screen flex flex-col" style={{ background: '#0D0D0D', fontFamily: SANS }}>
       <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.12), transparent 60%)' }} />
 
-      <main className="relative z-10 max-w-md w-full mx-auto flex-1 flex flex-col px-4 py-6 gap-5">
+      <main className="relative z-10 max-w-md lg:max-w-3xl w-full mx-auto flex-1 flex flex-col px-4 py-6 gap-5">
         {/* Banner */}
         <div className="rounded-2xl overflow-hidden border shadow-lg" style={{ borderColor: 'rgba(212,175,55,0.4)', boxShadow: '0 10px 36px rgba(0,0,0,0.6), 0 0 22px rgba(212,175,55,0.18)' }}>
           <img src={BANNER} alt="Use promo code to get $1 USDT — only for Stack" className="w-full h-auto block" />

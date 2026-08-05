@@ -42,14 +42,14 @@ export default function Notifications() {
         className="sticky top-0 z-20 backdrop-blur-xl"
         style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}
       >
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <BackButton to="/" />
           <WesternTitleBadge size="lg" fullWidth className="max-w-[60%]">{t("Notifications")}</WesternTitleBadge>
           <div className="w-8" />
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto px-4 pt-5">
+      <div className="max-w-3xl lg:max-w-5xl mx-auto px-4 pt-5">
         <p className="text-center text-[11px] text-amber-100/55 italic mb-4" style={{ fontFamily: 'Georgia, serif' }}>
           {items.length} {t("total")} · {unreadCount} {t("unread")}
         </p>

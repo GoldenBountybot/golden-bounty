@@ -78,7 +78,7 @@ export default function Airdrop() {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-md lg:max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
             title="Back"
@@ -118,7 +118,7 @@ export default function Airdrop() {
         </div>
       )}
 
-      <main className="relative z-10 max-w-md mx-auto px-4 py-4 flex flex-col gap-4">
+      <main className="relative z-10 max-w-md lg:max-w-5xl mx-auto px-4 py-4 flex flex-col gap-4">
         {/* Roadmap button */}
         <button
           onClick={() => setRoadmapOpen(true)}

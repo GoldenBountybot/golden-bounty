@@ -138,7 +138,7 @@ export default function GatesMachine() {
   }, [stoppedReels, grid, dropCells, dropTick, turbo]);
 
   return (
-    <div ref={machineRef} className="relative w-full max-w-md mx-auto flex flex-col overflow-hidden select-none"
+    <div ref={machineRef} className="relative w-full max-w-md lg:max-w-xl mx-auto flex flex-col overflow-hidden select-none"
       style={{ minHeight: '100dvh', background: 'transparent' }}>
 
       {showInfo && <GatesInfoPanel bet={bet} onClose={() => setShowInfo(false)} />}

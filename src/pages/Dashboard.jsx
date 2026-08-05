@@ -129,7 +129,7 @@ export default function Dashboard() {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-md lg:max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => window.history.back()}
             title="Back"
@@ -159,7 +159,7 @@ export default function Dashboard() {
         </div>
 
         {menuOpen && (
-          <div className="max-w-md mx-auto px-4 pb-3 flex items-center gap-2" style={{ animation: 'dashFadeIn 250ms ease both' }}>
+          <div className="max-w-md lg:max-w-5xl mx-auto px-4 pb-3 flex items-center gap-2" style={{ animation: 'dashFadeIn 250ms ease both' }}>
             {TABS.map(tb => {
               const Icon = tb.icon;
               const active = tab === tb.id;
@@ -193,7 +193,7 @@ export default function Dashboard() {
         )}
       </header>
 
-      <main className="relative z-10 max-w-md mx-auto px-4 py-4 flex flex-col gap-4">
+      <main className="relative z-10 max-w-md lg:max-w-5xl mx-auto px-4 py-4 flex flex-col gap-4">
         {/* Large balance card */}
         <div
           className="dash-card relative overflow-hidden p-5"
