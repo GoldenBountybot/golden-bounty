@@ -251,17 +251,7 @@ export function useGates() {
   // free spins auto trigger
   useEffect(() => {
     if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart) {
-      // Delay the next free spin only when a flying multiplier animation is
-      // playing on the tumble win banner. Spins with no multiplier start
-      // immediately, just like normal base-game spins.
-      const last = winHistory.length > 0 ? winHistory[winHistory.length - 1] : null;
-      const hasFly = last && last.mult > 0;
-      const hasBanner = last && last.bannerBefore > 0;
-      let delay;
-      if (hasFly && hasBanner) delay = 4900;
-      else if (hasFly) delay = 2900;
-      else delay = turbo ? 800 : 1200;
-      const t = setTimeout(() => spin(), delay);
+      const t = setTimeout(() => spin(), turbo ? 800 : 4900);
       return () => clearTimeout(t);
     }
     if (freeSpinsActive && freeSpins === 0) {
@@ -287,7 +277,7 @@ export function useGates() {
         }
       }
     }
-  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin, bet, winHistory]);
+  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, turbo, spin, bet]);
 
   const startFreeSpins = useCallback(() => {
     setShowFreeSpinStart(false);
