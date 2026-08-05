@@ -1,8 +1,7 @@
-// Mines — premium luxury casino lounge background music (Web Audio API).
-// An opulent high-roller velvet-room groove: grand-piano arpeggios, warm
-// string pads, a deep upright bass, and soft brushed drums — with a faint
-// undercurrent of suspense suited to a mines/treasure game. Rich, mellow,
-// and never rushed, like a private salon in a grand casino.
+// Mines — upbeat gaming background music (Web Audio API).
+// An energetic arcade-style groove: bright synth arpeggios, a driving
+// electronic bassline, punchy drums, and shimmering lead stabs — lively and
+// propulsive, like a modern video-game treasure hunt.
 import { isMuted } from '@/lib/soundMute';
 
 let ctx = null;
@@ -17,34 +16,33 @@ function getCtx() {
 
 let bgNodes = null;
 
-// ── Luxe progression — Ebmaj7 → Cm7 → Abmaj7 → Bb7sus (I–vi–IV–V) ───────
-// Each chord lasts 2 bars (4s). Frequencies (Hz) per chord.
+// ── Gaming progression — Am → F → C → G (vi–IV–I–V), 2 bars (4s) each ──
 const CHORDS = [
-  [155.56, 196, 233.08, 311.13, 392],   // Ebmaj7
-  [130.81, 155.56, 196, 261.63, 311.13], // Cm7
-  [103.83, 155.56, 207.65, 261.63, 311.13], // Abmaj7
-  [116.54, 174.61, 233.08, 277.18, 349.23], // Bb7sus
+  [220, 261.63, 329.63, 440],   // Am
+  [174.61, 220, 261.63, 349.23], // F
+  [261.63, 329.63, 392, 523.25], // C
+  [196, 246.94, 293.66, 392],   // G
 ];
-// Grand-piano arpeggio pools (one octave up).
+// Bright synth arpeggio pools (one octave up, fast 16ths).
 const ARPS = [
-  [311.13, 392, 466.16, 622.25],
-  [261.63, 311.13, 392, 523.25],
-  [311.13, 415.30, 523.25, 622.25],
-  [349.23, 466.16, 587.33, 698.46],
+  [440, 523.25, 659.25, 880, 659.25, 523.25],
+  [349.23, 440, 523.25, 698.46, 523.25, 440],
+  [523.25, 659.25, 783.99, 1046.5, 783.99, 659.25],
+  [392, 493.88, 587.33, 783.99, 587.33, 493.88],
 ];
-// Deep upright bass roots per chord (quarter notes: root, fifth, root, fifth).
+// Driving electronic bass roots (8th notes: root, root, fifth, root, root, fifth, root, fifth).
 const BASS = [
-  [77.78, 116.54, 77.78, 116.54],
-  [65.41, 98, 65.41, 98],
-  [103.83, 155.56, 103.83, 155.56],
-  [116.54, 174.61, 116.54, 174.61],
+  [110, 110, 164.81, 110, 110, 164.81, 110, 164.81],
+  [87.31, 87.31, 130.81, 87.31, 87.31, 130.81, 87.31, 130.81],
+  [130.81, 130.81, 196, 130.81, 130.81, 196, 130.81, 196],
+  [98, 98, 146.83, 98, 98, 146.83, 98, 146.83],
 ];
-// Warm string pad voicings (mid register) per chord.
-const STRINGS = [
-  [392, 466.16, 587.33],
-  [392, 466.16, 523.25],
-  [415.30, 523.25, 622.25],
-  [466.16, 587.33, 698.46],
+// Shimmering lead stab chords (high register) per chord.
+const STABS = [
+  [880, 1046.5, 1318.5],
+  [698.46, 880, 1046.5],
+  [1046.5, 1318.5, 1568],
+  [783.99, 987.77, 1174.7],
 ];
 
 export function startMinesMusic() {
@@ -55,23 +53,23 @@ export function startMinesMusic() {
   if (bgNodes) return; // already playing
 
   const master = ac.createGain();
-  master.gain.value = 0.38;
+  master.gain.value = 0.44; // slightly louder
   master.connect(ac.destination);
 
-  // Warm master low-pass for a velvety, rounded tone.
+  // Bright master low-pass for a crisp, clear tone.
   const lp = ac.createBiquadFilter();
   lp.type = 'lowpass';
-  lp.frequency.value = 3400;
-  lp.Q.value = 0.3;
+  lp.frequency.value = 5200;
+  lp.Q.value = 0.4;
   lp.connect(master);
 
-  // Subtle reverb send (short, lush room tail).
+  // Short echo/reverb send for space.
   const delay = ac.createDelay(1.0);
-  delay.delayTime.value = 0.13;
+  delay.delayTime.value = 0.18;
   const fb = ac.createGain();
-  fb.gain.value = 0.24;
+  fb.gain.value = 0.28;
   const revMix = ac.createGain();
-  revMix.gain.value = 0.20;
+  revMix.gain.value = 0.22;
   lp.connect(delay);
   delay.connect(fb);
   fb.connect(delay);
@@ -80,132 +78,157 @@ export function startMinesMusic() {
 
   let chordIdx = 0;
 
-  // ── Warm string pad — sustained, slowly swelling ──
-  const stringGain = ac.createGain();
-  stringGain.gain.value = 0.5;
-  stringGain.connect(lp);
+  // ── Warm pad — sustained synth bed ──
+  const padGain = ac.createGain();
+  padGain.gain.value = 0.42;
+  padGain.connect(lp);
 
-  function playStrings() {
+  function playPad() {
     const now = ac.currentTime;
-    const notes = STRINGS[chordIdx % STRINGS.length];
+    const notes = CHORDS[chordIdx % CHORDS.length];
     const dur = 4.0;
     notes.forEach((f) => {
       const o = ac.createOscillator();
       const g = ac.createGain();
       o.type = 'sawtooth';
       o.frequency.setValueAtTime(f, now);
-      // gentle vibrato for life
       const lfo = ac.createOscillator();
       const lfoG = ac.createGain();
-      lfo.frequency.value = 0.28;
-      lfoG.gain.value = 1.0;
+      lfo.frequency.value = 0.4;
+      lfoG.gain.value = 1.5;
       lfo.connect(lfoG);
       lfoG.connect(o.frequency);
       lfo.start(now);
       lfo.stop(now + dur + 0.1);
-      // low-pass the strings so they're silky, not buzzy
       const sf = ac.createBiquadFilter();
       sf.type = 'lowpass';
-      sf.frequency.value = 1600;
-      sf.Q.value = 0.5;
+      sf.frequency.value = 2200;
+      sf.Q.value = 0.6;
       g.gain.setValueAtTime(0.0001, now);
-      g.gain.linearRampToValueAtTime(0.07, now + 0.6);
-      g.gain.setValueAtTime(0.07, now + dur - 1.0);
+      g.gain.linearRampToValueAtTime(0.06, now + 0.5);
+      g.gain.setValueAtTime(0.06, now + dur - 0.8);
       g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
       o.connect(sf);
       sf.connect(g);
-      g.connect(stringGain);
+      g.connect(padGain);
       o.start(now);
       o.stop(now + dur + 0.05);
     });
   }
 
-  // ── Grand-piano arpeggios — flowing, expressive ──
-  const pianoGain = ac.createGain();
-  pianoGain.gain.value = 0.5;
-  pianoGain.connect(lp);
+  // ── Bright synth arpeggios — fast 16ths, energetic ──
+  const arpGain = ac.createGain();
+  arpGain.gain.value = 0.5;
+  arpGain.connect(lp);
 
-  function playPiano() {
+  function playArp() {
     const now = ac.currentTime;
     const pool = ARPS[chordIdx % ARPS.length];
-    // 8 flowing eighth-notes per chord (4s), gentle syncopation.
-    for (let i = 0; i < 8; i++) {
+    // 16 fast 16th notes per chord (4s = 16 × 0.25s).
+    for (let i = 0; i < 16; i++) {
       const f = pool[i % pool.length];
-      const swing = i % 2 === 1 ? 0.05 : 0;
-      const t = now + i * 0.5 + swing;
-      // Main note — triangle for a soft bell-like piano tone.
+      const t = now + i * 0.25;
+      // Main note — square for a bright, punchy synth tone.
       const o = ac.createOscillator();
       const g = ac.createGain();
-      o.type = 'triangle';
+      o.type = 'square';
       o.frequency.setValueAtTime(f, t);
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(0.14, t + 0.012);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+      g.gain.linearRampToValueAtTime(0.12, t + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
       o.connect(g);
-      g.connect(pianoGain);
+      g.connect(arpGain);
       o.start(t);
-      o.stop(t + 0.5);
-      // Octave-up sine harmonic for sparkle.
+      o.stop(t + 0.25);
+      // Octave-up sine sparkle.
       const sp = ac.createOscillator();
       const spG = ac.createGain();
       sp.type = 'sine';
       sp.frequency.setValueAtTime(f * 2, t);
       spG.gain.setValueAtTime(0.0001, t);
-      spG.gain.linearRampToValueAtTime(0.05, t + 0.02);
-      spG.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+      spG.gain.linearRampToValueAtTime(0.04, t + 0.01);
+      spG.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
       sp.connect(spG);
-      spG.connect(pianoGain);
+      spG.connect(arpGain);
       sp.start(t);
-      sp.stop(t + 0.4);
+      sp.stop(t + 0.2);
     }
   }
 
-  // ── Deep upright bass — root, fifth, root, fifth ──
+  // ── Driving electronic bass — 8th-note pulse ──
   const bassGain = ac.createGain();
-  bassGain.gain.value = 0.55;
+  bassGain.gain.value = 0.5;
   bassGain.connect(lp);
 
   function playBass() {
     const now = ac.currentTime;
     const notes = BASS[chordIdx % BASS.length];
     notes.forEach((f, i) => {
-      const t = now + i * 1.0;
+      const t = now + i * 0.5;
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(f, t);
+      const bf = ac.createBiquadFilter();
+      bf.type = 'lowpass';
+      bf.frequency.setValueAtTime(180, t);
+      bf.Q.value = 2;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.26, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+      o.connect(bf);
+      bf.connect(g);
+      g.connect(bassGain);
+      o.start(t);
+      o.stop(t + 0.45);
+    });
+  }
+
+  // ── Shimmering lead stabs — on beats 1 & 3 ──
+  const stabGain = ac.createGain();
+  stabGain.gain.value = 0.4;
+  stabGain.connect(lp);
+
+  function playStab(when) {
+    const notes = STABS[chordIdx % STABS.length];
+    notes.forEach((f) => {
+      const t = when;
       const o = ac.createOscillator();
       const g = ac.createGain();
       o.type = 'triangle';
       o.frequency.setValueAtTime(f, t);
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.linearRampToValueAtTime(0.30, t + 0.04);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.75);
+      g.gain.linearRampToValueAtTime(0.10, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
       o.connect(g);
-      g.connect(bassGain);
+      g.connect(stabGain);
       o.start(t);
-      o.stop(t + 0.8);
+      o.stop(t + 0.55);
     });
   }
 
-  // ── Soft brushed drums — intimate, low-key ──
+  // ── Punchy drums — energetic 4/4 ──
   const drumGain = ac.createGain();
-  drumGain.gain.value = 0.28;
+  drumGain.gain.value = 0.32;
   drumGain.connect(lp);
 
   function playKick(t) {
     const o = ac.createOscillator();
     const g = ac.createGain();
     o.type = 'sine';
-    o.frequency.setValueAtTime(95, t);
-    o.frequency.exponentialRampToValueAtTime(38, t + 0.14);
+    o.frequency.setValueAtTime(140, t);
+    o.frequency.exponentialRampToValueAtTime(45, t + 0.12);
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.linearRampToValueAtTime(0.32, t + 0.005);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+    g.gain.linearRampToValueAtTime(0.4, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
     o.connect(g);
     g.connect(drumGain);
     o.start(t);
-    o.stop(t + 0.22);
+    o.stop(t + 0.2);
   }
 
   function playSnare(t) {
-    const len = Math.floor(ac.sampleRate * 0.05);
+    const len = Math.floor(ac.sampleRate * 0.08);
     const buf = ac.createBuffer(1, len, ac.sampleRate);
     const data = buf.getChannelData(0);
     for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
@@ -213,18 +236,29 @@ export function startMinesMusic() {
     src.buffer = buf;
     const f = ac.createBiquadFilter();
     f.type = 'bandpass';
-    f.frequency.value = 1600;
-    f.Q.value = 0.7;
+    f.frequency.value = 1900;
+    f.Q.value = 0.8;
     const g = ac.createGain();
-    g.gain.value = 0.10;
+    g.gain.value = 0.16;
     src.connect(f);
     f.connect(g);
     g.connect(drumGain);
     src.start(t);
+    // body tone
+    const o = ac.createOscillator();
+    const og = ac.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(220, t);
+    og.gain.setValueAtTime(0.1, t);
+    og.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+    o.connect(og);
+    og.connect(drumGain);
+    o.start(t);
+    o.stop(t + 0.12);
   }
 
-  function playHat(t) {
-    const len = Math.floor(ac.sampleRate * 0.03);
+  function playHat(t, open = false) {
+    const len = Math.floor(ac.sampleRate * (open ? 0.12 : 0.04));
     const buf = ac.createBuffer(1, len, ac.sampleRate);
     const data = buf.getChannelData(0);
     for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
@@ -232,9 +266,9 @@ export function startMinesMusic() {
     src.buffer = buf;
     const f = ac.createBiquadFilter();
     f.type = 'highpass';
-    f.frequency.value = 7000;
+    f.frequency.value = 8000;
     const g = ac.createGain();
-    g.gain.value = 0.05;
+    g.gain.value = open ? 0.08 : 0.06;
     src.connect(f);
     f.connect(g);
     g.connect(drumGain);
@@ -243,21 +277,25 @@ export function startMinesMusic() {
 
   function playDrums() {
     const now = ac.currentTime;
-    // Soft 4/4: kick on 1 & 3, brushed snare on 2 & 4, hats on off-beats.
+    // Energetic 4/4: kick on 1, 1.5, 3, 3.5; snare on 2 & 4; hats on 8ths.
     playKick(now);
+    playKick(now + 0.5);
     playKick(now + 2.0);
+    playKick(now + 2.5);
     playSnare(now + 1.0);
     playSnare(now + 3.0);
     for (let i = 0; i < 8; i++) {
-      const swing = i % 2 === 1 ? 0.05 : 0;
-      playHat(now + i * 0.5 + swing);
+      playHat(now + i * 0.5, i === 7);
     }
+    // Lead stabs on beats 1 & 3.
+    playStab(now);
+    playStab(now + 2.0);
   }
 
   // ── Sequencer — every 4s advance the chord and fire all layers ──
   function step() {
-    playStrings();
-    playPiano();
+    playPad();
+    playArp();
     playBass();
     playDrums();
     chordIdx++;
