@@ -157,7 +157,7 @@ export function useWildBounty() {
     {
       const lows = ['whiskey', 'hat', 'Q', 'J'];
       let guard = 0;
-      while (guard++ < 14) {
+      while (guard++ < 30) {
         const { wins } = evaluateWins(grid, bet);
         if (wins.length <= 1) break;
         const keepSym = forceWin ? wins[0].symbol : wins[0].symbol;
@@ -165,18 +165,24 @@ export function useWildBounty() {
         if (extras.length === 0) break;
         let fixed = false;
         for (const w of extras) {
-          for (const targetReel of [2, 1, 0]) {
-            const pos = removed.find(p => Number(p.split('-')[0]) === targetReel);
-            if (pos) {
-              const [, row] = pos.split('-').map(Number);
+          // Try every reel where this extra win's symbol appears (not just
+          // blasted cells) so the break always lands even when the extra win
+          // spans reels with no removed positions.
+          for (let targetReel = 0; targetReel < 6 && !fixed; targetReel++) {
+            const reel = grid[targetReel];
+            for (let row = 0; row < reel.length; row++) {
+              if (reel[row] !== w.symbol) continue;
+              // Prefer a blasted cell on this reel; otherwise overwrite the
+              // matching symbol directly to break the contiguity.
+              const pos = removed.find(p => Number(p.split('-')[0]) === targetReel);
+              const useRow = pos ? Number(pos.split('-')[1]) : row;
               let alt = lows[Math.floor(Math.random() * lows.length)];
               while (alt === w.symbol) alt = lows[Math.floor(Math.random() * lows.length)];
-              grid[targetReel][row] = alt;
+              grid[targetReel][useRow] = alt;
               fixed = true;
               break;
             }
           }
-          if (fixed) break;
         }
         if (!fixed) break;
       }
