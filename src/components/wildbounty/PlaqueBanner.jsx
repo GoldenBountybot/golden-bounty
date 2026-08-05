@@ -12,19 +12,34 @@ const PlaqueBanner = forwardRef(function PlaqueBanner({ children, className = ''
       style={style}
     >
       <img
-        key={glow ? `glow-${glowKey}` : 'idle'}
         src={BANNER_URL}
         alt=""
         className="block w-full h-auto select-none pointer-events-none"
         draggable={false}
         style={{
           mixBlendMode: 'screen',
-          filter: glow
-            ? 'brightness(1.25) saturate(1.3) drop-shadow(0 0 10px rgba(255,215,80,0.95)) drop-shadow(0 0 22px rgba(255,190,50,0.7))'
-            : 'brightness(1.08) saturate(1.1)',
-          animation: glow ? 'wbTotalGlowPulse 1.4s ease-out forwards' : 'none',
+          filter: 'brightness(1.08) saturate(1.1)',
         }}
       />
+      {/* Golden glow overlay — a separate GPU-composited layer that animates
+          opacity only, so the pulse never re-rasterizes the large banner image
+          (which would jank the main thread). Keyed by glowKey so each new win
+          amount re-triggers the pulse; remounting this tiny gradient div is
+          essentially free (no image decode). */}
+      {glow && (
+        <div
+          key={`glow-${glowKey}`}
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            mixBlendMode: 'screen',
+            background: 'radial-gradient(ellipse 62% 72% at 50% 50%, rgba(255,228,130,0.9) 0%, rgba(255,205,70,0.55) 42%, rgba(255,190,50,0.18) 68%, transparent 82%)',
+            animation: 'wbGlowFade 1.4s ease-out forwards',
+            willChange: 'opacity',
+            transform: 'translate3d(0,0,0)',
+            backfaceVisibility: 'hidden',
+          }}
+        />
+      )}
       <div className="absolute inset-0 flex items-center justify-center px-[14%]">
         {children}
       </div>

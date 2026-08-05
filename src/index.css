@@ -748,6 +748,18 @@
   100% { opacity: 0; }
 }
 
+/* Wild Bounty — golden glow overlay on the win banner: opacity-only pulse
+   (GPU/compositor-friendly) so it never janks the main thread. Bright bloom,
+   slight dip, bright bloom again, then fade out — same feel as the old
+   filter-based pulse but smooth. */
+@keyframes wbGlowFade {
+  0%   { opacity: 0; }
+  18%  { opacity: 1; }
+  42%  { opacity: 0.7; }
+  68%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 /* Wild Bounty — fast golden glow pulse on the TOTAL WIN plaque once the
    count-up finishes: a quick bright bloom that fades out in ~600ms. */
 @keyframes wbTotalGlowPulse {
