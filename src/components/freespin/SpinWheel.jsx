@@ -42,25 +42,12 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
 
   return (
     <div className="relative select-none mx-auto" style={{ width: size }}>
-      {/* SVG filter: converts the pointer image's luminance to alpha so the
-          pure-black background becomes fully transparent while the gold
-          pointer stays fully opaque — lets it float on top of the frame. */}
-      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
-        <filter id="dropBlackBg" colorInterpolationFilters="sRGB">
-          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
-          <feComponentTransfer>
-            <feFuncA type="linear" slope="1.5" intercept="-0.12" />
-          </feComponentTransfer>
-        </filter>
-      </svg>
-
-      {/* Ornate Western frame + stand — black center dropped so the casino
-          background shows through the frame opening behind the wheel. */}
+      {/* Ornate Western frame + stand */}
       <img
         src={FRAME_IMG}
         alt="Ornate Western wheel frame"
         draggable={false}
-        style={{ width: '100%', height: 'auto', display: 'block', filter: 'url(#dropBlackBg)' }}
+        style={{ width: '100%', height: 'auto', display: 'block' }}
       />
 
       {/* Golden fleur-de-lis shield pointer — tip touches the wheel's top rim */}
@@ -76,7 +63,6 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
           height: 'auto',
           transform: 'translateX(-50%)',
           zIndex: 20,
-          filter: 'url(#dropBlackBg)',
           pointerEvents: 'none',
         }}
       />
@@ -110,7 +96,6 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
             display: 'block',
             objectFit: 'cover',
             borderRadius: '50%',
-            filter: 'url(#dropBlackBg)',
           }}
         />
       </div>
