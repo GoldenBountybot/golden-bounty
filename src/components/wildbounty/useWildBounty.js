@@ -112,12 +112,11 @@ export function useWildBounty() {
     });
 
     if (forceWin) {
-      // Guarantee a 3+ contiguous-from-left win: drop the same symbol on the
-      // first blasted cell of reels 0, 1 and 2 (a wild already on one of those
-      // reels substitutes, so a reel with no blasted cell is fine). Exclude
-      // high-value symbols (bandit/revolver) so multiplier rounds rarely form
-      // high-value matches.
-      const lowMids = ['whiskey', 'hat', 'A', 'K', 'Q', 'J'];
+      // Guarantee a 3+ contiguous-from-left win: drop the same LOW-value symbol
+      // on the first blasted cell of reels 0, 1 and 2. Exclude high-value
+      // symbols (bandit/revolver) AND A/K so multiplier rounds only form
+      // low-value single-type matches.
+      const lowMids = ['whiskey', 'hat', 'Q', 'J'];
       const S = lowMids[Math.floor(Math.random() * lowMids.length)];
       [0, 1, 2].forEach(r => {
         const pos = removed.find(p => Number(p.split('-')[0]) === r);
@@ -148,6 +147,61 @@ export function useWildBounty() {
           if (fixed) break;
         }
         if (!fixed) break;
+      }
+    }
+
+    // Limit to a SINGLE winning symbol type per cascade round so multiple
+    // symbol types never match at once. Keep only the forced symbol's win
+    // (or the first win if no forced win), break every other win type by
+    // swapping a blasted cell on its earliest reel to a different symbol.
+    {
+      const lows = ['whiskey', 'hat', 'Q', 'J'];
+      let guard = 0;
+      while (guard++ < 14) {
+        const { wins } = evaluateWins(grid, bet);
+        if (wins.length <= 1) break;
+        const keepSym = forceWin ? wins[0].symbol : wins[0].symbol;
+        const extras = wins.filter(w => w.symbol !== keepSym);
+        if (extras.length === 0) break;
+        let fixed = false;
+        for (const w of extras) {
+          for (const targetReel of [2, 1, 0]) {
+            const pos = removed.find(p => Number(p.split('-')[0]) === targetReel);
+            if (pos) {
+              const [, row] = pos.split('-').map(Number);
+              let alt = lows[Math.floor(Math.random() * lows.length)];
+              while (alt === w.symbol) alt = lows[Math.floor(Math.random() * lows.length)];
+              grid[targetReel][row] = alt;
+              fixed = true;
+              break;
+            }
+          }
+          if (fixed) break;
+        }
+        if (!fixed) break;
+      }
+    }
+
+    // Cap the kept win to exactly 1 matching symbol per early reel so the
+    // fewest possible symbols match at once (minimal ways).
+    {
+      const { wins } = evaluateWins(grid, bet);
+      if (wins.length > 0) {
+        const keepSym = wins[0].symbol;
+        const lows = ['whiskey', 'hat', 'Q', 'J'];
+        for (let r = 0; r < 3; r++) {
+          const reel = grid[r];
+          let foundFirst = false;
+          for (let row = 0; row < reel.length; row++) {
+            if (reel[row] === keepSym) {
+              if (foundFirst) {
+                reel[row] = lows[Math.floor(Math.random() * lows.length)];
+              } else {
+                foundFirst = true;
+              }
+            }
+          }
+        }
       }
     }
     return grid;
