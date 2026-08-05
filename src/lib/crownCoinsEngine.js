@@ -135,26 +135,36 @@ export function spinGrid(rtp = 50) {
     }
   });
 
+  // Guard: if all three columns independently dropped a value coin, remove
+  // one so three value coins never appear simultaneously from random drops.
+  {
+    const cols = [0, 1, 2].filter(col => [col, col + 3, col + 6].some(i => isValueCoin(grid[i])));
+    if (cols.length >= 3) {
+      const removeCol = cols[Math.floor(Math.random() * cols.length)];
+      [removeCol, removeCol + 3, removeCol + 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
+    }
+  }
+
   // Free Spin trigger: 1% chance — Crown Coin in center + a value
   // coin in each side column. Anticipation: additional 15% chance —
   // a value coin in the left side column only + a Crown Coin in the center
   // (right side kept clear so it is not a full trigger).
   // Overall game winning chance target ≈ 50% (symbol wins + free spins + bonus).
   const triggerRoll = Math.random();
-  if (triggerRoll < 0.0005) {
+  if (triggerRoll < 0.0002) {
     grid[4] = 'coin';
     [0, 3, 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = randomCoinKey();
     grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = randomCoinKey();
-  } else if (triggerRoll < 0.1505) {
+  } else if (triggerRoll < 0.0802) {
     grid[4] = 'coin';
     [0, 3, 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = randomCoinKey();
-    // Anticipation payoff: 5% chance a value coin drops on the slow-motion
+    // Anticipation payoff: 2% chance a value coin drops on the slow-motion
     // third reel (right side column), completing the free-spin trigger.
-    if (Math.random() < 0.05) {
+    if (Math.random() < 0.02) {
       grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = randomCoinKey();
     }
   }
