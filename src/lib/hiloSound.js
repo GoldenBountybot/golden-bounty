@@ -228,5 +228,147 @@ export function playCollect() {
   });
 }
 
-const hiloSound = { playDeal, playWin, playLoss, playCollect };
+// ── BACKGROUND MUSIC — ambient luxury casino lounge loop ────────────────
+// A warm, slow, looping groove: deep upright-bass-like pulse + soft Rhodes
+// chords + brushed cymbal shimmer. Designed to sit unobtrusively under play.
+let bgNodes = null;
+
+export function startBackgroundMusic() {
+  if (isMuted()) return;
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  if (bgNodes) return; // already playing
+
+  const master = ac.createGain();
+  master.gain.value = 0.18;
+  master.connect(ac.destination);
+
+  // Soft low-pass to keep the loop warm and non-fatiguing.
+  const lp = ac.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 2200;
+  lp.Q.value = 0.4;
+  lp.connect(master);
+
+  // ── Chord pad — slow cycling ii-V-I in C (Dm7-G7-Cmaj7) ──
+  const chordSets = [
+    [146.83, 174.61, 220, 261.63], // Dm7
+    [196, 246.94, 293.66, 349.23], // G7
+    [130.81, 164.81, 196, 261.63], // Cmaj7
+  ];
+  let chordIdx = 0;
+  const chordGain = ac.createGain();
+  chordGain.gain.value = 0.5;
+  chordGain.connect(lp);
+
+  const padOscs = [];
+  function playChord() {
+    const now = ac.currentTime;
+    const chord = chordSets[chordIdx % chordSets.length];
+    const dur = 4.0;
+    chord.forEach((f) => {
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(f, now);
+      // gentle vibrato
+      const lfo = ac.createOscillator();
+      const lfoG = ac.createGain();
+      lfo.frequency.value = 0.3;
+      lfoG.gain.value = 1.2;
+      lfo.connect(lfoG);
+      lfoG.connect(o.frequency);
+      lfo.start(now);
+      lfo.stop(now + dur + 0.1);
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.linearRampToValueAtTime(0.08, now + 0.6);
+      g.gain.setValueAtTime(0.08, now + dur - 0.8);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      o.connect(g);
+      g.connect(chordGain);
+      o.start(now);
+      o.stop(now + dur + 0.05);
+      padOscs.push(o);
+    });
+    chordIdx++;
+  }
+  playChord();
+  const chordTimer = setInterval(playChord, 4000);
+
+  // ── Upright bass pulse — root note walk per chord ──
+  const bassRoots = [73.42, 98, 65.41]; // D2, G2, C2
+  let bassIdx = 0;
+  const bassGain = ac.createGain();
+  bassGain.gain.value = 0.6;
+  bassGain.connect(lp);
+
+  function playBass() {
+    const now = ac.currentTime;
+    const root = bassRoots[bassIdx % bassRoots.length];
+    // Two pulses per chord (half-time feel).
+    [0, 2].forEach((beat) => {
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(root, now + beat);
+      g.gain.setValueAtTime(0.0001, now + beat);
+      g.gain.linearRampToValueAtTime(0.22, now + beat + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + beat + 0.5);
+      o.connect(g);
+      g.connect(bassGain);
+      o.start(now + beat);
+      o.stop(now + beat + 0.55);
+    });
+    bassIdx++;
+  }
+  playBass();
+  const bassTimer = setInterval(playBass, 4000);
+
+  // ── Brushed cymbal shimmer — soft noise swells ──
+  const shimmerGain = ac.createGain();
+  shimmerGain.gain.value = 0.04;
+  const shimmerF = ac.createBiquadFilter();
+  shimmerF.type = 'highpass';
+  shimmerF.frequency.value = 6000;
+  shimmerGain.connect(shimmerF);
+  shimmerF.connect(lp);
+
+  function playShimmer() {
+    const now = ac.currentTime;
+    const len = Math.floor(ac.sampleRate * 1.8);
+    const buf = ac.createBuffer(1, len, ac.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (i / len);
+    const src = ac.createBufferSource();
+    src.buffer = buf;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(0.5, now + 0.8);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 1.8);
+    src.connect(g);
+    g.connect(shimmerGain);
+    src.start(now);
+    src.stop(now + 1.85);
+  }
+  playShimmer();
+  const shimmerTimer = setInterval(playShimmer, 4000);
+
+  bgNodes = {
+    stop: () => {
+      clearInterval(chordTimer);
+      clearInterval(bassTimer);
+      clearInterval(shimmerTimer);
+      try { master.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.3); } catch {}
+      setTimeout(() => { try { master.disconnect(); } catch {} }, 400);
+      bgNodes = null;
+    },
+  };
+}
+
+export function stopBackgroundMusic() {
+  if (bgNodes) bgNodes.stop();
+}
+
+const hiloSound = { playDeal, playWin, playLoss, playCollect, startBackgroundMusic, stopBackgroundMusic };
 export default hiloSound;

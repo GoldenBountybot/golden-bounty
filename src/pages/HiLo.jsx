@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus, Wallet, CircleDollarSign, Trophy, Volume2, VolumeX } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import GameTitleBar from '@/components/GameTitleBar';
@@ -9,7 +9,7 @@ import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { incBet, decBet } from '@/lib/betStepper';
 import { useMute } from '@/lib/soundMute';
-import { playDeal, playWin, playLoss, playCollect } from '@/lib/hiloSound';
+import { playDeal, playWin, playLoss, playCollect, startBackgroundMusic, stopBackgroundMusic } from '@/lib/hiloSound';
 
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -158,6 +158,12 @@ export default function HiLo() {
   const [message, setMessage] = useState('Deal a card to start!');
   const [streak, setStreak] = useState(0);
   const logActivity = useLogActivity();
+
+  // Start the ambient casino lounge loop on mount, stop it on unmount.
+  useEffect(() => {
+    startBackgroundMusic();
+    return () => stopBackgroundMusic();
+  }, []);
 
   const deal = () => {
     if (phase === 'guessing') return;
