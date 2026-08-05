@@ -159,10 +159,25 @@ export default function HiLo() {
   const [streak, setStreak] = useState(0);
   const logActivity = useLogActivity();
 
-  // Start the ambient casino lounge loop on mount, stop it on unmount.
+  // Start the ambient casino lounge loop on the first user gesture (browsers
+  // block AudioContext until a user interacts), then keep it playing. Stop
+  // on unmount.
   useEffect(() => {
-    startBackgroundMusic();
-    return () => stopBackgroundMusic();
+    let started = false;
+    const begin = () => {
+      if (started) return;
+      started = true;
+      startBackgroundMusic();
+      window.removeEventListener('pointerdown', begin);
+      window.removeEventListener('keydown', begin);
+    };
+    window.addEventListener('pointerdown', begin);
+    window.addEventListener('keydown', begin);
+    return () => {
+      window.removeEventListener('pointerdown', begin);
+      window.removeEventListener('keydown', begin);
+      stopBackgroundMusic();
+    };
   }, []);
 
   const deal = () => {
