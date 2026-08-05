@@ -105,11 +105,36 @@ function CardFace({ card }) {
   );
 }
 
-function CardSlot({ card, label }) {
+// 3D flip card — shows the back face-up, then flips to reveal the drawn card
+// when `card` is set. Used for the "Next" card so the reveal is animated.
+function FlipCard({ card }) {
+  const flipped = !!card;
+  return (
+    <div style={{ width: 112, height: 160, perspective: 1000 }}>
+      <div
+        className="relative w-full h-full"
+        style={{
+          transformStyle: 'preserve-3d',
+          transition: 'transform 0.7s ease-in-out',
+          transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+        }}
+      >
+        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
+          <CardBack />
+        </div>
+        <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+          {card ? <CardFace card={card} /> : <CardBack />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CardSlot({ card, label, flip }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
       <span className="text-[10px] tracking-[0.25em] uppercase font-semibold" style={{ color: GOLD, fontFamily: SERIF }}>{label}</span>
-      {card ? <CardFace card={card} /> : <CardBack />}
+      {flip ? <FlipCard card={card} /> : (card ? <CardFace card={card} /> : <CardBack />)}
     </div>
   );
 }
@@ -306,7 +331,7 @@ export default function HiLo() {
           <div className="flex items-center justify-center gap-5 py-2">
             <CardSlot card={current} label="Current" />
             <span className="text-2xl" style={{ color: GOLD_BRIGHT, textShadow: '0 0 8px rgba(246,201,74,0.6)' }}>→</span>
-            <CardSlot card={revealed} label="Next" />
+            <CardSlot card={revealed} label="Next" flip />
           </div>
         </div>
 
