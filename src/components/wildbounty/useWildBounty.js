@@ -90,7 +90,7 @@ export function useWildBounty() {
   // CONTINUE_PROB[i] = chance the NEXT cascade wins after a win paid at tier i,
   // derived from the requested cumulative reach odds:
   //   reach X2 5%, X4 3.33%, X8 1.67%, X16 0.1%, X32 0.02%, X64 0.01%, X128 0.0006%.
-  const CONTINUE_PROB = [0.0015, 0.0003, 0.00015, 0.000125, 0.000015, 0.000015, 0.000015];
+  const CONTINUE_PROB = [0.00075, 0.00015, 0.000075, 0.00006, 0.0000075, 0.0000075, 0.0000075];
 
   // Drop new symbols into the blasted positions and rig them so the next
   // cascade either wins (chain continues toward a higher multiplier tier) or
@@ -442,7 +442,7 @@ export function useWildBounty() {
     // Match chance = admin RTP (default 35%): 65% no-match, 35% match.
     // During free spins, lower the base win chance so fewer value symbols land
     // and multiplier cascade rounds trigger less often.
-    const wantWin = Math.random() < (rtpRef.current / 100) * (usingFree ? 0.35 : 1);
+    const wantWin = Math.random() < (rtpRef.current / 100) * (usingFree ? 0.35 : 0.6);
     if (wantWin) {
       const X = 'A';
       finalGrid = finalGrid.map((reel, ri) => {
