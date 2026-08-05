@@ -159,7 +159,7 @@ export default function Mines() {
     setRevealedOrder([]);
     setPot(1);
     setLastWin(0);
-    setForceFirstMine(Math.random() >= (rtp / 100) * 0.96);
+    setForceFirstMine(Math.random() >= (rtp / 100) * 0.90);
     setPhase('playing');
     setMessage(`Find ${safe} gold bars · dodge ${mines} TNT`);
   };
