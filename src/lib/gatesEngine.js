@@ -258,14 +258,19 @@ export function computeSpin(bet, wantWin, freeMode, runningMult) {
     if (ev.win > 0) {
       tumbleMult = ev.multipliers.reduce((s, m) => s + m.value, 0);
       if (freeMode) {
-        // value symbol multiplies the win AND the accumulated banner
-        // multiplier also multiplies the win. Then the value symbol is
-        // added to the banner for future tumbles.
-        const bannerMult = banner > 0 ? banner : 1;
-        const cellMult = tumbleMult > 0 ? tumbleMult : 1;
-        effectiveMult = bannerMult * cellMult;
-        tumbleWin = Math.round(ev.win * effectiveMult * 100) / 100;
-        banner += tumbleMult;
+        // The accumulated banner multipliers only multiply the win when a
+        // multiplier value symbol actually drops in THIS winning tumble.
+        // If no value symbol lands, the win pays at face value (×1) and the
+        // banner stays unchanged for the next tumble.
+        if (tumbleMult > 0) {
+          const bannerMult = banner > 0 ? banner : 1;
+          effectiveMult = bannerMult * tumbleMult;
+          tumbleWin = Math.round(ev.win * effectiveMult * 100) / 100;
+          banner += tumbleMult;
+        } else {
+          effectiveMult = 1;
+          tumbleWin = ev.win;
+        }
       } else {
         // Base game: per-tumble display win with this tumble's own multiplier.
         // The actual spin payout uses totalWin × summed multipliers (unchanged).
