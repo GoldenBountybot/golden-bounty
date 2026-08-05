@@ -17,9 +17,10 @@ export default function BottomNav() {
         src={src}
         alt={label}
         draggable={false}
-        className="block w-11 h-11 select-none transition-all group-hover:scale-105"
+        className="block w-11 h-11 lg:w-14 lg:h-14 select-none transition-all group-hover:scale-105"
         style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 2px 6px rgba(200,136,30,0.4))' }}
       />
+      <span className="hidden lg:block text-[10px] font-bold italic tracking-wide text-amber-100/85 group-hover:text-amber-200" style={{ fontFamily: 'Georgia, serif' }}>{label}</span>
     </Link>
   );
 
@@ -46,7 +47,7 @@ export default function BottomNav() {
           boxShadow: '0 -6px 22px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,240,200,0.12)',
         }}
       >
-        <div className="grid grid-cols-5 gap-1 items-center">
+        <div className="grid grid-cols-5 gap-1 lg:gap-4 items-center">
           <ImgTile to="/dashboard" label={t("Dashboard")} src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0bf2d07ee_file_000000009cf082119790d647b9b4d6d2.png" />
           <ImgTile to="/dashboard?tab=stack" label={t("Stack")} src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5ee916b61_file_0000000084f082119192d2d5866b87d5.png" />
 
@@ -57,7 +58,7 @@ export default function BottomNav() {
             title={t("Play Games")}
           >
             <span
-              className="flex items-center justify-center w-12 h-12 rounded-[8px] overflow-hidden transition-all group-hover:scale-105"
+              className="flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 rounded-[8px] overflow-hidden transition-all group-hover:scale-105"
               style={{
                 filter: 'drop-shadow(0 3px 8px rgba(200,136,30,0.55))',
               }}
