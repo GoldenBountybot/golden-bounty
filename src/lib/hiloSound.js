@@ -228,9 +228,10 @@ export function playCollect() {
   });
 }
 
-// ── BACKGROUND MUSIC — ambient luxury casino lounge loop ────────────────
-// A warm, slow, looping groove: deep upright-bass-like pulse + soft Rhodes
-// chords + brushed cymbal shimmer. Designed to sit unobtrusively under play.
+// ── BACKGROUND MUSIC — uplifting melodic gaming lounge loop ──────────────
+// A brighter, more musical groove: shimmering arpeggio bells over a warm
+// Rhodes-style chord pad, a walking bass line, and a soft kick+hat groove.
+// Designed to feel like a premium, feel-good casino lounge theme.
 let bgNodes = null;
 
 export function startBackgroundMusic() {
@@ -241,124 +242,194 @@ export function startBackgroundMusic() {
   if (bgNodes) return; // already playing
 
   const master = ac.createGain();
-  master.gain.value = 0.18;
+  master.gain.value = 0.42; // louder, fuller mix
   master.connect(ac.destination);
 
-  // Soft low-pass to keep the loop warm and non-fatiguing.
+  // Gentle low-pass to keep it warm yet present.
   const lp = ac.createBiquadFilter();
   lp.type = 'lowpass';
-  lp.frequency.value = 2200;
-  lp.Q.value = 0.4;
+  lp.frequency.value = 4200;
+  lp.Q.value = 0.35;
   lp.connect(master);
 
-  // ── Chord pad — slow cycling ii-V-I in C (Dm7-G7-Cmaj7) ──
-  const chordSets = [
-    [146.83, 174.61, 220, 261.63], // Dm7
-    [196, 246.94, 293.66, 349.23], // G7
-    [130.81, 164.81, 196, 261.63], // Cmaj7
+  // ── Chord progression — Cmaj7 → Am7 → Fmaj7 → G7 (I–vi–IV–V) ──
+  // Each chord lasts 2 bars (4s). Frequencies (Hz) per chord.
+  const chords = [
+    [130.81, 164.81, 196, 261.63, 329.63], // Cmaj7
+    [110, 130.81, 164.81, 220, 261.63],    // Am7
+    [87.31, 130.81, 174.61, 220, 261.63],  // Fmaj7
+    [98, 123.47, 196, 246.94, 293.66],     // G7
   ];
+  // Arpeggio note pools (one octave up) for the bell pattern.
+  const arps = [
+    [523.25, 659.25, 783.99, 1046.5],
+    [440, 523.25, 659.25, 880],
+    [349.23, 440, 523.25, 698.46],
+    [392, 493.88, 587.33, 783.99],
+  ];
+  // Bass roots per chord.
+  const bassRoots = [65.41, 55, 43.65, 49];
   let chordIdx = 0;
-  const chordGain = ac.createGain();
-  chordGain.gain.value = 0.5;
-  chordGain.connect(lp);
 
-  const padOscs = [];
-  function playChord() {
+  // ── Warm Rhodes-style chord pad ──
+  const padGain = ac.createGain();
+  padGain.gain.value = 0.5;
+  padGain.connect(lp);
+
+  function playPad() {
     const now = ac.currentTime;
-    const chord = chordSets[chordIdx % chordSets.length];
+    const chord = chords[chordIdx % chords.length];
     const dur = 4.0;
     chord.forEach((f) => {
       const o = ac.createOscillator();
       const g = ac.createGain();
       o.type = 'sine';
       o.frequency.setValueAtTime(f, now);
-      // gentle vibrato
+      // gentle vibrato for life
       const lfo = ac.createOscillator();
       const lfoG = ac.createGain();
-      lfo.frequency.value = 0.3;
-      lfoG.gain.value = 1.2;
+      lfo.frequency.value = 0.35;
+      lfoG.gain.value = 1.5;
       lfo.connect(lfoG);
       lfoG.connect(o.frequency);
       lfo.start(now);
       lfo.stop(now + dur + 0.1);
       g.gain.setValueAtTime(0.0001, now);
-      g.gain.linearRampToValueAtTime(0.08, now + 0.6);
-      g.gain.setValueAtTime(0.08, now + dur - 0.8);
+      g.gain.linearRampToValueAtTime(0.1, now + 0.5);
+      g.gain.setValueAtTime(0.1, now + dur - 0.8);
       g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
       o.connect(g);
-      g.connect(chordGain);
+      g.connect(padGain);
       o.start(now);
       o.stop(now + dur + 0.05);
-      padOscs.push(o);
     });
-    chordIdx++;
   }
-  playChord();
-  const chordTimer = setInterval(playChord, 4000);
 
-  // ── Upright bass pulse — root note walk per chord ──
-  const bassRoots = [73.42, 98, 65.41]; // D2, G2, C2
-  let bassIdx = 0;
+  // ── Shimmering arpeggio bells (triangle + sine harmonic) ──
+  const arpGain = ac.createGain();
+  arpGain.gain.value = 0.5;
+  arpGain.connect(lp);
+
+  function playArp() {
+    const now = ac.currentTime;
+    const pool = arps[chordIdx % arps.length];
+    // 8 eighth-notes per chord (2s), two cycles per chord (4s).
+    for (let i = 0; i < 8; i++) {
+      const f = pool[i % pool.length];
+      const t = now + i * 0.25;
+      // Main bell
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.12, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+      o.connect(g);
+      g.connect(arpGain);
+      o.start(t);
+      o.stop(t + 0.35);
+      // Sparkle harmonic (octave up, softer)
+      const sp = ac.createOscillator();
+      const spG = ac.createGain();
+      sp.type = 'sine';
+      sp.frequency.setValueAtTime(f * 2, t);
+      spG.gain.setValueAtTime(0.0001, t);
+      spG.gain.linearRampToValueAtTime(0.05, t + 0.01);
+      spG.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+      sp.connect(spG);
+      spG.connect(arpGain);
+      sp.start(t);
+      sp.stop(t + 0.3);
+    }
+  }
+
+  // ── Walking bass — root, fifth, root, fifth per chord ──
   const bassGain = ac.createGain();
-  bassGain.gain.value = 0.6;
+  bassGain.gain.value = 0.55;
   bassGain.connect(lp);
 
   function playBass() {
     const now = ac.currentTime;
-    const root = bassRoots[bassIdx % bassRoots.length];
-    // Two pulses per chord (half-time feel).
-    [0, 2].forEach((beat) => {
+    const root = bassRoots[chordIdx % bassRoots.length];
+    const fifth = root * 1.5;
+    const pattern = [root, root, fifth, root];
+    pattern.forEach((f, i) => {
+      const t = now + i * 1.0;
       const o = ac.createOscillator();
       const g = ac.createGain();
       o.type = 'triangle';
-      o.frequency.setValueAtTime(root, now + beat);
-      g.gain.setValueAtTime(0.0001, now + beat);
-      g.gain.linearRampToValueAtTime(0.22, now + beat + 0.03);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + beat + 0.5);
+      o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.28, t + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
       o.connect(g);
       g.connect(bassGain);
-      o.start(now + beat);
-      o.stop(now + beat + 0.55);
+      o.start(t);
+      o.stop(t + 0.65);
     });
-    bassIdx++;
   }
-  playBass();
-  const bassTimer = setInterval(playBass, 4000);
 
-  // ── Brushed cymbal shimmer — soft noise swells ──
-  const shimmerGain = ac.createGain();
-  shimmerGain.gain.value = 0.04;
-  const shimmerF = ac.createBiquadFilter();
-  shimmerF.type = 'highpass';
-  shimmerF.frequency.value = 6000;
-  shimmerGain.connect(shimmerF);
-  shimmerF.connect(lp);
+  // ── Soft kick + hat groove ──
+  const drumGain = ac.createGain();
+  drumGain.gain.value = 0.35;
+  drumGain.connect(lp);
 
-  function playShimmer() {
-    const now = ac.currentTime;
-    const len = Math.floor(ac.sampleRate * 1.8);
+  function playKick(t) {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(120, t);
+    o.frequency.exponentialRampToValueAtTime(45, t + 0.12);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.4, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+    o.connect(g);
+    g.connect(drumGain);
+    o.start(t);
+    o.stop(t + 0.2);
+  }
+
+  function playHat(t) {
+    const len = Math.floor(ac.sampleRate * 0.04);
     const buf = ac.createBuffer(1, len, ac.sampleRate);
     const data = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (i / len);
+    for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
     const src = ac.createBufferSource();
     src.buffer = buf;
+    const f = ac.createBiquadFilter();
+    f.type = 'highpass';
+    f.frequency.value = 7000;
     const g = ac.createGain();
-    g.gain.setValueAtTime(0.0001, now);
-    g.gain.linearRampToValueAtTime(0.5, now + 0.8);
-    g.gain.exponentialRampToValueAtTime(0.0001, now + 1.8);
-    src.connect(g);
-    g.connect(shimmerGain);
-    src.start(now);
-    src.stop(now + 1.85);
+    g.gain.value = 0.12;
+    src.connect(f);
+    f.connect(g);
+    g.connect(drumGain);
+    src.start(t);
   }
-  playShimmer();
-  const shimmerTimer = setInterval(playShimmer, 4000);
+
+  function playDrums() {
+    const now = ac.currentTime;
+    // Kick on beats 1 and 3 (of 4), hats on every eighth.
+    playKick(now);
+    playKick(now + 2.0);
+    for (let i = 0; i < 8; i++) playHat(now + i * 0.5);
+  }
+
+  // ── Sequencer — every 4s advance the chord and fire all layers ──
+  function step() {
+    playPad();
+    playArp();
+    playBass();
+    playDrums();
+    chordIdx++;
+  }
+  step();
+  const stepTimer = setInterval(step, 4000);
 
   bgNodes = {
     stop: () => {
-      clearInterval(chordTimer);
-      clearInterval(bassTimer);
-      clearInterval(shimmerTimer);
+      clearInterval(stepTimer);
       try { master.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.3); } catch {}
       setTimeout(() => { try { master.disconnect(); } catch {} }, 400);
       bgNodes = null;
