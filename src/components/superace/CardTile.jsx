@@ -1,14 +1,14 @@
 import React from 'react';
 import PlayingCardFace from './PlayingCardFace';
 import WesternBadge from './WesternBadge';
-import { COLS } from '@/lib/superaceEngine';
+import { COLS, ROWS } from '@/lib/superaceEngine';
 
 export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild, tease, teaseStart, scatterLand }) {
   const { sym, golden, id } = cell;
   const col = idx % COLS;
   const row = Math.floor(idx / COLS);
   const dropAnim = tease
-    ? `saReelDrop 1.2s ease-out ${0.5 + (col - (teaseStart ?? col)) * 0.5 + row * 0.1}s both`
+    ? `saReelDrop 1.2s ease-out ${0.5 + (col - (teaseStart ?? col)) * 0.5 + (ROWS - 1 - row) * 0.1}s both`
     : `saReelDrop ${0.45 + col * 0.05}s ease-out both`;
   const isFace = ['A', 'K', 'Q', 'J'].includes(sym);
   const isSuit = ['S', 'H', 'D', 'C'].includes(sym);
