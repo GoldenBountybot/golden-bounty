@@ -227,11 +227,14 @@ export default function CrownCoinsMachine() {
   const [royalWin, setRoyalWin] = useState(null);
   const [anticipateCol, setAnticipateCol] = useState(-1);
   const [bannerBlast, setBannerBlast] = useState(false);
-  const blastFiredRef = useRef(false);
+  const blastTimerRef = useRef(null);
 
   const clearTimers = () => { timers.current.forEach(t => clearTimeout(t)); timers.current = []; };
 
-  useEffect(() => () => clearTimers(), []);
+  useEffect(() => () => {
+    clearTimers();
+    if (blastTimerRef.current) clearTimeout(blastTimerRef.current);
+  }, []);
 
   const doSpin = useCallback(async () => {
     if (spinning) return;
@@ -471,7 +474,15 @@ export default function CrownCoinsMachine() {
         });
         if (coins.length) {
           setFlyCoins(coins);
-          blastFiredRef.current = false;
+          // Blast fires 1.8s later (when the coin reaches the banner). Stored
+          // in a dedicated ref — NOT in timers.current — so clearTimers() on
+          // the next auto-spin cannot cancel it.
+          if (blastTimerRef.current) clearTimeout(blastTimerRef.current);
+          blastTimerRef.current = setTimeout(() => {
+            playFlyCoinSound();
+            setBannerBlast(true);
+            setTimeout(() => setBannerBlast(false), 1000);
+          }, 1800);
           const tClear = setTimeout(() => setFlyCoins([]), 1950);
           timers.current.push(tClear);
         }
@@ -883,13 +894,7 @@ export default function CrownCoinsMachine() {
           <div
             className="relative"
             style={{ animation: 'ccCoinFly 1.8s ease-in forwards', '--dx': c.dx + 'px', '--dy': c.dy + 'px' }}
-            onAnimationEnd={() => {
-              if (blastFiredRef.current) return;
-              blastFiredRef.current = true;
-              playFlyCoinSound();
-              setBannerBlast(true);
-              setTimeout(() => setBannerBlast(false), 1000);
-            }}
+            onAnimationEnd={() => {}}
           >
             <div className="relative w-9 h-9 flex items-center justify-center">
               <img src={VALUE_COIN_IMG} alt="" className="w-full h-full object-contain" style={{ WebkitMaskImage: `url(${VALUE_COIN_IMG})`, maskImage: `url(${VALUE_COIN_IMG})`, WebkitMaskMode: 'luminance', maskMode: 'luminance', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat', WebkitMaskSize: 'contain', maskSize: 'contain' }} />
