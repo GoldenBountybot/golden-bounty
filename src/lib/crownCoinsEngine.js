@@ -105,7 +105,7 @@ export const PAYLINES = [
 // appear less often; the RTP gates wins so losing spins are common.
 export function spinGrid(rtp = 50) {
   // weighted reel strips — low symbols land more often
-  const strip = ['cherry','cherry','lemon','lemon','orange','orange','plum','watermelon','grape','bell','bar','seven','coin','cherry','lemon','orange','plum','watermelon','grape','bell','coin','vc1','vc5','vc20','vc3','vc15'];
+  const strip = ['cherry','cherry','cherry','lemon','lemon','lemon','orange','orange','orange','plum','plum','watermelon','grape','bell','bar','seven','coin','cherry','lemon','orange','plum','watermelon','grape','bell','coin','vc1','vc5','vc20','vc3','vc15'];
   const pick = () => strip[Math.floor(Math.random() * strip.length)];
   const grid = Array.from({ length: 9 }, () => pick());
 
@@ -198,7 +198,9 @@ export function spinGrid(rtp = 50) {
       // build a winning line of a regular symbol, avoiding Crown Coin / value coin cells
       const candLines = PAYLINES.filter(ln => ln.idxs.every(i => grid[i] !== 'coin' && !isValueCoin(grid[i])));
       const ln = candLines.length ? candLines[Math.floor(Math.random() * candLines.length)] : PAYLINES[Math.floor(Math.random() * PAYLINES.length)];
-      const sym = REG[Math.floor(Math.random() * REG.length)];
+      // Weight toward low-value symbols so high-value matches stay rare.
+      const LOW = ['cherry','cherry','cherry','lemon','lemon','orange','orange','plum','plum','watermelon','grape','bell','bar','seven'];
+      const sym = LOW[Math.floor(Math.random() * LOW.length)];
       ln.idxs.forEach(i => { grid[i] = sym; });
     }
   }
