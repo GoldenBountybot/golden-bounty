@@ -326,16 +326,23 @@ export default function Mines() {
           <span className="text-sm" style={{ color: '#c5a059', ...W }}>{message}</span>
         </div>
 
-        {/* Bet button — wood grain with ornate gold flourishes at each end */}
+        {/* Bet button — ornate wood + gold filigree frame */}
         {phase === 'idle' && (
-          <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40 relative overflow-hidden" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/67ff4e03b_generated_image.png') center / cover, linear-gradient(to bottom, #4a2c1f, #2a160c)", border: '1px solid #b8860b', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.35), 0 4px 12px rgba(0,0,0,0.6)', ...W }}>
-            {/* ornate gold flourish — left */}
-            <GoldFlourish side="left" />
-            <Pickaxe className="w-5 h-5 relative" style={{ color: '#c5a059', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.6))' }} />
-            <span className="relative" style={{ color: '#c5a059', textShadow: '0 1px 2px rgba(0,0,0,0.75)' }}>BET ${bet.toFixed(2)} · {mines} MINES</span>
-            {/* ornate gold flourish — right */}
-            <GoldFlourish side="right" />
-          </button>
+          <>
+            <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+              <filter id="minesBetBg" colorInterpolationFilters="sRGB">
+                <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
+                <feComponentTransfer>
+                  <feFuncA type="linear" slope="20" intercept="-1" />
+                </feComponentTransfer>
+              </filter>
+            </svg>
+            <button onClick={start} disabled={balance < bet} className="w-full relative min-h-[68px] py-4 px-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40 overflow-hidden" style={{ ...W }}>
+              <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/47e470df6_file_000000002200820baadd0a1f2df2f8ce.png" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover pointer-events-none" style={{ filter: 'url(#minesBetBg)' }} />
+              <Pickaxe className="w-5 h-5 relative" style={{ color: '#f0e68c', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.85))' }} />
+              <span className="relative" style={{ color: '#f0e68c', textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>BET ${bet.toFixed(2)} · {mines} MINES</span>
+            </button>
+          </>
         )}
 
         {/* Controls panel — custom amount + mines presets, below the bet button */}
