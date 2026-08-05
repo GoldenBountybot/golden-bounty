@@ -1,57 +1,68 @@
 import React from 'react';
 
-// Continuous electric arcs flowing across Zeus's body. Rendered as an SVG
-// overlay with several jagged lightning paths whose stroke-dashoffset and
-// opacity animate on infinite loops, so electricity always crackles over
-// the whole figure. Pointer-events disabled so it never blocks interaction.
-export default function GatesZeusElectric() {
-  // A few jagged arcs tracing down/across the body. Coordinates are in a
-  // 100×120 viewBox mapped over the Zeus image area.
-  const arcs = [
-    'M30 10 L36 30 L24 50 L38 70 L26 90 L34 110',
-    'M52 6 L46 26 L58 44 L44 62 L56 82 L46 104',
-    'M68 14 L62 34 L74 52 L60 70 L72 92 L64 112',
-    'M40 20 L52 38 L38 56 L50 76 L40 96',
-  ];
+// Electricity clinging to Zeus's body. Uses an SVG edge-detection filter
+// (dilate − erode = outline) on the Zeus image itself, so the electric arcs
+// trace the body's actual silhouette and internal contours instead of
+// floating randomly. Two stacked layers (wide blue halo + thin white core)
+// flicker at different rates for a living crackle. mix-blend-mode: screen
+// keys out the black background so only the body's edges glow.
+const ZEUS_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/84fd16eb6_file_00000000e474820ba9fd196f5f5c9f06.png';
 
+export default function GatesZeusElectric() {
   return (
     <svg
       className="pointer-events-none absolute inset-0"
       width="100%"
       height="100%"
-      viewBox="0 0 100 120"
-      preserveAspectRatio="none"
-      style={{ mixBlendMode: 'screen', overflow: 'visible' }}
+      preserveAspectRatio="xMidYMid meet"
+      style={{ overflow: 'visible', clipPath: 'inset(0 0 6px 0)' }}
     >
       <defs>
-        <filter id="zeusBoltGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="1.4" result="b" />
+        {/* Wide blue halo edge */}
+        <filter id="zeusEdgeWide" x="-12%" y="-12%" width="124%" height="124%">
+          <feMorphology operator="dilate" radius="2.2" in="SourceGraphic" result="dil" />
+          <feMorphology operator="erode" radius="2.2" in="SourceGraphic" result="ero" />
+          <feComposite operator="out" in="dil" in2="ero" result="edge" />
+          <feColorMatrix type="matrix"
+            values="0 0 0 0 0.30  0 0 0 0 0.62  0 0 0 0 1  0 0 0 1.4 0"
+            in="edge" result="blue" />
+          <feGaussianBlur stdDeviation="1.6" in="blue" result="glow" />
           <feMerge>
-            <feMergeNode in="b" />
-            <feMergeNode in="SourceGraphic" />
+            <feMergeNode in="glow" />
+            <feMergeNode in="blue" />
           </feMerge>
         </filter>
+        {/* Thin white core edge */}
+        <filter id="zeusEdgeCore" x="-12%" y="-12%" width="124%" height="124%">
+          <feMorphology operator="dilate" radius="1" in="SourceGraphic" result="dil" />
+          <feMorphology operator="erode" radius="1" in="SourceGraphic" result="ero" />
+          <feComposite operator="out" in="dil" in2="ero" result="edge" />
+          <feColorMatrix type="matrix"
+            values="0 0 0 0 0.9  0 0 0 0 0.96  0 0 0 0 1  0 0 0 1.6 0"
+            in="edge" result="white" />
+        </filter>
       </defs>
-      {arcs.map((d, i) => (
-        <g key={i} filter="url(#zeusBoltGlow)">
-          {/* soft outer halo */}
-          <path d={d} fill="none" stroke="#5aa8ff" strokeWidth="3.2"
-            strokeLinecap="round" strokeLinejoin="round" opacity="0.45"
-            style={{
-              strokeDasharray: '14 22',
-              animation: `zeusArcFlow ${1.1 + i * 0.25}s linear infinite`,
-              animationDelay: `${i * 0.3}s`,
-            }} />
-          {/* bright core */}
-          <path d={d} fill="none" stroke="#eaf4ff" strokeWidth="1.1"
-            strokeLinecap="round" strokeLinejoin="round" opacity="0.9"
-            style={{
-              strokeDasharray: '8 26',
-              animation: `zeusArcFlow ${0.8 + i * 0.2}s linear infinite`,
-              animationDelay: `${i * 0.18}s`,
-            }} />
-        </g>
-      ))}
+
+      {/* Wide blue halo — slower flicker */}
+      <image href={ZEUS_URL} x="0" y="0" width="100%" height="100%"
+        preserveAspectRatio="xMidYMid meet"
+        filter="url(#zeusEdgeWide)"
+        style={{
+          mixBlendMode: 'screen',
+          animation: 'zeusEdgeFlicker 0.32s steps(2, jump-none) infinite',
+          willChange: 'opacity',
+        }} />
+
+      {/* Thin white core — faster flicker, offset */}
+      <image href={ZEUS_URL} x="0" y="0" width="100%" height="100%"
+        preserveAspectRatio="xMidYMid meet"
+        filter="url(#zeusEdgeCore)"
+        style={{
+          mixBlendMode: 'screen',
+          animation: 'zeusEdgeFlicker 0.21s steps(2, jump-none) infinite',
+          animationDelay: '0.08s',
+          willChange: 'opacity',
+        }} />
     </svg>
   );
 }

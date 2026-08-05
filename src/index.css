@@ -163,11 +163,12 @@
   100% { opacity: 0; }
 }
 
-/* Gates of Olympus — continuous electric arcs crackling across Zeus's body.
-   stroke-dashoffset flows so the arcs look like moving electricity. */
-@keyframes zeusArcFlow {
-  0%   { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: -36; }
+/* Gates of Olympus — electric edge crackling along Zeus's body outline.
+   Rapid opacity steps give a flickering live-wire feel. */
+@keyframes zeusEdgeFlicker {
+  0%   { opacity: 0.35; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.45; }
 }
 @keyframes gatesMultReveal {
   0%   { opacity: 0; transform: scale(0.2); }
