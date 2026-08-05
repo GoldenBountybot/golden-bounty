@@ -37,6 +37,7 @@ export default function GatesMachine() {
   const [bolts, setBolts] = useState({});
   const bannerRef = useRef(null);
   const multBannerRef = useRef(null);
+  const boardRef = useRef(null);
   const [multFlyOrigins, setMultFlyOrigins] = useState([]);
   const [bannerFlyOrigin, setBannerFlyOrigin] = useState(null);
 
@@ -102,10 +103,10 @@ export default function GatesMachine() {
   // Reset the "already struck" set whenever a new tumble's fresh cells arrive.
   useEffect(() => { struckRef.current = new Set(); }, [dropCells]);
 
-  // Compute pixel origins for the flying multiplier chips: each multiplier
-  // symbol's cell and the total-multiplier banner, both relative to the
-  // tumble win banner centre. Passed to the banner so chips fly from the
-  // actual symbol / banner positions.
+  // Compute pixel origins for the flying multiplier chips. ALL rect reads
+  // are batched up front (no interleaved setState writes) so the browser
+  // performs a single reflow — avoids the layout-thrash lag that happened
+  // when many multipliers land in one tumble.
   useEffect(() => {
     if (!winHistory || winHistory.length === 0) {
       setMultFlyOrigins([]);
@@ -115,15 +116,23 @@ export default function GatesMachine() {
     const entry = winHistory[winHistory.length - 1];
     const bannerEl = bannerRef.current;
     if (!bannerEl) return;
+    // 1) Read every rect FIRST (no writes between reads = one reflow).
     const bRect = bannerEl.getBoundingClientRect();
+    const mRect = multBannerRef.current ? multBannerRef.current.getBoundingClientRect() : null;
+    const cellRects = {};
+    if (entry.mult > 0 && entry.multipliers) {
+      for (const m of entry.multipliers) {
+        const el = cellRefs.current[m.pos];
+        if (el) cellRects[m.pos] = el.getBoundingClientRect();
+      }
+    }
     const cx = bRect.left + bRect.width / 2;
     const cy = bRect.top + bRect.height / 2;
-
+    // 2) Now compute + write (after all reads are done).
     if (entry.mult > 0 && entry.multipliers) {
       const origins = entry.multipliers.map((m) => {
-        const el = cellRefs.current[m.pos];
-        if (!el) return null;
-        const rect = el.getBoundingClientRect();
+        const rect = cellRects[m.pos];
+        if (!rect) return null;
         return {
           x: rect.left + rect.width / 2 - cx,
           y: rect.top + rect.height / 2 - cy,
@@ -134,9 +143,7 @@ export default function GatesMachine() {
     } else {
       setMultFlyOrigins([]);
     }
-
-    if (entry.bannerBefore > 0 && multBannerRef.current) {
-      const mRect = multBannerRef.current.getBoundingClientRect();
+    if (entry.bannerBefore > 0 && mRect) {
       setBannerFlyOrigin({
         x: mRect.left + mRect.width / 2 - cx,
         y: mRect.top + mRect.height / 2 - cy,
@@ -236,7 +243,7 @@ export default function GatesMachine() {
             style={{ background: 'linear-gradient(to bottom, rgba(52,26,96,0.42), rgba(74,38,132,0.42))', minHeight: 0 }}>
 
             {/* 6×5 grid — Big Brown style: per-reel scroll strip, sequential stop + drop */}
-            <div className="flex gap-[4px] p-[5px]" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
+            <div ref={boardRef} className="flex gap-[4px] p-[5px]" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
               {grid.map((reel, c) => {
                 const stopped = stoppedReels.has(c);
                 return (
