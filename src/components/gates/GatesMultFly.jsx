@@ -7,7 +7,7 @@ import React from 'react';
 // `ox/oy`  — origin offset from the banner centre (px); chip starts there
 // `from`   — 'symbol' (flies up from the board) | 'banner' (flies from the
 //            total-multiplier banner on the side)
-export default function GatesMultFly({ value, ox = 0, oy = 100, from = 'symbol' }) {
+export default function GatesMultFly({ value, ox = 0, oy = 100, lx = 55, from = 'symbol' }) {
   const color = from === 'banner' ? '#b0e0ff' : '#fff8c0';
   const stroke = from === 'banner' ? '#0a2a4a' : '#5a3a0c';
   const glow =
@@ -31,6 +31,7 @@ export default function GatesMultFly({ value, ox = 0, oy = 100, from = 'symbol' 
         animation: 'gatesMultFlyToBanner 0.95s cubic-bezier(0.16,0.84,0.44,1) both',
         '--ox': `${ox}px`,
         '--oy': `${oy}px`,
+        '--lx': `${lx}px`,
       }}
     >
       ×{value}

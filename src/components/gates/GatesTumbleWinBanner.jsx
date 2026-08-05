@@ -33,19 +33,21 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash, co
     // Compressed to fit within the 1.5s free-spin gap so the player sees the
     // win amount AND the multiplied result before the next spin starts.
     // Banner multipliers only apply when a value symbol lands this tumble.
+    const subtotal = mult > 0 ? amount * mult : amount;
     if (mult > 0 && bannerBefore > 0) {
-      setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'multiply' }), 500));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'banner' }), 1600));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'result' }), 2750));
-      timers.current.push(setTimeout(() => setDisplay(null), 3500));
+      setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'amount' });
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'flyMult' }), 450));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'multResult' }), 1900));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'flyBanner' }), 2500));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, subtotal, phase: 'result' }), 3950));
+      timers.current.push(setTimeout(() => setDisplay(null), 4800));
     } else if (mult > 0) {
-      setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'multiply' }), 500));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'result' }), 1600));
-      timers.current.push(setTimeout(() => setDisplay(null), 2600));
+      setDisplay({ amount, mult, bannerBefore: 0, total, subtotal, phase: 'amount' });
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, subtotal, phase: 'flyMult' }), 450));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, subtotal, phase: 'result' }), 1900));
+      timers.current.push(setTimeout(() => setDisplay(null), 2900));
     } else {
-      setDisplay({ amount, mult: 0, bannerBefore: 0, total: amount, balTotal, phase: 'amount' });
+      setDisplay({ amount, mult: 0, bannerBefore: 0, total: amount, subtotal: amount, phase: 'amount' });
       timers.current.push(setTimeout(() => setDisplay(null), 2000));
     }
   }, [winHistory, balance, winFlash]);
@@ -69,17 +71,18 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash, co
   }
 
   const label = 'TUMBLE WIN';
+  // The chip flies in and SITS beside the amount (flyMult), then the multiplied
+  // subtotal is shown (multResult). Then the banner chip flies in (flyBanner)
+  // and the final total is shown (result).
   const value =
     display.phase === 'amount' ? fmt(display.amount) :
-    display.phase === 'multiply' ? `${fmt(display.amount)} × ${display.mult}X` :
-    display.phase === 'banner' ? `${fmt(display.amount)} × ${display.mult}X × ${display.bannerBefore}X` :
-    display.phase === 'result' ? fmt(display.total) :
-    display.phase === 'balance' ? (display.mult > 0 || display.bannerBefore > 0
-      ? `${fmt(display.total)}`
-      : fmt(display.total)) : '';
+    display.phase === 'flyMult' ? fmt(display.amount) :
+    display.phase === 'multResult' ? fmt(display.subtotal) :
+    display.phase === 'flyBanner' ? fmt(display.subtotal) :
+    display.phase === 'result' ? fmt(display.total) : fmt(display.total);
 
-  const showMultFly = display.phase === 'multiply' && display.mult > 0;
-  const showBannerFly = display.phase === 'banner' && display.bannerBefore > 0;
+  const showMultFly = (display.phase === 'flyMult') && display.mult > 0;
+  const showBannerFly = (display.phase === 'flyBanner') && display.bannerBefore > 0;
 
   return (
     <div key={winHistory?.length || 0}
