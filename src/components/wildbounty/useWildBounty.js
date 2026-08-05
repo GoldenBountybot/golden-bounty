@@ -634,7 +634,7 @@ export function useWildBounty() {
     const roll = Math.random();
     let targetScatters = 0;
     if (roll < 0.004) targetScatters = 3;              // 0.4%  (free-spin trigger)
-    else if (roll < 0.06) targetScatters = 2;           // 5%
+    else if (roll < 0.029) targetScatters = 2;          // 2.5%
     else if (roll < 0.16) targetScatters = 1;          // 10%
     // Feature Buy: force 3 scatters so the spin triggers the free-spins banner
     if (forceScatterBuyRef.current) {
