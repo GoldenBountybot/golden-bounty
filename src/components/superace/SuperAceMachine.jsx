@@ -259,7 +259,7 @@ export default function SuperAceMachine() {
     let spinDur = baseSpin;
     if (teaseSet.size > 0) {
       const teasedCols = COLS - teaseStart;
-      const landMs = (0.5 + teasedCols * ROWS * 0.9 + 0.9 + 0.3) * 1000;
+      const landMs = (0.5 + teasedCols * ROWS * 0.7 + 0.7 + 0.3) * 1000;
       spinDur = turboRef.current ? Math.max(baseSpin, landMs * 0.5) : Math.max(baseSpin, landMs + 200);
     }
     await sleep(spinDur);
