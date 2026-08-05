@@ -463,9 +463,9 @@ export function useWildBounty() {
         return copy;
       });
     } else {
-      // Only suppress natural wins briefly so matches still happen often.
+      // Suppress natural wins harder so fewer symbols match at once.
       let attempts = 0;
-      while (attempts < 2 && evaluateWins(finalGrid, bet).wins.length > 0) {
+      while (attempts < 5 && evaluateWins(finalGrid, bet).wins.length > 0) {
         finalGrid = REEL_ROWS.map(r => buildReel(r));
         attempts++;
       }
@@ -502,6 +502,29 @@ export function useWildBounty() {
           if (fixed) break;
         }
         if (!fixed) break;
+      }
+    }
+
+    // Cap the single kept win to exactly 1 matching symbol per early reel so
+    // fewer symbols match at once (minimal ways for a 3-reel contiguous win).
+    {
+      const { wins } = evaluateWins(finalGrid, bet);
+      if (wins.length > 0) {
+        const keepSym = wins[0].symbol;
+        const lows = ['Q', 'J', 'K', 'A', 'whiskey', 'hat'];
+        for (let r = 0; r < 3; r++) {
+          const reel = finalGrid[r];
+          let foundFirst = false;
+          for (let row = 0; row < reel.length; row++) {
+            if (reel[row] === keepSym) {
+              if (foundFirst) {
+                reel[row] = lows[Math.floor(Math.random() * lows.length)];
+              } else {
+                foundFirst = true;
+              }
+            }
+          }
+        }
       }
     }
 
