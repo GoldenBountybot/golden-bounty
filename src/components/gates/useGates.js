@@ -63,6 +63,7 @@ export function useGates() {
   const timers = useRef([]);
   const runningMultRef = useRef(0);
   const freeSpinsTotalRef = useRef(0); // accumulated win across the whole free spins round
+  const nextSpinDelayRef = useRef(1200); // dynamic gap before the next auto/free spin
 
   const setCustomBet = useCallback((amount) => {
     const n = Math.max(minBet, Math.min(maxBet, Number(amount) || minBet));
@@ -234,6 +235,18 @@ export function useGates() {
         }
       }
       setScatterGlow(new Set());
+      // Dynamic gap before the next auto/free spin: spins whose final winning
+      // tumble has a multiplier play the flying chip animation and need a
+      // longer pause; spins with no multiplier start the next spin right away.
+      const lastWinTumble = [...result.tumbles].reverse().find((t) => t.win > 0);
+      let delay = turbo ? 800 : 1200;
+      if (lastWinTumble && !turbo) {
+        const m = lastWinTumble.multipliers.reduce((s, mm) => s + mm.value, 0);
+        if (m > 0 && lastWinTumble.bannerBefore > 0) delay = 4900;
+        else if (m > 0) delay = 2900;
+        else delay = 1200;
+      }
+      nextSpinDelayRef.current = delay;
       setSpinning(false);
       logActivity('gates-of-olympus', bet, win, win > 0 ? 'win' : 'loss', result.effectiveMult || 0);
     }, acc));
@@ -242,7 +255,7 @@ export function useGates() {
   // auto spin (base game) — pause briefly so the win amount is readable
   useEffect(() => {
     if (autoSpin && !spinning && !freeSpinsActive && balance >= bet) {
-      const t = setTimeout(() => spin(), turbo ? 700 : 1200);
+      const t = setTimeout(() => spin(), nextSpinDelayRef.current);
       return () => clearTimeout(t);
     }
     if (autoSpin && balance < bet) setAutoSpin(false);
@@ -251,7 +264,7 @@ export function useGates() {
   // free spins auto trigger
   useEffect(() => {
     if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart) {
-      const t = setTimeout(() => spin(), turbo ? 800 : 4900);
+      const t = setTimeout(() => spin(), nextSpinDelayRef.current);
       return () => clearTimeout(t);
     }
     if (freeSpinsActive && freeSpins === 0) {
