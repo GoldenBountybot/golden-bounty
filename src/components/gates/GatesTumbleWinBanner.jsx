@@ -6,7 +6,7 @@ const fmt = (v) => `$${Number(v || 0).toFixed(2)}`;
 // Floating "Tumble Win" banner that rises above the reel board frame.
 // Shows the tumble's win amount; if a multiplier landed, animates
 // amount × multX → multiplied total, then shows the balance total, then fades.
-export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) {
+export default function GatesTumbleWinBanner({ winHistory, balance, winFlash, containerRef, multFlyOrigins, bannerFlyOrigin }) {
   const [display, setDisplay] = useState(null);
   const lastIdx = useRef(-1);
   const timers = useRef([]);
@@ -35,15 +35,15 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
     // Banner multipliers only apply when a value symbol lands this tumble.
     if (mult > 0 && bannerBefore > 0) {
       setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'multiply' }), 450));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'banner' }), 1450));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'result' }), 2450));
-      timers.current.push(setTimeout(() => setDisplay(null), 3200));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'multiply' }), 500));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'banner' }), 1600));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'result' }), 2750));
+      timers.current.push(setTimeout(() => setDisplay(null), 3500));
     } else if (mult > 0) {
       setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'multiply' }), 450));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'result' }), 1450));
-      timers.current.push(setTimeout(() => setDisplay(null), 2400));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'multiply' }), 500));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'result' }), 1600));
+      timers.current.push(setTimeout(() => setDisplay(null), 2600));
     } else {
       setDisplay({ amount, mult: 0, bannerBefore: 0, total: amount, balTotal, phase: 'amount' });
       timers.current.push(setTimeout(() => setDisplay(null), 2000));
@@ -83,6 +83,7 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
 
   return (
     <div key={winHistory?.length || 0}
+      ref={containerRef}
       className="absolute z-40 pointer-events-none"
       style={{ top: -58, left: '50%', transform: 'translateX(-50%)' }}>
       <div className="relative" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -100,11 +101,11 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
           animation: display.phase === 'result' ? 'saWinPop 0.4s ease-out' : 'none' }}>
           {value}
         </span>
-        {showMultFly && (
-          <GatesMultFly key={`mf-${winHistory.length}`} value={display.mult} ox={0} oy={110} from="symbol" />
-        )}
-        {showBannerFly && (
-          <GatesMultFly key={`bf-${winHistory.length}`} value={display.bannerBefore} ox={130} oy={90} from="banner" />
+        {showMultFly && multFlyOrigins && multFlyOrigins.map((o, i) => (
+          <GatesMultFly key={`mf-${winHistory.length}-${i}`} value={o.value} ox={o.x} oy={o.y} from="symbol" />
+        ))}
+        {showBannerFly && bannerFlyOrigin && (
+          <GatesMultFly key={`bf-${winHistory.length}`} value={bannerFlyOrigin.value} ox={bannerFlyOrigin.x} oy={bannerFlyOrigin.y} from="banner" />
         )}
       </div>
     </div>

@@ -152,6 +152,7 @@ export function useGates() {
             subtotal: tb.win,
             tumbleWin: tb.tumbleWin,
             mult: tb.multipliers.length ? tb.multipliers.reduce((s, m) => s + m.value, 0) : 0,
+            multipliers: tb.multipliers,
             bannerBefore: tb.bannerBefore,
             effectiveMult: tb.effectiveMult,
             freeMode,
@@ -250,7 +251,7 @@ export function useGates() {
   // free spins auto trigger
   useEffect(() => {
     if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart) {
-      const t = setTimeout(() => spin(), turbo ? 800 : 3200);
+      const t = setTimeout(() => spin(), turbo ? 800 : 3600);
       return () => clearTimeout(t);
     }
     if (freeSpinsActive && freeSpins === 0) {

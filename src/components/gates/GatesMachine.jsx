@@ -35,6 +35,10 @@ export default function GatesMachine() {
   const cellRefs = useRef({});
   const struckRef = useRef(new Set());
   const [bolts, setBolts] = useState({});
+  const bannerRef = useRef(null);
+  const multBannerRef = useRef(null);
+  const [multFlyOrigins, setMultFlyOrigins] = useState([]);
+  const [bannerFlyOrigin, setBannerFlyOrigin] = useState(null);
 
   const g = useGates();
 
@@ -97,6 +101,51 @@ export default function GatesMachine() {
 
   // Reset the "already struck" set whenever a new tumble's fresh cells arrive.
   useEffect(() => { struckRef.current = new Set(); }, [dropCells]);
+
+  // Compute pixel origins for the flying multiplier chips: each multiplier
+  // symbol's cell and the total-multiplier banner, both relative to the
+  // tumble win banner centre. Passed to the banner so chips fly from the
+  // actual symbol / banner positions.
+  useEffect(() => {
+    if (!winHistory || winHistory.length === 0) {
+      setMultFlyOrigins([]);
+      setBannerFlyOrigin(null);
+      return;
+    }
+    const entry = winHistory[winHistory.length - 1];
+    const bannerEl = bannerRef.current;
+    if (!bannerEl) return;
+    const bRect = bannerEl.getBoundingClientRect();
+    const cx = bRect.left + bRect.width / 2;
+    const cy = bRect.top + bRect.height / 2;
+
+    if (entry.mult > 0 && entry.multipliers) {
+      const origins = entry.multipliers.map((m) => {
+        const el = cellRefs.current[m.pos];
+        if (!el) return null;
+        const rect = el.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width / 2 - cx,
+          y: rect.top + rect.height / 2 - cy,
+          value: m.value,
+        };
+      }).filter(Boolean);
+      setMultFlyOrigins(origins);
+    } else {
+      setMultFlyOrigins([]);
+    }
+
+    if (entry.bannerBefore > 0 && multBannerRef.current) {
+      const mRect = multBannerRef.current.getBoundingClientRect();
+      setBannerFlyOrigin({
+        x: mRect.left + mRect.width / 2 - cx,
+        y: mRect.top + mRect.height / 2 - cy,
+        value: entry.bannerBefore,
+      });
+    } else {
+      setBannerFlyOrigin(null);
+    }
+  }, [winHistory]);
 
   // Lightning: when a fresh multiplier symbol lands on a stopped reel, strike
   // a bolt from the top of the machine (the banner / sky) down onto its cell.
@@ -166,7 +215,14 @@ export default function GatesMachine() {
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
       <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 0 }}>
-        <GatesTumbleWinBanner winHistory={winHistory} balance={balance} winFlash={winFlash} />
+        <GatesTumbleWinBanner
+          winHistory={winHistory}
+          balance={balance}
+          winFlash={winFlash}
+          containerRef={bannerRef}
+          multFlyOrigins={multFlyOrigins}
+          bannerFlyOrigin={bannerFlyOrigin}
+        />
         {/* Outer golden border */}
         <div className="relative rounded-[10px]"
           style={{
@@ -277,7 +333,7 @@ export default function GatesMachine() {
 
           {/* Center — spin button (base game) OR total multiplier banner (free spins) */}
           {freeSpinsActive ? (
-            <GatesMultBanner value={spinMult} />
+            <div ref={multBannerRef}><GatesMultBanner value={spinMult} /></div>
           ) : (
             <div className="flex flex-col items-center gap-1.5" style={{ transform: 'translateX(-22px)' }}>
               {/* Main spin button */}

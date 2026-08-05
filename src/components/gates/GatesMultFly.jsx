@@ -28,7 +28,7 @@ export default function GatesMultFly({ value, ox = 0, oy = 100, from = 'symbol' 
         WebkitTextStroke: `0.5px ${stroke}`,
         zIndex: 60,
         whiteSpace: 'nowrap',
-        animation: 'gatesMultFlyToBanner 0.85s cubic-bezier(0.34,0.05,0.25,1) both',
+        animation: 'gatesMultFlyToBanner 0.95s cubic-bezier(0.16,0.84,0.44,1) both',
         '--ox': `${ox}px`,
         '--oy': `${oy}px`,
       }}
