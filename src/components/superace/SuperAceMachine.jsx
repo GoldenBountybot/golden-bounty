@@ -24,7 +24,7 @@ import {
 import {
   playSpinStart, playReelLand, playComboWin, playCascade, playScatter,
   playBigWin, playLose, playClick, announceWin, playCardDrop, playScatterLand,
-  startAmbient, stopAmbient,
+  startAmbient, stopAmbient, primeSpeech,
 } from '@/lib/superaceSounds';
 import { incBet, decBet } from '@/lib/betStepper';
 
@@ -165,6 +165,7 @@ export default function SuperAceMachine() {
 
   const doSpin = async () => {
     if (busyRef.current) return;
+    primeSpeech(); // unlock speech engine within the click gesture
     const b = betRef.current;
     if (!inFreeRef.current && balance < b) {
       setMessage('Not enough gold, partner');

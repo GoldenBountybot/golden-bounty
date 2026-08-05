@@ -150,6 +150,20 @@ export function playClick() {
   tone(880, t, 0.05, 'square', 0.05);
 }
 
+// Prime the speech engine inside a user gesture so the very first
+// announceWin() actually speaks — browsers won't speak until the engine
+// has been "warmed up" by a real speak() call within a user interaction.
+export function primeSpeech() {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  try {
+    window.speechSynthesis.getVoices();
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0;
+    u.rate = 1;
+    window.speechSynthesis.speak(u);
+  } catch {}
+}
+
 // ── Voice announcements (browser speechSynthesis — free, offline) ──
 const CARD_NAMES = {
   A: 'Ace', K: 'King', Q: 'Queen', J: 'Jack',
