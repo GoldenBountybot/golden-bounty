@@ -251,18 +251,17 @@ export default function Plinko() {
     let bucket = 0;
     for (let i = 0; i < WEIGHTS.length; i++) { r -= WEIGHTS[i]; if (r <= 0) { bucket = i; break; } }
 
-    // Ball bounces through 12 rows. At the last row it hits one of the two pegs
-    // adjacent to the target slot (left peg or right peg) and drops into that
-    // slot — never bouncing off another multiplier's peg.
-    // Slot k sits between peg k-1 (left) and peg k (right).
-    const targetPeg = bucket === 0 ? 0 : bucket === MULTS.length - 1 ? ROWS - 1
-      : (Math.random() < 0.5 ? bucket - 1 : bucket);
-    const numSteps = ROWS - 1;
-    const steps = Array.from({ length: numSteps }, (_, i) => (i < targetPeg ? 1 : 0));
-    for (let i = steps.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [steps[i], steps[j]] = [steps[j], steps[i]]; }
+    // Deterministic descent: at each row the ball hits the peg closest to
+    // directly above the target bucket, so it always bounces off the peg
+    // directly above the multiplier it will land in — no random zigzag.
     const pegPath = [{ row: 0, col: 0 }];
-    let col = 0;
-    for (let r = 1; r < ROWS; r++) { col += steps[r - 1]; pegPath.push({ row: r, col }); }
+    for (let r = 1; r < ROWS; r++) {
+      const prev = pegPath[pegPath.length - 1].col;
+      const ideal = Math.round(bucket - 6 + r / 2);
+      const target = Math.max(0, Math.min(r, ideal));
+      const next = target > prev ? prev + 1 : prev;
+      pegPath.push({ row: r, col: Math.min(next, r) });
+    }
     const finalCol = bucket;
 
     let step = 0;
