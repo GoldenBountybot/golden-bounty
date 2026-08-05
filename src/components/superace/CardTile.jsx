@@ -8,7 +8,7 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
   const col = idx % COLS;
   const row = Math.floor(idx / COLS);
   const dropAnim = tease
-    ? `saReelDrop 1.2s ease-out ${0.5 + (col - (teaseStart ?? col)) * 0.5 + (ROWS - 1 - row) * 0.1}s both`
+    ? `saReelDrop 0.9s ease-out ${0.5 + ((col - (teaseStart ?? col)) * ROWS + (ROWS - 1 - row)) * 0.9}s both`
     : `saReelDrop ${0.45 + col * 0.05}s ease-out both`;
   const isFace = ['A', 'K', 'Q', 'J'].includes(sym);
   const isSuit = ['S', 'H', 'D', 'C'].includes(sym);

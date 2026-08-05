@@ -258,7 +258,8 @@ export default function SuperAceMachine() {
     const baseSpin = turboRef.current ? 320 : 620;
     let spinDur = baseSpin;
     if (teaseSet.size > 0) {
-      const landMs = (0.5 + (COLS - 1 - teaseStart) * 0.5 + (ROWS - 1) * 0.1 + 1.2) * 1000;
+      const teasedCols = COLS - teaseStart;
+      const landMs = (0.5 + teasedCols * ROWS * 0.9 + 0.9 + 0.3) * 1000;
       spinDur = turboRef.current ? Math.max(baseSpin, landMs * 0.5) : Math.max(baseSpin, landMs + 200);
     }
     await sleep(spinDur);
