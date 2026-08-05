@@ -4,7 +4,7 @@ import React, { forwardRef } from 'react';
 const BANNER_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ded9f1015_file_00000000d1a0820eb551f775dc672260.png';
 const SKULL_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fd2e464cf_file_000000002a3c820b808b197402106ca0.png';
 
-const PlaqueBanner = forwardRef(function PlaqueBanner({ children, className = '', style = {}, glow = false, showSkull = false }, ref) {
+const PlaqueBanner = forwardRef(function PlaqueBanner({ children, className = '', style = {}, glow = false, glowKey = 0, showSkull = false }, ref) {
   return (
     <div
       ref={ref}
@@ -12,6 +12,7 @@ const PlaqueBanner = forwardRef(function PlaqueBanner({ children, className = ''
       style={style}
     >
       <img
+        key={glow ? `glow-${glowKey}` : 'idle'}
         src={BANNER_URL}
         alt=""
         className="block w-full h-auto select-none pointer-events-none"
