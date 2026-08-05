@@ -15,7 +15,7 @@ const LINKS = [
 
 export default function SiteFooter() {
   return (
-    <footer className="max-w-6xl mx-auto px-4 py-8" style={{ fontFamily: SANS, borderTop: '1px solid rgba(212,175,55,0.18)' }}>
+    <footer className="max-w-7xl mx-auto px-4 lg:px-6 py-8" style={{ fontFamily: SANS, borderTop: '1px solid rgba(212,175,55,0.18)' }}>
       <div className="flex flex-col items-center gap-3 text-center">
         <p className="text-sm font-bold" style={{ color: '#D4AF37' }}>© 2026 Golden Bounty. All rights reserved.</p>
         <p className="text-[11px] leading-relaxed max-w-xl" style={{ color: 'rgba(255,255,255,0.5)' }}>

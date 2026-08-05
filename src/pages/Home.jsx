@@ -6,6 +6,7 @@ import LiveTicker from '@/components/LiveTicker';
 import BottomNav from '@/components/BottomNav';
 import SiteFooter from '@/components/SiteFooter';
 import NotificationBell from '@/components/NotificationBell';
+import HomeSidebar from '@/components/HomeSidebar';
 import { Wallet, FlaskConical } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -44,7 +45,7 @@ export default function Home() {
         className="sticky top-0 z-20 backdrop-blur-md"
         style={{ background: 'rgba(10,9,8,0.35)', borderBottom: '1px solid rgba(214,178,98,0.06)' }}
       >
-        <div className="max-w-6xl mx-auto pl-4 pr-0 pt-2 pb-0 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto pl-4 pr-0 lg:px-6 pt-2 pb-0 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className="relative shrink-0 self-end translate-y-[13px] w-12 h-12">
               <button
@@ -104,47 +105,56 @@ export default function Home() {
       </header>
 
       {/* Premium Western game banners */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 mt-0">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 lg:px-6 mt-0">
         <WesternGameBanners />
       </div>
 
       {/* Live activity ticker */}
       <div className="relative z-10"><LiveTicker /></div>
 
-      {/* Category tabs */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 mt-6">
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {CATEGORY_KEYS.map(c => (
-            <button
-              key={c}
-              onClick={() => setCat(c)}
-              className="px-4 py-2 rounded-[7px] text-sm font-bold italic whitespace-nowrap transition-colors"
-              style={{
-                fontFamily: 'Georgia, serif',
-                border: cat === c
-                  ? '1px solid rgba(214,178,98,0.85)'
-                  : '1px solid rgba(214,178,98,0.3)',
-                background: cat === c ? 'linear-gradient(to bottom,#f5c542,#c8881e)' : 'rgba(20,17,13,0.6)',
-                color: cat === c ? '#2a1a06' : '#e8c878',
-              }}
-            >
-              {t(c)}
-            </button>
-          ))}
+      {/* Two-column layout on desktop: sidebar + main */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 lg:px-6 mt-6">
+        <div className="lg:grid lg:grid-cols-[240px_1fr] lg:gap-6">
+          {/* Desktop sidebar */}
+          <HomeSidebar cat={cat} setCat={setCat} categories={CATEGORY_KEYS} />
+
+          {/* Main column */}
+          <div>
+            {/* Category tabs */}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {CATEGORY_KEYS.map(c => (
+                <button
+                  key={c}
+                  onClick={() => setCat(c)}
+                  className="px-4 py-2 rounded-[7px] text-sm font-bold italic whitespace-nowrap transition-colors"
+                  style={{
+                    fontFamily: 'Georgia, serif',
+                    border: cat === c
+                      ? '1px solid rgba(214,178,98,0.85)'
+                      : '1px solid rgba(214,178,98,0.3)',
+                    background: cat === c ? 'linear-gradient(to bottom,#f5c542,#c8881e)' : 'rgba(20,17,13,0.6)',
+                    color: cat === c ? '#2a1a06' : '#e8c878',
+                  }}
+                >
+                  {t(c)}
+                </button>
+              ))}
+            </div>
+
+            {/* Game grid */}
+            <main id="games" className="scroll-mt-20 py-4">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-7 gap-3">
+                {filtered.map(g => (
+                  <CasinoGameCard key={g.id} game={{ ...g, title: t(g.titleKey) }} />
+                ))}
+              </div>
+            </main>
+          </div>
         </div>
       </div>
 
-      {/* Game grid */}
-      <main id="games" className="relative z-10 max-w-6xl mx-auto px-4 py-6 scroll-mt-20">
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-          {filtered.map(g => (
-            <CasinoGameCard key={g.id} game={{ ...g, title: t(g.titleKey) }} />
-          ))}
-        </div>
-      </main>
-
       {/* Hero banner */}
-      <section className="relative z-10 max-w-6xl mx-auto px-4 pb-2">
+      <section className="relative z-10 max-w-7xl mx-auto px-4 lg:px-6 pb-2">
         <div className="relative overflow-hidden rounded-2xl" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fac3dbda4_file_000000008654821185c00f28c290ba18.png"
@@ -155,7 +165,7 @@ export default function Home() {
       </section>
 
       {/* Airdrop banner */}
-      <section className="relative z-10 max-w-6xl mx-auto px-4 pb-2">
+      <section className="relative z-10 max-w-7xl mx-auto px-4 lg:px-6 pb-2">
         <Link to="/airdrop" className="block relative overflow-hidden rounded-2xl transition-transform active:scale-[0.99]" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/954aff594_file_00000000d7b081fab9598b09e1590c28.png"
