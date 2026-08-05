@@ -276,7 +276,7 @@ export function forceWinGrid() {
     for (let row = 0; row < ROWS; row++)
       if (isValueCoin(grid[r][row])) grid[r][row] = pickWeighted(reelWeights(r, false));
   const line = PAYLINES[Math.floor(Math.random() * PAYLINES.length)];
-  const sym = ['harp', 'cup', 'potion', 'bow', 'harp', 'cup', 'dove', 'lizard'][Math.floor(Math.random() * 8)];
+  const sym = ['harp', 'cup', 'potion', 'bow', 'harp', 'cup', 'potion', 'bow'][Math.floor(Math.random() * 8)];
   for (let r = 0; r < 3; r++) {
     const copy = [...grid[r]];
     copy[line[r]] = sym;
