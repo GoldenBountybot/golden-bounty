@@ -251,16 +251,33 @@ export default function Plinko() {
     let bucket = 0;
     for (let i = 0; i < WEIGHTS.length; i++) { r -= WEIGHTS[i]; if (r <= 0) { bucket = i; break; } }
 
-    // Deterministic descent: at each row the ball hits the peg closest to
-    // directly above the target bucket, so it always bounces off the peg
-    // directly above the multiplier it will land in — no random zigzag.
+    // Random, erratic descent — but the ball ALWAYS passes through the peg
+    // directly above the target multiplier (row 10, col bucket-1) before
+    // dropping into the bucket.
     const pegPath = [{ row: 0, col: 0 }];
-    for (let r = 1; r < ROWS; r++) {
-      const prev = pegPath[pegPath.length - 1].col;
-      const ideal = Math.round(bucket - 6 + r / 2);
-      const target = Math.max(0, Math.min(r, ideal));
-      const next = target > prev ? prev + 1 : prev;
-      pegPath.push({ row: r, col: Math.min(next, r) });
+    let col = 0;
+    if (bucket === 0 || bucket === MULTS.length - 1) {
+      // Edge bucket: ball must hug one side all the way down.
+      const edge = bucket === 0 ? 0 : ROWS - 1;
+      for (let r = 1; r < ROWS; r++) {
+        col += col < edge ? 1 : 0;
+        pegPath.push({ row: r, col });
+      }
+    } else {
+      // Middle bucket: random shuffled path to the peg directly above the
+      // bucket, then one final bounce to a peg adjacent to the bucket.
+      const aboveCol = bucket - 1;
+      const upperSteps = Array.from({ length: 10 }, (_, i) => (i < aboveCol ? 1 : 0));
+      for (let i = upperSteps.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [upperSteps[i], upperSteps[j]] = [upperSteps[j], upperSteps[i]];
+      }
+      for (let r = 1; r <= 10; r++) {
+        col += upperSteps[r - 1];
+        pegPath.push({ row: r, col });
+      }
+      col += Math.random() < 0.5 ? 0 : 1;
+      pegPath.push({ row: ROWS - 1, col });
     }
     const finalCol = bucket;
 
