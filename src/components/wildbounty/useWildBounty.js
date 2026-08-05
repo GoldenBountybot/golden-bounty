@@ -505,18 +505,24 @@ export function useWildBounty() {
       }
     }
 
-    // Suppress natural high-value (bandit / revolver) matches: if a 3+
-    // contiguous-from-left win formed on either, break it by swapping one
-    // matching cell on an early reel to a low symbol (Q/J) so high-value wins
-    // only land very rarely. The forced 'A' win above is unaffected.
+    // Suppress high-value (bandit / revolver) matches: proactively strip ALL
+    // bandit/revolver symbols from the early reels (0-2) so a 3+ contiguous-
+    // from-left high-value win can never form, then reactively break any
+    // remaining high-value win that slipped through. The forced 'A' win is
+    // unaffected.
     {
+      const lows = ['Q', 'J', 'K', 'A', 'whiskey', 'hat'];
+      const isHv = (s) => s === 'bandit' || s === 'revolver';
+      // Strip every high-value symbol from reels 0, 1, 2.
+      for (let r = 0; r < 3; r++) {
+        finalGrid[r] = finalGrid[r].map(s => isHv(s) ? lows[Math.floor(Math.random() * lows.length)] : s);
+      }
+      // Reactive fallback: break any high-value win that still formed.
       let guard = 0;
-      const lows = ['Q', 'J'];
       while (guard++ < 8) {
         const { wins } = evaluateWins(finalGrid, bet);
-        const hv = wins.find(w => w.symbol === 'bandit' || w.symbol === 'revolver');
+        const hv = wins.find(w => isHv(w.symbol));
         if (!hv) break;
-        // Break contiguity: replace a matching (non-wild) cell on reel 2, 1, or 0.
         let fixed = false;
         for (const targetReel of [2, 1, 0]) {
           const reel = finalGrid[targetReel];
