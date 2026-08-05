@@ -256,7 +256,7 @@ export default function SuperAceMachine() {
     setTeaseStart(teaseStart);
     setTeaseCols(teaseSet);
     setGrid(g.map((c) => ({ ...c })));
-    const baseSpin = turboRef.current ? 320 : 620;
+    const baseSpin = turboRef.current ? 600 : 1000;
     let spinDur = baseSpin;
     if (teaseSet.size > 0) {
       const teasedCols = COLS - teaseStart;
@@ -388,7 +388,7 @@ export default function SuperAceMachine() {
         setFloatWin(null);
         setNewCells(shatterSet);
         playCascade(); playCardDrop();
-        await sleep(turboRef.current ? 600 : 1100);
+        await sleep(turboRef.current ? 220 : 400);
         setNewCells(new Set());
         break;
       }
@@ -424,7 +424,7 @@ export default function SuperAceMachine() {
       setFloatWin(null);
       setNewCells(dropped);
       playCascade(); playCardDrop();
-      await sleep(turboRef.current ? 600 : 1100);
+      await sleep(turboRef.current ? 220 : 400);
       setNewCells(new Set());
     }
     return g;

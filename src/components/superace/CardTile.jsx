@@ -9,7 +9,7 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
   const row = Math.floor(idx / COLS);
   const dropAnim = tease
     ? `saSlowDrop 0.7s ease-out ${0.5 + ((col - (teaseStart ?? col)) * ROWS + (ROWS - 1 - row)) * 0.7}s both`
-    : `saReelDrop ${0.45 + col * 0.05}s ease-out both`;
+    : `saReelDrop 0.35s ease-out ${((col * ROWS) + (ROWS - 1 - row)) * 0.03}s both`;
   const isFace = ['A', 'K', 'Q', 'J'].includes(sym);
   const isSuit = ['S', 'H', 'D', 'C'].includes(sym);
   const isWild = sym === 'W';
@@ -98,7 +98,7 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
           : shatter
             ? 'saShatter 0.36s ease-in forwards'
             : isNew
-              ? `saReelDrop 0.4s ease-out ${((col * ROWS) + (ROWS - 1 - row)) * 0.04}s both`
+              ? 'saReelDrop 0.4s ease-out both'
               : isWin
                 ? 'saGlowPulse 0.7s ease-in-out infinite'
                 : 'none',
