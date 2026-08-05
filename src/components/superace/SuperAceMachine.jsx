@@ -258,7 +258,7 @@ export default function SuperAceMachine() {
     const baseSpin = turboRef.current ? 320 : 620;
     let spinDur = baseSpin;
     if (teaseSet.size > 0) {
-      const landMs = (0.3 + (COLS - 1 - teaseStart) * 0.4 + 2.4) * 1000;
+      const landMs = (0.5 + (COLS - 1 - teaseStart) * 0.5 + (ROWS - 1) * 0.1 + 1.2) * 1000;
       spinDur = turboRef.current ? Math.max(baseSpin, landMs * 0.5) : Math.max(baseSpin, landMs + 200);
     }
     await sleep(spinDur);
@@ -610,8 +610,8 @@ export default function SuperAceMachine() {
             )}
 
             {/* WIN display — centered above controls */}
-            <div className="px-2 py-1 text-center">
-              <span className="text-[10px] tracking-widest" style={{ color: '#f5c542', ...W }}>WIN</span>{' '}
+            <div className="px-2 py-1 text-center flex items-baseline justify-center gap-2">
+              <span className="text-lg font-black tracking-widest" style={{ color: '#f5c542', fontFamily: 'Rye, Georgia, serif', textShadow: winThisSpin > 0 ? '0 0 10px rgba(245,197,66,0.6)' : 'none' }}>WIN</span>
               <span className="text-lg font-black tabular-nums" style={{ color: winThisSpin > 0 ? '#fde68a' : 'rgba(255,235,180,0.5)', fontFamily: 'Rye, Georgia, serif', textShadow: winThisSpin > 0 ? '0 0 10px rgba(245,197,66,0.6)' : 'none' }}>
                 $ {winThisSpin.toFixed(2)}
               </span>
