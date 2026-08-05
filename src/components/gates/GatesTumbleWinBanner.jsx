@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import GatesMultFly from './GatesMultFly';
 
 const fmt = (v) => `$${Number(v || 0).toFixed(2)}`;
 
@@ -34,14 +35,14 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
     // Banner multipliers only apply when a value symbol lands this tumble.
     if (mult > 0 && bannerBefore > 0) {
       setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'multiply' }), 400));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'banner' }), 750));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'result' }), 1100));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'multiply' }), 350));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'banner' }), 850));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'result' }), 1350));
       timers.current.push(setTimeout(() => setDisplay(null), 2000));
     } else if (mult > 0) {
       setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'multiply' }), 450));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'result' }), 850));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'multiply' }), 350));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'result' }), 900));
       timers.current.push(setTimeout(() => setDisplay(null), 2000));
     } else {
       setDisplay({ amount, mult: 0, bannerBefore: 0, total: amount, balTotal, phase: 'amount' });
@@ -77,11 +78,14 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
       ? `${fmt(display.total)}`
       : fmt(display.total)) : '';
 
+  const showMultFly = display.phase === 'multiply' && display.mult > 0;
+  const showBannerFly = display.phase === 'banner' && display.bannerBefore > 0;
+
   return (
     <div key={winHistory?.length || 0}
       className="absolute z-40 pointer-events-none"
       style={{ top: -58, left: '50%', transform: 'translateX(-50%)' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
+      <div className="relative" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
         animation: 'freeWinFloat 0.5s ease-out both' }}>
         <span style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: 13,
           color: display.phase === 'result' ? '#fff7a0' : '#ffe060',
@@ -96,6 +100,12 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
           animation: display.phase === 'result' ? 'saWinPop 0.4s ease-out' : 'none' }}>
           {value}
         </span>
+        {showMultFly && (
+          <GatesMultFly key={`mf-${winHistory.length}`} value={display.mult} ox={0} oy={110} from="symbol" />
+        )}
+        {showBannerFly && (
+          <GatesMultFly key={`bf-${winHistory.length}`} value={display.bannerBefore} ox={130} oy={90} from="banner" />
+        )}
       </div>
     </div>
   );
