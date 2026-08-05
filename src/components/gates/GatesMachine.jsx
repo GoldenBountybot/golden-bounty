@@ -160,7 +160,7 @@ export default function GatesMachine() {
             style={{ width: '100%', height: 'auto', objectFit: 'contain',
               clipPath: 'inset(0 0 6px 0)',
               filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.9))' }} />
-          <GatesZeusElectric />
+          {winPositions?.size > 0 && <GatesZeusElectric />}
         </div>
       </div>
 
