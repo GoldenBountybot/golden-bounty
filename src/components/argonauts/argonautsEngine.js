@@ -72,11 +72,11 @@ export function valueCoinKey(mult) { return 'vc' + mult; }
 // Reel symbol weights.
 const BASE_WEIGHTS = {
   bow: 11, potion: 11, cup: 11, harp: 11,
-  dove: 3, lizard: 3, atlanta: 30, jason: 2,
+  dove: 3, lizard: 3, atlanta: 14, jason: 2,
   wild: 2, bonus: 0.5,
 };
 const FREE_WEIGHTS = {
-  jason: 22, atlanta: 30, lizard: 16, dove: 14,
+  jason: 22, atlanta: 14, lizard: 16, dove: 14,
   wild: 12, bonus: 3, scatter: 6,
 };
 
