@@ -113,7 +113,7 @@ export function spinGrid(rtp = 50) {
   // Any coin that landed elsewhere is replaced with a regular symbol.
   const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
   const rReg = () => REG[Math.floor(Math.random() * REG.length)];
-  if (Math.random() < 0.05) {
+  if (Math.random() < 0.02) {
     grid[4] = 'coin';
   } else {
     grid[4] = rReg();
@@ -127,7 +127,9 @@ export function spinGrid(rtp = 50) {
     rows.forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     const avail = rows.filter(i => grid[i] !== 'coin');
     // Center column: when the Crown Coin is present, value coin chance drops to 0.05%.
-    const chance = (col === 1 && grid[4] === 'coin') ? 0.0005 : 0.18;
+    // Left (col 0) and center (col 1) columns have reduced value-coin chance.
+    const baseChance = col === 0 ? 0.06 : col === 1 ? 0.06 : 0.18;
+    const chance = (col === 1 && grid[4] === 'coin') ? 0.0005 : baseChance;
     if (Math.random() < chance && avail.length) {
       grid[avail[Math.floor(Math.random() * avail.length)]] = randomCoinKey();
     }
