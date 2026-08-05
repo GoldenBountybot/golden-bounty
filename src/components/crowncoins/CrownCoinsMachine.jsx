@@ -123,7 +123,14 @@ function Tile({ symKey, win, dim, bet, amount }) {
 // then a reelLand bounce when it stops.
 function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, anticipate }) {
   // result: 3 keys (top, mid, bottom). phase: 'idle' | 'spin' | 'land'
-  const [spinStrip, setSpinStrip] = useState(() => [...result]);
+  // Initialize with the full 9-item spinning strip (last block == first block)
+  // so the very first spin already has a seamless loop — otherwise the first
+  // frame of phase='spin' renders only 3 items and the landing breaks.
+  const [spinStrip, setSpinStrip] = useState(() => {
+    const r = () => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)].key;
+    const b0 = [r(), r(), r()];
+    return [...b0, r(), r(), r(), r(), r(), r(), ...b0];
+  });
 
   useEffect(() => {
     if (phase === 'spin') {
