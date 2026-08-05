@@ -66,17 +66,24 @@ function pickMult() {
   let r = Math.random() * MULT_TIER_TOTAL;
   for (const t of MULT_TIERS) {
     if ((r -= t.weight) < 0) {
-      return t.min + Math.floor(Math.random() * (t.max - t.min + 1));
+      // Bias toward the LOW end of the tier's range so small multipliers
+      // (1x–4x) land far more often than the top of the range.
+      const span = t.max - t.min + 1;
+      const idx = Math.floor(Math.min(Math.random(), Math.random()) * span);
+      return t.min + idx;
     }
   }
   return 1;
 }
-export function pickSymbol(freeMode, allowMult = true) {
+export function pickSymbol(freeMode, allowMult = true, winningTumble = false) {
   // Value (multiplier) symbols drop rarely in the base game and more often
   // during free spins. `allowMult` lets a spin cap them to a single value
   // symbol per spin (base game) — once one has landed, no more are generated
   // for the rest of that spin's tumbles.
-  const mChance = allowMult ? (freeMode ? 0.07 : 0.012) : 0;
+  // `winningTumble` reduces the multiplier chance further when refilling
+  // cells after a match, so multipliers land less often on winning cascades.
+  let mChance = allowMult ? (freeMode ? 0.07 : 0.012) : 0;
+  if (winningTumble) mChance *= 0.35;
   const sChance = freeMode ? 0.02 : 0.014;
   const r = Math.random();
   if (r < mChance) return `M${pickMult()}`;
@@ -165,10 +172,11 @@ export function evaluate(grid, bet) {
 export function tumble(grid, winPositions, freeMode, allowMult = true) {
   // In-place refill: winning + scatter cells are replaced exactly where they
   // stood; multipliers and every other symbol keep their original positions.
+  // winningTumble=true cuts the multiplier drop chance on these refills.
   return grid.map((reel, c) => reel.map((cell, r) => {
     if (isMult(cell)) return cell;
-    if (winPositions.has(`${c}-${r}`)) return pickSymbol(freeMode, allowMult);
-    if (cell === 'scatter') return pickSymbol(freeMode, allowMult);
+    if (winPositions.has(`${c}-${r}`)) return pickSymbol(freeMode, allowMult, true);
+    if (cell === 'scatter') return pickSymbol(freeMode, allowMult, true);
     return cell;
   }));
 }
