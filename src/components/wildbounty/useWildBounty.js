@@ -325,7 +325,12 @@ export function useWildBounty() {
 
       // Cascade: drop new symbols, then re-evaluate at the normal pacing so
       // every multiplier round feels deliberate — no collapsed timing at chain end.
-      const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex] * (wasFree ? 0.3 : 0.25);
+      // Normal spins at x8 and above (multIndex >= 3): lock the continue chance
+      // to exactly 0.1% (0.001). Below x8, use the tiered CONTINUE_PROB.
+      const contProb = (!wasFree && currentMultIndex >= 3)
+        ? 0.001
+        : CONTINUE_PROB[currentMultIndex] * (wasFree ? 0.3 : 0.25);
+      const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < contProb;
       const cascadeT = setTimeout(() => {
         const newGrid = rigCascadeGrid(gridForCascade, removePositions, cont, wasFree);
         // The blasted convert positions become wilds in place (no drop).
