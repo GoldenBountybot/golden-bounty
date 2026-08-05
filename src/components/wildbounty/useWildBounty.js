@@ -442,7 +442,7 @@ export function useWildBounty() {
     // Match chance = admin RTP (default 35%): 65% no-match, 35% match.
     // During free spins, lower the base win chance so fewer value symbols land
     // and multiplier cascade rounds trigger less often.
-    const wantWin = Math.random() < (rtpRef.current / 100) * (usingFree ? 0.35 : 0.6);
+    const wantWin = Math.random() < (rtpRef.current / 100) * (usingFree ? 0.35 : 0.4);
     if (wantWin) {
       const X = 'A';
       finalGrid = finalGrid.map((reel, ri) => {
