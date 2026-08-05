@@ -265,9 +265,9 @@ export default function Mines() {
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7ad5415af_.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5, mixBlendMode: 'screen' }} />
       <GameHeader title="Mines" balance={Number(balance || 0)} />
 
-      <main className="max-w-md w-full mx-auto px-4 py-5 flex flex-col gap-4 flex-1">
+      <main className="max-w-md w-full mx-auto px-4 py-2 flex flex-col gap-2 flex-1">
         {/* Balance bar */}
-        <WesternFrame className="p-3 flex items-center justify-between">
+        <WesternFrame className="p-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="flex items-center justify-center w-9 h-9 rounded-lg relative" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/00dc49c08_generated_image.png') center / cover, radial-gradient(circle, rgba(255,210,120,0.25), rgba(120,80,30,0.4))", border: '1px solid rgba(190,140,55,0.7)' }}>
               <DollarSign className="w-5 h-5 text-amber-300 relative" />
@@ -286,7 +286,7 @@ export default function Mines() {
         </WesternFrame>
 
         {/* Grid — game board, above the bet button */}
-        <WesternFrame className="p-3">
+        <WesternFrame className="p-2">
           <div className="grid grid-cols-5 gap-2">
             {Array.from({ length: TOTAL }).map((_, i) => {
               const isRev = revealed.has(i);
@@ -322,7 +322,7 @@ export default function Mines() {
         </WesternFrame>
 
         {/* Message — dark charcoal plaque, muted gold text */}
-        <div className="w-full rounded-xl py-3 text-center" style={{ background: '#1a1a1a', border: '1px solid #b8860b', boxShadow: '0 2px 6px rgba(0,0,0,0.5)' }}>
+        <div className="w-full rounded-xl py-1.5 text-center" style={{ background: '#1a1a1a', border: '1px solid #b8860b', boxShadow: '0 2px 6px rgba(0,0,0,0.5)' }}>
           <span className="text-sm" style={{ color: '#c5a059', ...W }}>{message}</span>
         </div>
 
@@ -339,7 +339,7 @@ export default function Mines() {
 
         {/* Controls panel — custom amount + mines presets, below the bet button */}
         {phase === 'idle' && (
-          <WesternFrame className="p-4 flex flex-col gap-4">
+          <WesternFrame className="p-3 flex flex-col gap-3">
             {/* Bet */}
             <div>
               <div className="flex items-center justify-between mb-2">
