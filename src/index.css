@@ -162,6 +162,14 @@
   20%  { opacity: 1; }
   100% { opacity: 0; }
 }
+
+/* Gates of Olympus — electric arcs crackling across Zeus's body on a win.
+   Opacity-only flicker (GPU/compositor-friendly) for a live current feel. */
+@keyframes zeusArc {
+  0%, 100% { opacity: 0; }
+  15%, 85% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
 @keyframes gatesMultReveal {
   0%   { opacity: 0; transform: scale(0.2); }
   55%  { opacity: 1; transform: scale(1.4); }

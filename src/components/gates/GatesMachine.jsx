@@ -11,6 +11,7 @@ import GatesMultBanner from './GatesMultBanner';
 import GatesTumbleWinBanner from './GatesTumbleWinBanner';
 import GatesBigWinBanner from './GatesBigWinBanner';
 import GatesFreeSpinEndBanner from './GatesFreeSpinEndBanner';
+import GatesZeusLightning from './GatesZeusLightning';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 import {
@@ -153,13 +154,14 @@ export default function GatesMachine() {
             filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.9))' }} />
         {/* Zeus figure on the right side of the banner */}
         <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/84fd16eb6_file_00000000e474820ba9fd196f5f5c9f06.png"
-          alt="Zeus"
-          className="pointer-events-none select-none"
-          style={{ position: 'absolute', right: '-10%', bottom: -12, width: '58%', maxWidth: 220,
-            height: 'auto', objectFit: 'contain',
-            clipPath: 'inset(0 0 6px 0)',
-            filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.9))' }} />
-      </div>
+        alt="Zeus"
+        className="pointer-events-none select-none"
+        style={{ position: 'absolute', right: '-10%', bottom: -12, width: '58%', maxWidth: 220,
+          height: 'auto', objectFit: 'contain',
+          clipPath: 'inset(0 0 6px 0)',
+          filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.9))' }} />
+        <GatesZeusLightning active={winPositions.size > 0} />
+        </div>
 
       {/* ── REEL BOARD ── golden frame with purple interior */}
       <div className="relative shrink-0 mx-2" style={{ flex: '0 0 auto', marginTop: 0 }}>
