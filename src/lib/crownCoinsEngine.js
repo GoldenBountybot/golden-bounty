@@ -169,8 +169,8 @@ export function spinGrid(rtp = 50) {
     }
   }
 
-  // Win gate: 15% chance the spin is a winner (symbol line match).
-  const forceLoss = Math.random() * 100 > 15;
+  // Win gate: 8% chance the spin is a winner (symbol line match).
+  const forceLoss = Math.random() * 100 > 8;
   if (forceLoss) {
     for (let iter = 0; iter < 4; iter++) {
       const { lines } = evaluateGrid(grid);
