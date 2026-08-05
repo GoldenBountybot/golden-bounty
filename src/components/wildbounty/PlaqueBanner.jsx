@@ -29,10 +29,10 @@ const PlaqueBanner = forwardRef(function PlaqueBanner({ children, className = ''
       {glow && (
         <div
           key={`glow-${glowKey}`}
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 pointer-events-none overflow-hidden"
           style={{
             mixBlendMode: 'screen',
-            background: 'radial-gradient(ellipse 62% 72% at 50% 50%, rgba(255,228,130,0.9) 0%, rgba(255,205,70,0.55) 42%, rgba(255,190,50,0.18) 68%, transparent 82%)',
+            background: 'radial-gradient(ellipse 48% 56% at 50% 50%, rgba(255,228,130,0.6) 0%, rgba(255,205,70,0.32) 48%, transparent 78%)',
             animation: 'wbGlowFade 1.4s ease-out forwards',
             willChange: 'opacity',
             transform: 'translate3d(0,0,0)',
