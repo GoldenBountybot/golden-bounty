@@ -211,6 +211,8 @@ export const FREE_SPIN_ASSETS = [
   u('6f64aed99_file_00000000c4c881fa936f6d4b80af30a1.png'), // frame
   u('580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png'), // wheel
   u('664f53d7d_file_00000000bc488207a04754014a812972.png'), // pointer
+  u('58482abdf_file_0000000099f08207bd615be46766e77b.png'), // win banner
+  u('2856c6533_file_00000000a3c8820ba092dc2cb1951125.png'), // spin button
 ];
 
 // Map game card IDs to their full asset list, so the lobby can start
