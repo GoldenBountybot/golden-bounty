@@ -98,7 +98,7 @@ export default function CardTile({ cell, idx, isWin, spinning, isNew, shatter, f
           : shatter
             ? 'saShatter 0.36s ease-in forwards'
             : isNew
-              ? 'saReelDrop 0.4s ease-out both'
+              ? `saReelDrop 0.4s ease-out ${((col * ROWS) + (ROWS - 1 - row)) * 0.04}s both`
               : isWin
                 ? 'saGlowPulse 0.7s ease-in-out infinite'
                 : 'none',

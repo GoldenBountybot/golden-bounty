@@ -388,7 +388,7 @@ export default function SuperAceMachine() {
         setFloatWin(null);
         setNewCells(shatterSet);
         playCascade(); playCardDrop();
-        await sleep(turboRef.current ? 220 : 400);
+        await sleep(turboRef.current ? 600 : 1100);
         setNewCells(new Set());
         break;
       }
@@ -424,7 +424,7 @@ export default function SuperAceMachine() {
       setFloatWin(null);
       setNewCells(dropped);
       playCascade(); playCardDrop();
-      await sleep(turboRef.current ? 220 : 400);
+      await sleep(turboRef.current ? 600 : 1100);
       setNewCells(new Set());
     }
     return g;
