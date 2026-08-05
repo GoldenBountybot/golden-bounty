@@ -271,7 +271,7 @@ export function useWildBounty() {
 
       // Cascade: drop new symbols, then re-evaluate at the normal pacing so
       // every multiplier round feels deliberate — no collapsed timing at chain end.
-      const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex] * (wasFree ? 0.3 : 1);
+      const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex] * (wasFree ? 0.3 : 0.6);
       const cascadeT = setTimeout(() => {
         const newGrid = rigCascadeGrid(gridForCascade, removePositions, cont, wasFree);
         // The blasted convert positions become wilds in place (no drop).
@@ -445,7 +445,7 @@ export function useWildBounty() {
     // Match chance = admin RTP (default 35%): 65% no-match, 35% match.
     // During free spins, lower the base win chance so fewer value symbols land
     // and multiplier cascade rounds trigger less often.
-    const wantWin = Math.random() < (rtpRef.current / 100) * (usingFree ? 0.04 : 0.05);
+    const wantWin = Math.random() < (rtpRef.current / 100) * (usingFree ? 0.04 : 0.03);
     if (wantWin) {
       // During free spins, force a LOW-value symbol (J/Q) so high-value matches
       // (A/K) rarely form even on forced wins.
