@@ -29,30 +29,23 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
     timers.current.forEach(clearTimeout);
     timers.current = [];
 
-    // Free spins with cascading banner: show base → × cell mult → × banner → result
+    // Compressed to fit within the 1.5s free-spin gap so the player sees the
+    // win amount AND the multiplied result before the next spin starts.
+    // Banner multipliers only apply when a value symbol lands this tumble.
     if (mult > 0 && bannerBefore > 0) {
       setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'multiply' }), 1300));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'banner' }), 2200));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'result' }), 3100));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'balance' }), 4100));
-      timers.current.push(setTimeout(() => setDisplay(null), 5100));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'multiply' }), 400));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'banner' }), 800));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'result' }), 1150));
+      timers.current.push(setTimeout(() => setDisplay(null), 1500));
     } else if (mult > 0) {
       setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'multiply' }), 1300));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'result' }), 2900));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'balance' }), 3900));
-      timers.current.push(setTimeout(() => setDisplay(null), 4900));
-    } else if (bannerBefore > 0) {
-      setDisplay({ amount, mult: 0, bannerBefore, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult: 0, bannerBefore, total, balTotal, phase: 'banner' }), 1100));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult: 0, bannerBefore, total, balTotal, phase: 'result' }), 2200));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult: 0, bannerBefore, total, balTotal, phase: 'balance' }), 3200));
-      timers.current.push(setTimeout(() => setDisplay(null), 4200));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'multiply' }), 450));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'result' }), 950));
+      timers.current.push(setTimeout(() => setDisplay(null), 1500));
     } else {
       setDisplay({ amount, mult: 0, bannerBefore: 0, total: amount, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult: 0, bannerBefore: 0, total: amount, balTotal, phase: 'balance' }), 850));
-      timers.current.push(setTimeout(() => setDisplay(null), 1900));
+      timers.current.push(setTimeout(() => setDisplay(null), 1500));
     }
   }, [winHistory, balance, winFlash]);
 
