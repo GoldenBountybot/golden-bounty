@@ -101,6 +101,7 @@ export default function Withdraw() {
     try {
       const me = await base44.auth.me().catch(() => null);
       if (!me) { toast({ title: t("Please log in first") }); setSubmitting(false); return; }
+      if (amount < 5) { toast({ title: t("Minimum withdrawal is $5.00") }); setSubmitting(false); return; }
       if (amount > maxWithdrawable) {
         toast({
           title: t("Wagering requirement not met"),
