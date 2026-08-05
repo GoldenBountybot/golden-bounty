@@ -7,11 +7,11 @@ const PLAQUE_BG =
 // gold-trimmed wooden plaque that stretches edge to edge, with optional
 // controls pinned to the left/right edges. Symmetric padding keeps the text
 // truly centered in the frame while clearing the edge controls.
-export default function GameTitleBar({ title, icon, left, right, padLeft = 'pl-24', padRight = 'pr-24', maxWidth = 'max-w-md' }) {
+export default function GameTitleBar({ title, icon, left, right, padLeft = 'pl-24', padRight = 'pr-24', maxWidth = 'max-w-md', titleClassName = 'text-sm', plaquePy = 'py-1.5', outerPy = 'py-2.5' }) {
   return (
-    <div className={`${maxWidth} mx-auto px-3 py-2.5 relative`}>
+    <div className={`${maxWidth} mx-auto px-3 ${outerPy} relative`}>
       <div
-        className={`w-full flex items-center justify-center gap-1.5 py-1.5 ${padLeft} ${padRight}`}
+        className={`w-full flex items-center justify-center gap-1.5 ${plaquePy} ${padLeft} ${padRight}`}
         style={{
           background: PLAQUE_BG,
           border: '1px solid rgba(190,140,55,0.75)',
@@ -20,7 +20,7 @@ export default function GameTitleBar({ title, icon, left, right, padLeft = 'pl-2
       >
         {icon}
         <span
-          className="text-sm font-black italic tracking-wide text-center"
+          className={`${titleClassName} font-black italic tracking-wide text-center`}
           style={{ color: '#f3e2b3', fontFamily: 'Rye, Georgia, serif', textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}
         >
           {title}

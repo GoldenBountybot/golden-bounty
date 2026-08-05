@@ -201,7 +201,7 @@ export default function FreeSpin() {
   return (
     <div className="min-h-screen relative" style={{ ...W, backgroundImage: 'linear-gradient(rgba(10,8,6,0.8), rgba(10,8,6,0.8)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bd52e9c49_file_00000000a50c8207b70a5b0acc15d3dc.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Header */}
-      <GameHeader title="Daily Free Spin" balance={balance} />
+      <GameHeader title="Daily Free Spin" balance={balance} titleClassName="text-lg" plaquePy="py-0.5" outerPy="py-1" />
 
       <main className="max-w-md mx-auto px-4 pt-6 pb-2 flex flex-col items-center">
         {/* Reserved slot above the wheel — win message floats up into it */}

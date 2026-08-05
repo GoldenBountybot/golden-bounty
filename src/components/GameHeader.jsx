@@ -9,7 +9,7 @@ import { useMute } from '@/lib/soundMute';
 // game title centered, back button on the left, share on the right. Optional
 // `balance` renders a wallet chip next to the share button. A sound toggle
 // mutes/unmutes every game's audio with a single tap.
-export default function GameHeader({ title, balance }) {
+export default function GameHeader({ title, balance, titleClassName, plaquePy, outerPy }) {
   const hasBalance = typeof balance === 'number';
   const [muted, toggleMute] = useMute();
   return (
@@ -19,6 +19,9 @@ export default function GameHeader({ title, balance }) {
     >
       <GameTitleBar
         title={title}
+        titleClassName={titleClassName}
+        plaquePy={plaquePy}
+        outerPy={outerPy}
         left={<BackButton />}
         right={
           <>
