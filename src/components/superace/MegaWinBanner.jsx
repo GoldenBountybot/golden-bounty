@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { playWinCountUp } from '@/lib/superaceSounds';
 
 const MEGA_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e3c7dc482_file_00000000233881faa2d49279db01c3b7.png';
 
@@ -11,6 +12,7 @@ export default function MegaWinBanner({ amount, multiplier, onDone }) {
 
   useEffect(() => {
     const duration = 1800;
+    playWinCountUp(duration);
     const from = 0;
     const to = amount;
     const step = (ts) => {

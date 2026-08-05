@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { playWinCountUp } from '@/lib/superaceSounds';
 
 const SUPER_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4241239e5_file_0000000057d881fbaa643e8f2dd979ce.png';
 
@@ -12,6 +13,7 @@ export default function SuperWinBanner({ amount, multiplier, onDone }) {
 
   useEffect(() => {
     const duration = 1800;
+    playWinCountUp(duration);
     const from = 0;
     const to = amount;
     const step = (ts) => {

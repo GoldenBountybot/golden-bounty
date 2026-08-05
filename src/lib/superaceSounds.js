@@ -144,6 +144,41 @@ export function playLose() {
   [392, 329.63, 261.63].forEach((f, i) => tone(f, t + i * 0.1, 0.22, 'sine', 0.07));
 }
 
+// Count-up sound for Super/Mega Win banners — rapid ascending metallic
+// "coin counting" ticks that play throughout the count-up duration, ending
+// with a bright triumphant chord when the amount finishes.
+export function playWinCountUp(duration = 1800) {
+  if (isMuted()) return;
+  const ac = actx(); if (!ac) return;
+  const t0 = ac.currentTime;
+  const dur = duration / 1000;
+
+  // Rapid ascending ticks — every ~70ms, pitch rises across the count
+  const tickInterval = 0.07;
+  const numTicks = Math.floor(dur / tickInterval);
+  const baseFreq = 880;
+  const topFreq = 1760;
+  for (let i = 0; i < numTicks; i++) {
+    const t = t0 + i * tickInterval;
+    const progress = i / numTicks;
+    const f = baseFreq + (topFreq - baseFreq) * progress;
+    // metallic coin "ting" — two short sine partials
+    tone(f, t, 0.06, 'sine', 0.08);
+    tone(f * 2, t, 0.05, 'sine', 0.03);
+  }
+
+  // Final triumphant chord when the count finishes
+  const chordEnd = t0 + dur;
+  [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f) => {
+    tone(f, chordEnd, 0.6, 'triangle', 0.12);
+    tone(f * 2, chordEnd, 0.5, 'sine', 0.04);
+  });
+  // sparkle
+  for (let i = 0; i < 8; i++) {
+    tone(1800 + Math.random() * 1400, chordEnd + 0.15 + i * 0.05, 0.1, 'sine', 0.035);
+  }
+}
+
 export function playClick() {
   const ac = actx(); if (!ac) return;
   const t = ac.currentTime;
