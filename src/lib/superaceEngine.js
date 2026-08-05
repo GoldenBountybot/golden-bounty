@@ -42,9 +42,9 @@ const WEIGHTS = {
 // Cascade (multiplier) refill weights — high-value symbols even rarer so big
 // multipliers don't stack on A/K/Q/J lines. Suits dominate refills.
 const CASCADE_WEIGHTS = {
-  A: 1, K: 1, Q: 2, J: 2,
-  S: 28, H: 28, D: 28, C: 28,
-  SC: 1,
+  A: 0.4, K: 0.4, Q: 0.8, J: 0.8,
+  S: 30, H: 30, D: 30, C: 30,
+  SC: 0.5,
 };
 
 let _uid = 0;
