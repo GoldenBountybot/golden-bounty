@@ -326,15 +326,13 @@ export default function Mines() {
           <span className="text-sm" style={{ color: '#c5a059', ...W }}>{message}</span>
         </div>
 
-        {/* Bet button — wood grain with ornate gold flourishes at each end */}
+        {/* Bet button — ornate baroque frame image with overlaid text */}
         {phase === 'idle' && (
-          <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40 relative overflow-hidden" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/67ff4e03b_generated_image.png') center / cover, linear-gradient(to bottom, #4a2c1f, #2a160c)", border: '1px solid #b8860b', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.35), 0 4px 12px rgba(0,0,0,0.6)', ...W }}>
-            {/* ornate gold flourish — left */}
-            <GoldFlourish side="left" />
-            <Pickaxe className="w-5 h-5 relative" style={{ color: '#c5a059', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.6))' }} />
-            <span className="relative" style={{ color: '#c5a059', textShadow: '0 1px 2px rgba(0,0,0,0.75)' }}>BET ${bet.toFixed(2)} · {mines} MINES</span>
-            {/* ornate gold flourish — right */}
-            <GoldFlourish side="right" />
+          <button onClick={start} disabled={balance < bet} className="w-full rounded-xl transition-all disabled:opacity-40 relative overflow-hidden" style={{ aspectRatio: '5 / 1', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/05e0ce128_file_00000000f0e081fa9fc8c4a6f2cba0c4.png')", backgroundSize: '100% 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', ...W }}>
+            <span className="absolute inset-0 flex items-center justify-center gap-2 px-[18%] text-base" style={{ color: '#ffe6a8', textShadow: '0 1px 2px rgba(0,0,0,0.85), 0 0 6px rgba(0,0,0,0.6)' }}>
+              <Pickaxe className="w-5 h-5 shrink-0" style={{ color: '#ffe6a8', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.7))' }} />
+              BET ${bet.toFixed(2)} · {mines} MINES
+            </span>
           </button>
         )}
 
