@@ -104,7 +104,7 @@ export function useWildBounty() {
     // the random fill pool so high-value matches form far less often.
     const baseIds = wasFree
       ? ['whiskey', 'whiskey', 'whiskey', 'hat', 'hat', 'hat', 'Q', 'Q', 'Q', 'J', 'J', 'J']
-      : ['whiskey', 'hat', 'A', 'K', 'Q', 'J'];
+      : ['whiskey', 'whiskey', 'hat', 'hat', 'Q', 'Q', 'J', 'J', 'A', 'K'];
     const randBase = () => baseIds[Math.floor(Math.random() * baseIds.length)];
     removed.forEach(pos => {
       const [r, row] = pos.split('-').map(Number);
@@ -271,7 +271,7 @@ export function useWildBounty() {
 
       // Cascade: drop new symbols, then re-evaluate at the normal pacing so
       // every multiplier round feels deliberate — no collapsed timing at chain end.
-      const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex] * (wasFree ? 0.3 : 0.6);
+      const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex] * (wasFree ? 0.3 : 0.4);
       const cascadeT = setTimeout(() => {
         const newGrid = rigCascadeGrid(gridForCascade, removePositions, cont, wasFree);
         // The blasted convert positions become wilds in place (no drop).
@@ -470,7 +470,7 @@ export function useWildBounty() {
     } else {
       // Suppress natural wins harder so fewer symbols match at once.
       let attempts = 0;
-      while (attempts < 5 && evaluateWins(finalGrid, bet).wins.length > 0) {
+      while (attempts < 8 && evaluateWins(finalGrid, bet).wins.length > 0) {
         finalGrid = REEL_ROWS.map(r => buildReel(r));
         attempts++;
       }
