@@ -20,7 +20,7 @@ function fmtDate(d) {
   } catch { return String(d); }
 }
 
-export default function PlayerHistoryButton() {
+export default function PlayerHistoryButton({ iconOnly = false }) {
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -47,14 +47,26 @@ export default function PlayerHistoryButton() {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/40 border border-indigo-700/40 text-indigo-100 text-xs font-bold italic hover:bg-black/60 transition-colors"
-        style={{ fontFamily: 'Georgia, serif' }}
-      >
-        <History className="w-4 h-4" />
-        My History
-      </button>
+      {iconOnly ? (
+        <button
+          onClick={() => setOpen(true)}
+          className="shrink-0"
+          title="My History"
+        >
+          <span className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95" style={{ background: 'linear-gradient(145deg, #5a3a1a, #2e1d0e 50%, #3a2818)', border: '2px solid rgba(190,140,55,0.7)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.2), 0 2px 4px rgba(0,0,0,0.65)' }}>
+            <History className="w-4 h-4 text-amber-300" strokeWidth={2.2} />
+          </span>
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/40 border border-indigo-700/40 text-indigo-100 text-xs font-bold italic hover:bg-black/60 transition-colors"
+          style={{ fontFamily: 'Georgia, serif' }}
+        >
+          <History className="w-4 h-4" />
+          My History
+        </button>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setOpen(false)}>

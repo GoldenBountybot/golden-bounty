@@ -16,6 +16,7 @@ import GameTitleBar from '@/components/GameTitleBar';
 import { useMute } from '@/lib/soundMute';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import WesternStatBanner from '@/components/wildbounty/WesternStatBanner';
+import PlayerHistoryButton from '@/components/PlayerHistoryButton';
 import {
   COLS, ROWS, TOTAL, BASE_MULTS, FREE_MULTS, FREE_SPINS_AWARD, RETRIGGER_AWARD,
   BUY_BONUS_MULT, MAX_WIN_CAP, makeGrid, makeCell, evaluate, cascade, nudgeForWin,
@@ -530,6 +531,7 @@ export default function SuperAceMachine() {
           }
           right={
             <>
+              <PlayerHistoryButton iconOnly />
               <span
                 id="game-balance-chip"
                 className="flex items-center gap-1 rounded-[6px] px-2 py-0.5 text-[11px] font-bold tabular-nums text-yellow-100"
