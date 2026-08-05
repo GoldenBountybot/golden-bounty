@@ -337,7 +337,7 @@ export default function Mines() {
                 </feComponentTransfer>
               </filter>
             </svg>
-            <button onClick={start} disabled={balance < bet} className="w-full relative -mt-20 -mb-20 rounded-xl text-base transition-all disabled:opacity-40 overflow-hidden" style={{ ...W }}>
+            <button onClick={start} disabled={balance < bet} className="w-full relative -mt-20 -mb-28 rounded-xl text-base transition-all disabled:opacity-40 overflow-hidden" style={{ ...W }}>
               <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/47e470df6_file_000000002200820baadd0a1f2df2f8ce.png" alt="" aria-hidden="true" className="block w-full h-auto pointer-events-none" style={{ filter: 'url(#minesBetBg)' }} />
               <div className="absolute inset-0 flex items-center justify-center gap-2 px-4">
                 <Pickaxe className="w-5 h-5" style={{ color: '#f0e68c', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.85))' }} />
