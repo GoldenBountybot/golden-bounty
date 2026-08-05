@@ -220,7 +220,7 @@ export default function Dashboard() {
         {tab === 'wallet' && (
           <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
             {/* Deposit & Withdraw cards */}
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="dash-card p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(52,211,153,0.14)', border: '1px solid rgba(52,211,153,0.35)' }}>
@@ -337,7 +337,7 @@ export default function Dashboard() {
 
             <StackMining staked={stake.staked} pendingProfit={stake.pendingProfit} daysLocked={stake.daysLocked} unlocked={stake.unlocked} rate={stake.rate} />
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
                 { icon: Lock, label: t("Staked"), value: `$${stake.staked.toFixed(2)}` },
                 { icon: Sparkles, label: t("Pending Profit"), value: `$${stake.pendingProfit.toFixed(2)}` },

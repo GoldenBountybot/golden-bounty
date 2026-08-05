@@ -241,8 +241,8 @@ export default function Withdraw() {
             )}
 
             {view === 'usdt' && (
-              <div className="flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-                <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Select a network, then enter your wallet address.")}</p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+                <p className="text-[12px] px-1 lg:col-span-2" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Select a network, then enter your wallet address.")}</p>
                 {usdtNets.map((n, i) => {
                   const active = selectedNet?.name === n.name;
                   return (
@@ -260,7 +260,7 @@ export default function Withdraw() {
                 })}
 
                 {selectedNet && (
-                  <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 300ms ease both' }}>
+                  <div className="dash-card p-5 flex flex-col gap-3 lg:col-span-2" style={{ animation: 'dashFadeIn 300ms ease both' }}>
                     <div className="flex items-center gap-2">
                       <CoinLogo logo={selectedNet.logo} color={selectedNet.color} />
                       <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Your Wallet Address")}</h2>

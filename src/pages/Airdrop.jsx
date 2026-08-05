@@ -235,7 +235,7 @@ export default function Airdrop() {
       </main>
 
       {/* Listing notice */}
-      <div className="relative z-10 max-w-md mx-auto px-4 pb-6">
+      <div className="relative z-10 max-w-md lg:max-w-5xl mx-auto px-4 pb-6">
        <div
          className="dash-card p-4 flex items-center gap-3"
          style={{ animation: 'dashFadeIn 400ms ease both', background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.02))', border: '1px solid rgba(212,175,55,0.3)' }}

@@ -199,7 +199,7 @@ export default function PayMethod() {
         </div>
 
         {view === 'choose' && (
-          <div className="flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
             {METHODS.map((m, i) => (
               <button
                 key={m.id}
@@ -221,8 +221,8 @@ export default function PayMethod() {
         )}
 
         {view !== 'choose' && (
-          <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-            <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>{t("Send to one of the addresses below to deposit.")}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+            <p className="text-[13px] lg:col-span-2" style={{ color: 'rgba(255,255,255,0.7)' }}>{t("Send to one of the addresses below to deposit.")}</p>
             {networks.map((n, i) => (
               <div key={i} className="dash-card p-4 flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both', animationDelay: (50 * i) + 'ms' }}>
                 <div className="flex items-center gap-3">

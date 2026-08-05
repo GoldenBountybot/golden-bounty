@@ -67,7 +67,7 @@ export default function Notifications() {
             </p>
           </div>
         ) : (
-          <div className="flex flex-col gap-2.5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
             {[...items].sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime()).map((n) => {
               const m = TYPE_META[n.type] || TYPE_META.system;
               const Icon = m.icon;
