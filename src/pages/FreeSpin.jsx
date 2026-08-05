@@ -239,18 +239,10 @@ export default function FreeSpin() {
 
       <main className="max-w-md mx-auto px-4 pt-6 pb-2 flex flex-col items-center">
         {/* Reserved slot above the wheel — win message floats up into it */}
-        <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
-          <filter id="winBannerDropBlack" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
-            <feComponentTransfer>
-              <feFuncA type="linear" slope="1.5" intercept="-0.12" />
-            </feComponentTransfer>
-          </filter>
-        </svg>
         <div className="relative w-full max-w-[230px] mx-auto mb-1" style={{ height: result?.held ? 96 : 52 }}>
           {result && (
             <div className="absolute inset-0 flex items-center justify-center animate-[freeWinFloat_0.6s_ease-out]">
-              <div className="relative w-full" style={{ filter: 'url(#winBannerDropBlack) drop-shadow(0 0 14px rgba(255,200,80,0.45))' }}>
+              <div className="relative w-full" style={{ filter: 'drop-shadow(0 0 14px rgba(255,200,80,0.45))' }}>
                 <img
                   src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/58482abdf_file_0000000099f08207bd615be46766e77b.png"
                   alt="Win banner"
@@ -278,15 +270,7 @@ export default function FreeSpin() {
         {/* Wheel — transparent surroundings, floats on the page bg */}
         <SpinWheel segments={SEGMENTS} rotation={rotation} onRest={handleRest} size={380} />
 
-        {/* Spin / cooldown control — ornate gold SPIN button (black bg keyed out) */}
-        <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
-          <filter id="spinBtnDropBlack" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0.2126 0.7152 0.0722 0 0" />
-            <feComponentTransfer>
-              <feFuncA type="linear" slope="1.5" intercept="-0.12" />
-            </feComponentTransfer>
-          </filter>
-        </svg>
+        {/* Spin / cooldown control — ornate gold SPIN button */}
         <div className="-mt-5 w-full max-w-[160px]">
           {available ? (
             <button
@@ -300,7 +284,6 @@ export default function FreeSpin() {
                 alt="Spin"
                 draggable={false}
                 className="block w-full h-auto"
-                style={{ filter: 'url(#spinBtnDropBlack)' }}
               />
             </button>
           ) : (
