@@ -187,7 +187,7 @@ export function useGates() {
           // Extend the gap after a winning tumble with multipliers so every
           // multiplier chip's flying animation plays before the next tumble.
           if (tb.multipliers.length) {
-            acc += tb.bannerBefore > 0 ? 2500 : 1000;
+            acc += tb.bannerBefore > 0 ? 5200 : 2900;
           }
         }
       }

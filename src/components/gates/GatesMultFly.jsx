@@ -32,7 +32,7 @@ export default function GatesMultFly({ value, ox = 0, oy = 100, lx = 55, from = 
         { transform: `translate(calc(-50% + ${lx}px), -50%) scale(1.18) rotate(2deg)`, opacity: 1, offset: 0.82 },
         { transform: `translate(calc(-50% + ${lx}px), -50%) scale(1) rotate(0deg)`, opacity: 1 },
       ],
-      { duration: 950, easing: 'cubic-bezier(0.16,0.84,0.44,1)', fill: 'both' }
+      { duration: 1500, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' }
     );
     return () => anim.cancel();
   }, [ox, oy, lx]);
