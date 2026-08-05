@@ -104,7 +104,7 @@ export function useWildBounty() {
     // the random fill pool so high-value matches form far less often.
     const baseIds = wasFree
       ? ['whiskey', 'whiskey', 'whiskey', 'hat', 'hat', 'hat', 'Q', 'Q', 'Q', 'J', 'J', 'J']
-      : ['whiskey', 'whiskey', 'hat', 'hat', 'Q', 'Q', 'J', 'J', 'A', 'K'];
+      : ['whiskey', 'whiskey', 'whiskey', 'hat', 'hat', 'Q', 'Q', 'J', 'J', 'J'];
     const randBase = () => baseIds[Math.floor(Math.random() * baseIds.length)];
     removed.forEach(pos => {
       const [r, row] = pos.split('-').map(Number);
@@ -271,7 +271,7 @@ export function useWildBounty() {
 
       // Cascade: drop new symbols, then re-evaluate at the normal pacing so
       // every multiplier round feels deliberate — no collapsed timing at chain end.
-      const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex] * (wasFree ? 0.3 : 0.4);
+      const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < CONTINUE_PROB[currentMultIndex] * (wasFree ? 0.3 : 0.25);
       const cascadeT = setTimeout(() => {
         const newGrid = rigCascadeGrid(gridForCascade, removePositions, cont, wasFree);
         // The blasted convert positions become wilds in place (no drop).
@@ -449,7 +449,7 @@ export function useWildBounty() {
     if (wantWin) {
       // During free spins, force a LOW-value symbol (J/Q) so high-value matches
       // (A/K) rarely form even on forced wins.
-      const X = usingFree ? (Math.random() < 0.5 ? 'J' : 'Q') : 'A';
+      const X = usingFree ? (Math.random() < 0.5 ? 'J' : 'Q') : (Math.random() < 0.5 ? 'J' : 'Q');
       finalGrid = finalGrid.map((reel, ri) => {
         const copy = [...reel];
         if (ri < 3) {
@@ -481,7 +481,7 @@ export function useWildBounty() {
     // whose symbol isn't the forced one; when no forced win, break all wins
     // except at most one (keep the first, break the rest).
     {
-      const forcedSym = wantWin ? 'A' : null;
+      const forcedSym = wantWin ? (usingFree ? (Math.random() < 0.5 ? 'J' : 'Q') : (Math.random() < 0.5 ? 'J' : 'Q')) : null;
       let guard = 0;
       const lows = ['Q', 'J', 'K'];
       while (guard++ < 14) {
