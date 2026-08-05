@@ -236,6 +236,7 @@ function capMults(grid, max) {
 export function computeSpin(bet, wantWin, freeMode, runningMult) {
   let grid = wantWin ? forceWinGrid(freeMode, true) : forceLossGrid(freeMode, true);
   if (!freeMode) grid = capMults(grid, 1);
+  else grid = capMults(grid, 2);
   let spinHasMult = freeMode ? false : gridHasMult(grid);
   const tumbles = [];
   let totalWin = 0;      // sum of base wins (before multiplier) — for display
@@ -295,6 +296,7 @@ export function computeSpin(bet, wantWin, freeMode, runningMult) {
     scatterMax = Math.max(scatterMax, ev.scatterCount);
     if (ev.win === 0) break;
     grid = tumble(grid, ev.winPositions, freeMode, freeMode ? true : !spinHasMult);
+    if (freeMode) grid = capMults(grid, 2);
     if (!freeMode && gridHasMult(grid)) spinHasMult = true;
     t++;
   }
