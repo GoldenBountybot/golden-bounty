@@ -198,7 +198,7 @@ export default function SuperAceMachine() {
 
     // 3-scatter free-spin trigger is an independent 0.1% roll, separate from the
     // 10% line-win gate. The win gate controls line wins; scatters are gated here.
-    const forceWin = Math.random() < Math.min(0.95, (rtpRef.current / 100) + 0.08);
+    const forceWin = Math.random() < Math.min(0.95, (rtpRef.current / 100) - 0.05);
     const scatterHit = Math.random() < 0.001; // 0.1% — original rate
     let g = makeGrid();
     let ev0 = evaluate(g, b);
@@ -371,8 +371,8 @@ export default function SuperAceMachine() {
       // Multiplier gate: each extra cascade is increasingly unlikely to chain,
       // so higher multipliers (2×,3×,5×) trigger far less often.
       const stopChance = inFreeRef.current
-        ? [0, 0.02, 0.05, 0.10][Math.min(comboCount, 3)] || 0.18
-        : [0, 0.04, 0.08, 0.15][Math.min(comboCount, 3)] || 0.28;
+        ? [0, 0.06, 0.14, 0.26][Math.min(comboCount, 3)] || 0.40
+        : [0, 0.12, 0.24, 0.40][Math.min(comboCount, 3)] || 0.55;
       if (Math.random() < stopChance) {
         // shatter the winning cells and end the round without further cascades
         const shatterSet = new Set(ev.winCells);
