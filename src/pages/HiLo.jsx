@@ -9,6 +9,7 @@ import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { incBet, decBet } from '@/lib/betStepper';
 import { useMute } from '@/lib/soundMute';
+import { playDeal, playWin, playLoss, playCollect } from '@/lib/hiloSound';
 
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -168,6 +169,7 @@ export default function HiLo() {
     setStreak(0);
     setPhase('guessing');
     setMessage('Guess: Higher or Lower?');
+    playDeal();
   };
 
   const guess = (dir) => {
@@ -182,11 +184,13 @@ export default function HiLo() {
       setMessage(`Same rank — push lost! Card was ${RANKS[next.rank]}.`);
       setPot(0);
       logActivity('hi-lo', bet, 0, 'loss');
+      playLoss();
     } else if (correct) {
       const newPot = pot * 2;
       setPot(newPot);
       setStreak(s => s + 1);
       setMessage(`Correct! Pot is now $${newPot.toFixed(2)}. Continue or Collect.`);
+      playWin();
       setTimeout(() => {
         setCurrent(next);
         setRevealed(null);
@@ -196,6 +200,7 @@ export default function HiLo() {
       setMessage(`Wrong! The card was ${RANKS[next.rank]}. You lost the pot.`);
       setPot(0);
       logActivity('hi-lo', bet, 0, 'loss');
+      playLoss();
     }
   };
 
@@ -204,6 +209,7 @@ export default function HiLo() {
     setBalance(b => b + pot);
     setMessage(`Collected $${pot.toFixed(2)}!`);
     logActivity('hi-lo', bet, pot, 'win');
+    playCollect();
     setPot(0);
     setPhase('idle');
     setCurrent(null);
