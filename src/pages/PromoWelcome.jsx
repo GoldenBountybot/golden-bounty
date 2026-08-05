@@ -61,7 +61,7 @@ export default function PromoWelcome() {
         toast({ title: data?.error || 'Invalid promo code' });
       }
     } catch (e) {
-      toast({ title: e?.message || 'Failed to redeem promo code' });
+      toast({ title: e?.data?.error || e?.message || 'Failed to redeem promo code' });
     } finally {
       setLoading(false);
     }
