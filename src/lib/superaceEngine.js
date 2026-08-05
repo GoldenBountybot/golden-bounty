@@ -39,16 +39,29 @@ const WEIGHTS = {
   SC: 3,
 };
 
+// Cascade (multiplier) refill weights — high-value symbols even rarer so big
+// multipliers don't stack on A/K/Q/J lines. Suits dominate refills.
+const CASCADE_WEIGHTS = {
+  A: 1, K: 1, Q: 2, J: 2,
+  S: 28, H: 28, D: 28, C: 28,
+  SC: 1,
+};
+
 let _uid = 0;
 export function makeCell(forceSym) {
-  const sym = forceSym || weightedSym();
+  const sym = forceSym || weightedSym(WEIGHTS);
   return { sym, golden: false, id: ++_uid };
 }
 
-function weightedSym() {
-  const total = Object.values(WEIGHTS).reduce((a, b) => a + b, 0);
+export function makeCascadeCell() {
+  const sym = weightedSym(CASCADE_WEIGHTS);
+  return { sym, golden: false, id: ++_uid };
+}
+
+function weightedSym(weights) {
+  const total = Object.values(weights).reduce((a, b) => a + b, 0);
   let r = Math.random() * total;
-  for (const [s, w] of Object.entries(WEIGHTS)) {
+  for (const [s, w] of Object.entries(weights)) {
     if (r < w) return s;
     r -= w;
   }
@@ -133,7 +146,7 @@ export function cascade(g, winCells, goldenToWild) {
       if (r >= offset) {
         res[idx] = keepers[r - offset];
       } else {
-        res[idx] = makeCell();
+        res[idx] = makeCascadeCell();
       }
     }
   }
