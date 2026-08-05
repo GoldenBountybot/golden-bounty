@@ -34,7 +34,7 @@ export const GOLDEN_CHANCE = 0.20;
 // Reel-strip weights. Suits common, faces mid, A rarer, SCATTER rare.
 // WILD never spawns directly — it only appears via golden-card transformation.
 const WEIGHTS = {
-  A: 1, K: 1.5, Q: 2, J: 2.5,
+  A: 0.4, K: 0.6, Q: 0.9, J: 1.2,
   S: 24, H: 24, D: 24, C: 24,
   SC: 3,
 };
@@ -42,7 +42,7 @@ const WEIGHTS = {
 // Cascade (multiplier) refill weights — high-value symbols even rarer so big
 // multipliers don't stack on A/K/Q/J lines. Suits dominate refills.
 const CASCADE_WEIGHTS = {
-  A: 0.15, K: 0.15, Q: 0.3, J: 0.3,
+  A: 0.05, K: 0.05, Q: 0.1, J: 0.1,
   S: 30, H: 30, D: 30, C: 30,
   SC: 0.5,
 };
