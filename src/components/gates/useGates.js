@@ -250,7 +250,7 @@ export function useGates() {
   // free spins auto trigger
   useEffect(() => {
     if (freeSpinsActive && !spinning && freeSpins > 0 && !showFreeSpinStart) {
-      const t = setTimeout(() => spin(), turbo ? 800 : 1500);
+      const t = setTimeout(() => spin(), turbo ? 800 : 2000);
       return () => clearTimeout(t);
     }
     if (freeSpinsActive && freeSpins === 0) {

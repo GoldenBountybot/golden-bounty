@@ -34,18 +34,18 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
     // Banner multipliers only apply when a value symbol lands this tumble.
     if (mult > 0 && bannerBefore > 0) {
       setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'multiply' }), 400));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'banner' }), 800));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'result' }), 1150));
-      timers.current.push(setTimeout(() => setDisplay(null), 1500));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'multiply' }), 500));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'banner' }), 1000));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore, total, balTotal, phase: 'result' }), 1450));
+      timers.current.push(setTimeout(() => setDisplay(null), 2000));
     } else if (mult > 0) {
       setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'multiply' }), 450));
-      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'result' }), 950));
-      timers.current.push(setTimeout(() => setDisplay(null), 1500));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'multiply' }), 550));
+      timers.current.push(setTimeout(() => setDisplay({ amount, mult, bannerBefore: 0, total, balTotal, phase: 'result' }), 1150));
+      timers.current.push(setTimeout(() => setDisplay(null), 2000));
     } else {
       setDisplay({ amount, mult: 0, bannerBefore: 0, total: amount, balTotal, phase: 'amount' });
-      timers.current.push(setTimeout(() => setDisplay(null), 1500));
+      timers.current.push(setTimeout(() => setDisplay(null), 2000));
     }
   }, [winHistory, balance, winFlash]);
 
@@ -83,15 +83,16 @@ export default function GatesTumbleWinBanner({ winHistory, balance, winFlash }) 
       style={{ top: -58, left: '50%', transform: 'translateX(-50%)' }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
         animation: 'freeWinFloat 0.5s ease-out both' }}>
-        <span style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: 12,
-          color: display.phase === 'balance' ? '#b0e060' : '#ffe060',
-          letterSpacing: '0.1em',
-          textShadow: '0 0 10px rgba(255,200,0,0.9), 0 1px 2px rgba(0,0,0,0.85)' }}>
+        <span style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: 13,
+          color: display.phase === 'result' ? '#fff7a0' : '#ffe060',
+          letterSpacing: '0.12em',
+          textShadow: '0 0 12px rgba(255,200,0,1), 0 2px 3px rgba(0,0,0,0.9)' }}>
           {label}
         </span>
-        <span style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: 18,
-          color: '#ffe080', marginTop: 1,
-          textShadow: '0 0 12px rgba(255,200,0,0.95), 0 1px 2px rgba(0,0,0,0.85)',
+        <span style={{ fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: 24,
+          color: display.phase === 'result' ? '#fff8c0' : '#ffe080', marginTop: 2,
+          textShadow: '0 0 16px rgba(255,200,0,1), 0 0 28px rgba(255,160,0,0.85), 0 2px 3px rgba(0,0,0,0.9)',
+          WebkitTextStroke: '0.5px #5a3a0c',
           animation: display.phase === 'result' ? 'saWinPop 0.4s ease-out' : 'none' }}>
           {value}
         </span>
