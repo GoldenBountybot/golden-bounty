@@ -326,6 +326,9 @@ export function useWildBounty() {
           setTotalWinCountUp(true);
           setTotalWinDur(showdownDurMs * 0.9);
           setTotalWinKey(k => k + 1);
+          // Show the accumulated round total (all previous cascade wins +
+          // this one) counting up from 0, not just the last cascade's win.
+          setLastWin(totalWin);
         }
       }
       const fsEnding = wasFree && freeSpinsCountRef.current === 0 && freeSpinsTotalRef.current > 0;
