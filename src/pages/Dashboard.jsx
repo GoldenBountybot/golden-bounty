@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History, Menu, CheckCircle2, Clock, XCircle, Gift } from 'lucide-react';
+import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History, Menu, CheckCircle2, Clock, XCircle, Gift, ArrowLeftRight } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import { useStake, LOCK_DAYS } from '@/lib/useStake';
 import StackMining from '@/components/StackMining';
@@ -180,6 +180,14 @@ export default function Dashboard() {
                 </button>
               );
             })}
+            <button
+              onClick={() => { window.location.href = '/swap'; }}
+              title={t("Swap")}
+              className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95"
+              style={{ border: '1px solid rgba(212,175,55,0.22)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
+            >
+              <ArrowLeftRight className="w-4 h-4" /> {t("Swap")}
+            </button>
             {user?.role === 'admin' && (
               <button
                 onClick={() => { window.location.href = '/admin'; }}

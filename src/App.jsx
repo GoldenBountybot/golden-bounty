@@ -38,6 +38,7 @@ import Licenses from './pages/Licenses';
 import Faq from './pages/Faq';
 import Airdrop from './pages/Airdrop';
 import Referrals from './pages/Referrals';
+import Swap from './pages/Swap';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import BottomNavLayout from '@/components/BottomNavLayout';
 import AppLoadingImage from '@/components/AppLoadingImage';
@@ -118,6 +119,7 @@ const AuthenticatedApp = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/airdrop" element={<Airdrop />} />
           <Route path="/referrals" element={<Referrals />} />
+          <Route path="/swap" element={<Swap />} />
           <Route path="/notifications" element={<Notifications />} />
         </Route>
         <Route path="/admin" element={<Admin />} />
