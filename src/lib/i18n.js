@@ -1,6 +1,7 @@
-// 9 major languages with their local names and flag emoji.
+// 10 major languages with their local names and flag emoji.
 export const LANGUAGES = [
   { code: 'en', name: 'English', native: 'English', flag: '🇺🇸', dir: 'ltr' },
+  { code: 'de', name: 'German', native: 'Deutsch', flag: '🇩🇪', dir: 'ltr' },
   { code: 'hi', name: 'Hindi', native: 'हिन्दी', flag: '🇮🇳', dir: 'ltr' },
   { code: 'ar', name: 'Arabic', native: 'العربية', flag: '🇸🇦', dir: 'rtl' },
   { code: 'zh', name: 'Chinese', native: '中文', flag: '🇨🇳', dir: 'ltr' },
