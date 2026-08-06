@@ -46,38 +46,48 @@ export default function GatesFreeSpinEndBanner({ amount, onDone }) {
         style={{ animation: leaving
           ? 'gatesBannerFloat 1.0s ease-in forwards'
           : 'gatesBannerFloat 0.6s cubic-bezier(0.22,0.7,0.32,1) both' }}>
-        {/* ornate gold frame */}
+        {/* ornate banner image with centered text overlay */}
         <div style={{
-          padding: '18px 40px 14px',
+          position: 'relative',
+          width: 'min(92vw, 520px)',
+          aspectRatio: '2 / 1',
           borderRadius: 14,
-          background: 'linear-gradient(135deg, #3a1052, #1a0a38 60%, #3a1052)',
-          border: '3px solid #d4a93a',
-          boxShadow: '0 0 0 1px #7a4a08, 0 0 0 4px #f8d840, 0 0 0 5px #7a4a08, 0 8px 30px rgba(0,0,0,0.8), 0 0 40px rgba(200,136,10,0.4)',
+          overflow: 'hidden',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.8), 0 0 40px rgba(200,136,10,0.4)',
           textAlign: 'center',
         }}>
-          <div style={{
-            fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '22px',
-            color: '#ffe060', letterSpacing: '0.08em',
-            textShadow: '0 0 14px rgba(255,200,0,0.9), 0 2px 4px rgba(0,0,0,0.9)',
-          }}>
-            FREE SPINS COMPLETE
-          </div>
-          <div style={{
-            fontFamily: 'Georgia,serif', fontSize: '11px', fontWeight: 700,
-            color: '#c8a040', letterSpacing: '0.12em', marginTop: 4,
-          }}>
-            TOTAL WIN
-          </div>
-          <div style={{ marginTop: 6, position: 'relative' }}>
-            <span style={{
-              fontFamily: 'Georgia,serif', fontWeight: 900, fontSize: '34px',
-              color: '#ffe060', letterSpacing: '0.04em',
-              textShadow: '0 0 16px rgba(255,200,0,1), 0 0 28px rgba(255,160,0,0.8), 0 2px 4px rgba(0,0,0,0.9)',
-              animation: 'winCountPop 0.5s ease-out',
-              display: 'inline-block',
+          <img
+            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d5525b830_file_00000000e7fc8211826f062956600ef9.png"
+            alt="Free Spins Complete"
+            className="absolute inset-0 w-full h-full object-cover"
+            draggable={false}
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
+            <div style={{
+              fontFamily: 'Cinzel, Georgia, serif', fontWeight: 900, fontSize: 'clamp(16px, 4.2vw, 26px)',
+              color: '#ffe066', letterSpacing: '0.1em',
+              textShadow: '0 0 14px rgba(255,200,0,0.95), 0 0 26px rgba(255,160,0,0.7), 0 2px 5px rgba(0,0,0,0.95)',
             }}>
-              {fmt(count)}
-            </span>
+              FREE SPINS COMPLETE
+            </div>
+            <div style={{
+              fontFamily: 'Cinzel, Georgia, serif', fontSize: 'clamp(10px, 2.6vw, 13px)', fontWeight: 700,
+              color: '#e8c878', letterSpacing: '0.18em', marginTop: 6,
+              textShadow: '0 1px 3px rgba(0,0,0,0.9)',
+            }}>
+              TOTAL WIN
+            </div>
+            <div style={{ marginTop: 8, position: 'relative' }}>
+              <span style={{
+                fontFamily: 'Cinzel, Georgia, serif', fontWeight: 900, fontSize: 'clamp(28px, 7.5vw, 44px)',
+                color: '#ffe066', letterSpacing: '0.04em',
+                textShadow: '0 0 16px rgba(255,200,0,1), 0 0 30px rgba(255,160,0,0.85), 0 2px 5px rgba(0,0,0,0.95)',
+                animation: 'winCountPop 0.5s ease-out',
+                display: 'inline-block',
+              }}>
+                {fmt(count)}
+              </span>
+            </div>
           </div>
         </div>
       </div>
