@@ -49,7 +49,9 @@ function nameForIndex(idx) {
 // is unique within the round (drawn without replacement from 20,000 handles).
 function genLiveBets(roundId) {
   const rnd = mulberry32((roundId || 1) * 2654435761);
-  const n = 300 + Math.floor(rnd() * 61); // 300–360 players
+  // 200–1200 players per round with a bias toward lower counts so most
+  // rounds sit around 200–500, with occasional spikes up to 1200+.
+  const n = 200 + Math.floor(Math.pow(rnd(), 1.6) * 1001);
 
   // Random descending amounts with random gaps: split the $500→$0.10 range
   // into n-1 random-weighted slices so gaps vary (e.g. 500, 485, 464, …).
