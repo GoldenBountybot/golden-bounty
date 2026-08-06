@@ -7,9 +7,13 @@ function colorFor(m) {
 }
 
 export default function LiveBets({ bets }) {
-  const sorted = useMemo(() =>
-    [...bets].sort((a, b) => (b.cashedOut ? 1 : 0) - (a.cashedOut ? 1 : 0) || b.amount - a.amount),
-    [bets]);
+  // Player's own bets always render at the top; the rest follow in descending
+  // bet-amount order ($500 → $0.10).
+  const sorted = useMemo(() => {
+    const player = bets.filter((b) => b.isPlayer).sort((a, b) => b.amount - a.amount);
+    const rest = bets.filter((b) => !b.isPlayer).sort((a, b) => b.amount - a.amount);
+    return [...player, ...rest];
+  }, [bets]);
   const totalAmount = useMemo(() => bets.reduce((s, b) => s + b.amount, 0), [bets]);
 
   return (
@@ -25,7 +29,7 @@ export default function LiveBets({ bets }) {
       <div className="overflow-y-auto flex-1 min-h-0">
         {sorted.map(b => (
           <div key={b.id} className="grid grid-cols-3 gap-1 px-3 py-1.5 text-xs border-b border-white/5">
-            <span className="truncate text-indigo-100/80">{b.name}</span>
+            <span className={`truncate ${b.isPlayer ? 'text-indigo-200 font-bold' : 'text-indigo-100/80'}`}>{b.name}</span>
             <span className="text-right tabular-nums text-indigo-100/70">${b.amount.toFixed(2)}</span>
             {b.cashedOut ? (
               <span className={`text-right font-bold tabular-nums ${colorFor(b.cashOutAt)}`}>

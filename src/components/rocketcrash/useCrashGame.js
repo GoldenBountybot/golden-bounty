@@ -9,9 +9,14 @@ const GROWTH = 1.10;         // multiplier = GROWTH ^ elapsedSec
 const POLL_MS = 1000;        // how often we sync with the shared round
 
 const NAMES = ['Crypto_Kid', 'xX_Rider', 'FlyHigh', 'AcePilot', 'Midnight', 'BlueFox',
-  'GoldRush', 'NeonSam', 'QuickDraw', 'Vega', 'Lucky7', 'Storm', 'Maverick', 'Phoenix',
+  'GoldRush', 'NeonSam', 'QuickDraw', 'Vega', 'Storm', 'Maverick', 'Phoenix',
   'Zara', 'Rex', 'Nova', 'Dynamo', 'Blaze', 'Echo', 'Hawk', 'Iris', 'Jett', 'Kilo',
-  'Luna', 'Onyx', 'Pixel', 'Quartz', 'Raven', 'Sable', 'Tango', 'Viper'];
+  'Luna', 'Onyx', 'Pixel', 'Quartz', 'Raven', 'Sable', 'Tango', 'Viper',
+  'Aero', 'Bolt', 'Comet', 'Drift', 'Ember', 'Frost', 'Gem', 'Halo', 'Ice', 'Jet',
+  'Knox', 'Lync', 'Mirage', 'Nyx', 'Orbit', 'Prism', 'Quest', 'Rune', 'Shade', 'Trace',
+  'Volt', 'Wisp', 'Zen', 'Apex', 'Brio', 'Cipher', 'Dex', 'Flux', 'Glide', 'Hex',
+  'Indigo', 'Jinx', 'Karma', 'Lyric', 'Mint', 'Nash', 'Pax', 'Quill', 'Riff', 'Sky',
+  'Tide', 'Vex', 'Whim', 'Yarn', 'Zest', 'Ash', 'Bram', 'Cove', 'Dusk', 'Fern'];
 
 // Deterministic PRNG so every user sees the same fake live-bet list per round.
 function mulberry32(a) {
@@ -23,15 +28,19 @@ function mulberry32(a) {
   };
 }
 
+// Generate 200+ fake live bets with amounts strictly descending from $500 to $0.10.
+// Names are plain handles (no trailing numbers).
 function genLiveBets(roundId) {
   const rnd = mulberry32((roundId || 1) * 2654435761);
-  const n = 10 + Math.floor(rnd() * 16);
+  const n = 200 + Math.floor(rnd() * 61); // 200–260 players
+  const vals = Array.from({ length: n }, () => rnd());
+  vals.sort((a, b) => b - a);
   const arr = [];
   for (let i = 0; i < n; i++) {
     arr.push({
       id: roundId + '-' + i,
-      name: NAMES[Math.floor(rnd() * NAMES.length)] + (Math.floor(rnd() * 900) + 100),
-      amount: +(rnd() * 95 + 1).toFixed(2),
+      name: NAMES[Math.floor(rnd() * NAMES.length)],
+      amount: +(0.10 + vals[i] * (500 - 0.10)).toFixed(2),
       cashOutAt: +(1.15 + rnd() * 9).toFixed(2),
       cashedOut: false,
       win: 0,
@@ -67,6 +76,14 @@ export function useCrashGame() {
   const crashPointRef = useRef(1);
   const lastCountdownRef = useRef(WAIT_MS);
   const loggedRoundRef = useRef(0);
+  const playerNameRef = useRef('You');
+
+  // Fetch the player's display name once so their bet shows at the top of the list.
+  useEffect(() => {
+    base44.auth.me()
+      .then((u) => { playerNameRef.current = u?.username || u?.full_name || 'You'; })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => { betsRef.current = bets; }, [bets]);
   useEffect(() => { liveRef.current = liveBets; }, [liveBets]);
@@ -84,6 +101,26 @@ export function useCrashGame() {
   }, [phase]);
 
   useEffect(() => () => stopFlying(), []);
+
+  // Rebuild the player's own entries in the live-bet list from placed panels,
+  // so the user's name always appears at the top when they have an active bet.
+  const syncPlayerEntries = useCallback(() => {
+    const rest = liveRef.current.filter((lb) => !lb.isPlayer);
+    const playerEntries = betsRef.current
+      .map((b, i) => ({ b, i }))
+      .filter((x) => x.b.placed)
+      .map((x) => ({
+        id: 'player-' + x.i,
+        name: playerNameRef.current,
+        amount: x.b.amount,
+        cashedOut: x.b.cashedOut,
+        cashOutMult: x.b.cashOutMult,
+        win: x.b.win,
+        isPlayer: true,
+      }));
+    liveRef.current = [...playerEntries, ...rest];
+    setLiveBets(liveRef.current);
+  }, []);
 
   // Apply a snapshot of the shared round coming from the server.
   const applyState = useCallback((data) => {
@@ -113,6 +150,8 @@ export function useCrashGame() {
 
       liveRef.current = genLiveBets(data.round_id);
       setLiveBets(liveRef.current);
+      // Re-insert the player's auto-bet entries at the top of the fresh list.
+      syncPlayerEntries();
 
       setHistory(data.history || []);
 
@@ -217,7 +256,7 @@ export function useCrashGame() {
           }
           return b;
         });
-        if (changed) { betsRef.current = next; setBets(next); setBalance((bal) => bal + balAdd); }
+        if (changed) { betsRef.current = next; setBets(next); setBalance((bal) => bal + balAdd); syncPlayerEntries(); }
 
         // auto cashout — shared live bets
         let lbChanged = false;
@@ -252,6 +291,7 @@ export function useCrashGame() {
     const next = betsRef.current.map((bb, idx) => (idx === i ? { ...bb, placed: true } : bb));
     betsRef.current = next;
     setBets(next);
+    syncPlayerEntries();
   };
 
   const cancelBet = (i) => {
@@ -263,6 +303,7 @@ export function useCrashGame() {
     const next = betsRef.current.map((bb, idx) => (idx === i ? { ...bb, placed: false } : bb));
     betsRef.current = next;
     setBets(next);
+    syncPlayerEntries();
   };
 
   const cashOut = (i) => {
@@ -277,6 +318,7 @@ export function useCrashGame() {
       (idx === i ? { ...bb, cashedOut: true, cashOutMult: +m.toFixed(2), win } : bb));
     betsRef.current = next;
     setBets(next);
+    syncPlayerEntries();
   };
 
   const setAmount = (i, amt) => {
