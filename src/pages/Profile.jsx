@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   User as UserIcon, Phone, Hash, LogOut, Loader2, Check,
   Wallet, ArrowDownToLine, ArrowUpFromLine, Crown, Gamepad2, Copy, Coins, History,
-  Menu, Pencil, Ticket, Gift, Users, Sparkles, Clock, CheckCircle2, XCircle,
+  Menu, Pencil, Ticket, Gift, Users, Sparkles, Clock, CheckCircle2, XCircle, Headphones,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -14,6 +14,7 @@ import AnimatedNumber from '@/components/AnimatedNumber';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/lib/LanguageContext';
 import TaskSystem from '@/components/TaskSystem';
+import SupportPanel from '@/components/SupportPanel';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -233,6 +234,11 @@ export default function Profile() {
                 style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
                 <Users className="w-4 h-4" style={{ color: '#D4AF37' }} /> {t("Referrals")}
               </Link>
+              <button onClick={() => { setView('support'); setMenuOpen(false); }}
+                className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
+                style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
+                <Headphones className="w-4 h-4" style={{ color: '#34d399' }} /> {t("Support")}
+              </button>
               <div className="px-3 py-2.5" style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
                 <LanguageSwitcher />
               </div>
@@ -461,6 +467,20 @@ export default function Profile() {
                 <span className="font-bold tabular-nums text-sm shrink-0" style={{ color: '#34d399' }}>+${Number(r.amount).toFixed(2)}</span>
               </div>
             ))}
+          </div>
+        )}
+
+        {view === 'support' && (
+          <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+            <div className="flex items-center justify-between">
+              <button onClick={() => setView('profile')} className="flex items-center gap-1.5 text-sm font-bold" style={{ color: '#D4AF37' }}>
+                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+                {t("Back")}
+              </button>
+              <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>{t("Support")}</h3>
+              <div className="w-12" />
+            </div>
+            <SupportPanel />
           </div>
         )}
 
