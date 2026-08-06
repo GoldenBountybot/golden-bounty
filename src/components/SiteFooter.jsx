@@ -23,7 +23,7 @@ export default function SiteFooter() {
           Dubai-based platform · Licensed by BDS INFO S.A. under CONAJZAR Resolution No. 07/2026 (31 January 2026).<br />
           Certificate issued 24 April 2026. Authorized for markets outside the territory of Paraguay.
         </p>
-        <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
+        <p className="text-[11px] font-bold" style={{ color: 'rgba(255,255,255,0.6)' }}>
           24/7 Support · 18+ Only · Gamble Responsibly
         </p>
         <nav className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5">
