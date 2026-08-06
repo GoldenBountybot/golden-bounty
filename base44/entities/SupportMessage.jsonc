@@ -35,6 +35,11 @@
       "default": "message",
       "description": "Control marker for the agent handoff flow. 'message' = normal chat; others mark handoff events."
     },
+    "show_agent_button": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true (bot messages only), renders a 'Connect with Agent' button below this message"
+    },
     "read": {
       "type": "boolean",
       "default": false,

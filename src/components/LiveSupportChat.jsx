@@ -83,7 +83,7 @@ export default function LiveSupportChat() {
       if (agentStatus === 'none') {
         setBotTyping(true);
         try {
-          const reply = await getBotReply(trimmed, messages);
+          const { reply, wantsAgent } = await getBotReply(trimmed, messages);
           if (reply) {
             await base44.entities.SupportMessage.create({
               user_id: user.id,
@@ -91,6 +91,7 @@ export default function LiveSupportChat() {
               sender: 'bot',
               text: reply,
               kind: 'message',
+              show_agent_button: wantsAgent && agentStatus === 'none',
             });
           }
         } finally {
@@ -186,7 +187,7 @@ export default function LiveSupportChat() {
           <div className="flex flex-col items-center justify-center py-10 gap-2 text-center">
             <img src={BOT_LOGO} alt="Bounty Bot" className="w-14 h-14 rounded-full object-cover" style={{ boxShadow: '0 0 14px rgba(99,102,241,0.4)', border: '2px solid rgba(129,140,248,0.5)' }} />
             <p className="text-[13px] font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>{t('Hi! I\'m Bounty Bot 🤖')}</p>
-            <p className="text-[11px] max-w-[260px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{t('Ask me anything about games, deposits, withdrawals, VIP, or referrals. Want a human? Tap "Connect with Agent".')}</p>
+            <p className="text-[11px] max-w-[260px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{t('Ask me anything about games, deposits, withdrawals, VIP, or referrals. Want a human? Just ask me to connect you with an agent.')}</p>
           </div>
         ) : (
           <>
@@ -203,7 +204,7 @@ export default function LiveSupportChat() {
               const isUser = m.sender === 'user';
               const isBot = m.sender === 'bot';
               return (
-                <div key={m.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+                <div key={m.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'} ${m.show_agent_button && isBotMode ? 'flex-col items-start' : ''}`}>
                   <div
                     className="max-w-[80%] px-3.5 py-2 rounded-2xl"
                     style={{
@@ -228,6 +229,15 @@ export default function LiveSupportChat() {
                       {m.created_date ? new Date(m.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                     </p>
                   </div>
+                  {m.show_agent_button && isBotMode && (
+                    <button
+                      onClick={requestAgent}
+                      className="mt-1.5 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[11px] font-bold transition-all active:scale-95"
+                      style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(129,140,248,0.45)', color: '#a5b4fc' }}
+                    >
+                      <Plug className="w-3 h-3" /> {t('Connect with Agent')}
+                    </button>
+                  )}
                 </div>
               );
             })}
@@ -248,18 +258,7 @@ export default function LiveSupportChat() {
 
       {/* Action bar + input area */}
       <div className="rounded-b-2xl shrink-0" style={{ border: '1px solid rgba(212,175,55,0.35)', borderTop: 'none', background: 'rgba(13,13,13,0.6)' }}>
-        {/* Agent connect / status bar */}
-        {isBotMode && (
-          <div className="px-3 pt-3">
-            <button
-              onClick={requestAgent}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-bold transition-all active:scale-95"
-              style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(129,140,248,0.45)', color: '#a5b4fc' }}
-            >
-              <Plug className="w-3.5 h-3.5" /> {t('Connect with Agent')}
-            </button>
-          </div>
-        )}
+        {/* Agent status bar — only shown when waiting or connected, not in bot mode */}
         {isWaiting && (
           <div className="px-3 pt-3">
             <div className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-bold" style={{ background: 'rgba(251,146,60,0.12)', border: '1px solid rgba(251,146,60,0.4)', color: '#fb923c' }}>
