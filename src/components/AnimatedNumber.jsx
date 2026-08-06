@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 // Displays a number that counts up smoothly when the value increases
 // (e.g. a win added to the balance). On decrease (bet placed) it snaps
 // instantly so bets don't visually "uncount".
-export default function AnimatedNumber({ value, duration = 750, prefix = '', suffix = '', decimals = 2, className }) {
+export default function AnimatedNumber({ value, duration = 750, prefix = '', suffix = '', decimals = 2, className, style }) {
   const [display, setDisplay] = useState(() => Number(value) || 0);
   const rafRef = useRef(null);
 
@@ -30,5 +30,5 @@ export default function AnimatedNumber({ value, duration = 750, prefix = '', suf
   }, [value]);
 
   const text = prefix + (Number.isFinite(display) ? display.toFixed(decimals) : (0).toFixed(decimals)) + suffix;
-  return <span className={className} style={{ fontVariantNumeric: 'tabular-nums' }}>{text}</span>;
+  return <span className={className} style={{ fontVariantNumeric: 'tabular-nums', ...style }}>{text}</span>;
 }

@@ -27,6 +27,7 @@ import PromoWelcome from './pages/PromoWelcome';
 import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
+import HistoryPage from './pages/HistoryPage';
 import Notifications from './pages/Notifications';
 import PayMethod from './pages/PayMethod';
 import Withdraw from './pages/Withdraw';
@@ -126,6 +127,7 @@ const AuthenticatedApp = () => {
           <Route path="/pay" element={<PayMethod />} />
           <Route path="/withdraw" element={<Withdraw />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/history" element={<HistoryPage />} />
           <Route path="/airdrop" element={<Airdrop />} />
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/swap" element={<Swap />} />

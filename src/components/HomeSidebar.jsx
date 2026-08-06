@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Wallet, Layers, Grid2x2, Spade, Dices, Gamepad2 } from 'lucide-react';
+import { Wallet, Layers, Grid2x2, Spade, Dices, Gamepad2, History } from 'lucide-react';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -66,6 +66,13 @@ export default function HomeSidebar({ cat, setCat, categories }) {
             style={{ background: 'linear-gradient(135deg,#FFD700,#C89B3C)', color: '#1a1408' }}
           >
             <Layers className="w-3.5 h-3.5" /> {t('Staking Plan')}
+          </Link>
+          <Link
+            to="/history"
+            className="mt-2 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all hover:brightness-110"
+            style={{ border: '1px solid rgba(212,175,55,0.35)', background: 'rgba(20,17,13,0.6)', color: '#e8c878' }}
+          >
+            <History className="w-3.5 h-3.5" /> {t('History')}
           </Link>
         </div>
       </div>
