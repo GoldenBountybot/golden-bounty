@@ -29,13 +29,13 @@ export default function SupportPanel() {
           rel="noopener noreferrer"
           title={c.label}
           className="transition-transform active:scale-90 hover:scale-105"
-          style={{ width: 64, height: 64 }}
+          style={{ width: 44, height: 44 }}
         >
           <img
             src={c.img}
             alt={c.label}
             className="w-full h-full object-contain"
-            style={{ borderRadius: 16 }}
+            style={{ borderRadius: 12 }}
           />
         </a>
       ))}
