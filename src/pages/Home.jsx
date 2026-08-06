@@ -113,11 +113,19 @@ export default function Home() {
             <NotificationBell />
             <Link
               to="/dashboard"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[8px] transition-colors"
-              style={{ border: demoMode ? '1px solid rgba(74,222,128,0.6)' : '1px solid rgba(214,178,98,0.45)', background: demoMode ? 'rgba(34,197,94,0.12)' : 'rgba(20,17,13,0.6)' }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-all active:scale-95"
+              style={{
+                border: demoMode ? '1px solid rgba(74,222,128,0.6)' : '1px solid rgba(214,178,98,0.5)',
+                background: demoMode
+                  ? 'linear-gradient(135deg, rgba(6,78,59,0.92), rgba(2,44,31,0.95))'
+                  : 'linear-gradient(135deg, rgba(28,25,23,0.92), rgba(10,9,8,0.95))',
+                boxShadow: demoMode
+                  ? '0 2px 10px rgba(0,0,0,0.6), 0 0 10px rgba(52,211,153,0.22), inset 0 1px 0 rgba(255,255,255,0.10)'
+                  : '0 2px 10px rgba(0,0,0,0.6), 0 0 8px rgba(214,178,98,0.18), inset 0 1px 0 rgba(255,255,255,0.08)',
+              }}
             >
-              <Wallet className="w-4 h-4 text-amber-400" />
-              <span className="text-xs font-black italic text-yellow-100 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>
+              <Wallet className={`w-4 h-4 ${demoMode ? 'text-emerald-300' : 'text-amber-400'}`} style={{ filter: demoMode ? 'drop-shadow(0 0 3px rgba(52,211,153,0.6))' : 'drop-shadow(0 0 3px rgba(214,178,98,0.5))' }} />
+              <span className="text-xs font-bold tabular-nums" style={{ fontFamily: "'Inter', system-ui, sans-serif", color: demoMode ? '#6ee7b7' : '#e8c878' }}>
                 ${balance.toFixed(2)}
               </span>
             </Link>
