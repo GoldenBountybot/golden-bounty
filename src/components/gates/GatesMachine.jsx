@@ -18,6 +18,7 @@ import {
   playReelDropSound, playScatterDropSound, playMultLand,
   playUIClick, playButtonPress, playButtonHover,
 } from '@/lib/gatesSound';
+import { startBgMusic, stopBgMusic } from '@/lib/gatesBackgroundMusic';
 
 const REELS = 6;
 const ROWS = 5;
@@ -87,6 +88,12 @@ export default function GatesMachine() {
   }, [dropTick, g.turbo]);
 
   useEffect(() => () => { revealTimers.current.forEach(clearTimeout); }, []);
+
+  // Start premium luxury background music on mount; stop on unmount.
+  useEffect(() => {
+    startBgMusic();
+    return () => stopBgMusic();
+  }, []);
 
   const {
     grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells, winFlash,
