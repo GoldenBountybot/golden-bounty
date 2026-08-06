@@ -15,13 +15,25 @@
       "type": "string",
       "enum": [
         "user",
-        "admin"
+        "admin",
+        "bot"
       ],
       "default": "user",
-      "description": "Who sent this message"
+      "description": "Who sent this message: user, admin, or the AI bot"
     },
     "text": {
       "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "message",
+        "agent_request",
+        "agent_connected",
+        "agent_ended"
+      ],
+      "default": "message",
+      "description": "Control marker for the agent handoff flow. 'message' = normal chat; others mark handoff events."
     },
     "read": {
       "type": "boolean",

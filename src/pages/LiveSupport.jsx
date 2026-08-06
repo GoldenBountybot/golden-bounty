@@ -1,5 +1,5 @@
 import React from 'react';
-import { Headphones } from 'lucide-react';
+import { Bot } from 'lucide-react';
 import LiveSupportChat from '@/components/LiveSupportChat';
 import BackButton from '@/components/BackButton';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -9,18 +9,18 @@ const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-
 export default function LiveSupport() {
   const { t } = useLanguage();
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'radial-gradient(circle at 50% 0%, #1a1408 0%, #0a0908 60%)', fontFamily: SANS }}>
+    <div className="flex flex-col h-screen" style={{ background: 'radial-gradient(circle at 50% 0%, #1a1408 0%, #0a0908 60%)', fontFamily: SANS }}>
       {/* Header */}
       <header
-        className="sticky top-0 z-20 backdrop-blur-xl"
+        className="sticky top-0 z-20 backdrop-blur-xl shrink-0"
         style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
         <div className="flex items-center justify-between px-4 py-3">
           <BackButton href="/profile" label={t('Back')} />
           <div className="flex items-center gap-2">
             <div className="flex items-center justify-center w-8 h-8 rounded-full"
-              style={{ background: 'linear-gradient(135deg, #FFD700, #C89B3C)', boxShadow: '0 0 10px rgba(212,175,55,0.3)' }}>
-              <Headphones className="w-4 h-4" style={{ color: '#1a1408' }} />
+              style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)', boxShadow: '0 0 10px rgba(99,102,241,0.3)' }}>
+              <Bot className="w-4 h-4" style={{ color: '#fff' }} />
             </div>
             <h1 className="text-base font-bold" style={{ color: '#D4AF37', fontFamily: 'Georgia, serif' }}>{t('Live Support')}</h1>
           </div>
@@ -28,8 +28,8 @@ export default function LiveSupport() {
         </div>
       </header>
 
-      {/* Chat body */}
-      <main className="flex-1 flex flex-col justify-center max-w-2xl w-full mx-auto px-4 py-6">
+      {/* Chat body — fills the rest of the viewport up to the header */}
+      <main className="flex-1 min-h-0 max-w-2xl w-full mx-auto px-4 py-4 pb-[env(safe-area-inset-bottom)]">
         <LiveSupportChat />
       </main>
     </div>
