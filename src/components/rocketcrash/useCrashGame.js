@@ -67,7 +67,7 @@ function genLiveBets(roundId) {
     let idx;
     do { idx = Math.floor(rnd() * NAME_SPACE); } while (used.has(idx));
     used.add(idx);
-    const amt = +(0.10 + (maxAmt - 0.10) * Math.pow(rnd(), 3)).toFixed(2);
+    const amt = +(0.10 + (maxAmt - 0.10) * Math.pow(rnd(), 5)).toFixed(2);
     arr.push({
       id: roundId + '-' + i,
       name: nameForIndex(idx),
