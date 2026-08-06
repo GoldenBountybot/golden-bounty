@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 // Knowledge base about the Golden Bounty platform that the AI support bot
 // uses to answer user questions intelligently. The bot must NEVER discuss
 // winning chances, RTP, odds, or guarantee wins.
-const SITE_CONTEXT = `You are "Bounty Bot", the automated support assistant for the Golden Bounty online casino & gaming platform (website: Golden Bounty). You help users with questions about the site's features, games, deposits, withdrawals, account, VIP, referrals, and airdrop. Reply in the SAME language the user writes. Supported languages: Bengali (বাংলা), English, Hindi (हिन्दी), Arabic (العربية), Urdu (اردو), Spanish (Español), Portuguese (Português), French (Français), German (Deutsch), Chinese (中文).
+const SITE_CONTEXT = `You are "Bounty Bot", the automated support assistant for the Golden Bounty online casino & gaming platform (website: Golden Bounty). You help users with questions about the site's features, games, deposits, withdrawals, account, VIP, referrals, and airdrop. Reply in the SAME language the user writes. Supported languages: English, Hindi (हिन्दी), Arabic (العربية), Urdu (اردو), Spanish (Español), Portuguese (Português), French (Français), German (Deutsch), Chinese (中文).
 
 ABOUT THE PLATFORM:
 - Golden Bounty is a crypto casino with slot games, crash games, and a Hi-Lo card game.
@@ -60,20 +60,18 @@ RULES:
 - NEVER mention or discuss the number of users, player count, total users, active users, or any platform statistics about how many people use the site. If asked, politely say you don't have that information and redirect to the user's question about features.`;
 
 // Keywords that indicate the user wants to talk to a human agent.
-// English uses \b word boundaries; Bengali is matched without \b since
-// \b doesn't work with Bengali Unicode characters.
+// English uses \b word boundaries.
 const AGENT_INTENT_EN = /\b(agent|human|live|real person|real human|support team|admin|manager|someone|talk to a person|customer service|help desk)\b/i;
-const AGENT_INTENT_BN = /(এজেন্ট|মানুষ|সাপোর্ট|এডমিন|প্রতিনিধি|কর্মী|কথা বল|এজেন্টের|এডমিনের|সাপোর্টে|এজেন্টে|এডমিনে|সাপোর্টের)/i;
 
 // Also detect if the bot's reply itself offers to connect the user with an
 // agent — the LLM may understand the intent even without exact keywords.
-const BOT_AGENT_OFFER = /(connect.{0,20}agent|agent.{0,20}connect|human|live agent|real person|এজেন্ট|সাপোর্ট|এডমিন|প্রতিনিধি)/i;
+const BOT_AGENT_OFFER = /(connect.{0,20}agent|agent.{0,20}connect|human|live agent|real person)/i;
 
 // Returns { reply, wantsAgent } for a given user message.
 // wantsAgent=true signals the caller to show a "Connect with Agent" button
 // below the bot's reply.
 export async function getBotReply(userMessage, history = []) {
-  const userWantsAgent = AGENT_INTENT_EN.test(userMessage) || AGENT_INTENT_BN.test(userMessage);
+  const userWantsAgent = AGENT_INTENT_EN.test(userMessage);
 
   const recent = history
     .slice(-6)
@@ -87,7 +85,7 @@ ${recent || '(start of conversation)'}
 
 User: ${userMessage}
 
-CRITICAL: Reply in the EXACT same language the user just wrote in — Bengali, English, Hindi, Arabic, Urdu, Spanish, Portuguese, French, German, or Chinese. Detect the language from the user's message and reply in that same language. Never mix languages. Keep it concise (2-4 sentences).
+CRITICAL: Reply in the EXACT same language the user just wrote in — English, Hindi, Arabic, Urdu, Spanish, Portuguese, French, German, or Chinese. Detect the language from the user's message and reply in that same language. Never mix languages. Keep it concise (2-4 sentences).
 
 Reply as Bounty Bot:`;
 
