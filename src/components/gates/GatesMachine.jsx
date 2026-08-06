@@ -289,9 +289,9 @@ export default function GatesMachine() {
                             <div key={animKey} className="relative w-full h-full"
                               style={{ animation: isScatterGlow ? 'gatesScatterGlow 0.9s ease-in-out infinite'
                                 : isShatter
-                                ? `shatterWin ${g.turbo ? 0.24 : 0.4}s ease-out forwards`
-                                : isWin ? `gatesMatchGrow ${g.turbo ? 0.18 : 0.25}s ease-out forwards`
-                                : dropAnim ? `gatesDrop ${g.turbo ? 0.18 : 0.26}s cubic-bezier(0.22,0.7,0.32,1) both` : 'none',
+                                ? `shatterWin ${g.turbo ? 0.3 : 0.58}s ease-out forwards`
+                                : isWin ? `gatesMatchGrow ${g.turbo ? 0.22 : 0.35}s ease-out forwards`
+                                : dropAnim ? `gatesDrop ${g.turbo ? 0.24 : 0.36}s cubic-bezier(0.22,0.7,0.32,1) both` : 'none',
                                 willChange: (isShatter || isWin || dropAnim || isScatterGlow) ? 'transform, opacity' : 'auto',
                                 transform: (isShatter || isWin || dropAnim || isScatterGlow) ? 'translateZ(0)' : 'none' }}>
                               <GatesSymbol sym={sym} highlight={isWin || isScatterGlow} />

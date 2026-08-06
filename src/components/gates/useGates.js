@@ -118,9 +118,10 @@ export function useGates() {
     });
     if (freeMode) runningMultRef.current = result.newRunningMult;
 
-    const hold = turbo ? 180 : 300;        // winners grow big, then blast quickly
-    const shatterDur = turbo ? 240 : 420;  // winners blast away
+    const hold = turbo ? 260 : 520;        // winners grow big — longer so the match is clearly visible before the blast
+    const shatterDur = turbo ? 300 : 580;  // winners blast away — smoother, more dramatic
     const firstGap = turbo ? 360 : 660;    // reels stop, first grid drops in
+    const refillGap = turbo ? 60 : 140;    // brief empty pause after the blast before new symbols drop in
     let acc = 0;
     let runningWin = 0;
     let multSeen = 0; // sum of multipliers revealed so far across tumbles
@@ -180,10 +181,11 @@ export function useGates() {
         timers.current.push(setTimeout(() => setShatter(tb.winPositions), acc));
         acc += shatterDur;
         if (i < lastIdx) {
-          timers.current.push(setTimeout(() => {
-            setShatter(new Set());
-            setWinPositions(new Set());
-          }, acc));
+          // Keep the shattered cells invisible (shatter forwards-fill holds
+          // opacity 0) during the refill gap so the player clearly sees the
+          // empty cells before the new symbols drop in smoothly. The next
+          // tumble's timeout clears shatter and sets the new grid together.
+          acc += refillGap;
           // Extend the gap after a winning tumble with multipliers so every
           // multiplier chip's flying animation plays before the next tumble.
           if (tb.multipliers.length) {
@@ -198,6 +200,8 @@ export function useGates() {
     acc += turbo ? 200 : 320;
     timers.current.push(setTimeout(() => {
       clearPendingRound('gates-of-olympus');
+      setShatter(new Set());
+      setWinPositions(new Set());
       const win = result.spinWin;
       if (win > 0) {
         setBalance((b) => b + win);
