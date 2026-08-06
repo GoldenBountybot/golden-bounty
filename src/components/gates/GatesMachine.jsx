@@ -291,8 +291,8 @@ export default function GatesMachine() {
                                 ? `shatterWin ${g.turbo ? 0.3 : 0.58}s ease-out forwards`
                                 : isWin ? `gatesMatchGrow ${g.turbo ? 0.22 : 0.35}s ease-out forwards`
                                 : dropAnim ? `gatesDrop ${g.turbo ? 0.24 : 0.36}s cubic-bezier(0.22,0.7,0.32,1) both` : 'none',
-                                willChange: (isShatter || isWin || dropAnim || isScatterGlow) ? 'transform, opacity' : 'auto',
-                                transform: (isShatter || isWin || dropAnim || isScatterGlow) ? 'translateZ(0)' : 'none' }}>
+                                willChange: (isShatter || isWin || isScatterGlow) ? 'transform, opacity' : 'auto',
+                                transform: (isShatter || isWin || isScatterGlow) ? 'translateZ(0)' : 'none' }}>
                               <GatesSymbol sym={sym} highlight={isWin || isScatterGlow} />
                               {symIsMult && (
                                 <GatesMultReveal
