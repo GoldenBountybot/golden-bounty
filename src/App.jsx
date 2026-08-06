@@ -44,6 +44,8 @@ import BottomNavLayout from '@/components/BottomNavLayout';
 import AppLoadingImage from '@/components/AppLoadingImage';
 import { LanguageProvider } from '@/lib/LanguageContext';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
+import { preloadAssets } from '@/lib/assetPreloader';
+import { APP_ASSETS } from '@/lib/appAssets';
 
 const MIN_SPLASH_MS = 3500;
 
@@ -55,6 +57,7 @@ const AuthenticatedApp = () => {
   // image has finished downloading AND a minimum splash duration has elapsed,
   // so users actually see it instead of a flash.
   const [imgReady, setImgReady] = useState(false);
+  const [assetsReady, setAssetsReady] = useState(false);
   const [minDone, setMinDone] = useState(false);
 
   useEffect(() => {
@@ -62,11 +65,14 @@ const AuthenticatedApp = () => {
     img.onload = () => setImgReady(true);
     img.onerror = () => setImgReady(true); // don't trap the user on a failed image
     img.src = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5cc61204f_InShot_20260722_115033604.jpg';
+    // Preload ALL app-wide images (banners, icons, backgrounds) during the
+    // splash so every page renders instantly with no visible downloading.
+    preloadAssets(APP_ASSETS).then(() => setAssetsReady(true));
     const t = setTimeout(() => setMinDone(true), MIN_SPLASH_MS);
     return () => clearTimeout(t);
   }, []);
 
-  const showSplash = loading || !imgReady || !minDone;
+  const showSplash = loading || !imgReady || !assetsReady || !minDone;
 
   if (showSplash) {
     return <AppLoadingImage />;
