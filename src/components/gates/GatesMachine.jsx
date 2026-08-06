@@ -280,9 +280,9 @@ export default function GatesMachine() {
                         <div key={winKey} ref={(el) => { cellRefs.current[winKey] = el; }} className="relative rounded-[5px] flex-1 min-h-0"
                           style={{ opacity: stopped ? 1 : 0,
                             boxSizing: 'border-box',
-                            border: '1.5px solid transparent',
-                            boxShadow: 'none',
-                            animation: 'none',
+                            border: isWin ? '2px solid rgba(255,120,0,0.95)' : '1.5px solid transparent',
+                            boxShadow: isWin ? '0 0 8px 2px rgba(255,80,0,0.85)' : 'none',
+                            animation: isWin ? `gatesMatchFire ${g.turbo ? 0.4 : 0.6}s ease-in-out infinite` : 'none',
                             contain: 'layout style' }}>
                           {stopped ? (
                             <div key={animKey} className="relative w-full h-full"
