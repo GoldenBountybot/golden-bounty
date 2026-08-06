@@ -260,8 +260,9 @@ export default function SuperAceMachine() {
     let spinDur = baseSpin;
     if (teaseSet.size > 0) {
       const teasedCols = COLS - teaseStart;
-      const landMs = (0.5 + teasedCols * ROWS * 0.7 + 0.7 + 0.3) * 1000;
-      spinDur = turboRef.current ? Math.max(baseSpin, landMs * 0.5) : Math.max(baseSpin, landMs + 200);
+      // Short anticipation pause — enough to build suspense for a possible 3rd
+      // scatter without making the round feel stuck.
+      spinDur = turboRef.current ? baseSpin + teasedCols * 150 : baseSpin + teasedCols * 350;
     }
     await sleep(spinDur);
     setSpinning(false);
