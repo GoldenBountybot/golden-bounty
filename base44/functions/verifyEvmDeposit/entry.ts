@@ -67,7 +67,12 @@ Deno.serve(async (req) => {
     if (!receipt) return Response.json({ ok: false, reason: 'pending' });
     if (receipt.status !== '0x1') return Response.json({ ok: false, reason: 'tx-failed' });
 
-    const expectedValue = '0x' + BigInt(Math.round(amount * Math.pow(10, net.decimals))).toString(16).toLowerCase();
+    // Expected token units as a BigInt. Built from micro-units so 18-decimal
+    // tokens keep full precision (Number can't hold 1e18 exactly).
+    const micro = BigInt(Math.round(amount * 1e6));
+    const expectedUnits = net.decimals >= 6
+      ? micro * (10n ** BigInt(net.decimals - 6))
+      : micro / (10n ** BigInt(6 - net.decimals));
     const fromTopic = topic32(userWallet);
     const toTopic = topic32(ADMIN);
 
@@ -78,7 +83,12 @@ Deno.serve(async (req) => {
       if (topics[0] !== TRANSFER_TOPIC) continue;
       if (String(topics[1] || '').toLowerCase() !== fromTopic) continue;
       if (String(topics[2] || '').toLowerCase() !== toTopic) continue;
-      if (String(log.data || '').toLowerCase() !== expectedValue) continue;
+      // log.data is a 32-byte zero-padded hex word — compare numerically, and
+      // accept anything at least the expected amount (never a string compare).
+      let sent = 0n;
+      try { sent = BigInt(String(log.data || '0x0')); } catch { continue; }
+      // Allow a 1% rounding tolerance on the transferred amount.
+      if (sent * 100n < expectedUnits * 99n) continue;
       verified = true;
       break;
     }

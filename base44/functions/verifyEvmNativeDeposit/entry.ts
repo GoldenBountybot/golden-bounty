@@ -65,7 +65,11 @@ Deno.serve(async (req) => {
 
     const fromOk = String(tx.from || '').toLowerCase() === userWallet;
     const toOk = String(tx.to || '').toLowerCase() === ADMIN;
-    const valOk = String(tx.value || '').toLowerCase() === expectedWei;
+    // Compare the sent value numerically (RPC hex may be padded/normalized
+    // differently than the hex the frontend built), with 1% tolerance.
+    let sentWei = 0n; let wantWei = 0n;
+    try { sentWei = BigInt(String(tx.value || '0x0')); wantWei = BigInt(expectedWei); } catch {}
+    const valOk = wantWei > 0n && sentWei * 100n >= wantWei * 99n;
     if (!fromOk || !toOk || !valOk) {
       return Response.json({ ok: false, reason: 'transfer-not-found' });
     }
