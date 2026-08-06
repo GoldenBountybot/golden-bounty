@@ -18,11 +18,37 @@ export default async function(req) {
       return Response.json({ error: 'You already redeemed a promo code' }, { status: 400 });
     }
 
+    // Ensure the current user's own promo_code is persisted so others can
+    // redeem it later (some early users only have uid, not the promo_code field).
+    if (!user.promo_code && user.uid) {
+      try {
+        await base44.asServiceRole.entities.User.update(user.id, { promo_code: 'GB' + user.uid });
+      } catch { /* non-critical */ }
+    }
+
     // Look up the referrer by their stored promo code (service role — regular
-    // users cannot list other users).
-    const matches = await base44.asServiceRole.entities.User.filter({ promo_code: code });
+    // users cannot list other users). Pass sort + limit so the filter behaves
+    // consistently across SDK versions (matching the working pattern in
+    // getReferralStats).
+    let matches = await base44.asServiceRole.entities.User.filter({ promo_code: code }, '-created_date', 50);
+    // Fallback: some early users never had their promo_code field persisted
+    // (it's displayed as "GB" + uid on the PromoWelcome page but not saved).
+    // If the direct lookup misses, strip the "GB" prefix and look up by uid.
+    if (!matches || !matches.length) {
+      const uidPart = code.startsWith('GB') ? code.slice(2) : code;
+      if (uidPart) {
+        matches = await base44.asServiceRole.entities.User.filter({ uid: uidPart }, '-created_date', 50);
+      }
+    }
     const referrer = matches && matches[0];
     if (!referrer) return Response.json({ error: 'Invalid promo code' }, { status: 400 });
+    // If the referrer's promo_code field is missing, persist it now so future
+    // lookups hit the fast path.
+    if (!referrer.promo_code) {
+      try {
+        await base44.asServiceRole.entities.User.update(referrer.id, { promo_code: 'GB' + (referrer.uid || '') });
+      } catch { /* non-critical */ }
+    }
     if (referrer.id === user.id) {
       return Response.json({ error: 'You cannot use your own promo code' }, { status: 400 });
     }
