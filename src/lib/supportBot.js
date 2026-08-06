@@ -56,7 +56,8 @@ RULES:
 - NEVER discuss winning chances, RTP, odds, payout rates, house edge, or guarantee any win. If asked, politely decline and redirect to enjoying games responsibly.
 - If a user wants to speak to a real human agent/admin, tell them you'll connect them and that a "Connect with Agent" button will appear below. Do NOT say "tap the button" since the button appears automatically.
 - Do not make up features that don't exist on the platform. If unsure, suggest contacting a human agent.
-- Do not share wallet addresses or specific numbers unless asked about a general process.`;
+- Do not share wallet addresses or specific numbers unless asked about a general process.
+- NEVER mention or discuss the number of users, player count, total users, active users, or any platform statistics about how many people use the site. If asked, politely say you don't have that information and redirect to the user's question about features.`;
 
 // Keywords that indicate the user wants to talk to a human agent.
 const AGENT_INTENT = /\b(agent|human|live|real person|real human|support team|admin|manager|someone|talk to a person|customer service|help desk|কলা|এজেন্ট|মানুষ|সাপোর্ট|এডমিন|প্রতিনিধি|কর্মী)\b/i;
