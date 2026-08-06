@@ -48,18 +48,20 @@ export default function Airdrop() {
   }, []);
 
   const allocation = totalDeposits * 2 + referralBounty; // 2 Bounty per USDT deposited + referral bounty
-  const alreadyClaimed = claimed > 0;
+  const claimable = Math.max(0, allocation - claimed);
+  const fullyClaimed = allocation > 0 && claimable <= 0;
 
   const claim = async () => {
-    if (allocation <= 0) {
+    if (claimable <= 0) {
       toast({ title: t("No allocation available"), description: t("Deposit USDT to earn Bounty tokens.") });
       return;
     }
     setClaiming(true);
     try {
-      await base44.auth.updateMe({ bounty_allocation: allocation, bounty_claimed_at: new Date().toISOString() });
-      setClaimed(allocation);
-      showNotify(t("Airdrop Claimed!"), `${allocation.toFixed(2)} BOUNTY tokens added to your account`);
+      const newTotal = allocation;
+      await base44.auth.updateMe({ bounty_allocation: newTotal, bounty_claimed_at: new Date().toISOString() });
+      setClaimed(newTotal);
+      showNotify(t("Airdrop Claimed!"), `${claimable.toFixed(2)} BOUNTY tokens added to your account`);
     } catch (e) {
       toast({ title: t("Claim failed"), description: e.message });
     } finally {
@@ -183,29 +185,43 @@ export default function Airdrop() {
                     <AnimatedNumber value={allocation} duration={900} decimals={2} /> BOUNTY
                   </span>
                 </div>
+                {claimed > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>{t("Already Claimed")}</span>
+                    <span className="text-sm font-bold tabular-nums" style={{ color: 'rgba(255,255,255,0.8)' }}>{claimed.toFixed(2)} BOUNTY</span>
+                  </div>
+                )}
+                {claimable > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[13px] font-semibold" style={{ color: 'rgba(52,211,153,0.9)' }}>{t("Claimable Now")}</span>
+                    <span className="text-lg font-extrabold tabular-nums" style={{ color: '#34d399' }}>
+                      <AnimatedNumber value={claimable} duration={900} decimals={2} /> BOUNTY
+                    </span>
+                  </div>
+                )}
               </div>
 
-              {alreadyClaimed && (
+              {fullyClaimed && (
                 <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.35)' }}>
                   <Check className="w-4 h-4" style={{ color: '#34d399' }} />
                   <p className="text-[12px]" style={{ color: '#34d399' }}>
-                    {t("Already claimed")}: <span className="font-bold">{claimed.toFixed(2)} BOUNTY</span>
+                    {t("All current allocation claimed")}: <span className="font-bold">{claimed.toFixed(2)} BOUNTY</span>. {t("Deposit more USDT to earn additional BOUNTY.")}
                   </p>
                 </div>
               )}
 
               <button
                 onClick={claim}
-                disabled={claiming || allocation <= 0 || alreadyClaimed}
+                disabled={claiming || claimable <= 0}
                 className="w-full py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-45 disabled:cursor-not-allowed transition-all active:scale-95"
                 style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', border: 'none', borderRadius: '14px', fontWeight: 800, boxShadow: '0 4px 14px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.45)' }}
               >
                 {claiming ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> {t("Claiming...")}</>
-                ) : alreadyClaimed ? (
+                ) : fullyClaimed ? (
                   <><Check className="w-4 h-4" /> {t("Already Claimed")}</>
                 ) : (
-                  <><Gift className="w-4 h-4" /> {t("Claim Bounty")}</>
+                  <><Gift className="w-4 h-4" /> {t("Claim")} {claimable.toFixed(2)} BOUNTY</>
                 )}
               </button>
 
