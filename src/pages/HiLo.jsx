@@ -305,8 +305,7 @@ export default function HiLo() {
               </button>
             </>
           }
-          padLeft="pl-44"
-          padRight="pr-44"
+          maxWidth="max-w-2xl"
         />
       </header>
 
