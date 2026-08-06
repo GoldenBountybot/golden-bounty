@@ -17,8 +17,8 @@ function getCtx() {
   return ctx;
 }
 
-const NORMAL_VOL = 0.34;
-const DUCK_VOL = 0.10;
+const NORMAL_VOL = 0.44;
+const DUCK_VOL = 0.13;
 
 let musicGain = null;
 let muteGain = null;
@@ -174,19 +174,85 @@ function playCelesta(ac, t, freq) {
 }
 
 // ---- Refined bass pulse ----
-// A soft, warm bass note — deep sine with a gentle attack.
+// A soft, warm bass note — deep sine with a gentle attack + subtle octave.
 function playBass(ac, t, freq) {
   const o = ac.createOscillator();
   const g = ac.createGain();
   o.type = 'sine';
   o.frequency.setValueAtTime(freq, t);
   g.gain.setValueAtTime(0.0001, t);
-  g.gain.linearRampToValueAtTime(0.09, t + 0.04);
+  g.gain.linearRampToValueAtTime(0.10, t + 0.04);
   g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
   o.connect(g);
   g.connect(musicGain);
   o.start(t);
   o.stop(t + 0.65);
+  // Subtle octave-down layer for a richer, deeper bass body.
+  const o2 = ac.createOscillator();
+  const g2 = ac.createGain();
+  o2.type = 'sine';
+  o2.frequency.value = freq * 0.5;
+  g2.gain.setValueAtTime(0.0001, t);
+  g2.gain.linearRampToValueAtTime(0.04, t + 0.05);
+  g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
+  o2.connect(g2);
+  g2.connect(musicGain);
+  o2.start(t);
+  o2.stop(t + 0.6);
+}
+
+// ---- Soft glockenspiel melody ----
+// A delicate, bell-like glockenspiel note — brighter than celesta, with a
+// singing sustain. Adds a second melodic voice that weaves above the piano.
+function playGlocken(ac, t, freq, dur) {
+  const o = ac.createOscillator();
+  const g = ac.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(0.05, t + 0.006);
+  g.gain.setValueAtTime(0.05, t + dur * 0.5);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g);
+  g.connect(musicGain);
+  g.connect(reverbBus);
+  o.start(t);
+  o.stop(t + dur + 0.05);
+  // Bright singing overtone.
+  const o2 = ac.createOscillator();
+  const g2 = ac.createGain();
+  o2.type = 'sine';
+  o2.frequency.value = freq * 4;
+  g2.gain.setValueAtTime(0.0001, t);
+  g2.gain.linearRampToValueAtTime(0.012, t + 0.004);
+  g2.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.5);
+  o2.connect(g2);
+  g2.connect(musicGain);
+  o2.start(t);
+  o2.stop(t + dur * 0.5 + 0.05);
+}
+
+// ---- String swell ----
+// A soft bowed-string chord swell — rich sawtooth through lowpass, slow
+// attack and release, used to fill out the harmony every few bars.
+function playStringSwell(ac, t, freq, dur) {
+  const o = ac.createOscillator();
+  const g = ac.createGain();
+  const lp = ac.createBiquadFilter();
+  o.type = 'sawtooth';
+  o.frequency.value = freq;
+  lp.type = 'lowpass';
+  lp.frequency.value = 1400;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(0.04, t + dur * 0.3);
+  g.gain.setValueAtTime(0.04, t + dur * 0.6);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(lp);
+  lp.connect(g);
+  g.connect(musicGain);
+  g.connect(reverbBus);
+  o.start(t);
+  o.stop(t + dur + 0.05);
 }
 
 // ---- Melody generation ----
@@ -214,6 +280,7 @@ function refillPhrases() {
 
 // Schedule one 8th-note step.
 let pianoRemaining = 0;
+let glockenRemaining = 0;
 function scheduleStep(ac, step, time) {
   const s = step % STEPS_PER_BAR;
   const bar = Math.floor(step / STEPS_PER_BAR);
@@ -229,6 +296,13 @@ function scheduleStep(ac, step, time) {
   // Celesta sparkle — once every other bar, a tiny magical bell.
   if (bar % 2 === 0 && s === 7) playCelesta(ac, time, POOL[(step * 7) % POOL.length] * 2);
 
+  // String swell — a soft chord swell every 4 bars to fill the harmony.
+  if (bar % 4 === 0 && s === 0) {
+    playStringSwell(ac, time, ROOT * 2, STEP_DUR * 8);
+    playStringSwell(ac, time, ROOT * 2.52, STEP_DUR * 8);
+    playStringSwell(ac, time, ROOT * 3, STEP_DUR * 8);
+  }
+
   // Piano melody — pull the next note from the phrase queue.
   if (phraseQueue.length === 0) refillPhrases();
   if (pianoRemaining <= 0 && phraseQueue.length > 0) {
@@ -239,6 +313,16 @@ function scheduleStep(ac, step, time) {
     pianoRemaining = durSteps;
   }
   if (pianoRemaining > 0) pianoRemaining--;
+
+  // Glockenspiel counter-melody — a second, higher voice that weaves above
+  // the piano, offset by a few steps so it answers rather than doubles.
+  if (glockenRemaining <= 0 && bar % 2 === 1 && s === 3) {
+    const degree = (step * 4) % POOL.length;
+    const freq = POOL[Math.max(8, Math.min(POOL.length - 1, degree))] * 2;
+    playGlocken(ac, time, freq, STEP_DUR * 4);
+    glockenRemaining = 4;
+  }
+  if (glockenRemaining > 0) glockenRemaining--;
 }
 
 function scheduler() {
@@ -284,6 +368,7 @@ export function startBgMusic() {
   nextStepTime = ac.currentTime + 0.1;
   stepIndex = 0;
   pianoRemaining = 0;
+  glockenRemaining = 0;
   phraseQueue = [];
   if (schedulerTimer) clearInterval(schedulerTimer);
   schedulerTimer = setInterval(scheduler, TICK);
