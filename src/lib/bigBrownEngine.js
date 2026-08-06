@@ -66,12 +66,12 @@ const BASE_POOL = [
   'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar', 'cougar',
   'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf', 'wolf',
   'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer', 'deer',
-  'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A',
-  'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K',
-  'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q',
-  'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J',
-  '10', '10', '10', '10', '10', '10', '10', '10', '10', '10',
-  '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
+  'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A',
+  'K', 'K', 'K', 'K', 'K', 'K', 'K', 'K',
+  'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q', 'Q',
+  'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J',
+  '10', '10', '10', '10', '10', '10', '10', '10',
+  '9', '9', '9', '9', '9', '9', '9', '9',
 ];
 
 // Wild reels use the base pool plus a reel-specific chance to inject a wild
