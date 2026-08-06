@@ -60,13 +60,20 @@ RULES:
 - NEVER mention or discuss the number of users, player count, total users, active users, or any platform statistics about how many people use the site. If asked, politely say you don't have that information and redirect to the user's question about features.`;
 
 // Keywords that indicate the user wants to talk to a human agent.
-const AGENT_INTENT = /\b(agent|human|live|real person|real human|support team|admin|manager|someone|talk to a person|customer service|help desk|কলা|এজেন্ট|মানুষ|সাপোর্ট|এডমিন|প্রতিনিধি|কর্মী)\b/i;
+// English uses \b word boundaries; Bengali is matched without \b since
+// \b doesn't work with Bengali Unicode characters.
+const AGENT_INTENT_EN = /\b(agent|human|live|real person|real human|support team|admin|manager|someone|talk to a person|customer service|help desk)\b/i;
+const AGENT_INTENT_BN = /(এজেন্ট|মানুষ|সাপোর্ট|এডমিন|প্রতিনিধি|কর্মী|কথা বল|এজেন্টের|এডমিনের|সাপোর্টে|এজেন্টে|এডমিনে|সাপোর্টের)/i;
+
+// Also detect if the bot's reply itself offers to connect the user with an
+// agent — the LLM may understand the intent even without exact keywords.
+const BOT_AGENT_OFFER = /(connect.{0,20}agent|agent.{0,20}connect|human|live agent|real person|এজেন্ট|সাপোর্ট|এডমিন|প্রতিনিধি)/i;
 
 // Returns { reply, wantsAgent } for a given user message.
 // wantsAgent=true signals the caller to show a "Connect with Agent" button
 // below the bot's reply.
 export async function getBotReply(userMessage, history = []) {
-  const wantsAgent = AGENT_INTENT.test(userMessage);
+  const userWantsAgent = AGENT_INTENT_EN.test(userMessage) || AGENT_INTENT_BN.test(userMessage);
 
   const recent = history
     .slice(-6)
@@ -88,6 +95,9 @@ Reply as Bounty Bot (concise, same language as the user):`;
       model: 'gemini_3_flash',
     });
     const reply = typeof res === 'string' ? res.trim() : (res?.reply || res?.text || '').toString().trim();
+    // Show the button if the user asked for an agent OR the bot's reply
+    // itself offers to connect the user with a human agent.
+    const wantsAgent = userWantsAgent || BOT_AGENT_OFFER.test(reply);
     return { reply, wantsAgent };
   } catch {
     return {
