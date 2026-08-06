@@ -30,6 +30,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const { setBalance } = useCasinoBalance();
   const { toast } = useToast();
   const [netKey, setNetKey] = useState(USDT_NETWORKS[0].key);
+  const [netOpen, setNetOpen] = useState(false);
   const [account, setAccount] = useState(null);
   const [status, setStatus] = useState('idle'); // idle|connecting|connected|sending|confirming|verifying|done|error
   const [errMsg, setErrMsg] = useState('');
@@ -249,18 +250,40 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       <div className="flex flex-col gap-1.5">
         <label className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Select USDT Network</label>
         <div className="relative">
-          <select
-            value={netKey}
-            onChange={(e) => setNetKey(e.target.value)}
+          <button
+            type="button"
+            onClick={() => !netLocked && setNetOpen((v) => !v)}
             disabled={netLocked}
-            className="dash-input w-full appearance-none px-4 h-12 pr-10 text-sm font-semibold disabled:opacity-50"
+            className="dash-input w-full flex items-center justify-between px-4 h-12 pr-10 text-sm font-semibold disabled:opacity-50 text-left"
             style={{ fontFamily: 'var(--font-western)', letterSpacing: '0.02em' }}
           >
-            {USDT_NETWORKS.map((n) => (
-              <option key={n.key} value={n.key} style={{ background: '#1a1a1a', color: '#fff', fontFamily: 'var(--font-western)' }}>{n.label}</option>
-            ))}
-          </select>
+            {net.label}
+          </button>
           <ChevronDown className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#D4AF37' }} />
+          {netOpen && !netLocked && (
+            <>
+            <div className="fixed inset-0 z-30" onClick={() => setNetOpen(false)} />
+            <div className="absolute z-40 left-0 right-0 top-full mt-1 rounded-[14px] overflow-hidden" style={{ background: '#1a2021', border: '1px solid rgba(212,175,55,0.35)', boxShadow: '0 12px 32px rgba(0,0,0,0.6)' }}>
+              {USDT_NETWORKS.map((n) => {
+                const sel = n.key === netKey;
+                return (
+                  <button
+                    key={n.key}
+                    type="button"
+                    onClick={() => { setNetKey(n.key); setNetOpen(false); }}
+                    className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors"
+                    style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: sel ? 'rgba(76,201,192,0.10)' : 'transparent' }}
+                  >
+                    <span className="text-sm" style={{ fontFamily: 'var(--font-western)', color: sel ? '#4cc9c0' : '#fff', letterSpacing: '0.02em' }}>{n.label}</span>
+                    <span className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ border: `1.5px solid ${sel ? '#4cc9c0' : 'rgba(255,255,255,0.4)'}` }}>
+                      {sel && <span className="w-2 h-2 rounded-full" style={{ background: '#4cc9c0' }} />}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            </>
+          )}
         </div>
       </div>
 
