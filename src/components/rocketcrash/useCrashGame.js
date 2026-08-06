@@ -55,7 +55,7 @@ function genLiveBets(roundId) {
 
   // Random descending amounts with random gaps: split the $500→$0.10 range
   // into n-1 random-weighted slices so gaps vary (e.g. 500, 485, 464, …).
-  const gaps = Array.from({ length: n - 1 }, () => Math.pow(rnd(), 4));
+  const gaps = Array.from({ length: n - 1 }, () => Math.pow(rnd(), 7));
   const sum = gaps.reduce((a, b) => a + b, 0) || 1;
   // Top bet varies each round (e.g. $490, $455, $400…) but never drops
   // below $250, then descends to $0.10 with random gaps.
