@@ -35,8 +35,8 @@ function DiamondGem({ color, edge }) {
 }
 
 const TIERS = {
-  Bronze: { type: 'image', src: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/daf666079_generated_image.png' },
-  Silver: { type: 'image', src: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/70f13b98e_generated_image.png' },
+  Bronze: { type: 'medal', color: '#cd7f32', edge: '#8a5320', ribbon: '#cd7f32' },
+  Silver: { type: 'medal', color: '#c0c0c0', edge: '#8a8a8a', ribbon: '#b0b0b0' },
   Gold:   { type: 'medal', color: '#ffd24a', edge: '#b8860b', ribbon: '#e0a82e' },
   Diamond:{ type: 'gem',   color: '#5aa9e6', edge: '#2a6fb0' },
 };
@@ -45,11 +45,9 @@ export default function VipMedal({ tier = 'Bronze', className = '' }) {
   const t = TIERS[tier] || TIERS.Bronze;
   return (
     <div className={`flex items-center justify-center ${className}`}>
-      {t.type === 'image'
-        ? <img src={t.src} alt={tier + ' medal'} className="w-full h-full object-contain" />
-        : t.type === 'gem'
-          ? <DiamondGem color={t.color} edge={t.edge} />
-          : <MedalStar color={t.color} edge={t.edge} ribbon={t.ribbon} />}
+      {t.type === 'gem'
+        ? <DiamondGem color={t.color} edge={t.edge} />
+        : <MedalStar color={t.color} edge={t.edge} ribbon={t.ribbon} />}
     </div>
   );
 }
