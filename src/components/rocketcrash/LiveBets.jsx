@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, memo } from 'react';
 
 function colorFor(m) {
   if (m < 2) return 'text-indigo-300';
@@ -6,7 +6,7 @@ function colorFor(m) {
   return 'text-rose-300';
 }
 
-export default function LiveBets({ bets }) {
+function LiveBets({ bets }) {
   // Player's own bets always render at the top; the rest follow in descending
   // bet-amount order ($500 → $0.10).
   const sorted = useMemo(() => {
@@ -44,3 +44,5 @@ export default function LiveBets({ bets }) {
     </div>
   );
 }
+
+export default memo(LiveBets);
