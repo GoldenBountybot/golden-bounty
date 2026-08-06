@@ -292,10 +292,12 @@ export function useCrashGame() {
         });
         if (changed) { betsRef.current = next; setBets(next); setBalance((bal) => bal + balAdd); syncPlayerEntries(); }
 
-        // auto cashout — shared live bets
+        // auto cashout — shared live bets (skip player entries — they have
+        // cashOutAt: null until the player cashes out, and m >= null is true,
+        // which would crash LiveBets on null.toFixed(2))
         let lbChanged = false;
         const lbnext = liveRef.current.map((lb) => {
-          if (!lb.cashedOut && m >= lb.cashOutAt) {
+          if (!lb.cashedOut && !lb.isPlayer && lb.cashOutAt != null && m >= lb.cashOutAt) {
             lbChanged = true;
             return { ...lb, cashedOut: true, win: +(lb.amount * lb.cashOutAt).toFixed(2) };
           }
