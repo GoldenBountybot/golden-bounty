@@ -78,6 +78,14 @@ function genCrashPoint(rtp) {
   if (crash >= 2 && crash < 3 && rand() < 0.15) {
     crash = 1.00 + rand();
   }
+  // Anti-pattern scatter: with ~22% chance, remap the outcome to a fresh
+  // uniform draw across a wide band (1x–9x). This flattens the visible
+  // histogram so no single band dominates the history bar and a player
+  // watching recent multipliers can't lock onto a "most common" zone to
+  // exploit. Draws stay fully independent — history never feeds the next.
+  if (rand() < 0.22) {
+    crash = 1.00 + rand() * 8;
+  }
   return Math.min(Math.max(crash, 1.00), 250);
 }
 
