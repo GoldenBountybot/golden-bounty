@@ -114,6 +114,7 @@ export function useCrashGame() {
         name: playerNameRef.current,
         amount: x.b.amount,
         cashedOut: x.b.cashedOut,
+        cashOutAt: x.b.cashOutMult,
         cashOutMult: x.b.cashOutMult,
         win: x.b.win,
         isPlayer: true,
