@@ -34,12 +34,15 @@ function claimedAmount() {
   return rand(5, 400).toFixed(1);
 }
 // Game wins: two-decimal floats — mostly small ($0.02–$5), with higher
-// amounts showing progressively less often.
+// amounts showing progressively less often. $100–$5000 appears rarely;
+// $5000–$50000 is extremely rare (~1 in 1000 messages).
 function winAmount() {
   const r = Math.random();
   if (r < 0.80) return rand(0.02, 5).toFixed(2);      // 80% — small wins
   if (r < 0.95) return rand(5, 20).toFixed(2);        // 15% — medium wins
-  return rand(20, 100).toFixed(2);                   //  5% — rare big hits
+  if (r < 0.997) return rand(20, 100).toFixed(2);     // ~4.7% — bigger wins
+  if (r < 0.999) return rand(100, 5000).toFixed(2);   // ~0.2% — large wins
+  return rand(5000, 50000).toFixed(2);                // ~0.1% — ~1 in 1000
 }
 
 // Build a feed with unique names (shuffled) so the same user/message never
