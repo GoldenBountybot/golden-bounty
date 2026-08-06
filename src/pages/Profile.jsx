@@ -29,6 +29,11 @@ const GAME_NAMES = {
   mines: 'Mines',
   fullhouse: 'Super ACE',
   'rocket-crash': 'Rocket Crash',
+  'gates-of-olympus': 'Gates of Olympus',
+  'crown-coins': 'Crown Coins',
+  'big-brown': 'Big Brown',
+  'argonauts': 'Argonauts',
+  'thimbles': 'Thimbles',
 };
 
 const TX_META = {
@@ -155,7 +160,7 @@ export default function Profile() {
   };
 
   const copy = async (text, label) => {
-    try { await navigator.clipboard.writeText(text); toast({ title: `${label} copied` }); } catch { /* ignore */ }
+    try { await navigator.clipboard.writeText(text); toast({ title: `${label} ${t("copied")}` }); } catch { /* ignore */ }
   };
 
   const uid = profile?.uid || '';
@@ -190,13 +195,13 @@ export default function Profile() {
             onClick={() => setMenuOpen(o => !o)}
             className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95"
             style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
-            title="Menu"
+            title={t("Menu")}
           >
             <Menu className="w-5 h-5" />
           </button>
           <button
             onClick={() => window.history.back()}
-            title="Back"
+            title={t("Back")}
             className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
             style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
           >
@@ -270,7 +275,7 @@ export default function Profile() {
           {/* Name + edit */}
           <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: '#fff' }}>
             {profile?.username || profile?.full_name || t("Player")}
-            <button onClick={() => setEditOpen(o => !o)} style={{ color: '#D4AF37' }} className="hover:opacity-80 transition-opacity" title="Edit profile">
+            <button onClick={() => setEditOpen(o => !o)} style={{ color: '#D4AF37' }} className="hover:opacity-80 transition-opacity" title={t("Edit Profile")}>
               <Pencil className="w-3.5 h-3.5" />
             </button>
           </h2>
@@ -280,14 +285,14 @@ export default function Profile() {
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.3)' }}>
             <Hash className="w-3.5 h-3.5" style={{ color: 'rgba(212,175,55,0.8)' }} />
             <span className="text-[12px] font-mono tracking-wider select-all" style={{ color: 'rgba(255,255,255,0.85)' }}>{uid || '—'}</span>
-            <button onClick={() => copy(uid, 'User ID')} style={{ color: 'rgba(212,175,55,0.7)' }} className="ml-0.5 hover:opacity-80 transition-opacity" title="Copy User ID">
+            <button onClick={() => copy(uid, t("User ID"))} style={{ color: 'rgba(212,175,55,0.7)' }} className="ml-0.5 hover:opacity-80 transition-opacity" title={t("Copy")}>
               <Copy className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {/* Promo code card */}
           <button
-            onClick={() => copy(promoCode, 'Promo code')}
+            onClick={() => copy(promoCode, t("Promo Code"))}
             className="w-full px-4 py-3 rounded-2xl flex items-center justify-between gap-2 transition-all active:scale-[0.98]"
             style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.35)' }}
           >
@@ -348,7 +353,7 @@ export default function Profile() {
                 <div className="h-full rounded-full transition-all duration-500" style={{ width: vipProgress + '%', background: 'linear-gradient(90deg, #FFD700, #C89B3C)', boxShadow: '0 0 10px rgba(212,175,55,0.6)' }} />
               </div>
               <p className="text-[11px] text-center" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                ${(next.minDeposit - totalDeposits).toFixed(0)} more to {next.name}
+                ${(next.minDeposit - totalDeposits).toFixed(0)} {t("more to")} {next.name}
               </p>
             </div>
           ) : (
@@ -421,7 +426,7 @@ export default function Profile() {
 
             {/* Promo code share card */}
             <button
-              onClick={() => copy(promoCode, 'Promo code')}
+              onClick={() => copy(promoCode, t("Promo Code"))}
               className="dash-card p-4 flex items-center justify-between gap-2 transition-all active:scale-[0.98]"
             >
               <div className="flex items-center gap-3">
@@ -590,24 +595,24 @@ export default function Profile() {
             ) : txs.length === 0 ? (
               <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("No transactions yet.")}</p>
             ) : (
-              txs.map((t) => {
-                const m = TX_META[t.type] || TX_META.adjustment;
+              txs.map((tx) => {
+                const m = TX_META[tx.type] || TX_META.adjustment;
                 const Icon = m.icon;
-                const sm = STATUS_META[t.status] || STATUS_META.pending;
+                const sm = STATUS_META[tx.status] || STATUS_META.pending;
                 const borderStyle = '1px solid ' + sm.border;
                 return (
-                  <div key={t.id} className="dash-card p-4 flex items-center gap-3">
+                  <div key={tx.id} className="dash-card p-4 flex items-center gap-3">
                     <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0" style={{ background: m.bg, border: borderStyle }}>
                       <Icon className="w-4 h-4" style={{ color: m.color }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold capitalize" style={{ color: '#fff' }}>{t.type}</p>
-                      <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{fmtDate(t.created_date)}</p>
-                      {t.note && <p className="text-[10px] truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>{t.note}</p>}
+                      <p className="text-sm font-bold capitalize" style={{ color: '#fff' }}>{t(tx.type)}</p>
+                      <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{fmtDate(tx.created_date)}</p>
+                      {tx.note && <p className="text-[10px] truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>{tx.note}</p>}
                     </div>
                     <div className="flex flex-col items-end gap-1 shrink-0">
-                      <span className="font-bold tabular-nums text-sm" style={{ color: m.color }}>{m.sign}${Number(t.amount).toFixed(2)}</span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg" style={{ color: sm.color, background: sm.bg, border: borderStyle }}>{t.status}</span>
+                      <span className="font-bold tabular-nums text-sm" style={{ color: m.color }}>{m.sign}${Number(tx.amount).toFixed(2)}</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg" style={{ color: sm.color, background: sm.bg, border: borderStyle }}>{t(tx.status)}</span>
                     </div>
                   </div>
                 );
@@ -637,12 +642,12 @@ export default function Profile() {
                       <Gamepad2 className="w-4 h-4" style={{ color: '#D4AF37' }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold" style={{ color: '#fff' }}>{GAME_NAMES[a.game_id] || a.game_id}</p>
-                      <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>Bet ${Number(a.bet).toFixed(2)} · {fmtDate(a.created_date)}</p>
+                      <p className="text-sm font-bold" style={{ color: '#fff' }}>{t(GAME_NAMES[a.game_id] || a.game_id)}</p>
+                      <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("Bet")} ${Number(a.bet).toFixed(2)} · {fmtDate(a.created_date)}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       <span className="font-bold tabular-nums text-sm" style={{ color: '#D4AF37' }}>${Number(a.win).toFixed(2)}</span>
-                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-lg" style={{ color: om.color, background: om.bg, border: omBorder }}>{a.outcome}</span>
+                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-lg" style={{ color: om.color, background: om.bg, border: omBorder }}>{t(a.outcome)}</span>
                     </div>
                   </div>
                 );
