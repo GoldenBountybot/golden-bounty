@@ -53,13 +53,19 @@ function genLiveBets(roundId) {
   // Top bet varies each round ($250–$500).
   const maxAmt = +(250 + rnd() * 250).toFixed(2);
 
-  // Build a strictly descending list where each consecutive bet is $2–$10
-  // below the previous one, so every gap reads as a real independent player.
+  // Build a strictly descending list. Gaps scale with bet size so high
+  // rollers sit $2–$10 apart (reads as real independent players) while the
+  // many small bets cluster tightly at the bottom — giving a realistic
+  // live-bet curve with plenty of players.
   const amounts = [];
   let cur = maxAmt;
   while (cur >= 0.10) {
     amounts.push(+cur.toFixed(2));
-    cur -= +(2 + rnd() * 8).toFixed(2);
+    let gap;
+    if (cur > 20) gap = 2 + rnd() * 8;        // $2–$10 gaps for high rollers
+    else if (cur > 2) gap = 0.50 + rnd() * 1.5; // $0.50–$2 for mid bets
+    else gap = 0.05 + rnd() * 0.45;           // $0.05–$0.50 for small bets
+    cur -= +gap.toFixed(2);
   }
   const n = amounts.length;
 
