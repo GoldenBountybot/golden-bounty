@@ -7,7 +7,7 @@ import BottomNav from '@/components/BottomNav';
 import SiteFooter from '@/components/SiteFooter';
 import NotificationBell from '@/components/NotificationBell';
 import HomeSidebar from '@/components/HomeSidebar';
-import { Wallet, FlaskConical } from 'lucide-react';
+import { Wallet, FlaskConical, Gift } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -66,7 +66,7 @@ export default function Home() {
                   });
                 }}
                 title={demoMode ? 'Demo mode is ON' : 'Enable demo mode'}
-                className="absolute -top-[27px] left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-[6px] transition-all active:scale-95 z-30"
+                className="absolute -top-[34px] left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-[6px] transition-all active:scale-95 z-30"
                 style={{
                   border: demoMode ? '1px solid rgba(74,222,128,0.85)' : '1px solid rgba(214,178,98,0.55)',
                   background: '#000000',
@@ -76,6 +76,19 @@ export default function Home() {
                 <FlaskConical className={`w-3.5 h-3.5 ${demoMode ? 'text-emerald-300' : 'text-amber-400'}`} />
                 <span className="text-[10px] font-black italic tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif', color: demoMode ? '#86efac' : '#f5c542', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>DEMO</span>
               </button>
+              <Link
+                to="/airdrop"
+                title="Airdrop"
+                className="absolute top-[2px] left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-[6px] transition-all active:scale-95 z-30"
+                style={{
+                  border: '1px solid rgba(214,178,98,0.55)',
+                  background: '#000000',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08)',
+                }}
+              >
+                <Gift className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-[10px] font-black italic tracking-wide" style={{ fontFamily: 'Rye, Georgia, serif', color: '#f5c542', textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>AIRDROP</span>
+              </Link>
             </div>
             <div className="flex-1 min-w-0 self-start">
               <img
