@@ -5,6 +5,7 @@ const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-
 
 const LINKS = [
   { label: 'Terms & Conditions', to: '/terms' },
+  { label: 'Player Agreement', to: '/agreement' },
   { label: 'Privacy Policy', to: '/privacy' },
   { label: 'Responsible Gaming', to: '/responsible-gaming' },
   { label: 'Licenses', to: '/licenses' },

@@ -32,6 +32,7 @@ import PayMethod from './pages/PayMethod';
 import Withdraw from './pages/Withdraw';
 import About from './pages/About';
 import Terms from './pages/Terms';
+import Agreement from './pages/Agreement';
 import Privacy from './pages/Privacy';
 import ResponsibleGaming from './pages/ResponsibleGaming';
 import Licenses from './pages/Licenses';
@@ -97,6 +98,7 @@ const AuthenticatedApp = () => {
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
       <Route path="/terms" element={<Terms />} />
+      <Route path="/agreement" element={<Agreement />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/responsible-gaming" element={<ResponsibleGaming />} />
       <Route path="/licenses" element={<Licenses />} />
