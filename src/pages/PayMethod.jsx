@@ -25,6 +25,7 @@ const LOGOS = {
   aptos: 'https://coin-images.coingecko.com/coins/images/26455/large/Aptos-Network-Symbol-Black-RGB-1x.png?1761789140',
   polygon: 'https://coin-images.coingecko.com/coins/images/4713/large/polygon.png?1698233745',
   ton: 'https://coin-images.coingecko.com/coins/images/17980/large/Gram_Circular_Badge.png?1781524778',
+  usdc: 'https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506692',
   binance: 'https://cdn.simpleicons.org/binance/F0B90B',
   trustwallet: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Trust_Wallet_logo_%282026%29.png/330px-Trust_Wallet_logo_%282026%29.png',
 };
@@ -44,11 +45,13 @@ function logoFor(network, name) {
   if (k.includes('ltc') || k.includes('lite')) return LOGOS.litecoin;
   if (k.includes('doge')) return LOGOS.dogecoin;
   if (k.includes('usdt') || k.includes('tether')) return LOGOS.tether;
+  if (k.includes('usdc')) return LOGOS.usdc;
   return null;
 }
 
 const METHODS = [
   { id: 'usdt', label: 'Pay USDT in Crypto', logo: LOGOS.tether, badge: '₮', badgeClass: 'bg-emerald-500 text-white ring-emerald-300', hint: 'Tether (USDT) transfer' },
+  { id: 'usdc', label: 'Pay USDC in Crypto', logo: LOGOS.usdc, badge: '$', badgeClass: 'bg-blue-600 text-white ring-blue-300', hint: 'USD Coin (USDC) transfer' },
   { id: 'crypto', label: 'Pay Crypto', logo: LOGOS.bitcoin, badge: null, icon: Bitcoin, iconClass: 'text-amber-300', hint: 'BTC / ETH / BNB & other coins' },
   { id: 'trust', label: 'Trust Wallet', logo: LOGOS.trustwallet, badge: 'T', badgeClass: 'bg-blue-600 text-white ring-blue-300', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
   { id: 'tonkeeper', label: 'Ton Wallet (TON)', logo: LOGOS.ton, badge: 'T', badgeClass: 'bg-sky-500 text-white ring-sky-300', hint: 'Connect Ton Wallet & pay USDT (TON) — auto credit' },
@@ -63,6 +66,12 @@ const USDT_NETWORKS = [
   { name: 'USDT TON Network', logo: LOGOS.ton, symbol: '₮', color: '#0098ea', address: 'UQB5vp_yQ4L-EheVHn4df--zU1XDuRX_tMSCc7WEB-PGuGv6' },
   { name: 'USDT AVAX-C Chain', logo: LOGOS.avalanche, symbol: '₮', color: '#e84142', address: '0x2a62cd712863028804a5789629c23d842990aded' },
   { name: 'USDT APT Aptos Network', logo: LOGOS.aptos, symbol: '₮', color: '#06f7c7', address: '0x5eed1ca335fec51a3b18c115c6ceb0f4c774f3bdaa943076d1f58024921501f4' },
+];
+
+const USDC_NETWORKS = [
+  { name: 'USDC Solana Network', logo: LOGOS.solana, symbol: '$', color: '#14f195', address: 'ftmbTXAc6XWyT6ieXHLiEZ7zuJFDPVSAdvrvrTveniW' },
+  { name: 'USDC Polygon Network', logo: LOGOS.polygon, symbol: '$', color: '#8247e5', address: '0x2a62cd712863028804a5789629c23d842990aded' },
+  { name: 'USDC Aptos Network', logo: LOGOS.aptos, symbol: '$', color: '#06f7c7', address: '0x5eed1ca335fec51a3b18c115c6ceb0f4c774f3bdaa943076d1f58024921501f4' },
 ];
 
 const CRYPTO_NETWORKS = [
@@ -115,17 +124,19 @@ export default function PayMethod() {
   const { toast } = useToast();
   const { t } = useLanguage();
   const { demoMode } = useCasinoBalance();
-  const [view, setView] = useState('choose'); // 'choose' | 'usdt' | 'crypto' | 'binance'
-  const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, crypto: CRYPTO_NETWORKS });
+  const [view, setView] = useState('choose'); // 'choose' | 'usdt' | 'usdc' | 'crypto' | 'binance'
+  const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, usdc: USDC_NETWORKS, crypto: CRYPTO_NETWORKS });
 
   useEffect(() => {
     base44.entities.PaymentAddress.filter({ active: true }, 'order', 100)
       .then(list => {
         const map = (r) => ({ name: r.label, symbol: r.symbol || '', color: r.color || '#f7931a', address: r.address || '', qr_image_url: r.qr_image_url || '', network: r.network, logo: logoFor(r.network, r.label), raw: r });
         const usdt = list.filter(r => r.method === 'usdt').map(map);
+        const usdc = list.filter(r => r.method === 'usdc').map(map);
         const crypto = list.filter(r => r.method === 'crypto').map(map);
         setPayData({
           usdt: usdt.length ? usdt : USDT_NETWORKS,
+          usdc: usdc.length ? usdc : USDC_NETWORKS,
           crypto: crypto.length ? crypto : CRYPTO_NETWORKS,
         });
       })
@@ -133,12 +144,12 @@ export default function PayMethod() {
   }, []);
 
   const choose = (m) => {
-    if (m.id === 'usdt' || m.id === 'crypto' || m.id === 'trust' || m.id === 'tonkeeper') { setView(m.id); return; }
+    if (m.id === 'usdt' || m.id === 'usdc' || m.id === 'crypto' || m.id === 'trust' || m.id === 'tonkeeper') { setView(m.id); return; }
     toast({ title: `${m.label} selected`, description: 'Payment processing coming soon.' });
   };
 
-  const networks = view === 'usdt' ? payData.usdt : view === 'crypto' ? payData.crypto : [];
-  const methodLabel = view === 'usdt' ? t("USDT Deposit") : view === 'crypto' ? t("Crypto Deposit") : view === 'tonkeeper' ? t("Ton Wallet Deposit") : t("Trust Wallet Pay");
+  const networks = view === 'usdt' ? payData.usdt : view === 'usdc' ? payData.usdc : view === 'crypto' ? payData.crypto : [];
+  const methodLabel = view === 'usdt' ? t("USDT Deposit") : view === 'usdc' ? t("USDC Deposit") : view === 'crypto' ? t("Crypto Deposit") : view === 'tonkeeper' ? t("Ton Wallet Deposit") : t("Trust Wallet Pay");
 
   return (
     <div className="relative min-h-screen pb-24" style={{ background: '#0D0D0D', fontFamily: SANS }}>
