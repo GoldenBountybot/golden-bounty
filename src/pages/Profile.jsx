@@ -225,10 +225,10 @@ export default function Profile() {
                 style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
                 <ArrowUpFromLine className="w-4 h-4" style={{ color: '#f87171' }} /> {t("Withdraw")}
               </Link>
-              <button onClick={() => { setTab('wallet'); setMenuOpen(false); }}
+              <Link to="/history" onClick={() => setMenuOpen(false)}
                 className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors">
                 <History className="w-4 h-4" style={{ color: '#D4AF37' }} /> {t("History")}
-              </button>
+              </Link>
               <button onClick={() => { setView('rewards'); setMenuOpen(false); }}
                 className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
                 style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
