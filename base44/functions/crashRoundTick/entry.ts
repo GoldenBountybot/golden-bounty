@@ -53,6 +53,11 @@ function genCrashPoint(rtp) {
   if (crash > 50 && rand() < 0.85) {
     crash = 10 + rand() * 40;
   }
+  // Similarly pull ~40% of x10–x50 outcomes down into the 2x–10x band so
+  // double-digit flights stay uncommon.
+  if (crash > 10 && crash <= 50 && rand() < 0.40) {
+    crash = 2 + rand() * 8;
+  }
 
   if (crash < 1.00) {
     // 50% fewer exact 1.00x busts, the rest spread across (1.00, 2.00).
