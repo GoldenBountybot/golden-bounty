@@ -23,8 +23,8 @@ export default function VipLevels({ totalDeposits }) {
         <div className="pointer-events-none absolute -top-12 -right-10 w-44 h-44 rounded-full" style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.22), transparent 70%)' }} />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl overflow-hidden" style={{ background: '#000', border: '1px solid ' + (current?.color || 'rgba(212,175,55,0.35)') }}>
-              {current ? <img src={current.logo} alt={current.name} className="w-full h-full object-cover" /> : <Crown className="w-5 h-5" style={{ color: '#8a7a5a' }} />}
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl overflow-hidden" style={{ background: 'transparent', border: '1px solid ' + (current?.color || 'rgba(212,175,55,0.35)') }}>
+              {current ? <img src={current.logo} alt={current.name} className="w-full h-full object-cover" style={{ mixBlendMode: 'screen' }} /> : <Crown className="w-5 h-5" style={{ color: '#8a7a5a' }} />}
             </div>
             <h2 className="text-base font-bold" style={{ color: '#D4AF37' }}>
               {current ? `VIP Level ${current.level} · ${current.name}` : 'No VIP Yet'}
@@ -97,8 +97,8 @@ export default function VipLevels({ totalDeposits }) {
             {/* Left — VIP icon in glowing circle */}
             <div className="relative shrink-0">
               <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 18px ' + (lv.color || '#8a7a5a') + '80', transform: 'scale(0.9)' }} />
-              <div className="w-12 h-12 rounded-full flex items-center justify-center relative overflow-hidden" style={{ background: '#000', border: '1px solid ' + (lv.color || '#8a7a5a') }}>
-                <img src={lv.logo} alt={lv.name} className="w-full h-full object-cover" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center relative overflow-hidden" style={{ background: 'transparent', border: '1px solid ' + (lv.color || '#8a7a5a') }}>
+                <img src={lv.logo} alt={lv.name} className="w-full h-full object-cover" style={{ mixBlendMode: 'screen' }} />
               </div>
             </div>
 
