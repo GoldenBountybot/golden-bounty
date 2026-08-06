@@ -53,9 +53,10 @@ function genLiveBets(roundId) {
   // rounds sit around 200–500, with occasional spikes up to 1200+.
   const n = 200 + Math.floor(Math.pow(rnd(), 1.6) * 1001);
 
-  // Top bet varies each round (e.g. $490, $455, $400…) but never drops
-  // below $250.
-  const maxAmt = +(250 + rnd() * 250).toFixed(2);
+  // Top bet scales with player count: more players → higher top bet, up to
+  // $500. Fewer players → lower top bet (never below $250).
+  const playerRatio = Math.min(1, (n - 200) / 800);
+  const maxAmt = +Math.min(500, 250 + playerRatio * 250 + rnd() * 40).toFixed(2);
 
   // Each bot bets an independent random amount (biased toward smaller bets
   // with a steep power curve). Sorting these descending produces natural,
