@@ -1103,65 +1103,90 @@ export function playError() {
   o2.stop(t + 0.25);
 }
 
-// ── COUNT UP — rapid golden ticks while the win amount counts up ──────────
-// Plays a stream of bright metallic chime ticks that climb in pitch as the
-// count rises, creating a premium "counting money" feel. Duration matches
-// the banner count-up (~2.6s).
+// ── COUNT UP — real casino-style coin counter ticking while the win counts up
+// Authentic slot-machine "money counter" sound: a rapid mechanical ticker
+// (short square clicks) layered with metallic coin clinks, accelerating as the
+// count rises, ending with a satisfying "cha-ching" resolution. Duration
+// matches the banner count-up (~2.6s).
 export function playCountUp(duration = 2600) {
   if (isMuted()) return;
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
   const t = ac.currentTime;
-  const { bus } = makeReverbBus(ac, 0.06, 0.12, 0.18);
+  const { bus } = makeReverbBus(ac, 0.05, 0.1, 0.15);
 
-  // Number of ticks — roughly 2 per beat, accelerating slightly near the end.
-  const tickCount = Math.max(8, Math.floor(duration / 90));
+  // Mechanical ticker — many short clicks, accelerating (ease-in) so it feels
+  // like a real counter speeding up. Use a slight ease-in curve so ticks bunch
+  // closer together toward the end.
+  const tickCount = Math.max(20, Math.floor(duration / 55));
   for (let i = 0; i < tickCount; i++) {
     const p = i / tickCount;
-    const start = t + p * duration;
-    // Pitch climbs from ~880Hz to ~1760Hz across the count.
-    const freq = 880 * Math.pow(2, (p * 12) / 12);
+    // Ease-in: ticks start spaced out, then accelerate.
+    const eased = p * p;
+    const start = t + eased * duration;
+    // Pitch climbs slightly across the count for building excitement.
+    const freq = 1200 + eased * 900;
+
+    // Mechanical click body — short square pulse (the "ticker").
     const o = ac.createOscillator();
     const g = ac.createGain();
-    o.type = 'sine';
+    o.type = 'square';
     o.frequency.setValueAtTime(freq, start);
     g.gain.setValueAtTime(0.0001, start);
-    g.gain.linearRampToValueAtTime(0.05, start + 0.003);
-    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.07);
+    g.gain.linearRampToValueAtTime(0.045, start + 0.001);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.03);
     o.connect(g);
     g.connect(bus);
     o.start(start);
-    o.stop(start + 0.08);
+    o.stop(start + 0.035);
 
-    // Metallic edge partial for a "coin" character.
-    const o2 = ac.createOscillator();
-    const g2 = ac.createGain();
-    o2.type = 'sine';
-    o2.frequency.setValueAtTime(freq * 2.76, start);
-    g2.gain.setValueAtTime(0.0001, start);
-    g2.gain.linearRampToValueAtTime(0.015, start + 0.002);
-    g2.gain.exponentialRampToValueAtTime(0.0001, start + 0.05);
-    o2.connect(g2);
-    g2.connect(bus);
-    o2.start(start);
-    o2.stop(start + 0.06);
+    // Coin clink — bright metallic high partial (the "ching" on some ticks).
+    if (i % 3 === 0) {
+      const o2 = ac.createOscillator();
+      const g2 = ac.createGain();
+      o2.type = 'triangle';
+      o2.frequency.setValueAtTime(freq * 3.2, start);
+      g2.gain.setValueAtTime(0.0001, start);
+      g2.gain.linearRampToValueAtTime(0.02, start + 0.002);
+      g2.gain.exponentialRampToValueAtTime(0.0001, start + 0.06);
+      o2.connect(g2);
+      g2.connect(bus);
+      o2.start(start);
+      o2.stop(start + 0.07);
+    }
   }
 
-  // Final resolution chime at the end of the count.
+  // Final "cha-ching" resolution — two bright coin hits + a ringing chime.
   const finalT = t + duration;
+  // First coin clink.
+  [1, 1.5].forEach((mult, idx) => {
+    const start = finalT + idx * 0.06;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(1568 * mult, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.08, start + 0.003);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.25);
+    o.connect(g);
+    g.connect(bus);
+    o.start(start);
+    o.stop(start + 0.3);
+  });
+  // Ringing resolution chord.
   [1046.5, 1318.51, 1568].forEach((f) => {
     const o = ac.createOscillator();
     const g = ac.createGain();
     o.type = 'sine';
     o.frequency.setValueAtTime(f, finalT);
     g.gain.setValueAtTime(0.0001, finalT);
-    g.gain.linearRampToValueAtTime(0.06, finalT + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, finalT + 0.5);
+    g.gain.linearRampToValueAtTime(0.07, finalT + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, finalT + 0.6);
     o.connect(g);
     g.connect(bus);
     o.start(finalT);
-    o.stop(finalT + 0.55);
+    o.stop(finalT + 0.65);
   });
 }
 
