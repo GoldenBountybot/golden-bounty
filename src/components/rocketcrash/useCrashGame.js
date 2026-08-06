@@ -49,7 +49,7 @@ function nameForIndex(idx) {
 // is unique within the round (drawn without replacement from 20,000 handles).
 function genLiveBets(roundId) {
   const rnd = mulberry32((roundId || 1) * 2654435761);
-  const n = 200 + Math.floor(rnd() * 61); // 200–260 players
+  const n = 300 + Math.floor(rnd() * 61); // 300–360 players
 
   // Random descending amounts with random gaps: split the $500→$0.10 range
   // into n-1 random-weighted slices so gaps vary (e.g. 500, 485, 464, …).
