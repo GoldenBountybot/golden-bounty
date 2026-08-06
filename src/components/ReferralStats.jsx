@@ -91,22 +91,6 @@ export default function ReferralStats({ profile, onBack }) {
         </div>
       </div>
 
-      {/* My rank badge */}
-      <div className="dash-card p-4 flex items-center gap-3" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.4)' }}>
-        <div className="flex items-center justify-center w-11 h-11 rounded-full shrink-0" style={{ background: 'linear-gradient(135deg, #FFD700, #C89B3C)', boxShadow: '0 0 8px rgba(212,175,55,0.25)' }}>
-          <Trophy className="w-5 h-5" style={{ color: '#1a1408' }} />
-        </div>
-        <div className="flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(212,175,55,0.85)' }}>{t("Your Rank")}</p>
-          <p className="text-lg font-extrabold mt-0.5" style={{ color: myRank ? '#D4AF37' : 'rgba(255,255,255,0.5)' }}>
-            {myRank ? `#${myRank} · ${myCount} ${t("invites")}` : t("No invites yet")}
-          </p>
-        </div>
-        <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg shrink-0" style={{ color: 'rgba(212,175,55,0.85)', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)' }}>
-          {totalReferrers} {t("referrers")}
-        </span>
-      </div>
-
       {/* Ranking leaderboard — hidden for now */}
       {false && (
       <div className="flex items-center gap-2 px-1">
