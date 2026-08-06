@@ -5,9 +5,12 @@ import React, { useMemo } from 'react';
 //   2) an expanding golden shockwave ring
 //   3) fiery ember chunks flying outward in all directions
 //   4) fine golden sparkles trailing the blast
-// Each layer uses GPU-only transforms + opacity for smooth, jank-free play.
-const EMBER_COUNT = 12;
-const SPARK_COUNT = 8;
+// Optimized: no mixBlendMode (avoids expensive blend compositing), no
+// per-particle will-change (lets the browser pool layers instead of pinning
+// one GPU layer per shard), and `contain: layout style` (NOT paint) so embers
+// can fly beyond the cell bounds without being clipped.
+const EMBER_COUNT = 10;
+const SPARK_COUNT = 6;
 
 export default function GatesParticleBurst({ turbo }) {
   const embers = useMemo(
@@ -44,7 +47,7 @@ export default function GatesParticleBurst({ turbo }) {
   const sparkDur = turbo ? 0.4 : 0.58;
 
   return (
-    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 6, contain: 'layout style paint' }}>
+    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 6, contain: 'layout style' }}>
       {/* 1 — detonation flash */}
       <span
         style={{
@@ -53,13 +56,9 @@ export default function GatesParticleBurst({ turbo }) {
           top: '50%',
           width: '78%',
           height: '78%',
-          marginLeft: 0,
-          marginTop: 0,
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(255,255,245,1) 0%, rgba(255,240,180,0.95) 28%, rgba(255,200,80,0.6) 60%, rgba(255,160,30,0) 100%)',
-          mixBlendMode: 'screen',
           animation: `gatesBlastFlash ${flashDur}s ease-out forwards`,
-          willChange: 'transform, opacity',
         }}
       />
       {/* 2 — shockwave ring */}
@@ -72,9 +71,8 @@ export default function GatesParticleBurst({ turbo }) {
           height: '60%',
           borderRadius: '50%',
           border: '3px solid rgba(255,235,140,0.95)',
-          boxShadow: '0 0 10px rgba(255,210,90,0.8), inset 0 0 8px rgba(255,240,160,0.7)',
+          boxShadow: '0 0 8px rgba(255,210,90,0.8)',
           animation: `gatesBlastRing ${ringDur}s cubic-bezier(0.2,0.7,0.3,1) forwards`,
-          willChange: 'transform, opacity',
         }}
       />
       {/* 3 — fiery embers */}
@@ -90,12 +88,11 @@ export default function GatesParticleBurst({ turbo }) {
             marginLeft: -p.size / 2,
             marginTop: -p.size / 2,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, #fff8e0 0%, #ffd860 35%, #ff8c20 75%, rgba(255,60,0,0) 100%)',
-            boxShadow: '0 0 6px rgba(255,180,60,0.95), 0 0 12px rgba(255,120,20,0.6)',
+            background: 'radial-gradient(circle, #fff8e0 0%, #ffd860 40%, #ff8c20 80%, rgba(255,60,0,0) 100%)',
+            boxShadow: '0 0 5px rgba(255,160,50,0.85)',
             '--dx': `${p.dx}px`,
             '--dy': `${p.dy}px`,
             animation: `gatesBlastEmber ${emberDur}s cubic-bezier(0.15,0.65,0.3,1) ${p.delay}s forwards`,
-            willChange: 'transform, opacity',
           }}
         />
       ))}
@@ -112,12 +109,10 @@ export default function GatesParticleBurst({ turbo }) {
             marginLeft: -p.size / 2,
             marginTop: -p.size / 2,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, #fff7c8 0%, #ffd860 50%, rgba(255,180,40,0) 100%)',
-            boxShadow: '0 0 4px rgba(255,220,120,0.9)',
+            background: 'radial-gradient(circle, #fff7c8 0%, #ffd860 55%, rgba(255,180,40,0) 100%)',
             '--dx': `${p.dx}px`,
             '--dy': `${p.dy}px`,
             animation: `gatesParticleBurst ${sparkDur}s cubic-bezier(0.18,0.7,0.3,1) ${p.delay}s forwards`,
-            willChange: 'transform, opacity',
           }}
         />
       ))}
