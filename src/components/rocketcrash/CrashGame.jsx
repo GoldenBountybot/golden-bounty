@@ -49,7 +49,7 @@ export default function CrashGame() {
 
       <div className="flex items-center justify-between gap-2">
         <HistoryBar history={g.history} />
-        <PlayerHistoryButton />
+        <PlayerHistoryButton gameId="rocket-crash" title="Aviator History" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-3">

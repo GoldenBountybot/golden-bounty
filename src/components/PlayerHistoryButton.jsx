@@ -20,7 +20,7 @@ function fmtDate(d) {
   } catch { return String(d); }
 }
 
-export default function PlayerHistoryButton({ iconOnly = false, externalOpen = false, onExternalClose, renderButton = true }) {
+export default function PlayerHistoryButton({ iconOnly = false, externalOpen = false, onExternalClose, renderButton = true, gameId = null, title = 'Win / Loss History' }) {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = internalOpen || externalOpen;
   const setOpen = (v) => { if (!v) onExternalClose && onExternalClose(); setInternalOpen(v); };
@@ -41,8 +41,9 @@ export default function PlayerHistoryButton({ iconOnly = false, externalOpen = f
     return () => { active = false; };
   }, [open]);
 
-  // Only rounds where the player actually placed a bet are shown.
-  const hist = rows.filter((r) => (r.bet || 0) > 0);
+  // Only rounds where the player actually placed a bet are shown; when a
+  // gameId is provided, only that game's activity is listed.
+  const hist = rows.filter((r) => (r.bet || 0) > 0 && (!gameId || r.game_id === gameId));
   const totalBet = hist.reduce((s, r) => s + (r.bet || 0), 0);
   const totalWin = hist.reduce((s, r) => s + (r.win || 0), 0);
   const net = totalWin - totalBet;
@@ -80,7 +81,7 @@ export default function PlayerHistoryButton({ iconOnly = false, externalOpen = f
             <div className="flex items-center justify-between px-4 py-3 border-b border-indigo-900/40">
               <div className="flex items-center gap-2">
                 <History className="w-4 h-4 text-indigo-300" />
-                <h3 className="text-sm font-black text-indigo-100 italic" style={{ fontFamily: 'Georgia, serif' }}>Win / Loss History</h3>
+                <h3 className="text-sm font-black text-indigo-100 italic" style={{ fontFamily: 'Georgia, serif' }}>{title}</h3>
               </div>
               <button onClick={() => setOpen(false)} className="w-7 h-7 rounded-full bg-black/50 border border-indigo-800/50 flex items-center justify-center text-indigo-100">
                 <X className="w-4 h-4" />
