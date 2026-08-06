@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot } from 'lucide-react';
+
 import LiveSupportChat from '@/components/LiveSupportChat';
 import BackButton from '@/components/BackButton';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -18,9 +18,9 @@ export default function LiveSupport() {
         <div className="flex items-center justify-between px-4 py-3">
           <BackButton href="/profile" label={t('Back')} />
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full"
+            <div className="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden"
               style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)', boxShadow: '0 0 10px rgba(99,102,241,0.3)' }}>
-              <Bot className="w-4 h-4" style={{ color: '#fff' }} />
+              <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png" alt="Bounty Bot" className="w-full h-full object-cover" />
             </div>
             <h1 className="text-base font-bold" style={{ color: '#D4AF37', fontFamily: 'Georgia, serif' }}>{t('Live Support')}</h1>
           </div>

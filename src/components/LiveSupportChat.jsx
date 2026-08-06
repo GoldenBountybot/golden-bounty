@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Send, Loader2, Headphones, Bot, UserRound, Plug, X } from 'lucide-react';
+import { Send, Loader2, Headphones, UserRound, Plug, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
 import { getBotReply } from '@/lib/supportBot';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
+const BOT_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
 
 // Derive the current agent status from the thread's control messages.
 // "none"  -> bot mode (AI auto-replies)
@@ -146,9 +147,11 @@ export default function LiveSupportChat() {
       {/* Chat header */}
       <div className="flex items-center gap-2.5 px-4 py-3 rounded-t-2xl shrink-0"
         style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.35)', borderBottom: 'none' }}>
-        <div className="flex items-center justify-center w-9 h-9 rounded-full shrink-0"
+        <div className="flex items-center justify-center w-9 h-9 rounded-full shrink-0 overflow-hidden"
           style={{ background: isBotMode ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'linear-gradient(135deg, #FFD700, #C89B3C)', boxShadow: '0 0 10px rgba(212,175,55,0.3)' }}>
-          {isBotMode ? <Bot className="w-4 h-4" style={{ color: '#fff' }} /> : <Headphones className="w-4 h-4" style={{ color: '#1a1408' }} />}
+          {isBotMode
+            ? <img src={BOT_LOGO} alt="Bounty Bot" className="w-full h-full object-cover" />
+            : <Headphones className="w-4 h-4" style={{ color: '#1a1408' }} />}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold truncate" style={{ color: '#D4AF37' }}>
@@ -181,7 +184,7 @@ export default function LiveSupportChat() {
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2 text-center">
-            <Bot className="w-9 h-9" style={{ color: '#818cf8' }} />
+            <img src={BOT_LOGO} alt="Bounty Bot" className="w-14 h-14 rounded-full object-cover" style={{ boxShadow: '0 0 14px rgba(99,102,241,0.4)', border: '2px solid rgba(129,140,248,0.5)' }} />
             <p className="text-[13px] font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>{t('Hi! I\'m Bounty Bot 🤖')}</p>
             <p className="text-[11px] max-w-[260px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{t('Ask me anything about games, deposits, withdrawals, VIP, or referrals. Want a human? Tap "Connect with Agent".')}</p>
           </div>
@@ -217,7 +220,7 @@ export default function LiveSupportChat() {
                   >
                     {isBot && (
                       <p className="text-[9px] font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1" style={{ color: '#a5b4fc' }}>
-                        <Bot className="w-2.5 h-2.5" /> Bounty Bot
+                        <img src={BOT_LOGO} alt="" className="w-3 h-3 rounded-full object-cover" /> Bounty Bot
                       </p>
                     )}
                     <p className="text-[13px] leading-relaxed whitespace-pre-wrap break-words">{m.text}</p>
