@@ -38,7 +38,7 @@ export function playTakeoff() {
   filter.frequency.exponentialRampToValueAtTime(2400, now + dur);
   const gain = c.createGain();
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.32, now + 0.18);
+  gain.gain.exponentialRampToValueAtTime(0.42, now + 0.18);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
   src.connect(filter).connect(gain).connect(c.destination);
   src.start(now);
@@ -57,12 +57,12 @@ export function startFlying() {
   filter.type = 'lowpass';
   filter.frequency.value = 380;
   const gain = c.createGain();
-  gain.gain.value = 0.05;
+  gain.gain.value = 0.075;
   const osc = c.createOscillator();
   osc.type = 'sawtooth';
   osc.frequency.value = 78;
   const oscGain = c.createGain();
-  oscGain.gain.value = 0.018;
+  oscGain.gain.value = 0.026;
   src.connect(filter).connect(gain).connect(c.destination);
   osc.connect(oscGain).connect(c.destination);
   src.start();
@@ -100,7 +100,7 @@ export function playBlast() {
   filter.frequency.setValueAtTime(1400, now);
   filter.frequency.exponentialRampToValueAtTime(110, now + dur);
   const gain = c.createGain();
-  gain.gain.setValueAtTime(0.6, now);
+  gain.gain.setValueAtTime(0.78, now);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
 
   // low sine boom thump
@@ -109,7 +109,7 @@ export function playBlast() {
   osc.frequency.setValueAtTime(130, now);
   osc.frequency.exponentialRampToValueAtTime(40, now + 0.45);
   const oscGain = c.createGain();
-  oscGain.gain.setValueAtTime(0.5, now);
+  oscGain.gain.setValueAtTime(0.66, now);
   oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
 
   src.connect(filter).connect(gain).connect(c.destination);
