@@ -121,45 +121,50 @@ export default function GatesMachine() {
       setBannerFlyOrigin(null);
       return;
     }
-    const entry = winHistory[winHistory.length - 1];
-    const bannerEl = bannerRef.current;
-    if (!bannerEl) return;
-    // 1) Read every rect FIRST (no writes between reads = one reflow).
-    const bRect = bannerEl.getBoundingClientRect();
-    const mRect = multBannerRef.current ? multBannerRef.current.getBoundingClientRect() : null;
-    const cellRects = {};
-    if (entry.mult > 0 && entry.multipliers) {
-      for (const m of entry.multipliers) {
-        const el = cellRefs.current[m.pos];
-        if (el) cellRects[m.pos] = el.getBoundingClientRect();
+    // Defer rect reads to the next animation frame so the layout
+    // measurement doesn't block the tumble animation's paint.
+    const raf = requestAnimationFrame(() => {
+      const entry = winHistory[winHistory.length - 1];
+      const bannerEl = bannerRef.current;
+      if (!bannerEl) return;
+      // 1) Read every rect FIRST (no writes between reads = one reflow).
+      const bRect = bannerEl.getBoundingClientRect();
+      const mRect = multBannerRef.current ? multBannerRef.current.getBoundingClientRect() : null;
+      const cellRects = {};
+      if (entry.mult > 0 && entry.multipliers) {
+        for (const m of entry.multipliers) {
+          const el = cellRefs.current[m.pos];
+          if (el) cellRects[m.pos] = el.getBoundingClientRect();
+        }
       }
-    }
-    const cx = bRect.left + bRect.width / 2;
-    const cy = bRect.top + bRect.height / 2;
-    // 2) Now compute + write (after all reads are done).
-    if (entry.mult > 0 && entry.multipliers) {
-      const origins = entry.multipliers.map((m) => {
-        const rect = cellRects[m.pos];
-        if (!rect) return null;
-        return {
-          x: rect.left + rect.width / 2 - cx,
-          y: rect.top + rect.height / 2 - cy,
-          value: m.value,
-        };
-      }).filter(Boolean);
-      setMultFlyOrigins(origins);
-    } else {
-      setMultFlyOrigins([]);
-    }
-    if (entry.bannerBefore > 0 && mRect) {
-      setBannerFlyOrigin({
-        x: mRect.left + mRect.width / 2 - cx,
-        y: mRect.top + mRect.height / 2 - cy,
-        value: entry.bannerBefore,
-      });
-    } else {
-      setBannerFlyOrigin(null);
-    }
+      const cx = bRect.left + bRect.width / 2;
+      const cy = bRect.top + bRect.height / 2;
+      // 2) Now compute + write (after all reads are done).
+      if (entry.mult > 0 && entry.multipliers) {
+        const origins = entry.multipliers.map((m) => {
+          const rect = cellRects[m.pos];
+          if (!rect) return null;
+          return {
+            x: rect.left + rect.width / 2 - cx,
+            y: rect.top + rect.height / 2 - cy,
+            value: m.value,
+          };
+        }).filter(Boolean);
+        setMultFlyOrigins(origins);
+      } else {
+        setMultFlyOrigins([]);
+      }
+      if (entry.bannerBefore > 0 && mRect) {
+        setBannerFlyOrigin({
+          x: mRect.left + mRect.width / 2 - cx,
+          y: mRect.top + mRect.height / 2 - cy,
+          value: entry.bannerBefore,
+        });
+      } else {
+        setBannerFlyOrigin(null);
+      }
+    });
+    return () => cancelAnimationFrame(raf);
   }, [winHistory]);
 
   // Lightning: when a fresh multiplier symbol lands on a stopped reel, strike
@@ -168,38 +173,41 @@ export default function GatesMachine() {
   useEffect(() => {
     const root = machineRef.current;
     if (!root) return;
-    const rootRect = root.getBoundingClientRect();
-    const fire = [];
-    for (let c = 0; c < REELS; c++) {
-      if (!stoppedReels.has(c)) continue;
-      for (let r = 0; r < ROWS; r++) {
-        const key = `${c}-${r}`;
-        if (struckRef.current.has(key)) continue;
-        if (!isMult(grid[c][r])) continue;
-        if (!dropCells.has(key)) continue;
-        const el = cellRefs.current[key];
-        if (!el) continue;
-        const rect = el.getBoundingClientRect();
-        fire.push({
-          key,
-          x: rect.left + rect.width / 2 - rootRect.left,
-          y: rect.top + rect.height / 2 - rootRect.top,
-        });
+    // Defer rect reads to the next frame so the bolt strike doesn't
+    // block the reel-drop paint.
+    const raf = requestAnimationFrame(() => {
+      const rootRect = root.getBoundingClientRect();
+      const fire = [];
+      for (let c = 0; c < REELS; c++) {
+        if (!stoppedReels.has(c)) continue;
+        for (let r = 0; r < ROWS; r++) {
+          const key = `${c}-${r}`;
+          if (struckRef.current.has(key)) continue;
+          if (!isMult(grid[c][r])) continue;
+          if (!dropCells.has(key)) continue;
+          const el = cellRefs.current[key];
+          if (!el) continue;
+          const rect = el.getBoundingClientRect();
+          fire.push({
+            key,
+            x: rect.left + rect.width / 2 - rootRect.left,
+            y: rect.top + rect.height / 2 - rootRect.top,
+          });
+        }
       }
-    }
-    if (!fire.length) return;
-    fire.forEach((b) => struckRef.current.add(b.key));
-    playMultLand();
-    setBolts((prev) => ({ ...prev, ...Object.fromEntries(fire.map((b) => [b.key, b])) }));
-    const dur = (turbo ? 420 : 700) + 120;
-    const t = setTimeout(() => {
-      setBolts((prev) => {
-        const copy = { ...prev };
-        fire.forEach((b) => delete copy[b.key]);
-        return copy;
-      });
-    }, dur);
-    return () => clearTimeout(t);
+      if (!fire.length) return;
+      fire.forEach((b) => struckRef.current.add(b.key));
+      playMultLand();
+      setBolts((prev) => ({ ...prev, ...Object.fromEntries(fire.map((b) => [b.key, b])) }));
+      const dur = (turbo ? 420 : 700) + 120;
+      setTimeout(() => {
+        setBolts((prev) => {
+          const copy = { ...prev };
+          fire.forEach((b) => delete copy[b.key]);
+          return copy;
+        });
+      }, dur);
+    });
   }, [stoppedReels, grid, dropCells, dropTick, turbo]);
 
   return (
@@ -251,12 +259,12 @@ export default function GatesMachine() {
             style={{ background: 'linear-gradient(to bottom, rgba(52,26,96,0.42), rgba(74,38,132,0.42))', minHeight: 0 }}>
 
             {/* 6×5 grid — Big Brown style: per-reel scroll strip, sequential stop + drop */}
-            <div ref={boardRef} className="flex gap-[4px] p-[5px]" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
+            <div ref={boardRef} className="flex gap-[4px] p-[5px]" style={{ height: 'clamp(240px, 42vh, 340px)', contain: 'layout style paint' }}>
               {grid.map((reel, c) => {
                 const stopped = stoppedReels.has(c);
                 return (
                   <React.Fragment key={c}>
-                  <div className="relative flex-1 flex flex-col gap-[6px] min-w-0">
+                  <div className="relative flex-1 flex flex-col gap-[6px] min-w-0" style={{ contain: 'layout style' }}>
                     {reel.map((sym, r) => {
                       const winKey = `${c}-${r}`;
                       const isShatter = shatter.has(winKey);
@@ -275,7 +283,8 @@ export default function GatesMachine() {
                             boxSizing: 'border-box',
                             border: '1.5px solid transparent',
                             boxShadow: 'none',
-                            animation: 'none' }}>
+                            animation: 'none',
+                            contain: 'layout style' }}>
                           {stopped ? (
                             <div key={animKey} className="relative w-full h-full"
                               style={{ animation: isScatterGlow ? 'gatesScatterGlow 0.9s ease-in-out infinite'
@@ -284,7 +293,7 @@ export default function GatesMachine() {
                                 : isWin ? `gatesMatchGrow ${g.turbo ? 0.18 : 0.25}s ease-out forwards`
                                 : dropAnim ? `gatesDrop ${g.turbo ? 0.18 : 0.26}s cubic-bezier(0.22,0.7,0.32,1) both` : 'none',
                                 willChange: (isShatter || isWin || dropAnim || isScatterGlow) ? 'transform, opacity' : 'auto',
-                                transform: 'translateZ(0)' }}>
+                                transform: (isShatter || isWin || dropAnim || isScatterGlow) ? 'translateZ(0)' : 'none' }}>
                               <GatesSymbol sym={sym} highlight={isWin || isScatterGlow} />
                               {symIsMult && (
                                 <GatesMultReveal

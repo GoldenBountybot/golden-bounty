@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 // Golden particle burst — small dots fly outward and fade when a winning
 // symbol shatters. Renders N particles with randomized angles/distances via
 // CSS custom properties so each particle gets its own trajectory.
-const PARTICLE_COUNT = 14;
+const PARTICLE_COUNT = 10;
 
 export default function GatesParticleBurst({ turbo }) {
   const particles = useMemo(
@@ -23,7 +23,7 @@ export default function GatesParticleBurst({ turbo }) {
   const dur = turbo ? 0.42 : 0.62;
 
   return (
-    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 6 }}>
+    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 6, contain: 'layout style paint' }}>
       {particles.map((p) => (
         <span
           key={p.i}
