@@ -31,6 +31,12 @@ export default function Register() {
       setError(t("Passwords do not match"));
       return;
     }
+    // Only Gmail addresses are allowed — temp/disposable emails are blocked.
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!trimmedEmail.endsWith("@gmail.com")) {
+      setError(t("Only Gmail addresses are allowed. Please use a @gmail.com email or sign up with Google."));
+      return;
+    }
     setLoading(true);
     try {
       await base44.auth.register({ email, password });
@@ -191,7 +197,7 @@ export default function Register() {
               type="email"
               autoComplete="email"
               autoFocus
-              placeholder="you@example.com"
+              placeholder="you@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="pl-10 h-9"
