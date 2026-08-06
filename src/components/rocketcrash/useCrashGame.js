@@ -53,37 +53,31 @@ function genLiveBets(roundId) {
   // rounds sit around 200–500, with occasional spikes up to 1200+.
   const n = 200 + Math.floor(Math.pow(rnd(), 1.6) * 1001);
 
-  // Random descending amounts with random gaps: split the $500→$0.10 range
-  // into n-1 random-weighted slices so gaps vary (e.g. 500, 485, 464, …).
-  const gaps = Array.from({ length: n - 1 }, () => Math.pow(rnd(), 7));
-  const sum = gaps.reduce((a, b) => a + b, 0) || 1;
   // Top bet varies each round (e.g. $490, $455, $400…) but never drops
-  // below $250, then descends to $0.10 with random gaps.
+  // below $250.
   const maxAmt = +(250 + rnd() * 250).toFixed(2);
-  const range = maxAmt - 0.10;
-  const amounts = [maxAmt];
-  let cum = 0;
-  for (let i = 0; i < n - 1; i++) {
-    cum += (gaps[i] / sum) * range;
-    amounts.push(+(maxAmt - cum).toFixed(2));
-  }
 
-  // Pick n distinct name indices without replacement.
+  // Each bot bets an independent random amount (biased toward smaller bets
+  // with a steep power curve). Sorting these descending produces natural,
+  // irregular gaps — big jumps between some bets, tight clusters elsewhere —
+  // so the list reads as real players/bots rather than a smooth curve.
   const used = new Set();
   const arr = [];
   for (let i = 0; i < n; i++) {
     let idx;
     do { idx = Math.floor(rnd() * NAME_SPACE); } while (used.has(idx));
     used.add(idx);
+    const amt = +(0.10 + (maxAmt - 0.10) * Math.pow(rnd(), 3)).toFixed(2);
     arr.push({
       id: roundId + '-' + i,
       name: nameForIndex(idx),
-      amount: amounts[i],
+      amount: amt,
       cashOutAt: +(1.15 + rnd() * 9).toFixed(2),
       cashedOut: false,
       win: 0,
     });
   }
+  arr.sort((a, b) => b.amount - a.amount);
   return arr;
 }
 
