@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Gift, Coins, Loader2, Check, Sparkles, ArrowDownToLine, Map, X } from 'lucide-react';
 
-const PDF_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/d622ddbca_Golden_Bounty_Roadmap_2026_2027_Perfect.pdf';
+const PDF_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/cf7fd6d28_Golden_Bounty_Roadmap_2026_2027_Updated.pdf';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/LanguageContext';
