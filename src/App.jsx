@@ -65,7 +65,7 @@ const AuthenticatedApp = () => {
     const img = new Image();
     img.onload = () => setImgReady(true);
     img.onerror = () => setImgReady(true); // don't trap the user on a failed image
-    img.src = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5cc61204f_InShot_20260722_115033604.jpg';
+    img.src = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b1a2d7d3e_file_000000009ef4820baac5161c2e45158b.png';
     // Preload ALL app-wide images (banners, icons, backgrounds) during the
     // splash so every page renders instantly with no visible downloading.
     preloadAssets(APP_ASSETS).then(() => setAssetsReady(true));
