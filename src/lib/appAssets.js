@@ -16,6 +16,7 @@ const SPLASH = [
   u('b1a2d7d3e_file_000000009ef4820baac5161c2e45158b.png'), // splash image
   u('42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png'), // app background
   u('c39869f00_file_000000003b6c821193c37e7c968d77f2.png'), // Golden Bounty logo
+  u('89345e410_file_00000000f5f88207ba2a1422c54f7ec0.png'), // Bounty Bot support logo
   u('e0ebe2f88_InShot_20260722_150739877.jpg'),             // GB logo (shared)
   u('670fa1a3e_generated_image.png'),                      // plaque bg (GameTitleBar)
   u('11d70dbce_file_000000007ca8820782fc88a9cf61d873.png'), // BOUNTY token logo

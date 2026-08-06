@@ -6,7 +6,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { getBotReply } from '@/lib/supportBot';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
-const BOT_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
+const BOT_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/89345e410_file_00000000f5f88207ba2a1422c54f7ec0.png';
 
 // Derive the current agent status from the thread's control messages.
 // "none"  -> bot mode (AI auto-replies)
