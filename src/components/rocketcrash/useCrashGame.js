@@ -53,7 +53,7 @@ function genLiveBets(roundId) {
 
   // Random descending amounts with random gaps: split the $500→$0.10 range
   // into n-1 random-weighted slices so gaps vary (e.g. 500, 485, 464, …).
-  const gaps = Array.from({ length: n - 1 }, () => rnd());
+  const gaps = Array.from({ length: n - 1 }, () => Math.pow(rnd(), 4));
   const sum = gaps.reduce((a, b) => a + b, 0) || 1;
   const range = 500 - 0.10;
   const amounts = [500];
