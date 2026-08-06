@@ -10,6 +10,7 @@ import { useLogActivity } from '@/lib/useLogActivity';
 import { incBet, decBet } from '@/lib/betStepper';
 import { useMute } from '@/lib/soundMute';
 import { playDeal, playWin, playLoss, playCollect, startBackgroundMusic, stopBackgroundMusic } from '@/lib/hiloSound';
+import PlayerHistoryButton from '@/components/PlayerHistoryButton';
 
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -410,6 +411,9 @@ export default function HiLo() {
             <span className="text-lg font-bold italic tracking-wide">NEW HAND</span>
           </button>
         )}
+
+        {/* Game history */}
+        <PlayerHistoryButton gameId="hi-lo" title="High or Low History" />
       </main>
     </div>
   );
