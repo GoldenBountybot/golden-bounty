@@ -82,8 +82,8 @@ export function pickSymbol(freeMode, allowMult = true, winningTumble = false) {
   // for the rest of that spin's tumbles.
   // `winningTumble` reduces the multiplier chance further when refilling
   // cells after a match, so multipliers land less often on winning cascades.
-  let mChance = allowMult ? (freeMode ? 0.03 : 0.005) : 0;
-  if (winningTumble) mChance *= freeMode ? 0.002 : 0.35;
+  let mChance = allowMult ? (freeMode ? 0.01 : 0.005) : 0;
+  if (winningTumble) mChance *= freeMode ? 0.001 : 0.35;
   const sChance = freeMode ? 0.02 : 0.014;
   const r = Math.random();
   if (r < mChance) return `M${pickMult()}`;
@@ -236,7 +236,7 @@ function capMults(grid, max) {
 export function computeSpin(bet, wantWin, freeMode, runningMult) {
   let grid = wantWin ? forceWinGrid(freeMode, true) : forceLossGrid(freeMode, true);
   if (!freeMode) grid = capMults(grid, 1);
-  else grid = capMults(grid, 2);
+  else grid = capMults(grid, 1);
   let spinHasMult = freeMode ? false : gridHasMult(grid);
   const tumbles = [];
   let totalWin = 0;      // sum of base wins (before multiplier) — for display
@@ -296,7 +296,7 @@ export function computeSpin(bet, wantWin, freeMode, runningMult) {
     scatterMax = Math.max(scatterMax, ev.scatterCount);
     if (ev.win === 0) break;
     grid = tumble(grid, ev.winPositions, freeMode, freeMode ? true : !spinHasMult);
-    if (freeMode) grid = capMults(grid, 2);
+    if (freeMode) grid = capMults(grid, 1);
     if (!freeMode && gridHasMult(grid)) spinHasMult = true;
     t++;
   }
