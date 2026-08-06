@@ -15,6 +15,21 @@ export default function VipLevels({ totalDeposits }) {
 
   return (
     <div className="flex flex-col gap-4" style={{ fontFamily: SANS }}>
+      {/* Luminance-key mask: turns the pure-black background of the VIP badge
+          images transparent (alpha = luminance − threshold) so the card
+          background shows through behind the badge. */}
+      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+        <defs>
+          <filter id="vipLumaKey" colorInterpolationFilters="sRGB">
+            <feColorMatrix type="matrix" values="
+              1 0 0 0 0
+              0 1 0 0 0
+              0 0 1 0 0
+              0.2126 0.7152 0.0722 0 -0.12" />
+          </filter>
+        </defs>
+      </svg>
+
       {/* Current VIP status — premium glass card with golden glow */}
       <div
         className="dash-card relative overflow-hidden p-5 flex flex-col gap-3"
@@ -24,7 +39,7 @@ export default function VipLevels({ totalDeposits }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="flex items-center justify-center w-10 h-10 rounded-xl overflow-hidden" style={{ background: 'transparent', border: '1px solid ' + (current?.color || 'rgba(212,175,55,0.35)') }}>
-              {current ? <img src={current.logo} alt={current.name} className="w-full h-full object-cover" style={{ mixBlendMode: 'screen' }} /> : <Crown className="w-5 h-5" style={{ color: '#8a7a5a' }} />}
+              {current ? <img src={current.logo} alt={current.name} className="w-full h-full object-cover" style={{ filter: 'url(#vipLumaKey)' }} /> : <Crown className="w-5 h-5" style={{ color: '#8a7a5a' }} />}
             </div>
             <h2 className="text-base font-bold" style={{ color: '#D4AF37' }}>
               {current ? `VIP Level ${current.level} · ${current.name}` : 'No VIP Yet'}
@@ -98,7 +113,7 @@ export default function VipLevels({ totalDeposits }) {
             <div className="relative shrink-0">
               <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 18px ' + (lv.color || '#8a7a5a') + '80', transform: 'scale(0.9)' }} />
               <div className="w-12 h-12 rounded-full flex items-center justify-center relative overflow-hidden" style={{ background: 'transparent', border: '1px solid ' + (lv.color || '#8a7a5a') }}>
-                <img src={lv.logo} alt={lv.name} className="w-full h-full object-cover" style={{ mixBlendMode: 'screen' }} />
+                <img src={lv.logo} alt={lv.name} className="w-full h-full object-cover" style={{ filter: 'url(#vipLumaKey)' }} />
               </div>
             </div>
 
