@@ -242,7 +242,7 @@ export default function Profile() {
               <button onClick={() => { setView('support'); setMenuOpen(false); }}
                 className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
                 style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
-                <Headphones className="w-4 h-4" style={{ color: '#34d399' }} /> {t("Support")}
+                <Headphones className="w-4 h-4" style={{ color: '#34d399' }} /> {t("Support 7/24")}
               </button>
               <Link to="/live-support" onClick={() => setMenuOpen(false)}
                 className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
