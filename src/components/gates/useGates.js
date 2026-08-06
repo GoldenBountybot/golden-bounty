@@ -178,6 +178,12 @@ export function useGates() {
       // finish dropping — the next spin is ready immediately after the drop.
       if (tb.win > 0) {
         acc += hold;
+        // When value (multiplier) symbols landed on this winning tumble, keep
+        // the matched symbols on the board while every multiplier chip flies
+        // out and multiplies the win — only then do the symbols blast away.
+        if (tb.multipliers.length) {
+          acc += tb.bannerBefore > 0 ? 5200 : 2900;
+        }
         timers.current.push(setTimeout(() => setShatter(tb.winPositions), acc));
         acc += shatterDur;
         if (i < lastIdx) {
@@ -185,11 +191,6 @@ export function useGates() {
           // so the refill feels as smooth as the spin drop. The next tumble's
           // timeout clears shatter and sets the new grid together.
           acc += refillGap;
-          // Extend the gap after a winning tumble with multipliers so every
-          // multiplier chip's flying animation plays before the next tumble.
-          if (tb.multipliers.length) {
-            acc += tb.bannerBefore > 0 ? 5200 : 2900;
-          }
         }
       }
       prevWinners = tb.winPositions;
