@@ -109,6 +109,7 @@ export function useCrashGame() {
   const crashPointRef = useRef(1);
   const lastCountdownRef = useRef(WAIT_MS);
   const loggedRoundRef = useRef(0);
+  const blastedRoundRef = useRef(0);
   const playerNameRef = useRef('You');
 
   // Fetch the player's display name once so their bet shows at the top of the list.
@@ -128,7 +129,15 @@ export function useCrashGame() {
     const prev = prevPhaseRef.current;
     if (phase === prev) return;
     if (phase === 'running' && prev !== 'running') { playTakeoff(); startFlying(); }
-    else if (phase === 'crashed' && prev !== 'crashed') { playBlast(); }
+    else if (phase === 'crashed' && prev !== 'crashed') {
+      // Guard: play the blast exactly once per round — the local raf crash
+      // and the server poll can both flip phase to 'crashed' for the same
+      // round, which would otherwise fire playBlast multiple times.
+      if (blastedRoundRef.current !== roundIdRef.current) {
+        blastedRoundRef.current = roundIdRef.current;
+        playBlast();
+      }
+    }
     else if (phase === 'waiting') { stopFlying(); }
     prevPhaseRef.current = phase;
   }, [phase]);
