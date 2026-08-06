@@ -5,6 +5,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useLanguage } from '@/lib/LanguageContext';
 import { Wallet, ArrowLeft, Send, AlertTriangle, ArrowUpFromLine, Menu, Shield } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
+import StylishNotify from '@/components/StylishNotify';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -79,6 +80,8 @@ export default function Withdraw() {
   const [selectedNet, setSelectedNet] = useState(null);
   const [walletAddr, setWalletAddr] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [notify, setNotify] = useState(null);
+  const showNotify = (title, description) => setNotify({ title, description });
 
   useEffect(() => {
     base44.entities.PaymentAddress.filter({ method: 'usdt', active: true }, 'order', 100)
@@ -103,12 +106,12 @@ export default function Withdraw() {
       if (!me) { toast({ title: t("Please log in first") }); setSubmitting(false); return; }
       if (amount < 5) { toast({ title: t("Minimum withdrawal is $5.00") }); setSubmitting(false); return; }
       if (amount > maxWithdrawable) {
-        toast({
-          title: t("Wagering requirement not met"),
-          description: wagerRemaining > 0
+        showNotify(
+          t("Wagering requirement not met"),
+          wagerRemaining > 0
             ? `Play through or stack $${wagerRemaining.toFixed(2)} of your deposit before withdrawing.`
-            : t("Only winnings above your locked deposit can be withdrawn."),
-        });
+            : t("Only winnings above your locked deposit can be withdrawn.")
+        );
         setSubmitting(false);
         return;
       }
@@ -289,6 +292,7 @@ export default function Withdraw() {
           </>
         )}
       </main>
+      <StylishNotify data={notify} onDone={() => setNotify(null)} />
     </div>
   );
 }

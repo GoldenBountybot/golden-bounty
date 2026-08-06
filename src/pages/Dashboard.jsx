@@ -90,12 +90,12 @@ export default function Dashboard() {
     if (n < 5) { toast({ title: t("Minimum withdrawal is $5.00") }); return; }
     if (n > acct.balance) { toast({ title: t("Insufficient balance") }); return; }
     if (n > acct.maxWithdrawable) {
-      toast({
-        title: t("Wagering requirement not met"),
-        description: acct.wagerRemaining > 0
+      showNotify(
+        t("Wagering requirement not met"),
+        acct.wagerRemaining > 0
           ? `Play through or stack $${acct.wagerRemaining.toFixed(2)} of your deposit before withdrawing.`
-          : t("Only winnings above your locked deposit can be withdrawn."),
-      });
+          : t("Only winnings above your locked deposit can be withdrawn.")
+      );
       return;
     }
     window.location.href = `/withdraw?amount=${encodeURIComponent(n)}`;
