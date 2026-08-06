@@ -206,7 +206,6 @@ export default function Withdraw() {
               </div>
               <div className="mt-3 flex items-center gap-3 text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
                 <span>{t("Withdrawable:")} <span style={{ color: '#34d399', fontWeight: 700 }}>${maxWithdrawable.toFixed(2)}</span></span>
-                {wagerRemaining > 0 && <span>{t("Locked:")} <span style={{ color: '#fb923c', fontWeight: 700 }}>${wagerRemaining.toFixed(2)}</span></span>}
               </div>
             </div>
 

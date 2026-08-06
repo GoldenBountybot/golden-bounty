@@ -222,7 +222,6 @@ export default function Dashboard() {
           </div>
           <div className="mt-3 flex items-center gap-3 text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
             <span>{t("Withdrawable:")} <span style={{ color: '#D4AF37', fontWeight: 700 }}>${acct.maxWithdrawable.toFixed(2)}</span></span>
-            {acct.wagerRemaining > 0 && <span>{t("Locked:")} <span style={{ color: '#fb923c', fontWeight: 700 }}>${acct.wagerRemaining.toFixed(2)}</span></span>}
           </div>
         </div>
 
@@ -271,11 +270,6 @@ export default function Dashboard() {
                   >{t("Withdraw")}</button>
                 </div>
                 <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("Withdraw creates a request — funds sent after admin approval.")}</p>
-                {acct.wagerRemaining > 0 && (
-                  <p className="text-[11px] mt-1" style={{ color: '#fb923c' }}>
-                    Locked deposit: ${acct.wagerRemaining.toFixed(2)} — play through or stack before withdrawing. Withdrawable now: ${acct.maxWithdrawable.toFixed(2)}.
-                  </p>
-                )}
               </div>
             </div>
 
