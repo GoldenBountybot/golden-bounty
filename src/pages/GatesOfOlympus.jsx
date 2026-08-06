@@ -28,6 +28,7 @@ export default function GatesOfOlympus() {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
       }}
     >
       {/* Faded background overlay — keeps the Olympus scene faint so symbols pop */}

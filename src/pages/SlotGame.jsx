@@ -23,10 +23,11 @@ export default function SlotGame() {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center bg-no-repeat"
+      className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed"
       style={{
         backgroundImage:
           'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/25cab1181_file_00000000b50c8230a0ebee9ef44b2ebe.png)',
+        backgroundAttachment: 'fixed',
       }}
     >
       {!loaded && <GameAssetLoader title="Wild Bounty" assets={WILD_BOUNTY_ASSETS} bgImage={GAME_BG.wildBounty} onDone={() => setLoaded(true)} />}
