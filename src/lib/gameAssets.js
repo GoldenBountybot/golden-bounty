@@ -59,11 +59,16 @@ export const WILD_BOUNTY_ASSETS = [
   // spin button
   u('c6ef02281_file_00000000a90081fa8732fd40e55cc3ef.png'),
   u('12ac78246_file_00000000b0cc81faafcdac64067dd1a1.png'),
+  // win banners
+  u('bc8844e96_file_0000000057d881fbaa643e8f2dd979ce.png'), // super win
+  u('abe2184b1_file_00000000233881faa2d49279db01c3b7.png'), // mega win
 ];
 
 // ---- Super Ace / Full House ----
 export const SUPER_ACE_ASSETS = [
   ...SHARED,
+  // background
+  u('753cb0ea7_file_00000000788881fa92ac18ec92116526.png'),
   // card back + golden wild
   u('fcd98f4f5_InShot_20260718_152559101.jpg'),
   u('6060a2364_wild-ace-01.png'),
@@ -78,6 +83,7 @@ export const SUPER_ACE_ASSETS = [
 export const CROWN_COINS_ASSETS = [
   ...SHARED,
   u('f28be6c98_.jpg'), // money bg / plank bg
+  u('9e18b75a6_file_00000000700081fab7c3b36c02964e06.png'), // crown coins banner
   // symbols
   u('e193ac3ef_generated_image.png'), // cherry
   u('9190b625b_generated_image.png'), // seven
@@ -101,6 +107,12 @@ export const CROWN_COINS_ASSETS = [
 export const GATES_ASSETS = [
   ...SHARED,
   u('1f0dcd8e1_file_00000000534882308373132046ad84c6.png'), // bg
+  u('5a4c02bcc_file_000000003af0820bb4a62aa92952a91e.png'), // title banner
+  u('84fd16eb6_file_00000000e474820ba9fd196f5f5c9f06.png'), // zeus figure
+  u('0435e5ab7_file_0000000056708207b1ac35d409201618.png'), // free spin trigger
+  u('d5525b830_file_00000000e7fc8211826f062956600ef9.png'), // free spins complete
+  u('422880cd4_file_0000000057d881fbaa643e8f2dd979ce.png'), // super win
+  u('b90df1f5b_file_00000000233881faa2d49279db01c3b7.png'), // mega win
   // symbols
   u('4948c7cf4_file_00000000e1408207955e20cec7981d33.png'), // zeus
   u('a4332bd7e_file_0000000095bc8207a1c24e7d2fa722cf.png'), // crown
@@ -124,6 +136,9 @@ export const BIG_BROWN_ASSETS = [
   ...SHARED,
   u('9a6ce937b_generated_image.png'), // bg
   u('42a9ab939_generated_image.png'), // wild expand
+  u('f423d208b_generated_image.png'), // title banner
+  u('86dd448f2_file_00000000c7fc81fa80de66b90930e468.png'), // spin button
+  u('4b986ee28_file_0000000057d881fbaa643e8f2dd979ce.png'), // super win banner
   // symbols
   u('98a234d10_generated_image.png'), // scatter
   u('31ddcdcb0_generated_image.png'), // brown/spirit
@@ -144,7 +159,14 @@ export const BIG_BROWN_ASSETS = [
 export const ARGONAUTS_ASSETS = [
   ...SHARED,
   u('766629235_generated_image.png'), // bg
+  u('2a63f4def_generated_image.png'), // coin free-spin palace backdrop
   u('5e1ba97ff_file_000000008624820bb05d279226f89912.png'), // value coin
+  u('f8ed43464_generated_image.png'), // title banner
+  u('71f946c63_file_00000000e5d881fab7f33117c10362eb.png'), // spin button
+  u('2921f28f1_generated_image.png'), // golden fleece banner bg
+  u('4ba013c10_file_00000000142481fabe264564bd974c86.png'), // free games banner
+  u('6abe5be40_file_0000000057d881fbaa643e8f2dd979ce.png'), // super win banner
+  u('cf4003fa2_file_00000000233881faa2d49279db01c3b7.png'), // mega win banner
   // symbols
   u('aa8365d9b_file_000000003078820b89250f27c56de62e.png'), // wild
   u('58d0858d9_file_000000008fa0820bb5da9eef0fb09545.png'), // scatter
