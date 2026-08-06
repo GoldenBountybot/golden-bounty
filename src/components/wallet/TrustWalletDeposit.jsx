@@ -254,9 +254,10 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
             onChange={(e) => setNetKey(e.target.value)}
             disabled={netLocked}
             className="dash-input w-full appearance-none px-4 h-12 pr-10 text-sm font-semibold disabled:opacity-50"
+            style={{ fontFamily: 'var(--font-western)', letterSpacing: '0.02em' }}
           >
             {USDT_NETWORKS.map((n) => (
-              <option key={n.key} value={n.key} style={{ background: '#1a1a1a', color: '#fff' }}>{n.label}</option>
+              <option key={n.key} value={n.key} style={{ background: '#1a1a1a', color: '#fff', fontFamily: 'var(--font-western)' }}>{n.label}</option>
             ))}
           </select>
           <ChevronDown className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#D4AF37' }} />
