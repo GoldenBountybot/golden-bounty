@@ -14,11 +14,12 @@ import AnimatedNumber from '@/components/AnimatedNumber';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/lib/LanguageContext';
 import TaskSystem from '@/components/TaskSystem';
+import { formatDateTime } from '@/lib/dateFormat';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
 const genUid = () => Math.floor(1000000000 + Math.random() * 9000000000).toString();
-const fmtDate = (d) => (d ? new Date(d).toLocaleString() : '');
+const fmtDate = (d) => formatDateTime(d);
 
 const GAME_NAMES = {
   'wild-bounty': 'Wild Bounty',

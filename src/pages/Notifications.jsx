@@ -4,6 +4,7 @@ import { useNotifications } from '@/lib/useNotifications';
 import { useLanguage } from '@/lib/LanguageContext';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
 import BackButton from '@/components/BackButton';
+import { toDate } from '@/lib/dateFormat';
 
 const TYPE_META = {
   bonus_arrived: { icon: Gift, color: '#f5c542', labelKey: 'Bonus Arrived' },
@@ -17,7 +18,7 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 // Full date + time string for a notification's creation date.
 function fullTime(d) {
-  const dt = new Date(d);
+  const dt = toDate(d);
   const day = WEEKDAYS[dt.getDay()];
   const date = dt.getDate();
   const mon = dt.toLocaleString('en-US', { month: 'short' });

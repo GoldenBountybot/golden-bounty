@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
 import { getBotReply } from '@/lib/supportBot';
+import { formatTime } from '@/lib/dateFormat';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const BOT_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/89345e410_file_00000000f5f88207ba2a1422c54f7ec0.png';
@@ -226,7 +227,7 @@ export default function LiveSupportChat() {
                     )}
                     <p className="text-[13px] leading-relaxed whitespace-pre-wrap break-words">{m.text}</p>
                     <p className="text-[9px] mt-1 text-right" style={{ color: isUser ? 'rgba(26,20,8,0.6)' : 'rgba(255,255,255,0.35)' }}>
-                      {m.created_date ? new Date(m.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                      {m.created_date ? formatTime(m.created_date) : ''}
                     </p>
                   </div>
                   {m.show_agent_button && isBotMode && (

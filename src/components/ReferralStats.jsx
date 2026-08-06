@@ -3,9 +3,10 @@ import { Users, Trophy, Loader2, Coins, Crown, Medal, Gift } from 'lucide-react'
 import { base44 } from '@/api/base44Client';
 import { useLanguage } from '@/lib/LanguageContext';
 import AnimatedNumber from '@/components/AnimatedNumber';
+import { formatDate } from '@/lib/dateFormat';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
-const fmtDate = (d) => (d ? new Date(d).toLocaleDateString() : '');
+const fmtDate = (d) => formatDate(d);
 
 const RANK_META = {
   1: { color: '#FFD700', bg: 'linear-gradient(135deg, rgba(255,215,0,0.22), rgba(255,215,0,0.06))', border: 'rgba(255,215,0,0.55)', icon: Crown },

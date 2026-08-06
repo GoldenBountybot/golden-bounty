@@ -14,6 +14,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
 import { base44 } from '@/api/base44Client';
+import { formatDateTime } from '@/lib/dateFormat';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -298,7 +299,7 @@ export default function Dashboard() {
                         <p className="text-[11px] truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>{tx.method}{tx.reference ? ` · ${tx.reference.slice(0, 16)}` : ''}</p>
                         {tx.created_date && (
                           <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                            {new Date(tx.created_date).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                            {formatDateTime(tx.created_date, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
                           </p>
                         )}
                       </div>
