@@ -290,7 +290,7 @@ export default function LiveSupportChat() {
             onKeyDown={onKey}
             placeholder={isBotMode ? t('Ask Bounty Bot…') : t('Type a message...')}
             disabled={sending || botTyping}
-            className="flex-1 px-4 py-2.5 rounded-xl text-[13px] outline-none"
+            className="flex-1 px-4 py-4 rounded-xl text-[15px] outline-none"
             style={{
               background: 'rgba(255,255,255,0.04)',
               border: '1px solid rgba(212,175,55,0.25)',
@@ -300,7 +300,7 @@ export default function LiveSupportChat() {
           <button
             onClick={send}
             disabled={sending || botTyping || !text.trim()}
-            className="flex items-center justify-center w-11 h-11 rounded-xl transition-all active:scale-95 disabled:opacity-40"
+            className="flex items-center justify-center w-14 h-14 rounded-xl transition-all active:scale-95 disabled:opacity-40"
             style={{
               background: 'linear-gradient(135deg, #FFD700, #C89B3C)',
               boxShadow: '0 4px 14px rgba(212,175,55,0.35)',
