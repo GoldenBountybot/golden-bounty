@@ -49,42 +49,35 @@ function nameForIndex(idx) {
 // is unique within the round (drawn without replacement from 20,000 handles).
 function genLiveBets(roundId) {
   const rnd = mulberry32((roundId || 1) * 2654435761);
+  // 200–1200 players per round with a bias toward lower counts so most
+  // rounds sit around 200–500, with occasional spikes up to 1200+.
+  const n = 200 + Math.floor(Math.pow(rnd(), 1.6) * 1001);
 
-  // Top bet varies each round ($250–$500).
+  // Top bet varies each round (e.g. $490, $455, $400…) but never drops
+  // below $250.
   const maxAmt = +(250 + rnd() * 250).toFixed(2);
 
-  // Build a strictly descending list. Gaps scale with bet size so high
-  // rollers sit $2–$10 apart (reads as real independent players) while the
-  // many small bets cluster tightly at the bottom — giving a realistic
-  // live-bet curve with plenty of players.
-  const amounts = [];
-  let cur = maxAmt;
-  while (cur >= 0.10) {
-    amounts.push(+cur.toFixed(2));
-    let gap;
-    if (cur > 20) gap = 2 + rnd() * 8;        // $2–$10 gaps for high rollers
-    else if (cur > 2) gap = 0.50 + rnd() * 1.5; // $0.50–$2 for mid bets
-    else gap = 0.05 + rnd() * 0.45;           // $0.05–$0.50 for small bets
-    cur -= +gap.toFixed(2);
-  }
-  const n = amounts.length;
-
-  // Pick n distinct name indices without replacement.
+  // Each bot bets an independent random amount (biased toward smaller bets
+  // with a steep power curve). Sorting these descending produces natural,
+  // irregular gaps — big jumps between some bets, tight clusters elsewhere —
+  // so the list reads as real players/bots rather than a smooth curve.
   const used = new Set();
   const arr = [];
   for (let i = 0; i < n; i++) {
     let idx;
     do { idx = Math.floor(rnd() * NAME_SPACE); } while (used.has(idx));
     used.add(idx);
+    const amt = +(0.10 + (maxAmt - 0.10) * Math.pow(rnd(), 3)).toFixed(2);
     arr.push({
       id: roundId + '-' + i,
       name: nameForIndex(idx),
-      amount: amounts[i],
+      amount: amt,
       cashOutAt: +(1.15 + rnd() * 9).toFixed(2),
       cashedOut: false,
       win: 0,
     });
   }
+  arr.sort((a, b) => b.amount - a.amount);
   return arr;
 }
 
