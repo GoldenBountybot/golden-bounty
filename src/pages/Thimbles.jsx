@@ -95,7 +95,9 @@ export default function Thimbles() {
   const pendingWin = useRef(false);
 
   const mult = mode === 'single' ? SINGLE_MULT : TWO_MULT;
-  const winChance = rtp / 100;
+  // 2-ball mode has a higher natural hit probability (2/3 vs 1/3), so bias
+  // the controlled win chance down to keep the house edge comparable.
+  const winChance = (rtp / 100) * (mode === 'two' ? 0.7 : 1);
 
   useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
 
