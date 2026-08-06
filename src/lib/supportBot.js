@@ -87,7 +87,9 @@ ${recent || '(start of conversation)'}
 
 User: ${userMessage}
 
-Reply as Bounty Bot (concise, same language as the user):`;
+CRITICAL: Reply in the EXACT same language the user just wrote in. If the user writes in Bengali/Bangla, you MUST reply in Bengali/Bangla. If the user writes in English, reply in English. Never mix languages. Keep it concise (2-4 sentences).
+
+Reply as Bounty Bot:`;
 
   try {
     const res = await base44.integrations.Core.InvokeLLM({
