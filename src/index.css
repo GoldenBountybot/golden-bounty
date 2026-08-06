@@ -202,6 +202,14 @@
   100% { transform: scale(1.66) rotate(4deg);  opacity: 0; filter: brightness(2) saturate(1.7); }
 }
 
+/* Gates of Olympus — golden particle burst: tiny dots fly outward from the
+   symbol centre and dissolve into dust as the winning symbol shatters. */
+@keyframes gatesParticleBurst {
+  0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+  18%  { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.15); opacity: 0; }
+}
+
 /* Wild Bounty — golden glow overlay behind a shattering symbol. Replaces the
    expensive filter:drop-shadow with cheap box-shadow for the same visual. */
 @keyframes shatterGlow {

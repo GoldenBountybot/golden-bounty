@@ -12,6 +12,7 @@ import GatesTumbleWinBanner from './GatesTumbleWinBanner';
 import GatesBigWinBanner from './GatesBigWinBanner';
 import GatesFreeSpinEndBanner from './GatesFreeSpinEndBanner';
 import GatesZeusElectric from './GatesZeusElectric';
+import GatesParticleBurst from './GatesParticleBurst';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 import {
@@ -292,6 +293,7 @@ export default function GatesMachine() {
                                   fresh={isFresh}
                                   turbo={g.turbo} />
                               )}
+                              {isShatter && <GatesParticleBurst turbo={g.turbo} />}
                             </div>
                           ) : (
                             <div className="w-full h-full" />
