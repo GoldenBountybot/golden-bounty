@@ -44,6 +44,25 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
   const coinAmt = price ? amount / price : 0;
 
+  // WalletConnect providers reject eth_getTransactionReceipt via request(),
+  // so fetch the receipt straight from a public RPC endpoint instead.
+  const fetchReceipt = async (txHash) => {
+    const body = { jsonrpc: '2.0', id: 1, method: 'eth_getTransactionReceipt', params: [txHash] };
+    for (let i = 0; i < 45; i++) {
+      try {
+        const r = await fetch(net.rpc, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const j = await r.json();
+        if (j?.result) return j.result;
+      } catch {}
+      await new Promise((rr) => setTimeout(rr, 2000));
+    }
+    return null;
+  };
+
   const openTrustApp = () => {
     const uri = wcUriRef.current;
     if (uri) {
@@ -174,12 +193,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         const value = '0x' + wei.toString(16);
         const txHash = await p.request({ method: 'eth_sendTransaction', params: [{ from: acct, to: net.admin, value }] });
         setStatus('confirming');
-        let receipt = null;
-        for (let i = 0; i < 45; i++) {
-          await new Promise((r) => setTimeout(r, 2000));
-          receipt = await p.request({ method: 'eth_getTransactionReceipt', params: [txHash] });
-          if (receipt) break;
-        }
+        const receipt = await fetchReceipt(txHash);
         if (!receipt) { setErrMsg('Confirmation not yet received, please try again shortly.'); setStatus('error'); return; }
         if (receipt.status !== '0x1') { setErrMsg('Transaction failed (reverted).'); setStatus('error'); return; }
         await finishVerify('verifyEvmNativeDeposit', { txHash, amount, userWallet: acct, network: net.key, expectedWei: value }, amount);
@@ -198,12 +212,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         params: [{ from: acct, to, data, value: '0x0', gas }],
       });
       setStatus('confirming');
-      let receipt = null;
-      for (let i = 0; i < 45; i++) {
-        await new Promise((r) => setTimeout(r, 2000));
-        receipt = await p.request({ method: 'eth_getTransactionReceipt', params: [txHash] });
-        if (receipt) break;
-      }
+      const receipt = await fetchReceipt(txHash);
       if (!receipt) { setErrMsg('Confirmation not yet received, please try again shortly.'); setStatus('error'); return; }
       if (receipt.status !== '0x1') { setErrMsg('Transaction failed (reverted).'); setStatus('error'); return; }
       await finishVerify('verifyEvmDeposit', { txHash, amount, userWallet: acct, network: net.key }, amount);
