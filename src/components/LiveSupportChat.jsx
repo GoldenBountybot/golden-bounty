@@ -25,6 +25,18 @@ function deriveAgentStatus(messages) {
   return 'none';
 }
 
+// Render plain text but turn any http(s) URLs into clickable links so the
+// bot's "contact us on WhatsApp / Telegram" suggestion is actionable.
+function linkify(text) {
+  if (!text) return text;
+  const parts = String(text).split(/(https?:\/\/[^\s]+)/g);
+  return parts.map((part, i) =>
+    part.startsWith('http')
+      ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>{part}</a>
+      : part
+  );
+}
+
 // Live support chat: starts in BOT mode (AI auto-replies about the site).
 // User can tap "Connect with Agent" to request a human; admin connects and
 // the thread switches to direct chat. Real-time subscription keeps it live.
@@ -38,6 +50,9 @@ export default function LiveSupportChat() {
   const [botTyping, setBotTyping] = useState(false);
   const [agentStatus, setAgentStatus] = useState('none');
   const scrollRef = useRef(null);
+  const firedReqRef = useRef(null);
+  const agentStatusRef = useRef('none');
+  agentStatusRef.current = agentStatus;
 
   const loadMessages = useCallback(async () => {
     if (!user?.id) return;
@@ -133,6 +148,54 @@ export default function LiveSupportChat() {
     } catch { /* ignore */ }
   };
 
+  // If an agent request stays unanswered for more than 3 minutes, Bounty Bot
+  // posts a fallback message suggesting the user reach the team on WhatsApp
+  // or Telegram. Deduped per request id so it fires at most once per request
+  // (and skips if a suggestion was already posted, e.g. after a page reload).
+  const postAgentTimeoutSuggestion = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      await base44.entities.SupportMessage.create({
+        user_id: user.id,
+        user_email: user.email || '',
+        sender: 'bot',
+        text: t("Our live agents are still busy right now. For faster help, reach us directly on WhatsApp — https://wa.me/966576757138 — or Telegram — https://t.me/golden_bounty_tg."),
+        kind: 'message',
+      });
+      await loadMessages();
+    } catch { /* ignore */ }
+  }, [user?.id, t, loadMessages]);
+
+  useEffect(() => {
+    if (agentStatus !== 'requested') return;
+    const req = messages
+      .filter((m) => m.kind === 'agent_request')
+      .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
+    if (!req) return;
+    if (firedReqRef.current === req.id) return;
+    const reqTime = new Date(req.created_date).getTime();
+    const alreadySuggested = messages.some((m) =>
+      m.sender === 'bot' && m.kind === 'message' &&
+      new Date(m.created_date).getTime() >= reqTime &&
+      /wa\.me|t\.me/.test(m.text || '')
+    );
+    if (alreadySuggested) { firedReqRef.current = req.id; return; }
+    const WAIT = 3 * 60 * 1000;
+    const remaining = WAIT - (Date.now() - reqTime);
+    if (remaining <= 0) {
+      firedReqRef.current = req.id;
+      postAgentTimeoutSuggestion();
+      return;
+    }
+    const timer = setTimeout(() => {
+      if (agentStatusRef.current === 'requested') {
+        firedReqRef.current = req.id;
+        postAgentTimeoutSuggestion();
+      }
+    }, remaining);
+    return () => clearTimeout(timer);
+  }, [agentStatus, messages, postAgentTimeoutSuggestion]);
+
   const onKey = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -225,7 +288,7 @@ export default function LiveSupportChat() {
                         <img src={BOT_LOGO} alt="" className="w-3 h-3 rounded-full object-cover" /> Bounty Bot
                       </p>
                     )}
-                    <p className="text-[13px] leading-relaxed whitespace-pre-wrap break-words">{m.text}</p>
+                    <p className="text-[13px] leading-relaxed whitespace-pre-wrap break-words">{isUser ? m.text : linkify(m.text)}</p>
                     <p className="text-[9px] mt-1 text-right" style={{ color: isUser ? 'rgba(26,20,8,0.6)' : 'rgba(255,255,255,0.35)' }}>
                       {m.created_date ? formatTime(m.created_date) : ''}
                     </p>
