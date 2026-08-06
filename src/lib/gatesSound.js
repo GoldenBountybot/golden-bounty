@@ -843,63 +843,121 @@ export function playMultCollect() {
   thunder.stop(impactT + 0.75);
 }
 
-// ── FREE SPINS TRIGGER — epic cinematic activation: thunder, choir, sweep ─
+// ── FREE SPINS TRIGGER — premium luxury casino winning fanfare ──────────
+// Triggered when 4+ scatters land / free spins begin. A real casino-style
+// luxury jackpot fanfare: triumphant brass build-up, golden chime cascade,
+// coin shower, deep thunder, and a majestic resolution — the kind of sound a
+// premium slot machine plays when the bonus round is unlocked.
 export function playFreeSpinsTrigger() {
   if (isMuted()) return;
   const ac = getCtx();
   if (!ac) return;
   if (ac.state === 'suspended') ac.resume().catch(() => {});
   const t = ac.currentTime;
-  const { bus } = makeReverbBus(ac, 0.18, 0.35, 0.4);
+  const { bus } = makeReverbBus(ac, 0.2, 0.38, 0.42);
 
-  // Thunder roll — deep rumble at the start.
+  // 1) Opening thunder impact — deep rumble to announce the trigger.
   const thunder = ac.createOscillator();
   const thG = ac.createGain();
   thunder.type = 'sine';
-  thunder.frequency.setValueAtTime(45, t);
-  thunder.frequency.exponentialRampToValueAtTime(30, t + 1.5);
+  thunder.frequency.setValueAtTime(48, t);
+  thunder.frequency.exponentialRampToValueAtTime(30, t + 1.6);
   thG.gain.setValueAtTime(0.0001, t);
-  thG.gain.linearRampToValueAtTime(0.14, t + 0.1);
-  thG.gain.linearRampToValueAtTime(0.08, t + 0.8);
-  thG.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+  thG.gain.linearRampToValueAtTime(0.16, t + 0.08);
+  thG.gain.linearRampToValueAtTime(0.09, t + 0.9);
+  thG.gain.exponentialRampToValueAtTime(0.0001, t + 1.7);
   thunder.connect(thG);
   thG.connect(bus);
   thunder.start(t);
-  thunder.stop(t + 1.65);
+  thunder.stop(t + 1.75);
 
-  // Heavenly choir texture — stacked sine partials (major chord, high).
-  const choir = [523.25, 659.25, 783.99, 1046.5, 1318.51];
-  choir.forEach((f) => {
+  // 2) Triumphant brass fanfare — ascending major arpeggio (warm, luxurious).
+  const fanfare = [
+    { f: 392.0, time: 0.05, dur: 0.16 },   // G4
+    { f: 523.25, time: 0.21, dur: 0.16 }, // C5
+    { f: 659.25, time: 0.37, dur: 0.16 }, // E5
+    { f: 783.99, time: 0.53, dur: 0.32 }, // G5
+    { f: 1046.5, time: 0.85, dur: 0.5 }, // C6
+    { f: 1318.51, time: 1.35, dur: 0.7 }, // E6
+  ];
+  fanfare.forEach(({ f, time: dt, dur }) => {
+    const start = t + dt;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    const lp = ac.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 3400;
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(f, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.075, start + 0.02);
+    g.gain.linearRampToValueAtTime(0.05, start + dur * 0.7);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    o.connect(lp); lp.connect(g); g.connect(bus);
+    o.start(start); o.stop(start + dur + 0.05);
+    // Detuned octave layer for a richer brass body.
+    const o2 = ac.createOscillator();
+    const g2 = ac.createGain();
+    o2.type = 'sawtooth';
+    o2.frequency.setValueAtTime(f * 0.5, start);
+    g2.gain.setValueAtTime(0.0001, start);
+    g2.gain.linearRampToValueAtTime(0.03, start + 0.03);
+    g2.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    o2.connect(lp); g2.connect(bus);
+    o2.start(start); o2.stop(start + dur + 0.05);
+  });
+
+  // 3) Golden chime cascade — bright arpeggio ringing throughout.
+  const chimes = [1046.5, 1318.51, 1568, 2093, 2637, 3136];
+  chimes.forEach((f, i) => {
+    const start = t + 0.1 + i * 0.11;
     const o = ac.createOscillator();
     const g = ac.createGain();
     o.type = 'sine';
-    o.frequency.setValueAtTime(f, t + 0.2);
-    o.frequency.exponentialRampToValueAtTime(f * 1.005, t + 1.5);
-    g.gain.setValueAtTime(0.0001, t + 0.2);
-    g.gain.linearRampToValueAtTime(0.04, t + 0.4);
-    g.gain.linearRampToValueAtTime(0.04, t + 1.2);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
-    o.connect(g);
-    g.connect(bus);
-    o.start(t + 0.2);
-    o.stop(t + 1.65);
-
-    // Slight detune for a choir "wobble".
-    const o2 = ac.createOscillator();
-    const g2 = ac.createGain();
-    o2.type = 'sine';
-    o2.frequency.setValueAtTime(f * 1.005, t + 0.2);
-    g2.gain.setValueAtTime(0.0001, t + 0.2);
-    g2.gain.linearRampToValueAtTime(0.02, t + 0.4);
-    g2.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
-    o2.connect(g2);
-    g2.connect(bus);
-    o2.start(t + 0.2);
-    o2.stop(t + 1.65);
+    o.frequency.setValueAtTime(f, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.085, start + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.6);
+    o.connect(g); g.connect(bus);
+    o.start(start); o.stop(start + 0.65);
   });
 
-  // Magical energy sweep — rising filtered noise.
-  const dur = 1.2;
+  // 4) Heavenly choir pad — stacked high sine partials (major chord).
+  const choir = [523.25, 659.25, 783.99, 1046.5];
+  choir.forEach((f) => {
+    const start = t + 0.3;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, start);
+    o.frequency.exponentialRampToValueAtTime(f * 1.005, start + 1.4);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.035, start + 0.3);
+    g.gain.linearRampToValueAtTime(0.03, start + 1.1);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 1.6);
+    o.connect(g); g.connect(bus);
+    o.start(start); o.stop(start + 1.65);
+  });
+
+  // 5) Coin shower — rapid metallic coin clinks building excitement.
+  const coinCount = 14;
+  for (let i = 0; i < coinCount; i++) {
+    const p = i / coinCount;
+    const start = t + 0.4 + p * 1.0;
+    const freq = 1568 + Math.random() * 600;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(freq, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(0.03, start + 0.002);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + 0.12);
+    o.connect(g); g.connect(bus);
+    o.start(start); o.stop(start + 0.14);
+  }
+
+  // 6) Rising magical energy sweep — filtered noise.
+  const dur = 1.3;
   const buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
   const data = buf.getChannelData(0);
   for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
@@ -908,45 +966,38 @@ export function playFreeSpinsTrigger() {
   const bp = ac.createBiquadFilter();
   bp.type = 'bandpass';
   bp.frequency.setValueAtTime(500, t);
-  bp.frequency.exponentialRampToValueAtTime(5000, t + 1.0);
+  bp.frequency.exponentialRampToValueAtTime(5000, t + 1.1);
   bp.Q.value = 3;
   const nG = ac.createGain();
   nG.gain.setValueAtTime(0.0001, t);
-  nG.gain.linearRampToValueAtTime(0.05, t + 0.3);
-  nG.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
-  n.connect(bp);
-  bp.connect(nG);
-  nG.connect(bus);
-  n.start(t);
-  n.stop(t + dur);
+  nG.gain.linearRampToValueAtTime(0.045, t + 0.3);
+  nG.gain.exponentialRampToValueAtTime(0.0001, t + 1.3);
+  n.connect(bp); bp.connect(nG); nG.connect(bus);
+  n.start(t); n.stop(t + dur);
 
-  // Strong final impact — big chord + thunder at the end.
-  const impactT = t + 1.3;
-  [523.25, 659.25, 783.99, 1046.5].forEach((f) => {
+  // 7) Majestic final resolution — big triumphant chord + thunder.
+  const finalT = t + 1.45;
+  [523.25, 659.25, 783.99, 1046.5, 1318.51].forEach((f) => {
     const o = ac.createOscillator();
     const g = ac.createGain();
     o.type = 'sine';
-    o.frequency.setValueAtTime(f, impactT);
-    g.gain.setValueAtTime(0.0001, impactT);
-    g.gain.linearRampToValueAtTime(0.08, impactT + 0.03);
-    g.gain.exponentialRampToValueAtTime(0.0001, impactT + 0.8);
-    o.connect(g);
-    g.connect(bus);
-    o.start(impactT);
-    o.stop(impactT + 0.85);
+    o.frequency.setValueAtTime(f, finalT);
+    g.gain.setValueAtTime(0.0001, finalT);
+    g.gain.linearRampToValueAtTime(0.09, finalT + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, finalT + 1.0);
+    o.connect(g); g.connect(bus);
+    o.start(finalT); o.stop(finalT + 1.1);
   });
-  const impactThunder = ac.createOscillator();
-  const itG = ac.createGain();
-  impactThunder.type = 'sine';
-  impactThunder.frequency.setValueAtTime(40, impactT);
-  impactThunder.frequency.exponentialRampToValueAtTime(25, impactT + 0.7);
-  itG.gain.setValueAtTime(0.0001, impactT);
-  itG.gain.linearRampToValueAtTime(0.16, impactT + 0.04);
-  itG.gain.exponentialRampToValueAtTime(0.0001, impactT + 0.8);
-  impactThunder.connect(itG);
-  itG.connect(bus);
-  impactThunder.start(impactT);
-  impactThunder.stop(impactT + 0.85);
+  const finalThunder = ac.createOscillator();
+  const ftG = ac.createGain();
+  finalThunder.type = 'sine';
+  finalThunder.frequency.setValueAtTime(42, finalT);
+  finalThunder.frequency.exponentialRampToValueAtTime(26, finalT + 0.9);
+  ftG.gain.setValueAtTime(0.0001, finalT);
+  ftG.gain.linearRampToValueAtTime(0.2, finalT + 0.05);
+  ftG.gain.exponentialRampToValueAtTime(0.0001, finalT + 1.1);
+  finalThunder.connect(ftG); ftG.connect(bus);
+  finalThunder.start(finalT); finalThunder.stop(finalT + 1.15);
 }
 
 // ── FREE SPIN START — triumphant celestial fanfare + thunder + shimmer ──
