@@ -22,40 +22,50 @@ function genCrashPoint(rtp) {
     return buf[0] / 4294967296;
   };
 
-  // Jitter the effective RTP round-to-round.
-  const rtpJitter = rtp + (rand() - 0.5) * 6; // ±3% band around configured RTP
+  // Jitter the effective RTP round-to-round with a variable band so the
+  // average payout itself drifts and can't be nailed to a single value.
+  const rtpBand = 3 + rand() * 6; // ±3%..±9%
+  const rtpJitter = rtp + (rand() - 0.5) * 2 * rtpBand;
 
-  // Randomly switch between generation regimes so no single distribution
-  // shape fits the observed data — an analyst can't pin down "the curve".
+  // Randomize the regime boundaries themselves each draw so the mix of
+  // distributions shifts continuously — no fixed proportions to fit.
+  const r1 = 0.03 + rand() * 0.08;   // heavy-tail share: 3%–11%
+  const r2 = r1 + 0.18 + rand() * 0.20; // steep-drop share: +18%–38%
   const regime = rand();
   let crash;
-  if (regime < 0.06) {
-    // Heavy-tail regime: longer flights, rare but possible.
-    crash = (rtpJitter / 100) / Math.pow(1 - rand(), 1.6);
-  } else if (regime < 0.30) {
-    // Steep-drop regime: mostly low busts.
-    crash = (rtpJitter / 100) / (1 - rand() * rand());
+  if (regime < r1) {
+    // Heavy-tail regime: longer flights, rare but possible. Exponent itself
+    // varies so the tail thickness changes every round.
+    const exp = 1.3 + rand() * 0.8;
+    crash = (rtpJitter / 100) / Math.pow(1 - rand(), exp);
+  } else if (regime < r2) {
+    // Steep-drop regime: mostly low busts, variable steepness.
+    const k = 1 + rand() * 2;
+    crash = (rtpJitter / 100) / (1 - Math.pow(rand(), k));
   } else {
-    // Standard regime.
-    crash = (rtpJitter / 100) / (1 - rand());
+    // Standard regime — but with a randomly perturbed exponent so even the
+    // "default" curve shape is never the same twice.
+    const exp = 0.9 + rand() * 0.4;
+    crash = (rtpJitter / 100) / Math.pow(1 - rand(), exp);
   }
 
-  // Multiplicative noise with randomly varying amplitude (15%–40%) so the
+  // Multiplicative noise with randomly varying amplitude (10%–55%) so the
   // spread itself changes round-to-round.
-  const noiseAmp = 0.15 + rand() * 0.25;
+  const noiseAmp = 0.10 + rand() * 0.45;
   crash *= 1 + (rand() - 0.5) * noiseAmp * 2;
 
-  // Occasional outlier spike or early dip for extra entropy.
-  if (rand() < 0.10) crash *= 0.3 + rand() * 2.5;
+  // Occasional outlier spike or early dip for extra entropy — rate varies.
+  if (rand() < 0.08 + rand() * 0.10) crash *= 0.25 + rand() * 3;
 
-  // Cap high flyers: ~85% of anything above 50x gets pulled back down into a
-  // lower band so x50+ outcomes stay rare.
-  if (crash > 50 && rand() < 0.85) {
-    crash = 10 + rand() * 40;
+  // Cap high flyers: pull most anything above 50x back down into a lower
+  // band so x50+ outcomes stay rare. Threshold jitters so it's not a hard
+  // visible wall.
+  const capHi = 40 + rand() * 20;
+  if (crash > capHi && rand() < 0.85) {
+    crash = 8 + rand() * 42;
   }
-  // Similarly pull ~40% of x10–x50 outcomes down into the 2x–10x band so
-  // double-digit flights stay uncommon.
-  if (crash > 10 && crash <= 50 && rand() < 0.40) {
+  // Pull a random fraction of x10–x50 outcomes down into the 2x–10x band.
+  if (crash > 10 && crash <= 50 && rand() < 0.30 + rand() * 0.25) {
     crash = 2 + rand() * 8;
   }
 
