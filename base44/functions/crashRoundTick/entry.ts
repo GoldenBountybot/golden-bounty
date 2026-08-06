@@ -29,7 +29,7 @@ function genCrashPoint(rtp) {
   // shape fits the observed data — an analyst can't pin down "the curve".
   const regime = rand();
   let crash;
-  if (regime < 0.15) {
+  if (regime < 0.06) {
     // Heavy-tail regime: longer flights, rare but possible.
     crash = (rtpJitter / 100) / Math.pow(1 - rand(), 1.6);
   } else if (regime < 0.30) {
@@ -47,6 +47,12 @@ function genCrashPoint(rtp) {
 
   // Occasional outlier spike or early dip for extra entropy.
   if (rand() < 0.10) crash *= 0.3 + rand() * 2.5;
+
+  // Cap high flyers: ~85% of anything above 50x gets pulled back down into a
+  // lower band so x50+ outcomes stay rare.
+  if (crash > 50 && rand() < 0.85) {
+    crash = 10 + rand() * 40;
+  }
 
   if (crash < 1.00) {
     // 50% fewer exact 1.00x busts, the rest spread across (1.00, 2.00).
