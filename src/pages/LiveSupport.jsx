@@ -29,7 +29,7 @@ export default function LiveSupport() {
       </header>
 
       {/* Chat body — fills the rest of the viewport up to the header */}
-      <main className="flex-1 min-h-0 max-w-2xl w-full mx-auto px-4 py-4 pb-[env(safe-area-inset-bottom)]">
+      <main className="flex-1 min-h-0 max-w-2xl w-full mx-auto px-4 pt-4 pb-[calc(88px+env(safe-area-inset-bottom))]">
         <LiveSupportChat />
       </main>
     </div>
