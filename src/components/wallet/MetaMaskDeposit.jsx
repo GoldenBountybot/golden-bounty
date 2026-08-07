@@ -64,12 +64,14 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return null;
   };
 
-  // MetaMask has a known bug (GitHub #5212) where it cannot decode %3A (encoded ':')
-  // in the WC URI, so the "wc:" prefix must stay UNENCODED for the pairing prompt to appear.
-  // The rest of the URI is encoded normally; '@' is also kept unencoded for WC v2 version parsing.
+  // MetaMask can't decode %3A (encoded ':') — the "wc:" prefix MUST stay unencoded
+  // (GitHub #5212). We use the lightest possible encoding: only '&' is encoded to %26
+  // so the browser doesn't split the WC URI into separate query params, but MetaMask
+  // only needs to decode %26 (standard) to reconstruct the full pairing URI.
+  // Everything else (wc:, @, ?, =) stays raw — matching MetaMask's own example format.
   const mmDeepLink = (uri) => {
     if (!uri) return 'https://metamask.app.link/';
-    const safeUri = 'wc:' + encodeURIComponent(uri.slice(3)).replace(/%40/g, '@');
+    const safeUri = uri.replace(/&/g, '%26');
     return 'https://metamask.app.link/wc?uri=' + safeUri;
   };
 
