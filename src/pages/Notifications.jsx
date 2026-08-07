@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Gift, CheckCircle2, ArrowDownToLine, ArrowUpFromLine, Megaphone } from 'lucide-react';
+import { Bell, Gift, CheckCircle2, ArrowDownToLine, ArrowUpFromLine, Megaphone, RotateCcw, Coins } from 'lucide-react';
 import { useNotifications } from '@/lib/useNotifications';
 import { useLanguage } from '@/lib/LanguageContext';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
@@ -9,6 +9,8 @@ import { toDate } from '@/lib/dateFormat';
 const TYPE_META = {
   bonus_arrived: { icon: Gift, color: '#f5c542', labelKey: 'Bonus Arrived' },
   bonus_claimed: { icon: CheckCircle2, color: '#7bd88f', labelKey: 'Bonus Claimed' },
+  cashback_claimed: { icon: RotateCcw, color: '#34d399', labelKey: 'Cashback Claimed' },
+  token_claimed: { icon: Coins, color: '#f5c542', labelKey: 'Token Claimed' },
   deposit_approved: { icon: ArrowDownToLine, color: '#7bd88f', labelKey: 'Deposit Approved' },
   withdraw_approved: { icon: ArrowUpFromLine, color: '#f0a050', labelKey: 'Withdraw Approved' },
   system: { icon: Megaphone, color: '#c5a059', labelKey: 'System' },

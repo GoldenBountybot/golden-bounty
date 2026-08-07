@@ -64,6 +64,17 @@ export default function TaskSystem({ profile, onClaimed }) {
       });
       setClaimedSet(new Set(newClaimed));
       onClaimed?.(newBounty);
+      // Create a notification so it shows in the Notifications list
+      try {
+        await base44.entities.UserNotification.create({
+          user_id: profile.id,
+          type: 'token_claimed',
+          title: t('Task Claimed!'),
+          body: `+${task.reward} BOUNTY`,
+          amount: Number(task.reward || 5),
+          link: '/profile',
+        });
+      } catch { /* notification is best-effort */ }
       toast({ title: t('Task Claimed!'), description: `+${task.reward} BOUNTY` });
     } catch (e) {
       toast({ title: t('Claim failed'), description: e.message });

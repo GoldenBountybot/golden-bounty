@@ -80,6 +80,17 @@ export default function CashbackPanel({ profile, onBack }) {
       const newClaimed = claimedLoss + unclaimedLoss;
       await base44.auth.updateMe({ cashback_claimed_loss: newClaimed });
       setClaimedLoss(newClaimed);
+      // 4. Create a notification so it shows in the Notifications list
+      try {
+        await base44.entities.UserNotification.create({
+          user_id: profile.id,
+          type: 'cashback_claimed',
+          title: t('Cashback claimed!'),
+          body: `$${cashbackAmount.toFixed(2)} ${t('added to your wallet')}`,
+          amount: cashbackAmount,
+          link: '/profile',
+        });
+      } catch { /* notification is best-effort */ }
       toast({ title: t('Cashback claimed!'), description: `$${cashbackAmount.toFixed(2)} ${t('added to your wallet')}` });
     } catch (e) {
       toast({ title: t('Claim failed'), description: e.message });

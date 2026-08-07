@@ -11,6 +11,8 @@
       "enum": [
         "bonus_arrived",
         "bonus_claimed",
+        "cashback_claimed",
+        "token_claimed",
         "deposit_approved",
         "withdraw_approved",
         "system"
