@@ -234,7 +234,7 @@ export default function SuperAceMachine() {
       }
     }
     // Golden Wild: drops only when the spin is a forced win AND it (+ flying copies) achieves a big win.
-    const goldenCfg = forceWin && !scatterHit ? findGoldenWildConfig(g, b) : null;
+    const goldenCfg = forceWin && !scatterHit && Math.random() < 0.35 ? findGoldenWildConfig(g, b) : null;
     if (goldenCfg) {
       g[goldenCfg.sourceIdx] = { sym: 'W', golden: false, goldenWild: true, pending: true, id: makeCell().id };
       goldenWildIdxRef.current = goldenCfg.sourceIdx;
