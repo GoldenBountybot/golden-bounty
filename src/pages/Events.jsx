@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Gift, Trophy, Sparkles, ArrowLeft, Calendar, Users, DollarSign, Clock, ImageOff, Loader2 } from 'lucide-react';
+import { Gift, Trophy, Sparkles, Clock, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useLanguage } from '@/lib/LanguageContext';
 
@@ -108,19 +107,8 @@ export default function Events() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {list.map((ev, i) => {
               const Icon = ev.icon;
-              const hasLink = !!ev.link;
-              const label = ev.link_label || t('Join Now');
-              // Render the CTA: a Link if there's a destination, otherwise a
-              // disabled "Coming Soon" pill.
-              const cta = hasLink ? (
-                <Link
-                  to={ev.link}
-                  className="w-full h-12 rounded-2xl font-extrabold text-sm transition-all active:scale-95 flex items-center justify-center gap-2"
-                  style={{ background: 'rgba(0,0,0,0.5)', color: '#fff', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.3)' }}
-                >
-                  {label} <ArrowLeft className="w-4 h-4 rotate-180" />
-                </Link>
-              ) : (
+              // No join buttons on the Events page — everything shows "Coming Soon".
+              const cta = (
                 <div
                   className="w-full h-12 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2"
                   style={{ background: 'rgba(0,0,0,0.4)', color: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
