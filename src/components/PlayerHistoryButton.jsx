@@ -10,6 +10,7 @@ const GAME_LABELS = {
   'fullhouse': 'Full House',
   'rocket-crash': 'Aviator',
   'crown-coins': 'Crown Coins',
+  'argonauts': 'Argonauts',
 };
 
 function fmtDate(d) {

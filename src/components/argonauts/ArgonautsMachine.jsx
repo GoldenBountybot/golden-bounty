@@ -1,8 +1,25 @@
 import React, { useState, useMemo } from 'react';
-import { Zap, Menu, Plus, Minus, RotateCw, DollarSign, Play } from 'lucide-react';
+import { Zap, Menu, Plus, Minus, RotateCw, DollarSign, Play, History } from 'lucide-react';
 import { useArgonauts } from './useArgonauts';
-import { REELS, ROWS, BETS, FREE_SPINS_AWARD, SYMBOLS } from './argonautsEngine';
-import { incBet, decBet, MIN_BET, MAX_BET } from '@/lib/betStepper';
+import { REELS, ROWS, FREE_SPINS_AWARD, SYMBOLS } from './argonautsEngine';
+import { MIN_BET, MAX_BET } from '@/lib/betStepper';
+import PlayerHistoryButton from '@/components/PlayerHistoryButton';
+
+// Bet menu ($ button): whole-dollar tiers from $1 to $500.
+const ARGO_BET_MENU = [1, 2, 5, 10, 20, 50, 100, 200, 500];
+
+// Plus icon doubles the bet (0.10 → 0.20 → 0.40 → …), capped at $500.
+const argoIncBet = (v) => {
+  const n = Number(v) || MIN_BET;
+  if (n < MIN_BET) return MIN_BET;
+  return Math.min(MAX_BET, Math.round(n * 2 * 100) / 100);
+};
+// Minus icon halves the bet (reverse of the doubling scale), floored at $0.10.
+const argoDecBet = (v) => {
+  const n = Number(v) || MIN_BET;
+  if (n <= MIN_BET) return MIN_BET;
+  return Math.max(MIN_BET, Math.round(n / 2 * 100) / 100);
+};
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import GameHeader from '@/components/GameHeader';
 import ArgoSymbolTile from './ArgoSymbolTile';
@@ -76,6 +93,7 @@ export default function ArgonautsMachine() {
   const [showPaytable, setShowPaytable] = useState(false);
   const [showRules, setShowRules] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [spinPulse, setSpinPulse] = useState(false);
 
   const spinDisabled = g.spinning || g.freeSpinsActive || g.bonusActive || g.riskMode || g.coinMode;
@@ -314,11 +332,12 @@ export default function ArgonautsMachine() {
             <div className="flex items-center gap-2">
               <IconButton onClick={() => g.setTurbo(!g.turbo)} active={g.turbo} disabled={g.spinning} title="Turbo"><Zap className="w-5 h-5" /></IconButton>
               <IconButton onClick={() => setShowPaytable(true)} title="Menu"><Menu className="w-5 h-5" /></IconButton>
+              <IconButton onClick={() => setShowHistory(true)} title="Game history"><History className="w-5 h-5" /></IconButton>
             </div>
 
             {/* Center: Minus + Spin + Plus */}
             <div className="flex items-center gap-2">
-              <IconButton onClick={() => g.setBet(decBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet <= MIN_BET} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
+              <IconButton onClick={() => g.setBet(argoDecBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet <= MIN_BET} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
               <button
                 onClick={() => { playSpinSound(); setSpinPulse(true); setTimeout(() => setSpinPulse(false), 220); g.spin(); }}
                 disabled={spinDisabled}
@@ -342,7 +361,7 @@ export default function ArgonautsMachine() {
                   style={{ filter: 'url(#argoSpinDropBlack)' }}
                 />
               </button>
-              <IconButton onClick={() => g.setBet(incBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet >= MAX_BET} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
+              <IconButton onClick={() => g.setBet(argoIncBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet >= MAX_BET} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
             </div>
 
             {/* Right column: Auto + Bet chip */}
@@ -355,7 +374,7 @@ export default function ArgonautsMachine() {
           {/* Bet menu popover */}
           {showBetMenu && (
             <div className="mt-2 mx-auto max-w-[230px] rounded-[8px] p-1.5 flex flex-wrap gap-1 justify-center" style={{ background: 'rgba(7,13,30,0.96)', border: '1px solid rgba(255,215,0,0.4)', boxShadow: '0 6px 18px rgba(0,0,0,0.6)' }}>
-              {BETS.map((b) => {
+              {ARGO_BET_MENU.map((b) => {
                 const active = Math.abs(g.bet - b) < 0.001;
                 return (
                   <button
@@ -420,6 +439,7 @@ export default function ArgonautsMachine() {
 
       {/* Overlays */}
       <ArgoOverlays g={g} showPaytable={showPaytable} setShowPaytable={setShowPaytable} showRules={showRules} setShowRules={setShowRules} />
+      <PlayerHistoryButton gameId="argonauts" renderButton={false} externalOpen={showHistory} onExternalClose={() => setShowHistory(false)} title="Argonauts History" />
     </div>
   );
 }
