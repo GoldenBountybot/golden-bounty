@@ -274,7 +274,7 @@ export default function Profile() {
                 );
               })}
               <div className="mt-1 px-1 pt-2" style={{ borderTop: '1px solid rgba(212,175,55,0.15)' }}>
-                <LanguageSwitcher />
+                <LanguageSwitcher variant="compact" />
               </div>
             </div>
           )}

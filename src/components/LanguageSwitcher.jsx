@@ -19,38 +19,36 @@ export default function LanguageSwitcher({ variant = 'default' }) {
   }, [open]);
 
   const isAuth = variant === 'auth';
+  const isCompact = variant === 'compact';
+
+  const btnClass = isAuth
+    ? "w-full h-11 flex items-center justify-between gap-2 px-4 rounded-lg text-sm font-semibold transition-all active:scale-95"
+    : isCompact
+      ? "w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-[13px] font-semibold transition-all active:scale-95"
+      : "w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all active:scale-95";
+  const btnStyle = isAuth
+    ? { border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)', color: '#e8c878' }
+    : { border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' };
 
   return (
     <div className="relative w-full" ref={ref}>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className={isAuth
-          ? "w-full h-11 flex items-center justify-between gap-2 px-4 rounded-lg text-sm font-semibold transition-all active:scale-95"
-          : "w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all active:scale-95"}
-        style={isAuth
-          ? { border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)', color: '#e8c878' }
-          : { border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }
-        }
-      >
-        <span className="flex items-center gap-2.5">
-          <span className="text-2xl leading-none">{current.flag}</span>
-          <span className="flex flex-col items-start leading-tight">
-            <span className="font-bold">{current.native}</span>
-            <span className="text-[10px] opacity-60">{current.name}</span>
-          </span>
+      <button type="button" onClick={() => setOpen((o) => !o)} className={btnClass} style={btnStyle}>
+        <span className="flex items-center gap-2">
+          <span className={isCompact ? 'text-base leading-none' : 'text-2xl leading-none'}>{current.flag}</span>
+          <span className="font-bold">{current.native}</span>
         </span>
         <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
         <div
-          className="absolute z-50 mt-1.5 w-full rounded-xl overflow-hidden max-h-80 overflow-y-auto"
+          className="absolute z-50 mt-1.5 w-full rounded-xl overflow-hidden overflow-y-auto"
           style={{
             border: '1px solid rgba(212,175,55,0.4)',
             background: 'rgba(13,13,13,0.97)',
             boxShadow: '0 14px 40px rgba(0,0,0,0.7)',
             animation: 'dashFadeIn 200ms ease both',
+            maxHeight: isCompact ? '260px' : '320px',
           }}
         >
           {LANGUAGES.map((l) => {
@@ -59,19 +57,18 @@ export default function LanguageSwitcher({ variant = 'default' }) {
               <button
                 key={l.code}
                 onClick={() => { setLang(l.code); setOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-white/5"
+                className={isCompact
+                  ? "w-full flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium transition-colors hover:bg-white/5"
+                  : "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-white/5"}
                 style={{
                   color: active ? '#D4AF37' : 'rgba(255,255,255,0.85)',
                   borderBottom: '1px solid rgba(212,175,55,0.12)',
                   background: active ? 'rgba(212,175,55,0.08)' : 'transparent',
                 }}
               >
-                <span className="text-2xl leading-none">{l.flag}</span>
-                <span className="flex-1 text-left">
-                  <span className="font-bold">{l.native}</span>
-                  <span className="ml-2 text-[11px] opacity-60">{l.name}</span>
-                </span>
-                {active && <Check className="w-4 h-4" style={{ color: '#D4AF37' }} />}
+                <span className={isCompact ? 'text-base leading-none' : 'text-2xl leading-none'}>{l.flag}</span>
+                <span className="flex-1 text-left font-semibold">{l.native}</span>
+                {active && <Check className="w-4 h-4 shrink-0" style={{ color: '#D4AF37' }} />}
               </button>
             );
           })}
