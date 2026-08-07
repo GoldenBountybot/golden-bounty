@@ -23,7 +23,6 @@ const LOGOS = {
   dogecoin: 'https://coin-images.coingecko.com/coins/images/5/large/dogecoin.png?1696501409',
   litecoin: 'https://coin-images.coingecko.com/coins/images/2/large/litecoin.png?1696501400',
   avalanche: 'https://coin-images.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png?1696512369',
-  polkadot: 'https://coin-images.coingecko.com/coins/images/12171/large/polkadot.jpg?1766533446',
   aptos: 'https://coin-images.coingecko.com/coins/images/26455/large/Aptos-Network-Symbol-Black-RGB-1x.png?1761789140',
   polygon: 'https://coin-images.coingecko.com/coins/images/4713/large/polygon.png?1698233745',
   ton: 'https://coin-images.coingecko.com/coins/images/17980/large/Gram_Circular_Badge.png?1781524778',
@@ -43,7 +42,6 @@ function logoFor(network, name) {
   if (k.includes('avax') || k.includes('avalanche')) return LOGOS.avalanche;
   if (k.includes('apt')) return LOGOS.aptos;
   if (k.includes('ton')) return LOGOS.ton;
-  if (k.includes('dot') || k.includes('polka')) return LOGOS.polkadot;
   if (k.includes('polygon') || k.includes('matic') || k.includes('pol')) return LOGOS.polygon;
   if (k.includes('btc') || k.includes('bitcoin')) return LOGOS.bitcoin;
   if (k.includes('ltc') || k.includes('lite')) return LOGOS.litecoin;
@@ -87,7 +85,6 @@ const CRYPTO_NETWORKS = [
   { name: 'TRX Trc 20', logo: LOGOS.tron, symbol: 'T', color: '#ef0027', address: 'TLrv3EJEbGfEJgGbjQi3Yi1Yc88mn9mDxn' },
   { name: 'LTC Litcoin Network', logo: LOGOS.litecoin, symbol: 'Ł', color: '#345d9d', address: 'ltc1qr3sxhe7uhy7230n67ydvyazj7xl3ktg2594xnq' },
   { name: 'Doge Dogecoin Network', logo: LOGOS.dogecoin, symbol: 'Ð', color: '#c2a634', address: 'DRia2VvUFipNk5D31AvWd4b3W714hBdbtW' },
-  { name: 'Dot Polkadot Network', logo: LOGOS.polkadot, symbol: '●', color: '#e6007a', address: '12vChQ7pHT3wrgMUmHCjCwBy5ASEbHYEmL3paSjfmymDdngN' },
   { name: 'APT Aptos Network', logo: LOGOS.aptos, symbol: 'A', color: '#06f7c7', address: '0x5eed1ca335fec51a3b18c115c6ceb0f4c774f3bdaa943076d1f58024921501f4' },
   { name: 'TON Ton network', logo: LOGOS.ton, symbol: 'T', color: '#0098ea', address: 'UQB5vp_yQ4L-EheVHn4df--zU1XDuRX_tMSCc7WEB-PGuGv6' },
 ];
