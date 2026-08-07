@@ -264,7 +264,6 @@ export function useArgonauts() {
         setMessage(awardedFree ? `WIN $${baseWin.toFixed(2)} · +${FREE_SPINS_AWARD} FREE` : `WIN $${baseWin.toFixed(2)} · TAKE / RISK?`);
       }
     } else {
-      setLastWin(0);
       if (!awardedFree) setMessage(usingFree ? 'FREE SPIN · NO WIN' : 'NO WIN · SPIN AGAIN');
     }
 
@@ -298,7 +297,6 @@ export function useArgonauts() {
     setSpinning(true);
     setWinningPositions(new Set());
     setWinningLines([]);
-    setLastWin(0);
     setSpinningReels(new Set());
     setAnticipateReels(new Set());
     setSlowMoReels(new Set());
