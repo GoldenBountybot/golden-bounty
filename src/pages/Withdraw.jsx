@@ -127,6 +127,14 @@ export default function Withdraw() {
         reference: walletAddr.trim(),
         note: `${selectedNet.name} · ${walletAddr.trim().slice(0, 14)}...`,
       });
+      // Auto-notify every admin by email (admins auto-picked server-side).
+      try {
+        await base44.functions.invoke('notifyAdminWithdrawal', {
+          amount,
+          network: selectedNet.name,
+          wallet: walletAddr.trim(),
+        });
+      } catch (_e) { /* non-critical — withdrawal already saved */ }
       toast({ title: t("Withdrawal requested"), description: t("Pending admin approval.") });
       setWalletAddr(''); setSelectedNet(null);
       setTimeout(() => { window.location.href = '/dashboard?tab=wallet'; }, 1000);
