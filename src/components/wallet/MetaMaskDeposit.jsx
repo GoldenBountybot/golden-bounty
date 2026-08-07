@@ -67,9 +67,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const openMetaMaskApp = () => {
     const uri = wcUriRef.current;
     if (uri) {
-      try { window.open('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
+      try { window.location.href = 'https://metamask.app.link/wc?uri=' + encodeURIComponent(uri); } catch {}
     } else {
-      try { window.open('https://metamask.app.link/open', '_blank'); } catch {}
+      try { window.location.href = 'https://metamask.app.link/'; } catch {}
     }
   };
 
@@ -93,7 +93,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       wcUriRef.current = uri;
       setWcUri(uri);
       if (mobile) {
-        try { window.open('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
+        try { window.location.href = 'https://metamask.app.link/wc?uri=' + encodeURIComponent(uri); } catch {}
       }
     });
     const res = await connectWalletConnect(net.chainId);
