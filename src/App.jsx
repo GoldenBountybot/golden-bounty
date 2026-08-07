@@ -41,6 +41,7 @@ import Faq from './pages/Faq';
 import Airdrop from './pages/Airdrop';
 import LiveSupport from './pages/LiveSupport';
 import Referrals from './pages/Referrals';
+import Events from './pages/Events';
 import Swap from './pages/Swap';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import BottomNavLayout from '@/components/BottomNavLayout';
@@ -130,6 +131,7 @@ const AuthenticatedApp = () => {
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/airdrop" element={<Airdrop />} />
           <Route path="/referrals" element={<Referrals />} />
+          <Route path="/events" element={<Events />} />
           <Route path="/swap" element={<Swap />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/live-support" element={<LiveSupport />} />
