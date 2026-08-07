@@ -103,16 +103,6 @@ export default function Events() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {list.map((ev, i) => {
-              // No join buttons on the Events page — everything shows "Coming Soon".
-              const cta = (
-                <div
-                  className="w-full h-12 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2"
-                  style={{ background: 'rgba(0,0,0,0.4)', color: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
-                >
-                  <Clock className="w-4 h-4" /> {t('Coming Soon')}
-                </div>
-              );
-
               return (
                 <div
                   key={ev.id}
@@ -132,17 +122,12 @@ export default function Events() {
                   {/* Decorative glow */}
                   <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.18), transparent 50%)' }} />
 
-                  {/* Content */}
-                  <div className="relative z-10 p-6 flex flex-col h-full justify-end" style={{ minHeight: '300px' }}>
-                    {/* Description */}
-                    {ev.description && (
-                      <p className="text-[13px] leading-relaxed mb-4" style={{ color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
-                        {ev.description}
-                      </p>
-                    )}
-
-                    {/* CTA */}
-                    {cta}
+                  {/* Content — only "Coming Soon" centered, no game text */}
+                  <div className="relative z-10 p-6 flex items-center justify-center" style={{ minHeight: '300px' }}>
+                    <div className="flex items-center gap-2 text-2xl font-extrabold tracking-wide" style={{ color: '#fff', textShadow: '0 2px 12px rgba(0,0,0,0.6)' }}>
+                      <Clock className="w-6 h-6" style={{ color: '#D4AF37' }} />
+                      {t('Coming Soon')}
+                    </div>
                   </div>
                 </div>
               );
