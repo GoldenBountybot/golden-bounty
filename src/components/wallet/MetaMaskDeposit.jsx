@@ -67,11 +67,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const openMetaMaskApp = () => {
     const uri = wcUriRef.current;
     if (uri) {
-      // Use the metamask:// protocol directly — bypasses Branch.io redirect
-      // so the full WC URI reaches MetaMask intact and triggers the pairing prompt.
-      window.location.href = 'metamask://wc?uri=' + encodeURIComponent(uri);
+      window.open('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri), '_blank');
     } else {
-      window.location.href = 'https://metamask.app.link/';
+      window.open('https://metamask.app.link/', '_blank');
     }
   };
 
@@ -94,6 +92,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     onWalletConnectUri((uri) => {
       wcUriRef.current = uri;
       setWcUri(uri);
+      if (mobile) {
+        try { window.open('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
+      }
     });
     const res = await connectWalletConnect(net.chainId);
     if (res && res.account) {
