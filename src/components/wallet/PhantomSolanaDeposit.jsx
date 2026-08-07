@@ -44,6 +44,28 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
     getCryptoPrices().then((p) => setPrice(p.sol || 0)).catch(() => {});
   }, []);
 
+  // Auto-connect as soon as the Phantom provider is available. On mobile the
+  // in-app browser injects the provider AFTER the page loads, so we poll for
+  // a few seconds — otherwise the "Open in Phantom App" button only opens the
+  // browser without ever sending a connection request.
+  const connectRef = useRef(() => {});
+  connectRef.current = connect;
+  useEffect(() => {
+    if (status !== 'idle') return;
+    let done = false;
+    const tryConnect = () => {
+      if (done || status !== 'idle') return false;
+      if (getPhantomSolana()) { done = true; connectRef.current(); return true; }
+      return false;
+    };
+    if (tryConnect()) return;
+    const iv = setInterval(() => { if (tryConnect()) clearInterval(iv); }, 400);
+    const t = setTimeout(() => clearInterval(iv), 6000);
+    const onLoad = () => tryConnect();
+    window.addEventListener('load', onLoad);
+    return () => { clearInterval(iv); clearTimeout(t); window.removeEventListener('load', onLoad); };
+  }, [status]);
+
   const openPhantomApp = () => { try { window.open(phantomBrowseUrl, '_blank'); } catch {} };
 
   const connect = async () => {
@@ -291,9 +313,16 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
 
       {/* Error */}
       {status === 'error' && (
-        <div className="flex items-start gap-2.5 px-4 py-3 rounded-[14px] text-[13px]"
-          style={{ border: '1px solid rgba(244,63,94,0.35)', background: 'rgba(244,63,94,0.1)', color: '#fca5a5' }}>
-          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" /> <span>{errMsg}</span>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-start gap-2.5 px-4 py-3 rounded-[14px] text-[13px]"
+            style={{ border: '1px solid rgba(244,63,94,0.35)', background: 'rgba(244,63,94,0.1)', color: '#fca5a5' }}>
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" /> <span>{errMsg}</span>
+          </div>
+          <button onClick={() => { setErrMsg(''); setStatus('idle'); }}
+            className="w-full flex items-center justify-center gap-2 h-12 rounded-[16px] font-bold transition-all active:scale-[0.98]"
+            style={{ border: '1px solid rgba(171,159,242,0.4)', background: 'rgba(171,159,242,0.10)', color: PHANTOM_PURPLE }}>
+            <Wallet className="w-5 h-5" /> Try Again
+          </button>
         </div>
       )}
 
