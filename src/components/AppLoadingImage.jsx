@@ -12,6 +12,9 @@ export default function AppLoadingImage() {
         alt=""
         className="absolute inset-0 w-full h-full object-cover select-none"
         draggable={false}
+        fetchPriority="high"
+        decoding="async"
+        style={{ animation: 'splashFadeIn 450ms ease both' }}
       />
       {/* subtle darkening so the text stays readable */}
       <div className="absolute inset-0 bg-black/25" />

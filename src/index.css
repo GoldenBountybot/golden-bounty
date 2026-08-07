@@ -95,6 +95,11 @@
   }
 }
 
+@keyframes splashFadeIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
 @keyframes reelFall {
   0% { transform: translate3d(0, -75%, 0); }
   100% { transform: translate3d(0, 0%, 0); }
