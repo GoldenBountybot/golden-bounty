@@ -179,7 +179,7 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
           <ChevronLeft className="w-4 h-4" /> Back
         </button>
         <div className="flex items-center gap-2.5">
-          <div className="flex items-center justify-center w-9 h-9 rounded-full shrink-0 overflow-hidden" style={{ background: '#1a1a1a', boxShadow: '0 0 0 1.5px rgba(171,159,242,0.4)' }}>
+          <div className="flex items-center justify-center w-9 h-9 rounded-full shrink-0 overflow-hidden" style={{ background: '#7868e6', boxShadow: '0 0 0 1.5px rgba(171,159,242,0.4)' }}>
             <img src={PHANTOM_LOGO} alt="Phantom" className="w-7 h-7 object-contain" />
           </div>
           <h1 className="text-base font-extrabold" style={{ color: PHANTOM_PURPLE }}>Phantom · Solana Deposit</h1>
@@ -218,12 +218,6 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
         <div className="flex items-center justify-center w-12 h-12 rounded-full shrink-0" style={{ background: 'linear-gradient(135deg, #AB9FF2, #14f195)', boxShadow: '0 0 18px rgba(171,159,242,0.5)' }}>
           <Wallet className="w-6 h-6" style={{ color: '#fff' }} />
         </div>
-      </div>
-
-      {/* Recipient note */}
-      <div className="dash-card px-4 py-3 flex flex-col gap-1" style={{ border: '1px solid rgba(212,175,55,0.2)' }}>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Recipient (Admin)</p>
-        <p className="text-[12px] break-all font-mono" style={{ color: 'rgba(255,255,255,0.8)' }}>{ADMIN_SOL}</p>
       </div>
 
       {/* Connected account */}
