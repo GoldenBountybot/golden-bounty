@@ -36,9 +36,15 @@ export default function CashbackPanel({ profile, onBack }) {
     if (!profile) return;
     setLoading(true);
     try {
-      const rows = await base44.entities.PlayerActivity.filter({ user_id: profile.id }, '-created_date', 1000);
+      // Always fetch the freshest cashback_claimed_loss from the backend so
+      // a stale profile prop can't reset already-claimed losses to zero
+      // (which would let the same losses be double-claimed after remount).
+      const [me, rows] = await Promise.all([
+        base44.auth.me(),
+        base44.entities.PlayerActivity.filter({ user_id: profile.id }, '-created_date', 1000),
+      ]);
       setActivities(rows);
-      setClaimedLoss(Number(profile.cashback_claimed_loss ?? 0));
+      setClaimedLoss(Number(me?.cashback_claimed_loss ?? 0));
     } catch { /* ignore */ } finally {
       setLoading(false);
     }
