@@ -2,9 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
-import { QRCodeSVG } from 'qrcode.react';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, ChevronDown, LogOut } from 'lucide-react';
-import { connectWalletConnect, disconnectWalletConnect, disconnectInjected, hasWalletConnect, onWalletConnectUri, preloadWalletConnect } from '@/lib/walletConnect';
+import { getMetaMaskSdk, disconnectMetaMask } from '@/lib/metaMaskSdk';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { addWagerRequirement } from '@/lib/useCasinoBalance';
@@ -20,12 +19,6 @@ function pad32(addr) {
   while (h.length < 64) h = '0' + h;
   return '0x' + h;
 }
-function getInjectedProvider() {
-  if (typeof window === 'undefined') return null;
-  // Prefer a MetaMask-flagged provider; fall back to any injected ethereum.
-  if (window.ethereum?.isMetaMask) return window.ethereum;
-  return window.ethereum || null;
-}
 const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent || '');
 
 export default function MetaMaskDeposit({ amount, onBack, onDone }) {
@@ -36,12 +29,10 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const [account, setAccount] = useState(null);
   const [status, setStatus] = useState('idle'); // idle|connecting|connected|sending|confirming|verifying|done|error
   const [errMsg, setErrMsg] = useState('');
-  const [wcUri, setWcUri] = useState('');
   const [payAsset, setPayAsset] = useState('usdt'); // 'usdt' | 'native'
   const [price, setPrice] = useState(0);
   const providerRef = useRef(null);
   const accountRef = useRef(null);
-  const wcUriRef = useRef('');
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
@@ -64,23 +55,6 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return null;
   };
 
-  // MetaMask can't decode %3A (encoded ':') — the "wc:" prefix MUST stay unencoded
-  // (GitHub #5212). We use the lightest possible encoding: only '&' is encoded to %26
-  // so the browser doesn't split the WC URI into separate query params, but MetaMask
-  // only needs to decode %26 (standard) to reconstruct the full pairing URI.
-  // Everything else (wc:, @, ?, =) stays raw — matching MetaMask's own example format.
-  const mmDeepLink = (uri) => {
-    if (!uri) return 'https://metamask.app.link/';
-    const safeUri = uri.replace(/&/g, '%26');
-    return 'https://metamask.app.link/wc?uri=' + safeUri;
-  };
-
-  const openMetaMaskApp = () => {
-    window.open(mmDeepLink(wcUriRef.current), '_blank');
-  };
-
-  useEffect(() => { if (hasWalletConnect()) preloadWalletConnect(net.chainId); }, []);
-
   useEffect(() => { if (!nativeSupported && payAsset === 'native') setPayAsset('usdt'); }, [netKey]);
   useEffect(() => {
     if (payAsset === 'native' && nativeSupported) {
@@ -88,44 +62,22 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     }
   }, [payAsset, netKey]);
 
+  // Single connect flow — the MetaMask SDK automatically detects the platform:
+  //   • Desktop with extension → connects directly to the extension
+  //   • Mobile browser → deep-links to the MetaMask mobile app
+  //   • Desktop without extension → shows a QR modal to scan with MetaMask mobile
   const connectAndPay = async () => {
-    if (!hasWalletConnect()) {
-      setErrMsg('WalletConnect projectId is not set (src/lib/walletConfig.js).');
-      setStatus('error'); return;
-    }
-    setStatus('connecting'); setErrMsg(''); setWcUri('');
-    const mobile = isMobile();
-    onWalletConnectUri((uri) => {
-      wcUriRef.current = uri;
-      setWcUri(uri);
-      if (mobile) {
-        try { window.open(mmDeepLink(uri), '_blank'); } catch {}
-      }
-    });
-    const res = await connectWalletConnect(net.chainId);
-    if (res && res.account) {
-      providerRef.current = res.provider;
-      accountRef.current = res.account;
-      setAccount(res.account);
-      setWcUri('');
-      await deposit();
-    } else {
-      setErrMsg('Wallet connection was cancelled or failed.');
-      setStatus('error'); setWcUri('');
-    }
-  };
-
-  const connectInjected = async () => {
-    const p = getInjectedProvider();
-    if (!p) { setErrMsg('MetaMask extension not found. Install MetaMask or use the mobile app.'); setStatus('error'); return; }
-    setStatus('connecting'); setErrMsg(''); setWcUri('');
+    setStatus('connecting'); setErrMsg('');
     try {
-      const accts = await p.request({ method: 'eth_requestAccounts' });
+      const sdk = getMetaMaskSdk();
+      await sdk.connect();
+      const provider = sdk.getProvider();
+      // Switch to the target chain (add it if missing)
       try {
-        await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: net.chainIdHex }] });
+        await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: net.chainIdHex }] });
       } catch (e) {
         if (e && (e.code === 4902 || e.code === -32603)) {
-          await p.request({
+          await provider.request({
             method: 'wallet_addEthereumChain',
             params: [{
               chainId: net.chainIdHex,
@@ -137,32 +89,17 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           });
         } else { throw e; }
       }
-      providerRef.current = p;
-      accountRef.current = accts[0];
-      setAccount(accts[0]);
-      setStatus('connected');
-    } catch {
-      setErrMsg('Wallet connection was cancelled.'); setStatus('error');
-    }
-  };
-
-  const connectMobile = async () => {
-    if (!hasWalletConnect()) {
-      setErrMsg('WalletConnect projectId is not set (src/lib/walletConfig.js).');
-      setStatus('error'); return;
-    }
-    setStatus('connecting'); setErrMsg(''); setWcUri('');
-    onWalletConnectUri(setWcUri);
-    const res = await connectWalletConnect(net.chainId);
-    if (res && res.account) {
-      providerRef.current = res.provider;
-      accountRef.current = res.account;
-      setAccount(res.account);
-      setWcUri('');
-      setStatus('connected');
-    } else {
-      setErrMsg('Mobile wallet connection failed or was cancelled.');
-      setStatus('error'); setWcUri('');
+      const accounts = await provider.request({ method: 'eth_accounts' });
+      if (!accounts || !accounts.length) throw new Error('No account returned');
+      providerRef.current = provider;
+      accountRef.current = accounts[0];
+      setAccount(accounts[0]);
+      await deposit();
+    } catch (e) {
+      console.error('MetaMask SDK connect error:', e);
+      const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'cancelled/failed');
+      setErrMsg('Connection failed: ' + msg);
+      setStatus('error');
     }
   };
 
@@ -233,7 +170,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
 
   const busy = ['connecting', 'sending', 'confirming', 'verifying'].includes(status);
   const statusText = {
-    connecting: 'Connecting wallet…',
+    connecting: 'Connecting to MetaMask…',
     sending: 'Sending transaction request to wallet…',
     confirming: 'Waiting for blockchain confirmation…',
     verifying: 'Verifying and adding balance…',
@@ -337,13 +274,10 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           {!busy && (
             <button
               onClick={async () => {
-                try { await disconnectInjected(providerRef.current); } catch {}
-                try { await disconnectWalletConnect(); } catch {}
+                try { await disconnectMetaMask(); } catch {}
                 providerRef.current = null;
                 accountRef.current = null;
-                wcUriRef.current = '';
                 setAccount(null);
-                setWcUri('');
                 setErrMsg('');
                 setStatus('idle');
               }}
@@ -357,59 +291,38 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       )}
 
       {/* Busy status */}
-      {busy && !wcUri && (
+      {busy && (
         <div className="dash-card p-4 flex flex-col gap-3">
           <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#F6851A' }}>
             <Loader2 className="w-4 h-4 animate-spin" /> {statusText}
           </div>
           {status === 'sending' && (
-            <>
-              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                Seeing "<b style={{ color: '#F6851A' }}>0 {net.nativeSymbol}</b>" in the wallet is normal — USDT transfers carry 0 native coin; the actual {amount.toFixed(2)} USDT goes inside the contract call. However, your wallet needs a <b style={{ color: '#F6851A' }}>small amount of {net.nativeSymbol} ($0.05–0.20)</b> for gas — otherwise it will show "Insufficient {net.nativeSymbol} balance".
-              </p>
-              <button onClick={openMetaMaskApp}
-                className="self-start flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
-                style={{ background: 'linear-gradient(135deg, #F6851A, #E2761B)', color: '#fff', boxShadow: '0 4px 14px rgba(246,133,26,0.35)' }}>
-                <Smartphone className="w-4 h-4" /> Open MetaMask
-              </button>
-            </>
+            <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              Seeing "<b style={{ color: '#F6851A' }}>0 {net.nativeSymbol}</b>" in the wallet is normal — USDT transfers carry 0 native coin; the actual {amount.toFixed(2)} USDT goes inside the contract call. However, your wallet needs a <b style={{ color: '#F6851A' }}>small amount of {net.nativeSymbol} ($0.05–0.20)</b> for gas — otherwise it will show "Insufficient {net.nativeSymbol} balance".
+            </p>
+          )}
+          {status === 'connecting' && isMobile() && (
+            <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              If MetaMask doesn't open automatically, tap the button below.
+            </p>
           )}
         </div>
       )}
 
-      {/* WalletConnect QR */}
-      {status === 'connecting' && wcUri && (
-        <div className="dash-card p-5 flex flex-col items-center gap-3" style={{ background: '#fff', border: '1px solid rgba(246,133,26,0.4)' }}>
-          <QRCodeSVG value={wcUri} size={208} level="M" />
-          <p className="text-sm font-bold" style={{ color: '#1a1a1a' }}>Scan this QR with the MetaMask app</p>
-          <p className="text-[11px]" style={{ color: '#888' }}>MetaMask app → Scan QR Code</p>
-          {isMobile() && (
-            <button onClick={openMetaMaskApp}
-              className="w-full flex items-center justify-center gap-2 h-12 rounded-[14px] font-extrabold transition-all active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #F6851A, #E2761B)', color: '#fff', boxShadow: '0 4px 14px rgba(246,133,26,0.35)' }}>
-              <Smartphone className="w-4 h-4" /> Open MetaMask App
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Idle action buttons */}
+      {/* Idle action button — single connect button, SDK handles all platforms */}
       {status === 'idle' && (
         <div className="flex flex-col gap-2.5">
-          <button onClick={connectInjected}
+          <button onClick={connectAndPay}
             className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
             style={{ background: 'linear-gradient(135deg, #F6851A, #E2761B)', color: '#fff', boxShadow: '0 6px 20px rgba(246,133,26,0.4)' }}>
-            <Chrome className="w-5 h-5" /> Connect MetaMask Extension
+            {isMobile() ? <Smartphone className="w-5 h-5" /> : <Chrome className="w-5 h-5" />}
+            {isMobile() ? 'Connect with MetaMask App' : 'Connect MetaMask'}
           </button>
-          <button onClick={connectAndPay}
-            className="dash-btn-gold w-full flex items-center justify-center gap-2 h-14 rounded-[16px] text-[15px]">
-            <Smartphone className="w-5 h-5" /> Open in MetaMask App (Auto Pay)
-          </button>
-          <button onClick={connectMobile}
-            className="w-full flex items-center justify-center gap-2 h-12 rounded-[16px] font-bold transition-all active:scale-[0.98]"
-            style={{ border: '1px solid rgba(246,133,26,0.3)', background: 'rgba(255,255,255,0.03)', color: '#fff' }}>
-            <Wallet className="w-5 h-5" style={{ color: '#F6851A' }} /> Connect via QR Scan
-            </button>
+          <p className="text-center text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            {isMobile()
+              ? 'Opens the MetaMask mobile app automatically'
+              : 'Uses the MetaMask extension, or shows a QR to scan with the mobile app'}
+          </p>
         </div>
       )}
 
