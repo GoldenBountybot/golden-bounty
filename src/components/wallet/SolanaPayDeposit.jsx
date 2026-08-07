@@ -13,9 +13,12 @@ const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 
 export default function SolanaPayDeposit({ amount, onDone }) {
   const { toast } = useToast();
+  // Generate the unique pay amount IMMEDIATELY (locally) so the QR can render
+  // right away — the backend request record is created in the background.
+  const [initialUnits] = useState(() => Math.round(amount * 1e6) + Math.floor(Math.random() * 9999) + 1);
   const [requestId, setRequestId] = useState(null);
-  const [payUnits, setPayUnits] = useState(0);
-  const [status, setStatus] = useState('preparing'); // preparing|waiting|confirming|done|error
+  const [payUnits, setPayUnits] = useState(initialUnits);
+  const [status, setStatus] = useState('waiting'); // waiting|confirming|done|error
   const [errMsg, setErrMsg] = useState('');
   const pollRef = useRef(null);
 
@@ -24,29 +27,34 @@ export default function SolanaPayDeposit({ amount, onDone }) {
   const payUsd = payUnits / 1e6;
   const solanaPayUrl = `solana:${ADMIN_SOL}?amount=${payUsd.toFixed(6)}&spl-token=${USDC_MINT}`;
 
-  // Create the deposit request on mount.
+  // Create the deposit request in the background (with retries) so the QR is
+  // never blocked on a slow/failing network call.
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    let attempt = 0;
+    const create = async () => {
       try {
-        const units = Math.round(amount * 1e6) + Math.floor(Math.random() * 9999) + 1;
         const me = await base44.auth.me();
         const rec = await base44.entities.SolanaDepositRequest.create({
           user_id: me?.id,
           amount,
-          pay_units: units,
+          pay_units: initialUnits,
           user_email: me?.email || '',
         });
         if (cancelled) return;
         setRequestId(rec.id);
-        setPayUnits(units);
-        setStatus('waiting');
       } catch (e) {
         if (cancelled) return;
-        setErrMsg('Could not start deposit: ' + (e?.message || e));
-        setStatus('error');
+        attempt++;
+        if (attempt >= 5) {
+          setErrMsg('Could not register deposit: ' + (e?.message || e));
+          setStatus('error');
+          return;
+        }
+        setTimeout(create, 2000 * attempt);
       }
-    })();
+    };
+    create();
     return () => { cancelled = true; if (pollRef.current) clearInterval(pollRef.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -146,14 +154,6 @@ export default function SolanaPayDeposit({ amount, onDone }) {
             <ExternalLink className="w-5 h-5" style={{ color: PHANTOM_PURPLE }} /> Install Phantom
           </a>
         </>
-      )}
-
-      {/* Preparing */}
-      {status === 'preparing' && (
-        <div className="dash-card p-5 flex items-center justify-center gap-2" style={{ border: '1px solid rgba(171,159,242,0.3)' }}>
-          <Loader2 className="w-5 h-5 animate-spin" style={{ color: PHANTOM_PURPLE }} />
-          <span className="text-sm font-semibold" style={{ color: PHANTOM_PURPLE }}>Preparing your deposit…</span>
-        </div>
       )}
 
       {/* Error */}
