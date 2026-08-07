@@ -44,28 +44,6 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
     getCryptoPrices().then((p) => setPrice(p.sol || 0)).catch(() => {});
   }, []);
 
-  // Auto-connect as soon as the Phantom provider is available. On mobile the
-  // in-app browser injects the provider AFTER the page loads, so we poll for
-  // a few seconds — otherwise the "Open in Phantom App" button only opens the
-  // browser without ever sending a connection request.
-  const connectRef = useRef(() => {});
-  connectRef.current = connect;
-  useEffect(() => {
-    if (status !== 'idle') return;
-    let done = false;
-    const tryConnect = () => {
-      if (done || status !== 'idle') return false;
-      if (getPhantomSolana()) { done = true; connectRef.current(); return true; }
-      return false;
-    };
-    if (tryConnect()) return;
-    const iv = setInterval(() => { if (tryConnect()) clearInterval(iv); }, 400);
-    const t = setTimeout(() => clearInterval(iv), 6000);
-    const onLoad = () => tryConnect();
-    window.addEventListener('load', onLoad);
-    return () => { clearInterval(iv); clearTimeout(t); window.removeEventListener('load', onLoad); };
-  }, [status]);
-
   const openPhantomApp = () => { try { window.open(phantomBrowseUrl, '_blank'); } catch {} };
 
   const connect = async () => {
@@ -89,6 +67,28 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
       setStatus('error');
     }
   };
+
+  // Auto-connect as soon as the Phantom provider is available. On mobile the
+  // in-app browser injects the provider AFTER the page loads, so we poll for
+  // a few seconds — otherwise the "Open in Phantom App" button only opens the
+  // browser without ever sending a connection request.
+  const connectRef = useRef(() => {});
+  connectRef.current = connect;
+  useEffect(() => {
+    if (status !== 'idle') return;
+    let done = false;
+    const tryConnect = () => {
+      if (done || status !== 'idle') return false;
+      if (getPhantomSolana()) { done = true; connectRef.current(); return true; }
+      return false;
+    };
+    if (tryConnect()) return;
+    const iv = setInterval(() => { if (tryConnect()) clearInterval(iv); }, 400);
+    const t = setTimeout(() => clearInterval(iv), 6000);
+    const onLoad = () => tryConnect();
+    window.addEventListener('load', onLoad);
+    return () => { clearInterval(iv); clearTimeout(t); window.removeEventListener('load', onLoad); };
+  }, [status]);
 
   const disconnect = async () => {
     try { await providerRef.current?.disconnect?.(); } catch {}
