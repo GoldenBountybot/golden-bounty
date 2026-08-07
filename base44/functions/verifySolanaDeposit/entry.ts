@@ -3,7 +3,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 // Verifies a native SOL deposit sent from the user's Phantom wallet to the
 // admin Solana wallet, then records a completed Transaction. Idempotent by
 // transaction signature. Uses the public Solana RPC — no secret needed.
-const SOLANA_RPC = 'https://api.mainnet-beta.solana.com';
+// PublicNode free RPC — the Solana public endpoint (api.mainnet-beta.solana.com)
+// 403-blocks this server's IP. PublicNode is free, key-less, and reliable.
+const SOLANA_RPC = 'https://solana-rpc.publicnode.com';
 const ADMIN = 'ftmbTXAc6XWyT6ieXHLiEZ7zuJFDPVSAdvrvrTveniW';
 
 async function rpc(method, params) {

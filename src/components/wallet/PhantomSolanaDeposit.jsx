@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useCasinoBalance, addWagerRequirement } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ArrowRight, ExternalLink, LogOut } from 'lucide-react';
-import { Connection, SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { getAssociatedTokenAddress, createTransferCheckedInstruction, createAssociatedTokenAccountIdempotentInstruction } from '@solana/spl-token';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import {
@@ -15,7 +15,6 @@ const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-
 const PHANTOM_PURPLE = '#AB9FF2';
 const PHANTOM_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1a373c31c_file_00000000bf088207bca808f6fa5670a3.png';
 const ADMIN_SOL = 'ftmbTXAc6XWyT6ieXHLiEZ7zuJFDPVSAdvrvrTveniW';
-const SOLANA_RPC = 'https://api.mainnet-beta.solana.com';
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 const USDC_DECIMALS = 6;
 
@@ -28,6 +27,20 @@ function cleanPhantomUrl() {
   ['phantom_encryption_public_key', 'nonce', 'data', 'errorCode', 'errorMessage', 'method'].forEach((k) => sp.delete(k));
   const qs = sp.toString();
   window.history.replaceState({}, '', window.location.pathname + (qs ? '?' + qs : ''));
+}
+
+// Solana RPC calls go through the backend proxy — the public Solana endpoint
+// returns 403 to browser/CORS requests, so we forward server-side instead.
+async function solanaRpc(method, params = []) {
+  const res = await base44.functions.invoke('solanaRpcProxy', { method, params });
+  if (!res?.data?.ok) throw new Error(res?.data?.reason || 'RPC proxy failed');
+  return res.data.result;
+}
+
+function bytesToBase64(bytes) {
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
 }
 
 export default function PhantomSolanaDeposit({ amount, onDone }) {
@@ -96,11 +109,10 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
       const signedTx = Transaction.from(b58Decode(data.transaction));
 
       setStatus('confirming');
-      const connection = new Connection(SOLANA_RPC, 'confirmed');
-      const signature = await connection.sendRawTransaction(signedTx.serialize(), { skipPreflight: false });
+      const signature = await solanaRpc('sendTransaction', [bytesToBase64(signedTx.serialize()), { encoding: 'base64', skipPreflight: false }]);
       for (let i = 0; i < 40; i++) {
         try {
-          const s = await connection.getSignatureStatus(signature);
+          const s = await solanaRpc('getSignatureStatus', [signature, { searchTransactionHistory: true }]);
           const cs = s?.value?.confirmationStatus;
           if (cs === 'confirmed' || cs === 'finalized') break;
         } catch {}
@@ -154,7 +166,6 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
     if (payAsset === 'sol' && !price) { setErrMsg('Could not fetch SOL price.'); setStatus('error'); return; }
     setStatus('sending'); setErrMsg('');
     try {
-      const connection = new Connection(SOLANA_RPC, 'confirmed');
       const fromPubkey = new PublicKey(saved.publicKey);
       const toPubkey = new PublicKey(ADMIN_SOL);
       const tx = new Transaction();
@@ -164,12 +175,15 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
         const mint = new PublicKey(USDC_MINT);
         const senderAta = await getAssociatedTokenAddress(mint, fromPubkey);
         const recipientAta = await getAssociatedTokenAddress(mint, toPubkey);
-        const recipientInfo = await connection.getAccountInfo(recipientAta);
-        if (!recipientInfo) tx.add(createAssociatedTokenAccountIdempotentInstruction(fromPubkey, recipientAta, toPubkey, mint));
+        // Always include the idempotent ATA creation — it's a no-op if the
+        // admin's USDC ATA already exists, avoiding a getAccountInfo RPC call
+        // (which 403s from the browser on the public Solana endpoint).
+        tx.add(createAssociatedTokenAccountIdempotentInstruction(fromPubkey, recipientAta, toPubkey, mint));
         tx.add(createTransferCheckedInstruction(senderAta, mint, recipientAta, fromPubkey, usdcUnits, USDC_DECIMALS));
       }
       tx.feePayer = fromPubkey;
-      tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      const bh = await solanaRpc('getLatestBlockhash', []);
+      tx.recentBlockhash = bh?.value?.blockhash;
       const serialized = tx.serialize({ requireAllSignatures: false });
 
       const payload = { session: saved.session, transaction: b58Encode(serialized) };
