@@ -13,7 +13,7 @@ const WAIT_MS = 5000;        // betting window before each round
 const CRASH_HOLD_MS = 1500;  // brief blast flash before next round
 const GROWTH = 1.10;         // multiplier = GROWTH ^ elapsedSec
 
-function genCrashPoint(rtp) {
+function genCrashPoint(rtp, recent = []) {
   // Crypto-grade entropy so the sequence can't be reverse-engineered or
   // predicted from observed history — every draw is independent.
   const rand = () => {
@@ -21,6 +21,22 @@ function genCrashPoint(rtp) {
     crypto.getRandomValues(buf);
     return buf[0] / 4294967296;
   };
+
+  // Streak detection: count how many of the most recent consecutive rounds
+  // were "high" (>=2x) or "low" (<2x). If a streak is forming, force-break
+  // it so the history never shows a long run of similar outcomes that a
+  // player could read as a predictable pattern.
+  let streakHigh = 0, streakLow = 0;
+  for (const h of recent) {
+    if (h >= 2) streakHigh++; else break;
+  }
+  for (const h of recent) {
+    if (h < 2) streakLow++; else break;
+  }
+  // 3+ highs in a row → next round strongly biased to bust low.
+  // 3+ lows in a row → next round strongly biased to fly higher.
+  const forceLow = streakHigh >= 3;
+  const forceHigh = streakLow >= 3;
 
   // Jitter the effective RTP round-to-round with a variable band so the
   // average payout itself drifts and can't be nailed to a single value.
@@ -97,6 +113,15 @@ function genCrashPoint(rtp) {
     if (crash < 2) crash = 2 + rand() * 6;
     else crash = 1.00 + rand() * 1.5;
   }
+  // Streak-break: if the last few rounds clustered high, force this one
+  // low; if they clustered low, force it higher. This guarantees the
+  // history bar never shows a long unbroken run of similar colors that
+  // a player could read as a pattern.
+  if (forceLow) {
+    crash = 1.00 + rand() * 0.9;          // bust under 2x
+  } else if (forceHigh) {
+    crash = 2.5 + rand() * 7.5;           // fly above 2.5x
+  }
   return Math.min(Math.max(crash, 1.00), 250);
 }
 
@@ -116,7 +141,7 @@ Deno.serve(async (req) => {
         current: true,
         round_id: 1,
         phase: 'waiting',
-        crash_point: genCrashPoint(97),
+        crash_point: genCrashPoint(97, []),
         wait_start: now,
         run_start: 0,
         crash_at: 0,
@@ -156,7 +181,7 @@ Deno.serve(async (req) => {
         } catch (_e) {}
         patch.round_id = (round.round_id || 1) + 1;
         patch.phase = 'waiting';
-        patch.crash_point = genCrashPoint(rtp);
+        patch.crash_point = genCrashPoint(rtp, round.history || []);
         patch.wait_start = now;
         patch.run_start = 0;
         patch.crash_at = 0;
