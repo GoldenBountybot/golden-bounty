@@ -221,7 +221,7 @@ export default function HiLo() {
 
   const guess = (dir) => {
     if (phase !== 'guessing') return;
-    const wantCorrect = Math.random() < (rtp / 100) * 0.80;
+    const wantCorrect = Math.random() < (rtp / 100) * 0.79;
     const next = pickCard(dir, current.rank, wantCorrect);
     setRevealed(next);
     const same = next.rank === current.rank;
