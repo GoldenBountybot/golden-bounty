@@ -36,7 +36,7 @@ export const GOLDEN_CHANCE = 0.20;
 const WEIGHTS = {
   A: 0.4, K: 0.6, Q: 0.9, J: 1.2,
   S: 24, H: 24, D: 24, C: 24,
-  SC: 3,
+  SC: 1.5,
 };
 
 // Cascade (multiplier) refill weights — high-value symbols even rarer so big
