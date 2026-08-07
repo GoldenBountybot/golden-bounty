@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance, addWagerRequirement } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
-import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, LogOut, ExternalLink } from 'lucide-react';
+import { Wallet, Loader2, CheckCircle2, AlertTriangle, ArrowRight, Smartphone, Chrome, LogOut, ExternalLink } from 'lucide-react';
 import { Connection, SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { getAssociatedTokenAddress, createTransferCheckedInstruction, createAssociatedTokenAccountIdempotentInstruction } from '@solana/spl-token';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
@@ -171,19 +171,12 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
 
   return (
     <div className="flex flex-col gap-4" style={{ fontFamily: SANS, animation: 'dashFadeIn 350ms ease both' }}>
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <button onClick={onBack}
-          className="flex items-center gap-1.5 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
-          style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
-          <ChevronLeft className="w-4 h-4" /> Back
-        </button>
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center justify-center w-9 h-9 rounded-full shrink-0 overflow-hidden" style={{ background: '#7868e6', boxShadow: '0 0 0 1.5px rgba(171,159,242,0.4)' }}>
-            <img src={PHANTOM_LOGO} alt="Phantom" className="w-7 h-7 object-contain" />
-          </div>
-          <h1 className="text-base font-extrabold" style={{ color: PHANTOM_PURPLE }}>Phantom · Solana Deposit</h1>
+      {/* Header — logo + title only (parent PayMethod provides the Back button) */}
+      <div className="flex items-center gap-2.5">
+        <div className="flex items-center justify-center w-9 h-9 rounded-full shrink-0 overflow-hidden" style={{ background: '#7868e6', boxShadow: '0 0 0 1.5px rgba(171,159,242,0.4)' }}>
+          <img src={PHANTOM_LOGO} alt="Phantom" className="w-7 h-7 object-contain" />
         </div>
+        <h1 className="text-base font-extrabold" style={{ color: PHANTOM_PURPLE }}>Phantom · Solana Deposit</h1>
       </div>
 
       {/* Payment coin segmented control */}
