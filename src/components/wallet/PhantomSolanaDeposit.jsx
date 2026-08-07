@@ -9,7 +9,7 @@ import { getCryptoPrices } from '@/lib/cryptoPrices';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const PHANTOM_PURPLE = '#AB9FF2';
-const PHANTOM_LOGO = 'https://raw.githubusercontent.com/phantom/brand-assets/main/phantom-logo.svg';
+const PHANTOM_LOGO = 'https://cdn.brandfetch.io/id_HKIytUb/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1667812683560';
 const ADMIN_SOL = 'ftmbTXAc6XWyT6ieXHLiEZ7zuJFDPVSAdvrvrTveniW';
 const SOLANA_RPC = 'https://api.mainnet-beta.solana.com';
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';

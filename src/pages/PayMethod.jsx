@@ -31,7 +31,7 @@ const LOGOS = {
   binance: 'https://cdn.simpleicons.org/binance/F0B90B',
   trustwallet: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Trust_Wallet_logo_%282026%29.png/330px-Trust_Wallet_logo_%282026%29.png',
   metamask: 'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg',
-  phantom: 'https://raw.githubusercontent.com/phantom/brand-assets/main/phantom-logo.svg',
+  phantom: 'https://cdn.brandfetch.io/id_HKIytUb/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1667812683560',
 };
 
 function logoFor(network, name) {
