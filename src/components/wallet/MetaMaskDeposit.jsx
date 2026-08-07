@@ -92,9 +92,6 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     onWalletConnectUri((uri) => {
       wcUriRef.current = uri;
       setWcUri(uri);
-      if (mobile) {
-        try { window.open('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
-      }
     });
     const res = await connectWalletConnect(net.chainId);
     if (res && res.account) {
@@ -377,6 +374,13 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           <QRCodeSVG value={wcUri} size={208} level="M" />
           <p className="text-sm font-bold" style={{ color: '#1a1a1a' }}>Scan this QR with the MetaMask app</p>
           <p className="text-[11px]" style={{ color: '#888' }}>MetaMask app → Scan QR Code</p>
+          {isMobile() && (
+            <button onClick={openMetaMaskApp}
+              className="w-full flex items-center justify-center gap-2 h-12 rounded-[14px] font-extrabold transition-all active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #F6851A, #E2761B)', color: '#fff', boxShadow: '0 4px 14px rgba(246,133,26,0.35)' }}>
+              <Smartphone className="w-4 h-4" /> Open MetaMask App
+            </button>
+          )}
         </div>
       )}
 
