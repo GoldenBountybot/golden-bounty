@@ -90,9 +90,11 @@ function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild
   return (
     <div
       key={id}
-      className="relative rounded-md overflow-hidden w-full h-full"
+      className="relative rounded-md w-full h-full"
       style={{
         ...style,
+        overflow: (isWin && !shatter) ? 'visible' : 'hidden',
+        willChange: isWin ? 'transform' : 'auto',
         animation: spinning
           ? dropAnim
           : shatter
@@ -100,11 +102,20 @@ function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild
             : isNew
               ? 'saReelDrop 0.4s ease-out both'
               : isWin
-                ? 'saGlowPulse 0.7s ease-in-out infinite'
+                ? 'saGlowScaleInset 0.7s ease-in-out infinite'
                 : 'none',
         transition: 'transform 0.15s',
       }}
     >
+      {/* Outer glow ring — constant box-shadow on an overlay with GPU opacity
+          animation, replacing the expensive main-thread box-shadow repaint
+          that caused lag when many winning cards pulse at once. */}
+      {isWin && !shatter && (
+        <div
+          className="absolute inset-0 rounded-md pointer-events-none"
+          style={{ boxShadow: '0 0 22px rgba(255,220,140,1)', animation: 'saGlowOpacity 0.7s ease-in-out infinite' }}
+        />
+      )}
       {/* Golden light flare behind winning cards — JILI Super Ace style */}
       {isWin && !shatter && (
         <div
