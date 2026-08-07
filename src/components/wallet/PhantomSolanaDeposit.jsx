@@ -110,6 +110,33 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
     setStatus('idle');
   };
 
+  // Eagerly connect if Phantom already trusts this domain. This fixes the
+  // known Phantom bug where the connect popup never appears on devices that
+  // previously connected: Phantom considers the app "trusted" and silently
+  // does nothing on a normal connect(), but onlyIfTrusted returns the public
+  // key WITHOUT showing a popup. If the app isn't trusted yet, this rejects
+  // (4001) and we fall back to the manual "Connect Phantom Wallet" button.
+  const eagerTriedRef = useRef(false);
+  useEffect(() => {
+    if (!providerReady || eagerTriedRef.current || status !== 'idle') return;
+    eagerTriedRef.current = true;
+    const p = getPhantomSolana();
+    if (!p) return;
+    p.connect({ onlyIfTrusted: true })
+      .then((resp) => {
+        const pub = (resp?.publicKey && typeof resp.publicKey.toString === 'function' && resp.publicKey.toString())
+          || (typeof resp?.public_key === 'string' ? resp.public_key : null)
+          || (p.publicKey && typeof p.publicKey.toString === 'function' && p.publicKey.toString());
+        if (pub) {
+          providerRef.current = p;
+          accountRef.current = pub;
+          setAccount(pub);
+          setStatus('connected');
+        }
+      })
+      .catch(() => { /* not trusted yet — user taps Connect */ });
+  }, [providerReady, status]);
+
   const finishVerify = async (fn, payload, amt) => {
     setStatus('verifying');
     const res = await base44.functions.invoke(fn, payload);
