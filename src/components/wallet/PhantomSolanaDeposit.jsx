@@ -31,6 +31,7 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
   const [errMsg, setErrMsg] = useState('');
   const [price, setPrice] = useState(0);
   const [payAsset, setPayAsset] = useState('usdc'); // 'sol' | 'usdc'
+  const [providerReady, setProviderReady] = useState(false);
   const providerRef = useRef(null);
   const accountRef = useRef(null);
   const solAmt = price ? amount / price : 0;
@@ -44,7 +45,23 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
     getCryptoPrices().then((p) => setPrice(p.sol || 0)).catch(() => {});
   }, []);
 
-  const openPhantomApp = () => { try { window.open(phantomBrowseUrl, '_blank'); } catch {} };
+  // Detect the Phantom provider as soon as it's injected. On mobile the in-app
+  // browser injects window.phantom.solana AFTER the page loads, so we poll for
+  // a few seconds. Once detected we flip `providerReady` so the "Connect"
+  // button renders — the user must TAP it (user gesture) for Phantom to show
+  // the connection approval popup; calling connect() programmatically without
+  // a tap is silently ignored by Phantom's in-app browser.
+  useEffect(() => {
+    if (providerReady) return;
+    if (getPhantomSolana()) { setProviderReady(true); return; }
+    const iv = setInterval(() => { if (getPhantomSolana()) { setProviderReady(true); clearInterval(iv); } }, 400);
+    const t = setTimeout(() => clearInterval(iv), 8000);
+    const onLoad = () => { if (getPhantomSolana()) setProviderReady(true); };
+    window.addEventListener('load', onLoad);
+    return () => { clearInterval(iv); clearTimeout(t); window.removeEventListener('load', onLoad); };
+  }, [providerReady]);
+
+  const openPhantomApp = () => { try { window.location.href = phantomBrowseUrl; } catch {} };
 
   const connect = async () => {
     const p = getPhantomSolana();
@@ -67,28 +84,6 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
       setStatus('error');
     }
   };
-
-  // Auto-connect as soon as the Phantom provider is available. On mobile the
-  // in-app browser injects the provider AFTER the page loads, so we poll for
-  // a few seconds — otherwise the "Open in Phantom App" button only opens the
-  // browser without ever sending a connection request.
-  const connectRef = useRef(() => {});
-  connectRef.current = connect;
-  useEffect(() => {
-    if (status !== 'idle') return;
-    let done = false;
-    const tryConnect = () => {
-      if (done || status !== 'idle') return false;
-      if (getPhantomSolana()) { done = true; connectRef.current(); return true; }
-      return false;
-    };
-    if (tryConnect()) return;
-    const iv = setInterval(() => { if (tryConnect()) clearInterval(iv); }, 400);
-    const t = setTimeout(() => clearInterval(iv), 6000);
-    const onLoad = () => tryConnect();
-    window.addEventListener('load', onLoad);
-    return () => { clearInterval(iv); clearTimeout(t); window.removeEventListener('load', onLoad); };
-  }, [status]);
 
   const disconnect = async () => {
     try { await providerRef.current?.disconnect?.(); } catch {}
@@ -186,7 +181,7 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
     confirming: 'Waiting for blockchain confirmation…',
     verifying: 'Verifying and adding balance…',
   }[status];
-  const hasExtension = !!getPhantomSolana();
+  const hasExtension = providerReady;
   const amountSub = payAsset === 'sol'
     ? (price ? `≈ ${solAmt.toFixed(5)} SOL (Native)` : 'Fetching SOL price…')
     : `${amount.toFixed(2)} USDC (SPL)`;
