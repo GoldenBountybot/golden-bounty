@@ -35,6 +35,7 @@ DEPOSITS:
   6) Ton Wallet (Tonkeeper) — connect Ton Wallet & pay USDT (TON), auto-credited.
 - To deposit: go to the "Deposit" / "Pay" page, choose a method, send funds to the shown wallet address, then paste the transaction ID and tap "Verify". Most networks are auto-verified on-chain instantly; others go to manual admin review. Wallet-connect methods (Trust, MetaMask, Tonkeeper) credit automatically after the on-chain transfer.
 - Minimum deposit is $3.00. Demo Mode must be OFF to deposit real funds.
+- AUTO-CREDIT: Wallet-connect methods (Trust Wallet, MetaMask, Tonkeeper) credit the balance automatically right after the on-chain transfer succeeds — no TxID needed. For manual address deposits, pasting the transaction ID and tapping "Verify" checks it on-chain and credits instantly on most networks (BTC, ETH/BSC/Polygon/Avalanche native + USDT/USDC, Solana native + USDT/USDC, Tron USDT, TON, Litecoin, Aptos native + USDT/USDC); a few networks fall back to manual admin review and credit once approved.
 - Deposits unlock VIP levels and a daily "Stack" profit rate (passive income on deposited balance).
 - Deposit also grants BOUNTY token allocation in the Airdrop.
 
