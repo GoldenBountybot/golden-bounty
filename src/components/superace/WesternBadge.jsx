@@ -89,6 +89,8 @@ function ScatterEmblem() {
   );
 }
 
-export default function WesternBadge({ variant = 'wild' }) {
+function WesternBadge({ variant = 'wild' }) {
   return variant === 'wild' ? <WildEmblem /> : <ScatterEmblem />;
 }
+
+export default React.memo(WesternBadge);

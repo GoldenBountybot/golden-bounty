@@ -44,7 +44,7 @@ function CornerIndex({ letter, pip, color, flip }) {
   );
 }
 
-export default function PlayingCardFace({ sym, golden }) {
+function PlayingCardFace({ sym, golden }) {
   const isFace = ['A', 'K', 'Q', 'J'].includes(sym);
   const isSuit = ['S', 'H', 'D', 'C'].includes(sym);
   const isCourt = ['K', 'Q', 'J'].includes(sym);
@@ -99,3 +99,5 @@ export default function PlayingCardFace({ sym, golden }) {
     </div>
   );
 }
+
+export default React.memo(PlayingCardFace);
