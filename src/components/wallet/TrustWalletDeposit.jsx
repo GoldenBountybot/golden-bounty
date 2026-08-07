@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, ChevronDown, LogOut } from 'lucide-react';
-import { connectWalletConnect, disconnectWalletConnect, hasWalletConnect, onWalletConnectUri, preloadWalletConnect } from '@/lib/walletConnect';
+import { connectWalletConnect, disconnectWalletConnect, disconnectInjected, hasWalletConnect, onWalletConnectUri, preloadWalletConnect } from '@/lib/walletConnect';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { addWagerRequirement } from '@/lib/useCasinoBalance';
@@ -331,6 +331,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
           {!busy && (
             <button
               onClick={async () => {
+                try { await disconnectInjected(providerRef.current); } catch {}
                 try { await disconnectWalletConnect(); } catch {}
                 providerRef.current = null;
                 accountRef.current = null;

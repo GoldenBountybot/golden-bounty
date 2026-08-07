@@ -61,3 +61,15 @@ export async function disconnectWalletConnect() {
   try { const p = await providerPromise; if (p?.disconnect) await p.disconnect(); } catch {}
   providerPromise = null; currentChainId = null;
 }
+
+// Disconnect an injected EVM provider (MetaMask / Trust Wallet extension) by
+// revoking account permissions via EIP-2255. Falls back silently when the
+// wallet doesn't support it — local state is still cleared by the caller.
+export async function disconnectInjected(provider) {
+  if (!provider) return;
+  try {
+    await provider.request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] });
+  } catch {
+    // EIP-2255 not supported — nothing more we can do to the wallet itself.
+  }
+}
