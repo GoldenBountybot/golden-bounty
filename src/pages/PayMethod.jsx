@@ -31,7 +31,7 @@ const LOGOS = {
   binance: 'https://cdn.simpleicons.org/binance/F0B90B',
   trustwallet: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Trust_Wallet_logo_%282026%29.png/330px-Trust_Wallet_logo_%282026%29.png',
   metamask: 'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg',
-  phantom: 'https://cdn.brandfetch.io/id_HKIytUb/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1667812683560',
+  phantom: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1a373c31c_file_00000000bf088207bca808f6fa5670a3.png',
 };
 
 function logoFor(network, name) {
@@ -59,7 +59,7 @@ const METHODS = [
   { id: 'crypto', label: 'Pay Crypto', logo: LOGOS.bitcoin, badge: null, icon: Bitcoin, iconClass: 'text-amber-300', color: '#f7931a', hint: 'BTC / ETH / BNB & other coins' },
   { id: 'trust', label: 'Trust Wallet', logo: LOGOS.trustwallet, badge: 'T', badgeClass: 'bg-blue-600 text-white ring-blue-300', color: '#3375b9', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
   { id: 'metamask', label: 'MetaMask', logo: LOGOS.metamask, badge: 'M', badgeClass: 'bg-orange-500 text-white ring-orange-300', color: '#f6851a', hint: 'Connect MetaMask & pay USDT (BSC/ETH/Polygon) — auto credit' },
-  { id: 'phantom-sol', label: 'Phantom (Solana)', logo: LOGOS.phantom, badge: 'S', badgeClass: 'bg-purple-500 text-white ring-purple-300', color: '#ab9ff2', solidBg: true, hint: 'Connect Phantom & pay USDC or SOL (Solana) — auto credit' },
+  { id: 'phantom-sol', label: 'Phantom (Solana)', logo: LOGOS.phantom, badge: 'S', badgeClass: 'bg-purple-500 text-white ring-purple-300', color: '#7868e6', solidBg: true, hint: 'Connect Phantom & pay USDC or SOL (Solana) — auto credit' },
   { id: 'tonkeeper', label: 'Ton Wallet (TON)', logo: LOGOS.ton, badge: 'T', badgeClass: 'bg-sky-500 text-white ring-sky-300', color: '#0098ea', hint: 'Connect Ton Wallet & pay USDT (TON) — auto credit' },
 ];
 
