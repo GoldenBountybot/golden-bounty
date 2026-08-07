@@ -4,12 +4,15 @@ import { useCasinoBalance, addWagerRequirement } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, LogOut, ExternalLink } from 'lucide-react';
 import { Connection, SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { getAssociatedTokenAddress, createTransferCheckedInstruction, createAssociatedTokenAccountIdempotentInstruction } from '@solana/spl-token';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const PHANTOM_PURPLE = '#AB9FF2';
 const ADMIN_SOL = 'ftmbTXAc6XWyT6ieXHLiEZ7zuJFDPVSAdvrvrTveniW';
 const SOLANA_RPC = 'https://api.mainnet-beta.solana.com';
+const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+const USDC_DECIMALS = 6;
 const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent || '');
 
 function getPhantomSolana() {
@@ -26,10 +29,13 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
   const [status, setStatus] = useState('idle'); // idle|connecting|connected|sending|confirming|verifying|done|error
   const [errMsg, setErrMsg] = useState('');
   const [price, setPrice] = useState(0);
+  const [payAsset, setPayAsset] = useState('usdc'); // 'sol' | 'usdc'
   const providerRef = useRef(null);
   const accountRef = useRef(null);
   const solAmt = price ? amount / price : 0;
   const lamports = Math.round(solAmt * LAMPORTS_PER_SOL);
+  const usdcUnits = Math.round(amount * Math.pow(10, USDC_DECIMALS));
+  const netLocked = ['connecting', 'sending', 'confirming', 'verifying'].includes(status) || status === 'connected';
 
   const phantomBrowseUrl = 'https://phantom.app/ul/v1/browse/' + encodeURIComponent(window.location.href);
 
@@ -70,14 +76,9 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
     setStatus('idle');
   };
 
-  const finishVerify = async (signature, amt) => {
+  const finishVerify = async (fn, payload, amt) => {
     setStatus('verifying');
-    const res = await base44.functions.invoke('verifySolanaDeposit', {
-      signature,
-      amount: amt,
-      userWallet: accountRef.current,
-      expectedLamports: lamports,
-    });
+    const res = await base44.functions.invoke(fn, payload);
     if (res?.data?.ok) {
       if (!res.data.already) {
         const credited = Number(res.data.amount || amt);
@@ -98,14 +99,27 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
     const p = providerRef.current;
     const pub = accountRef.current;
     if (!p || !pub) return;
-    if (!price) { setErrMsg('Could not fetch SOL price. Please try again.'); setStatus('error'); return; }
+    if (payAsset === 'sol' && !price) { setErrMsg('Could not fetch SOL price. Please try again.'); setStatus('error'); return; }
     setStatus('sending'); setErrMsg('');
     try {
       const connection = new Connection(SOLANA_RPC, 'confirmed');
       const fromPubkey = new PublicKey(pub);
       const toPubkey = new PublicKey(ADMIN_SOL);
-      const ix = SystemProgram.transfer({ fromPubkey, toPubkey, lamports });
-      const tx = new Transaction().add(ix);
+      const tx = new Transaction();
+
+      if (payAsset === 'sol') {
+        tx.add(SystemProgram.transfer({ fromPubkey, toPubkey, lamports }));
+      } else {
+        const mint = new PublicKey(USDC_MINT);
+        const senderAta = await getAssociatedTokenAddress(mint, fromPubkey);
+        const recipientAta = await getAssociatedTokenAddress(mint, toPubkey);
+        // Create the admin's USDC ATA idempotently if it doesn't exist yet.
+        const recipientInfo = await connection.getAccountInfo(recipientAta);
+        if (!recipientInfo) {
+          tx.add(createAssociatedTokenAccountIdempotentInstruction(fromPubkey, recipientAta, toPubkey, mint));
+        }
+        tx.add(createTransferCheckedInstruction(senderAta, mint, recipientAta, fromPubkey, usdcUnits, USDC_DECIMALS));
+      }
       tx.feePayer = fromPubkey;
       tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
@@ -115,8 +129,7 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
         signature = typeof r === 'string' ? r : r?.signature;
       } else {
         const signed = await p.signTransaction(tx);
-        const raw = signed.serialize();
-        signature = await connection.sendRawTransaction(raw, { skipPreflight: false });
+        signature = await connection.sendRawTransaction(signed.serialize(), { skipPreflight: false });
       }
       if (!signature) throw new Error('No signature returned');
 
@@ -129,7 +142,12 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
         } catch {}
         await new Promise((rr) => setTimeout(rr, 2000));
       }
-      await finishVerify(signature, amount);
+
+      const fn = payAsset === 'sol' ? 'verifySolanaDeposit' : 'verifySolanaUsdcDeposit';
+      const payload = payAsset === 'sol'
+        ? { signature, amount, userWallet: pub, expectedLamports: lamports }
+        : { signature, amount, userWallet: pub, expectedUnits: usdcUnits };
+      await finishVerify(fn, payload, amount);
     } catch (e) {
       console.error('Phantom Solana deposit error:', e);
       const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'cancelled/failed');
@@ -146,6 +164,9 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
     verifying: 'Verifying and adding balance…',
   }[status];
   const hasExtension = !!getPhantomSolana();
+  const amountSub = payAsset === 'sol'
+    ? (price ? `≈ ${solAmt.toFixed(5)} SOL (Native)` : 'Fetching SOL price…')
+    : `${amount.toFixed(2)} USDC (SPL)`;
 
   return (
     <div className="flex flex-col gap-4" style={{ fontFamily: SANS, animation: 'dashFadeIn 350ms ease both' }}>
@@ -159,15 +180,34 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
         <h1 className="text-base font-extrabold" style={{ color: PHANTOM_PURPLE }}>Phantom · Solana Deposit</h1>
       </div>
 
+      {/* Payment coin segmented control */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Payment Coin</label>
+        <div className="grid grid-cols-2 gap-2">
+          <button onClick={() => setPayAsset('usdc')} disabled={netLocked}
+            className="h-12 rounded-[14px] text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
+            style={payAsset === 'usdc'
+              ? { background: 'linear-gradient(135deg, #FFD700, #C89B3C)', color: '#1a1408', border: '1px solid rgba(255,215,0,0.6)', boxShadow: '0 4px 14px rgba(200,155,60,0.4)' }
+              : { background: 'rgba(255,255,255,0.03)', color: '#D4AF37', border: '1px solid rgba(212,175,55,0.3)' }}>
+            USDC
+          </button>
+          <button onClick={() => setPayAsset('sol')} disabled={netLocked}
+            className="h-12 rounded-[14px] text-sm font-bold transition-all active:scale-95 disabled:opacity-50"
+            style={payAsset === 'sol'
+              ? { background: 'linear-gradient(135deg, #FFD700, #C89B3C)', color: '#1a1408', border: '1px solid rgba(255,215,0,0.6)', boxShadow: '0 4px 14px rgba(200,155,60,0.4)' }
+              : { background: 'rgba(255,255,255,0.03)', color: '#D4AF37', border: '1px solid rgba(212,175,55,0.3)' }}>
+            SOL (Native)
+          </button>
+        </div>
+      </div>
+
       {/* Deposit amount card */}
       <div className="dash-card p-5 flex items-center justify-between"
         style={{ background: 'linear-gradient(135deg, rgba(171,159,242,0.10), rgba(20,241,149,0.06), rgba(255,255,255,0.03))', border: '1px solid rgba(171,159,242,0.4)', boxShadow: '0 0 24px rgba(171,159,242,0.16), 0 8px 24px rgba(0,0,0,0.5)' }}>
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: 'rgba(171,159,242,0.85)' }}>Depositing</p>
           <p className="text-3xl font-extrabold tabular-nums mt-0.5" style={{ color: '#fff' }}>${amount.toFixed(2)}</p>
-          <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.55)' }}>
-            {price ? `≈ ${solAmt.toFixed(5)} SOL (Native)` : 'Fetching SOL price…'}
-          </p>
+          <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.55)' }}>{amountSub}</p>
         </div>
         <div className="flex items-center justify-center w-12 h-12 rounded-full shrink-0" style={{ background: 'linear-gradient(135deg, #AB9FF2, #14f195)', boxShadow: '0 0 18px rgba(171,159,242,0.5)' }}>
           <Wallet className="w-6 h-6" style={{ color: '#fff' }} />
@@ -203,7 +243,9 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
           {status === 'sending' && (
             <>
               <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                Confirm the <b style={{ color: PHANTOM_PURPLE }}>{solAmt.toFixed(5)} SOL</b> transfer in your Phantom wallet. A tiny amount of SOL is needed for the network fee (~$0.0001).
+                {payAsset === 'sol'
+                  ? <>Confirm the <b style={{ color: PHANTOM_PURPLE }}>{solAmt.toFixed(5)} SOL</b> transfer in your Phantom wallet. A tiny amount of SOL is needed for the network fee.</>
+                  : <>Confirm the <b style={{ color: PHANTOM_PURPLE }}>{amount.toFixed(2)} USDC</b> transfer in your Phantom wallet. A tiny amount of SOL is needed for the network fee (and ATA rent if the admin USDC account is new).</>}
               </p>
               {isMobile() && (
                 <button onClick={openPhantomApp}
@@ -250,7 +292,7 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
         <button onClick={deposit}
           className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', boxShadow: '0 6px 20px rgba(52,211,153,0.4)' }}>
-          <ArrowRight className="w-5 h-5" /> Send {solAmt.toFixed(5)} SOL from wallet
+          <ArrowRight className="w-5 h-5" /> Send {payAsset === 'sol' ? `${solAmt.toFixed(5)} SOL` : `${amount.toFixed(2)} USDC`} from wallet
         </button>
       )}
 

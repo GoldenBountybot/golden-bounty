@@ -61,7 +61,7 @@ const METHODS = [
   { id: 'trust', label: 'Trust Wallet', logo: LOGOS.trustwallet, badge: 'T', badgeClass: 'bg-blue-600 text-white ring-blue-300', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
   { id: 'metamask', label: 'MetaMask', logo: LOGOS.metamask, badge: 'M', badgeClass: 'bg-orange-500 text-white ring-orange-300', hint: 'Connect MetaMask & pay USDT (BSC/ETH/Polygon) — auto credit' },
   { id: 'phantom', label: 'Phantom', logo: LOGOS.phantom, badge: 'P', badgeClass: 'bg-purple-500 text-white ring-purple-300', hint: 'Connect Phantom & pay USDT (BSC/ETH/Polygon) — auto credit' },
-  { id: 'phantom-sol', label: 'Phantom (Solana)', logo: LOGOS.phantom, badge: 'S', badgeClass: 'bg-purple-500 text-white ring-purple-300', hint: 'Connect Phantom & pay SOL (Solana) — auto credit' },
+  { id: 'phantom-sol', label: 'Phantom (Solana)', logo: LOGOS.phantom, badge: 'S', badgeClass: 'bg-purple-500 text-white ring-purple-300', hint: 'Connect Phantom & pay USDC or SOL (Solana) — auto credit' },
   { id: 'tonkeeper', label: 'Ton Wallet (TON)', logo: LOGOS.ton, badge: 'T', badgeClass: 'bg-sky-500 text-white ring-sky-300', hint: 'Connect Ton Wallet & pay USDT (TON) — auto credit' },
 ];
 
