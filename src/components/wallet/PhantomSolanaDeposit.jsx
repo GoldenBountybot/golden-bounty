@@ -20,6 +20,9 @@ function getPhantomSolana() {
   if (typeof window === 'undefined') return null;
   if (window.phantom?.solana?.isPhantom) return window.phantom.solana;
   if (window.solana?.isPhantom) return window.solana;
+  // Fallback: inside Phantom's in-app browser the provider may be injected
+  // without the isPhantom flag set in some versions.
+  if (window.phantom?.solana && typeof window.phantom.solana.connect === 'function') return window.phantom.solana;
   return null;
 }
 
@@ -47,19 +50,20 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
 
   // Detect the Phantom provider as soon as it's injected. On mobile the in-app
   // browser injects window.phantom.solana AFTER the page loads, so we poll for
-  // a few seconds. Once detected we flip `providerReady` so the "Connect"
-  // button renders — the user must TAP it (user gesture) for Phantom to show
-  // the connection approval popup; calling connect() programmatically without
-  // a tap is silently ignored by Phantom's in-app browser.
+  // up to 20s. If the user-agent already says "Phantom" we know we are inside
+  // Phantom's in-app browser, so we keep polling longer. Once detected we flip
+  // `providerReady` so the "Connect" button renders — the user must TAP it
+  // (user gesture) for Phantom to show the connection approval popup.
+  const inPhantomBrowser = /phantom/i.test(navigator.userAgent || '');
   useEffect(() => {
     if (providerReady) return;
     if (getPhantomSolana()) { setProviderReady(true); return; }
-    const iv = setInterval(() => { if (getPhantomSolana()) { setProviderReady(true); clearInterval(iv); } }, 400);
-    const t = setTimeout(() => clearInterval(iv), 8000);
+    const iv = setInterval(() => { if (getPhantomSolana()) { setProviderReady(true); clearInterval(iv); } }, 350);
+    const t = setTimeout(() => clearInterval(iv), inPhantomBrowser ? 20000 : 10000);
     const onLoad = () => { if (getPhantomSolana()) setProviderReady(true); };
     window.addEventListener('load', onLoad);
     return () => { clearInterval(iv); clearTimeout(t); window.removeEventListener('load', onLoad); };
-  }, [providerReady]);
+  }, [providerReady, inPhantomBrowser]);
 
   const openPhantomApp = () => { try { window.location.href = phantomBrowseUrl; } catch {} };
 
@@ -72,8 +76,20 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
     }
     setStatus('connecting'); setErrMsg('');
     try {
-      const resp = await p.connect();
-      const pub = resp?.publicKey?.toString() || p.publicKey?.toString();
+      // Race the connect() promise against a timeout so the UI never hangs
+      // silently if Phantom fails to show its approval sheet.
+      const connectPromise = p.connect();
+      const timeout = new Promise((_, rej) =>
+        setTimeout(() => rej(new Error('Timed out — if the approval did not appear, open the Phantom app and try again.')), 20000)
+      );
+      const resp = await Promise.race([connectPromise, timeout]);
+      // Phantom returns { publicKey: PublicKey } on desktop/extension and
+      // { public_key: "base58" } (snake_case) in some mobile in-app builds.
+      const pub = (resp?.publicKey && typeof resp.publicKey.toString === 'function' && resp.publicKey.toString())
+        || (typeof resp?.public_key === 'string' ? resp.public_key : null)
+        || (p.publicKey && typeof p.publicKey.toString === 'function' && p.publicKey.toString())
+        || (typeof p.publicKey === 'string' ? p.publicKey : null);
+      if (!pub) throw new Error('No public key returned by Phantom.');
       providerRef.current = p;
       accountRef.current = pub;
       setAccount(pub);
@@ -250,6 +266,11 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
           <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: PHANTOM_PURPLE }}>
             <Loader2 className="w-4 h-4 animate-spin" /> {statusText}
           </div>
+          {status === 'connecting' && (
+            <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              Phantom should show an <b style={{ color: PHANTOM_PURPLE }}>approval prompt</b>. If it does not appear, switch to the Phantom app and tap <b style={{ color: PHANTOM_PURPLE }}>Connect</b>, then return here.
+            </p>
+          )}
           {status === 'sending' && (
             <>
               <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
