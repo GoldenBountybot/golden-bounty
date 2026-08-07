@@ -139,7 +139,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
         )}
         {running && (
           <span className="text-6xl sm:text-7xl font-black tabular-nums text-white"
-            style={{ textShadow: '0 0 24px rgba(167,139,250,0.85)' }}>
+            style={{ textShadow: '0 0 10px rgba(167,139,250,0.7)', willChange: 'transform', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}>
             {multiplier.toFixed(2)}<span className="text-4xl text-indigo-300">x</span>
           </span>
         )}
