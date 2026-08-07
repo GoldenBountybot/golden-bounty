@@ -108,19 +108,22 @@ export default function Events() {
                   key={ev.id}
                   className="relative overflow-hidden rounded-3xl transition-all active:scale-[0.99]"
                   style={{
-                    background: ev.image_url ? `url(${ev.image_url}) center/cover no-repeat, ${ev.gradient}` : ev.gradient,
-                    boxShadow: `0 12px 40px ${ev.glow}, 0 4px 16px rgba(0,0,0,0.4)`,
+                    background: ev.image_url
+                      ? `url(${ev.image_url}) center/cover no-repeat`
+                      : 'rgba(255,255,255,0.05)',
+                    backdropFilter: 'blur(14px)',
+                    WebkitBackdropFilter: 'blur(14px)',
+                    boxShadow: `0 12px 40px ${ev.glow}, 0 4px 16px rgba(0,0,0,0.35)`,
+                    border: '1px solid rgba(212,175,55,0.28)',
                     animation: 'dashFadeIn 500ms ease both',
                     animationDelay: (100 * i) + 'ms',
                     minHeight: '300px',
                   }}
                 >
-                  {/* Light overlay so the background image stays visible */}
-                  {ev.image_url && (
-                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.12) 55%, rgba(0,0,0,0.05) 100%)' }} />
-                  )}
+                  {/* Glass tint overlay — keeps the image visible through frosted glass */}
+                  <div className="absolute inset-0" style={{ background: ev.image_url ? 'linear-gradient(135deg, rgba(13,13,13,0.18) 0%, rgba(13,13,13,0.05) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)' }} />
                   {/* Decorative glow */}
-                  <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.18), transparent 50%)' }} />
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.14), transparent 50%)' }} />
 
                   {/* Content — only "Coming Soon" centered, no game text */}
                   <div className="relative z-10 p-6 flex items-center justify-center" style={{ minHeight: '300px' }}>
