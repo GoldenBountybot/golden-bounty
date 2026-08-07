@@ -64,13 +64,17 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return null;
   };
 
+  // MetaMask has a known bug (GitHub #5212) where it cannot decode %3A (encoded ':')
+  // in the WC URI, so the "wc:" prefix must stay UNENCODED for the pairing prompt to appear.
+  // The rest of the URI is encoded normally; '@' is also kept unencoded for WC v2 version parsing.
+  const mmDeepLink = (uri) => {
+    if (!uri) return 'https://metamask.app.link/';
+    const safeUri = 'wc:' + encodeURIComponent(uri.slice(3)).replace(/%40/g, '@');
+    return 'https://metamask.app.link/wc?uri=' + safeUri;
+  };
+
   const openMetaMaskApp = () => {
-    const uri = wcUriRef.current;
-    if (uri) {
-      window.open('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri), '_blank');
-    } else {
-      window.open('https://metamask.app.link/', '_blank');
-    }
+    window.open(mmDeepLink(wcUriRef.current), '_blank');
   };
 
   useEffect(() => { if (hasWalletConnect()) preloadWalletConnect(net.chainId); }, []);
@@ -93,7 +97,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       wcUriRef.current = uri;
       setWcUri(uri);
       if (mobile) {
-        try { window.open('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
+        try { window.open(mmDeepLink(uri), '_blank'); } catch {}
       }
     });
     const res = await connectWalletConnect(net.chainId);
