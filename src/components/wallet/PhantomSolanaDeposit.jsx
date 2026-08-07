@@ -9,6 +9,7 @@ import { getCryptoPrices } from '@/lib/cryptoPrices';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const PHANTOM_PURPLE = '#AB9FF2';
+const PHANTOM_LOGO = 'https://raw.githubusercontent.com/phantom/brand-assets/main/phantom-logo.svg';
 const ADMIN_SOL = 'ftmbTXAc6XWyT6ieXHLiEZ7zuJFDPVSAdvrvrTveniW';
 const SOLANA_RPC = 'https://api.mainnet-beta.solana.com';
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
@@ -177,7 +178,12 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
           style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
           <ChevronLeft className="w-4 h-4" /> Back
         </button>
-        <h1 className="text-base font-extrabold" style={{ color: PHANTOM_PURPLE }}>Phantom · Solana Deposit</h1>
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-center w-9 h-9 rounded-full shrink-0 overflow-hidden" style={{ background: '#1a1a1a', boxShadow: '0 0 0 1.5px rgba(171,159,242,0.4)' }}>
+            <img src={PHANTOM_LOGO} alt="Phantom" className="w-7 h-7 object-contain" />
+          </div>
+          <h1 className="text-base font-extrabold" style={{ color: PHANTOM_PURPLE }}>Phantom · Solana Deposit</h1>
+        </div>
       </div>
 
       {/* Payment coin segmented control */}
