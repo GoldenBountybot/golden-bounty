@@ -48,7 +48,7 @@ import BottomNavLayout from '@/components/BottomNavLayout';
 import AppLoadingImage from '@/components/AppLoadingImage';
 import { LanguageProvider } from '@/lib/LanguageContext';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
-import { preloadAssets, preloadDynamicAssets } from '@/lib/assetPreloader';
+import { preloadAssets, preloadDynamicAssets, preloadAllGameAssets } from '@/lib/assetPreloader';
 import { APP_ASSETS } from '@/lib/appAssets';
 import { base44 } from '@/api/base44Client';
 
@@ -81,6 +81,14 @@ const AuthenticatedApp = () => {
   }, []);
 
   const showSplash = loading || !imgReady || !assetsReady || !minDone;
+
+  // Once the splash is done, warm all game assets in the background so they
+  // are already cached when the user taps into a game — near-instant load.
+  useEffect(() => {
+    if (showSplash) return;
+    const t = setTimeout(() => { preloadAllGameAssets(); }, 1500);
+    return () => clearTimeout(t);
+  }, [showSplash]);
 
   if (showSplash) {
     return <AppLoadingImage />;
