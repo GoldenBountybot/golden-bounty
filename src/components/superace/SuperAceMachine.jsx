@@ -204,15 +204,25 @@ export default function SuperAceMachine() {
     let g = makeGrid();
     let ev0 = evaluate(g, b);
     if (scatterHit) {
-      // Force exactly 3 scatters on random pay-symbol cells → free spins.
-      const payIdxs = g.map((c, i) => (PAY_SYMBOLS.includes(c.sym) ? i : -1)).filter((i) => i >= 0);
-      for (let i = payIdxs.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [payIdxs[i], payIdxs[j]] = [payIdxs[j], payIdxs[i]];
+      // Place 1 scatter in col 0 + 1 in col 1 (triggers the slow-mo tease),
+      // and the 3rd in a later column so it lands during the anticipation.
+      // Overall chance stays at the 0.03% scatterHit roll — no increase.
+      const shuffle = (arr) => { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+      const col0 = shuffle(g.map((c, i) => (PAY_SYMBOLS.includes(c.sym) && (i % COLS) === 0 ? i : -1)).filter((i) => i >= 0));
+      const col1 = shuffle(g.map((c, i) => (PAY_SYMBOLS.includes(c.sym) && (i % COLS) === 1 ? i : -1)).filter((i) => i >= 0));
+      const late = shuffle(g.map((c, i) => (PAY_SYMBOLS.includes(c.sym) && (i % COLS) >= 2 ? i : -1)).filter((i) => i >= 0));
+      const placed = [];
+      if (col0.length) placed.push(col0[0]);
+      if (col1.length) placed.push(col1[0]);
+      if (late.length) placed.push(late[0]);
+      // Fallback: top up from any remaining pay cells if fewer than 3 placed.
+      if (placed.length < 3) {
+        const rest = shuffle(g.map((c, i) => (PAY_SYMBOLS.includes(c.sym) && !placed.includes(i) ? i : -1)).filter((i) => i >= 0));
+        placed.push(...rest.slice(0, 3 - placed.length));
       }
-      for (let k = 0; k < Math.min(3, payIdxs.length); k++) {
-        g[payIdxs[k]].sym = 'SC';
-        g[payIdxs[k]].golden = false;
+      for (const idx of placed.slice(0, 3)) {
+        g[idx].sym = 'SC';
+        g[idx].golden = false;
       }
     } else if (forceWin) {
       if (ev0.pay === 0 && ev0.scatterCount < 3) {
