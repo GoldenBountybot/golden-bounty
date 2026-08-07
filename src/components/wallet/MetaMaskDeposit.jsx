@@ -67,7 +67,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const openMetaMaskApp = () => {
     const uri = wcUriRef.current;
     if (uri) {
-      window.location.href = 'https://metamask.app.link/wc?uri=' + encodeURIComponent(uri);
+      // Use the metamask:// protocol directly — bypasses Branch.io redirect
+      // so the full WC URI reaches MetaMask intact and triggers the pairing prompt.
+      window.location.href = 'metamask://wc?uri=' + encodeURIComponent(uri);
     } else {
       window.location.href = 'https://metamask.app.link/';
     }
