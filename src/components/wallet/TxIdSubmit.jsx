@@ -23,7 +23,7 @@ function dispatchKeyFor(name) {
   if (s.includes('ton')) return isUsdt ? 'ton_usdt' : 'ton_native';
   if (s.includes('ltc') || s.includes('lite')) return 'ltc';
   if (s.includes('doge')) return 'doge';
-  if (s.includes('apt')) return (isUsdt || isUsdc) ? null : 'apt_native';
+  if (s.includes('apt')) return isUsdt ? 'apt_usdt' : isUsdc ? 'apt_usdc' : 'apt_native';
   // DOT (Polkadot) + APT USDT/USDC — not yet auto-verifiable.
   return null;
 }

@@ -18,9 +18,9 @@ import { Address } from 'npm:@ton/core@0.60.1';
 //   sol_native | sol_usdt | sol_usdc |
 //   trx_native | trx_usdt |
 //   ton_native | ton_usdt |
-//   apt_native
-// Not yet supported (frontend falls back to manual admin review): dot,
-// apt_usdt, apt_usdc.
+//   apt_native | apt_usdt | apt_usdc
+// Not yet supported (frontend falls back to manual admin review): dot
+// (Subscan now strictly requires an API key — no keyless path exists).
 
 const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 
@@ -290,9 +290,41 @@ async function verifyAptNative(hash, amount) {
   if (!price) return { ok: false, reason: 'price-unavailable' };
   if ((octas / 1e8) * price < amount * 0.9) return { ok: false, reason: 'amount-mismatch' };
   return { ok: true, amount, note: 'Manual · Aptos (native APT)' };
-}
+  }
 
-Deno.serve(async (req) => {
+  // --- Aptos Fungible Asset (USDT / USDC) via primary_fungible_store::transfer ---
+  // The FA transfer passes the token's metadata object as argument 0; we resolve
+  // its on-chain Metadata resource to confirm the symbol + decimals, then check
+  // recipient (arg 1) and amount (arg 2).
+  async function verifyAptFa(hash, amount, token) {
+  const t = await getJson(`${APT_NODE}/v1/transactions/by_hash/${hash}`);
+  if (!t) return { ok: false, reason: 'pending' };
+  if (t.type !== 'user_transaction' || t.success === false) return { ok: false, reason: 'tx-failed' };
+  const fn = t.payload?.function || '';
+  if (fn !== '0x1::primary_fungible_store::transfer') return { ok: false, reason: 'transfer-not-found' };
+  const args = t.payload?.arguments || [];
+  // Argument 0 = metadata object (wrapped as { inner: "0x..." } or a raw address).
+  const arg0 = args[0];
+  let metaAddr = '';
+  if (typeof arg0 === 'string') metaAddr = arg0;
+  else if (arg0 && typeof arg0 === 'object' && arg0.inner) metaAddr = String(arg0.inner);
+  metaAddr = String(metaAddr || '').toLowerCase();
+  if (!metaAddr.startsWith('0x')) return { ok: false, reason: 'transfer-not-found' };
+  const meta = await getJson(`${APT_NODE}/v1/accounts/${metaAddr}/resource/0x1::fungible_asset::Metadata`);
+  const symbol = String(meta?.data?.symbol || '').toLowerCase();
+  const decimals = Number(meta?.data?.decimals || 0);
+  const wantSym = token === 'usdt' ? 'usdt' : 'usdc';
+  if (symbol !== wantSym || !decimals) return { ok: false, reason: 'transfer-not-found' };
+  const toAddr = String(args[1] || '').toLowerCase();
+  if (toAddr !== APT_ADMIN) return { ok: false, reason: 'recipient-not-found' };
+  const sent = Number(args[2] || 0);
+  if (sent <= 0) return { ok: false, reason: 'transfer-not-found' };
+  const expected = Math.round(amount * Math.pow(10, decimals));
+  if (sent * 100 < expected * 99) return { ok: false, reason: 'amount-mismatch' };
+  return { ok: true, amount, note: `Manual · Aptos (${token.toUpperCase()})` };
+  }
+
+  Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -325,6 +357,8 @@ Deno.serve(async (req) => {
     else if (netKey === 'ton_native') res = await verifyTon(txHash, amount, 'native');
     else if (netKey === 'ton_usdt') res = await verifyTon(txHash, amount, 'usdt');
     else if (netKey === 'apt_native') res = await verifyAptNative(txHash, amount);
+    else if (netKey === 'apt_usdt') res = await verifyAptFa(txHash, amount, 'usdt');
+    else if (netKey === 'apt_usdc') res = await verifyAptFa(txHash, amount, 'usdc');
     else if (netKey.endsWith('_native')) {
       const net = EVM[netKey.split('_')[0]];
       res = net ? await verifyEvm(net, txHash, amount, 'native') : { ok: false, reason: 'unsupported-network' };
