@@ -10,7 +10,7 @@ export async function getCryptoPrices() {
   try {
     const res = await base44.functions.invoke('getCryptoPrices', {});
     const prices = res?.data?.prices || {};
-    if (prices.bnb || prices.eth || prices.ton) {
+    if (prices.bnb || prices.eth || prices.ton || prices.sol) {
       cache = { ...(cache || {}), ...prices };
       cacheAt = Date.now();
     }

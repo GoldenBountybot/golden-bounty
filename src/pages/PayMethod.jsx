@@ -8,6 +8,7 @@ import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
 import MetaMaskDeposit from '@/components/wallet/MetaMaskDeposit';
 import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
 import PhantomDeposit from '@/components/wallet/PhantomDeposit';
+import PhantomSolanaDeposit from '@/components/wallet/PhantomSolanaDeposit';
 import TxIdRow from '@/components/wallet/TxIdSubmit';
 import { useLanguage } from '@/lib/LanguageContext';
 
@@ -60,6 +61,7 @@ const METHODS = [
   { id: 'trust', label: 'Trust Wallet', logo: LOGOS.trustwallet, badge: 'T', badgeClass: 'bg-blue-600 text-white ring-blue-300', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
   { id: 'metamask', label: 'MetaMask', logo: LOGOS.metamask, badge: 'M', badgeClass: 'bg-orange-500 text-white ring-orange-300', hint: 'Connect MetaMask & pay USDT (BSC/ETH/Polygon) — auto credit' },
   { id: 'phantom', label: 'Phantom', logo: LOGOS.phantom, badge: 'P', badgeClass: 'bg-purple-500 text-white ring-purple-300', hint: 'Connect Phantom & pay USDT (BSC/ETH/Polygon) — auto credit' },
+  { id: 'phantom-sol', label: 'Phantom (Solana)', logo: LOGOS.phantom, badge: 'S', badgeClass: 'bg-purple-500 text-white ring-purple-300', hint: 'Connect Phantom & pay SOL (Solana) — auto credit' },
   { id: 'tonkeeper', label: 'Ton Wallet (TON)', logo: LOGOS.ton, badge: 'T', badgeClass: 'bg-sky-500 text-white ring-sky-300', hint: 'Connect Ton Wallet & pay USDT (TON) — auto credit' },
 ];
 
@@ -150,12 +152,12 @@ export default function PayMethod() {
   }, []);
 
   const choose = (m) => {
-    if (m.id === 'usdt' || m.id === 'usdc' || m.id === 'crypto' || m.id === 'trust' || m.id === 'metamask' || m.id === 'phantom' || m.id === 'tonkeeper') { setView(m.id); return; }
+    if (m.id === 'usdt' || m.id === 'usdc' || m.id === 'crypto' || m.id === 'trust' || m.id === 'metamask' || m.id === 'phantom' || m.id === 'phantom-sol' || m.id === 'tonkeeper') { setView(m.id); return; }
     toast({ title: `${m.label} selected`, description: 'Payment processing coming soon.' });
   };
 
   const networks = view === 'usdt' ? payData.usdt : view === 'usdc' ? payData.usdc : view === 'crypto' ? payData.crypto : [];
-  const methodLabel = view === 'usdt' ? t("USDT Deposit") : view === 'usdc' ? t("USDC Deposit") : view === 'crypto' ? t("Crypto Deposit") : view === 'metamask' ? t("MetaMask Deposit") : view === 'phantom' ? t("Phantom Deposit") : view === 'tonkeeper' ? t("Ton Wallet Deposit") : t("Trust Wallet Pay");
+  const methodLabel = view === 'usdt' ? t("USDT Deposit") : view === 'usdc' ? t("USDC Deposit") : view === 'crypto' ? t("Crypto Deposit") : view === 'metamask' ? t("MetaMask Deposit") : view === 'phantom' ? t("Phantom Deposit") : view === 'phantom-sol' ? t("Phantom Solana Deposit") : view === 'tonkeeper' ? t("Ton Wallet Deposit") : t("Trust Wallet Pay");
 
   return (
     <div className="relative min-h-screen pb-24" style={{ background: '#0D0D0D', fontFamily: SANS }}>
@@ -276,6 +278,14 @@ export default function PayMethod() {
 
         {view === 'phantom' && (
           <PhantomDeposit
+            amount={amount}
+            onBack={() => { setView('choose'); }}
+            onDone={() => { window.location.href = '/dashboard'; }}
+          />
+        )}
+
+        {view === 'phantom-sol' && (
+          <PhantomSolanaDeposit
             amount={amount}
             onBack={() => { setView('choose'); }}
             onDone={() => { window.location.href = '/dashboard'; }}
