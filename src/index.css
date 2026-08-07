@@ -100,6 +100,36 @@
   100% { opacity: 1; }
 }
 
+/* Premium splash loader animations */
+@keyframes splashEmblemRise {
+  0%   { opacity: 0; transform: translateY(18px) scale(0.94); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes splashRingSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes splashRingSpinRev {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+@keyframes splashGlowPulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.95; transform: scale(1.12); }
+}
+@keyframes splashLogoBreath {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 4px rgba(212,175,55,0.5)); }
+  50%      { filter: brightness(1.25) drop-shadow(0 0 10px rgba(255,225,140,0.85)); }
+}
+@keyframes splashShimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes splashDot {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%      { opacity: 1; transform: scale(1.15); }
+}
+
 @keyframes reelFall {
   0% { transform: translate3d(0, -75%, 0); }
   100% { transform: translate3d(0, 0%, 0); }
