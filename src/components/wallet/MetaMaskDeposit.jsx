@@ -67,9 +67,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const openMetaMaskApp = () => {
     const uri = wcUriRef.current;
     if (uri) {
-      try { window.open('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
+      window.location.href = 'https://metamask.app.link/wc?uri=' + encodeURIComponent(uri);
     } else {
-      try { window.open('https://metamask.app.link/', '_blank'); } catch {}
+      window.location.href = 'https://metamask.app.link/';
     }
   };
 
