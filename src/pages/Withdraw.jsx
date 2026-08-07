@@ -46,15 +46,16 @@ function logoFor(network, name) {
   return null;
 }
 
+const ALLOWED_NET_KEYS = ['bep', 'bsc', 'bnb', 'polygon', 'matic', 'pol'];
+
+function isAllowedNetwork(network, name) {
+  const k = String(network || '') + ' ' + String(name || '').toLowerCase();
+  return ALLOWED_NET_KEYS.some(key => k.toLowerCase().includes(key));
+}
+
 const DEFAULT_USDT_NETS = [
-  { name: 'USDT TRX Network', color: '#26a17b', logo: LOGOS.tron },
   { name: 'USDT BEP 20', color: '#f0b90b', logo: LOGOS.bnb },
-  { name: 'USDT ETH Network', color: '#627eea', logo: LOGOS.ethereum },
   { name: 'USDT POL Polygon Pos', color: '#8247e5', logo: LOGOS.polygon },
-  { name: 'USDT SOL Solana Network', color: '#14f195', logo: LOGOS.solana },
-  { name: 'USDT TON Network', color: '#0098ea', logo: LOGOS.ton },
-  { name: 'USDT AVAX-C Chain', color: '#e84142', logo: LOGOS.avalanche },
-  { name: 'USDT APT Aptos Network', color: '#06b6d4', logo: LOGOS.aptos },
 ];
 
 function CoinLogo({ logo, color }) {
@@ -85,14 +86,15 @@ export default function Withdraw() {
 
   useEffect(() => {
     base44.entities.PaymentAddress.filter({ method: 'usdt', active: true }, 'order', 100)
-      .then(list => {
-        if (list.length) setUsdtNets(list.map(r => {
-          const name = r.label || r.network;
-          const logo = logoFor(r.network, name);
-          return { name, color: r.color || '#26a17b', logo };
-        }));
-      })
-      .catch(() => {});
+    .then(list => {
+      const allowed = list.filter(r => isAllowedNetwork(r.network, r.label));
+      if (allowed.length) setUsdtNets(allowed.map(r => {
+        const name = r.label || r.network;
+        const logo = logoFor(r.network, name);
+        return { name, color: r.color || '#26a17b', logo };
+      }));
+    })
+    .catch(() => {});
   }, []);
 
   const submit = async () => {
