@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   User as UserIcon, Phone, Hash, LogOut, Loader2, Check,
   Wallet, ArrowDownToLine, ArrowUpFromLine, Crown, Gamepad2, Copy, Coins, History,
-  Menu, Pencil, Ticket, Gift, Users, Sparkles, Clock, CheckCircle2, XCircle, Headphones,
+  Menu, Pencil, Ticket, Gift, Users, Sparkles, Clock, CheckCircle2, XCircle, Headphones, ChevronRight,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -213,43 +213,67 @@ export default function Profile() {
           <div className="w-10" />
 
           {menuOpen && (
-            <div className="absolute left-4 top-14 z-40 w-48 rounded-2xl"
-              style={{ border: '1px solid rgba(212,175,55,0.4)', background: 'rgba(13,13,13,0.97)', boxShadow: '0 14px 40px rgba(0,0,0,0.7)', animation: 'dashFadeIn 200ms ease both' }}>
-              <Link to="/pay" onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
-                style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
-                <ArrowDownToLine className="w-4 h-4" style={{ color: '#34d399' }} /> {t("Deposit")}
-              </Link>
-              <Link to="/withdraw" onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
-                style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
-                <ArrowUpFromLine className="w-4 h-4" style={{ color: '#f87171' }} /> {t("Withdraw")}
-              </Link>
-              <Link to="/history" onClick={() => setMenuOpen(false)}
-                className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors">
-                <History className="w-4 h-4" style={{ color: '#D4AF37' }} /> {t("History")}
-              </Link>
-              <button onClick={() => { setView('rewards'); setMenuOpen(false); }}
-                className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
-                style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
-                <Gift className="w-4 h-4" style={{ color: '#D4AF37' }} /> {t("Rewards")}
-              </button>
-              <Link to="/referrals" onClick={() => setMenuOpen(false)}
-                className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
-                style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
-                <Users className="w-4 h-4" style={{ color: '#D4AF37' }} /> {t("Referrals")}
-              </Link>
-              <Link to="/events" onClick={() => setMenuOpen(false)}
-                className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
-                style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
-                <Sparkles className="w-4 h-4" style={{ color: '#D4AF37' }} /> {t("Events")}
-              </Link>
-              <Link to="/live-support" onClick={() => setMenuOpen(false)}
-                className="w-full flex items-center gap-2.5 px-4 py-3 text-white text-sm font-semibold hover:bg-white/5 transition-colors"
-                style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
-                <Headphones className="w-4 h-4" style={{ color: '#34d399' }} /> {t("Support 7/24")}
-              </Link>
-              <div className="px-3 py-2.5" style={{ borderBottom: '1px solid rgba(212,175,55,0.15)' }}>
+            <div className="absolute left-4 top-14 z-40 w-[300px] max-w-[calc(100vw-2rem)] rounded-3xl p-3 flex flex-col gap-2"
+              style={{
+                border: '1px solid rgba(212,175,55,0.35)',
+                background: 'rgba(10,10,10,0.82)',
+                backdropFilter: 'blur(22px)',
+                WebkitBackdropFilter: 'blur(22px)',
+                boxShadow: '0 24px 60px rgba(0,0,0,0.75), 0 0 30px rgba(212,175,55,0.12), inset 0 1px 0 rgba(255,255,255,0.05)',
+                animation: 'dashFadeIn 220ms ease both',
+              }}>
+              {[
+                { to: '/pay', label: t("Deposit"), Icon: ArrowDownToLine, color: '#34d399', active: true },
+                { to: '/withdraw', label: t("Withdraw"), Icon: ArrowUpFromLine, color: '#f87171' },
+                { to: '/history', label: t("History"), Icon: History, color: '#D4AF37' },
+                { onClick: () => { setView('rewards'); setMenuOpen(false); }, label: t("Rewards"), Icon: Gift, color: '#D4AF37' },
+                { to: '/referrals', label: t("Referrals"), Icon: Users, color: '#D4AF37' },
+                { to: '/events', label: t("Events"), Icon: Sparkles, color: '#D4AF37' },
+                { to: '/live-support', label: t("Support 7/24"), Icon: Headphones, color: '#34d399' },
+              ].map((item) => {
+                const Inner = (
+                  <>
+                    <div className="flex items-center justify-center w-11 h-11 rounded-2xl shrink-0 transition-all"
+                      style={{
+                        background: item.active
+                          ? 'linear-gradient(135deg, rgba(255,215,0,0.22), rgba(212,175,55,0.12))'
+                          : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${item.active ? 'rgba(255,215,0,0.5)' : 'rgba(212,175,55,0.22)'}`,
+                        boxShadow: item.active ? '0 0 14px rgba(255,215,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' : 'inset 0 1px 0 rgba(255,255,255,0.04)',
+                      }}>
+                      <item.Icon className="w-5 h-5" style={{ color: item.color, filter: item.active ? 'drop-shadow(0 0 6px rgba(255,215,0,0.6))' : 'none' }} />
+                    </div>
+                    <span className="flex-1 text-[14px] font-semibold tracking-tight" style={{ color: item.active ? '#fff' : 'rgba(255,255,255,0.92)' }}>
+                      {item.label}
+                    </span>
+                    <ChevronRight className="w-4 h-4 shrink-0 transition-transform" style={{ color: item.active ? '#FFD700' : 'rgba(212,175,55,0.55)' }} />
+                  </>
+                );
+                const baseStyle = {
+                  background: item.active
+                    ? 'linear-gradient(135deg, rgba(255,215,0,0.14), rgba(212,175,55,0.06), rgba(20,20,20,0.6))'
+                    : 'linear-gradient(135deg, rgba(26,26,26,0.9), rgba(16,16,16,0.85))',
+                  border: `1px solid ${item.active ? 'rgba(255,215,0,0.55)' : 'rgba(212,175,55,0.2)'}`,
+                  boxShadow: item.active
+                    ? '0 0 18px rgba(255,215,0,0.28), 0 6px 18px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)'
+                    : '0 4px 14px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)',
+                };
+                const hoverClass = 'transition-all duration-200 active:scale-[0.98] hover:-translate-y-0.5';
+                return item.to ? (
+                  <Link key={item.label} to={item.to} onClick={() => setMenuOpen(false)}
+                    className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl ${hoverClass}`}
+                    style={baseStyle}>
+                    {Inner}
+                  </Link>
+                ) : (
+                  <button key={item.label} onClick={item.onClick}
+                    className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl w-full text-left ${hoverClass}`}
+                    style={baseStyle}>
+                    {Inner}
+                  </button>
+                );
+              })}
+              <div className="mt-1 px-1 pt-2" style={{ borderTop: '1px solid rgba(212,175,55,0.15)' }}>
                 <LanguageSwitcher />
               </div>
             </div>
