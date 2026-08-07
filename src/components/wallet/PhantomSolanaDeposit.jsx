@@ -43,6 +43,16 @@ function bytesToBase64(bytes) {
   return btoa(bin);
 }
 
+// Phantom's injected provider — available inside Phantom's in-app browser and
+// the desktop browser extension. Unlike universal deep-links, the injected
+// provider connects/signs directly with NO "malicious dApp" security block.
+function getInjectedPhantom() {
+  if (typeof window === 'undefined') return null;
+  const p = window?.phantom?.solana;
+  if (p && typeof p.connect === 'function' && typeof p.signTransaction === 'function') return p;
+  return null;
+}
+
 export default function PhantomSolanaDeposit({ amount, onDone }) {
   const { setBalance } = useCasinoBalance();
   const { toast } = useToast();
@@ -51,6 +61,8 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
   const [errMsg, setErrMsg] = useState('');
   const [price, setPrice] = useState(0);
   const [payAsset, setPayAsset] = useState('usdc'); // 'sol' | 'usdc'
+  const [connectionMethod, setConnectionMethod] = useState('deeplink'); // 'injected' | 'deeplink'
+  const [hasInjected, setHasInjected] = useState(false);
 
   const solAmt = price ? amount / price : 0;
   const lamports = Math.round(solAmt * LAMPORTS_PER_SOL);
@@ -137,7 +149,27 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
   // Connect: generate (or reuse) a dApp x25519 keypair, build the connect
   // universal link, and navigate to it. Phantom opens, the user approves, and
   // redirects back here with the encrypted session.
-  const connect = () => {
+  const connect = async () => {
+    // Prefer the injected provider — it connects with no security block.
+    const injected = getInjectedPhantom();
+    if (injected) {
+      try {
+        setStatus('connecting'); setErrMsg('');
+        const res = await injected.connect();
+        const pub = res?.publicKey?.toString?.() || res?.public_key || res?.publicKey;
+        if (!pub) throw new Error('No public key returned');
+        setAccount(typeof pub === 'string' ? pub : String(pub));
+        setConnectionMethod('injected');
+        setStatus('connected');
+        return;
+      } catch (e) {
+        setErrMsg('Connect failed: ' + (e.message || e));
+        setStatus('error');
+        return;
+      }
+    }
+    // Fallback: universal deep-link (may show Phantom's "malicious dApp" warning
+    // for unverified domains on external mobile browsers).
     let saved = loadPhantomSession();
     let dappKp = saved?.dappKeyPair;
     if (!dappKp) {
@@ -158,7 +190,56 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
   // Send the deposit: build the Solana tx, encrypt it with the shared secret,
   // build the signTransaction universal link, and navigate. Phantom signs and
   // redirects back here with the signed tx.
+  // Sign + broadcast via the injected provider (Phantom in-app browser / desktop
+  // extension). No deep-link round-trip, no security block.
+  const depositInjected = async () => {
+    const provider = getInjectedPhantom();
+    if (!provider || !account) { setErrMsg('Not connected.'); setStatus('error'); return; }
+    if (payAsset === 'sol' && !price) { setErrMsg('Could not fetch SOL price.'); setStatus('error'); return; }
+    setStatus('sending'); setErrMsg('');
+    try {
+      const fromPubkey = new PublicKey(account);
+      const toPubkey = new PublicKey(ADMIN_SOL);
+      const tx = new Transaction();
+      if (payAsset === 'sol') {
+        tx.add(SystemProgram.transfer({ fromPubkey, toPubkey, lamports }));
+      } else {
+        const mint = new PublicKey(USDC_MINT);
+        const senderAta = await getAssociatedTokenAddress(mint, fromPubkey);
+        const recipientAta = await getAssociatedTokenAddress(mint, toPubkey);
+        tx.add(createAssociatedTokenAccountIdempotentInstruction(fromPubkey, recipientAta, toPubkey, mint));
+        tx.add(createTransferCheckedInstruction(senderAta, mint, recipientAta, fromPubkey, usdcUnits, USDC_DECIMALS));
+      }
+      tx.feePayer = fromPubkey;
+      const bh = await solanaRpc('getLatestBlockhash', []);
+      tx.recentBlockhash = bh?.value?.blockhash;
+      const signed = await provider.signTransaction(tx);
+      const serialized = signed.serialize();
+      setStatus('confirming');
+      const signature = await solanaRpc('sendTransaction', [bytesToBase64(serialized), { encoding: 'base64', skipPreflight: false }]);
+      for (let i = 0; i < 40; i++) {
+        try {
+          const s = await solanaRpc('getSignatureStatus', [signature, { searchTransactionHistory: true }]);
+          const cs = s?.value?.confirmationStatus;
+          if (cs === 'confirmed' || cs === 'finalized') break;
+        } catch {}
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+      const fn = payAsset === 'sol' ? 'verifySolanaDeposit' : 'verifySolanaUsdcDeposit';
+      const payload = payAsset === 'sol'
+        ? { signature, amount, userWallet: account, expectedLamports: lamports }
+        : { signature, amount, userWallet: account, expectedUnits: usdcUnits };
+      await finishVerify(fn, payload, amount);
+    } catch (e) {
+      setErrMsg('Send failed: ' + (e.message || e));
+      setStatus('error');
+    }
+  };
+
   const deposit = async () => {
+    if (connectionMethod === 'injected' && getInjectedPhantom()) {
+      return depositInjected();
+    }
     const saved = loadPhantomSession();
     if (!saved?.session || !saved?.sharedSecret || !saved?.publicKey || !saved?.dappKeyPair) {
       setErrMsg('Not connected.'); setStatus('error'); return;
@@ -204,9 +285,14 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
     }
   };
 
-  const disconnect = () => {
+  const disconnect = async () => {
+    if (connectionMethod === 'injected') {
+      const injected = getInjectedPhantom();
+      if (injected) { try { await injected.disconnect(); } catch {} }
+    }
     clearPhantomSession();
     setAccount(null);
+    setConnectionMethod('deeplink');
     setErrMsg('');
     setStatus('idle');
   };
@@ -215,6 +301,7 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
   // an existing session. Runs once.
   useEffect(() => {
     getCryptoPrices().then((p) => setPrice(p.sol || 0)).catch(() => {});
+    setHasInjected(!!getInjectedPhantom());
     const sp = new URLSearchParams(window.location.search);
     const errorCode = sp.get('errorCode');
     const phantomEncPub = sp.get('phantom_encryption_public_key');
@@ -330,7 +417,9 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
             <Wallet className="w-5 h-5" /> Connect with Phantom
           </button>
           <p className="text-[12px] text-center" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            Tapping this opens the Phantom app to approve. After approving, you'll return here to send your deposit.
+            {hasInjected
+              ? 'Tap to connect your Phantom wallet and approve the deposit.'
+              : 'For a reliable connection, open this page inside Phantom\'s in-app browser (Phantom app → Browser icon → enter this site\'s URL). On an external browser, Phantom may block the connection as an unverified dApp.'}
           </p>
           <a href="https://phantom.app/download" target="_blank" rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 h-12 rounded-[16px] font-bold transition-all active:scale-[0.98]"
