@@ -30,17 +30,29 @@ function drawCard() {
 }
 
 // Bias the next card so the guess is correct with probability ~rtp.
+// Distance-weighted selection: ranks closer to the current card are more
+// likely, so the outcome feels like a real deck and is harder to predict.
+// When the biased pool is empty (extreme card), force a tie instead of a
+// random draw so no direction is exploitable.
 function pickCard(dir, curRank, wantCorrect) {
   const ranks = RANKS.map((_, i) => i);
-  let cand;
+  let pool;
   if (wantCorrect) {
-    cand = dir === 'high' ? ranks.filter(r => r > curRank) : ranks.filter(r => r < curRank);
-    if (cand.length === 0) return drawCard();
+    pool = dir === 'high' ? ranks.filter(r => r > curRank) : ranks.filter(r => r < curRank);
+    if (pool.length === 0) return { rank: curRank, suit: Math.floor(Math.random() * 4) };
   } else {
-    cand = dir === 'high' ? ranks.filter(r => r < curRank) : ranks.filter(r => r > curRank);
-    if (cand.length === 0) cand = [curRank]; // force a tie (push counts as a loss)
+    pool = dir === 'high' ? ranks.filter(r => r < curRank) : ranks.filter(r => r > curRank);
+    if (pool.length === 0) pool = [curRank];
   }
-  return { rank: cand[Math.floor(Math.random() * cand.length)], suit: Math.floor(Math.random() * 4) };
+  const weights = pool.map(r => 1 / Math.abs(r - curRank));
+  const total = weights.reduce((a, b) => a + b, 0);
+  let roll = Math.random() * total;
+  let chosen = pool[0];
+  for (let i = 0; i < pool.length; i++) {
+    roll -= weights[i];
+    if (roll <= 0) { chosen = pool[i]; break; }
+  }
+  return { rank: chosen, suit: Math.floor(Math.random() * 4) };
 }
 
 // Premium card back — deep emerald with ornate gold frame + 3D gold star emblem
