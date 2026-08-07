@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Gift, Trophy, Sparkles, Clock, Loader2 } from 'lucide-react';
+import { Sparkles, Clock, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useLanguage } from '@/lib/LanguageContext';
 
@@ -16,7 +16,6 @@ const DEFAULT_BANNERS = [
     link: '',
     gradient: 'linear-gradient(135deg, #FFD700 0%, #FF8C00 50%, #FF4500 100%)',
     glow: 'rgba(255,165,0,0.45)',
-    icon: Gift,
   },
   {
     id: 'tournament',
@@ -26,7 +25,6 @@ const DEFAULT_BANNERS = [
     link: '',
     gradient: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%)',
     glow: 'rgba(139,92,246,0.45)',
-    icon: Trophy,
   },
 ];
 
@@ -54,7 +52,6 @@ export default function Events() {
           link_label: r.link_label || '',
           gradient: 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)',
           glow: 'rgba(212,175,55,0.35)',
-          icon: Sparkles,
         }));
         setBanners(mapped);
       })
@@ -106,7 +103,6 @@ export default function Events() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {list.map((ev, i) => {
-              const Icon = ev.icon;
               // No join buttons on the Events page — everything shows "Coming Soon".
               const cta = (
                 <div
@@ -137,21 +133,10 @@ export default function Events() {
                   <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.18), transparent 50%)' }} />
 
                   {/* Content */}
-                  <div className="relative z-10 p-6 flex flex-col h-full" style={{ minHeight: '300px' }}>
-                    {/* Icon + Title */}
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="flex items-center justify-center w-14 h-14 rounded-2xl shrink-0"
-                        style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.35)' }}>
-                        <Icon className="w-7 h-7" style={{ color: '#fff' }} />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-extrabold" style={{ color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>{ev.title}</h2>
-                      </div>
-                    </div>
-
+                  <div className="relative z-10 p-6 flex flex-col h-full justify-end" style={{ minHeight: '300px' }}>
                     {/* Description */}
                     {ev.description && (
-                      <p className="text-[13px] leading-relaxed mb-4 flex-1" style={{ color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
+                      <p className="text-[13px] leading-relaxed mb-4" style={{ color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
                         {ev.description}
                       </p>
                     )}
