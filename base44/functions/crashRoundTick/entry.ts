@@ -73,9 +73,14 @@ function genCrashPoint(rtp) {
     // 50% fewer exact 1.00x busts, the rest spread across (1.00, 2.00).
     crash = rand() < 0.5 ? 1.00 : 1.00 + rand();
   }
-  // Pull ~15% of 2x–3x outcomes back down below 2x so the curve lands
-  // above 2x a little less often than before.
-  if (crash >= 2 && crash < 3 && rand() < 0.15) {
+  // Pull ~45% of 2x–3x outcomes back down below 2x so the curve lands
+  // above 2x noticeably less often.
+  if (crash >= 2 && crash < 3 && rand() < 0.45) {
+    crash = 1.00 + rand();
+  }
+  // Pull ~25% of 3x–10x outcomes back down below 2x as well, so high
+  // multipliers are rarer and more rounds bust early.
+  if (crash >= 3 && crash <= 10 && rand() < 0.25) {
     crash = 1.00 + rand();
   }
   // Anti-pattern scatter: with ~22% chance, remap the outcome to a fresh
