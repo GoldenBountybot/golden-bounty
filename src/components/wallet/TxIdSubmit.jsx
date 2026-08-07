@@ -2,7 +2,26 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance, addWagerRequirement } from '@/lib/useCasinoBalance';
-import { Send, Loader2, ShieldCheck, AlertTriangle, Clock } from 'lucide-react';
+import { useLanguage } from '@/lib/LanguageContext';
+import { Send, Loader2, ShieldCheck, AlertTriangle, Clock, HelpCircle, ChevronDown } from 'lucide-react';
+
+// Suggests where the user can find their transaction ID for a given network.
+function explorerHint(name) {
+  const s = String(name || '').toLowerCase();
+  if (!s) return null;
+  if (s.includes('btc') || s.includes('bitcoin')) return { url: 'blockstream.info / mempool.space', where: 'Transaction details → "TxID" (64-char hash)' };
+  if (s.includes('eth') || s.includes('erc')) return { url: 'etherscan.io', where: 'Your transaction → "Transaction Hash" at the top' };
+  if (s.includes('bnb') || s.includes('bep')) return { url: 'bscscan.com', where: 'Your transaction → "Transaction Hash" at the top' };
+  if (s.includes('polygon') || s.includes('pol ')) return { url: 'polygonscan.com', where: 'Your transaction → "Transaction Hash" at the top' };
+  if (s.includes('avax') || s.includes('avalanche')) return { url: 'snowtrace.io', where: 'Your transaction → "Transaction Hash" at the top' };
+  if (s.includes('sol')) return { url: 'solscan.io / solana.fm', where: 'Transaction → "Signature" (long base58 string)' };
+  if (s.includes('trx') || s.includes('tron') || s.includes('trc')) return { url: 'tronscan.org', where: 'Transaction → "Hash" at the top' };
+  if (s.includes('ton')) return { url: 'tonviewer.com / tonscan.com', where: 'Transaction → "Transaction Hash / TxID"' };
+  if (s.includes('apt')) return { url: 'aptoscan.com', where: 'Transaction → "Transaction Hash" at the top' };
+  if (s.includes('ltc') || s.includes('lite')) return { url: 'blockchair.com/litecoin', where: 'Transaction → "Transaction ID"' };
+  if (s.includes('doge')) return { url: 'blockchair.com/dogecoin', where: 'Transaction → "Transaction ID"' };
+  return null;
+}
 
 // Map a network display name to a verifyManualDeposit dispatch key.
 // Returns null for chains not yet auto-verifiable (falls back to manual admin review).
@@ -43,11 +62,14 @@ const REASON_TEXT = {
 export default function TxIdRow({ amount, method, network }) {
   const { toast } = useToast();
   const { setBalance } = useCasinoBalance();
+  const { t } = useLanguage();
   const [txid, setTxid] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [status, setStatus] = useState(null); // 'verifying' | 'credited' | 'failed' | 'manual'
   const [failReason, setFailReason] = useState('');
+  const [showHelp, setShowHelp] = useState(false);
+  const hint = explorerHint(network);
 
   const dispatchKey = dispatchKeyFor(network);
 
@@ -144,6 +166,34 @@ export default function TxIdRow({ amount, method, network }) {
           {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Send className="w-3.5 h-3.5" /> Verify</>}
         </button>
       </div>
+      {hint && (
+        <div className="flex flex-col gap-1.5">
+          <button
+            onClick={() => setShowHelp(s => !s)}
+            className="flex items-center gap-1.5 text-[11px] font-semibold w-fit"
+            style={{ color: '#D4AF37' }}
+          >
+            <HelpCircle className="w-3.5 h-3.5" /> {t('How to find your TxID?')}
+            <ChevronDown className="w-3.5 h-3.5 transition-transform" style={{ transform: showHelp ? 'rotate(180deg)' : 'none' }} />
+          </button>
+          {showHelp && (
+            <div className="rounded-[12px] px-3 py-2.5 flex flex-col gap-1" style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(212,175,55,0.2)', animation: 'dashFadeIn 200ms ease both' }}>
+              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                <span style={{ color: '#D4AF37', fontWeight: 700 }}>1.</span> {t('Open your wallet app → Activity / History → tap the transaction you just sent.')}
+              </p>
+              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                <span style={{ color: '#D4AF37', fontWeight: 700 }}>2.</span> {t('Copy the Transaction ID / Hash. You can also find it on')} <span style={{ color: '#D4AF37', fontWeight: 600 }}>{hint.url}</span>.
+              </p>
+              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                <span style={{ color: '#D4AF37', fontWeight: 700 }}>3.</span> {hint.where}.
+              </p>
+              <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                {t('Paste it above and tap Verify — we confirm it on-chain, then credit your balance.')}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
       {status === 'verifying' && (
         <p className="text-[11px] flex items-center gap-1.5" style={{ color: '#D4AF37' }}>
           <Loader2 className="w-3 h-3 animate-spin" /> Checking on-chain…
