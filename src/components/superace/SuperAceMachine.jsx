@@ -199,7 +199,7 @@ export default function SuperAceMachine() {
 
     // 3-scatter free-spin trigger is an independent 0.1% roll, separate from the
     // 10% line-win gate. The win gate controls line wins; scatters are gated here.
-    const forceWin = Math.random() < Math.min(0.3, Math.max(0.05, (rtpRef.current / 100) - 0.45));
+    const forceWin = Math.random() < Math.min(0.3, Math.max(0.10, (rtpRef.current / 100) - 0.45));
     const scatterHit = Math.random() < 0.0003; // 0.03% — reduced rate
     let g = makeGrid();
     let ev0 = evaluate(g, b);
