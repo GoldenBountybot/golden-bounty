@@ -326,49 +326,41 @@ export default function ArgonautsMachine() {
 
       {/* Control panel */}
       <div className="relative px-3 pb-2" style={{ marginTop: '64px' }}>
-        <div className="mx-auto max-w-md lg:max-w-xl">
-          <div className="flex items-center justify-between gap-2">
-            {/* Left column: Turbo + Menu */}
-            <div className="flex items-center gap-2">
-              <IconButton onClick={() => g.setTurbo(!g.turbo)} active={g.turbo} disabled={g.spinning} title="Turbo"><Zap className="w-5 h-5" /></IconButton>
-              <IconButton onClick={() => setShowPaytable(true)} title="Menu"><Menu className="w-5 h-5" /></IconButton>
-              <IconButton onClick={() => setShowHistory(true)} title="Game history"><History className="w-5 h-5" /></IconButton>
-            </div>
+        <div className="mx-auto max-w-md lg:max-w-xl flex flex-col items-center gap-2">
+          {/* Spin button — centered on its own row above the rest */}
+          <button
+            onClick={() => { playSpinSound(); setSpinPulse(true); setTimeout(() => setSpinPulse(false), 220); g.spin(); }}
+            disabled={spinDisabled}
+            className="relative flex items-center justify-center disabled:opacity-70"
+            style={{
+              width: 72,
+              height: 72,
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
+              cursor: spinDisabled ? 'not-allowed' : 'pointer',
+              transform: spinPulse ? 'scale(1.18)' : 'scale(1)',
+              transition: 'transform 180ms ease-out',
+            }}
+          >
+            <img
+              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/71f946c63_file_00000000e5d881fab7f33117c10362eb.png"
+              alt="SPIN"
+              draggable={false}
+              className="block w-full h-full object-contain"
+              style={{ filter: 'url(#argoSpinDropBlack)' }}
+            />
+          </button>
 
-            {/* Center: Minus + Spin + Plus */}
-            <div className="flex items-center gap-2">
-              <IconButton onClick={() => g.setBet(argoDecBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet <= MIN_BET} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
-              <button
-                onClick={() => { playSpinSound(); setSpinPulse(true); setTimeout(() => setSpinPulse(false), 220); g.spin(); }}
-                disabled={spinDisabled}
-                className="relative flex items-center justify-center disabled:opacity-70"
-                style={{
-                  width: 64,
-                  height: 64,
-                  background: 'transparent',
-                  border: 'none',
-                  padding: 0,
-                  cursor: spinDisabled ? 'not-allowed' : 'pointer',
-                  transform: spinPulse ? 'scale(1.18)' : 'scale(1)',
-                  transition: 'transform 180ms ease-out',
-                }}
-              >
-                <img
-                  src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/71f946c63_file_00000000e5d881fab7f33117c10362eb.png"
-                  alt="SPIN"
-                  draggable={false}
-                  className="block w-full h-full object-contain"
-                  style={{ filter: 'url(#argoSpinDropBlack)' }}
-                />
-              </button>
-              <IconButton onClick={() => g.setBet(argoIncBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet >= MAX_BET} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
-            </div>
-
-            {/* Right column: Auto + Bet chip */}
-            <div className="flex items-center gap-2">
-              <IconButton onClick={() => g.setAutoSpin(!g.autoSpin)} active={g.autoSpin} disabled={g.spinning} title="Auto spin"><RotateCw className="w-5 h-5" /></IconButton>
-              <IconButton onClick={() => setShowBetMenu(s => !s)} active={showBetMenu} disabled={g.spinning} title="Bet menu"><DollarSign className="w-5 h-5" /></IconButton>
-            </div>
+          {/* Bottom row: all other controls */}
+          <div className="flex items-center justify-between gap-2 w-full">
+            <IconButton onClick={() => g.setBet(argoDecBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet <= MIN_BET} title="Decrease bet"><Minus className="w-5 h-5" /></IconButton>
+            <IconButton onClick={() => g.setBet(argoIncBet(g.bet))} disabled={g.spinning || g.coinMode || g.bet >= MAX_BET} title="Increase bet"><Plus className="w-5 h-5" /></IconButton>
+            <IconButton onClick={() => g.setTurbo(!g.turbo)} active={g.turbo} disabled={g.spinning} title="Turbo"><Zap className="w-5 h-5" /></IconButton>
+            <IconButton onClick={() => g.setAutoSpin(!g.autoSpin)} active={g.autoSpin} disabled={g.spinning} title="Auto spin"><RotateCw className="w-5 h-5" /></IconButton>
+            <IconButton onClick={() => setShowBetMenu(s => !s)} active={showBetMenu} disabled={g.spinning} title="Bet menu"><DollarSign className="w-5 h-5" /></IconButton>
+            <IconButton onClick={() => setShowPaytable(true)} title="Menu"><Menu className="w-5 h-5" /></IconButton>
+            <IconButton onClick={() => setShowHistory(true)} title="Game history"><History className="w-5 h-5" /></IconButton>
           </div>
 
           {/* Bet menu popover */}
