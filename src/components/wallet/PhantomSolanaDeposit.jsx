@@ -192,6 +192,7 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
       const params = new URLSearchParams({
         dapp_encryption_public_key: saved.dappKeyPair.publicKey,
         nonce: b58Encode(nonce),
+        app_url: window.location.origin,
         redirect_link: buildRedirectLink(amount),
         payload: b58Encode(encrypted),
       });
