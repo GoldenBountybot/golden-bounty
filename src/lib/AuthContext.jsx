@@ -94,6 +94,16 @@ export const AuthProvider = ({ children }) => {
       // Now check if the user is authenticated
       setIsLoadingAuth(true);
       const currentUser = await base44.auth.me();
+      // Banned users are blocked from the app entirely — show the banned
+      // screen instead of letting them in. The token stays so an unban +
+      // refresh restores access.
+      if (currentUser?.banned) {
+        setAuthError({ type: 'user_banned', message: 'Your account has been banned' });
+        setIsAuthenticated(false);
+        setIsLoadingAuth(false);
+        setAuthChecked(true);
+        return;
+      }
       setUser(currentUser);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);

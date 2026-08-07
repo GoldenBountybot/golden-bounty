@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import AdminPlayerDetail from '@/components/admin/AdminPlayerDetail';
-import { Search, Eye, Hash } from 'lucide-react';
+import { Search, Eye, Hash, Ban, ShieldCheck } from 'lucide-react';
 
 export default function AdminPlayers() {
   const [users, setUsers] = useState([]);
@@ -45,6 +45,14 @@ export default function AdminPlayers() {
     } catch { toast({ title: 'Update failed' }); }
   };
 
+  const toggleBan = async (u) => {
+    try {
+      await base44.entities.User.update(u.id, { banned: !u.banned });
+      toast({ title: u.banned ? 'User unbanned' : 'User banned' });
+      load();
+    } catch { toast({ title: 'Action failed' }); }
+  };
+
   if (selected) {
     return <AdminPlayerDetail user={selected} onBack={() => { setSelected(null); load(); }} onSaved={load} />;
   }
@@ -77,6 +85,7 @@ export default function AdminPlayers() {
               <p className="text-xs text-amber-100/60 flex items-center gap-1"><Hash className="w-3 h-3 text-amber-400/60" />{u.uid || '—'}</p>
               <p className="text-xs text-amber-100/60">Role: {u.role} · Phone: {u.phone || '—'}</p>
               <p className="text-sm text-yellow-200 font-bold">${(u.balance ?? 0).toFixed(2)}{u.rtp != null ? ` · RTP ${u.rtp}%` : ''}</p>
+              {u.banned && <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 border border-red-500/50 text-red-400">BANNED</span>}
             </div>
             <div className="flex flex-col gap-1.5 items-end">
               {editing === u.id ? (
@@ -98,6 +107,20 @@ export default function AdminPlayers() {
                     <Eye className="w-3.5 h-3.5" /> View
                   </button>
                   <button onClick={() => startEdit(u)} className="px-2.5 py-1.5 rounded-lg bg-black/40 border border-amber-700/40 text-amber-100 text-xs font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>Edit</button>
+                  {u.role !== 'admin' && (
+                    <button
+                      onClick={() => toggleBan(u)}
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold italic"
+                      style={{
+                        fontFamily: 'Georgia, serif',
+                        background: u.banned ? 'rgba(52,211,153,0.15)' : 'rgba(248,113,113,0.15)',
+                        border: u.banned ? '1px solid rgba(52,211,153,0.5)' : '1px solid rgba(248,113,113,0.5)',
+                        color: u.banned ? '#34d399' : '#f87171',
+                      }}
+                    >
+                      {u.banned ? <><ShieldCheck className="w-3.5 h-3.5" /> Unban</> : <><Ban className="w-3.5 h-3.5" /> Ban</>}
+                    </button>
+                  )}
                 </div>
               )}
             </div>

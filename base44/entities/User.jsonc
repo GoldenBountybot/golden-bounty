@@ -93,6 +93,11 @@
       "type": "string",
       "default": "",
       "description": "Comma-separated list of task names the user has already claimed (e.g. 'x,telegram')."
+    },
+    "banned": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, the user is blocked from accessing the app. Set by admins from the Players panel."
     }
   },
   "required": [
