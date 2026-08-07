@@ -1,0 +1,69 @@
+{
+  "name": "SolanaDepositRequest",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner of this deposit request"
+    },
+    "user_email": {
+      "type": "string",
+      "default": "",
+      "description": "Email for admin display"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Base USD amount the user intends to deposit"
+    },
+    "pay_units": {
+      "type": "number",
+      "description": "Unique USDC micro-units (amount*1e6 + random microcents) used to match the on-chain transfer to this request"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed"
+      ],
+      "default": "pending"
+    },
+    "signature": {
+      "type": "string",
+      "default": "",
+      "description": "On-chain transaction signature once matched & credited"
+    }
+  },
+  "required": [
+    "user_id",
+    "amount",
+    "pay_units",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -7,7 +7,7 @@ import { Bitcoin, Wallet, Copy, Check, ArrowLeft, AlertTriangle } from 'lucide-r
 import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
 import MetaMaskDeposit from '@/components/wallet/MetaMaskDeposit';
 import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
-import PhantomSolanaDeposit from '@/components/wallet/PhantomSolanaDeposit';
+import SolanaPayDeposit from '@/components/wallet/SolanaPayDeposit';
 import TxIdRow from '@/components/wallet/TxIdSubmit';
 import { useLanguage } from '@/lib/LanguageContext';
 
@@ -59,7 +59,7 @@ const METHODS = [
   { id: 'crypto', label: 'Pay Crypto', logo: LOGOS.bitcoin, badge: null, icon: Bitcoin, iconClass: 'text-amber-300', color: '#f7931a', hint: 'BTC / ETH / BNB & other coins' },
   { id: 'trust', label: 'Trust Wallet', logo: LOGOS.trustwallet, badge: 'T', badgeClass: 'bg-blue-600 text-white ring-blue-300', color: '#3375b9', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
   { id: 'metamask', label: 'MetaMask', logo: LOGOS.metamask, badge: 'M', badgeClass: 'bg-orange-500 text-white ring-orange-300', color: '#f6851a', hint: 'Connect MetaMask & pay USDT (BSC/ETH/Polygon) — auto credit' },
-  { id: 'phantom-sol', label: 'Phantom (Solana)', logo: LOGOS.phantom, badge: 'S', badgeClass: 'bg-purple-500 text-white ring-purple-300', color: '#7868e6', solidBg: true, hint: 'Connect Phantom & pay USDC or SOL (Solana) — auto credit' },
+  { id: 'phantom-sol', label: 'Phantom (Solana)', logo: LOGOS.phantom, badge: 'S', badgeClass: 'bg-purple-500 text-white ring-purple-300', color: '#7868e6', solidBg: true, hint: 'Scan QR & pay USDC (Solana) from any browser — auto credit' },
   { id: 'tonkeeper', label: 'Ton Wallet (TON)', logo: LOGOS.ton, badge: 'T', badgeClass: 'bg-sky-500 text-white ring-sky-300', color: '#0098ea', hint: 'Connect Ton Wallet & pay USDT (TON) — auto credit' },
 ];
 
@@ -281,9 +281,8 @@ export default function PayMethod() {
         )}
 
         {view === 'phantom-sol' && (
-          <PhantomSolanaDeposit
+          <SolanaPayDeposit
             amount={amount}
-            onBack={() => { setView('choose'); }}
             onDone={() => { window.location.href = '/dashboard'; }}
           />
         )}
