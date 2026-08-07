@@ -213,7 +213,7 @@ export default function Profile() {
           <div className="w-10" />
 
           {menuOpen && (
-            <div className="absolute left-4 top-14 z-40 w-[280px] max-w-[calc(100vw-2rem)] rounded-3xl p-2.5 flex flex-col gap-1.5"
+            <div className="absolute left-4 top-14 z-40 w-[280px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-3xl p-2.5 flex flex-col gap-1.5"
               style={{
                 border: '1px solid rgba(212,175,55,0.35)',
                 background: 'rgba(10,10,10,0.82)',
