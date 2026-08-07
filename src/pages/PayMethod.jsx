@@ -54,13 +54,13 @@ function logoFor(network, name) {
 }
 
 const METHODS = [
-  { id: 'usdt', label: 'Pay USDT in Crypto', logo: LOGOS.tether, badge: '₮', badgeClass: 'bg-emerald-500 text-white ring-emerald-300', hint: 'Tether (USDT) transfer' },
-  { id: 'usdc', label: 'Pay USDC in Crypto', logo: LOGOS.usdc, badge: '$', badgeClass: 'bg-blue-600 text-white ring-blue-300', hint: 'USD Coin (USDC) transfer' },
-  { id: 'crypto', label: 'Pay Crypto', logo: LOGOS.bitcoin, badge: null, icon: Bitcoin, iconClass: 'text-amber-300', hint: 'BTC / ETH / BNB & other coins' },
-  { id: 'trust', label: 'Trust Wallet', logo: LOGOS.trustwallet, badge: 'T', badgeClass: 'bg-blue-600 text-white ring-blue-300', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
-  { id: 'metamask', label: 'MetaMask', logo: LOGOS.metamask, badge: 'M', badgeClass: 'bg-orange-500 text-white ring-orange-300', hint: 'Connect MetaMask & pay USDT (BSC/ETH/Polygon) — auto credit' },
-  { id: 'phantom-sol', label: 'Phantom (Solana)', logo: LOGOS.phantom, badge: 'S', badgeClass: 'bg-purple-500 text-white ring-purple-300', hint: 'Connect Phantom & pay USDC or SOL (Solana) — auto credit' },
-  { id: 'tonkeeper', label: 'Ton Wallet (TON)', logo: LOGOS.ton, badge: 'T', badgeClass: 'bg-sky-500 text-white ring-sky-300', hint: 'Connect Ton Wallet & pay USDT (TON) — auto credit' },
+  { id: 'usdt', label: 'Pay USDT in Crypto', logo: LOGOS.tether, badge: '₮', badgeClass: 'bg-emerald-500 text-white ring-emerald-300', color: '#26a17b', hint: 'Tether (USDT) transfer' },
+  { id: 'usdc', label: 'Pay USDC in Crypto', logo: LOGOS.usdc, badge: '$', badgeClass: 'bg-blue-600 text-white ring-blue-300', color: '#2775ca', hint: 'USD Coin (USDC) transfer' },
+  { id: 'crypto', label: 'Pay Crypto', logo: LOGOS.bitcoin, badge: null, icon: Bitcoin, iconClass: 'text-amber-300', color: '#f7931a', hint: 'BTC / ETH / BNB & other coins' },
+  { id: 'trust', label: 'Trust Wallet', logo: LOGOS.trustwallet, badge: 'T', badgeClass: 'bg-blue-600 text-white ring-blue-300', color: '#3375b9', hint: 'Connect wallet & pay USDT (BSC) — auto credit' },
+  { id: 'metamask', label: 'MetaMask', logo: LOGOS.metamask, badge: 'M', badgeClass: 'bg-orange-500 text-white ring-orange-300', color: '#f6851a', hint: 'Connect MetaMask & pay USDT (BSC/ETH/Polygon) — auto credit' },
+  { id: 'phantom-sol', label: 'Phantom (Solana)', logo: LOGOS.phantom, badge: 'S', badgeClass: 'bg-purple-500 text-white ring-purple-300', color: '#ab9ff2', hint: 'Connect Phantom & pay USDC or SOL (Solana) — auto credit' },
+  { id: 'tonkeeper', label: 'Ton Wallet (TON)', logo: LOGOS.ton, badge: 'T', badgeClass: 'bg-sky-500 text-white ring-sky-300', color: '#0098ea', hint: 'Connect Ton Wallet & pay USDT (TON) — auto credit' },
 ];
 
 const USDT_NETWORKS = [
@@ -224,7 +224,10 @@ export default function PayMethod() {
                 className="dash-card w-full flex items-center gap-4 p-4 transition-all active:scale-[0.98]"
                 style={{ animation: 'dashFadeIn 400ms ease both', animationDelay: (50 * i) + 'ms' }}
               >
-                <div className={`flex items-center justify-center w-12 h-12 rounded-full ring-2 overflow-hidden shrink-0 ${m.logo ? 'bg-white/95 ring-white/20' : (m.badgeClass || 'bg-black/40 ring-amber-700/40')}`}>
+                <div
+                  className={`flex items-center justify-center w-12 h-12 rounded-full ring-2 overflow-hidden shrink-0 ${m.logo ? 'bg-white/95' : (m.badgeClass || 'bg-black/40 ring-amber-700/40')}`}
+                  style={m.logo && m.color ? { ['--tw-ring-color']: m.color } : undefined}
+                >
                   {m.logo ? <img src={m.logo} alt={m.label} className="w-8 h-8 object-contain" /> : m.badge ? <span className="text-2xl font-bold">{m.badge}</span> : m.icon ? <m.icon className={`w-7 h-7 ${m.iconClass || ''}`} /> : null}
                 </div>
                 <div className="flex-1 text-left">
