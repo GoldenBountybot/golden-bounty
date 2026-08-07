@@ -81,7 +81,7 @@ function genCrashPoint(rtp, recent = []) {
     crash = 8 + rand() * 42;
   }
   // Pull a random fraction of x10–x50 outcomes down into the 2x–10x band.
-  if (crash > 10 && crash <= 50 && rand() < 0.30 + rand() * 0.25) {
+  if (crash > 10 && crash <= 50 && rand() < 0.45 + rand() * 0.25) {
     crash = 2 + rand() * 8;
   }
 
@@ -89,27 +89,27 @@ function genCrashPoint(rtp, recent = []) {
     // 50% fewer exact 1.00x busts, the rest spread across (1.00, 2.00).
     crash = rand() < 0.5 ? 1.00 : 1.00 + rand();
   }
-  // Pull ~70% of 2x–3x outcomes back down below 2x so the curve lands
+  // Pull ~82% of 2x–3x outcomes back down below 2x so the curve lands
   // above 2x noticeably less often.
-  if (crash >= 2 && crash < 3 && rand() < 0.70) {
+  if (crash >= 2 && crash < 3 && rand() < 0.82) {
     crash = 1.00 + rand();
   }
-  // Pull ~50% of 3x–10x outcomes back down below 2x as well, so high
+  // Pull ~65% of 3x–10x outcomes back down below 2x as well, so high
   // multipliers are rarer and more rounds bust early.
-  if (crash >= 3 && crash <= 10 && rand() < 0.50) {
+  if (crash >= 3 && crash <= 10 && rand() < 0.65) {
     crash = 1.00 + rand();
   }
-  // Anti-pattern scatter: with ~40% chance, remap the outcome to a fresh
-  // draw across a low band (1x–4x). This flattens the visible histogram so
+  // Anti-pattern scatter: with ~45% chance, remap the outcome to a fresh
+  // draw across a low band (1x–2.5x). This flattens the visible histogram so
   // no single band dominates the history bar and a player watching recent
   // multipliers can't lock onto a "most common" zone to exploit. Draws
   // stay fully independent — history never feeds the next.
-  if (rand() < 0.40) {
-    crash = 1.00 + rand() * 3;
+  if (rand() < 0.45) {
+    crash = 1.00 + rand() * 1.5;
   }
   // Secondary shuffle: occasionally swap a low outcome for a mid one and
   // vice-versa, so consecutive rounds rarely follow a readable trend.
-  if (rand() < 0.20) {
+  if (rand() < 0.15) {
     if (crash < 2) crash = 2 + rand() * 6;
     else crash = 1.00 + rand() * 1.5;
   }
