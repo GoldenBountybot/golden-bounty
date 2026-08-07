@@ -15,11 +15,16 @@ function dispatchKeyFor(name) {
   if (s.includes('bnb') || s.includes('bep')) return isUsdt ? 'bsc_usdt' : 'bsc_native';
   if (s.includes('eth') || s.includes('erc')) return isUsdt ? 'eth_usdt' : isUsdc ? 'eth_usdc' : 'eth_native';
   if (s.includes('sol')) return isUsdt ? 'sol_usdt' : isUsdc ? 'sol_usdc' : 'sol_native';
-  if (s.includes('avax') || s.includes('avalanche')) return 'avax_native';
+  if (s.includes('avax') || s.includes('avalanche')) return isUsdt ? 'avax_usdt' : isUsdc ? 'avax_usdc' : 'avax_native';
   if (s.includes('polygon') || s.includes('matic') || (s.includes('pol') && !s.includes('polka'))) {
     return isUsdt ? 'polygon_usdt' : isUsdc ? 'polygon_usdc' : 'polygon_native';
   }
-  // TRX, TON, LTC, DOGE, DOT, APT — not yet auto-verifiable.
+  if (s.includes('trx') || s.includes('tron') || s.includes('trc')) return isUsdt ? 'trx_usdt' : 'trx_native';
+  if (s.includes('ton')) return isUsdt ? 'ton_usdt' : 'ton_native';
+  if (s.includes('ltc') || s.includes('lite')) return 'ltc';
+  if (s.includes('doge')) return 'doge';
+  if (s.includes('apt')) return (isUsdt || isUsdc) ? null : 'apt_native';
+  // DOT (Polkadot) + APT USDT/USDC — not yet auto-verifiable.
   return null;
 }
 
