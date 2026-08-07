@@ -83,13 +83,19 @@ function genCrashPoint(rtp) {
   if (crash >= 3 && crash <= 10 && rand() < 0.25) {
     crash = 1.00 + rand();
   }
-  // Anti-pattern scatter: with ~22% chance, remap the outcome to a fresh
+  // Anti-pattern scatter: with ~40% chance, remap the outcome to a fresh
   // uniform draw across a wide band (1x–9x). This flattens the visible
   // histogram so no single band dominates the history bar and a player
   // watching recent multipliers can't lock onto a "most common" zone to
   // exploit. Draws stay fully independent — history never feeds the next.
-  if (rand() < 0.22) {
+  if (rand() < 0.40) {
     crash = 1.00 + rand() * 8;
+  }
+  // Secondary shuffle: occasionally swap a low outcome for a mid one and
+  // vice-versa, so consecutive rounds rarely follow a readable trend.
+  if (rand() < 0.20) {
+    if (crash < 2) crash = 2 + rand() * 6;
+    else crash = 1.00 + rand() * 1.5;
   }
   return Math.min(Math.max(crash, 1.00), 250);
 }
