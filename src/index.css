@@ -493,6 +493,16 @@
   50%      { opacity: 1; }
 }
 
+/* Premium game loader — pulsing center glow + shimmer sweep on the progress bar */
+@keyframes loaderGlow {
+  0%, 100% { opacity: 0.6; transform: scale(0.95); }
+  50%      { opacity: 1;    transform: scale(1.05); }
+}
+@keyframes loaderShimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
 /* SuperAce — golden light flare behind winning cards (JILI style) */
 @keyframes saWinFlare {
   0%   { opacity: 0.6; transform: scale(0.95); }
