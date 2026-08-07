@@ -1,45 +1,72 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Gift, Trophy, Sparkles, ArrowLeft, Calendar, Users, DollarSign, Clock } from 'lucide-react';
+import { Gift, Trophy, Sparkles, ArrowLeft, Calendar, Users, DollarSign, Clock, ImageOff, Loader2 } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 import { useLanguage } from '@/lib/LanguageContext';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
+// Default placeholder banners shown when admin hasn't added any yet.
+// Both display "Coming Soon" since they have no link.
+const DEFAULT_BANNERS = [
+  {
+    id: 'giveaway',
+    title: 'Giveaway',
+    description: 'Join our weekly giveaway and stand a chance to win cash prizes, free spins, and exclusive rewards.',
+    image_url: '',
+    link: '',
+    gradient: 'linear-gradient(135deg, #FFD700 0%, #FF8C00 50%, #FF4500 100%)',
+    glow: 'rgba(255,165,0,0.45)',
+    icon: Gift,
+  },
+  {
+    id: 'tournament',
+    title: 'Tournament',
+    description: 'Compete against other players in our monthly tournament. Climb the leaderboard and win a share of the massive prize pool!',
+    image_url: '',
+    link: '',
+    gradient: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%)',
+    glow: 'rgba(139,92,246,0.45)',
+    icon: Trophy,
+  },
+];
+
+function isExternal(url) {
+  return /^https?:\/\//i.test(String(url || ''));
+}
+
 export default function Events() {
   const { t } = useLanguage();
+  const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const events = [
-    {
-      id: 'giveaway',
-      title: t('Giveaway'),
-      subtitle: t('Win big prizes'),
-      desc: t('Join our weekly giveaway and stand a chance to win cash prizes, free spins, and exclusive rewards. The more you play, the higher your chances!'),
-      icon: Gift,
-      gradient: 'linear-gradient(135deg, #FFD700 0%, #FF8C00 50%, #FF4500 100%)',
-      glow: 'rgba(255,165,0,0.45)',
-      badge: t('LIVE NOW'),
-      stats: [
-        { icon: DollarSign, label: t('Prize Pool'), value: '$10,000' },
-        { icon: Users, label: t('Participants'), value: '1,284' },
-        { icon: Clock, label: t('Ends In'), value: '3d 14h' },
-      ],
-    },
-    {
-      id: 'tournament',
-      title: t('Tournament'),
-      subtitle: t('Climb the leaderboard'),
-      desc: t('Compete against other players in our monthly tournament. Climb the leaderboard by playing your favorite games and win a share of the massive prize pool!'),
-      icon: Trophy,
-      gradient: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%)',
-      glow: 'rgba(139,92,246,0.45)',
-      badge: t('STARTING SOON'),
-      stats: [
-        { icon: DollarSign, label: t('Prize Pool'), value: '$50,000' },
-        { icon: Users, label: t('Players'), value: '856' },
-        { icon: Calendar, label: t('Starts'), value: 'Aug 15' },
-      ],
-    },
-  ];
+  useEffect(() => {
+    let active = true;
+    base44.entities.Banner.filter({ active: true }, 'order', 50)
+      .then((rows) => {
+        if (!active) return;
+        // Admin-added banners (sorted by order). These may or may not have a link.
+        const mapped = rows.map((r) => ({
+          id: r.id,
+          title: r.title || '',
+          description: r.description || '',
+          image_url: r.image_url || '',
+          link: r.link || '',
+          link_label: r.link_label || '',
+          gradient: 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)',
+          glow: 'rgba(212,175,55,0.35)',
+          icon: Sparkles,
+        }));
+        setBanners(mapped);
+      })
+      .catch(() => {})
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  // While loading, show placeholders. Once loaded: if admin added banners,
+  // show those; otherwise show the default Coming Soon placeholders.
+  const list = (!loading && banners.length > 0) ? banners : DEFAULT_BANNERS;
 
   return (
     <div className="relative min-h-screen pb-24" style={{ background: '#0D0D0D', fontFamily: SANS }}>
@@ -73,79 +100,82 @@ export default function Events() {
           </p>
         </div>
 
-        {/* Event banners */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {events.map((ev, i) => {
-            const Icon = ev.icon;
-            return (
-              <div
-                key={ev.id}
-                className="relative overflow-hidden rounded-3xl transition-all active:scale-[0.99]"
-                style={{
-                  background: ev.gradient,
-                  boxShadow: `0 12px 40px ${ev.glow}, 0 4px 16px rgba(0,0,0,0.4)`,
-                  animation: 'dashFadeIn 500ms ease both',
-                  animationDelay: (100 * i) + 'ms',
-                  minHeight: '320px',
-                }}
-              >
-                {/* Decorative glow overlay */}
-                <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.25), transparent 50%)' }} />
-
-                {/* Badge */}
-                <div className="absolute top-4 right-4 z-10">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-extrabold tracking-[0.15em] uppercase"
-                    style={{ background: 'rgba(0,0,0,0.35)', color: '#fff', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.3)' }}>
-                    {ev.badge}
-                  </span>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#D4AF37' }} />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {list.map((ev, i) => {
+              const Icon = ev.icon;
+              const hasLink = !!ev.link;
+              const label = ev.link_label || t('Join Now');
+              // Render the CTA: a Link if there's a destination, otherwise a
+              // disabled "Coming Soon" pill.
+              const cta = hasLink ? (
+                <Link
+                  to={ev.link}
+                  className="w-full h-12 rounded-2xl font-extrabold text-sm transition-all active:scale-95 flex items-center justify-center gap-2"
+                  style={{ background: 'rgba(0,0,0,0.5)', color: '#fff', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.3)' }}
+                >
+                  {label} <ArrowLeft className="w-4 h-4 rotate-180" />
+                </Link>
+              ) : (
+                <div
+                  className="w-full h-12 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2"
+                  style={{ background: 'rgba(0,0,0,0.4)', color: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
+                >
+                  <Clock className="w-4 h-4" /> {t('Coming Soon')}
                 </div>
+              );
 
-                {/* Content */}
-                <div className="relative z-10 p-6 flex flex-col h-full" style={{ minHeight: '320px' }}>
-                  {/* Icon + Title */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="flex items-center justify-center w-14 h-14 rounded-2xl shrink-0"
-                      style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.35)' }}>
-                      <Icon className="w-7 h-7" style={{ color: '#fff' }} />
+              return (
+                <div
+                  key={ev.id}
+                  className="relative overflow-hidden rounded-3xl transition-all active:scale-[0.99]"
+                  style={{
+                    background: ev.image_url ? `url(${ev.image_url}) center/cover no-repeat, ${ev.gradient}` : ev.gradient,
+                    boxShadow: `0 12px 40px ${ev.glow}, 0 4px 16px rgba(0,0,0,0.4)`,
+                    animation: 'dashFadeIn 500ms ease both',
+                    animationDelay: (100 * i) + 'ms',
+                    minHeight: '300px',
+                  }}
+                >
+                  {/* Dark gradient overlay so text is readable over images */}
+                  {ev.image_url && (
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 55%, rgba(0,0,0,0.15) 100%)' }} />
+                  )}
+                  {/* Decorative glow */}
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.18), transparent 50%)' }} />
+
+                  {/* Content */}
+                  <div className="relative z-10 p-6 flex flex-col h-full" style={{ minHeight: '300px' }}>
+                    {/* Icon + Title */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center justify-center w-14 h-14 rounded-2xl shrink-0"
+                        style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.35)' }}>
+                        <Icon className="w-7 h-7" style={{ color: '#fff' }} />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-extrabold" style={{ color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>{ev.title}</h2>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-2xl font-extrabold" style={{ color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{ev.title}</h2>
-                      <p className="text-[13px] font-semibold" style={{ color: 'rgba(255,255,255,0.85)' }}>{ev.subtitle}</p>
-                    </div>
+
+                    {/* Description */}
+                    {ev.description && (
+                      <p className="text-[13px] leading-relaxed mb-4 flex-1" style={{ color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
+                        {ev.description}
+                      </p>
+                    )}
+
+                    {/* CTA */}
+                    {cta}
                   </div>
-
-                  {/* Description */}
-                  <p className="text-[13px] leading-relaxed mb-4 flex-1" style={{ color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 4px rgba(0,0,0,0.25)' }}>
-                    {ev.desc}
-                  </p>
-
-                  {/* Stats */}
-                  <div className="grid grid-cols-3 gap-2 mb-4">
-                    {ev.stats.map((s, si) => {
-                      const SIcon = s.icon;
-                      return (
-                        <div key={si} className="rounded-2xl px-2.5 py-2 flex flex-col items-center gap-0.5 text-center"
-                          style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}>
-                          <SIcon className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.8)' }} />
-                          <span className="text-[13px] font-extrabold tabular-nums" style={{ color: '#fff' }}>{s.value}</span>
-                          <span className="text-[9px] font-semibold uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.7)' }}>{s.label}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* CTA button */}
-                  <button
-                    className="w-full h-12 rounded-2xl font-extrabold text-sm transition-all active:scale-95 flex items-center justify-center gap-2"
-                    style={{ background: 'rgba(0,0,0,0.5)', color: '#fff', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.3)' }}
-                  >
-                    {t('Join Now')} <ArrowLeft className="w-4 h-4 rotate-180" />
-                  </button>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Footer note */}
         <p className="text-[11px] text-center mt-2" style={{ color: 'rgba(255,255,255,0.4)' }}>

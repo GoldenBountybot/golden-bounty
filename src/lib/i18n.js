@@ -312,6 +312,7 @@ export const TRANSLATIONS = {
   'Starts': { de: 'Beginnt', hi: 'शुरू', ar: 'يبدأ', zh: '开始', es: 'Comienza', fr: 'Commence', pt: 'Começa', ru: 'Начало', ja: '開始' },
   'LIVE NOW': { de: 'JETZT LIVE', hi: 'अभी लाइव', ar: 'مباشر الآن', zh: '正在进行', es: 'EN VIVO', fr: 'EN DIRECT', pt: 'AO VIVO', ru: 'СЕЙЧАС', ja: 'ライブ中' },
   'STARTING SOON': { de: 'BALD STARTEN', hi: 'जल्द शुरू', ar: 'يبدأ قريباً', zh: '即将开始', es: 'PRONTO', fr: 'BIENTÔT', pt: 'EM BREVE', ru: 'СКОРО', ja: '間もなく開始' },
+  'Coming Soon': { de: 'Bald verfügbar', hi: 'जल्द आ रहा है', ar: 'قريباً', zh: '即将推出', es: 'Próximamente', fr: 'Bientôt', pt: 'Em breve', ru: 'Скоро', ja: '近日公開' },
   'Terms and conditions apply · 18+ Only · Gamble Responsibly': { de: 'AGB gelten · Nur 18+ · Verantwortungsvoll spielen', hi: 'नियम और शर्तें लागू · केवल 18+ · जिम्मेदारी से खेलें', ar: 'تنطبق الشروط والأحكام · 18+ فقط · العب بمسؤولية', zh: '适用条款与条件 · 仅限18+ · 理性博彩', es: 'Aplican términos · Solo 18+ · Juega con responsabilidad', fr: 'Conditions applicables · 18+ seulement · Jouez de manière responsable', pt: 'Termos aplicáveis · Apenas 18+ · Jogue com responsabilidade', ru: 'Действуют условия · 18+ только · Играйте ответственно', ja: '利用規約適用 · 18歳以上のみ · 責任を持ってプレイ' },
 };
 
