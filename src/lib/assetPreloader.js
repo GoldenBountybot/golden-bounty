@@ -64,3 +64,23 @@ export function preloadAssets(urls, onProgress) {
 export function isCached(url) {
   return cache.has(url);
 }
+
+// Fetch dynamic entity images (admin-added banners, payment QR codes, site
+// settings) and preload them so they don't pop in after the splash disappears.
+// Each entity is fetched independently; a failure in one never blocks the others.
+export async function preloadDynamicAssets(base44) {
+  const urls = new Set();
+  const safeList = async (entity, field) => {
+    try {
+      const rows = await base44.asServiceRole.entities[entity].list('-created_date', 100);
+      rows.forEach((r) => { if (r && r[field]) urls.add(r[field]); });
+    } catch {}
+  };
+  await Promise.all([
+    safeList('Banner', 'image_url'),
+    safeList('PaymentAddress', 'qr_image_url'),
+    safeList('SiteSetting', 'image_url'),
+  ]);
+  if (!urls.size) return;
+  await preloadAssets([...urls]);
+}
