@@ -115,9 +115,9 @@ export default function Events() {
                     minHeight: '300px',
                   }}
                 >
-                  {/* Dark gradient overlay so text is readable over images */}
+                  {/* Light overlay so the background image stays visible */}
                   {ev.image_url && (
-                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 55%, rgba(0,0,0,0.15) 100%)' }} />
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.12) 55%, rgba(0,0,0,0.05) 100%)' }} />
                   )}
                   {/* Decorative glow */}
                   <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 80% 20%, rgba(255,255,255,0.18), transparent 50%)' }} />
