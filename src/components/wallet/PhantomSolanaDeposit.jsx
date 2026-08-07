@@ -1,11 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance, addWagerRequirement } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
-import { Wallet, Loader2, CheckCircle2, AlertTriangle, ArrowRight, Smartphone, Chrome, LogOut, ExternalLink } from 'lucide-react';
+import { Wallet, Loader2, CheckCircle2, AlertTriangle, ArrowRight, ExternalLink, LogOut } from 'lucide-react';
 import { Connection, SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { getAssociatedTokenAddress, createTransferCheckedInstruction, createAssociatedTokenAccountIdempotentInstruction } from '@solana/spl-token';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
+import {
+  buildPhantomUrl, newDappKeyPair, deriveSharedSecret, encryptPayload, decryptPayload,
+  b58Encode, b58Decode, loadPhantomSession, savePhantomSession, clearPhantomSession,
+} from '@/lib/phantomDeepLink';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const PHANTOM_PURPLE = '#AB9FF2';
@@ -14,128 +18,31 @@ const ADMIN_SOL = 'ftmbTXAc6XWyT6ieXHLiEZ7zuJFDPVSAdvrvrTveniW';
 const SOLANA_RPC = 'https://api.mainnet-beta.solana.com';
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 const USDC_DECIMALS = 6;
-const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent || '');
 
-function getPhantomSolana() {
-  if (typeof window === 'undefined') return null;
-  if (window.phantom?.solana?.isPhantom) return window.phantom.solana;
-  if (window.solana?.isPhantom) return window.solana;
-  // Fallback: inside Phantom's in-app browser the provider may be injected
-  // without the isPhantom flag set in some versions.
-  if (window.phantom?.solana && typeof window.phantom.solana.connect === 'function') return window.phantom.solana;
-  return null;
+function buildRedirectLink(amount) {
+  return `${window.location.origin}/pay?amount=${amount}&method=phantom-sol`;
 }
 
-export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
+function cleanPhantomUrl() {
+  const sp = new URLSearchParams(window.location.search);
+  ['phantom_encryption_public_key', 'nonce', 'data', 'errorCode', 'errorMessage', 'method'].forEach((k) => sp.delete(k));
+  const qs = sp.toString();
+  window.history.replaceState({}, '', window.location.pathname + (qs ? '?' + qs : ''));
+}
+
+export default function PhantomSolanaDeposit({ amount, onDone }) {
   const { setBalance } = useCasinoBalance();
   const { toast } = useToast();
   const [account, setAccount] = useState(null);
-  const [status, setStatus] = useState('idle'); // idle|connecting|connected|sending|confirming|verifying|done|error
+  const [status, setStatus] = useState('idle'); // idle|connected|sending|confirming|verifying|done|error
   const [errMsg, setErrMsg] = useState('');
   const [price, setPrice] = useState(0);
   const [payAsset, setPayAsset] = useState('usdc'); // 'sol' | 'usdc'
-  const [providerReady, setProviderReady] = useState(false);
-  const providerRef = useRef(null);
-  const accountRef = useRef(null);
+
   const solAmt = price ? amount / price : 0;
   const lamports = Math.round(solAmt * LAMPORTS_PER_SOL);
   const usdcUnits = Math.round(amount * Math.pow(10, USDC_DECIMALS));
-  const netLocked = ['connecting', 'sending', 'confirming', 'verifying'].includes(status) || status === 'connected';
-
-  const phantomBrowseUrl = 'https://phantom.app/ul/v1/browse/' + encodeURIComponent(window.location.href);
-
-  useEffect(() => {
-    getCryptoPrices().then((p) => setPrice(p.sol || 0)).catch(() => {});
-  }, []);
-
-  // Detect the Phantom provider as soon as it's injected. On mobile the in-app
-  // browser injects window.phantom.solana AFTER the page loads, so we poll for
-  // up to 20s. If the user-agent already says "Phantom" we know we are inside
-  // Phantom's in-app browser, so we keep polling longer. Once detected we flip
-  // `providerReady` so the "Connect" button renders — the user must TAP it
-  // (user gesture) for Phantom to show the connection approval popup.
-  const inPhantomBrowser = /phantom/i.test(navigator.userAgent || '');
-  useEffect(() => {
-    if (providerReady) return;
-    if (getPhantomSolana()) { setProviderReady(true); return; }
-    const iv = setInterval(() => { if (getPhantomSolana()) { setProviderReady(true); clearInterval(iv); } }, 350);
-    const t = setTimeout(() => clearInterval(iv), inPhantomBrowser ? 20000 : 10000);
-    const onLoad = () => { if (getPhantomSolana()) setProviderReady(true); };
-    window.addEventListener('load', onLoad);
-    return () => { clearInterval(iv); clearTimeout(t); window.removeEventListener('load', onLoad); };
-  }, [providerReady, inPhantomBrowser]);
-
-  const openPhantomApp = () => { try { window.location.href = phantomBrowseUrl; } catch {} };
-
-  const connect = async () => {
-    const p = getPhantomSolana();
-    if (!p) {
-      setErrMsg('Phantom wallet not found. Install the Phantom extension or open this page in the Phantom app.');
-      setStatus('error');
-      return;
-    }
-    setStatus('connecting'); setErrMsg('');
-    try {
-      // Race the connect() promise against a timeout so the UI never hangs
-      // silently if Phantom fails to show its approval sheet.
-      const connectPromise = p.connect();
-      const timeout = new Promise((_, rej) =>
-        setTimeout(() => rej(new Error('Timed out — if the approval did not appear, open the Phantom app and try again.')), 20000)
-      );
-      const resp = await Promise.race([connectPromise, timeout]);
-      // Phantom returns { publicKey: PublicKey } on desktop/extension and
-      // { public_key: "base58" } (snake_case) in some mobile in-app builds.
-      const pub = (resp?.publicKey && typeof resp.publicKey.toString === 'function' && resp.publicKey.toString())
-        || (typeof resp?.public_key === 'string' ? resp.public_key : null)
-        || (p.publicKey && typeof p.publicKey.toString === 'function' && p.publicKey.toString())
-        || (typeof p.publicKey === 'string' ? p.publicKey : null);
-      if (!pub) throw new Error('No public key returned by Phantom.');
-      providerRef.current = p;
-      accountRef.current = pub;
-      setAccount(pub);
-      setStatus('connected');
-    } catch (e) {
-      const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'cancelled');
-      setErrMsg('Connection failed: ' + msg);
-      setStatus('error');
-    }
-  };
-
-  const disconnect = async () => {
-    try { await providerRef.current?.disconnect?.(); } catch {}
-    providerRef.current = null;
-    accountRef.current = null;
-    setAccount(null);
-    setErrMsg('');
-    setStatus('idle');
-  };
-
-  // Eagerly connect if Phantom already trusts this domain. This fixes the
-  // known Phantom bug where the connect popup never appears on devices that
-  // previously connected: Phantom considers the app "trusted" and silently
-  // does nothing on a normal connect(), but onlyIfTrusted returns the public
-  // key WITHOUT showing a popup. If the app isn't trusted yet, this rejects
-  // (4001) and we fall back to the manual "Connect Phantom Wallet" button.
-  const eagerTriedRef = useRef(false);
-  useEffect(() => {
-    if (!providerReady || eagerTriedRef.current || status !== 'idle') return;
-    eagerTriedRef.current = true;
-    const p = getPhantomSolana();
-    if (!p) return;
-    p.connect({ onlyIfTrusted: true })
-      .then((resp) => {
-        const pub = (resp?.publicKey && typeof resp.publicKey.toString === 'function' && resp.publicKey.toString())
-          || (typeof resp?.public_key === 'string' ? resp.public_key : null)
-          || (p.publicKey && typeof p.publicKey.toString === 'function' && p.publicKey.toString());
-        if (pub) {
-          providerRef.current = p;
-          accountRef.current = pub;
-          setAccount(pub);
-          setStatus('connected');
-        }
-      })
-      .catch(() => { /* not trusted yet — user taps Connect */ });
-  }, [providerReady, status]);
+  const netLocked = ['sending', 'confirming', 'verifying'].includes(status) || status === 'connected';
 
   const finishVerify = async (fn, payload, amt) => {
     setStatus('verifying');
@@ -156,82 +63,180 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
     }
   };
 
-  const deposit = async () => {
-    const p = providerRef.current;
-    const pub = accountRef.current;
-    if (!p || !pub) return;
-    if (payAsset === 'sol' && !price) { setErrMsg('Could not fetch SOL price. Please try again.'); setStatus('error'); return; }
-    setStatus('sending'); setErrMsg('');
+  // Handle the connect deep-link return: Phantom redirects back here with
+  // ?phantom_encryption_public_key=...&nonce=...&data=...  (data is an encrypted
+  // { public_key, session } JSON). Derive the shared secret, decrypt, persist.
+  const handleConnectReturn = (phantomEncPub, nonceB58, dataB58) => {
     try {
-      const connection = new Connection(SOLANA_RPC, 'confirmed');
-      const fromPubkey = new PublicKey(pub);
-      const toPubkey = new PublicKey(ADMIN_SOL);
-      const tx = new Transaction();
+      const saved = loadPhantomSession();
+      if (!saved?.dappKeyPair) { setErrMsg('Session key lost — please reconnect.'); setStatus('error'); cleanPhantomUrl(); return; }
+      const dappSecretKey = b58Decode(saved.dappKeyPair.secretKey);
+      const sharedSecret = deriveSharedSecret(phantomEncPub, dappSecretKey);
+      const data = decryptPayload(dataB58, nonceB58, sharedSecret);
+      savePhantomSession({ ...saved, publicKey: data.public_key, session: data.session, sharedSecret: b58Encode(sharedSecret) });
+      setAccount(data.public_key);
+      setStatus('connected');
+      cleanPhantomUrl();
+    } catch (e) {
+      setErrMsg('Connect failed: ' + (e.message || e));
+      setStatus('error');
+      cleanPhantomUrl();
+    }
+  };
 
-      if (payAsset === 'sol') {
-        tx.add(SystemProgram.transfer({ fromPubkey, toPubkey, lamports }));
-      } else {
-        const mint = new PublicKey(USDC_MINT);
-        const senderAta = await getAssociatedTokenAddress(mint, fromPubkey);
-        const recipientAta = await getAssociatedTokenAddress(mint, toPubkey);
-        // Create the admin's USDC ATA idempotently if it doesn't exist yet.
-        const recipientInfo = await connection.getAccountInfo(recipientAta);
-        if (!recipientInfo) {
-          tx.add(createAssociatedTokenAccountIdempotentInstruction(fromPubkey, recipientAta, toPubkey, mint));
-        }
-        tx.add(createTransferCheckedInstruction(senderAta, mint, recipientAta, fromPubkey, usdcUnits, USDC_DECIMALS));
-      }
-      tx.feePayer = fromPubkey;
-      tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-
-      let signature;
-      if (p.signAndSendTransaction) {
-        const r = await p.signAndSendTransaction(tx);
-        signature = typeof r === 'string' ? r : r?.signature;
-      } else {
-        const signed = await p.signTransaction(tx);
-        signature = await connection.sendRawTransaction(signed.serialize(), { skipPreflight: false });
-      }
-      if (!signature) throw new Error('No signature returned');
+  // Handle the signTransaction deep-link return: Phantom redirects back with
+  // ?nonce=...&data=...  (data is an encrypted { transaction } JSON holding the
+  // SIGNED serialized tx). Decrypt, broadcast it ourselves, then verify.
+  const handleSignReturn = async (nonceB58, dataB58) => {
+    try {
+      const saved = loadPhantomSession();
+      if (!saved?.sharedSecret || !saved?.pending) { setErrMsg('Session lost — please reconnect.'); setStatus('error'); cleanPhantomUrl(); return; }
+      const sharedSecret = b58Decode(saved.sharedSecret);
+      const data = decryptPayload(dataB58, nonceB58, sharedSecret);
+      const signedTx = Transaction.from(b58Decode(data.transaction));
 
       setStatus('confirming');
+      const connection = new Connection(SOLANA_RPC, 'confirmed');
+      const signature = await connection.sendRawTransaction(signedTx.serialize(), { skipPreflight: false });
       for (let i = 0; i < 40; i++) {
         try {
           const s = await connection.getSignatureStatus(signature);
           const cs = s?.value?.confirmationStatus;
           if (cs === 'confirmed' || cs === 'finalized') break;
         } catch {}
-        await new Promise((rr) => setTimeout(rr, 2000));
+        await new Promise((r) => setTimeout(r, 2000));
       }
 
-      const fn = payAsset === 'sol' ? 'verifySolanaDeposit' : 'verifySolanaUsdcDeposit';
-      const payload = payAsset === 'sol'
-        ? { signature, amount, userWallet: pub, expectedLamports: lamports }
-        : { signature, amount, userWallet: pub, expectedUnits: usdcUnits };
-      await finishVerify(fn, payload, amount);
+      const pend = saved.pending;
+      const fn = pend.payAsset === 'sol' ? 'verifySolanaDeposit' : 'verifySolanaUsdcDeposit';
+      const payload = pend.payAsset === 'sol'
+        ? { signature, amount: pend.amount, userWallet: saved.publicKey, expectedLamports: pend.expectedLamports }
+        : { signature, amount: pend.amount, userWallet: saved.publicKey, expectedUnits: pend.expectedUnits };
+      savePhantomSession({ ...saved, pending: null });
+      cleanPhantomUrl();
+      await finishVerify(fn, payload, pend.amount);
     } catch (e) {
-      console.error('Phantom Solana deposit error:', e);
-      const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'cancelled/failed');
-      setErrMsg('Transaction cancelled/failed: ' + msg);
+      setErrMsg('Sign/broadcast failed: ' + (e.message || e));
+      setStatus('error');
+      cleanPhantomUrl();
+    }
+  };
+
+  // Connect: generate (or reuse) a dApp x25519 keypair, build the connect
+  // universal link, and navigate to it. Phantom opens, the user approves, and
+  // redirects back here with the encrypted session.
+  const connect = () => {
+    let saved = loadPhantomSession();
+    let dappKp = saved?.dappKeyPair;
+    if (!dappKp) {
+      const kp = newDappKeyPair();
+      dappKp = { publicKey: b58Encode(kp.publicKey), secretKey: b58Encode(kp.secretKey) };
+      saved = saved || {};
+      savePhantomSession({ ...saved, dappKeyPair: dappKp });
+    }
+    const params = new URLSearchParams({
+      dapp_encryption_public_key: dappKp.publicKey,
+      cluster: 'mainnet-beta',
+      app_url: window.location.origin,
+      redirect_link: buildRedirectLink(amount),
+    });
+    window.location.href = buildPhantomUrl('connect', params);
+  };
+
+  // Send the deposit: build the Solana tx, encrypt it with the shared secret,
+  // build the signTransaction universal link, and navigate. Phantom signs and
+  // redirects back here with the signed tx.
+  const deposit = async () => {
+    const saved = loadPhantomSession();
+    if (!saved?.session || !saved?.sharedSecret || !saved?.publicKey || !saved?.dappKeyPair) {
+      setErrMsg('Not connected.'); setStatus('error'); return;
+    }
+    if (payAsset === 'sol' && !price) { setErrMsg('Could not fetch SOL price.'); setStatus('error'); return; }
+    setStatus('sending'); setErrMsg('');
+    try {
+      const connection = new Connection(SOLANA_RPC, 'confirmed');
+      const fromPubkey = new PublicKey(saved.publicKey);
+      const toPubkey = new PublicKey(ADMIN_SOL);
+      const tx = new Transaction();
+      if (payAsset === 'sol') {
+        tx.add(SystemProgram.transfer({ fromPubkey, toPubkey, lamports }));
+      } else {
+        const mint = new PublicKey(USDC_MINT);
+        const senderAta = await getAssociatedTokenAddress(mint, fromPubkey);
+        const recipientAta = await getAssociatedTokenAddress(mint, toPubkey);
+        const recipientInfo = await connection.getAccountInfo(recipientAta);
+        if (!recipientInfo) tx.add(createAssociatedTokenAccountIdempotentInstruction(fromPubkey, recipientAta, toPubkey, mint));
+        tx.add(createTransferCheckedInstruction(senderAta, mint, recipientAta, fromPubkey, usdcUnits, USDC_DECIMALS));
+      }
+      tx.feePayer = fromPubkey;
+      tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      const serialized = tx.serialize({ requireAllSignatures: false });
+
+      const payload = { session: saved.session, transaction: b58Encode(serialized) };
+      const sharedSecret = b58Decode(saved.sharedSecret);
+      const [nonce, encrypted] = encryptPayload(payload, sharedSecret);
+      const params = new URLSearchParams({
+        dapp_encryption_public_key: saved.dappKeyPair.publicKey,
+        nonce: b58Encode(nonce),
+        redirect_link: buildRedirectLink(amount),
+        payload: b58Encode(encrypted),
+      });
+      savePhantomSession({ ...saved, pending: { payAsset, amount, expectedLamports: lamports, expectedUnits: usdcUnits } });
+      window.location.href = buildPhantomUrl('signTransaction', params);
+    } catch (e) {
+      setErrMsg('Build failed: ' + (e.message || e));
       setStatus('error');
     }
   };
 
-  const busy = ['connecting', 'sending', 'confirming', 'verifying'].includes(status);
+  const disconnect = () => {
+    clearPhantomSession();
+    setAccount(null);
+    setErrMsg('');
+    setStatus('idle');
+  };
+
+  // On mount: process a Phantom deep-link return (connect or sign), or restore
+  // an existing session. Runs once.
+  useEffect(() => {
+    getCryptoPrices().then((p) => setPrice(p.sol || 0)).catch(() => {});
+    const sp = new URLSearchParams(window.location.search);
+    const errorCode = sp.get('errorCode');
+    const phantomEncPub = sp.get('phantom_encryption_public_key');
+    const nonceB58 = sp.get('nonce');
+    const dataB58 = sp.get('data');
+
+    if (errorCode) {
+      setErrMsg('Phantom: ' + (sp.get('errorMessage') || errorCode));
+      setStatus('error');
+      cleanPhantomUrl();
+      return;
+    }
+    if (phantomEncPub && nonceB58 && dataB58) { handleConnectReturn(phantomEncPub, nonceB58, dataB58); return; }
+    if (nonceB58 && dataB58) { handleSignReturn(nonceB58, dataB58); return; }
+
+    const saved = loadPhantomSession();
+    if (saved?.publicKey && saved?.session) {
+      setAccount(saved.publicKey);
+      setStatus('connected');
+    }
+    if (saved?.pending) savePhantomSession({ ...saved, pending: null });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const busy = ['sending', 'confirming', 'verifying'].includes(status);
   const statusText = {
-    connecting: 'Connecting to Phantom…',
-    sending: 'Sending transaction request to wallet…',
+    sending: 'Opening Phantom to sign…',
     confirming: 'Waiting for blockchain confirmation…',
     verifying: 'Verifying and adding balance…',
   }[status];
-  const hasExtension = providerReady;
   const amountSub = payAsset === 'sol'
     ? (price ? `≈ ${solAmt.toFixed(5)} SOL (Native)` : 'Fetching SOL price…')
     : `${amount.toFixed(2)} USDC (SPL)`;
 
   return (
     <div className="flex flex-col gap-4" style={{ fontFamily: SANS, animation: 'dashFadeIn 350ms ease both' }}>
-      {/* Header — logo + title only (parent PayMethod provides the Back button) */}
+      {/* Header */}
       <div className="flex items-center gap-2.5">
         <div className="flex items-center justify-center w-9 h-9 rounded-full shrink-0 overflow-hidden" style={{ background: '#7868e6', boxShadow: '0 0 0 1.5px rgba(171,159,242,0.4)' }}>
           <img src={PHANTOM_LOGO} alt="Phantom" className="w-7 h-7 object-contain" />
@@ -293,26 +298,10 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
           <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: PHANTOM_PURPLE }}>
             <Loader2 className="w-4 h-4 animate-spin" /> {statusText}
           </div>
-          {status === 'connecting' && (
-            <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              Phantom should show an <b style={{ color: PHANTOM_PURPLE }}>approval prompt</b>. If it does not appear, switch to the Phantom app and tap <b style={{ color: PHANTOM_PURPLE }}>Connect</b>, then return here.
-            </p>
-          )}
           {status === 'sending' && (
-            <>
-              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                {payAsset === 'sol'
-                  ? <>Confirm the <b style={{ color: PHANTOM_PURPLE }}>{solAmt.toFixed(5)} SOL</b> transfer in your Phantom wallet. A tiny amount of SOL is needed for the network fee.</>
-                  : <>Confirm the <b style={{ color: PHANTOM_PURPLE }}>{amount.toFixed(2)} USDC</b> transfer in your Phantom wallet. A tiny amount of SOL is needed for the network fee (and ATA rent if the admin USDC account is new).</>}
-              </p>
-              {isMobile() && (
-                <button onClick={openPhantomApp}
-                  className="self-start flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
-                  style={{ background: 'linear-gradient(135deg, #AB9FF2, #7B6FE8)', color: '#fff', boxShadow: '0 4px 14px rgba(171,159,242,0.35)' }}>
-                  <Smartphone className="w-4 h-4" /> Open Phantom
-                </button>
-              )}
-            </>
+            <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              The Phantom app should open to approve the {payAsset === 'sol' ? `${solAmt.toFixed(5)} SOL` : `${amount.toFixed(2)} USDC`} transfer. Sign it there, then you'll return here automatically.
+            </p>
           )}
         </div>
       )}
@@ -320,27 +309,18 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
       {/* Idle action buttons */}
       {status === 'idle' && (
         <div className="flex flex-col gap-2.5">
-          {hasExtension ? (
-            <button onClick={connect}
-              className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
-              style={{ background: 'linear-gradient(135deg, #AB9FF2, #7B6FE8)', color: '#fff', boxShadow: '0 6px 20px rgba(171,159,242,0.4)' }}>
-              <Wallet className="w-5 h-5" /> Connect Phantom Wallet
-            </button>
-          ) : (
-            <button onClick={openPhantomApp}
-              className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
-              style={{ background: 'linear-gradient(135deg, #AB9FF2, #7B6FE8)', color: '#fff', boxShadow: '0 6px 20px rgba(171,159,242,0.4)' }}>
-              <Smartphone className="w-5 h-5" /> Open in Phantom App
-            </button>
-          )}
-          <button onClick={openPhantomApp}
-            className="dash-btn-gold w-full flex items-center justify-center gap-2 h-14 rounded-[16px] text-[15px]">
-            <ExternalLink className="w-5 h-5" /> Open in Phantom Browser
+          <button onClick={connect}
+            className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
+            style={{ background: 'linear-gradient(135deg, #AB9FF2, #7B6FE8)', color: '#fff', boxShadow: '0 6px 20px rgba(171,159,242,0.4)' }}>
+            <Wallet className="w-5 h-5" /> Connect with Phantom
           </button>
+          <p className="text-[12px] text-center" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            Tapping this opens the Phantom app to approve. After approving, you'll return here to send your deposit.
+          </p>
           <a href="https://phantom.app/download" target="_blank" rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 h-12 rounded-[16px] font-bold transition-all active:scale-[0.98]"
             style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#fff' }}>
-            <Chrome className="w-5 h-5" style={{ color: PHANTOM_PURPLE }} /> Install Phantom Extension
+            <ExternalLink className="w-5 h-5" style={{ color: PHANTOM_PURPLE }} /> Install Phantom
           </a>
         </div>
       )}
@@ -361,7 +341,7 @@ export default function PhantomSolanaDeposit({ amount, onBack, onDone }) {
             style={{ border: '1px solid rgba(244,63,94,0.35)', background: 'rgba(244,63,94,0.1)', color: '#fca5a5' }}>
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" /> <span>{errMsg}</span>
           </div>
-          <button onClick={() => { setErrMsg(''); setStatus('idle'); }}
+          <button onClick={() => { setErrMsg(''); setStatus(account ? 'connected' : 'idle'); }}
             className="w-full flex items-center justify-center gap-2 h-12 rounded-[16px] font-bold transition-all active:scale-[0.98]"
             style={{ border: '1px solid rgba(171,159,242,0.4)', background: 'rgba(171,159,242,0.10)', color: PHANTOM_PURPLE }}>
             <Wallet className="w-5 h-5" /> Try Again

@@ -130,7 +130,10 @@ export default function PayMethod() {
   const { toast } = useToast();
   const { t } = useLanguage();
   const { demoMode } = useCasinoBalance();
-  const [view, setView] = useState('choose'); // 'choose' | 'usdt' | 'usdc' | 'crypto' | 'binance'
+  // Restore the phantom-sol view after a Phantom deep-link redirect (the
+  // return URL carries method=phantom-sol so the deposit component remounts
+  // and can process the encrypted connect/sign response params).
+  const [view, setView] = useState(params.get('method') === 'phantom-sol' ? 'phantom-sol' : 'choose'); // 'choose' | 'usdt' | 'usdc' | 'crypto' | 'binance'
   const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, usdc: USDC_NETWORKS, crypto: CRYPTO_NETWORKS });
 
   useEffect(() => {
