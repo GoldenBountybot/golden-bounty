@@ -437,7 +437,7 @@ export default function CrownCoinsMachine() {
       if (bonusResult) win += bonusResult.total;
 
       if (win > 0) setBalance(b => b + win);
-      setLastWin(win);
+      if (win > 0) setLastWin(win);
       setSpinning(false);
       // Base game fully settled and no free-spin round started — clear the
       // pending record so recovery never double-pays. (On a trigger the round
