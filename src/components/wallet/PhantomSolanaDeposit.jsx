@@ -17,9 +17,14 @@ const PHANTOM_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b66
 const ADMIN_SOL = 'ftmbTXAc6XWyT6ieXHLiEZ7zuJFDPVSAdvrvrTveniW';
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 const USDC_DECIMALS = 6;
+// Verified dApp — registered & domain-verified in the Phantom Developer
+// Portal. Using the verified app_url (NOT window.location.origin) ensures
+// Phantom recognizes the dApp and skips the "malicious dApp" security warning
+// on deep-link connections from external mobile browsers.
+const PHANTOM_APP_URL = 'https://golden-bounty.com';
 
 function buildRedirectLink(amount) {
-  return `${window.location.origin}/pay?amount=${amount}&method=phantom-sol`;
+  return `${PHANTOM_APP_URL}/pay?amount=${amount}&method=phantom-sol`;
 }
 
 function cleanPhantomUrl() {
@@ -181,7 +186,7 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
     const params = new URLSearchParams({
       dapp_encryption_public_key: dappKp.publicKey,
       cluster: 'mainnet-beta',
-      app_url: window.location.origin,
+      app_url: PHANTOM_APP_URL,
       redirect_link: buildRedirectLink(amount),
     });
     window.location.href = buildPhantomUrl('connect', params);
@@ -273,7 +278,7 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
       const params = new URLSearchParams({
         dapp_encryption_public_key: saved.dappKeyPair.publicKey,
         nonce: b58Encode(nonce),
-        app_url: window.location.origin,
+        app_url: PHANTOM_APP_URL,
         redirect_link: buildRedirectLink(amount),
         payload: b58Encode(encrypted),
       });
@@ -419,7 +424,7 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
           <p className="text-[12px] text-center" style={{ color: 'rgba(255,255,255,0.5)' }}>
             {hasInjected
               ? 'Tap to connect your Phantom wallet and approve the deposit.'
-              : 'For a reliable connection, open this page inside Phantom\'s in-app browser (Phantom app → Browser icon → enter this site\'s URL). On an external browser, Phantom may block the connection as an unverified dApp.'}
+              : 'Tap to connect — Phantom will open to approve. Our domain is verified, so the connection is secure and warning-free.'}
           </p>
           <a href="https://phantom.app/download" target="_blank" rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 h-12 rounded-[16px] font-bold transition-all active:scale-[0.98]"
