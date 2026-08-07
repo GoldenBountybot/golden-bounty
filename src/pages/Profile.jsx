@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   User as UserIcon, Phone, Hash, LogOut, Loader2, Check,
   Wallet, ArrowDownToLine, ArrowUpFromLine, Crown, Gamepad2, Copy, Coins, History,
-  Menu, Pencil, Ticket, Gift, Users, Sparkles, Clock, CheckCircle2, XCircle, Headphones, ChevronRight,
+  Menu, Pencil, Ticket, Gift, Users, Sparkles, Clock, CheckCircle2, XCircle, Headphones, ChevronRight, RotateCcw,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -14,6 +14,7 @@ import AnimatedNumber from '@/components/AnimatedNumber';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/lib/LanguageContext';
 import TaskSystem from '@/components/TaskSystem';
+import CashbackPanel from '@/components/CashbackPanel';
 import { formatDateTime } from '@/lib/dateFormat';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
@@ -227,6 +228,7 @@ export default function Profile() {
                 { to: '/withdraw', label: t("Withdraw"), Icon: ArrowUpFromLine, color: '#f87171' },
                 { to: '/history', label: t("History"), Icon: History, color: '#D4AF37' },
                 { onClick: () => { setView('rewards'); setMenuOpen(false); }, label: t("Rewards"), Icon: Gift, color: '#D4AF37' },
+                { onClick: () => { setView('cashback'); setMenuOpen(false); }, label: t("Cashback"), Icon: RotateCcw, color: '#34d399' },
                 { to: '/referrals', label: t("Referrals"), Icon: Users, color: '#D4AF37' },
                 { to: '/events', label: t("Events"), Icon: Sparkles, color: '#D4AF37' },
                 { to: '/live-support', label: t("Support 7/24"), Icon: Headphones, color: '#34d399' },
@@ -502,6 +504,10 @@ export default function Profile() {
               </div>
             ))}
           </div>
+        )}
+
+        {view === 'cashback' && (
+          <CashbackPanel profile={profile} onBack={() => setView('profile')} />
         )}
 
         {view === 'profile' && (
