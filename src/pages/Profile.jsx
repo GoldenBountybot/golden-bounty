@@ -213,7 +213,7 @@ export default function Profile() {
           <div className="w-10" />
 
           {menuOpen && (
-            <div className="absolute left-4 top-14 z-40 w-[300px] max-w-[calc(100vw-2rem)] rounded-3xl p-3 flex flex-col gap-2"
+            <div className="absolute left-4 top-14 z-40 w-[280px] max-w-[calc(100vw-2rem)] rounded-3xl p-2.5 flex flex-col gap-1.5"
               style={{
                 border: '1px solid rgba(212,175,55,0.35)',
                 background: 'rgba(10,10,10,0.82)',
@@ -233,17 +233,17 @@ export default function Profile() {
               ].map((item) => {
                 const Inner = (
                   <>
-                    <div className="flex items-center justify-center w-11 h-11 rounded-2xl shrink-0 transition-all"
+                    <div className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0 transition-all"
                       style={{
                         background: item.active
                           ? 'linear-gradient(135deg, rgba(255,215,0,0.22), rgba(212,175,55,0.12))'
                           : 'rgba(255,255,255,0.04)',
                         border: `1px solid ${item.active ? 'rgba(255,215,0,0.5)' : 'rgba(212,175,55,0.22)'}`,
-                        boxShadow: item.active ? '0 0 14px rgba(255,215,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' : 'inset 0 1px 0 rgba(255,255,255,0.04)',
+                        boxShadow: item.active ? '0 0 12px rgba(255,215,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' : 'inset 0 1px 0 rgba(255,255,255,0.04)',
                       }}>
-                      <item.Icon className="w-5 h-5" style={{ color: item.color, filter: item.active ? 'drop-shadow(0 0 6px rgba(255,215,0,0.6))' : 'none' }} />
+                      <item.Icon className="w-4 h-4" style={{ color: item.color, filter: item.active ? 'drop-shadow(0 0 5px rgba(255,215,0,0.6))' : 'none' }} />
                     </div>
-                    <span className="flex-1 text-[14px] font-semibold tracking-tight" style={{ color: item.active ? '#fff' : 'rgba(255,255,255,0.92)' }}>
+                    <span className="flex-1 text-[13px] font-semibold tracking-tight" style={{ color: item.active ? '#fff' : 'rgba(255,255,255,0.92)' }}>
                       {item.label}
                     </span>
                     <ChevronRight className="w-4 h-4 shrink-0 transition-transform" style={{ color: item.active ? '#FFD700' : 'rgba(212,175,55,0.55)' }} />
@@ -261,13 +261,13 @@ export default function Profile() {
                 const hoverClass = 'transition-all duration-200 active:scale-[0.98] hover:-translate-y-0.5';
                 return item.to ? (
                   <Link key={item.label} to={item.to} onClick={() => setMenuOpen(false)}
-                    className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl ${hoverClass}`}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl ${hoverClass}`}
                     style={baseStyle}>
                     {Inner}
                   </Link>
                 ) : (
                   <button key={item.label} onClick={item.onClick}
-                    className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl w-full text-left ${hoverClass}`}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl w-full text-left ${hoverClass}`}
                     style={baseStyle}>
                     {Inner}
                   </button>
