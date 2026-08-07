@@ -89,23 +89,23 @@ function genCrashPoint(rtp, recent = []) {
     // 50% fewer exact 1.00x busts, the rest spread across (1.00, 2.00).
     crash = rand() < 0.5 ? 1.00 : 1.00 + rand();
   }
-  // Pull ~45% of 2x–3x outcomes back down below 2x so the curve lands
+  // Pull ~70% of 2x–3x outcomes back down below 2x so the curve lands
   // above 2x noticeably less often.
-  if (crash >= 2 && crash < 3 && rand() < 0.45) {
+  if (crash >= 2 && crash < 3 && rand() < 0.70) {
     crash = 1.00 + rand();
   }
-  // Pull ~25% of 3x–10x outcomes back down below 2x as well, so high
+  // Pull ~50% of 3x–10x outcomes back down below 2x as well, so high
   // multipliers are rarer and more rounds bust early.
-  if (crash >= 3 && crash <= 10 && rand() < 0.25) {
+  if (crash >= 3 && crash <= 10 && rand() < 0.50) {
     crash = 1.00 + rand();
   }
   // Anti-pattern scatter: with ~40% chance, remap the outcome to a fresh
-  // uniform draw across a wide band (1x–9x). This flattens the visible
-  // histogram so no single band dominates the history bar and a player
-  // watching recent multipliers can't lock onto a "most common" zone to
-  // exploit. Draws stay fully independent — history never feeds the next.
+  // draw across a low band (1x–4x). This flattens the visible histogram so
+  // no single band dominates the history bar and a player watching recent
+  // multipliers can't lock onto a "most common" zone to exploit. Draws
+  // stay fully independent — history never feeds the next.
   if (rand() < 0.40) {
-    crash = 1.00 + rand() * 8;
+    crash = 1.00 + rand() * 3;
   }
   // Secondary shuffle: occasionally swap a low outcome for a mid one and
   // vice-versa, so consecutive rounds rarely follow a readable trend.
