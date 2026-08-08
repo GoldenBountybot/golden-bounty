@@ -28,6 +28,7 @@ let scatterBuffer = null;
 let scatterLoading = false;
 let spinClickBuffer = null;
 let spinClickLoading = false;
+let spinClickPromise = null;
 let symMatchBuffer = null;
 let symMatchLoading = false;
 
@@ -77,15 +78,42 @@ async function loadScatterBuffer() {
   } catch { /* ignore */ } finally { scatterLoading = false; }
 }
 
-async function loadSpinClickBuffer() {
-  if (spinClickBuffer || spinClickLoading) return;
+function loadSpinClickBuffer() {
+  if (spinClickBuffer) return Promise.resolve();
+  if (spinClickPromise) return spinClickPromise;
   spinClickLoading = true;
-  try {
-    const res = await fetch(SPIN_CLICK_URL);
-    const arr = await res.arrayBuffer();
+  spinClickPromise = (async () => {
+    try {
+      const res = await fetch(SPIN_CLICK_URL);
+      const arr = await res.arrayBuffer();
+      const ac = getCtx();
+      if (ac) spinClickBuffer = await ac.decodeAudioData(arr);
+    } catch { /* ignore */ } finally {
+      spinClickLoading = false;
+      spinClickPromise = null;
+    }
+  })();
+  return spinClickPromise;
+}
+
+// Plays the entry sound when the game loads and returns a Promise that
+// resolves when the sound finishes — used to gate the loading screen so
+// it stays visible for the entire duration of the sound.
+export function playEntrySound() {
+  return new Promise((resolve) => {
     const ac = getCtx();
-    if (ac) spinClickBuffer = await ac.decodeAudioData(arr);
-  } catch { /* ignore */ } finally { spinClickLoading = false; }
+    if (!ac || bgMuted || isGlobalMuted()) { resolve(); return; }
+    loadSpinClickBuffer().then(() => {
+      if (!spinClickBuffer || bgMuted || isGlobalMuted()) { resolve(); return; }
+      const src = ac.createBufferSource();
+      src.buffer = spinClickBuffer;
+      const g = ac.createGain();
+      g.gain.setValueAtTime(VOL, ac.currentTime);
+      src.connect(g).connect(ac.destination);
+      src.onended = () => resolve();
+      src.start();
+    });
+  });
 }
 
 function playScatter() {

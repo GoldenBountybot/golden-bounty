@@ -6,21 +6,26 @@ import BackButton from "@/components/BackButton";
 import GameTitleBar from "@/components/GameTitleBar";
 import { useCasinoBalance } from "@/lib/useCasinoBalance";
 import { Wallet, Volume2, VolumeX } from "lucide-react";
-import { startBackgroundMusic, stopBackgroundMusic, sfx } from "@/components/wildbounty/sounds";
+import { startBackgroundMusic, stopBackgroundMusic, playEntrySound } from "@/components/wildbounty/sounds";
 import { useMute } from "@/lib/soundMute";
 
 export default function SlotGame() {
-  const [loaded, setLoaded] = useState(false);
+  const [assetsDone, setAssetsDone] = useState(false);
+  const [soundDone, setSoundDone] = useState(false);
+  const loaded = assetsDone && soundDone;
   const { balance } = useCasinoBalance();
   const [muted, toggleMute] = useMute();
+
+  // Play the entry sound on mount — the loading screen stays visible until
+  // the sound finishes playing.
+  useEffect(() => {
+    playEntrySound().then(() => setSoundDone(true));
+  }, []);
 
   // Start background music only after the loading screen finishes, and stop
   // it when leaving the game so it doesn't keep playing on other pages.
   useEffect(() => {
-    if (loaded) {
-      startBackgroundMusic();
-      sfx.spinClick();
-    }
+    if (loaded) startBackgroundMusic();
     return () => { stopBackgroundMusic(); };
   }, [loaded]);
 
@@ -33,7 +38,7 @@ export default function SlotGame() {
         backgroundAttachment: 'fixed',
       }}
     >
-      {!loaded && <GameAssetLoader title="Wild Bounty" assets={WILD_BOUNTY_ASSETS} bgImage={GAME_BG.wildBounty} onDone={() => setLoaded(true)} />}
+      {!loaded && <GameAssetLoader title="Wild Bounty" assets={WILD_BOUNTY_ASSETS} bgImage={GAME_BG.wildBounty} onDone={() => setAssetsDone(true)} />}
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <GameTitleBar
           title="Wild Bounty Showdown"
