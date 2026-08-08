@@ -23,6 +23,7 @@ export default function Airdrop() {
   const [totalDeposits, setTotalDeposits] = useState(0);
   const [claimed, setClaimed] = useState(0);
   const [referralBounty, setReferralBounty] = useState(0);
+  const [referralCount, setReferralCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
   const [notify, setNotify] = useState(null);
@@ -41,13 +42,20 @@ export default function Airdrop() {
           .filter(tx => tx.status === 'approved' || tx.status === 'completed')
           .reduce((s, tx) => s + (Number(tx.amount) || 0), 0);
         if (active) setTotalDeposits(td);
+        // Fetch referral count — 1 BOUNTY per invited user (in addition to the
+        // existing commission-based referral bounty).
+        try {
+          const res = await base44.functions.invoke('getReferralStats', {});
+          if (active) setReferralCount(Number(res?.data?.totalReferrals ?? 0));
+        } catch { /* best-effort */ }
       } catch { /* ignore */ }
       if (active) setLoading(false);
     })();
     return () => { active = false; };
   }, []);
 
-  const allocation = totalDeposits * 2 + referralBounty; // 2 Bounty per USDT deposited + referral bounty
+  // 2 BOUNTY per USDT deposited + commission-based referral bounty + 1 BOUNTY per referral
+  const allocation = totalDeposits * 2 + referralBounty + referralCount;
   const claimable = Math.max(0, allocation - claimed);
   const fullyClaimed = allocation > 0 && claimable <= 0;
 
@@ -178,6 +186,12 @@ export default function Airdrop() {
                     <span className="text-sm font-bold tabular-nums" style={{ color: '#34d399' }}>+{referralBounty.toFixed(2)} BOUNTY</span>
                   </div>
                 )}
+                {referralCount > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>{t("Referral Bonus")} (1 per invite)</span>
+                    <span className="text-sm font-bold tabular-nums" style={{ color: '#34d399' }}>+{referralCount.toFixed(2)} BOUNTY</span>
+                  </div>
+                )}
                 <div className="h-px my-1" style={{ background: 'rgba(212,175,55,0.2)' }} />
                 <div className="flex items-center justify-between">
                   <span className="text-[13px] font-semibold" style={{ color: 'rgba(212,175,55,0.85)' }}>{t("Your BOUNTY Allocation")}</span>
@@ -245,6 +259,7 @@ export default function Airdrop() {
             <li>• {t("Deposit USDT into your account.")}</li>
             <li>• {t("Earn 2 BOUNTY tokens for every 1 USDT deposited.")}</li>
             <li>• {t("Earn 2 BOUNTY for every 1 USDT of referral commission too.")}</li>
+            <li>• {t("Earn 1 BOUNTY for every friend you invite.")}</li>
             <li>• {t("Claim your allocation anytime — it stays in your profile.")}</li>
           </ul>
         </div>
