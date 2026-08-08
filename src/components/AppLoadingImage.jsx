@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const SPLASH_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e500ea5e4_Screenshot_20260808-201731.png';
+const SPLASH_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ed82abc50_Screenshot_20260808-202344.png';
 
 // Full-screen splash shown while the app boots. Displays the wood-carved
 // Golden Bounty emblem centered on a dark background with a loading
