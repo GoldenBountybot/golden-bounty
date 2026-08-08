@@ -120,6 +120,8 @@ function loadEntryBuffer() {
   return entryPromise;
 }
 
+let entrySource = null;
+
 // Plays the entry sound when Wild Bounty loads and returns a Promise that
 // resolves when the sound finishes — used to gate the loading screen so
 // it stays visible for the entire duration of the sound.
@@ -134,10 +136,21 @@ export function playEntrySound() {
       const g = ac.createGain();
       g.gain.setValueAtTime(VOL, ac.currentTime);
       src.connect(g).connect(ac.destination);
-      src.onended = () => resolve();
+      src.onended = () => { if (entrySource === src) entrySource = null; resolve(); };
+      entrySource = src;
       src.start();
     });
   });
+}
+
+// Suspends/stops the entry sound immediately — called when leaving the game
+// so the sound never plays outside of Wild Bounty entry.
+export function stopEntrySound() {
+  const ac = getCtx();
+  if (ac && entrySource) {
+    try { entrySource.onended = null; entrySource.stop(); } catch { /* already stopped */ }
+    entrySource = null;
+  }
 }
 
 function playScatter() {
