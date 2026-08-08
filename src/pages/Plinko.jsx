@@ -247,9 +247,17 @@ export default function Plinko() {
     playDropStart();
 
     // Weighted random landing — high multipliers are intentionally rare.
-    let r = Math.random() * WEIGHT_TOTAL;
+    // Demo mode (doubled RTP) boosts non-center buckets and shrinks the
+    // center (0.1x loss) bucket so winning and multiplier chances both rise.
+    const _center = 6;
+    const _adjW = WEIGHTS.map((w, i) => {
+      if (i === _center) return w * (1 - (rtp - 50) / 100);
+      return w * (rtp / 50);
+    });
+    const _adjTotal = _adjW.reduce((a, b) => a + b, 0);
+    let r = Math.random() * _adjTotal;
     let bucket = 0;
-    for (let i = 0; i < WEIGHTS.length; i++) { r -= WEIGHTS[i]; if (r <= 0) { bucket = i; break; } }
+    for (let i = 0; i < _adjW.length; i++) { r -= _adjW[i]; if (r <= 0) { bucket = i; break; } }
 
     // Random, erratic descent — but the ball ALWAYS passes through the peg
     // directly above the target multiplier (row 10, col bucket-1) before

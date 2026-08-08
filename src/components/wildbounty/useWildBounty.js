@@ -65,7 +65,9 @@ export function useWildBounty() {
     }
   });
   const rtpRef = useRef(50);
+  const demoModeRef = useRef(false);
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
+  useEffect(() => { demoModeRef.current = settings.demoMode; }, [settings.demoMode]);
 
   const timers = useRef([]);
   const pendingStateRef = useRef(null);
@@ -333,9 +335,12 @@ export function useWildBounty() {
       // every multiplier round feels deliberate — no collapsed timing at chain end.
       // Normal spins at x8 and above (multIndex >= 3): lock the continue chance
       // to exactly 0.1% (0.001). Below x8, use the tiered CONTINUE_PROB.
-      const contProb = (!wasFree && currentMultIndex >= 3)
+      // Demo mode doubles the cascade continuation chance so multiplier
+      // chains climb higher more often during demo play.
+      const baseContProb = (!wasFree && currentMultIndex >= 3)
         ? 0.001
         : CONTINUE_PROB[currentMultIndex] * (wasFree ? 0.3 : 0.25);
+      const contProb = demoModeRef.current ? Math.min(1, baseContProb * 2) : baseContProb;
       const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < contProb;
       const cascadeT = setTimeout(() => {
         const newGrid = rigCascadeGrid(gridForCascade, removePositions, cont, wasFree);

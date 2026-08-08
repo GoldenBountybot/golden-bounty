@@ -56,7 +56,9 @@ export function useGates() {
     }
   });
   const rtpRef = useRef(50);
+  const demoModeRef = useRef(false);
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
+  useEffect(() => { demoModeRef.current = settings.demoMode; }, [settings.demoMode]);
   const minBet = settings.minBet || BETS[0];
   const maxBet = settings.maxBet || BETS[BETS.length - 1];
 
@@ -102,7 +104,7 @@ export function useGates() {
     const baseChance = (rtpRef.current / 100) * 0.42;
     const wantWin = Math.random() < (usingFree ? baseChance + 0.12 : baseChance);
     const freeMode = usingFree;
-    const result = computeSpin(bet, wantWin, freeMode, runningMultRef.current);
+    const result = computeSpin(bet, wantWin, freeMode, runningMultRef.current, demoModeRef.current);
     // Persist this spin's already-determined outcome plus the in-progress free
     // spins round state, so a mid-spin exit can be fully recovered on return:
     // the pending win is credited AND the free spins round resumes where it

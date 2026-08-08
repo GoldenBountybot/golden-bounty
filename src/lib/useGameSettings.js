@@ -52,9 +52,12 @@ export function useGameSettings(gameId) {
     return () => { cancelled = true; };
   }, [gameId]);
 
-  // Demo mode swaps in the demo RTP; otherwise the real RTP applies.
+  // Demo mode DOUBLES the real RTP (capped at 100) so demo play is more
+  // generous — winning chance and multiplier chance both double. Turning
+  // demo off restores the real RTP instantly.
   return {
     ...settings,
-    rtp: demoMode ? settings.demoRtp : settings.rtp,
+    rtp: demoMode ? Math.min(100, settings.rtp * 2) : settings.rtp,
+    demoMode,
   };
 }

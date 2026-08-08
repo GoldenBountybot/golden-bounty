@@ -55,6 +55,10 @@ export const MIN_BET = 0.10;
 export const MAX_BET = 500;
 export const BET_STEP = 0.10;
 
+// Module-level flag set by computeSpin — when true, multiplier symbol drop
+// chance is doubled so demo play produces more multiplier symbols.
+let _demoMode = false;
+
 const rand = (n) => Math.floor(Math.random() * n);
 
 function weightedPick(pool, total) {
@@ -84,6 +88,8 @@ export function pickSymbol(freeMode, allowMult = true, winningTumble = false) {
   // cells after a match, so multipliers land less often on winning cascades.
   let mChance = allowMult ? (freeMode ? 0.01 : 0.005) : 0;
   if (winningTumble) mChance *= freeMode ? 0.001 : 0.35;
+  // Demo mode doubles the multiplier symbol drop chance.
+  if (_demoMode) mChance *= 2;
   const sChance = freeMode ? 0.02 : 0.014;
   const r = Math.random();
   if (r < mChance) return `M${pickMult()}`;
@@ -233,7 +239,8 @@ function capMults(grid, max) {
   }));
 }
 
-export function computeSpin(bet, wantWin, freeMode, runningMult) {
+export function computeSpin(bet, wantWin, freeMode, runningMult, demoMode = false) {
+  _demoMode = demoMode;
   let grid = wantWin ? forceWinGrid(freeMode, true) : forceLossGrid(freeMode, true);
   if (!freeMode) grid = capMults(grid, 1);
   else grid = capMults(grid, 1);
