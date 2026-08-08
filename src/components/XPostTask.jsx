@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/LanguageContext';
-import { Loader2, Check, Gift, ExternalLink, Clock, CheckCircle2, Send, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, Check, Gift, ExternalLink, Clock, CheckCircle2, Send, ChevronDown, ChevronUp, Copy } from 'lucide-react';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const BOUNTY_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
@@ -35,13 +35,14 @@ const POST_TEMPLATES = [
   `⛏️ Mining BOUNTY tokens on Golden Bounty! Play games, stake USDT, and earn real rewards. The Airdrop is live — grab your share with my code {PROMO} 🪙🤠 Tag ${APP_X_HANDLE} #GoldenBounty #Airdrop #PlayToEarn`,
 ];
 
-const composeUrl = (profile) => {
+const getPostText = (profile) => {
   const promo = profile?.promo_code || (profile?.uid ? 'GB' + profile.uid : 'GoldenBounty');
   const uidStr = String(profile?.uid || '').replace(/\D/g, '');
   const idx = uidStr ? Number(uidStr.slice(-2)) % POST_TEMPLATES.length : Math.floor(Math.random() * POST_TEMPLATES.length);
-  const text = POST_TEMPLATES[idx].replaceAll('{PROMO}', promo);
-  return `https://x.com/compose/post?text=${encodeURIComponent(text)}`;
+  return POST_TEMPLATES[idx].replaceAll('{PROMO}', promo);
 };
+
+const composeUrl = (profile) => `https://x.com/compose/post?text=${encodeURIComponent(getPostText(profile))}`;
 
 export default function XPostTask({ profile, onClaimed }) {
   const { toast } = useToast();
@@ -160,6 +161,15 @@ export default function XPostTask({ profile, onClaimed }) {
     window.open(composeUrl(profile), '_blank', 'noopener,noreferrer');
   };
 
+  const copyPost = async () => {
+    try {
+      await navigator.clipboard.writeText(getPostText(profile));
+      toast({ title: t('Copied!'), description: t('Post text copied to clipboard') });
+    } catch {
+      toast({ title: t('Copy failed') });
+    }
+  };
+
   return (
     <div className="flex flex-col gap-2" style={{ animation: 'dashFadeIn 400ms ease both' }}>
       {/* Compact card — same style as other tasks */}
@@ -229,13 +239,23 @@ export default function XPostTask({ profile, onClaimed }) {
                   </div>
 
                   {/* Direct post button — opens X compose with pre-filled text */}
-                  <button
-                    onClick={openCompose}
-                    className="w-full py-3 text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
-                    style={{ background: '#000', color: '#fff', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '14px', fontWeight: 700 }}
-                  >
-                    <XLogo className="w-4 h-4" /> {t('Post on X Now')}
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={openCompose}
+                      className="flex-1 py-3 text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+                      style={{ background: '#000', color: '#fff', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '14px', fontWeight: 700 }}
+                    >
+                      <XLogo className="w-4 h-4" /> {t('Post on X Now')}
+                    </button>
+                    <button
+                      onClick={copyPost}
+                      title={t('Copy post text')}
+                      className="px-4 py-3 text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+                      style={{ background: 'rgba(212,175,55,0.12)', color: '#D4AF37', border: '1px solid rgba(212,175,55,0.45)', borderRadius: '14px', fontWeight: 700 }}
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  </div>
 
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('X Username')}</label>
