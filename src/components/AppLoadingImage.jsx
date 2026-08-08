@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const SPLASH_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b1a2d7d3e_file_000000009ef4820baac5161c2e45158b.png';
 const LOGO_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
@@ -7,17 +7,20 @@ const LOGO_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b663777
 // emblem with a rotating ring, shimmering brand wordmark, and elegant
 // progress dots — iconic and on-brand for Golden Bounty.
 export default function AppLoadingImage() {
+  const [bgLoaded, setBgLoaded] = useState(false);
+  const [logoLoaded, setLogoLoaded] = useState(false);
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden" style={{ background: '#0a0806' }}>
       {/* Branded background — faded, fixed */}
       <img
         src={SPLASH_IMG}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover select-none opacity-25"
+        className="absolute inset-0 w-full h-full object-cover select-none"
         draggable={false}
         fetchPriority="high"
         decoding="async"
-        style={{ animation: 'splashFadeIn 600ms ease both' }}
+        onLoad={() => setBgLoaded(true)}
+        style={{ opacity: bgLoaded ? 0.25 : 0, transition: 'opacity 600ms ease' }}
       />
       {/* Darkening + golden radial glow */}
       <div className="absolute inset-0" style={{ background: 'radial-gradient(60% 50% at 50% 45%, rgba(212,175,55,0.16), transparent 65%), linear-gradient(180deg, rgba(8,6,4,0.72) 0%, rgba(8,6,4,0.88) 100%)' }} />
@@ -92,7 +95,8 @@ export default function AppLoadingImage() {
               className="w-[88px] h-[88px] object-contain select-none"
               draggable={false}
               decoding="async"
-              style={{ animation: 'splashLogoBreath 3s ease-in-out infinite' }}
+              onLoad={() => setLogoLoaded(true)}
+              style={{ opacity: logoLoaded ? 1 : 0, transition: 'opacity 400ms ease', animation: logoLoaded ? 'splashLogoBreath 3s ease-in-out infinite' : 'none' }}
             />
           </div>
         </div>
