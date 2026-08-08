@@ -113,7 +113,7 @@ export default function ReferralStats({ profile, onBack }) {
       {referrals.length === 0 ? (
         <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("No one has joined with your promo code yet.")}</p>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           {referrals.map((r) => (
             <div key={r.id} className="dash-card p-4 flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.35)' }}>
