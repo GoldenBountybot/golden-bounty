@@ -373,36 +373,38 @@ export default function Dashboard() {
               <Coins className="w-4 h-4" /> {t("CLAIM PROFIT")} ${stake.pendingProfit.toFixed(2)}
             </button>
 
-            <div className="dash-card p-5 flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(212,175,55,0.14)', border: '1px solid rgba(212,175,55,0.35)' }}>
-                  <Layers className="w-4 h-4" style={{ color: '#D4AF37' }} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="dash-card p-5 flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(212,175,55,0.14)', border: '1px solid rgba(212,175,55,0.35)' }}>
+                    <Layers className="w-4 h-4" style={{ color: '#D4AF37' }} />
+                  </div>
+                  <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Stack More")}</h2>
                 </div>
-                <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Stack More")}</h2>
+                <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Available balance:")} ${acct.balance.toFixed(2)}</p>
+                {acct.demoMode && (
+                  <p className="text-[12px]" style={{ color: '#f87171' }}>{t("Demo balance cannot be stacked — turn off Demo mode to lock real funds.")}</p>
+                )}
+                <div className="flex gap-2 flex-wrap">
+                  {[50, 100, 500, 1000].map(a => (
+                    <button
+                      key={a}
+                      onClick={() => doStake(a)}
+                      disabled={acct.demoMode || a > acct.balance}
+                      className="px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-40"
+                      style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
+                    >${a}</button>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input type="number" value={stkAmt} onChange={e => setStkAmt(e.target.value)} placeholder={t("Amount to stack")} disabled={acct.demoMode} className="dash-input flex-1 px-4 py-3 text-sm disabled:opacity-40" />
+                  <button onClick={() => doStake(stkAmt)} disabled={acct.demoMode} className="dash-btn-gold px-6 py-3 text-sm disabled:opacity-40">{t("Stack")}</button>
+                </div>
+                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Stacking again restarts your {LOCK_DAYS}-day lock and profit timer on the total.</p>
               </div>
-              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Available balance:")} ${acct.balance.toFixed(2)}</p>
-              {acct.demoMode && (
-                <p className="text-[12px]" style={{ color: '#f87171' }}>{t("Demo balance cannot be stacked — turn off Demo mode to lock real funds.")}</p>
-              )}
-              <div className="flex gap-2 flex-wrap">
-                {[50, 100, 500, 1000].map(a => (
-                  <button
-                    key={a}
-                    onClick={() => doStake(a)}
-                    disabled={acct.demoMode || a > acct.balance}
-                    className="px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-40"
-                    style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
-                  >${a}</button>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input type="number" value={stkAmt} onChange={e => setStkAmt(e.target.value)} placeholder={t("Amount to stack")} disabled={acct.demoMode} className="dash-input flex-1 px-4 py-3 text-sm disabled:opacity-40" />
-                <button onClick={() => doStake(stkAmt)} disabled={acct.demoMode} className="dash-btn-gold px-6 py-3 text-sm disabled:opacity-40">{t("Stack")}</button>
-              </div>
-              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Stacking again restarts your {LOCK_DAYS}-day lock and profit timer on the total.</p>
-            </div>
 
-            <TotalFundsPanel />
+              <TotalFundsPanel />
+            </div>
 
             <StackFaq />
           </div>
