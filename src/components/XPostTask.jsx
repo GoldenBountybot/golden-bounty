@@ -218,9 +218,9 @@ export default function XPostTask({ profile, onClaimed }) {
                   <button
                     onClick={openCompose}
                     className="w-full py-3 text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
-                    style={{ background: '#000', color: '#fff', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '14px', fontWeight: 700 }}
+                    style={{ background: 'rgba(255,255,255,0.04)', color: '#D4AF37', border: '1px solid rgba(212,175,55,0.35)', borderRadius: '14px', fontWeight: 700 }}
                   >
-                    <XLogo className="w-4 h-4" /> {t('Post on X Now')}
+                    <ExternalLink className="w-4 h-4" /> {t('Post on X Now')}
                   </button>
 
                   <div className="flex flex-col gap-1.5">
