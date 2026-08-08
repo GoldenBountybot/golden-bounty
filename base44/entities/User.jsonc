@@ -103,6 +103,11 @@
       "type": "number",
       "default": 0,
       "description": "Cumulative net loss (from deposited funds) that has already been cashbacked, so the same loss can't be double-claimed."
+    },
+    "promo_welcome_seen": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has already visited the PromoWelcome page. Returning users (logout \u2192 re-register with same email/Google) are redirected to home instead of seeing the promo code input again."
     }
   },
   "required": [

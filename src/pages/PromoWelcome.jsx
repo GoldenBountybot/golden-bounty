@@ -12,11 +12,19 @@ export default function PromoWelcome() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
         let me = await base44.auth.me();
+        // Returning users who already saw the promo welcome page are sent
+        // straight to home — the promo code input is only for first-time
+        // registrations (prevents logout → re-register showing it again).
+        if (me?.promo_welcome_seen) {
+          window.location.href = '/';
+          return;
+        }
         // Google sign-up users skip the OTP flow, so they may not have a
         // uid / promo_code yet — set them up here so the promo card shows.
         if (me && (!me.uid || !me.promo_code)) {
@@ -29,11 +37,16 @@ export default function PromoWelcome() {
               avatar_url = r?.data?.image_url || "";
             } catch { /* avatar optional */ }
           }
-          try { await base44.auth.updateMe({ uid, promo_code: promoCode, avatar_url }); } catch { /* ignore */ }
-          me = { ...me, uid, promo_code: promoCode, avatar_url };
+          try { await base44.auth.updateMe({ uid, promo_code: promoCode, avatar_url, promo_welcome_seen: true }); } catch { /* ignore */ }
+          me = { ...me, uid, promo_code: promoCode, avatar_url, promo_welcome_seen: true };
+        } else {
+          // Mark as seen so a future re-registration skips this page.
+          try { await base44.auth.updateMe({ promo_welcome_seen: true }); } catch { /* ignore */ }
+          me = { ...me, promo_welcome_seen: true };
         }
         setProfile(me);
       } catch { /* ignore */ }
+      setChecking(false);
     })();
   }, []);
 
@@ -81,7 +94,11 @@ export default function PromoWelcome() {
           <img src={BANNER} alt="Use promo code to get $1 USDT — only for Stack" className="w-full h-auto block" />
         </div>
 
-        {done || claimed ? (
+        {checking ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-7 h-7 animate-spin" style={{ color: '#D4AF37' }} />
+          </div>
+        ) : done || claimed ? (
           <div className="dash-card p-5 flex flex-col items-center gap-3 text-center" style={{ animation: 'dashFadeIn 400ms ease both' }}>
             <div className="flex items-center justify-center w-14 h-14 rounded-full" style={{ background: 'rgba(52,211,153,0.14)', border: '1px solid rgba(52,211,153,0.45)' }}>
               <Check className="w-7 h-7" style={{ color: '#34d399' }} />
