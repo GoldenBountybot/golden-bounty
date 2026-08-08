@@ -513,11 +513,13 @@ export default function Profile() {
 
         {view === 'profile' && (
         <>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Social tasks — earn BOUNTY */}
         <TaskSystem profile={profile} onClaimed={(b) => { setTaskBounty(b); setBountyAllocation((a) => a + (b - taskBounty)); }} />
 
         {/* X post task — submit, admin approves within 24h, claim 10 BOUNTY */}
         <XPostTask profile={profile} onClaimed={(b) => { setTaskBounty(b); setBountyAllocation((a) => a + (b - taskBounty)); }} />
+        </div>
 
         <p className="text-center text-[11px] italic" style={{ color: 'rgba(212,175,55,0.7)' }}>
           {t("More Tasks Coming Soon")}
@@ -614,6 +616,7 @@ export default function Profile() {
               <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>{t("Deposit & Withdraw History")}</h3>
             </div>
 
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {loadingHist ? (
               <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Loading...")}</p>
             ) : txs.length === 0 ? (
@@ -642,6 +645,7 @@ export default function Profile() {
                 );
               })
             )}
+            </div>
           </div>
         )}
 
@@ -652,6 +656,7 @@ export default function Profile() {
               <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>{t("Betting & Win/Loss History")}</h3>
             </div>
 
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {loadingHist ? (
               <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Loading...")}</p>
             ) : activity.length === 0 ? (
@@ -677,6 +682,7 @@ export default function Profile() {
                 );
               })
             )}
+            </div>
           </div>
         )}
 

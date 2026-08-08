@@ -167,6 +167,7 @@ export default function Airdrop() {
           </div>
         </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-4">
         {/* Allocation card */}
         <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           <div className="flex items-center gap-2">
@@ -271,6 +272,7 @@ export default function Airdrop() {
             <li>• {t("Earn 1 BOUNTY for every friend you invite.")}</li>
             <li>• {t("Claim your allocation anytime — it stays in your profile.")}</li>
           </ul>
+        </div>
         </div>
       </main>
 
