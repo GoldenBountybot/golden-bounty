@@ -38,7 +38,7 @@ export default function BottomNav() {
   return (
     <div className="fixed bottom-0 inset-x-0 z-30">
       <div
-        className="mx-auto max-w-md lg:max-w-2xl px-3 pt-2 pb-2 rounded-t-[10px]"
+        className="mx-auto max-w-md lg:max-w-5xl px-3 pt-2 pb-2 rounded-t-[10px]"
         style={{
           borderTop: '1px solid rgba(214,178,98,0.4)',
           background: 'rgba(10,9,8,0.82)',
@@ -47,7 +47,7 @@ export default function BottomNav() {
           boxShadow: '0 -6px 22px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,240,200,0.12)',
         }}
       >
-        <div className="grid grid-cols-5 gap-1 lg:gap-4 items-center">
+        <div className="grid grid-cols-5 gap-1 lg:gap-8 items-center">
           <ImgTile to="/dashboard" label={t("Dashboard")} src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0bf2d07ee_file_000000009cf082119790d647b9b4d6d2.png" />
           <ImgTile to="/dashboard?tab=stack" label={t("Stack")} src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5ee916b61_file_0000000084f082119192d2d5866b87d5.png" />
 
