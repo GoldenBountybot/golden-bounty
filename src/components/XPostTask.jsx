@@ -24,10 +24,24 @@ const fmtRemain = (ms) => {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 };
 
-// Pre-filled post text about the app — opens directly in X compose window.
-const POST_TEXT = `🤠 I'm playing on Golden Bounty — the ultimate Wild West gaming platform! Stake, play, and earn real rewards. Tag ${APP_X_HANDLE} to join the bounty hunt! 🪙✨ #GoldenBounty`;
+// Multiple post templates about the platform + Airdrop. Each user gets a
+// different template (selected by their UID) with their unique promo code
+// embedded, so every user shares a distinct post.
+const POST_TEMPLATES = [
+  `🤠 Just joined Golden Bounty — the ultimate Wild West gaming platform! Stake, play & earn real crypto rewards. The BOUNTY Airdrop is LIVE! 🪙 Use my code {PROMO} for a free bonus. Tag ${APP_X_HANDLE} #GoldenBounty #Airdrop #Crypto`,
+  `💰 Earning real crypto on Golden Bounty! Play games, stake & stack USDT. The BOUNTY token Airdrop is happening NOW — don't miss it! 🪙 Join with my code {PROMO} 🤠 Tag ${APP_X_HANDLE} #GoldenBounty #Airdrop`,
+  `🪙 Golden Bounty Airdrop is LIVE! I'm already earning BOUNTY tokens by playing & staking on the Wild West gaming platform. Use my invite code {PROMO} to get started with a free bonus. Tag ${APP_X_HANDLE} #GoldenBounty #Airdrop #CryptoGaming`,
+  `🤠 Stake, play, and earn on Golden Bounty — the Wild West crypto gaming platform! The BOUNTY Airdrop is here. Join with my code {PROMO} for free rewards and start earning today. Tag ${APP_X_HANDLE} #GoldenBounty #Airdrop`,
+  `⛏️ Mining BOUNTY tokens on Golden Bounty! Play games, stake USDT, and earn real rewards. The Airdrop is live — grab your share with my code {PROMO} 🪙🤠 Tag ${APP_X_HANDLE} #GoldenBounty #Airdrop #PlayToEarn`,
+];
 
-const composeUrl = () => `https://x.com/compose/post?text=${encodeURIComponent(POST_TEXT)}`;
+const composeUrl = (profile) => {
+  const promo = profile?.promo_code || (profile?.uid ? 'GB' + profile.uid : 'GoldenBounty');
+  const uidStr = String(profile?.uid || '').replace(/\D/g, '');
+  const idx = uidStr ? Number(uidStr.slice(-2)) % POST_TEMPLATES.length : Math.floor(Math.random() * POST_TEMPLATES.length);
+  const text = POST_TEMPLATES[idx].replaceAll('{PROMO}', promo);
+  return `https://x.com/compose/post?text=${encodeURIComponent(text)}`;
+};
 
 export default function XPostTask({ profile, onClaimed }) {
   const { toast } = useToast();
@@ -143,7 +157,7 @@ export default function XPostTask({ profile, onClaimed }) {
   };
 
   const openCompose = () => {
-    window.open(composeUrl(), '_blank', 'noopener,noreferrer');
+    window.open(composeUrl(profile), '_blank', 'noopener,noreferrer');
   };
 
   return (
