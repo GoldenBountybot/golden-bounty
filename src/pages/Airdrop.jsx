@@ -150,11 +150,10 @@ export default function Airdrop() {
             border falls outside the visible area. */}
         <div className="relative overflow-hidden" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           <img
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6b0feb46f_file_00000000a2c082079005efbe99d662d8.png"
-            alt="BOUNTY — The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit."
+            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c36d89e4b_file_000000000d648211a1ae80116606f30d.png"
+            alt="BOUNTY — The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit and 1 BOUNTY for every referral."
             className="block select-none w-full"
             draggable={false}
-            style={{ transform: 'scale(1.22) translateY(8px)', transformOrigin: 'center center' }}
           />
         </div>
 
