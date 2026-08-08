@@ -11,23 +11,20 @@ import { useMute } from "@/lib/soundMute";
 
 export default function SlotGame() {
   const [assetsDone, setAssetsDone] = useState(false);
-  const [soundDone, setSoundDone] = useState(false);
-  const loaded = assetsDone && soundDone;
+  const loaded = assetsDone;
   const { balance } = useCasinoBalance();
   const [muted, toggleMute] = useMute();
 
-  // Play the entry sound on mount — the loading screen stays visible until
-  // the sound finishes playing. Stop it immediately when leaving the game
-  // so it never plays outside of Wild Bounty entry.
+  // Play the entry sound on mount — it plays ONLY during the loading screen.
+  // Stop it immediately when leaving the game so it never plays elsewhere.
   useEffect(() => {
-    playEntrySound().then(() => setSoundDone(true));
+    playEntrySound();
     return () => { stopEntrySound(); };
   }, []);
 
-  // Start background music only after the loading screen finishes, and stop
-  // it when leaving the game so it doesn't keep playing on other pages.
-  // Also suspend the entry sound once gameplay begins so it never plays
-  // during the game — only on entry.
+  // Once assets finish loading the game begins — immediately suspend the
+  // entry sound and start the background music. The entry sound never
+  // plays during gameplay, only on entry.
   useEffect(() => {
     if (loaded) { stopEntrySound(); startBackgroundMusic(); }
     return () => { stopBackgroundMusic(); };
