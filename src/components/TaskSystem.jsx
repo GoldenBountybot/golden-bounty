@@ -151,9 +151,6 @@ export default function TaskSystem({ profile, onClaimed }) {
         );
       })}
 
-      <p className="text-center text-[11px] italic" style={{ color: 'rgba(212,175,55,0.7)' }}>
-        {t('More Tasks Coming Soon')}
-      </p>
     </div>
   );
 }

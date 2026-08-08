@@ -519,6 +519,10 @@ export default function Profile() {
         {/* X post task — submit, admin approves within 24h, claim 10 BOUNTY */}
         <XPostTask profile={profile} onClaimed={(b) => { setTaskBounty(b); setBountyAllocation((a) => a + (b - taskBounty)); }} />
 
+        <p className="text-center text-[11px] italic" style={{ color: 'rgba(212,175,55,0.7)' }}>
+          {t("More Tasks Coming Soon")}
+        </p>
+
         {/* Segmented tabs — Wallet & Games */}
         <div className="grid grid-cols-2 gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           {TABS.map(tb => {
