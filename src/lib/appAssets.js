@@ -51,6 +51,15 @@ const DASHBOARD = [
   u('e4a14a054_file_0000000014cc821197a44e24a1a46272.png'), // stack banner default
 ];
 
+// ---- VIP level logos (Dashboard VIP tab + Profile) ----
+const VIP = [
+  u('3e04a9a62_generated_image.png'), // Bronze
+  u('dab6ce874_generated_image.png'), // Silver
+  u('fb7b17675_generated_image.png'), // Gold
+  u('a522ed354_generated_image.png'), // Platinum
+  u('1e31ecaa4_generated_image.png'), // Diamond
+];
+
 // ---- PromoWelcome ----
 const PROMO = [
   u('f23530b9f_file_00000000588c81f7b3cdd650f71b7b28.png'), // promo banner
@@ -110,6 +119,7 @@ export const APP_ASSETS = [
   ...BANNERS,
   ...BOTTOM_NAV,
   ...DASHBOARD,
+  ...VIP,
   ...PROMO,
   ...AIRDROP,
   ...GAME_CARDS,

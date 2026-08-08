@@ -82,6 +82,7 @@ export async function preloadDynamicAssets(base44) {
     safeList('Banner', 'image_url'),
     safeList('PaymentAddress', 'qr_image_url'),
     safeList('SiteSetting', 'image_url'),
+    safeList('Avatar', 'image_url'),
   ]);
   if (!urls.size) return;
   await preloadAssets([...urls]);
