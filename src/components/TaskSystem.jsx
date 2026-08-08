@@ -19,9 +19,10 @@ const TelegramLogo = ({ className, style }) => (
   </svg>
 );
 
-const TASK_ICON = {
-  x: XLogo,
-  telegram: TelegramLogo,
+// Real brand colors + badge style per task type
+const TASK_BRAND = {
+  x: { bg: '#000', color: '#fff', round: 'rounded-lg' },
+  telegram: { bg: '#229ED9', color: '#fff', round: 'rounded-full' },
 };
 
 export default function TaskSystem({ profile, onClaimed }) {
@@ -100,7 +101,7 @@ export default function TaskSystem({ profile, onClaimed }) {
       </div>
 
       {tasks.map((task) => {
-        const Icon = TASK_ICON[task.name] || Gift;
+        const Icon = (task.name === 'x' ? XLogo : task.name === 'telegram' ? TelegramLogo : Gift);
         const claimed = claimedSet.has(task.name);
         const isOpened = opened.has(task.name);
         const reward = Number(task.reward || 5);
@@ -111,8 +112,8 @@ export default function TaskSystem({ profile, onClaimed }) {
             className="dash-card p-4 flex items-center gap-3"
             style={claimed ? { opacity: 0.65 } : undefined}
           >
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.35)' }}>
-              <Icon className="w-4 h-4" style={{ color: '#D4AF37' }} />
+            <div className={`flex items-center justify-center w-10 h-10 shrink-0 ${TASK_BRAND[task.name]?.round || 'rounded-xl'}`} style={{ background: TASK_BRAND[task.name]?.bg || 'rgba(212,175,55,0.12)', border: TASK_BRAND[task.name] ? 'none' : '1px solid rgba(212,175,55,0.35)' }}>
+              <Icon className="w-4 h-4" style={{ color: TASK_BRAND[task.name]?.color || '#D4AF37' }} />
             </div>
 
             <div className="flex-1 min-w-0">

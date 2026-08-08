@@ -154,7 +154,7 @@ export default function XPostTask({ profile, onClaimed }) {
         className="dash-card p-4 flex items-center gap-3 w-full text-left transition-all active:scale-[0.98]"
         style={isClaimed ? { opacity: 0.65 } : undefined}
       >
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.35)' }}>
+        <div className="flex items-center justify-center w-10 h-10 rounded-lg shrink-0" style={{ background: '#000' }}>
           <XLogo className="w-4 h-4" style={{ color: '#fff' }} />
         </div>
 
@@ -183,7 +183,7 @@ export default function XPostTask({ profile, onClaimed }) {
         <div className="dash-card p-4 flex flex-col gap-3" style={{ animation: 'dashFadeIn 300ms ease both' }}>
           {/* Reward header */}
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(212,175,55,0.35)' }}>
+            <div className="flex items-center justify-center w-9 h-9 rounded-lg" style={{ background: '#000' }}>
               <XLogo className="w-4 h-4" style={{ color: '#fff' }} />
             </div>
             <div>
