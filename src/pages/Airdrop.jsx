@@ -146,16 +146,25 @@ export default function Airdrop() {
           </div>
           <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'rgba(212,175,55,0.7)' }}><path d="M9 18l6-6-6-6" /></svg>
         </button>
-        {/* Hero — Bounty token banner — scaled up + clipped so the black
-            border falls outside the visible area. */}
-        <div className="relative overflow-hidden" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-          <img
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c36d89e4b_file_000000000d648211a1ae80116606f30d.png"
-            alt="BOUNTY — The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit and 1 BOUNTY for every referral."
-            className="block select-none w-full"
-            draggable={false}
-            style={{ transform: 'scale(1.22) translateY(8px)', transformOrigin: 'center center' }}
-          />
+        {/* Hero — Bounty token banner inside a golden frame */}
+        <div
+          className="relative overflow-hidden rounded-2xl"
+          style={{
+            animation: 'dashFadeIn 400ms ease both',
+            padding: '6px',
+            background: 'linear-gradient(135deg, #FFD700, #C89B3C, #8a6a1f, #C89B3C, #FFD700)',
+            boxShadow: '0 6px 22px rgba(0,0,0,0.45), 0 0 16px rgba(212,175,55,0.35)',
+          }}
+        >
+          <div className="relative overflow-hidden rounded-xl" style={{ background: '#0D0D0D' }}>
+            <img
+              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c36d89e4b_file_000000000d648211a1ae80116606f30d.png"
+              alt="BOUNTY — The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit and 1 BOUNTY for every referral."
+              className="block select-none w-full"
+              draggable={false}
+              style={{ transform: 'scale(1.06)', transformOrigin: 'center center' }}
+            />
+          </div>
         </div>
 
         {/* Allocation card */}
