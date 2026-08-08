@@ -534,6 +534,7 @@ export default function SuperAceMachine() {
       <header className="sticky top-0 z-30 bg-stone-950/70 backdrop-blur-xl border-b border-amber-700/30">
         <GameTitleBar
           title="Super Ace"
+          maxWidth="max-w-5xl"
           left={
             <Link to="/" className="shrink-0">
               <span className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95" style={metalBtn(false)}>

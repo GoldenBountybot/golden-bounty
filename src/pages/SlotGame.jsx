@@ -59,11 +59,11 @@ export default function SlotGame() {
               </button>
             </>
           }
-          maxWidth="max-w-4xl"
+          maxWidth="max-w-5xl"
         />
       </header>
 
-      <main className="w-full px-0 py-0">
+      <main className="w-full max-w-5xl mx-auto px-0 py-0">
         <WildBountyMachine />
       </main>
     </div>

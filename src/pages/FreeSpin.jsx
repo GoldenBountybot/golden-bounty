@@ -233,11 +233,11 @@ export default function FreeSpin() {
               </button>
             </>
           }
-          maxWidth="max-w-4xl"
+          maxWidth="max-w-5xl"
         />
       </header>
 
-      <main className="max-w-md lg:max-w-2xl mx-auto px-4 pt-6 pb-2 flex flex-col items-center">
+      <main className="max-w-md lg:max-w-5xl mx-auto px-4 pt-6 pb-2 flex flex-col items-center">
         {/* Reserved slot above the wheel — win message floats up into it */}
         <div className="relative w-full max-w-[230px] mx-auto mb-1" style={{ height: result?.held ? 96 : 52 }}>
           {result && (

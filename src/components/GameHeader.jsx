@@ -19,6 +19,7 @@ export default function GameHeader({ title, balance }) {
     >
       <GameTitleBar
         title={title}
+        maxWidth="max-w-5xl"
         left={<BackButton />}
         right={
           <>
