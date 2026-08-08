@@ -39,7 +39,7 @@ export default function CasinoGameCard({ game }) {
       }}
     >
       {game.image ? (
-        <img src={game.image} alt={game.title} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={game.image} alt={game.title} className="absolute inset-0 w-full h-full object-cover" decoding="async" />
       ) : (
         <div className={`absolute inset-0 bg-gradient-to-br ${game.accent}`} />
       )}

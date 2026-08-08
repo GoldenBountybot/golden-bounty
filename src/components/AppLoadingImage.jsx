@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 const SPLASH_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b1a2d7d3e_file_000000009ef4820baac5161c2e45158b.png';
 const LOGO_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
@@ -9,10 +9,21 @@ const LOGO_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b663777
 export default function AppLoadingImage() {
   const [bgLoaded, setBgLoaded] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
+  const bgRef = useRef(null);
+  const logoRef = useRef(null);
+
+  // Cached images may already be complete before React attaches onLoad —
+  // check img.complete on mount so the splash background/logo show instantly.
+  useEffect(() => {
+    if (bgRef.current?.complete) setBgLoaded(true);
+    if (logoRef.current?.complete) setLogoLoaded(true);
+  }, []);
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden" style={{ background: '#0a0806' }}>
       {/* Branded background — faded, fixed */}
       <img
+        ref={bgRef}
         src={SPLASH_IMG}
         alt=""
         className="absolute inset-0 w-full h-full object-cover select-none"
@@ -20,6 +31,7 @@ export default function AppLoadingImage() {
         fetchPriority="high"
         decoding="async"
         onLoad={() => setBgLoaded(true)}
+        onError={() => setBgLoaded(true)}
         style={{ opacity: bgLoaded ? 0.25 : 0, transition: 'opacity 600ms ease' }}
       />
       {/* Darkening + golden radial glow */}
@@ -90,12 +102,15 @@ export default function AppLoadingImage() {
             }}
           >
             <img
+              ref={logoRef}
               src={LOGO_IMG}
               alt="Golden Bounty"
               className="w-[88px] h-[88px] object-contain select-none"
               draggable={false}
               decoding="async"
+              fetchPriority="high"
               onLoad={() => setLogoLoaded(true)}
+              onError={() => setLogoLoaded(true)}
               style={{ opacity: logoLoaded ? 1 : 0, transition: 'opacity 400ms ease', animation: logoLoaded ? 'splashLogoBreath 3s ease-in-out infinite' : 'none' }}
             />
           </div>

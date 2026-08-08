@@ -138,8 +138,8 @@ export default function WesternGameBanners() {
                 src={b.image}
                 alt={b.title}
                 className="absolute inset-0 w-full h-full object-cover"
-                loading="lazy"
                 draggable={false}
+                decoding="async"
               />
               {/* Western vignette + bottom fade for text legibility */}
               <div
