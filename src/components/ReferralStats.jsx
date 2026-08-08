@@ -57,6 +57,8 @@ export default function ReferralStats({ profile, onBack }) {
   }
 
   const { referrals = [], totalReferrals = 0, totalCommission = 0, ranking = [], myRank, myCount = 0, totalReferrers = 0 } = data || {};
+  // Bounty tokens earned from referrals: 2 BOUNTY per 1 USDT commission + 1 BOUNTY per invite
+  const referralBounty = (totalCommission * 2) + totalReferrals;
 
   return (
     <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
@@ -71,23 +73,32 @@ export default function ReferralStats({ profile, onBack }) {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="dash-card p-4 flex flex-col gap-1" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.35)' }}>
+      <div className="grid grid-cols-3 gap-3">
+        <div className="dash-card p-3 flex flex-col gap-1" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.35)' }}>
           <div className="flex items-center gap-1.5">
             <Users className="w-4 h-4" style={{ color: '#D4AF37' }} />
-            <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Total Invited")}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Invited")}</p>
           </div>
           <p className="text-2xl font-extrabold tabular-nums" style={{ color: '#fff' }}>
             <AnimatedNumber value={totalReferrals} duration={700} decimals={0} />
           </p>
         </div>
-        <div className="dash-card p-4 flex flex-col gap-1" style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(52,211,153,0.35)' }}>
+        <div className="dash-card p-3 flex flex-col gap-1" style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(52,211,153,0.35)' }}>
           <div className="flex items-center gap-1.5">
             <Coins className="w-4 h-4" style={{ color: '#34d399' }} />
-            <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(52,211,153,0.85)' }}>{t("Total Commission")}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'rgba(52,211,153,0.85)' }}>{t("Commission")}</p>
           </div>
           <p className="text-2xl font-extrabold tabular-nums" style={{ color: '#fff' }}>
             $<AnimatedNumber value={totalCommission} duration={900} decimals={2} />
+          </p>
+        </div>
+        <div className="dash-card p-3 flex flex-col gap-1" style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.18), rgba(255,215,0,0.04))', border: '1px solid rgba(255,215,0,0.45)' }}>
+          <div className="flex items-center gap-1.5">
+            <Gift className="w-4 h-4" style={{ color: '#FFD700' }} />
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: 'rgba(255,215,0,0.85)' }}>{t("Bounty Earned")}</p>
+          </div>
+          <p className="text-2xl font-extrabold tabular-nums" style={{ color: '#FFD700' }}>
+            <AnimatedNumber value={referralBounty} duration={900} decimals={0} />
           </p>
         </div>
       </div>
