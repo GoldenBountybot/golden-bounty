@@ -68,12 +68,18 @@ const AuthenticatedApp = () => {
   const [minDone, setMinDone] = useState(false);
 
   useEffect(() => {
-    // Preload the splash emblem so it's cached before the splash renders —
-    // no visible download flash.
-    const splashImg = new Image();
-    splashImg.onload = () => setImgReady(true);
-    splashImg.onerror = () => setImgReady(true);
-    splashImg.src = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ed82abc50_Screenshot_20260808-202344.png';
+    // Preload BOTH splash images (background + logo) so they're cached
+    // before the splash renders — no visible download flash.
+    let imgLoadCount = 0;
+    const onImgLoad = () => { if (++imgLoadCount === 2) setImgReady(true); };
+    const splashBg = new Image();
+    splashBg.onload = onImgLoad;
+    splashBg.onerror = onImgLoad;
+    splashBg.src = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b1a2d7d3e_file_000000009ef4820baac5161c2e45158b.png';
+    const splashLogo = new Image();
+    splashLogo.onload = onImgLoad;
+    splashLogo.onerror = onImgLoad;
+    splashLogo.src = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
     // Preload all static app-wide images (banners, icons, backgrounds) during
     // the splash so every page renders instantly with no visible downloading.
     preloadAssets(APP_ASSETS)
