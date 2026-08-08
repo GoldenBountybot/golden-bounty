@@ -8,7 +8,7 @@ const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-
 const BOUNTY_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
 const REWARD = 10;
 const WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
-const APP_X_HANDLE = '@GoldenBountyHQ'; // our official X account users must tag
+const APP_X_HANDLE = '@golden_bounty_x'; // our official X account users must tag
 
 const XLogo = ({ className, style }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className} style={style}>
