@@ -26,8 +26,10 @@ export default function SlotGame() {
 
   // Start background music only after the loading screen finishes, and stop
   // it when leaving the game so it doesn't keep playing on other pages.
+  // Also suspend the entry sound once gameplay begins so it never plays
+  // during the game — only on entry.
   useEffect(() => {
-    if (loaded) startBackgroundMusic();
+    if (loaded) { stopEntrySound(); startBackgroundMusic(); }
     return () => { stopBackgroundMusic(); };
   }, [loaded]);
 
