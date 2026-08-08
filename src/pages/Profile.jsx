@@ -14,6 +14,7 @@ import AnimatedNumber from '@/components/AnimatedNumber';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/lib/LanguageContext';
 import TaskSystem from '@/components/TaskSystem';
+import XPostTask from '@/components/XPostTask';
 import CashbackPanel from '@/components/CashbackPanel';
 import { formatDateTime } from '@/lib/dateFormat';
 
@@ -514,6 +515,9 @@ export default function Profile() {
         <>
         {/* Social tasks — earn BOUNTY */}
         <TaskSystem profile={profile} onClaimed={(b) => { setTaskBounty(b); setBountyAllocation((a) => a + (b - taskBounty)); }} />
+
+        {/* X post task — submit, admin approves within 24h, claim 10 BOUNTY */}
+        <XPostTask profile={profile} onClaimed={(b) => { setTaskBounty(b); setBountyAllocation((a) => a + (b - taskBounty)); }} />
 
         {/* Segmented tabs — Wallet & Games */}
         <div className="grid grid-cols-2 gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>

@@ -1,0 +1,94 @@
+{
+  "name": "XPostSubmission",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner of this X post submission"
+    },
+    "user_email": {
+      "type": "string",
+      "default": "",
+      "description": "Email for admin display"
+    },
+    "x_username": {
+      "type": "string",
+      "description": "The user's X (Twitter) handle"
+    },
+    "post_link": {
+      "type": "string",
+      "description": "URL of the X post about the app"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "expired"
+      ],
+      "default": "pending",
+      "description": "Approval state: pending \u2192 approved/rejected by admin; expired if 24h pass without approval"
+    },
+    "reward": {
+      "type": "number",
+      "default": 10,
+      "description": "BOUNTY tokens awarded on approval + claim"
+    },
+    "claimed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has claimed the reward tokens"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When admin approved/rejected the submission"
+    },
+    "admin_note": {
+      "type": "string",
+      "default": "",
+      "description": "Optional note from admin on rejection"
+    }
+  },
+  "required": [
+    "user_id",
+    "x_username",
+    "post_link",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
