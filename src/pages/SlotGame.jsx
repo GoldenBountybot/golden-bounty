@@ -6,7 +6,7 @@ import BackButton from "@/components/BackButton";
 import GameTitleBar from "@/components/GameTitleBar";
 import { useCasinoBalance } from "@/lib/useCasinoBalance";
 import { Wallet, Volume2, VolumeX } from "lucide-react";
-import { startBackgroundMusic, stopBackgroundMusic, playEntrySound, stopEntrySound } from "@/components/wildbounty/sounds";
+import { startBackgroundMusic, stopBackgroundMusic } from "@/components/wildbounty/sounds";
 import { useMute } from "@/lib/soundMute";
 
 export default function SlotGame() {
@@ -15,18 +15,10 @@ export default function SlotGame() {
   const { balance } = useCasinoBalance();
   const [muted, toggleMute] = useMute();
 
-  // Play the entry sound on mount — it plays ONLY during the loading screen.
-  // Stop it immediately when leaving the game so it never plays elsewhere.
+  // Start background music only after the loading screen finishes, and stop
+  // it when leaving the game so it doesn't keep playing on other pages.
   useEffect(() => {
-    playEntrySound();
-    return () => { stopEntrySound(); };
-  }, []);
-
-  // Once assets finish loading the game begins — immediately suspend the
-  // entry sound and start the background music. The entry sound never
-  // plays during gameplay, only on entry.
-  useEffect(() => {
-    if (loaded) { stopEntrySound(); startBackgroundMusic(); }
+    if (loaded) startBackgroundMusic();
     return () => { stopBackgroundMusic(); };
   }, [loaded]);
 

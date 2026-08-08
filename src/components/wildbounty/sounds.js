@@ -13,8 +13,6 @@ const WINSEQ_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b66377
 const SCATTER_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/8260a4cd3_scater_0.mp3';
 // Uploaded spin-button click sound — plays once when the player taps Spin.
 const SPIN_CLICK_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/d0ba94ac5_spinbuttonclicksound.mp3';
-// Uploaded game-entry sound — plays ONLY when entering Wild Bounty Showdown.
-const ENTRY_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/dc26bada8_gamelodging.mp3';
 // Uploaded symbol-match sound — plays when spinning symbols match.
 const SYM_MATCH_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/08650935f_SpinSymbleMachSound_0.mp3';
 let spinBuffer = null;
@@ -33,9 +31,6 @@ let spinClickLoading = false;
 let spinClickPromise = null;
 let symMatchBuffer = null;
 let symMatchLoading = false;
-let entryBuffer = null;
-let entryLoading = false;
-let entryPromise = null;
 
 async function loadSpinBuffer() {
   if (spinBuffer || spinLoading) return;
@@ -101,57 +96,7 @@ function loadSpinClickBuffer() {
   return spinClickPromise;
 }
 
-// Loads the dedicated game-entry sound buffer (used only by Wild Bounty).
-function loadEntryBuffer() {
-  if (entryBuffer) return Promise.resolve();
-  if (entryPromise) return entryPromise;
-  entryLoading = true;
-  entryPromise = (async () => {
-    try {
-      const res = await fetch(ENTRY_SOUND_URL);
-      const arr = await res.arrayBuffer();
-      const ac = getCtx();
-      if (ac) entryBuffer = await ac.decodeAudioData(arr);
-    } catch { /* ignore */ } finally {
-      entryLoading = false;
-      entryPromise = null;
-    }
-  })();
-  return entryPromise;
-}
 
-let entrySource = null;
-
-// Plays the entry sound when Wild Bounty loads and returns a Promise that
-// resolves when the sound finishes — used to gate the loading screen so
-// it stays visible for the entire duration of the sound.
-export function playEntrySound() {
-  return new Promise((resolve) => {
-    const ac = getCtx();
-    if (!ac || bgMuted || isGlobalMuted()) { resolve(); return; }
-    loadEntryBuffer().then(() => {
-      if (!entryBuffer || bgMuted || isGlobalMuted()) { resolve(); return; }
-      const src = ac.createBufferSource();
-      src.buffer = entryBuffer;
-      const g = ac.createGain();
-      g.gain.setValueAtTime(VOL, ac.currentTime);
-      src.connect(g).connect(ac.destination);
-      src.onended = () => { if (entrySource === src) entrySource = null; resolve(); };
-      entrySource = src;
-      src.start();
-    });
-  });
-}
-
-// Suspends/stops the entry sound immediately — called when leaving the game
-// so the sound never plays outside of Wild Bounty entry.
-export function stopEntrySound() {
-  const ac = getCtx();
-  if (ac && entrySource) {
-    try { entrySource.onended = null; entrySource.stop(); } catch { /* already stopped */ }
-    entrySource = null;
-  }
-}
 
 function playScatter() {
   const ac = getCtx();
@@ -573,7 +518,7 @@ function playFreeSpinTrigger() {
 }
 
 export const sfx = {
-  preload() { loadBgBuffer(); loadSpinClickBuffer(); loadSymMatchBuffer(); loadScatterBuffer(); loadTotalWinBuffer(); loadEntryBuffer(); },
+  preload() { loadBgBuffer(); loadSpinClickBuffer(); loadSymMatchBuffer(); loadScatterBuffer(); loadTotalWinBuffer(); },
   spin() { startBackgroundMusic(); },
   stopSpin() {},
   win() {},
