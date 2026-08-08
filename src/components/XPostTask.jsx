@@ -218,9 +218,9 @@ export default function XPostTask({ profile, onClaimed }) {
                   <button
                     onClick={openCompose}
                     className="w-full py-3 text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
-                    style={{ border: '1px solid rgba(212,175,55,0.35)', background: 'rgba(255,255,255,0.04)', color: '#D4AF37', borderRadius: '14px', fontWeight: 700 }}
+                    style={{ background: '#000', color: '#fff', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '14px', fontWeight: 700 }}
                   >
-                    <ExternalLink className="w-4 h-4" /> {t('Post on X Now')}
+                    <XLogo className="w-4 h-4" /> {t('Post on X Now')}
                   </button>
 
                   <div className="flex flex-col gap-1.5">
@@ -249,7 +249,7 @@ export default function XPostTask({ profile, onClaimed }) {
                     disabled={submitting}
                     className="dash-btn-gold w-full py-3 text-sm flex items-center justify-center gap-2"
                   >
-                    {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('Submitting...')}</> : <><CheckCircle2 className="w-4 h-4" /> {t('Submit')}</>}
+                    {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('Submitting...')}</> : <><Send className="w-4 h-4" /> {t('Submit')}</>}
                   </button>
                   {(isExpired || isRejected) && (
                     <p className="text-[11px] text-center" style={{ color: isRejected ? '#f87171' : '#fb923c' }}>
