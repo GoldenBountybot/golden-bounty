@@ -6,7 +6,7 @@ import BackButton from "@/components/BackButton";
 import GameTitleBar from "@/components/GameTitleBar";
 import { useCasinoBalance } from "@/lib/useCasinoBalance";
 import { Wallet, Volume2, VolumeX } from "lucide-react";
-import { startBackgroundMusic, stopBackgroundMusic } from "@/components/wildbounty/sounds";
+import { startBackgroundMusic, stopBackgroundMusic, sfx } from "@/components/wildbounty/sounds";
 import { useMute } from "@/lib/soundMute";
 
 export default function SlotGame() {
@@ -17,7 +17,10 @@ export default function SlotGame() {
   // Start background music only after the loading screen finishes, and stop
   // it when leaving the game so it doesn't keep playing on other pages.
   useEffect(() => {
-    if (loaded) startBackgroundMusic();
+    if (loaded) {
+      startBackgroundMusic();
+      sfx.spinClick();
+    }
     return () => { stopBackgroundMusic(); };
   }, [loaded]);
 
