@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/LanguageContext';
-import { Loader2, Check, Gift, ExternalLink, Clock, XCircle, CheckCircle2, Send, RefreshCw } from 'lucide-react';
+import { Loader2, Check, Gift, ExternalLink, Clock, CheckCircle2, Send, ChevronDown, ChevronUp } from 'lucide-react';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const BOUNTY_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
@@ -24,11 +24,17 @@ const fmtRemain = (ms) => {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 };
 
+// Pre-filled post text about the app — opens directly in X compose window.
+const POST_TEXT = `🤠 I'm playing on Golden Bounty — the ultimate Wild West gaming platform! Stake, play, and earn real rewards. Tag ${APP_X_HANDLE} to join the bounty hunt! 🪙✨ #GoldenBounty`;
+
+const composeUrl = () => `https://x.com/compose/post?text=${encodeURIComponent(POST_TEXT)}`;
+
 export default function XPostTask({ profile, onClaimed }) {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [xUsername, setXUsername] = useState('');
   const [postLink, setPostLink] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -50,11 +56,12 @@ export default function XPostTask({ profile, onClaimed }) {
 
   useEffect(() => { loadSubmission(); }, [loadSubmission]);
 
-  // Live countdown tick
+  // Live countdown tick — only when expanded & pending/approved
   useEffect(() => {
+    if (!expanded) return;
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [expanded]);
 
   const deadline = submission ? new Date(submission.created_date).getTime() + WINDOW_MS : 0;
   const remaining = deadline - now;
@@ -65,6 +72,17 @@ export default function XPostTask({ profile, onClaimed }) {
   const isRejected = submission && submission.status === 'rejected';
   const showForm = !submission || isExpired || isRejected;
 
+  // Compact status badge for collapsed card
+  const statusBadge = () => {
+    if (loading) return null;
+    if (isClaimed) return { text: t('Claimed'), color: '#34d399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.35)', icon: Check };
+    if (canClaim) return { text: t('Claim'), color: '#FFD700', bg: 'rgba(255,215,0,0.12)', border: 'rgba(255,215,0,0.4)', icon: Gift };
+    if (isPending) return { text: fmtRemain(remaining), color: '#fb923c', bg: 'rgba(251,146,60,0.12)', border: 'rgba(251,146,60,0.4)', icon: Clock };
+    if (isRejected) return { text: t('Rejected'), color: '#f87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.4)', icon: Clock };
+    return { text: t('Start'), color: '#D4AF37', bg: 'rgba(212,175,55,0.12)', border: 'rgba(212,175,55,0.35)', icon: Send };
+  };
+  const badge = statusBadge();
+
   const submit = async () => {
     const handle = xUsername.trim().replace(/^@/, '');
     const link = postLink.trim();
@@ -72,8 +90,6 @@ export default function XPostTask({ profile, onClaimed }) {
     if (!link || !/^https?:\/\/.+/i.test(link)) { toast({ title: t('Enter a valid post link') }); return; }
     setSubmitting(true);
     try {
-      // If there's an expired/rejected previous submission, mark it expired so
-      // history is preserved, then create a fresh one.
       if (submission && (isExpired || isRejected)) {
         try {
           await base44.entities.XPostSubmission.update(submission.id, {
@@ -126,16 +142,46 @@ export default function XPostTask({ profile, onClaimed }) {
     setClaiming(false);
   };
 
-  return (
-    <div className="flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-      <div className="flex items-center gap-2 px-1">
-        <XLogo className="w-4 h-4" style={{ color: '#fff' }} />
-        <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>{t('Post on X · Earn BOUNTY')}</h3>
-      </div>
+  const openCompose = () => {
+    window.open(composeUrl(), '_blank', 'noopener,noreferrer');
+  };
 
-      <div className="dash-card p-4 flex flex-col gap-3">
-        {/* Reward badge */}
-        <div className="flex items-center justify-between">
+  return (
+    <div className="flex flex-col gap-2" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+      {/* Compact card — same style as other tasks */}
+      <button
+        onClick={() => setExpanded((e) => !e)}
+        className="dash-card p-4 flex items-center gap-3 w-full text-left transition-all active:scale-[0.98]"
+        style={isClaimed ? { opacity: 0.65 } : undefined}
+      >
+        <div className="flex items-center justify-center w-10 h-10 rounded-xl shrink-0" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.35)' }}>
+          <XLogo className="w-4 h-4" style={{ color: '#fff' }} />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold" style={{ color: '#fff' }}>{t('Post on X')}</p>
+          <p className="text-[11px] flex items-center gap-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            <img src={BOUNTY_LOGO} alt="Bounty" className="w-3.5 h-3.5" style={{ mixBlendMode: 'screen' }} />
+            +{REWARD} BOUNTY
+          </p>
+        </div>
+
+        {badge && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold shrink-0" style={{ background: badge.bg, border: `1px solid ${badge.border}`, color: badge.color }}>
+            <badge.icon className="w-3.5 h-3.5" />
+            <span className="tabular-nums">{badge.text}</span>
+          </div>
+        )}
+
+        {expanded
+          ? <ChevronUp className="w-4 h-4 shrink-0" style={{ color: 'rgba(212,175,55,0.6)' }} />
+          : <ChevronDown className="w-4 h-4 shrink-0" style={{ color: 'rgba(212,175,55,0.6)' }} />}
+      </button>
+
+      {/* Expanded full view */}
+      {expanded && (
+        <div className="dash-card p-4 flex flex-col gap-3" style={{ animation: 'dashFadeIn 300ms ease both' }}>
+          {/* Reward header */}
           <div className="flex items-center gap-2">
             <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(212,175,55,0.35)' }}>
               <XLogo className="w-4 h-4" style={{ color: '#fff' }} />
@@ -148,116 +194,123 @@ export default function XPostTask({ profile, onClaimed }) {
               </p>
             </div>
           </div>
-        </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-3">
-            <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#D4AF37' }} />
-          </div>
-        ) : (
-          <>
-            {/* Submission form */}
-            {showForm && (
-              <>
-                <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                  {t('Post about Golden Bounty on X, then submit your X username and the post link. Admin will review within 24 hours. If approved, claim your BOUNTY tokens.')}
-                </p>
-                <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.35)' }}>
-                  <XLogo className="w-4 h-4 shrink-0" style={{ color: '#fff' }} />
-                  <p className="text-[11px] leading-snug" style={{ color: 'rgba(255,255,255,0.75)' }}>
-                    {t('You must tag our official X account')} <span className="font-bold" style={{ color: '#FFD700' }}>{APP_X_HANDLE}</span> {t('in your post for it to be valid.')}
+          {loading ? (
+            <div className="flex items-center justify-center py-3">
+              <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#D4AF37' }} />
+            </div>
+          ) : (
+            <>
+              {/* Submission form */}
+              {showForm && (
+                <>
+                  <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                    {t('Post about Golden Bounty on X, then submit your X username and the post link. Admin will review within 24 hours. If approved, claim your BOUNTY tokens.')}
                   </p>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('X Username')}</label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>@</span>
+                  <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.35)' }}>
+                    <XLogo className="w-4 h-4 shrink-0" style={{ color: '#fff' }} />
+                    <p className="text-[11px] leading-snug" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                      {t('You must tag our official X account')} <span className="font-bold" style={{ color: '#FFD700' }}>{APP_X_HANDLE}</span> {t('in your post for it to be valid.')}
+                    </p>
+                  </div>
+
+                  {/* Direct post button — opens X compose with pre-filled text */}
+                  <button
+                    onClick={openCompose}
+                    className="w-full py-3 text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+                    style={{ background: '#000', color: '#fff', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '14px', fontWeight: 700 }}
+                  >
+                    <XLogo className="w-4 h-4" /> {t('Post on X Now')}
+                  </button>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('X Username')}</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>@</span>
+                      <input
+                        value={xUsername}
+                        onChange={(e) => setXUsername(e.target.value)}
+                        placeholder="your_username"
+                        className="dash-input w-full pl-8 pr-4 py-2.5 text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Post Link')}</label>
                     <input
-                      value={xUsername}
-                      onChange={(e) => setXUsername(e.target.value)}
-                      placeholder="your_username"
-                      className="dash-input w-full pl-8 pr-4 py-2.5 text-sm"
+                      value={postLink}
+                      onChange={(e) => setPostLink(e.target.value)}
+                      placeholder="https://x.com/your_username/status/..."
+                      className="dash-input w-full px-4 py-2.5 text-sm"
                     />
                   </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Post Link')}</label>
-                  <input
-                    value={postLink}
-                    onChange={(e) => setPostLink(e.target.value)}
-                    placeholder="https://x.com/your_username/status/..."
-                    className="dash-input w-full px-4 py-2.5 text-sm"
-                  />
-                </div>
-                <button
-                  onClick={submit}
-                  disabled={submitting}
-                  className="dash-btn-gold w-full py-3 text-sm flex items-center justify-center gap-2"
-                >
-                  {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('Submitting...')}</> : <><Send className="w-4 h-4" /> {t('Submit')}</>}
-                </button>
-                {(isExpired || isRejected) && (
-                  <p className="text-[11px] text-center" style={{ color: isRejected ? '#f87171' : '#fb923c' }}>
-                    {isRejected ? t('Your previous submission was rejected. Please try again.') : t('Your previous submission expired (no approval within 24h). Please try again.')}
-                  </p>
-                )}
-              </>
-            )}
+                  <button
+                    onClick={submit}
+                    disabled={submitting}
+                    className="dash-btn-gold w-full py-3 text-sm flex items-center justify-center gap-2"
+                  >
+                    {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('Submitting...')}</> : <><Send className="w-4 h-4" /> {t('Submit')}</>}
+                  </button>
+                  {(isExpired || isRejected) && (
+                    <p className="text-[11px] text-center" style={{ color: isRejected ? '#f87171' : '#fb923c' }}>
+                      {isRejected ? t('Your previous submission was rejected. Please try again.') : t('Your previous submission expired (no approval within 24h). Please try again.')}
+                    </p>
+                  )}
+                </>
+              )}
 
-            {/* Pending — awaiting approval, countdown */}
-            {isPending && (
-              <div className="flex flex-col items-center gap-2 py-2">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(251,146,60,0.12)', border: '1px solid rgba(251,146,60,0.4)' }}>
-                  <Clock className="w-4 h-4" style={{ color: '#fb923c' }} />
-                  <span className="text-[12px] font-bold" style={{ color: '#fb923c' }}>{t('Awaiting Admin Approval')}</span>
+              {/* Pending — awaiting approval, countdown */}
+              {isPending && (
+                <div className="flex flex-col items-center gap-2 py-2">
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(251,146,60,0.12)', border: '1px solid rgba(251,146,60,0.4)' }}>
+                    <Clock className="w-4 h-4" style={{ color: '#fb923c' }} />
+                    <span className="text-[12px] font-bold" style={{ color: '#fb923c' }}>{t('Awaiting Admin Approval')}</span>
+                  </div>
+                  <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('Time remaining for approval')}</p>
+                  <p className="text-2xl font-extrabold tabular-nums" style={{ color: '#FFD700', fontFamily: SANS }}>{fmtRemain(remaining)}</p>
+                  <div className="w-full flex items-center gap-2 px-3 py-2 rounded-xl mt-1" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(212,175,55,0.25)' }}>
+                    <XLogo className="w-3.5 h-3.5 shrink-0" style={{ color: '#fff' }} />
+                    <span className="text-[11px] truncate" style={{ color: 'rgba(255,255,255,0.7)' }}>@{submission.x_username}</span>
+                    <a href={submission.post_link} target="_blank" rel="noopener noreferrer" className="ml-auto shrink-0">
+                      <ExternalLink className="w-3.5 h-3.5" style={{ color: '#D4AF37' }} />
+                    </a>
+                  </div>
                 </div>
-                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('Time remaining for approval')}</p>
-                <p className="text-2xl font-extrabold tabular-nums" style={{ color: '#FFD700', fontFamily: SANS }}>{fmtRemain(remaining)}</p>
-                <div className="w-full flex items-center gap-2 px-3 py-2 rounded-xl mt-1" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(212,175,55,0.25)' }}>
-                  <XLogo className="w-3.5 h-3.5 shrink-0" style={{ color: '#fff' }} />
-                  <span className="text-[11px] truncate" style={{ color: 'rgba(255,255,255,0.7)' }}>@{submission.x_username}</span>
-                  <a href={submission.post_link} target="_blank" rel="noopener noreferrer" className="ml-auto shrink-0">
-                    <ExternalLink className="w-3.5 h-3.5" style={{ color: '#D4AF37' }} />
-                  </a>
-                </div>
-              </div>
-            )}
+              )}
 
-            {/* Approved — claim */}
-            {canClaim && (
-              <div className="flex flex-col items-center gap-2 py-2">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.4)' }}>
-                  <CheckCircle2 className="w-4 h-4" style={{ color: '#34d399' }} />
-                  <span className="text-[12px] font-bold" style={{ color: '#34d399' }}>{t('Approved! Claim your reward')}</span>
+              {/* Approved — claim */}
+              {canClaim && (
+                <div className="flex flex-col items-center gap-2 py-2">
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.4)' }}>
+                    <CheckCircle2 className="w-4 h-4" style={{ color: '#34d399' }} />
+                    <span className="text-[12px] font-bold" style={{ color: '#34d399' }}>{t('Approved! Claim your reward')}</span>
+                  </div>
+                  <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('Claim before timer expires')}</p>
+                  <p className="text-lg font-extrabold tabular-nums" style={{ color: '#FFD700' }}>{fmtRemain(remaining)}</p>
+                  <button
+                    onClick={claim}
+                    disabled={claiming}
+                    className="dash-btn-gold w-full py-3 text-sm flex items-center justify-center gap-2"
+                  >
+                    {claiming ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('Claiming...')}</> : <><Gift className="w-4 h-4" /> {t('Claim')} {REWARD} BOUNTY</>}
+                  </button>
                 </div>
-                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>{t('Claim before timer expires')}</p>
-                <p className="text-lg font-extrabold tabular-nums" style={{ color: '#FFD700' }}>{fmtRemain(remaining)}</p>
-                <button
-                  onClick={claim}
-                  disabled={claiming}
-                  className="dash-btn-gold w-full py-3 text-sm flex items-center justify-center gap-2"
-                >
-                  {claiming ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('Claiming...')}</> : <><Gift className="w-4 h-4" /> {t('Claim')} {REWARD} BOUNTY</>}
-                </button>
-              </div>
-            )}
+              )}
 
-            {/* Claimed */}
-            {isClaimed && (
-              <div className="flex items-center gap-2 px-3 py-3 rounded-xl" style={{ background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.35)' }}>
-                <Check className="w-5 h-5" style={{ color: '#34d399' }} />
-                <div>
-                  <p className="text-sm font-bold" style={{ color: '#34d399' }}>{t('Reward Claimed')}</p>
-                  <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>+{REWARD} BOUNTY</p>
+              {/* Claimed */}
+              {isClaimed && (
+                <div className="flex items-center gap-2 px-3 py-3 rounded-xl" style={{ background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.35)' }}>
+                  <Check className="w-5 h-5" style={{ color: '#34d399' }} />
+                  <div>
+                    <p className="text-sm font-bold" style={{ color: '#34d399' }}>{t('Reward Claimed')}</p>
+                    <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>+{REWARD} BOUNTY</p>
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* Expired (approved too late or pending past 24h with no approval) */}
-            {submission && !isPending && !canClaim && !isClaimed && isExpired && !showForm && null}
-          </>
-        )}
-      </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
