@@ -34,7 +34,7 @@ export default function XPostTask({ profile, onClaimed }) {
   const { t } = useLanguage();
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const [xUsername, setXUsername] = useState('');
   const [postLink, setPostLink] = useState('');
   const [submitting, setSubmitting] = useState(false);
