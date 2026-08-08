@@ -28,7 +28,6 @@ let scatterBuffer = null;
 let scatterLoading = false;
 let spinClickBuffer = null;
 let spinClickLoading = false;
-let spinClickPromise = null;
 let symMatchBuffer = null;
 let symMatchLoading = false;
 
@@ -78,25 +77,16 @@ async function loadScatterBuffer() {
   } catch { /* ignore */ } finally { scatterLoading = false; }
 }
 
-function loadSpinClickBuffer() {
-  if (spinClickBuffer) return Promise.resolve();
-  if (spinClickPromise) return spinClickPromise;
+async function loadSpinClickBuffer() {
+  if (spinClickBuffer || spinClickLoading) return;
   spinClickLoading = true;
-  spinClickPromise = (async () => {
-    try {
-      const res = await fetch(SPIN_CLICK_URL);
-      const arr = await res.arrayBuffer();
-      const ac = getCtx();
-      if (ac) spinClickBuffer = await ac.decodeAudioData(arr);
-    } catch { /* ignore */ } finally {
-      spinClickLoading = false;
-      spinClickPromise = null;
-    }
-  })();
-  return spinClickPromise;
+  try {
+    const res = await fetch(SPIN_CLICK_URL);
+    const arr = await res.arrayBuffer();
+    const ac = getCtx();
+    if (ac) spinClickBuffer = await ac.decodeAudioData(arr);
+  } catch { /* ignore */ } finally { spinClickLoading = false; }
 }
-
-
 
 function playScatter() {
   const ac = getCtx();

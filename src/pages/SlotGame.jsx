@@ -10,8 +10,7 @@ import { startBackgroundMusic, stopBackgroundMusic } from "@/components/wildboun
 import { useMute } from "@/lib/soundMute";
 
 export default function SlotGame() {
-  const [assetsDone, setAssetsDone] = useState(false);
-  const loaded = assetsDone;
+  const [loaded, setLoaded] = useState(false);
   const { balance } = useCasinoBalance();
   const [muted, toggleMute] = useMute();
 
@@ -31,7 +30,7 @@ export default function SlotGame() {
         backgroundAttachment: 'fixed',
       }}
     >
-      {!loaded && <GameAssetLoader title="Wild Bounty" assets={WILD_BOUNTY_ASSETS} bgImage={GAME_BG.wildBounty} onDone={() => setAssetsDone(true)} />}
+      {!loaded && <GameAssetLoader title="Wild Bounty" assets={WILD_BOUNTY_ASSETS} bgImage={GAME_BG.wildBounty} onDone={() => setLoaded(true)} />}
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <GameTitleBar
           title="Wild Bounty Showdown"
