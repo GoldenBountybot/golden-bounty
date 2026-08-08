@@ -92,42 +92,7 @@ export default function ReferralStats({ profile, onBack }) {
         </div>
       </div>
 
-      {/* Ranking leaderboard — hidden for now */}
-      {false && (
-      <div className="flex items-center gap-2 px-1">
-        <Trophy className="w-4 h-4" style={{ color: '#D4AF37' }} />
-        <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>{t("Top Referrers")}</h3>
-      </div>
-      )}
-      {false && ranking.length === 0 ? (
-        <p className="text-[12px] px-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("No referrals yet. Share your promo code to climb the leaderboard.")}</p>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {ranking.map((r, i) => {
-            const rank = i + 1;
-            const meta = RANK_META[rank];
-            const isMe = r.id === profile?.id;
-            const Icon = meta?.icon || Trophy;
-            return (
-              <div key={r.id} className="dash-card p-3 flex items-center gap-3" style={meta ? { background: meta.bg, border: `1px solid ${meta.border}` } : isMe ? { border: '1px solid rgba(212,175,55,0.5)' } : undefined}>
-                <div className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0 font-extrabold text-sm" style={meta ? { background: 'rgba(255,255,255,0.06)', color: meta.color, border: `1px solid ${meta.border}` } : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(212,175,55,0.2)' }}>
-                  {meta ? <Icon className="w-4 h-4" /> : rank}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold truncate" style={{ color: isMe ? '#D4AF37' : '#fff' }}>
-                    {r.username}{isMe ? ` · ${t("You")}` : ''}
-                  </p>
-                  <p className="text-[11px] font-mono" style={{ color: 'rgba(255,255,255,0.45)' }}>#{r.uid || '—'}</p>
-                </div>
-                <div className="flex flex-col items-end shrink-0">
-                  <span className="text-sm font-extrabold tabular-nums" style={{ color: meta?.color || '#D4AF37' }}>{r.count}</span>
-                  <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("invites")}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {/* Ranking leaderboard — removed: only show the user's own referrals */}
 
       {/* My referrals list */}
       <div className="flex items-center gap-2 px-1 mt-2">
