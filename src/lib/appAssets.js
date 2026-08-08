@@ -67,7 +67,7 @@ const PROMO = [
 
 // ---- Airdrop page ----
 const AIRDROP = [
-  u('6b0feb46f_file_00000000a2c082079005efbe99d662d8.png'), // airdrop hero
+  u('c36d89e4b_file_000000000d648211a1ae80116606f30d.png'), // BOUNTY token banner
 ];
 
 // ---- Game card cover images (Home lobby grid) ----
