@@ -11,7 +11,7 @@ const CASHBACK_RATE = 0.03; // 3%
 export default function CashbackPanel({ profile, onBack }) {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { addRealBalance } = useCasinoBalance();
+  const { addRealBalance, demoMode } = useCasinoBalance();
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
   const [transactions, setTransactions] = useState([]);
@@ -49,10 +49,11 @@ export default function CashbackPanel({ profile, onBack }) {
   const totalWithdrawn = transactions
     .filter(tx => tx.type === 'withdraw' && (tx.status === 'approved' || tx.status === 'completed'))
     .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
-  const totalLoss = Math.max(0, totalDeposited - totalWithdrawn - balance);
+  // Demo mode losses are play-money — no real cashback is earned or shown.
+  const totalLoss = demoMode ? 0 : Math.max(0, totalDeposited - totalWithdrawn - balance);
 
-  const unclaimedLoss = Math.max(0, totalLoss - claimedLoss);
-  const cashbackAmount = Math.round(unclaimedLoss * CASHBACK_RATE * 100) / 100;
+  const unclaimedLoss = demoMode ? 0 : Math.max(0, totalLoss - claimedLoss);
+  const cashbackAmount = demoMode ? 0 : Math.round(unclaimedLoss * CASHBACK_RATE * 100) / 100;
 
   const claim = async () => {
     if (cashbackAmount <= 0 || claiming) return;
