@@ -63,7 +63,8 @@ const AuthenticatedApp = () => {
   // image has finished downloading AND a minimum splash duration has elapsed,
   // so users actually see it instead of a flash.
   const [imgReady, setImgReady] = useState(false);
-  const [assetsReady, setAssetsReady] = useState(false);
+  const [staticReady, setStaticReady] = useState(false);
+  const [dynamicReady, setDynamicReady] = useState(false);
   const [minDone, setMinDone] = useState(false);
 
   useEffect(() => {
@@ -79,17 +80,26 @@ const AuthenticatedApp = () => {
     splashLogo.onload = onImgLoad;
     splashLogo.onerror = onImgLoad;
     splashLogo.src = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
-    // Preload ALL app-wide images (banners, icons, backgrounds) during the
-    // splash so every page renders instantly with no visible downloading.
+    // Preload all static app-wide images (banners, icons, backgrounds) during
+    // the splash so every page renders instantly with no visible downloading.
     preloadAssets(APP_ASSETS)
-      .then(() => preloadDynamicAssets(base44))
-      .then(() => setAssetsReady(true))
-      .catch(() => setAssetsReady(true));
+      .then(() => setStaticReady(true))
+      .catch(() => setStaticReady(true));
     const t = setTimeout(() => setMinDone(true), MIN_SPLASH_MS);
     return () => clearTimeout(t);
   }, []);
 
-  const showSplash = loading || !imgReady || !assetsReady || !minDone;
+  // Dynamic entity images (admin banners, payment QRs, site settings, avatars)
+  // require authentication — wait until auth completes before fetching them
+  // so the API calls don't fail silently and leave images uncached.
+  useEffect(() => {
+    if (loading) return;
+    preloadDynamicAssets(base44)
+      .then(() => setDynamicReady(true))
+      .catch(() => setDynamicReady(true));
+  }, [loading]);
+
+  const showSplash = loading || !imgReady || !staticReady || !dynamicReady || !minDone;
 
   // Once the splash is done, warm all game assets in the background so they
   // are already cached when the user taps into a game — near-instant load.

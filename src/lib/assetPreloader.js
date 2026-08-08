@@ -74,7 +74,7 @@ export async function preloadDynamicAssets(base44) {
   const urls = new Set();
   const safeList = async (entity, field) => {
     try {
-      const rows = await base44.asServiceRole.entities[entity].list('-created_date', 100);
+      const rows = await base44.entities[entity].list('-created_date', 100);
       rows.forEach((r) => { if (r && r[field]) urls.add(r[field]); });
     } catch {}
   };
