@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, Mail, Lock, Loader2, Phone, User as UserIcon, Eye, EyeOff } from "lucide-react";
+import { UserPlus, Mail, Lock, Loader2, Phone, User as UserIcon, Eye, EyeOff, LogIn } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
@@ -153,12 +153,21 @@ export default function Register() {
       title={t("Create your account")}
       subtitle={t("Sign up to get started")}
       footer={
-        <>
-          {t("Already have an account?")}{" "}
-          <Link to="/login" className="text-primary font-medium hover:underline">
+        <div className="flex flex-col items-center gap-3">
+          <span>{t("Already have an account?")}</span>
+          <Link
+            to="/login"
+            className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-lg font-bold text-sm transition-all hover:scale-[1.03] active:scale-95"
+            style={{
+              background: 'linear-gradient(135deg, #f5c542, #c8881e)',
+              color: '#1a1408',
+              boxShadow: '0 4px 14px rgba(200,136,30,0.35), inset 0 1px 0 rgba(255,240,200,0.4)',
+            }}
+          >
+            <LogIn className="w-4 h-4" />
             {t("Log in")}
           </Link>
-        </>
+        </div>
       }
     >
       <Button

@@ -32,7 +32,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
           {children}
         </div>
         {footer && (
-          <p className="text-center text-sm text-amber-100/55 mt-6">{footer}</p>
+          <div className="text-center text-sm text-amber-100/55 mt-6">{footer}</div>
         )}
       </div>
     </div>
