@@ -8,6 +8,7 @@ const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-
 const BOUNTY_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
 const REWARD = 10;
 const WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
+const APP_X_HANDLE = '@GoldenBountyHQ'; // our official X account users must tag
 
 const XLogo = ({ className, style }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className} style={style}>
@@ -161,6 +162,12 @@ export default function XPostTask({ profile, onClaimed }) {
                 <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
                   {t('Post about Golden Bounty on X, then submit your X username and the post link. Admin will review within 24 hours. If approved, claim your BOUNTY tokens.')}
                 </p>
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.35)' }}>
+                  <XLogo className="w-4 h-4 shrink-0" style={{ color: '#fff' }} />
+                  <p className="text-[11px] leading-snug" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                    {t('You must tag our official X account')} <span className="font-bold" style={{ color: '#FFD700' }}>{APP_X_HANDLE}</span> {t('in your post for it to be valid.')}
+                  </p>
+                </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('X Username')}</label>
                   <div className="relative">
