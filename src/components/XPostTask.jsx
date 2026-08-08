@@ -79,7 +79,7 @@ export default function XPostTask({ profile, onClaimed }) {
     if (canClaim) return { text: t('Claim'), color: '#FFD700', bg: 'rgba(255,215,0,0.12)', border: 'rgba(255,215,0,0.4)', icon: Gift };
     if (isPending) return { text: fmtRemain(remaining), color: '#fb923c', bg: 'rgba(251,146,60,0.12)', border: 'rgba(251,146,60,0.4)', icon: Clock };
     if (isRejected) return { text: t('Rejected'), color: '#f87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.4)', icon: Clock };
-    return { text: t('Start'), color: '#D4AF37', bg: 'rgba(212,175,55,0.12)', border: 'rgba(212,175,55,0.35)', icon: Send };
+    return { text: t('Open'), color: '#D4AF37', bg: 'rgba(212,175,55,0.12)', border: 'rgba(212,175,55,0.35)', icon: Send };
   };
   const badge = statusBadge();
 
