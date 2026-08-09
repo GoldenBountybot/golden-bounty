@@ -68,6 +68,12 @@ const AuthenticatedApp = () => {
   const [dynamicReady, setDynamicReady] = useState(false);
   const [minDone, setMinDone] = useState(false);
 
+  // Phase 1: static splash image — show until the image loads AND a minimum
+  // display time elapses, so the user sees the full-screen splash first.
+  const showSplashImage = !imgReady || !minDone;
+  // Phase 2: loading screen — after the splash image, while assets/auth load.
+  const showLoadingScreen = !showSplashImage && (loading || !staticReady || !dynamicReady);
+
   useEffect(() => {
     // Preload ONLY the splash image so it shows instantly — no other assets
     // yet, so the loading screen phase has work to do after the splash.
@@ -92,12 +98,6 @@ const AuthenticatedApp = () => {
         .catch(() => setDynamicReady(true));
     }
   }, [showSplashImage, loading]);
-
-  // Phase 1: static splash image — show until the image loads AND a minimum
-  // display time elapses, so the user sees the full-screen splash first.
-  const showSplashImage = !imgReady || !minDone;
-  // Phase 2: loading screen — after the splash image, while assets/auth load.
-  const showLoadingScreen = !showSplashImage && (loading || !staticReady || !dynamicReady);
 
   // Once the splash is done, warm all game assets in the background so they
   // are already cached when the user taps into a game — near-instant load.
