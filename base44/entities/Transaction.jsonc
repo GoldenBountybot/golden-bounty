@@ -51,7 +51,20 @@
     "status"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}",
+          "data.type": "withdraw",
+          "data.status": "pending"
+        }
+      ]
+    },
     "read": {
       "$or": [
         {
@@ -63,6 +76,16 @@
           }
         }
       ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
     }
   }
 }
