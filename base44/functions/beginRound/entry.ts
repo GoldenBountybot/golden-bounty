@@ -23,6 +23,7 @@ import { readRtp, decideOutcome } from '../../shared/roundLogic.ts';
 const ROUND_TTL_MS = 60 * 60 * 1000; // 1 hour to settle
 const MAX_WIN_MULT = 5000;
 const FREE_SPIN_MAX_WIN = 5000;
+const MAX_WIN_PER_ROUND = 50000; // Absolute cap — defense in depth
 
 export default async function(req) {
   try {
@@ -74,6 +75,9 @@ export default async function(req) {
     } else {
       outcome = decideOutcome(rtp, betAmount, isFreeSpin);
     }
+
+    // Defense in depth: cap the stored win at the absolute maximum.
+    outcome.winAmount = Math.min(outcome.winAmount, MAX_WIN_PER_ROUND);
 
     // Generate an unguessable round token and store the pending round.
     const roundToken = crypto.randomUUID();

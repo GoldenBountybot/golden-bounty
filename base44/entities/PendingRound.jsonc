@@ -17,7 +17,7 @@
     "bet_amount": {
       "type": "number",
       "default": 0,
-      "description": "Bet amount for this round (deducted at settle time, not at begin)"
+      "description": "Bet amount for this round (deducted at beginRound, not at settle)"
     },
     "win_amount": {
       "type": "number",
@@ -44,7 +44,13 @@
         "settled",
         "expired"
       ],
-      "default": "pending"
+      "default": "pending",
+      "description": "pending = awaiting settlement. settled = already credited (do NOT credit again). expired = TTL passed, win forfeited."
+    },
+    "settle_claim": {
+      "type": "string",
+      "default": "",
+      "description": "Atomic claim token used by settleBet to prevent double-credit race conditions. When settleBet claims a round, it atomically sets this to a unique UUID via updateMany({status:'pending'}). If a concurrent call already claimed it, the re-read shows a different token and the second call aborts without crediting."
     },
     "expires_at": {
       "type": "string",

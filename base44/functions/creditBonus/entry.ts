@@ -77,6 +77,38 @@ export default async function(req) {
     const hasClaimed = (method, sinceMs) =>
       (bonusTxns || []).some((t) => t.method === method && new Date(t.created_date).getTime() >= sinceMs);
 
+    // ── Verify the amount matches the configured BonusSetting ──
+    // Prevents a hacker from calling creditBonus with amount: 2000 when the
+    // configured bonus is only $500. The server reads the real config and
+    // rejects any mismatch.
+    let expectedAmount = 0;
+    try {
+      const settings = await base44.asServiceRole.entities.BonusSetting.list();
+      const cfg = settings.find((s) => s.name === type);
+      if (cfg) {
+        if (cfg.active === false) {
+          return Response.json({ error: 'bonus-inactive' }, { status: 400 });
+        }
+        if (type === 'deposit_bonus') {
+          // deposit_bonus amount is dynamic (deposit * percent). Verified
+          // separately below against the user's actual approved deposit.
+          expectedAmount = 0; // handled in deposit_bonus section
+        } else {
+          expectedAmount = Number(cfg.amount ?? 0);
+        }
+      }
+    } catch { /* best-effort */ }
+
+    // For fixed-amount bonuses, reject if the requested amount doesn't match.
+    if (type !== 'cashback' && type !== 'deposit_bonus' && expectedAmount > 0) {
+      if (Math.abs(amount - expectedAmount) > 1) {
+        return Response.json({
+          error: 'amount-mismatch',
+          detail: `Configured ${type} bonus is $${expectedAmount.toFixed(2)} but you requested $${amount.toFixed(2)}.`,
+        }, { status: 400 });
+      }
+    }
+
     let extraWalletUpdate = {};
 
     // ── Per-type eligibility verification ──
@@ -130,9 +162,38 @@ export default async function(req) {
         return Response.json({ error: 'already-claimed-this-month' }, { status: 429 });
       }
     } else if (type === 'deposit_bonus') {
+      // Verify the user has an APPROVED/COMPLETED deposit that hasn't been
+      // bonused yet. Prevents calling creditBonus directly with no deposit.
       const hourAgo = now - 60 * 60 * 1000;
       if (hasClaimed('deposit_bonus', hourAgo)) {
         return Response.json({ error: 'already-claimed' }, { status: 429 });
+      }
+      // Find the user's most recent approved/completed deposit.
+      const allTxns = await base44.asServiceRole.entities.Transaction.filter(
+        { user_id: user.id }, '-created_date', 200
+      );
+      const approvedDeposit = (allTxns || []).find(
+        (t) => t.type === 'deposit' && (t.status === 'completed' || t.status === 'approved')
+      );
+      if (!approvedDeposit) {
+        return Response.json({
+          error: 'no-qualifying-deposit',
+          detail: 'You need an approved deposit before claiming a deposit bonus.',
+        }, { status: 400 });
+      }
+      // Verify the requested amount matches deposit_amount * deposit_percent.
+      let depositPercent = 50; // default
+      try {
+        const settings = await base44.asServiceRole.entities.BonusSetting.list();
+        const depCfg = settings.find((s) => s.name === 'deposit');
+        if (depCfg) depositPercent = Number(depCfg.deposit_percent ?? 50);
+      } catch {}
+      const expectedBonus = Math.round(Number(approvedDeposit.amount) * (depositPercent / 100) * 100) / 100;
+      if (Math.abs(amount - expectedBonus) > 1) {
+        return Response.json({
+          error: 'amount-mismatch',
+          detail: `Expected deposit bonus is $${expectedBonus.toFixed(2)} but you requested $${amount.toFixed(2)}.`,
+        }, { status: 400 });
       }
     }
 
