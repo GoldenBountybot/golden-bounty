@@ -88,9 +88,8 @@ Deno.serve(async (req) => {
       // accept anything at least the expected amount (never a string compare).
       let sent = 0n;
       try { sent = BigInt(String(log.data || '0x0')); } catch { continue; }
-      // $0.10 flat tolerance — crypto prices fluctuate slightly.
-      const tolUnits = 10n ** BigInt(net.decimals) / 10n;
-      if (sent + tolUnits < expectedUnits) continue;
+      // Allow a 1% rounding tolerance on the transferred amount.
+      if (sent * 100n < expectedUnits * 99n) continue;
       verified = true;
       break;
     }

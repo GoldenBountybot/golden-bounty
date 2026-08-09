@@ -19,14 +19,6 @@ async function rpc(method, params) {
   return j?.result ?? null;
 }
 
-async function getPrice(coinId) {
-  try {
-    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`, { headers: { Accept: 'application/json' } });
-    if (r.ok) { const j = await r.json(); if (j && j[coinId] && isFinite(j[coinId].usd)) return Number(j[coinId].usd); }
-  } catch {}
-  return null;
-}
-
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -60,10 +52,8 @@ Deno.serve(async (req) => {
 
     // Native SOL received = post - pre balance for the recipient account.
     const received = (tx.meta.postBalances[recipientIdx] || 0) - (tx.meta.preBalances[recipientIdx] || 0);
-    // $0.10 flat tolerance — crypto prices fluctuate slightly.
-    const price = await getPrice('solana');
-    if (!price || !isFinite(price)) return Response.json({ ok: false, reason: 'price-unavailable' });
-    if ((received / 1e9) * price < amount - 0.10) return Response.json({ ok: false, reason: 'amount-mismatch' });
+    // Allow a 1% rounding tolerance on the transferred lamports.
+    if (received < expectedLamports * 0.99) return Response.json({ ok: false, reason: 'amount-mismatch' });
 
     await creditDeposit(base44, user.id, user.email, amount, 'wallet-phantom-solana', signature, 'Phantom · Solana (SOL)');
 
