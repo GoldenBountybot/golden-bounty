@@ -105,12 +105,16 @@ Deno.serve(async (req) => {
       if (!claimed) continue; // another concurrent run already handled it
 
       // Credit the actual received USD to the user's balance + wager requirement.
-      const receivedUsd = received / 1e6;
+      // ATOMIC $inc — prevents the read-modify-write race condition where a
+      // concurrent operation overwrites this deposit credit.
+      const receivedUsd = Math.min(received / 1e6, 100000); // defense-in-depth cap
       try {
         const wallet = await findOrCreateWallet(base44, match.user_id);
-        const newBal = Number(wallet.balance || 0) + receivedUsd;
-        const newWager = Number(wallet.wager_remaining || 0) + receivedUsd;
-        await base44.asServiceRole.entities.Wallet.update(wallet.id, { balance: newBal, wager_remaining: newWager });
+        if (wallet.banned) throw new Error('Account banned');
+        await base44.asServiceRole.entities.Wallet.updateMany(
+          { user_id: match.user_id },
+          { $inc: { balance: receivedUsd, wager_remaining: receivedUsd } }
+        );
         // balance & wager_remaining are no longer on the User entity (moved to
         // the RLS-protected Wallet entity). No mirror needed.
       } catch (e) {
