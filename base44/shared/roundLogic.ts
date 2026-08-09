@@ -28,10 +28,13 @@ export async function readRtp(base44, userId, gameId) {
 
 // Server-side outcome decision based on RTP. The win is decided HERE —
 // the client can never override it. P(win) * mean_multiplier ≈ rtpFrac.
-export function decideOutcome(rtp, betAmount, isFreeSpin) {
+export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
   const rtpFrac = Math.max(0, Math.min(1, rtp / 100));
   // Win frequency: ~15% of RTP as win chance (at 50% RTP → ~7.5% win chance).
-  const winChance = rtpFrac * 0.15;
+  // Super Ace (fullhouse): reduced to ~8% of RTP so fewer spins land on the
+  // win line and cascade multipliers chain less often.
+  const winChanceMult = gameId === 'fullhouse' ? 0.08 : 0.15;
+  const winChance = rtpFrac * winChanceMult;
   const isWin = Math.random() < winChance;
   if (!isWin) return { isWin: false, winAmount: 0, multiplier: 0 };
 

@@ -88,7 +88,7 @@ export default async function(req) {
         : Math.min(betAmount * MAX_WIN_MULT, FREE_SPIN_MAX_WIN);
       outcome = { isWin: true, winAmount: cap, multiplier: MAX_WIN_MULT };
     } else {
-      outcome = decideOutcome(rtp, betAmount, isFreeSpin);
+      outcome = decideOutcome(rtp, betAmount, isFreeSpin, gameId);
     }
 
     // Defense in depth: cap the stored win at the absolute maximum.
