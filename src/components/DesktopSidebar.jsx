@@ -6,7 +6,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 // screens. On mobile the BottomNav bar is used instead (see BottomNavLayout).
 export default function DesktopSidebar() {
   const { t } = useLanguage();
-  const { search } = useLocation();
+  const { pathname, search } = useLocation();
 
   const items = [
     { to: '/dashboard', label: t('Dashboard'), src: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0bf2d07ee_file_000000009cf082119790d647b9b4d6d2.png' },
@@ -17,8 +17,11 @@ export default function DesktopSidebar() {
   ];
 
   const isActive = (item) => {
-    if (item.center) return location.pathname === '/';
-    return location.pathname === item.to.split('?')[0] && (item.to.includes('?') ? search === '?' + item.to.split('?')[1] : !search);
+    const [path, query] = item.to.split('?');
+    if (item.center) return pathname === '/';
+    if (pathname !== path) return false;
+    if (query) return search === '?' + query;
+    return !search;
   };
 
   return (
@@ -37,17 +40,17 @@ export default function DesktopSidebar() {
           {item.center && <div className="my-1 h-px w-10 bg-amber-200/20" />}
           <Link
             to={item.to}
-            className="group flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg transition-all hover:bg-amber-200/5 active:scale-95"
+            className={`group flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg transition-all hover:bg-amber-200/5 active:scale-95 ${isActive(item) ? 'bg-amber-200/10' : ''}`}
           >
             <img
               src={item.src}
               alt={item.label}
               draggable={false}
-              className="block w-11 h-11 select-none transition-all group-hover:scale-110"
+              className={`block w-11 h-11 select-none transition-all group-hover:scale-110 ${isActive(item) ? 'scale-105 brightness-125' : ''}`}
               style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 2px 6px rgba(200,136,30,0.4))' }}
             />
             <span
-              className="text-[10px] font-bold italic tracking-wide text-amber-100/85 group-hover:text-amber-200 text-center leading-tight"
+              className={`text-[10px] font-bold italic tracking-wide text-center leading-tight transition-colors ${isActive(item) ? 'text-amber-200' : 'text-amber-100/85 group-hover:text-amber-200'}`}
               style={{ fontFamily: 'Georgia, serif' }}
             >
               {item.label}
