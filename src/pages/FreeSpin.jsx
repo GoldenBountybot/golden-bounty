@@ -171,10 +171,9 @@ export default function FreeSpin() {
       // within 24 hours.
       setResult({ ...prize, win, held: true, expires_at: ts + 24 * 60 * 60 * 1000 });
     } else {
-      // In demo mode, free-spin wins credit the REAL wallet (not the practice
-      // balance), so the prize is preserved and visible once demo is off.
-      if (demoMode) addRealBalance(win);
-      else setBalance((b) => b + win);
+      // Credit the win through the secure creditBonus pathway (server-verified,
+      // capped, logged). addRealBalance handles both demo and real mode.
+      addRealBalance(win);
       setResult({ ...prize, win });
     }
     setLastSpinAt(ts);

@@ -254,7 +254,7 @@ export function useGates() {
       setSpinning(false);
       logActivity('gates-of-olympus', bet, win, win > 0 ? 'win' : 'loss', result.effectiveMult || 0);
     }, acc));
-  }, [spinning, balance, bet, freeSpins, turbo, setBalance, logActivity]);
+  }, [spinning, balance, bet, freeSpins, turbo, setBalance, settleBet, logActivity]);
 
   // auto spin (base game) — pause briefly so the win amount is readable
   useEffect(() => {

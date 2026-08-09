@@ -85,7 +85,7 @@ function genLiveBets(roundId) {
 const newPanel = () => ({ amount: 1, placed: false, cashedOut: false, cashOutMult: null, autoBet: false, autoCashout: 0, win: 0 });
 
 export function useCrashGame() {
-  const { balance, setBalance } = useCasinoBalance();
+  const { balance, setBalance, beginRound, settleBet } = useCasinoBalance();
   const logActivity = useLogActivity();
 
   const [phase, setPhase] = useState('waiting');
@@ -110,6 +110,7 @@ export function useCrashGame() {
   const lastCountdownRef = useRef(WAIT_MS);
   const loggedRoundRef = useRef(0);
   const blastedRoundRef = useRef(0);
+  const crashSettledRef = useRef(0);
   const playerNameRef = useRef('You');
 
   // Fetch the player's display name once so their bet shows at the top of the list.
@@ -187,7 +188,7 @@ export function useCrashGame() {
         }
         return r;
       });
-      if (balDelta) { balanceRef.current += balDelta; setBalance((bal) => bal + balDelta); }
+      if (balDelta) { balanceRef.current += balDelta; beginRound(); setBalance((bal) => bal + balDelta); }
       betsRef.current = reset;
       setBets(reset);
 
@@ -277,12 +278,23 @@ export function useCrashGame() {
         let m = Math.pow(GROWTH, Math.max(0, elapsed));
         const cp = crashPointRef.current;
         if (m >= cp) {
-          // Local crash the instant the curve reaches the bust point.
-          m = cp;
-          multRef.current = m;
-          setMultiplier(m);
-          phaseRef.current = 'crashed';
-          setPhase('crashed');
+        // Local crash the instant the curve reaches the bust point.
+        m = cp;
+        multRef.current = m;
+        setMultiplier(m);
+        phaseRef.current = 'crashed';
+        setPhase('crashed');
+        // Settle any uncashed bets (bet lost, win = 0) on the server.
+        // Guard with crashSettledRef to ensure we settle once per round.
+        if (crashSettledRef.current !== roundIdRef.current) {
+          crashSettledRef.current = roundIdRef.current;
+          const uncashed = betsRef.current.map((b, idx) => ({ b, idx }))
+            .filter((x) => x.b.placed && !x.b.cashedOut);
+          uncashed.reduce(async (p, x) => {
+            await p;
+            settleBet(x.b.amount, 0, 'rocket-crash', false, otherActiveDelta(x.idx));
+          }, Promise.resolve());
+        }
         } else {
           multRef.current = m;
           setMultiplier(m);
@@ -291,15 +303,26 @@ export function useCrashGame() {
         // auto cashout — player bets
         let balAdd = 0;
         let changed = false;
-        const next = betsRef.current.map((b) => {
+        const cashedIdxs = [];
+        const next = betsRef.current.map((b, idx) => {
           if (b.placed && !b.cashedOut && b.autoCashout > 0 && m >= b.autoCashout) {
             const win = +(b.amount * b.autoCashout).toFixed(2);
             balAdd += win; changed = true;
+            cashedIdxs.push(idx);
             return { ...b, cashedOut: true, cashOutMult: +m.toFixed(2), win };
           }
           return b;
         });
-        if (changed) { betsRef.current = next; setBets(next); setBalance((bal) => bal + balAdd); syncPlayerEntries(); }
+        if (changed) {
+          betsRef.current = next; setBets(next); setBalance((bal) => bal + balAdd); syncPlayerEntries();
+          // Settle each auto-cashouted panel on the server, preserving other
+          // active panels' deltas. Sequential to avoid clearing uncommittedDelta.
+          cashedIdxs.reduce(async (p, idx) => {
+            await p;
+            const bb = betsRef.current[idx];
+            if (bb) settleBet(bb.amount, bb.win, 'rocket-crash', false, otherActiveDelta(idx));
+          }, Promise.resolve());
+        }
 
         // auto cashout — shared live bets (skip player entries — they have
         // cashOutAt: null until the player cashes out, and m >= null is true,
@@ -326,11 +349,21 @@ export function useCrashGame() {
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
+  // Sum the uncommitted bet deductions of all OTHER active (placed, not
+  // cashed out) panels — passed as preserveDelta to settleBet so the local
+  // balance stays correct when one panel settles while another is still live.
+  const otherActiveDelta = (skipIdx) => betsRef.current.reduce((sum, bb, idx) => {
+    if (idx === skipIdx) return sum;
+    if (bb.placed && !bb.cashedOut) return sum - bb.amount;
+    return sum;
+  }, 0);
+
   const placeBet = (i) => {
     if (phaseRef.current !== 'waiting') return;
     const b = betsRef.current[i];
     if (b.placed) return;
     if (balanceRef.current < b.amount) return;
+    beginRound();
     setBalance((bal) => bal - b.amount);
     balanceRef.current -= b.amount;
     const next = betsRef.current.map((bb, idx) => (idx === i ? { ...bb, placed: true } : bb));
@@ -349,6 +382,8 @@ export function useCrashGame() {
     betsRef.current = next;
     setBets(next);
     syncPlayerEntries();
+    // Net-zero settlement (deduct bet, credit refund) with other panel's delta preserved.
+    settleBet(b.amount, b.amount, 'rocket-crash', false, otherActiveDelta(i));
   };
 
   const cashOut = (i) => {
@@ -364,6 +399,8 @@ export function useCrashGame() {
     betsRef.current = next;
     setBets(next);
     syncPlayerEntries();
+    // Settle this panel's bet on the server, preserving other active panels' deltas.
+    settleBet(b.amount, win, 'rocket-crash', false, otherActiveDelta(i));
   };
 
   const setAmount = (i, amt) => {

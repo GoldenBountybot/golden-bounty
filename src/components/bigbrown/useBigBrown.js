@@ -134,7 +134,7 @@ export function useBigBrown() {
 
     setSpinning(false);
     logActivity('big-brown', bet, totalWin, totalWin > 0 ? 'win' : 'loss');
-  }, [bet, setBalance, logActivity]);
+  }, [bet, setBalance, settleBet, logActivity]);
 
   const spin = useCallback(() => {
     if (spinning) return;
@@ -295,7 +295,7 @@ export function useBigBrown() {
       setMessage('Free games cancelled');
     }
     setShowFreeSpinStart(false);
-  }, [awardedFreeSpins, setBalance]);
+  }, [awardedFreeSpins, setBalance, addRealBalance]);
 
   const bonusCosts = {
     8: bonusPopCost(bet, 8),

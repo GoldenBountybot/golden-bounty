@@ -32,7 +32,7 @@ function dealFour() {
 
 export function useArgonauts() {
   const [grid, setGrid] = useState(() => generateGrid(false));
-  const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
+  const { balance, setBalance, reset: resetBalance, beginRound, settleBet } = useCasinoBalance();
   const [bet, setBet] = useState(0.10); // $0.10 default
   const [spinning, setSpinning] = useState(false);
   const [lastWin, setLastWin] = useState(0);
@@ -110,7 +110,7 @@ export function useArgonauts() {
     setCoinStuck({});
     setCoinSpins(0);
     setCoinDropped(new Set());
-    setBalance((b) => b + total);
+    settleBet(betRef.current, total, 'argonauts', true);
     setLastWin(total);
     setTotalWin((t) => t + total);
     setMessage(`COIN FEATURE · WON $${total.toFixed(2)}`);
@@ -118,7 +118,7 @@ export function useArgonauts() {
     setGrid(generateGrid(false));
     setSpinningReels(new Set([0, 1, 2, 3, 4]));
     logActivity('argonauts', betRef.current, total, 'win', 0);
-  }, [setBalance, logActivity]);
+  }, [setBalance, settleBet, logActivity]);
 
   const coinSpin = useCallback(() => {
     if (!coinModeRef.current || Object.keys(coinStuckRef.current).length === 0) return;
@@ -232,8 +232,8 @@ export function useArgonauts() {
     // Value-coin hold-and-spin trigger (base game only)
     const coinTrig = !usingFree && coinTriggered(finalGrid);
     if (coinTrig) {
+      settleBet(bet, baseWin, 'argonauts', false);
       if (baseWin > 0) {
-        setBalance((b) => b + baseWin);
         setLastWin(baseWin);
         setTotalWin((t) => t + baseWin);
       }
@@ -256,7 +256,7 @@ export function useArgonauts() {
       setLastWin(baseWin);
       setTotalWin((t) => t + baseWin);
       if (usingFree) {
-        setBalance((b) => b + baseWin);
+        settleBet(bet, baseWin, 'argonauts', true);
         setMessage(awardedFree ? `WIN $${baseWin.toFixed(2)} · +${FREE_SPINS_AWARD} FREE` : `WIN $${baseWin.toFixed(2)}`);
       } else {
         setPendingWin(baseWin);
@@ -264,6 +264,7 @@ export function useArgonauts() {
         setMessage(awardedFree ? `WIN $${baseWin.toFixed(2)} · +${FREE_SPINS_AWARD} FREE` : `WIN $${baseWin.toFixed(2)} · TAKE / RISK?`);
       }
     } else {
+      if (!usingFree) settleBet(bet, 0, 'argonauts', false);
       if (!awardedFree) setMessage(usingFree ? 'FREE SPIN · NO WIN' : 'NO WIN · SPIN AGAIN');
     }
 
@@ -282,7 +283,7 @@ export function useArgonauts() {
     if (!usingFree && !awardedFree && bonusCount < BONUS_TRIGGER_COUNT) {
       logActivity('argonauts', bet, baseWin, baseWin > 0 ? 'win' : 'loss');
     }
-  }, [lineBet, bet, setBalance, logActivity, startCoinRound]);
+  }, [lineBet, bet, setBalance, settleBet, logActivity, startCoinRound]);
 
   const spin = useCallback(() => {
     if (spinning || coinModeRef.current) return;
@@ -300,9 +301,10 @@ export function useArgonauts() {
     setSpinningReels(new Set());
     setAnticipateReels(new Set());
     setSlowMoReels(new Set());
-    if (riskActive && pendingWin > 0) setBalance((b) => b + pendingWin);
+    if (riskActive && pendingWin > 0) settleBet(bet, pendingWin, 'argonauts', false);
     setPendingWin(0);
     setRiskActive(false);
+    beginRound();
     if (!usingFree) {
       setTotalWin(0);
       setBalance((b) => b - bet);
@@ -426,7 +428,7 @@ export function useArgonauts() {
   const finishBonus = useCallback(() => {
     setBonusActive(false);
     setBonusSteps([]);
-    setBalance((b) => b + bonusPrize);
+    settleBet(bet, bonusPrize, 'argonauts', true);
     setLastWin(bonusPrize);
     setTotalWin((t) => t + bonusPrize);
     setMessage(`GOLDEN FLEECE · WON $${bonusPrize.toFixed(2)}${bonusExtra ? ' · ULTRA JACKPOT!' : ''}`);
@@ -434,7 +436,7 @@ export function useArgonauts() {
     logActivity('argonauts', bet, bonusPrize, 'win', 0);
     setBonusPrize(0);
     setBonusExtra(false);
-  }, [bonusPrize, bonusExtra, setBalance, logActivity, bet]);
+  }, [bonusPrize, bonusExtra, setBalance, settleBet, logActivity, bet]);
 
   // Gamble (risk) feature — card based
   const startRisk = useCallback(() => {
@@ -483,7 +485,7 @@ export function useArgonauts() {
   }, [riskResult]);
 
   const collectRisk = useCallback(() => {
-    setBalance((b) => b + pendingWin);
+    settleBet(bet, pendingWin, 'argonauts', false);
     setLastWin(pendingWin);
     setMessage(`RISK WIN · COLLECTED $${pendingWin.toFixed(2)}`);
     setRiskMode(false);
@@ -497,7 +499,7 @@ export function useArgonauts() {
     setRiskOutcome(null);
     setSpinning(false);
     logActivity('argonauts', bet, pendingWin, 'win', 0);
-  }, [pendingWin, setBalance, logActivity, bet]);
+  }, [pendingWin, setBalance, settleBet, logActivity, bet]);
 
   const loseRisk = useCallback(() => {
     setMessage('RISK GAME · LOST');
@@ -511,8 +513,9 @@ export function useArgonauts() {
     setRevealedIdx(null);
     setRiskOutcome(null);
     setSpinning(false);
+    settleBet(bet, 0, 'argonauts', false);
     logActivity('argonauts', bet, 0, 'loss', 0);
-  }, [logActivity, bet]);
+  }, [logActivity, bet, settleBet]);
 
   const dismissCoinWin = useCallback(() => setCoinWin(null), []);
   const dismissFreeSpinEnd = useCallback(() => setFreeSpinEnd(null), []);

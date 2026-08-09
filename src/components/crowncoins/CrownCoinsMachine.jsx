@@ -189,7 +189,7 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, 
 }
 
 export default function CrownCoinsMachine() {
-  const { balance, setBalance } = useCasinoBalance();
+  const { balance, setBalance, beginRound, settleBet } = useCasinoBalance();
   const { rtp, loading: sLoading, minBet, maxBet } = useGameSettings('crown-coins');
   const logActivity = useLogActivity();
   const { toast } = useToast();
@@ -248,6 +248,7 @@ export default function CrownCoinsMachine() {
     setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
     setWinLines([]);
     setAmountCell(null);
+    beginRound();
     if (!isFree) setBalance(b => Math.max(0, b - bet));
     clearTimers();
 
@@ -371,7 +372,7 @@ export default function CrownCoinsMachine() {
         } else {
           // free spins ended — pay out accumulated total
           const total = +runningTotal.toFixed(2);
-          if (total > 0) setBalance(b => b + total);
+          settleBet(bet, total, 'crown-coins', true);
           setLastWin(total);
           stuckRef.current = new Array(9).fill(null);
           setStuckView(new Array(9).fill(null));
@@ -436,7 +437,7 @@ export default function CrownCoinsMachine() {
       let bonusResult = preBonusRef.current;
       if (bonusResult) win += bonusResult.total;
 
-      if (win > 0) setBalance(b => b + win);
+      settleBet(bet, win, 'crown-coins', false);
       if (win > 0) setLastWin(win);
       setSpinning(false);
       // Base game fully settled and no free-spin round started — clear the
@@ -514,7 +515,7 @@ export default function CrownCoinsMachine() {
     if (!r) return;
     clearPendingRound('crown-coins');
     const win = Number(r.win) || 0;
-    if (win > 0) setBalance(b => b + win);
+    settleBet(bet, win, 'crown-coins', true);
     const state = r.state;
     if (state && state.freeSpins > 0) {
       stuckRef.current = (state.stuck && state.stuck.length === 9)

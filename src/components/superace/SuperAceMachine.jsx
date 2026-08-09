@@ -86,7 +86,7 @@ function Medallion({ size, active, children }) {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export default function SuperAceMachine() {
-  const { balance, setBalance } = useCasinoBalance();
+  const { balance, setBalance, beginRound, settleBet } = useCasinoBalance();
   const { rtp } = useGameSettings('fullhouse');
   const logActivity = useLogActivity();
 
@@ -189,6 +189,7 @@ export default function SuperAceMachine() {
     maxMultRef.current = 0;
     goldenTargetsRef.current = [];
     normalWildSpawnedRef.current = false;
+    beginRound();
     if (!inFreeRef.current) {
       setBalance((x) => x - b);
       setMessage(`Spinning…`);
@@ -446,8 +447,8 @@ export default function SuperAceMachine() {
     const total = winThisSpinRef.current;
     const sc = scatterAwardRef.current;
     const grand = total + sc;
+    settleBet(betRef.current, grand, 'fullhouse', inFreeRef.current);
     if (grand > 0) {
-      setBalance((x) => x + grand);
       setLastWin(grand);
       if (total > 0) playBigWin();
     } else if (!inFreeRef.current) {
