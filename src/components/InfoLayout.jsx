@@ -6,7 +6,7 @@ const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-
 export default function InfoLayout({ title, subtitle, icon: Icon, children }) {
   const navigate = useNavigate();
   return (
-    <div className="relative min-h-screen pb-20" style={{ background: '#0D0D0D', fontFamily: SANS }}>
+    <div className="relative min-h-screen pb-20 lg:pb-6" style={{ background: '#0D0D0D', fontFamily: SANS }}>
       <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.10), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.05), transparent 60%), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat', backgroundAttachment: 'fixed' }} />
 
       <header
