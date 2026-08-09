@@ -86,6 +86,9 @@ export default async function(req) {
       }
       balance -= amount;
       staked += amount;
+      // Staking locks funds, which counts as wagering — reduce the
+      // play-through requirement server-side (same as gameplay bets).
+      wager = Math.max(0, wager - Math.min(amount, wager));
       const now = new Date().toISOString();
       stakedAt = now;
       lastClaim = now;

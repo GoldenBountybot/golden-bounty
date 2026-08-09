@@ -69,7 +69,12 @@ export default async function(req) {
       }, { status: 400 });
     }
 
-    const newWager = Math.max(0, curWager + wagerDelta);
+    // SECURITY: ignore client-sent wager_delta entirely. Wager reductions
+    // must only happen through verified server-side pathways (beginRound for
+    // gameplay, stakeOperation for staking). A hacker calling
+    // commitBalanceDelta({ wager_delta: -10000 }) from the console to zero
+    // out the wagering requirement is now silently ignored.
+    const newWager = curWager;
     await base44.asServiceRole.entities.Wallet.update(wallet.id, {
       balance: newBal,
       wager_remaining: newWager,

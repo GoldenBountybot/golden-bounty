@@ -100,13 +100,17 @@ async function flushPersist() {
     // the delta, and rejects negative results — so gameplay can't overwrite
     // admin credits or drive the balance negative. The Wallet entity's RLS
     // blocks users from updating it directly.
-    const res = await base44.functions.invoke('commitBalanceDelta', { delta: d, wager_delta: wd });
+    // wager_delta is no longer accepted by commitBalanceDelta (server ignores
+    // it to prevent console hacks). Wager reductions happen server-side in
+    // beginRound (gameplay) and stakeOperation (staking). We only send the
+    // balance delta here; the server returns the authoritative wager_remaining.
+    const res = await base44.functions.invoke('commitBalanceDelta', { delta: d, wager_delta: 0 });
     const newBackend = Number(res?.data?.balance ?? committedBefore);
     const newWager = Number(res?.data?.wager_remaining ?? wagerBefore);
     committedBalance = newBackend;
     committedWager = newWager;
     balance = newBackend + uncommittedDelta;
-    wagerRemaining = newWager + uncommittedWagerDelta;
+    wagerRemaining = newWager;
     setCache(balance);
     notify();
   } catch {
