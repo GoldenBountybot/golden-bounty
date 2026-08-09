@@ -44,13 +44,13 @@ export default function AdminTransactions() {
         user_id: u.id, user_email: u.email, type: form.type, amount: amt,
         status: 'completed', method: 'manual', note: form.note,
       });
-      const next = credit ? userBal(u.id) + amt : Math.max(0, userBal(u.id) - amt);
-      // Only real deposits carry a play-through (wagering) requirement.
-      const update = { balance: next };
-      if (form.type === 'deposit') {
-        update.wager_remaining = (Number(u.wager_remaining ?? 0)) + amt;
-      }
-      await base44.entities.User.update(u.id, update);
+      // Apply the balance change through the secure adminAdjustWallet backend
+      // function (service role) — re-reads the authoritative Wallet balance
+      // so admin credits never overwrite gameplay, and the Wallet RLS blocks
+      // direct user tampering.
+      const delta = credit ? amt : -amt;
+      const wagerDelta = form.type === 'deposit' ? amt : 0;
+      await base44.functions.invoke('adminAdjustWallet', { user_id: u.id, delta, wager_delta: wagerDelta });
       // 5% referral commission to the referrer on real deposits.
       if (form.type === 'deposit') applyReferralCommission(u.id, amt);
       // Notify the player about the new credit/debit.
@@ -67,18 +67,14 @@ export default function AdminTransactions() {
   const setStatus = async (tx, status) => {
     try {
       if (status === 'completed') {
-        // re-read the live balance so admin credits/debits never overwrite gameplay
-        const u = await base44.entities.User.get(tx.user_id).catch(() => null);
-        const cur = Number(u?.balance ?? 0);
         const credit = tx.type === 'deposit' || tx.type === 'bonus';
         const amt = Number(tx.amount) || 0;
-        const next = credit ? cur + amt : Math.max(0, cur - amt);
-        // Only real deposits carry a play-through (wagering) requirement.
-        const update = { balance: next };
-        if (tx.type === 'deposit') {
-          update.wager_remaining = (Number(u?.wager_remaining ?? 0)) + amt;
-        }
-        await base44.entities.User.update(tx.user_id, update);
+        // Apply through the secure adminAdjustWallet backend function — it
+        // re-reads the authoritative Wallet balance server-side so admin
+        // credits never overwrite gameplay.
+        const delta = credit ? amt : -amt;
+        const wagerDelta = tx.type === 'deposit' ? amt : 0;
+        await base44.functions.invoke('adminAdjustWallet', { user_id: tx.user_id, delta, wager_delta: wagerDelta });
         // 5% referral commission to the referrer on approved deposits.
         if (tx.type === 'deposit') applyReferralCommission(tx.user_id, amt);
       }

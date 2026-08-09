@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { findOrCreateWallet } from '../../shared/wallet.ts';
 
 // Polls the admin Solana wallet for incoming USDC (SPL) transfers that match a
 // pending SolanaDepositRequest by its unique `pay_units` amount, then credits
@@ -106,10 +107,12 @@ Deno.serve(async (req) => {
       // Credit the actual received USD to the user's balance + wager requirement.
       const receivedUsd = received / 1e6;
       try {
-        const u = await base44.asServiceRole.entities.User.get(match.user_id);
-        const newBal = Number(u?.balance || 0) + receivedUsd;
-        const newWager = Number(u?.wager_remaining || 0) + receivedUsd;
-        await base44.asServiceRole.entities.User.update(match.user_id, { balance: newBal, wager_remaining: newWager });
+        const wallet = await findOrCreateWallet(base44, match.user_id);
+        const newBal = Number(wallet.balance || 0) + receivedUsd;
+        const newWager = Number(wallet.wager_remaining || 0) + receivedUsd;
+        await base44.asServiceRole.entities.Wallet.update(wallet.id, { balance: newBal, wager_remaining: newWager });
+        // Mirror to User entity for display compatibility.
+        try { await base44.asServiceRole.entities.User.update(match.user_id, { balance: newBal, wager_remaining: newWager }); } catch {}
       } catch (e) {
         // Balance credit failed — roll the request back to pending so a later
         // poll can retry. Don't lose the user's money.

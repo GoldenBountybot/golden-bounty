@@ -18,11 +18,15 @@ export async function applyReferralCommission(depositorId, depositAmount) {
     if (!referrer) return null;
     const commission = Math.round(amt * COMMISSION_RATE * 100) / 100;
     if (commission <= 0) return null;
-    const nextBal = Number(referrer.balance ?? 0) + commission;
     const nextEarnings = Number(referrer.referral_earnings ?? 0) + commission;
     const nextReferralBounty = Number(referrer.referral_bounty ?? 0) + commission * 2;
+    // Credit the referrer's balance through the secure adminAdjustWallet
+    // backend function (service role) — the Wallet RLS blocks direct updates.
+    try {
+      await base44.functions.invoke('adminAdjustWallet', { user_id: referrer.id, delta: commission, wager_delta: 0 });
+    } catch { /* balance credit is best-effort */ }
+    // Update non-balance referral stats on the User entity.
     await base44.entities.User.update(referrer.id, {
-      balance: nextBal,
       referral_earnings: nextEarnings,
       referral_bounty: nextReferralBounty,
     });

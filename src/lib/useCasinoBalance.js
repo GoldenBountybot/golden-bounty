@@ -53,11 +53,15 @@ async function loadBalance() {
   try {
     const me = await base44.auth.me();
     userId = me?.id ?? null;
-    const b = Number(me?.balance ?? 0);
+    // Read the authoritative balance from the secure Wallet entity via the
+    // getWallet backend function (service role). The Wallet entity's RLS
+    // blocks users from modifying it, so this balance can't be hacked.
+    const res = await base44.functions.invoke('getWallet', {});
+    const b = Number(res?.data?.balance ?? 0);
     committedBalance = isFinite(b) ? b : 0;
     balance = committedBalance + uncommittedDelta;
     setCache(balance);
-    const w = Number(me?.wager_remaining ?? 0);
+    const w = Number(res?.data?.wager_remaining ?? 0);
     committedWager = isFinite(w) ? w : 0;
     wagerRemaining = committedWager + uncommittedWagerDelta;
   } catch {
@@ -87,12 +91,14 @@ async function flushPersist() {
   const committedBefore = committedBalance;
   const wagerBefore = committedWager;
   try {
-    const me = await base44.auth.me();
-    const B = Number(me?.balance ?? committedBefore);
-    const W = Number(me?.wager_remaining ?? wagerBefore);
-    const newBackend = B + d;
-    const newWager = Math.max(0, W + wd);
-    await base44.auth.updateMe({ balance: newBackend, wager_remaining: newWager });
+    // Push the delta through the secure commitBalanceDelta backend function
+    // (service role). It re-reads the authoritative Wallet balance, applies
+    // the delta, and rejects negative results — so gameplay can't overwrite
+    // admin credits or drive the balance negative. The Wallet entity's RLS
+    // blocks users from updating it directly.
+    const res = await base44.functions.invoke('commitBalanceDelta', { delta: d, wager_delta: wd });
+    const newBackend = Number(res?.data?.balance ?? committedBefore);
+    const newWager = Number(res?.data?.wager_remaining ?? wagerBefore);
     committedBalance = newBackend;
     committedWager = newWager;
     balance = newBackend + uncommittedDelta;

@@ -1,0 +1,58 @@
+{
+  "name": "Wallet",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner user id \u2014 one wallet per user"
+    },
+    "balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Authoritative casino wallet balance. Users can only read this; only backend functions (service role) and admins can modify it."
+    },
+    "wager_remaining": {
+      "type": "number",
+      "default": 0,
+      "description": "Deposited funds still requiring play-through before withdrawal."
+    },
+    "staked_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Balance currently locked in the Stack (cannot be used or withdrawn until it unlocks)."
+    },
+    "staked_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when the current Stack lock started."
+    },
+    "last_profit_claim": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp of the last claimed Stack profit day."
+    }
+  },
+  "required": [
+    "user_id"
+  ],
+  "rls": {
+    "read": {
+      "data.user_id": "{{user.id}}"
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

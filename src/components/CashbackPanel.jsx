@@ -11,11 +11,10 @@ const CASHBACK_RATE = 0.03; // 3%
 export default function CashbackPanel({ profile, onBack }) {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { addRealBalance, demoMode } = useCasinoBalance();
+  const { addRealBalance, demoMode, balance: casinoBalance } = useCasinoBalance();
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
   const [transactions, setTransactions] = useState([]);
-  const [balance, setBalance] = useState(0);
   const [claimedLoss, setClaimedLoss] = useState(0);
 
   const load = useCallback(async () => {
@@ -30,7 +29,6 @@ export default function CashbackPanel({ profile, onBack }) {
         base44.entities.Transaction.filter({ user_id: profile.id }, '-created_date', 1000),
       ]);
       setTransactions(rows);
-      setBalance(Number(me?.balance ?? 0));
       setClaimedLoss(Number(me?.cashback_claimed_loss ?? 0));
     } catch { /* ignore */ } finally {
       setLoading(false);
@@ -50,7 +48,7 @@ export default function CashbackPanel({ profile, onBack }) {
     .filter(tx => tx.type === 'withdraw' && (tx.status === 'approved' || tx.status === 'completed'))
     .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
   // Demo mode losses are play-money — no real cashback is earned or shown.
-  const totalLoss = demoMode ? 0 : Math.max(0, totalDeposited - totalWithdrawn - balance);
+  const totalLoss = demoMode ? 0 : Math.max(0, totalDeposited - totalWithdrawn - casinoBalance);
 
   const unclaimedLoss = demoMode ? 0 : Math.max(0, totalLoss - claimedLoss);
   const cashbackAmount = demoMode ? 0 : Math.round(unclaimedLoss * CASHBACK_RATE * 100) / 100;
@@ -75,7 +73,6 @@ export default function CashbackPanel({ profile, onBack }) {
       const newClaimed = claimedLoss + unclaimedLoss;
       await base44.auth.updateMe({ cashback_claimed_loss: newClaimed });
       setClaimedLoss(newClaimed);
-      setBalance(prev => prev + cashbackAmount);
       // 4. Create a notification so it shows in the Notifications list
       try {
         await base44.entities.UserNotification.create({
@@ -150,7 +147,7 @@ export default function CashbackPanel({ profile, onBack }) {
         <div className="dash-card p-4 flex flex-col gap-1">
           <p className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Current Balance')}</p>
           <p className="text-lg font-bold tabular-nums" style={{ color: '#fff' }}>
-            {loading ? '...' : `$${balance.toFixed(2)}`}
+            {loading ? '...' : `$${casinoBalance.toFixed(2)}`}
           </p>
         </div>
         <div className="dash-card p-4 flex flex-col gap-1">
