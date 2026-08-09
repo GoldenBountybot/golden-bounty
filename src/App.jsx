@@ -67,6 +67,7 @@ const AuthenticatedApp = () => {
   const [staticReady, setStaticReady] = useState(false);
   const [dynamicReady, setDynamicReady] = useState(false);
   const [minDone, setMinDone] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
 
   // Phase 1: static splash image — show until the image loads AND a minimum
   // display time elapses, so the user sees the full-screen splash first.
@@ -89,12 +90,14 @@ const AuthenticatedApp = () => {
   // phase is done, so the loading screen is visible while they fetch.
   useEffect(() => {
     if (showSplashImage) return;
-    preloadAssets(APP_ASSETS)
-      .then(() => setStaticReady(true))
+    // Track static preload progress (0..100) for the loading bar; dynamic
+    // assets don't report progress so we just fold them into the final 100.
+    preloadAssets(APP_ASSETS, (p) => setLoadProgress(Math.min(p, 90)))
+      .then(() => { setStaticReady(true); setLoadProgress(95); })
       .catch(() => setStaticReady(true));
     if (!loading) {
       preloadDynamicAssets(base44)
-        .then(() => setDynamicReady(true))
+        .then(() => { setDynamicReady(true); setLoadProgress(100); })
         .catch(() => setDynamicReady(true));
     }
   }, [showSplashImage, loading]);
@@ -111,7 +114,7 @@ const AuthenticatedApp = () => {
     return <AppLoadingImage />;
   }
   if (showLoadingScreen) {
-    return <AppLoadingScreen />;
+    return <AppLoadingScreen progress={loadProgress} />;
   }
 
   // Handle authentication errors
