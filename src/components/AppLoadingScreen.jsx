@@ -137,7 +137,7 @@ export default function AppLoadingScreen({ progress = 0 }) {
 
       {/* ===== Quad-ring gold emblem with reeded coin medallion ===== */}
       <div
-        className="relative mb-10"
+        className="relative mb-10 lg:scale-110"
         style={{ width: '160px', height: '160px', animation: 'appEmblemFloat 4s ease-in-out infinite' }}
       >
         {/* Outer ring — slow spin with 12 gold studs */}
@@ -243,7 +243,7 @@ export default function AppLoadingScreen({ progress = 0 }) {
           <div style={{ width: '8px', height: '8px', transform: 'rotate(45deg)', background: 'linear-gradient(135deg, #fff3c4, #b8860b)', boxShadow: '0 0 7px rgba(255,200,80,0.75)' }} />
         </div>
         <p
-          className="text-xl font-black whitespace-nowrap relative"
+          className="text-xl lg:text-2xl font-black whitespace-nowrap relative"
           style={{
             fontFamily: 'Cinzel, Georgia, serif',
             fontWeight: 800,
@@ -279,7 +279,7 @@ export default function AppLoadingScreen({ progress = 0 }) {
       </p>
 
       {/* ===== Elegant progress bar with glowing leading dot ===== */}
-      <div className="relative" style={{ width: '320px' }}>
+      <div className="relative w-[280px] sm:w-[320px] lg:w-[400px]">
         <div
           className="relative w-full h-[3px] rounded-full overflow-hidden"
           style={{
@@ -322,7 +322,7 @@ export default function AppLoadingScreen({ progress = 0 }) {
       </div>
 
       {/* Tick marks under the bar */}
-      <div className="relative flex justify-between mt-2" style={{ width: '320px' }}>
+      <div className="relative flex justify-between mt-2 w-[280px] sm:w-[320px] lg:w-[400px]">
         {[0, 25, 50, 75, 100].map((t) => (
           <div key={t} style={{ width: '1px', height: '5px', background: 'rgba(190,140,55,0.4)' }} />
         ))}

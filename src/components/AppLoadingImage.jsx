@@ -37,7 +37,7 @@ export default function AppLoadingImage() {
         ref={imgRef}
         src={SPLASH_IMG}
         alt="Golden Bounty"
-        className="absolute inset-0 w-full h-full object-cover select-none"
+        className="absolute inset-0 w-full h-full object-cover lg:object-contain select-none"
         draggable={false}
         fetchPriority="high"
         decoding="async"
