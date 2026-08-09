@@ -202,11 +202,17 @@ export default function SuperAceMachine() {
 
     // 3-scatter free-spin trigger is an independent 0.1% roll, separate from the
     // 10% line-win gate. The win gate controls line wins; scatters are gated here.
+    // Generate preliminary grid and start the drop animation IMMEDIATELY
+    // (before awaiting the server response) so the user sees no delay.
+    let g = makeGrid();
+    setSpinning(true);
+    setGrid(g.map((c) => ({ ...c })));
+
+    // Await server response while the animation is already running
     const serverRound = await _serverRoundPromise;
     serverWinRef.current = Number(serverRound.win_amount ?? 0);
     const forceWin = serverWinRef.current > 0;
     const scatterHit = Math.random() < 0.001; // 0.1%
-    let g = makeGrid();
     let ev0 = evaluate(g, b);
     if (scatterHit) {
       // Place 1 scatter in col 0 + 1 in col 1 (triggers the slow-mo tease),
@@ -226,24 +232,27 @@ export default function SuperAceMachine() {
         placed.push(...rest.slice(0, 3 - placed.length));
       }
       for (const idx of placed.slice(0, 3)) {
-        g[idx].sym = 'SC';
-        g[idx].golden = false;
+        g[idx] = { ...g[idx], sym: 'SC', golden: false };
       }
     } else if (forceWin) {
       if (ev0.pay === 0 && ev0.scatterCount < 3) {
-        g = nudgeForWin(g);
+        const s = PAY_SYMBOLS[Math.floor(Math.random() * PAY_SYMBOLS.length)];
+        for (let c = 0; c < 3; c++) {
+          g[c] = { ...g[c], sym: s, golden: false };
+        }
       } else if (ev0.scatterCount >= 3) {
         // strip extras so only the 0.1% roll triggers free spins
         const scIdxs = g.map((c, i) => (c.sym === 'SC' ? i : -1)).filter((i) => i >= 0);
         for (let k = 2; k < scIdxs.length; k++) {
-          g[scIdxs[k]].sym = makeCell().sym;
-          g[scIdxs[k]].golden = false;
+          g[scIdxs[k]] = { ...g[scIdxs[k]], sym: makeCell().sym, golden: false };
         }
       }
     } else {
       let guard = 0;
       while ((ev0.pay > 0 || ev0.scatterCount >= 3) && guard < 40) {
-        g = makeGrid();
+        for (let i = 0; i < g.length; i++) {
+          g[i] = { ...g[i], sym: makeCell().sym, golden: false };
+        }
         ev0 = evaluate(g, b);
         guard++;
       }
@@ -251,7 +260,7 @@ export default function SuperAceMachine() {
     // Golden Wild: drops only when the spin is a forced win AND it (+ flying copies) achieves a big win.
     const goldenCfg = forceWin && !scatterHit && Math.random() < 0.35 ? findGoldenWildConfig(g, b) : null;
     if (goldenCfg) {
-      g[goldenCfg.sourceIdx] = { sym: 'W', golden: false, goldenWild: true, pending: true, id: makeCell().id };
+      g[goldenCfg.sourceIdx] = { ...g[goldenCfg.sourceIdx], sym: 'W', golden: false, goldenWild: true, pending: true };
       goldenWildIdxRef.current = goldenCfg.sourceIdx;
       goldenTargetsRef.current = goldenCfg.targets;
     }
@@ -270,7 +279,7 @@ export default function SuperAceMachine() {
     }
     setTeaseStart(teaseStart);
     setTeaseCols(teaseSet);
-    setSpinning(true);
+    // Update grid with adjusted symbols (same IDs → no remount, animation continues)
     setGrid(g.map((c) => ({ ...c })));
     const baseSpin = turboRef.current ? 600 : 1000;
     let spinDur = baseSpin;
