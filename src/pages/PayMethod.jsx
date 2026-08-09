@@ -153,9 +153,11 @@ export default function PayMethod() {
   };
 
   // Compute the equivalent crypto amount for a given USD amount + network.
-  const equivAmount = (name) => {
+  // Prefer the clean `network` key (e.g. 'btc', 'ltc', 'trx') from the
+  // PaymentAddress record; fall back to parsing the label name.
+  const equivAmount = (n) => {
     if (!amount) return null;
-    const key = priceKeyFor(name);
+    const key = (n.network && priceKeyFor(n.network)) || priceKeyFor(n.name);
     if (!key) return null;
     if (key === 'usdt' || key === 'usdc') return amount; // stablecoins ≈ 1:1
     const price = prices[key];
@@ -309,9 +311,9 @@ export default function PayMethod() {
                   <CopyAddr addr={n.address} />
                 </div>
                 {(() => {
-                  const eq = equivAmount(n.name);
+                  const eq = equivAmount(n);
                   if (eq == null) return null;
-                  const key = priceKeyFor(n.name);
+                  const key = (n.network && priceKeyFor(n.network)) || priceKeyFor(n.name);
                   const coin = (key === 'usdt' || key === 'usdc') ? (key === 'usdt' ? 'USDT' : 'USDC') : (key || '').toUpperCase();
                   const decimals = (key === 'btc') ? 6 : (key === 'usdt' || key === 'usdc') ? 2 : 4;
                   return (
