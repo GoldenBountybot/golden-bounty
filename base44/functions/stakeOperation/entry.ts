@@ -76,30 +76,48 @@ export default async function(req) {
     } catch { /* default rate */ }
     const rate = rateForDeposits(totalDeposits);
 
+    // ── ATOMIC OPERATIONS ──
+    // Each action uses updateMany with $inc/$set (atomic at the DB level) to
+    // prevent the read-modify-write race condition where two concurrent
+    // operations both read the same balance and both succeed — overdrawing
+    // or double-crediting. The `stake` action uses a conditional filter
+    // (balance >= amount) so the deduction only happens if sufficient.
     if (action === 'stake') {
       const amount = Number(body.amount ?? 0);
       if (!isFinite(amount) || amount <= 0) {
         return Response.json({ error: 'invalid-amount' }, { status: 400 });
       }
-      if (amount > balance) {
+      const wagerDec = Math.min(amount, wager);
+      const now = new Date().toISOString();
+      // Atomic check-and-deduct: only deduct if balance >= amount.
+      // Prevents the double-spend race where two concurrent stakes (or a
+      // stake + beginRound) both read the same balance and both succeed.
+      const res = await base44.asServiceRole.entities.Wallet.updateMany(
+        { user_id: user.id, balance: { $gte: amount } },
+        { $inc: { balance: -amount, staked_amount: amount, wager_remaining: -wagerDec }, $set: { staked_at: now, last_profit_claim: now } }
+      );
+      if (!res || Number(res.updated || 0) === 0) {
         return Response.json({ error: 'insufficient-balance' }, { status: 400 });
       }
-      balance -= amount;
-      staked += amount;
-      // Staking locks funds, which counts as wagering — reduce the
-      // play-through requirement server-side (same as gameplay bets).
-      wager = Math.max(0, wager - Math.min(amount, wager));
-      const now = new Date().toISOString();
-      stakedAt = now;
-      lastClaim = now;
+      const updated = await findOrCreateWallet(base44, user.id);
+      balance = Number(updated.balance ?? 0);
+      staked = Number(updated.staked_amount ?? 0);
+      stakedAt = updated.staked_at;
+      lastClaim = updated.last_profit_claim;
+      wager = Math.max(0, Number(updated.wager_remaining ?? 0));
     } else if (action === 'claimProfit') {
       const profit = computeProfit(staked, stakedAt, lastClaim, rate);
       if (profit <= 0) {
         return Response.json({ error: 'no-profit' }, { status: 400 });
       }
-      balance += profit;
+      const now = new Date().toISOString();
+      await base44.asServiceRole.entities.Wallet.updateMany(
+        { user_id: user.id },
+        { $inc: { balance: profit }, $set: { last_profit_claim: now } }
+      );
       credited = profit;
-      lastClaim = new Date().toISOString();
+      balance += profit;
+      lastClaim = now;
     } else if (action === 'autoUnlock') {
       if (!staked || !stakedAt) {
         return Response.json({ error: 'nothing-staked' }, { status: 400 });
@@ -109,8 +127,13 @@ export default async function(req) {
         return Response.json({ error: 'still-locked' }, { status: 400 });
       }
       const profit = computeProfit(staked, stakedAt, lastClaim, rate);
-      balance += staked + profit;
-      credited = staked + profit;
+      const total = staked + profit;
+      await base44.asServiceRole.entities.Wallet.updateMany(
+        { user_id: user.id },
+        { $inc: { balance: total }, $set: { staked_amount: 0, staked_at: null, last_profit_claim: null } }
+      );
+      credited = total;
+      balance += total;
       staked = 0;
       stakedAt = null;
       lastClaim = null;
@@ -118,14 +141,7 @@ export default async function(req) {
       return Response.json({ error: 'invalid-action' }, { status: 400 });
     }
 
-    const update = {
-      balance,
-      staked_amount: staked,
-      staked_at: stakedAt,
-      last_profit_claim: lastClaim,
-    };
-    await base44.asServiceRole.entities.Wallet.update(wallet.id, update);
-    await mirrorToUser(base44, user.id, { ...update, wager_remaining: wager });
+    await mirrorToUser(base44, user.id, { staked_amount: staked, staked_at: stakedAt, last_profit_claim: lastClaim, wager_remaining: wager });
 
     return Response.json({
       balance,

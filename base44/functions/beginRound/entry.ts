@@ -48,18 +48,33 @@ export default async function(req) {
 
     // Deduct the bet immediately (non-free-spin). This prevents the user
     // from avoiding a loss by closing the page before settleBet.
+    //
+    // ATOMIC CHECK-AND-DEDUCT: The updateMany filter includes
+    // `balance: { $gte: betAmount }`, so the deduction ONLY happens if the
+    // current balance is sufficient. This prevents the double-spend race
+    // condition where two concurrent operations (e.g., two beginRound calls,
+    // or beginRound + stake) both read the same balance and both succeed —
+    // with the old read-modify-write, both would pass the `betAmount > curBal`
+    // check and both would deduct, overdrawing the balance. With the atomic
+    // conditional update, only one can win; the other gets `updated: 0` and
+    // is rejected.
     let newBal = curBal;
     let newWager = curWager;
     if (!isFreeSpin && betAmount > 0) {
-      if (betAmount > curBal) {
-        return Response.json({ error: 'insufficient-balance', balance: curBal }, { status: 400 });
+      const wagerDec = Math.min(betAmount, curWager);
+      const dedRes = await base44.asServiceRole.entities.Wallet.updateMany(
+        { user_id: user.id, balance: { $gte: betAmount } },
+        { $inc: { balance: -betAmount, wager_remaining: -wagerDec } }
+      );
+      if (!dedRes || Number(dedRes.updated || 0) === 0) {
+        // Either insufficient balance or banned — re-read to distinguish.
+        const recheck = await findOrCreateWallet(base44, user.id);
+        return Response.json({ error: 'insufficient-balance', balance: Number(recheck.balance ?? 0) }, { status: 400 });
       }
-      newBal = curBal - betAmount;
-      newWager = Math.max(0, curWager - Math.min(betAmount, curWager));
-      await base44.asServiceRole.entities.Wallet.update(wallet.id, {
-        balance: newBal,
-        wager_remaining: newWager,
-      });
+      // Re-read for the authoritative post-deduction balance.
+      const after = await findOrCreateWallet(base44, user.id);
+      newBal = Number(after.balance ?? 0);
+      newWager = Math.max(0, Number(after.wager_remaining ?? 0));
     }
 
     // Decide the outcome entirely server-side.

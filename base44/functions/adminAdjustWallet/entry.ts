@@ -26,26 +26,44 @@ export default async function(req) {
     // Balance" action from the Players panel). set_balance=false (default):
     // apply a delta (used by deposit/withdrawal approval & referral commission).
     const setBalance = !!body.set_balance;
-    const newBal = setBalance ? Math.max(0, delta) : Math.max(0, Number(wallet.balance ?? 0) + delta);
-    const newWager = Math.max(0, Number(wallet.wager_remaining ?? 0) + wagerDelta);
 
     // Admin-only security fields: banned (block account) and rtp (per-player
     // winning-chance override). These live on the Wallet entity (admin-only
     // update RLS) so users can't set them on themselves via updateMe.
-    const update = { balance: newBal, wager_remaining: newWager };
-    if (body.banned !== undefined) update.banned = !!body.banned;
+    const setFields = {};
+    if (body.banned !== undefined) setFields.banned = !!body.banned;
     if (body.rtp !== undefined) {
       const rtpVal = Number(body.rtp);
-      update.rtp = isFinite(rtpVal) && rtpVal >= 0 && rtpVal <= 100 ? rtpVal : null;
+      setFields.rtp = isFinite(rtpVal) && rtpVal >= 0 && rtpVal <= 100 ? rtpVal : null;
     }
 
-    await base44.asServiceRole.entities.Wallet.update(wallet.id, update);
+    // ATOMIC UPDATE — delta mode uses $inc (prevents race condition where a
+    // concurrent deposit credit is overwritten by the admin's read-modify-write).
+    // set_balance mode uses $set for the absolute value.
+    if (setBalance) {
+      setFields.balance = Math.max(0, delta);
+      setFields.wager_remaining = Math.max(0, Number(wallet.wager_remaining ?? 0) + wagerDelta);
+      await base44.asServiceRole.entities.Wallet.updateMany(
+        { user_id: targetUserId },
+        { $set: setFields }
+      );
+    } else {
+      await base44.asServiceRole.entities.Wallet.updateMany(
+        { user_id: targetUserId },
+        { $inc: { balance: delta, wager_remaining: wagerDelta }, $set: setFields }
+      );
+    }
+
+    // Re-read for the authoritative balance to return.
+    const updated = await findOrCreateWallet(base44, targetUserId);
+    const newBal = Math.max(0, Number(updated.balance ?? 0));
+    const newWager = Math.max(0, Number(updated.wager_remaining ?? 0));
 
     // Mirror banned/rtp to the User entity for admin display compatibility.
     try {
       const userUpdate = {};
       if (body.banned !== undefined) userUpdate.banned = !!body.banned;
-      if (body.rtp !== undefined) userUpdate.rtp = update.rtp;
+      if (body.rtp !== undefined) userUpdate.rtp = setFields.rtp;
       if (Object.keys(userUpdate).length) {
         await base44.asServiceRole.entities.User.update(targetUserId, userUpdate);
       }

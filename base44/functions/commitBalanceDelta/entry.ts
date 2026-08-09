@@ -55,30 +55,30 @@ export default async function(req) {
       });
     }
 
-    const wallet = await findOrCreateWallet(base44, user.id);
-    const curBal = Number(wallet.balance ?? 0);
-    const curWager = Number(wallet.wager_remaining ?? 0);
-    const newBal = curBal + delta;
-
-    // Reject if the result would be negative — prevents overdraft hacking.
-    if (newBal < 0) {
+    // ATOMIC CONDITIONAL UPDATE — prevents the read-modify-write race
+    // condition where two concurrent calls both read the same balance, both
+    // pass the `newBal < 0` check, and both deduct — overdrawing the balance.
+    // The updateMany filter includes `balance: { $gte: absDelta }`, so the
+    // deduction ONLY happens if the current balance is sufficient. Only one
+    // concurrent call can win; the other gets `updated: 0` and is rejected.
+    const absDelta = Math.abs(delta);
+    const res = await base44.asServiceRole.entities.Wallet.updateMany(
+      { user_id: user.id, balance: { $gte: absDelta } },
+      { $inc: { balance: delta } }
+    );
+    if (!res || Number(res.updated || 0) === 0) {
+      const recheck = await findOrCreateWallet(base44, user.id);
       return Response.json({
         error: 'insufficient-balance',
-        balance: curBal,
-        wager_remaining: curWager,
+        balance: Number(recheck.balance ?? 0),
+        wager_remaining: Number(recheck.wager_remaining ?? 0),
       }, { status: 400 });
     }
 
-    // SECURITY: ignore client-sent wager_delta entirely. Wager reductions
-    // must only happen through verified server-side pathways (beginRound for
-    // gameplay, stakeOperation for staking). A hacker calling
-    // commitBalanceDelta({ wager_delta: -10000 }) from the console to zero
-    // out the wagering requirement is now silently ignored.
-    const newWager = curWager;
-    await base44.asServiceRole.entities.Wallet.update(wallet.id, {
-      balance: newBal,
-      wager_remaining: newWager,
-    });
+    // Re-read for the authoritative balance to return.
+    const updated = await findOrCreateWallet(base44, user.id);
+    const newBal = Number(updated.balance ?? 0);
+    const newWager = Number(updated.wager_remaining ?? 0);
 
     // balance & wager_remaining are no longer on the User entity (moved to the
     // RLS-protected Wallet entity to prevent updateMe hacks). No mirror needed.
