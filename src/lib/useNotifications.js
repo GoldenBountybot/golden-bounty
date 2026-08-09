@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
+import { playNotificationSound } from '@/lib/notificationSound';
 
 // Loads the current user's notifications (own + broadcasts) and tracks the
 // unread count via a per-user `notifications_last_read_at` timestamp stored on
@@ -10,6 +11,10 @@ export function useNotifications() {
   const [items, setItems] = useState([]);
   const [lastReadAt, setLastReadAt] = useState(0);
   const [loading, setLoading] = useState(true);
+  // Track the newest created_date we've already seen so we only chime for
+  // genuinely new arrivals (not the initial load or re-fetched existing ones).
+  const seenNewestRef = useRef(0);
+  const firstLoadRef = useRef(true);
 
   const load = useCallback(async () => {
     try {
@@ -18,6 +23,18 @@ export function useNotifications() {
       setLastReadAt(isFinite(lr) ? lr : 0);
       const rows = await base44.entities.UserNotification.list('-created_date', 50);
       setItems(rows || []);
+      // Detect a newly arrived notification: a row newer than the last seen
+      // newest — but only after the very first load completes.
+      if (rows && rows.length > 0) {
+        const newest = new Date(rows[0].created_date).getTime();
+        if (firstLoadRef.current) {
+          firstLoadRef.current = false;
+          seenNewestRef.current = newest;
+        } else if (newest > seenNewestRef.current) {
+          seenNewestRef.current = newest;
+          playNotificationSound();
+        }
+      }
     } catch {
       setItems([]);
     }
