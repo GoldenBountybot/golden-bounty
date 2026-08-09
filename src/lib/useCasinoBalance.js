@@ -133,7 +133,9 @@ function schedulePersist() {
 async function addRealBalance(amount, type = 'bonus', note = '', claimedLoss = 0) {
   const n = Number(amount);
   if (!isFinite(n) || n === 0) return;
-  if (demoMode) {
+  // Free-spin wins are REAL rewards — always credit the real wallet even in
+  // demo mode, so the daily bonus isn't wasted on the practice balance.
+  if (demoMode && type !== 'free_spin') {
     // In demo mode, credit the in-memory demo balance only.
     demoBalance += n;
     setDemoCache(demoBalance);
