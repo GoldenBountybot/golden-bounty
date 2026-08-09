@@ -176,7 +176,6 @@ export default function SuperAceMachine() {
     }
     busyRef.current = true;
     setPhase('spinning');
-    setSpinning(true);
     setCombo(0);
     setWinThisSpin(0); winThisSpinRef.current = 0;
     setFloatWin(null);
@@ -269,6 +268,7 @@ export default function SuperAceMachine() {
     }
     setTeaseStart(teaseStart);
     setTeaseCols(teaseSet);
+    setSpinning(true);
     setGrid(g.map((c) => ({ ...c })));
     const baseSpin = turboRef.current ? 600 : 1000;
     let spinDur = baseSpin;
