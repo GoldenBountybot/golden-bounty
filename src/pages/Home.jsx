@@ -4,6 +4,7 @@ import CasinoGameCard from '@/components/CasinoGameCard';
 import WesternGameBanners from '@/components/WesternGameBanners';
 import LiveTicker from '@/components/LiveTicker';
 import BottomNav from '@/components/BottomNav';
+import DesktopSidebar from '@/components/DesktopSidebar';
 import SiteFooter from '@/components/SiteFooter';
 import NotificationBell from '@/components/NotificationBell';
 import HomeSidebar from '@/components/HomeSidebar';
@@ -38,7 +39,7 @@ export default function Home() {
   const playable = GAMES.filter(g => !g.coming).length;
 
   return (
-    <div className="relative min-h-screen pb-24 bg-[#0b0b0d]">
+    <div className="relative min-h-screen pb-24 lg:pl-20 bg-[#0b0b0d]">
       <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.10), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.05), transparent 60%), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat', backgroundAttachment: 'fixed' }} />
       {/* Header */}
       <header
@@ -206,7 +207,8 @@ export default function Home() {
 
       <div className="relative z-10"><SiteFooter /></div>
 
-      <BottomNav />
+      <DesktopSidebar />
+      <div className="lg:hidden"><BottomNav /></div>
     </div>
   );
 }
