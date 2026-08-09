@@ -147,6 +147,39 @@ export default async function(req: Request): Promise<Response> {
       });
     }
 
+    // 5b. Withdrawal requests with ZERO deposits (the exact exploit the user
+    // reported: no deposit, no gameplay, yet multiple withdrawals submitted).
+    const withdrawReqs = txs.filter(t => t.type === 'withdraw');
+    const totalWithdrawn = withdrawReqs.reduce((s, t) => s + (Number(t.amount) || 0), 0);
+    const pendingWithdrawals = withdrawReqs.filter(t => t.status === 'pending').length;
+
+    if (approvedDeposits === 0 && withdrawReqs.length > 0) {
+      flags.push({
+        level: 'high',
+        label: 'Withdrawals with zero deposits',
+        detail: `User submitted ${withdrawReqs.length} withdrawal request(s) totaling $${totalWithdrawn.toFixed(2)} but has never deposited — possible balance exploit.`,
+      });
+    }
+
+    // 5c. Total withdrawals exceed total deposits (draining more than funded)
+    if (approvedDeposits > 0 && totalWithdrawn > approvedDeposits) {
+      const ratio = totalWithdrawn / approvedDeposits;
+      flags.push({
+        level: 'high',
+        label: 'Withdrawals exceed deposits',
+        detail: `Total withdrawals $${totalWithdrawn.toFixed(2)} exceed deposits $${approvedDeposits.toFixed(2)} (${ratio.toFixed(1)}x) — investigate source of funds.`,
+      });
+    }
+
+    // 5d. Multiple pending withdrawals (spam / attempt to bypass review)
+    if (pendingWithdrawals >= 3) {
+      flags.push({
+        level: 'medium',
+        label: 'Multiple pending withdrawals',
+        detail: `${pendingWithdrawals} withdrawal requests awaiting approval — review for abuse.`,
+      });
+    }
+
     // 6. Very few rounds but large withdrawal (low activity, high value)
     if (rounds > 0 && rounds < 5 && totalWin >= 50) {
       flags.push({

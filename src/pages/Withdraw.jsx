@@ -106,7 +106,10 @@ export default function Withdraw() {
     try {
       const me = await base44.auth.me().catch(() => null);
       if (!me) { toast({ title: t("Please log in first") }); setSubmitting(false); return; }
-      if (amount < 5) { toast({ title: t("Minimum withdrawal is $5.00") }); setSubmitting(false); return; }
+      // All validation now happens server-side in submitWithdrawal (balance,
+      // wager requirement, banned check, pending-withdrawal spam limit).
+      // The client-side maxWithdrawable check is kept only for a faster
+      // user-facing hint; the server is the real authority.
       if (amount > maxWithdrawable) {
         showNotify(
           t("Wagering requirement not met"),
@@ -117,16 +120,27 @@ export default function Withdraw() {
         setSubmitting(false);
         return;
       }
-      await base44.entities.Transaction.create({
-        user_id: me.id,
-        user_email: me.email,
-        type: 'withdraw',
-        amount,
-        status: 'pending',
-        method: 'usdt',
-        reference: walletAddr.trim(),
-        note: `${selectedNet.name} · ${walletAddr.trim().slice(0, 14)}...`,
-      });
+      let result;
+      try {
+        result = await base44.functions.invoke('submitWithdrawal', {
+          amount,
+          method: 'usdt',
+          reference: walletAddr.trim(),
+          note: `${selectedNet.name} · ${walletAddr.trim().slice(0, 14)}...`,
+        });
+      } catch (err) {
+        const msg = err?.message || err?.error || t("Submission failed");
+        // Surface server-side validation errors (insufficient balance,
+        // wager requirement, banned, too many pending) to the user.
+        showNotify(t("Withdrawal rejected"), msg);
+        setSubmitting(false);
+        return;
+      }
+      if (!result?.data?.ok) {
+        showNotify(t("Withdrawal rejected"), result?.data?.error || t("Submission failed"));
+        setSubmitting(false);
+        return;
+      }
       // Auto-notify every admin by email (admins auto-picked server-side).
       try {
         await base44.functions.invoke('notifyAdminWithdrawal', {
