@@ -202,12 +202,9 @@ export default function SuperAceMachine() {
 
     // 3-scatter free-spin trigger is an independent 0.1% roll, separate from the
     // 10% line-win gate. The win gate controls line wins; scatters are gated here.
-    const serverRound = await _serverRoundPromise;
-    serverWinRef.current = Number(serverRound.win_amount ?? 0);
-    const forceWin = serverWinRef.current > 0;
+    // Generate grid and start animation IMMEDIATELY (before awaiting server)
     const scatterHit = Math.random() < 0.001; // 0.1%
     let g = makeGrid();
-    let ev0 = evaluate(g, b);
     if (scatterHit) {
       // Place 1 scatter in col 0 + 1 in col 1 (triggers the slow-mo tease),
       // and the 3rd in a later column so it lands during the anticipation.
@@ -228,35 +225,6 @@ export default function SuperAceMachine() {
       for (const idx of placed.slice(0, 3)) {
         g[idx] = { ...g[idx], sym: 'SC', golden: false };
       }
-    } else if (forceWin) {
-      if (ev0.pay === 0 && ev0.scatterCount < 3) {
-        const s = PAY_SYMBOLS[Math.floor(Math.random() * PAY_SYMBOLS.length)];
-        for (let c = 0; c < 3; c++) {
-          g[c] = { ...g[c], sym: s, golden: false };
-        }
-      } else if (ev0.scatterCount >= 3) {
-        // strip extras so only the 0.1% roll triggers free spins
-        const scIdxs = g.map((c, i) => (c.sym === 'SC' ? i : -1)).filter((i) => i >= 0);
-        for (let k = 2; k < scIdxs.length; k++) {
-          g[scIdxs[k]] = { ...g[scIdxs[k]], sym: makeCell().sym, golden: false };
-        }
-      }
-    } else {
-      let guard = 0;
-      while ((ev0.pay > 0 || ev0.scatterCount >= 3) && guard < 40) {
-        for (let i = 0; i < g.length; i++) {
-          g[i] = { ...g[i], sym: makeCell().sym, golden: false };
-        }
-        ev0 = evaluate(g, b);
-        guard++;
-      }
-    }
-    // Golden Wild: drops only when the spin is a forced win AND it (+ flying copies) achieves a big win.
-    const goldenCfg = forceWin && !scatterHit && Math.random() < 0.35 ? findGoldenWildConfig(g, b) : null;
-    if (goldenCfg) {
-      g[goldenCfg.sourceIdx] = { ...g[goldenCfg.sourceIdx], sym: 'W', golden: false, goldenWild: true, pending: true };
-      goldenWildIdxRef.current = goldenCfg.sourceIdx;
-      goldenTargetsRef.current = goldenCfg.targets;
     }
     // Anticipation: 2 early scatters → remaining columns slow-mo under a golden beam.
     const scatterColList = [];
@@ -279,10 +247,23 @@ export default function SuperAceMachine() {
     let spinDur = baseSpin;
     if (teaseSet.size > 0) {
       const teasedCols = COLS - teaseStart;
-      // Short anticipation pause — enough to build suspense for a possible 3rd
-      // scatter without making the round feel stuck.
       spinDur = turboRef.current ? baseSpin + teasedCols * 150 : baseSpin + teasedCols * 350;
     }
+
+    // Await server response while animation is running
+    const serverRound = await _serverRoundPromise;
+    serverWinRef.current = Number(serverRound.win_amount ?? 0);
+    const forceWin = serverWinRef.current > 0;
+
+    // Golden Wild (applied after server response, uses flip animation)
+    const goldenCfg = forceWin && !scatterHit && Math.random() < 0.35 ? findGoldenWildConfig(g, b) : null;
+    if (goldenCfg) {
+      g[goldenCfg.sourceIdx] = { ...g[goldenCfg.sourceIdx], sym: 'W', golden: false, goldenWild: true, pending: true };
+      goldenWildIdxRef.current = goldenCfg.sourceIdx;
+      goldenTargetsRef.current = goldenCfg.targets;
+      setGrid(g.map((c) => ({ ...c })));
+    }
+
     await sleep(spinDur);
     setSpinning(false);
     setTeaseCols(new Set());
@@ -303,7 +284,7 @@ export default function SuperAceMachine() {
     // Announce the win immediately as the reels land — no delay.
     announcedFirstRef.current = false;
     const evImm = evaluate(g, betRef.current);
-    if (evImm.pay > 0 && evImm.winSymbols && evImm.winSymbols.length > 0) {
+    if (serverWinRef.current > 0 && evImm.pay > 0 && evImm.winSymbols && evImm.winSymbols.length > 0) {
       playComboWin(1);
       announceWin(evImm.winSymbols, multiplierFor(0, inFreeRef.current));
       announcedFirstRef.current = true;
@@ -367,6 +348,7 @@ export default function SuperAceMachine() {
   };
 
   const resolveCascades = async (g) => {
+    if (serverWinRef.current === 0) return g;
     let comboCount = 0;
     while (true) {
       const ev = evaluate(g, betRef.current);
