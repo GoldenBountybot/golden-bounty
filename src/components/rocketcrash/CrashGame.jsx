@@ -44,7 +44,7 @@ export default function CrashGame() {
   };
 
   return (
-    <div className="flex flex-col gap-3 max-w-5xl mx-auto">
+    <div className="flex flex-col gap-3 max-w-7xl mx-auto">
       <GameHeader title="Aviator" accent="text-indigo-200" border="border-indigo-700/40" balance={g.balance} />
 
       <div className="flex items-center justify-between gap-2">

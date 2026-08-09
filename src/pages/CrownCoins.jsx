@@ -46,7 +46,7 @@ export default function CrownCoins() {
               </button>
             </>
           }
-          maxWidth="max-w-5xl"
+          maxWidth="max-w-7xl"
         />
       </header>
       <CrownCoinsMachine />
