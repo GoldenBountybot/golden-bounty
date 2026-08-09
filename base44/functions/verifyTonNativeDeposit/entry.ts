@@ -19,19 +19,6 @@ async function getJson(url) {
   return await r.json();
 }
 
-async function getPrice() {
-  const headers = { 'User-Agent': 'VIPSlots/1.0', 'Accept': 'application/json' };
-  try {
-    const r = await fetch('https://api-pub.bitfinex.com/v2/ticker/tTONUSD', { headers });
-    if (r.ok) { const j = await r.json(); if (Array.isArray(j) && j[6]) return Number(j[6]); }
-  } catch {}
-  try {
-    const r = await fetch('https://api.gateio.ws/api/v4/spot/tickers?currency_pair=ton_usdt', { headers });
-    if (r.ok) { const j = await r.json(); if (Array.isArray(j) && j[0]?.last) return Number(j[0].last); }
-  } catch {}
-  return null;
-}
-
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -63,13 +50,6 @@ Deno.serve(async (req) => {
           const existing = await base44.asServiceRole.entities.Transaction.filter({ reference: ref });
           if (existing && existing.length) {
             return Response.json({ ok: true, already: true, amount: Number(existing[0].amount) });
-          }
-          const price = await getPrice();
-          if (price && isFinite(price)) {
-            const tonAmt = Number(expectedNano) / 1e9;
-            if (tonAmt * price < amount * 0.85) {
-              return Response.json({ ok: false, reason: 'amount-mismatch' });
-            }
           }
           await creditDeposit(base44, user.id, user.email, amount, 'wallet-tonkeeper-native', ref, 'Tonkeeper · TON native');
           return Response.json({ ok: true, amount, already: false });

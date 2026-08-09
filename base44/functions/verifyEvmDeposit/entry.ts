@@ -88,8 +88,8 @@ Deno.serve(async (req) => {
       // accept anything at least the expected amount (never a string compare).
       let sent = 0n;
       try { sent = BigInt(String(log.data || '0x0')); } catch { continue; }
-      // Allow a 1% rounding tolerance on the transferred amount.
-      if (sent * 100n < expectedUnits * 99n) continue;
+      // Exact match — wallet connectors send the precise amount automatically.
+      if (sent !== expectedUnits) continue;
       verified = true;
       break;
     }

@@ -23,19 +23,6 @@ async function rpc(rpcUrl, method, params) {
   return j?.result ?? null;
 }
 
-async function getPrice(net) {
-  const headers = { 'User-Agent': 'VIPSlots/1.0', 'Accept': 'application/json' };
-  try {
-    const r = await fetch(`https://api-pub.bitfinex.com/v2/ticker/${net.bfSymbol}`, { headers });
-    if (r.ok) { const j = await r.json(); if (Array.isArray(j) && j[6]) return Number(j[6]); }
-  } catch {}
-  try {
-    const r = await fetch(`https://api.gateio.ws/api/v4/spot/tickers?currency_pair=${net.gtPair}`, { headers });
-    if (r.ok) { const j = await r.json(); if (Array.isArray(j) && j[0]?.last) return Number(j[0].last); }
-  } catch {}
-  return null;
-}
-
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -66,22 +53,12 @@ Deno.serve(async (req) => {
 
     const fromOk = String(tx.from || '').toLowerCase() === userWallet;
     const toOk = String(tx.to || '').toLowerCase() === ADMIN;
-    // Compare the sent value numerically (RPC hex may be padded/normalized
-    // differently than the hex the frontend built), with 1% tolerance.
+    // Exact match — wallet connectors send the precise wei amount automatically.
     let sentWei = 0n; let wantWei = 0n;
     try { sentWei = BigInt(String(tx.value || '0x0')); wantWei = BigInt(expectedWei); } catch {}
-    const valOk = wantWei > 0n && sentWei * 100n >= wantWei * 99n;
+    const valOk = wantWei > 0n && sentWei === wantWei;
     if (!fromOk || !toOk || !valOk) {
       return Response.json({ ok: false, reason: 'transfer-not-found' });
-    }
-
-    // Sanity: the sent coin must be worth ~ the requested $ amount (15% tolerance).
-    const price = await getPrice(net);
-    if (price && isFinite(price)) {
-      const coinAmt = Number(BigInt(expectedWei)) / Math.pow(10, net.decimals);
-      if (coinAmt * price < amount * 0.85) {
-        return Response.json({ ok: false, reason: 'amount-mismatch' });
-      }
     }
 
     await creditDeposit(base44, user.id, user.email, amount, 'wallet-trust-native', txHash, `Trust Wallet · ${net.label}`);
