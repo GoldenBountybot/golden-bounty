@@ -81,7 +81,7 @@ export default function LiveTicker() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-4 mt-3">
+    <div className="max-w-none mx-auto px-4 mt-3">
       <div
         className="relative rounded-full overflow-hidden flex items-center"
         style={{ background: '#0a0a0c', border: `1px solid rgba(245,210,120,0.45)`, boxShadow: '0 3px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(245,210,120,0.12)' }}

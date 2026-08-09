@@ -73,7 +73,7 @@ export default function Events() {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-md lg:max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-none mx-auto px-4 py-3 flex items-center gap-3">
           <button onClick={() => window.history.back()} title={t("Back")}
             className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
             style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
@@ -87,7 +87,7 @@ export default function Events() {
         </div>
       </header>
 
-      <main className="relative z-10 max-w-md lg:max-w-7xl mx-auto px-4 py-5 flex flex-col gap-5">
+      <main className="relative z-10 max-w-none mx-auto px-4 py-5 flex flex-col gap-5">
         {/* Intro */}
         <div className="text-center py-2" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           <h1 className="text-2xl font-extrabold" style={{ color: '#fff' }}>{t("Special Events")}</h1>

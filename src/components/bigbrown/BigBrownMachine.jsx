@@ -85,7 +85,7 @@ export default function BigBrownMachine() {
 
   return (
     <div
-      className="relative w-full max-w-md lg:max-w-7xl mx-auto min-h-screen flex flex-col overflow-hidden"
+      className="relative w-full max-w-none mx-auto min-h-screen flex flex-col overflow-hidden"
       style={{ background: FOREST_BG, isolation: 'isolate' }}
     >
       {/* SVG filter — keys out the black background of the SPIN button image */}

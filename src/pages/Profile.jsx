@@ -192,7 +192,7 @@ export default function Profile() {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-md lg:max-w-7xl mx-auto px-4 py-3 flex items-center gap-3 relative" data-menu>
+        <div className="max-w-none mx-auto px-4 py-3 flex items-center gap-3 relative" data-menu>
           <button
             onClick={() => setMenuOpen(o => !o)}
             className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95"
@@ -284,7 +284,7 @@ export default function Profile() {
         </div>
       </header>
 
-      <main className="relative z-10 max-w-md lg:max-w-7xl mx-auto px-4 py-4 flex flex-col gap-4">
+      <main className="relative z-10 max-w-none mx-auto px-4 py-4 flex flex-col gap-4">
         {/* Profile card */}
         <div className="dash-card p-5 flex flex-col items-center gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           {/* Avatar with golden glow */}

@@ -155,7 +155,7 @@ export default function ArgonautsMachine() {
 
       {/* Reel grid */}
       <div className="relative flex-1 flex items-start justify-center px-3 py-0" style={{ marginTop: '-48px' }}>
-        <div className="w-full max-w-md lg:max-w-7xl">
+        <div className="w-full max-w-none">
           {g.freeSpins > 0 && (
             <div className="flex justify-center mb-2" style={{ transform: 'translateY(-4px)' }}>
               <span
@@ -326,7 +326,7 @@ export default function ArgonautsMachine() {
 
       {/* Control panel */}
       <div className="relative px-3 pb-2" style={{ marginTop: '64px' }}>
-        <div className="mx-auto max-w-md lg:max-w-7xl flex flex-col items-center gap-2">
+        <div className="mx-auto max-w-none flex flex-col items-center gap-2">
           {/* Spin button — centered on its own row above the rest */}
           <button
             onClick={() => { playSpinSound(); setSpinPulse(true); setTimeout(() => setSpinPulse(false), 220); g.spin(); }}
@@ -397,7 +397,7 @@ export default function ArgonautsMachine() {
 
       {/* Status bar */}
       <div
-        className="relative px-4 py-2 mx-auto max-w-md lg:max-w-7xl w-full grid grid-cols-3 gap-2 text-center"
+        className="relative px-4 py-2 mx-auto max-w-none w-full grid grid-cols-3 gap-2 text-center"
         style={{ background: 'rgba(0,0,0,0.6)', borderTop: '1px solid rgba(255,215,0,0.2)' }}
       >
         <div className="text-left">

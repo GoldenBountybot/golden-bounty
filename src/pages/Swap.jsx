@@ -12,7 +12,7 @@ export default function Swap() {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-md lg:max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-none mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => window.history.back()}
             title="Back"
@@ -31,7 +31,7 @@ export default function Swap() {
         </div>
       </header>
 
-      <main className="relative z-10 max-w-md lg:max-w-7xl mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-[60vh]">
+      <main className="relative z-10 max-w-none mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-[60vh]">
         <div
           className="dash-card p-10 flex flex-col items-center gap-5 text-center"
           style={{ animation: 'dashFadeIn 400ms ease both' }}

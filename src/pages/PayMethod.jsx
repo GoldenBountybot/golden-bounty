@@ -208,7 +208,7 @@ export default function PayMethod() {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-md lg:max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-none mx-auto px-4 py-3 flex items-center gap-3">
           {view !== 'choose' ? (
             <button onClick={() => { setView('choose'); }}
               className="flex items-center gap-1.5 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
@@ -229,7 +229,7 @@ export default function PayMethod() {
         </div>
       </header>
 
-      <main className="relative z-10 max-w-md lg:max-w-7xl mx-auto px-4 py-5 flex flex-col gap-4">
+      <main className="relative z-10 max-w-none mx-auto px-4 py-5 flex flex-col gap-4">
         {demoMode ? (
           <div className="dash-card p-5 flex flex-col items-center gap-3 text-center" style={{ animation: 'dashFadeIn 300ms ease both' }}>
             <AlertTriangle className="w-8 h-8" style={{ color: '#D4AF37' }} />

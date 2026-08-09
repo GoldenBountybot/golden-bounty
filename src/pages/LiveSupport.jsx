@@ -16,7 +16,7 @@ export default function LiveSupport() {
         className="sticky top-0 z-20 backdrop-blur-xl shrink-0"
         style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-md lg:max-w-7xl mx-auto w-full flex items-center justify-between px-4 py-3">
+        <div className="max-w-none mx-auto w-full flex items-center justify-between px-4 py-3">
           <BackButton href="/profile" label={t('Back')} />
           <div className="flex items-center gap-2">
             <div className="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden"
@@ -30,12 +30,12 @@ export default function LiveSupport() {
       </header>
 
       {/* Quick support channels — WhatsApp / Telegram / Email */}
-      <div className="shrink-0 max-w-md lg:max-w-7xl w-full mx-auto px-4 pt-3">
+      <div className="shrink-0 max-w-none w-full mx-auto px-4 pt-3">
         <SupportPanel />
       </div>
 
       {/* Chat body — fills the rest of the viewport up to the header */}
-      <main className="flex-1 min-h-0 max-w-md lg:max-w-7xl w-full mx-auto px-4 pt-4 pb-[calc(88px+env(safe-area-inset-bottom))] lg:pb-4">
+      <main className="flex-1 min-h-0 max-w-none w-full mx-auto px-4 pt-4 pb-[calc(88px+env(safe-area-inset-bottom))] lg:pb-4">
         <LiveSupportChat />
       </main>
     </div>

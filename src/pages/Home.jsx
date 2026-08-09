@@ -46,7 +46,7 @@ export default function Home() {
         className="sticky top-0 z-20 backdrop-blur-md"
         style={{ background: 'rgba(10,9,8,0.35)', borderBottom: '1px solid rgba(214,178,98,0.06)' }}
       >
-        <div className="max-w-7xl mx-auto pl-4 pr-0 lg:px-6 pt-2 pb-0 flex items-center justify-between">
+        <div className="max-w-none mx-auto pl-4 pr-0 lg:px-6 pt-2 pb-0 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className="relative shrink-0 self-end translate-y-[13px] w-12 h-12">
               <button
@@ -135,7 +135,7 @@ export default function Home() {
       </header>
 
       {/* Premium Western game banners */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 lg:px-6 mt-0">
+      <div className="relative z-10 max-w-none mx-auto px-4 lg:px-6 mt-0">
         <WesternGameBanners />
       </div>
 
@@ -143,7 +143,7 @@ export default function Home() {
       <div className="relative z-10"><LiveTicker /></div>
 
       {/* Two-column layout on desktop: sidebar + main */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 lg:px-6 mt-6">
+      <div className="relative z-10 max-w-none mx-auto px-4 lg:px-6 mt-6">
         <div className="lg:grid lg:grid-cols-[240px_1fr] lg:gap-6">
           {/* Desktop sidebar */}
           <HomeSidebar cat={cat} setCat={setCat} categories={CATEGORY_KEYS} />
@@ -184,7 +184,7 @@ export default function Home() {
       </div>
 
       {/* Hero banner */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 lg:px-6 pb-2">
+      <section className="relative z-10 max-w-none mx-auto px-4 lg:px-6 pb-2">
         <div className="relative overflow-hidden rounded-2xl" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fac3dbda4_file_000000008654821185c00f28c290ba18.png"
@@ -195,7 +195,7 @@ export default function Home() {
       </section>
 
       {/* Airdrop banner */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 lg:px-6 pb-2">
+      <section className="relative z-10 max-w-none mx-auto px-4 lg:px-6 pb-2">
         <Link to="/airdrop" className="block relative overflow-hidden rounded-2xl transition-transform active:scale-[0.99]" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
           <img
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/954aff594_file_00000000d7b081fab9598b09e1590c28.png"
