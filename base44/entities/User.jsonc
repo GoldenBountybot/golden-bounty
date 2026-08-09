@@ -20,11 +20,6 @@
       "type": "string",
       "description": "Phone number of the user"
     },
-    "balance": {
-      "type": "number",
-      "default": 0,
-      "description": "Casino wallet balance managed by the admin"
-    },
     "rtp": {
       "type": "number",
       "minimum": 0,
@@ -34,22 +29,17 @@
     "staked_amount": {
       "type": "number",
       "default": 0,
-      "description": "Balance currently locked in the Stack (cannot be used or withdrawn until it unlocks)"
+      "description": "Display mirror of Wallet.staked_amount (authoritative source is the Wallet entity). Kept for admin display compatibility."
     },
     "staked_at": {
       "type": "string",
       "format": "date-time",
-      "description": "ISO timestamp when the current Stack lock started"
+      "description": "Display mirror of Wallet.staked_at."
     },
     "last_profit_claim": {
       "type": "string",
       "format": "date-time",
-      "description": "ISO timestamp of the last claimed Stack profit day"
-    },
-    "wager_remaining": {
-      "type": "number",
-      "default": 0,
-      "description": "Deposited funds still requiring play-through (bets or stacking) before withdrawal is allowed. Decremented by game bets and stacking; cleared to 0 once the deposited amount has been wagered or staked."
+      "description": "Display mirror of Wallet.last_profit_claim."
     },
     "promo_code": {
       "type": "string",
@@ -98,11 +88,6 @@
       "type": "boolean",
       "default": false,
       "description": "When true, the user is blocked from accessing the app. Set by admins from the Players panel."
-    },
-    "cashback_claimed_loss": {
-      "type": "number",
-      "default": 0,
-      "description": "Cumulative net loss (from deposited funds) that has already been cashbacked, so the same loss can't be double-claimed."
     },
     "promo_welcome_seen": {
       "type": "boolean",

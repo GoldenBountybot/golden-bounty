@@ -31,15 +31,50 @@ export default async function(req) {
       return Response.json({ error: 'invalid-amount', max: MAX_BONUS }, { status: 400 });
     }
 
+    // ── Rate limiting: prevent repeated creditBonus abuse from the console ──
+    // A hacker could call creditBonus({amount:2000}) in a loop. These two
+    // guards bound the damage:
+    //   1. Min 2s between calls (slows rapid exploitation).
+    //   2. Daily aggregate cap: max $10,000 bonus credits per user per 24h.
+    const DAILY_BONUS_CAP = 10000;
+    const MIN_INTERVAL_MS = 2000;
+    try {
+      const recent = await base44.asServiceRole.entities.Transaction.filter(
+        { user_id: user.id, type: 'bonus' }, '-created_date', 200
+      );
+      const nowMs = Date.now();
+      if (recent && recent.length > 0 && recent[0].created_date) {
+        const lastMs = new Date(recent[0].created_date).getTime();
+        if (nowMs - lastMs < MIN_INTERVAL_MS) {
+          return Response.json({ error: 'rate-limited' }, { status: 429 });
+        }
+      }
+      const dayAgo = nowMs - 24 * 60 * 60 * 1000;
+      const dailySum = (recent || [])
+        .filter((t) => new Date(t.created_date).getTime() >= dayAgo)
+        .reduce((s, t) => s + (Number(t.amount) || 0), 0);
+      if (dailySum + amount > DAILY_BONUS_CAP) {
+        return Response.json({ error: 'daily-cap-exceeded', cap: DAILY_BONUS_CAP, used: dailySum }, { status: 429 });
+      }
+    } catch { /* rate-limit check is best-effort */ }
+
     const wallet = await findOrCreateWallet(base44, user.id);
     const curBal = Number(wallet.balance ?? 0);
     const curWager = Number(wallet.wager_remaining ?? 0);
     const newBal = curBal + amount;
 
-    await base44.asServiceRole.entities.Wallet.update(wallet.id, {
+    const walletUpdate = {
       balance: newBal,
       wager_remaining: curWager,
-    });
+    };
+    // For cashback claims: atomically update cashback_claimed_loss so the
+    // same loss can't be double-claimed. This field is now on the Wallet
+    // entity (RLS-protected), so users can't reset it to 0 via updateMe.
+    const claimedLossDelta = Number(body.claimed_loss ?? 0);
+    if (type === 'cashback' && isFinite(claimedLossDelta) && claimedLossDelta > 0) {
+      walletUpdate.cashback_claimed_loss = (Number(wallet.cashback_claimed_loss ?? 0) || 0) + claimedLossDelta;
+    }
+    await base44.asServiceRole.entities.Wallet.update(wallet.id, walletUpdate);
 
     // Mirror to User entity for display compatibility.
     try { await mirrorToUser(base44, user.id, newBal, curWager); } catch {}

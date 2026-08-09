@@ -23,6 +23,10 @@ import { findOrCreateWallet, mirrorToUser } from '../../shared/wallet.ts';
 // The Wallet entity's RLS blocks users from updating it directly, so this
 // function (running as the service role) is the only path.
 const MAX_WIN_MULT = 5000; // covers crash (500x), slots (1024x), all games
+// Free spins don't deduct a bet, so capping at bet*MAX_WIN_MULT would let a
+// hacker call settleBet({is_free_spin:true, bet_amount:100, win_amount:500000})
+// and credit $500K with no deduction. Fixed cap closes that hole.
+const FREE_SPIN_MAX_WIN = 5000;
 
 export default async function(req) {
   try {
@@ -54,9 +58,12 @@ export default async function(req) {
       }, { status: 400 });
     }
 
-    // Cap the win at bet * MAX_WIN_MULT to prevent inflated-win hacks.
-    // For free spins, betAmount is the original triggering bet (for cap only).
-    const maxWin = betAmount > 0 ? betAmount * MAX_WIN_MULT : 0;
+    // Cap the win to prevent inflated-win hacks.
+    // Regular spins: win <= bet * MAX_WIN_MULT.
+    // Free spins: win <= FREE_SPIN_MAX_WIN (fixed) — since no bet is deducted,
+    // capping at bet*MAX_WIN_MULT would let a hacker call settleBet with
+    // is_free_spin=true and a huge bet_amount to credit huge free money.
+    const maxWin = isFreeSpin ? FREE_SPIN_MAX_WIN : (betAmount > 0 ? betAmount * MAX_WIN_MULT : 0);
     const actualWin = Math.min(winAmount, maxWin);
 
     // Net change: win - bet (regular) or win (free spin, bet not deducted).

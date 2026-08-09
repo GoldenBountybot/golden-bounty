@@ -22,7 +22,11 @@ export default async function(req) {
     }
 
     const wallet = await findOrCreateWallet(base44, targetUserId);
-    const newBal = Math.max(0, Number(wallet.balance ?? 0) + delta);
+    // set_balance=true: set the balance to an absolute value (admin "Set
+    // Balance" action from the Players panel). set_balance=false (default):
+    // apply a delta (used by deposit/withdrawal approval & referral commission).
+    const setBalance = !!body.set_balance;
+    const newBal = setBalance ? Math.max(0, delta) : Math.max(0, Number(wallet.balance ?? 0) + delta);
     const newWager = Math.max(0, Number(wallet.wager_remaining ?? 0) + wagerDelta);
 
     await base44.asServiceRole.entities.Wallet.update(wallet.id, {

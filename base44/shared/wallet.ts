@@ -15,14 +15,22 @@ export async function findOrCreateWallet(base44, userId) {
     staked_amount: Number(u?.staked_amount ?? 0) || 0,
     staked_at: u?.staked_at || null,
     last_profit_claim: u?.last_profit_claim || null,
+    cashback_claimed_loss: Number(u?.cashback_claimed_loss ?? 0) || 0,
   });
   return wallet;
 }
 
 // Mirror wallet financial fields back to the User entity for display
 // compatibility (admin panels, profile, etc.). Best-effort — never throws.
+//
+// SECURITY: balance, wager_remaining, and cashback_claimed_loss are NO LONGER
+// on the User entity (removed to prevent users from setting them via
+// updateMe). They are stripped here so existing callers don't break, but the
+// authoritative source is always the Wallet entity. Only staking display
+// mirrors (staked_amount, staked_at, last_profit_claim) are still written.
 export async function mirrorToUser(base44, userId, fields) {
   try {
-    await base44.asServiceRole.entities.User.update(userId, fields);
+    const { balance, wager_remaining, cashback_claimed_loss, ...safe } = fields;
+    await base44.asServiceRole.entities.User.update(userId, safe);
   } catch { /* mirror is best-effort */ }
 }
