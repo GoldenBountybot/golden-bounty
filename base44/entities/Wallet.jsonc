@@ -30,6 +30,11 @@
       "type": "string",
       "format": "date-time",
       "description": "ISO timestamp of the last claimed Stack profit day."
+    },
+    "cashback_claimed_loss": {
+      "type": "number",
+      "default": 0,
+      "description": "Cumulative net loss (from deposited funds) already cashbacked, so the same loss can't be double-claimed. Authoritative source \u2014 moved from the User entity (which users could write via updateMe) to here so users can't reset it to 0 to re-claim cashback."
     }
   },
   "required": [
@@ -37,7 +42,16 @@
   ],
   "rls": {
     "read": {
-      "data.user_id": "{{user.id}}"
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "create": {
       "user_condition": {
