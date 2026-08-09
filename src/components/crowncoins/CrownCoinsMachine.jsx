@@ -248,7 +248,7 @@ export default function CrownCoinsMachine() {
     setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
     setWinLines([]);
     setAmountCell(null);
-    beginRound();
+    beginRound(bet, 'crown-coins', isFree, 'cap');
     if (!isFree) setBalance(b => Math.max(0, b - bet));
     clearTimers();
 

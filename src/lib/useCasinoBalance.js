@@ -160,12 +160,12 @@ async function addRealBalance(amount, type = 'bonus', note = '', claimedLoss = 0
   }
 }
 
-// Begin a game round: ask the server to pre-decide the outcome (win/loss +
-// amount) based on RTP, and suspend backend commits so setBalance calls
-// during the round are local-display-only (instant UX feedback). The round
-// is settled atomically via settleBet() at the end, which credits the
-// SERVER-DECIDED win (the client's win_amount is ignored) — so users can't
-// hack their balance by calling settleBet from the console.
+// Begin a game round: the server DEDUCTS THE BET IMMEDIATELY and pre-decides
+// the outcome (win/loss + amount) based on RTP. This closes the "avoid loss by
+// not settling" hack — the bet is gone the moment the round starts. The round
+// is settled via settleBet() at the end, which credits the SERVER-DECIDED win
+// (the client's win_amount is ignored or capped) — so users can't hack their
+// balance by calling settleBet from the console.
 async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed') {
   roundActive = true;
   if (demoMode) {
@@ -185,6 +185,11 @@ async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed')
     const data = res?.data || {};
     pendingRoundToken = data.round_token || null;
     pendingServerWin = Number(data.win_amount ?? 0);
+    // NOTE: do NOT sync committedBalance here. The game's setBalance call
+    // already reduces the local display by the bet (uncommittedDelta = -bet),
+    // and committedBalance still holds the pre-deduction server balance — so
+    // balance = committedBalance + (-bet) = correct. Syncing here would
+    // double-deduct. settleBet syncs the authoritative balance at the end.
     try { if (pendingRoundToken) localStorage.setItem(ROUND_TOKEN_KEY, pendingRoundToken); } catch {}
     return { is_win: !!data.is_win, win_amount: pendingServerWin, round_token: pendingRoundToken };
   } catch {
@@ -194,10 +199,12 @@ async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed')
   }
 }
 
-// Settle a game round atomically on the server. Deducts the bet and credits
-// the win in one verified operation (bet <= balance, win <= bet * MAX_MULT).
-// Replaces the local balance with the server's authoritative response.
-async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, preserveDelta = 0) {
+// Settle a game round on the server. The bet was already deducted at
+// beginRound time; settleBet only credits the server-decided win (round-token
+// path) or a server-generated win (fallback path). Replaces the local balance
+// with the server's authoritative response. The optional roundTokenOverride
+// is used by CrashGame to settle a specific panel's round independently.
+async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, preserveDelta = 0, roundTokenOverride = null) {
   if (demoMode) {
     // In demo mode, settle locally only (no backend commit).
     const net = isFreeSpin ? winAmount : (winAmount - betAmount);
@@ -223,15 +230,17 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     // uses the stored server-side decision. If no round_token (legacy call),
     // the server generates the win itself (also server-side).
     const res = await base44.functions.invoke('settleBet', {
-      round_token: pendingRoundToken,
+      round_token: roundTokenOverride || pendingRoundToken,
       bet_amount: betAmount,
       win_amount: winAmount,
       game_id: gameId,
       is_free_spin: isFreeSpin,
     });
-    pendingRoundToken = null;
-    pendingServerWin = 0;
-    try { localStorage.removeItem(ROUND_TOKEN_KEY); } catch {}
+    if (!roundTokenOverride) {
+      pendingRoundToken = null;
+      pendingServerWin = 0;
+      try { localStorage.removeItem(ROUND_TOKEN_KEY); } catch {}
+    }
     const newBackend = Number(res?.data?.balance ?? 0);
     const newWager = Number(res?.data?.wager_remaining ?? 0);
     committedBalance = newBackend;

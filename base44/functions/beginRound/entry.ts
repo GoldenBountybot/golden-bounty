@@ -2,18 +2,27 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { findOrCreateWallet } from '../../shared/wallet.ts';
 import { readRtp, decideOutcome } from '../../shared/roundLogic.ts';
 
-// Begins a secure game round. The server pre-decides the outcome (win/loss +
-// win amount) based on RTP and stores it in a PendingRound record. The client
-// receives the decision so it can display the correct visual, but the
-// AUTHORITATIVE win is stored server-side — settleBet credits the stored
-// amount, ignoring whatever the client sends.
+// Begins a secure game round. The server DEDUCTS THE BET IMMEDIATELY and
+// pre-decides the outcome (win/loss + win amount) based on RTP, storing it
+// in a PendingRound record.
 //
-// The bet is NOT deducted here; it is deducted atomically with the win at
-// settleBet time (so a round that is never settled costs the user nothing).
+// Deducting the bet at begin time (not settle time) closes the "avoid loss
+// by not settling" hack — a user who closes the page mid-round has already
+// lost the bet. The pre-decided win is forfeited if the round is never
+// settled (expires after 1h).
 //
-// Security: a user calling settleBet from the console with a huge win_amount
-// gets only the server-decided amount stored here — they can't inflate it.
+// settle_mode:
+//   'fixed' — the stored win_amount is the EXACT win (slot-style games
+//            where the server decides the full outcome). settleBet credits
+//            this amount, ignoring the client's win.
+//   'cap'   — the stored win_amount is a MAXIMUM CAP. The client sends the
+//            actual game win; settleBet credits min(client_win, cap). Used
+//            by games where the player chooses when to cash out (Mines,
+//            HiLo, Crash, Argonauts, CrownCoins) so the real game outcome
+//            is honored but can never exceed the server's cap.
 const ROUND_TTL_MS = 60 * 60 * 1000; // 1 hour to settle
+const MAX_WIN_MULT = 5000;
+const FREE_SPIN_MAX_WIN = 5000;
 
 export default async function(req) {
   try {
@@ -34,15 +43,37 @@ export default async function(req) {
     const wallet = await findOrCreateWallet(base44, user.id);
     if (wallet.banned) return Response.json({ error: 'Account banned' }, { status: 403 });
     const curBal = Number(wallet.balance ?? 0);
+    const curWager = Number(wallet.wager_remaining ?? 0);
 
-    // For regular spins: bet must not exceed balance (deducted later at settle).
-    if (!isFreeSpin && betAmount > curBal) {
-      return Response.json({ error: 'insufficient-balance', balance: curBal }, { status: 400 });
+    // Deduct the bet immediately (non-free-spin). This prevents the user
+    // from avoiding a loss by closing the page before settleBet.
+    let newBal = curBal;
+    let newWager = curWager;
+    if (!isFreeSpin && betAmount > 0) {
+      if (betAmount > curBal) {
+        return Response.json({ error: 'insufficient-balance', balance: curBal }, { status: 400 });
+      }
+      newBal = curBal - betAmount;
+      newWager = Math.max(0, curWager - Math.min(betAmount, curWager));
+      await base44.asServiceRole.entities.Wallet.update(wallet.id, {
+        balance: newBal,
+        wager_remaining: newWager,
+      });
     }
 
-    // Read RTP and decide the outcome entirely server-side.
+    // Decide the outcome entirely server-side.
     const rtp = await readRtp(base44, user.id, gameId);
-    const outcome = decideOutcome(rtp, betAmount, isFreeSpin);
+    let outcome;
+    if (settleMode === 'cap') {
+      // Cap mode: store a generous max-win cap. The actual win is the
+      // client's (the game's real outcome), capped at this amount.
+      const cap = isFreeSpin
+        ? FREE_SPIN_MAX_WIN
+        : Math.min(betAmount * MAX_WIN_MULT, FREE_SPIN_MAX_WIN);
+      outcome = { isWin: true, winAmount: cap, multiplier: MAX_WIN_MULT };
+    } else {
+      outcome = decideOutcome(rtp, betAmount, isFreeSpin);
+    }
 
     // Generate an unguessable round token and store the pending round.
     const roundToken = crypto.randomUUID();
@@ -64,6 +95,8 @@ export default async function(req) {
       win_amount: outcome.winAmount,
       is_win: outcome.isWin,
       multiplier: outcome.multiplier,
+      balance: newBal,
+      wager_remaining: newWager,
     });
   } catch (error) {
     return Response.json({ error: error?.message || String(error) }, { status: 500 });

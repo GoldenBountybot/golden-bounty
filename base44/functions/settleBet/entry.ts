@@ -2,23 +2,22 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { findOrCreateWallet } from '../../shared/wallet.ts';
 import { readRtp, decideOutcome } from '../../shared/roundLogic.ts';
 
-// Secure game-round settlement. Two paths:
+// Secure game-round settlement. The bet was already DEDUCTED at beginRound
+// time, so settleBet only CREDITS the win. Two paths:
 //
-// 1. ROUND TOKEN PATH (migrated games): The win was pre-decided at beginRound
-//    time and stored in a PendingRound record. settleBet looks it up by
-//    round_token, credits the STORED win (ignoring the client's win_amount),
-//    deducts the bet, and marks the round as settled. A user calling
-//    settleBet from the console with a huge win_amount gets only the
-//    server-decided amount — they can't inflate it.
+// 1. ROUND TOKEN PATH: The win was pre-decided at beginRound and stored in a
+//    PendingRound record. settleBet looks it up by round_token and credits
+//    the STORED win (fixed mode) or min(client's win, stored cap) (cap mode).
+//    The client's win_amount cannot exceed the server's cap — a console hack
+//    sending 999999 gets only the capped amount.
 //
-// 2. FALLBACK PATH (unmigrated games): No round_token. The server generates
-//    the win ITSELF based on RTP — the client's win_amount is IGNORED. This
-//    also closes the hack, but the visual may not match (since the game
-//    engine already showed its own outcome). Games should migrate to the
-//    round_token path for a correct visual.
+// 2. FALLBACK PATH (beginRound failed): No round_token. The server deducts
+//    the bet and generates the win itself based on RTP — the client's
+//    win_amount is IGNORED. This is the safety net for when beginRound fails.
 //
 // In BOTH paths, the server decides the win — the client can never credit
-// more than the server allows.
+// more than the server allows, and the bet is always deducted (at beginRound
+// or at settle if beginRound failed).
 const MAX_WIN_MULT = 5000;
 const FREE_SPIN_MAX_WIN = 5000;
 
@@ -63,27 +62,20 @@ export default async function(req) {
         winAmount = storedWin;
       }
 
+      // The bet was already deducted at beginRound time. Only credit the win.
       const wallet = await findOrCreateWallet(base44, user.id);
       if (wallet.banned) return Response.json({ error: 'Account banned' }, { status: 403 });
       const curBal = Number(wallet.balance ?? 0);
       const curWager = Number(wallet.wager_remaining ?? 0);
 
-      if (!isFreeSpin && betAmount > curBal) {
-        return Response.json({ error: 'insufficient-balance', balance: curBal, wager_remaining: curWager }, { status: 400 });
-      }
-
-      const net = isFreeSpin ? winAmount : (winAmount - betAmount);
+      const net = winAmount; // bet already deducted at beginRound
       const newBal = curBal + net;
       if (newBal < 0) {
         return Response.json({ error: 'insufficient-balance', balance: curBal, wager_remaining: curWager }, { status: 400 });
       }
 
-      const wagerDelta = isFreeSpin ? 0 : -Math.min(betAmount, curWager);
-      const newWager = Math.max(0, curWager + wagerDelta);
-
       await base44.asServiceRole.entities.Wallet.update(wallet.id, {
         balance: newBal,
-        wager_remaining: newWager,
       });
 
       await base44.asServiceRole.entities.PendingRound.update(round.id, { status: 'settled' });
@@ -97,7 +89,7 @@ export default async function(req) {
         });
       } catch { /* logging is best-effort */ }
 
-      return Response.json({ balance: newBal, win_amount: winAmount, wager_remaining: newWager });
+      return Response.json({ balance: newBal, win_amount: winAmount, wager_remaining: curWager });
     }
 
     // ── Path 2: fallback (no round token) — server decides win for wins,

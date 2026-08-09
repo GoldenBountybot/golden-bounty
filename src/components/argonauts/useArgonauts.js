@@ -304,7 +304,7 @@ export function useArgonauts() {
     if (riskActive && pendingWin > 0) settleBet(bet, pendingWin, 'argonauts', false);
     setPendingWin(0);
     setRiskActive(false);
-    beginRound();
+    beginRound(bet, 'argonauts', usingFree, 'cap');
     if (!usingFree) {
       setTotalWin(0);
       setBalance((b) => b - bet);

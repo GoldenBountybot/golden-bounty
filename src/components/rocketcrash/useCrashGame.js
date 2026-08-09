@@ -111,6 +111,7 @@ export function useCrashGame() {
   const loggedRoundRef = useRef(0);
   const blastedRoundRef = useRef(0);
   const crashSettledRef = useRef(0);
+  const panelTokensRef = useRef([null, null]);
   const playerNameRef = useRef('You');
 
   // Fetch the player's display name once so their bet shows at the top of the list.
@@ -188,7 +189,16 @@ export function useCrashGame() {
         }
         return r;
       });
-      if (balDelta) { balanceRef.current += balDelta; beginRound(); setBalance((bal) => bal + balDelta); }
+      if (balDelta) { balanceRef.current += balDelta; setBalance((bal) => bal + balDelta); }
+      // Deduct each auto-placed bet on the server and store its round token.
+      reset.forEach((b, i) => {
+        if (b.placed && b.autoBet) {
+          panelTokensRef.current[i] = null;
+          beginRound(b.amount, 'rocket-crash', false, 'cap').then((r) => {
+            if (r?.round_token) panelTokensRef.current[i] = r.round_token;
+          });
+        }
+      });
       betsRef.current = reset;
       setBets(reset);
 
@@ -292,7 +302,8 @@ export function useCrashGame() {
             .filter((x) => x.b.placed && !x.b.cashedOut);
           uncashed.reduce(async (p, x) => {
             await p;
-            settleBet(x.b.amount, 0, 'rocket-crash', false, otherActiveDelta(x.idx));
+            settleBet(x.b.amount, 0, 'rocket-crash', false, otherActiveDelta(x.idx), panelTokensRef.current[x.idx]);
+            panelTokensRef.current[x.idx] = null;
           }, Promise.resolve());
         }
         } else {
@@ -320,7 +331,10 @@ export function useCrashGame() {
           cashedIdxs.reduce(async (p, idx) => {
             await p;
             const bb = betsRef.current[idx];
-            if (bb) settleBet(bb.amount, bb.win, 'rocket-crash', false, otherActiveDelta(idx));
+            if (bb) {
+              settleBet(bb.amount, bb.win, 'rocket-crash', false, otherActiveDelta(idx), panelTokensRef.current[idx]);
+              panelTokensRef.current[idx] = null;
+            }
           }, Promise.resolve());
         }
 
@@ -363,13 +377,16 @@ export function useCrashGame() {
     const b = betsRef.current[i];
     if (b.placed) return;
     if (balanceRef.current < b.amount) return;
-    beginRound();
     setBalance((bal) => bal - b.amount);
     balanceRef.current -= b.amount;
     const next = betsRef.current.map((bb, idx) => (idx === i ? { ...bb, placed: true } : bb));
     betsRef.current = next;
     setBets(next);
     syncPlayerEntries();
+    panelTokensRef.current[i] = null;
+    beginRound(b.amount, 'rocket-crash', false, 'cap').then((r) => {
+      if (r?.round_token) panelTokensRef.current[i] = r.round_token;
+    });
   };
 
   const cancelBet = (i) => {
@@ -382,8 +399,9 @@ export function useCrashGame() {
     betsRef.current = next;
     setBets(next);
     syncPlayerEntries();
-    // Net-zero settlement (deduct bet, credit refund) with other panel's delta preserved.
-    settleBet(b.amount, b.amount, 'rocket-crash', false, otherActiveDelta(i));
+    // Net-zero settlement (refund the bet) with other panel's delta preserved.
+    settleBet(b.amount, b.amount, 'rocket-crash', false, otherActiveDelta(i), panelTokensRef.current[i]);
+    panelTokensRef.current[i] = null;
   };
 
   const cashOut = (i) => {
@@ -400,7 +418,8 @@ export function useCrashGame() {
     setBets(next);
     syncPlayerEntries();
     // Settle this panel's bet on the server, preserving other active panels' deltas.
-    settleBet(b.amount, win, 'rocket-crash', false, otherActiveDelta(i));
+    settleBet(b.amount, win, 'rocket-crash', false, otherActiveDelta(i), panelTokensRef.current[i]);
+    panelTokensRef.current[i] = null;
   };
 
   const setAmount = (i, amt) => {
