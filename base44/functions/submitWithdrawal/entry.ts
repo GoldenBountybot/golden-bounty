@@ -30,7 +30,9 @@ export default async function(req: Request): Promise<Response> {
     let body: any = {};
     try { body = await req.json(); } catch (_e) {}
     const amount = Number(body.amount || 0);
-    const method = String(body.method || 'usdt');
+    // Only allow "usdt" — the sole supported withdrawal method. Prevents
+    // method injection (the old hack used "stripe" / "ton" to disguise entries).
+    const method = 'usdt';
     const reference = String(body.reference || '').trim();   // wallet address
     const note = String(body.note || '');
 
