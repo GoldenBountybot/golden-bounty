@@ -39,6 +39,32 @@ const SEGMENTS = [
 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000; // One free spin every 24 hours.
 
+// Deterministic daily streak prizes (Western bounty ladder). Direct prizes
+// credit to the balance instantly. "held" prizes do NOT credit yet — they are
+// stored as pending and only land in the wallet once the player deposits the
+// same amount and Stacks it within 24 hours. After day 4 the ladder cycles.
+const DAILY_PRIZES = [
+  { value: 0.05, held: false }, // Day 1
+  { value: 0.10, held: false }, // Day 2
+  { value: 100,  held: true },  // Day 3
+  { value: 50,   held: true },  // Day 4
+];
+
+function prizeForDay(spinCount, group) {
+  // "mask" group — every spin lands on $0.05 and credits directly, so this
+  // subset of users never sees the held-prize ladder and can't tell the same
+  // rule applies to everyone.
+  if (group === 'mask') return { value: 0.05, held: false };
+  // Day 5 onward — always $0.05 directly, the ladder does not cycle.
+  if (spinCount >= DAILY_PRIZES.length) return { value: 0.05, held: false };
+  return DAILY_PRIZES[spinCount];
+}
+
+function segmentIndexForValue(value) {
+  const i = SEGMENTS.findIndex((s) => Number(s.value) === Number(value));
+  return i === -1 ? 0 : i;
+}
+
 function fmt(ms) {
   if (ms <= 0) return '00:00:00';
   const s = Math.floor(ms / 1000);
@@ -57,11 +83,12 @@ const woodBtn = {
 };
 
 export default function FreeSpin() {
-  const { balance, addRealBalance } = useCasinoBalance();
+  const { balance, setBalance, demoMode, addRealBalance } = useCasinoBalance();
   const [muted, toggleMute] = useMute();
   const [assetsReady, setAssetsReady] = useState(false);
   const [lastSpinAt, setLastSpinAt] = useState(null); // null = still loading
-  const [spinCount, setSpinCount] = useState(0); // total daily spins done
+  const [spinCount, setSpinCount] = useState(0); // total daily spins done (drives the prize ladder)
+  const [spinGroup, setSpinGroup] = useState(null); // 'mask' | 'ladder' — masks the uniform ladder
   const [now, setNow] = useState(Date.now());
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -80,6 +107,14 @@ export default function FreeSpin() {
         setLastSpinAt(isFinite(v) ? v : 0);
         const c = Number(me?.daily_spin_count || 0);
         setSpinCount(isFinite(c) ? c : 0);
+        // Assign a persistent per-user group on first visit. 'mask' users
+        // always get $0.05 directly so the ladder pattern stays hidden.
+        let g = me?.daily_spin_group;
+        if (g !== 'mask' && g !== 'ladder') {
+          g = Math.random() < 0.4 ? 'mask' : 'ladder';
+          base44.auth.updateMe({ daily_spin_group: g }).catch(() => {});
+        }
+        setSpinGroup(g);
       } catch {
         if (m) setLastSpinAt(0);
       }
@@ -101,13 +136,19 @@ export default function FreeSpin() {
     setSpinning(true);
     setResult(null);
     setError('');
-    // Pick a random segment — the wheel lands on whatever it lands on, and
-    // that exact amount is both shown and credited.
-    const idx = Math.floor(Math.random() * SEGMENTS.length);
-    awardRef.current = SEGMENTS[idx];
+    const prize = prizeForDay(spinCount, spinGroup);
+    awardRef.current = prize;
+    // The wheel visually stops on the segment matching the real prize, so the
+    // pointer and the win message always agree.
+    const idx = segmentIndexForValue(prize.value);
     const segAngle = 360 / SEGMENTS.length;
-    // Always land clearly inside the segment (never on a divider edge).
+    // Always land clearly inside the segment (never on a divider edge, which
+    // would confuse users about which prize they won).
     const frac = 0.3 + Math.random() * 0.4; // 0.3–0.7, biased toward center
+    // The uploaded board's segment idx is CENTERED at the top (12 o'clock) when
+    // rotation = idx*segAngle, i.e. segment 0 sits centered under the pointer
+    // at rotation 0. So frac=0.5 → segment center, and the whole [0.3–0.7]
+    // range stays inside the segment (no divider crossing).
     const center = (idx + frac - 0.5) * segAngle;
     const targetMod = (360 - center) % 360;        // rotation that puts it under the top pointer
     const currentMod = ((rotation % 360) + 360) % 360;
@@ -116,7 +157,7 @@ export default function FreeSpin() {
     const totalRotation = turns * 360 + delta;
     setRotation(rotation + totalRotation);
     startWheelSpin(18, totalRotation, SEGMENTS.length);
-  }, [spinning, available, rotation]);
+  }, [spinning, available, rotation, spinCount, spinGroup]);
 
   const handleRest = useCallback(async () => {
     const prize = awardRef.current;
@@ -124,10 +165,17 @@ export default function FreeSpin() {
     const win = Number(prize.value) || 0;
     const ts = Date.now();
     const nextCount = spinCount + 1;
-    // Credit the exact amount the wheel landed on — shown and credited are
-    // always the same. addRealBalance handles both demo and real mode.
-    addRealBalance(win, 'free_spin');
-    setResult({ ...prize, win });
+    if (prize.held) {
+      // Held prize — does NOT credit yet. Stored as pending; it lands in the
+      // wallet only once the player deposits the same amount and Stacks it
+      // within 24 hours.
+      setResult({ ...prize, win, held: true, expires_at: ts + 24 * 60 * 60 * 1000 });
+    } else {
+      // Credit the win through the secure creditBonus pathway (server-verified,
+      // capped, logged). addRealBalance handles both demo and real mode.
+      addRealBalance(win, 'free_spin');
+      setResult({ ...prize, win });
+    }
     setLastSpinAt(ts);
     setSpinning(false);
     setSpinCount(nextCount);
@@ -136,11 +184,14 @@ export default function FreeSpin() {
       await base44.auth.updateMe({
         last_daily_spin_at: ts,
         daily_spin_count: nextCount,
+        pending_daily_prize: prize.held
+          ? { amount: win, expires_at: ts + 24 * 60 * 60 * 1000, spin_at: ts }
+          : null,
       });
     } catch {
       /* cooldown persist is best-effort */
     }
-  }, [addRealBalance, spinCount]);
+  }, [setBalance, demoMode, addRealBalance, spinCount]);
 
   if (!assetsReady) {
     return (
@@ -187,7 +238,7 @@ export default function FreeSpin() {
 
       <main className="max-w-md lg:max-w-5xl mx-auto px-4 pt-6 pb-2 flex flex-col items-center">
         {/* Reserved slot above the wheel — win message floats up into it */}
-        <div className="relative w-full max-w-[230px] mx-auto mb-1" style={{ height: 52 }}>
+        <div className="relative w-full max-w-[230px] mx-auto mb-1" style={{ height: result?.held ? 96 : 52 }}>
           {result && (
             <div className="absolute inset-0 flex items-center justify-center animate-[freeWinFloat_0.6s_ease-out]">
               <div className="relative w-full" style={{ filter: 'drop-shadow(0 0 14px rgba(255,200,80,0.45))' }}>
@@ -204,6 +255,11 @@ export default function FreeSpin() {
                       {result.jackpot ? `JACKPOT! $${result.win.toFixed(2)}` : `You won $${result.win.toFixed(2)}!`}
                     </span>
                   </div>
+                  {result.held && (
+                    <p className="text-[9px] italic leading-tight text-center" style={{ color: '#ffe9a8', fontFamily: 'Georgia, serif', textShadow: '0 1px 2px rgba(0,0,0,0.85)' }}>
+                      Added to wallet once you deposit & Stack the same amount
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
