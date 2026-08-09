@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { findOrCreateWallet, mirrorToUser } from '../../shared/wallet.ts';
 
 // Redeem a referral promo code for the current (newly-registered) player.
 // Validates the code against another player's stored promo_code, credits a $1
@@ -54,18 +55,24 @@ export default async function(req) {
     }
 
     const PROMO_BONUS = 1;
-    const curStaked = Number(user.staked_amount ?? 0) || 0;
     const now = new Date().toISOString();
-    const update = {
+    // Credit the $1 bonus to the SECURE Wallet entity (source of truth for
+    // staked_amount). The Wallet RLS blocks users from modifying it, so this
+    // promo bonus can't be faked or inflated by the user.
+    const wallet = await findOrCreateWallet(base44, user.id);
+    const curStaked = Number(wallet.staked_amount ?? 0) || 0;
+    const walletUpdate = {
+      staked_amount: curStaked + PROMO_BONUS,
+      staked_at: wallet.staked_at || now,
+      last_profit_claim: wallet.last_profit_claim || now,
+    };
+    await base44.asServiceRole.entities.Wallet.update(wallet.id, walletUpdate);
+    // Mirror to User for display compatibility + persist referral metadata.
+    await mirrorToUser(base44, user.id, {
       referred_by: referrer.id,
       promo_claimed: true,
-      staked_amount: curStaked + PROMO_BONUS,
-    };
-    // Start the stack timer if the player had nothing staked yet, so the $1
-    // bonus begins earning profit immediately.
-    if (!user.staked_at) update.staked_at = now;
-    if (!user.last_profit_claim) update.last_profit_claim = now;
-    await base44.asServiceRole.entities.User.update(user.id, update);
+      ...walletUpdate,
+    });
 
     // Notify the new player about the bonus.
     await base44.asServiceRole.entities.UserNotification.create({

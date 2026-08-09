@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import { useCasinoBalance, reloadBalance } from '@/lib/useCasinoBalance';
 import { getRateForDeposits, getVipLevel, BASE_RATE } from '@/lib/vipLevels';
 
 // Stack Balance: lock part of your balance to earn daily profit.
@@ -28,7 +28,7 @@ export function computeProfit(staked, stakedAt, lastClaim, rate = BASE_RATE) {
 }
 
 export function useStake() {
-  const { balance, setBalance, addRealBalance, demoMode } = useCasinoBalance();
+  const { balance, demoMode } = useCasinoBalance();
   const [staked, setStaked] = useState(0);
   const [stakedAt, setStakedAt] = useState(null);
   const [lastClaim, setLastClaim] = useState(null);
@@ -61,21 +61,29 @@ export function useStake() {
           .reduce((s, t) => s + (Number(t.amount) || 0), 0);
         setTotalDeposits(td);
       } catch { /* ignore */ }
-      const r = getRateForDeposits(td);
 
-      let sa = Number(me?.staked_amount ?? 0) || 0;
-      let sat = me?.staked_at ?? null;
-      let lc = me?.last_profit_claim ?? null;
-      // auto-unlock after the lock period: return staked + remaining profit
+      // Read staking fields from the secure Wallet entity via getWallet —
+      // the Wallet RLS blocks users from modifying these directly.
+      const res = await base44.functions.invoke('getWallet', {});
+      let sa = Number(res?.data?.staked_amount ?? 0) || 0;
+      let sat = res?.data?.staked_at ?? null;
+      let lc = res?.data?.last_profit_claim ?? null;
+
+      // Auto-unlock after the lock period: return staked + remaining profit.
+      // Routed through the secure stakeOperation backend function so the
+      // balance credit + staking reset happen atomically server-side.
       if (sa > 0 && sat) {
         const elapsed = (Date.now() - new Date(sat).getTime()) / DAY;
         if (elapsed >= LOCK_DAYS) {
-          const profit = computeProfit(sa, sat, lc, r);
-          // Unlock credits the REAL wallet (even in demo mode) — staked funds
-          // are real and must return to the main balance, not the demo balance.
-          addRealBalance(sa + profit);
-          await base44.auth.updateMe({ staked_amount: 0, staked_at: null, last_profit_claim: null });
-          sa = 0; sat = null; lc = null;
+          try {
+            const unlockRes = await base44.functions.invoke('stakeOperation', { action: 'autoUnlock' });
+            if (unlockRes?.data) {
+              sa = Number(unlockRes.data.staked_amount ?? 0) || 0;
+              sat = unlockRes.data.staked_at ?? null;
+              lc = unlockRes.data.last_profit_claim ?? null;
+              await reloadBalance();
+            }
+          } catch { /* still locked or nothing staked — ignore */ }
         }
       }
       setStaked(sa);
@@ -85,7 +93,7 @@ export function useStake() {
       // not logged in
     }
     setLoaded(true);
-  }, [addRealBalance]);
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -96,32 +104,41 @@ export function useStake() {
     if (demoMode) return false;
     const n = Number(amount);
     if (!n || n <= 0 || n > balance) return false;
-    setBalance((b) => b - n);
-    const now = new Date().toISOString();
-    const newStaked = staked + n;
-    setStaked(newStaked);
-    setStakedAt(now);
-    setLastClaim(now);
     try {
-      await base44.auth.updateMe({ staked_amount: newStaked, staked_at: now, last_profit_claim: now });
-    } catch { /* persisted on next retry */ }
-    return true;
-  }, [balance, staked, setBalance]);
+      // Route through the secure stakeOperation backend function — the Wallet
+      // RLS blocks users from updating staked_amount directly, so this is the
+      // only way to lock funds. Balance decrease + staking reset are atomic.
+      const res = await base44.functions.invoke('stakeOperation', { action: 'stake', amount: n });
+      if (res?.data) {
+        setStaked(Number(res.data.staked_amount ?? 0) || 0);
+        setStakedAt(res.data.staked_at ?? null);
+        setLastClaim(res.data.last_profit_claim ?? null);
+        await reloadBalance();
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }, [balance, demoMode]);
 
   // claim accrued profit into the playable balance
   const claimProfit = useCallback(async () => {
     const p = computeProfit(staked, stakedAt, lastClaim, rate);
     if (p <= 0) return 0;
-    // Profit credits the REAL wallet directly — even in demo mode the claimed
-    // stack profit lands in the main balance, not the demo balance.
-    addRealBalance(p);
-    const now = new Date().toISOString();
-    setLastClaim(now);
     try {
-      await base44.auth.updateMe({ last_profit_claim: now });
-    } catch { /* persisted on next retry */ }
-    return p;
-  }, [staked, stakedAt, lastClaim, rate, addRealBalance]);
+      // Route through the secure stakeOperation backend function — profit is
+      // computed server-side from the VIP rate so a client can't fake it. The
+      // balance credit + last_profit_claim update are atomic.
+      const res = await base44.functions.invoke('stakeOperation', { action: 'claimProfit' });
+      if (res?.data) {
+        setLastClaim(res.data.last_profit_claim ?? null);
+        await reloadBalance();
+      }
+      return Number(res?.data?.credited ?? p) || p;
+    } catch {
+      return 0;
+    }
+  }, [staked, stakedAt, lastClaim, rate]);
 
   // Auto-unlock once the 15 days have passed: staked + remaining profit
   // return to the playable balance so the user can withdraw or re-stack.
@@ -129,14 +146,18 @@ export function useStake() {
     if (!staked || !stakedAt) return;
     const elapsed = (Date.now() - new Date(stakedAt).getTime()) / DAY;
     if (elapsed < LOCK_DAYS) return;
-    const p = computeProfit(staked, stakedAt, lastClaim, rate);
-    // Unlock credits the REAL wallet (even in demo mode).
-    addRealBalance(staked + p);
-    setStaked(0); setStakedAt(null); setLastClaim(null);
     try {
-      await base44.auth.updateMe({ staked_amount: 0, staked_at: null, last_profit_claim: null });
-    } catch { /* persisted on next retry */ }
-  }, [staked, stakedAt, lastClaim, rate, addRealBalance]);
+      // Route through the secure stakeOperation backend function — staked +
+      // profit return to balance atomically server-side, staking fields reset.
+      const res = await base44.functions.invoke('stakeOperation', { action: 'autoUnlock' });
+      if (res?.data) {
+        setStaked(Number(res.data.staked_amount ?? 0) || 0);
+        setStakedAt(res.data.staked_at ?? null);
+        setLastClaim(res.data.last_profit_claim ?? null);
+        await reloadBalance();
+      }
+    } catch { /* still locked or nothing staked — ignore */ }
+  }, [staked, stakedAt, lastClaim, rate]);
   autoUnlockRef.current = autoUnlock;
 
   const elapsedDays = stakedAt ? (Date.now() - new Date(stakedAt).getTime()) / DAY : 0;
