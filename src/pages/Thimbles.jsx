@@ -93,6 +93,7 @@ export default function Thimbles() {
   const logActivity = useLogActivity();
   const timers = useRef([]);
   const pendingWin = useRef(false);
+  const serverWinRef = useRef(0);
 
   const mult = mode === 'single' ? SINGLE_MULT : TWO_MULT;
   // 2-ball mode has a higher natural hit probability (2/3 vs 1/3), so bias
@@ -103,12 +104,16 @@ export default function Thimbles() {
 
   const clearTimers = () => { timers.current.forEach(clearTimeout); timers.current = []; };
 
-  const start = () => {
+  const start = async () => {
     if (phase !== 'idle' && phase !== 'over') return;
     if (!bet || bet < MIN_BET) { setMessage(`Min bet is ${MIN_BET} USDT`); return; }
     if (balance < bet) { setMessage('Not enough balance'); return; }
-    beginRound();
+    const _serverRoundPromise = beginRound(bet, 'thimbles');
     setBalance((b) => b - bet);
+
+    // Wait for the server's pre-decided outcome.
+    const serverRound = await _serverRoundPromise;
+    serverWinRef.current = Number(serverRound.win_amount ?? 0);
 
     const numBalls = mode === 'single' ? 1 : 2;
     const cups = new Set();
@@ -176,7 +181,7 @@ export default function Thimbles() {
     setPhase('over');
     playLift();
 
-    const willWin = Math.random() < winChance;
+    const willWin = serverWinRef.current > 0;
     const numBalls = mode === 'single' ? 1 : 2;
 
     let cups;
@@ -193,13 +198,13 @@ export default function Thimbles() {
     setBallCups(cups);
 
     if (willWin) {
-      const win = bet * mult;
+      const win = serverWinRef.current;
       settleBet(bet, win, 'thimbles');
       setLastWin(win);
       setWon(true);
-      setMessage(`You found it! +${win.toFixed(2)} (${mult}x)`);
+      setMessage(`You found it! +${win.toFixed(2)}`);
       playWin();
-      logActivity('thimbles', bet, win, 'win', mult);
+      logActivity('thimbles', bet, win, 'win', win > 0 ? win / bet : 0);
     } else {
       setLastWin(0);
       setWon(false);

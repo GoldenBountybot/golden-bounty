@@ -1,0 +1,90 @@
+{
+  "name": "PendingRound",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner of this pending round"
+    },
+    "round_token": {
+      "type": "string",
+      "description": "Unique unguessable token identifying this round (crypto.randomUUID)"
+    },
+    "game_id": {
+      "type": "string",
+      "description": "Game slug this round belongs to"
+    },
+    "bet_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Bet amount for this round (deducted at settle time, not at begin)"
+    },
+    "win_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Server-decided win amount. This is the AUTHORITATIVE win \u2014 settleBet credits this amount, ignoring whatever the client sends."
+    },
+    "is_free_spin": {
+      "type": "boolean",
+      "default": false
+    },
+    "settle_mode": {
+      "type": "string",
+      "enum": [
+        "fixed",
+        "cap"
+      ],
+      "default": "fixed",
+      "description": "fixed = credit the stored win_amount (ignore client's win). cap = credit min(client's win, stored win_amount) \u2014 for games where the player chooses when to cash out (Mines, HiLo)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "settled",
+        "expired"
+      ],
+      "default": "pending"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this round expires if never settled"
+    }
+  },
+  "required": [
+    "user_id",
+    "round_token",
+    "game_id",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

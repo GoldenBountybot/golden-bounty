@@ -137,6 +137,7 @@ export default function SuperAceMachine() {
   const normalWildSpawnedRef = useRef(false);
   const announcedFirstRef = useRef(false);
   const maxMultRef = useRef(0);
+  const serverWinRef = useRef(0);
   const superWinResolverRef = useRef(null);
   const megaWinResolverRef = useRef(null);
 
@@ -189,7 +190,7 @@ export default function SuperAceMachine() {
     maxMultRef.current = 0;
     goldenTargetsRef.current = [];
     normalWildSpawnedRef.current = false;
-    beginRound();
+    const _serverRoundPromise = beginRound(b, 'fullhouse', inFreeRef.current);
     if (!inFreeRef.current) {
       setBalance((x) => x - b);
       setMessage(`Spinning…`);
@@ -200,7 +201,9 @@ export default function SuperAceMachine() {
 
     // 3-scatter free-spin trigger is an independent 0.1% roll, separate from the
     // 10% line-win gate. The win gate controls line wins; scatters are gated here.
-    const forceWin = Math.random() < Math.min(0.3, Math.max(0.13, (rtpRef.current / 100) - 0.45));
+    const serverRound = await _serverRoundPromise;
+    serverWinRef.current = Number(serverRound.win_amount ?? 0);
+    const forceWin = serverWinRef.current > 0;
     const scatterHit = Math.random() < 0.001; // 0.1%
     let g = makeGrid();
     let ev0 = evaluate(g, b);
@@ -446,7 +449,7 @@ export default function SuperAceMachine() {
   const settle = async () => {
     const total = winThisSpinRef.current;
     const sc = scatterAwardRef.current;
-    const grand = total + sc;
+    const grand = serverWinRef.current;
     settleBet(betRef.current, grand, 'fullhouse', inFreeRef.current);
     if (grand > 0) {
       setLastWin(grand);

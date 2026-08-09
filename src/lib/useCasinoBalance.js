@@ -29,6 +29,9 @@ let persistTimer = null;
 let persisting = false;
 let roundActive = false; // when true, setBalance is local-display-only (no backend commit). Gameplay settles atomically via settleBet().
 const listeners = new Set();
+let pendingRoundToken = null;   // round_token from beginRound (server-side outcome)
+let pendingServerWin = 0;       // server-decided win amount for the current round
+const ROUND_TOKEN_KEY = 'casino_pending_round_token';
 
 // Demo mode: a local-only balance used to try every game without touching the
 // real wallet. Starts at $1000 each time demo is turned on; gameplay mutates it
@@ -157,12 +160,38 @@ async function addRealBalance(amount, type = 'bonus', note = '', claimedLoss = 0
   }
 }
 
-// Begin a game round: suspend backend commits so setBalance calls during the
-// round are local-display-only (instant UX feedback). The round is settled
-// atomically via settleBet() at the end, which verifies the bet and caps the
-// win server-side.
-function beginRound() {
+// Begin a game round: ask the server to pre-decide the outcome (win/loss +
+// amount) based on RTP, and suspend backend commits so setBalance calls
+// during the round are local-display-only (instant UX feedback). The round
+// is settled atomically via settleBet() at the end, which credits the
+// SERVER-DECIDED win (the client's win_amount is ignored) — so users can't
+// hack their balance by calling settleBet from the console.
+async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed') {
   roundActive = true;
+  if (demoMode) {
+    // Demo mode: decide locally (no backend call).
+    const isWin = Math.random() < 0.3;
+    pendingServerWin = isWin ? (1 + Math.random() * 5) * (bet || 0.10) : 0;
+    return { is_win: isWin, win_amount: pendingServerWin, round_token: null };
+  }
+  if (!bet || !gameId) {
+    // Legacy call (no args) — no server round, just set roundActive.
+    return { is_win: null, win_amount: null, round_token: null };
+  }
+  try {
+    const res = await base44.functions.invoke('beginRound', {
+      bet_amount: bet, game_id: gameId, is_free_spin: isFreeSpin, settle_mode: settleMode,
+    });
+    const data = res?.data || {};
+    pendingRoundToken = data.round_token || null;
+    pendingServerWin = Number(data.win_amount ?? 0);
+    try { if (pendingRoundToken) localStorage.setItem(ROUND_TOKEN_KEY, pendingRoundToken); } catch {}
+    return { is_win: !!data.is_win, win_amount: pendingServerWin, round_token: pendingRoundToken };
+  } catch {
+    // If beginRound fails, settleBet will use the fallback path (which also
+    // decides the win server-side). Continue without a server round.
+    return { is_win: null, win_amount: null, round_token: null };
+  }
 }
 
 // Settle a game round atomically on the server. Deducts the bet and credits
@@ -189,12 +218,20 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
       uncommittedDelta = 0;
       uncommittedWagerDelta = 0;
     }
+    // Send the round_token so the server credits the pre-decided win (from
+    // beginRound). The client's win_amount is IGNORED by the server — it
+    // uses the stored server-side decision. If no round_token (legacy call),
+    // the server generates the win itself (also server-side).
     const res = await base44.functions.invoke('settleBet', {
+      round_token: pendingRoundToken,
       bet_amount: betAmount,
       win_amount: winAmount,
       game_id: gameId,
       is_free_spin: isFreeSpin,
     });
+    pendingRoundToken = null;
+    pendingServerWin = 0;
+    try { localStorage.removeItem(ROUND_TOKEN_KEY); } catch {}
     const newBackend = Number(res?.data?.balance ?? 0);
     const newWager = Number(res?.data?.wager_remaining ?? 0);
     committedBalance = newBackend;
@@ -219,7 +256,19 @@ export function useCasinoBalance() {
     const l = () => { if (mounted) force((x) => x + 1); };
     listeners.add(l);
     if (!loaded && !loadingPromise) {
-      loadingPromise = loadBalance().finally(() => { loadingPromise = null; });
+      loadingPromise = loadBalance().then(async () => {
+        // Recover any interrupted round: settle it with the server to credit
+        // the pre-decided win (from beginRound). The client's win is ignored
+        // — the server uses the stored PendingRound outcome.
+        try {
+          const storedToken = localStorage.getItem(ROUND_TOKEN_KEY);
+          if (storedToken) {
+            localStorage.removeItem(ROUND_TOKEN_KEY);
+            pendingRoundToken = storedToken;
+            await settleBet(0, 0, 'recovery', false);
+          }
+        } catch { /* best-effort */ }
+      }).finally(() => { loadingPromise = null; });
     } else {
       l();
     }

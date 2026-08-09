@@ -233,12 +233,12 @@ export default function Plinko() {
     };
   }, []);
 
-  const drop = () => {
+  const drop = async () => {
     if (dropping) return;
     if (balance < bet) { setMessage('Not enough balance'); return; }
     timers.current.forEach(clearTimeout);
     timers.current = [];
-    beginRound();
+    const _serverRoundPromise = beginRound(bet, 'plinko');
     setBalance((b) => b - bet);
     setDropping(true);
     setResultBucket(null);
@@ -247,18 +247,17 @@ export default function Plinko() {
     setBallPos(null);
     playDropStart();
 
-    // Weighted random landing — high multipliers are intentionally rare.
-    // Demo mode (doubled RTP) boosts non-center buckets and shrinks the
-    // center (0.1x loss) bucket so winning and multiplier chances both rise.
-    const _center = 6;
-    const _adjW = WEIGHTS.map((w, i) => {
-      if (i === _center) return w * (1 - (rtp - 50) / 100);
-      return w * (rtp / 50);
-    });
-    const _adjTotal = _adjW.reduce((a, b) => a + b, 0);
-    let r = Math.random() * _adjTotal;
+    // Wait for the server's pre-decided outcome, then pick the bucket whose
+    // multiplier is closest to the server's win amount.
+    const serverRound = await _serverRoundPromise;
+    const serverWin = Number(serverRound.win_amount ?? 0);
+    const _targetMult = bet > 0 ? serverWin / bet : 0;
     let bucket = 0;
-    for (let i = 0; i < _adjW.length; i++) { r -= _adjW[i]; if (r <= 0) { bucket = i; break; } }
+    let _closest = Infinity;
+    for (let i = 0; i < MULTS.length; i++) {
+      const _d = Math.abs(MULTS[i] - _targetMult);
+      if (_d < _closest) { _closest = _d; bucket = i; }
+    }
 
     // Random, erratic descent — but the ball ALWAYS passes through the peg
     // directly above the target multiplier (row 10, col bucket-1) before
@@ -304,13 +303,13 @@ export default function Plinko() {
           setBallPos({ kind: 'bucket', col: finalCol });
           const t2 = setTimeout(() => {
             const mult = MULTS[finalCol];
-            const win = bet * mult;
+            const win = serverWin; // server-decided, not bet * mult
             settleBet(bet, win, 'plinko');
-            if (mult > 1) playWin(); else playLose();
+            if (win > 0) playWin(); else playLose();
             setLastWin(win);
             setResultBucket(finalCol);
             setMessage(`${mult}x · ${win > 0 ? `+$${win.toFixed(2)}` : 'No win'}`);
-            logActivity('plinko', bet, win, mult > 1 ? 'win' : 'loss');
+            logActivity('plinko', bet, win, win > 0 ? 'win' : 'loss');
             setDropping(false);
             setBallPos(null);
           }, 200);

@@ -54,6 +54,7 @@ export function useWildBounty() {
   const forceScatterBuyRef = useRef(false); // Feature Buy: force 3 scatters on the next spin to trigger the free-spins banner
   const skipBetDeductRef = useRef(false); // Feature Buy: the triggering spin's bet is already covered by the feature cost
   const settleBetRef = useRef(0); // the bet amount used for server-side settlement (per-line bet, or feature-buy cost)
+  const serverWinRef = useRef(0); // server-decided win amount for the current round (from beginRound)
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
@@ -366,9 +367,11 @@ export function useWildBounty() {
       }, 1000 * slow);
       timers.current.push(cascadeT);
     } else {
-      // No more wins — end the chain. Credit the accumulated round total now
-      // (cascades only displayed running totals before this) and clear the
-      // pending round so recovery never double-pays.
+      // No more wins — end the chain. Override the client-computed total with
+      // the server's pre-decided win (from beginRound). settleBet credits the
+      // server's amount, not the cascade-computed total — so users can't hack
+      // their balance by calling settleBet from the console.
+      totalWin = serverWinRef.current;
       sfx.winStop();
       setCascadeSlow(1);
       setWinningPositions(new Set());
@@ -463,7 +466,7 @@ export function useWildBounty() {
     evaluateAndCascade(finalGrid, 0, 0, wasFree ? 3 : 0, wasFree, false, frames);
   };
 
-  const spin = useCallback(() => {
+  const spin = useCallback(async () => {
     if (spinning) return;
     const usingFree = freeSpins > 0;
     if (!usingFree && balance < bet) {
@@ -473,10 +476,12 @@ export function useWildBounty() {
     timers.current.forEach(clearTimeout);
     timers.current = [];
 
-    // Begin a secure game round: setBalance calls during the round are
-    // local-display-only. The round is settled atomically via settleBet()
-    // at cascade-chain end, which verifies the bet and caps the win server-side.
-    beginRound();
+    // Start the server round (sets roundActive = true synchronously so the
+    // setBalance below is local-display-only, then calls the backend to
+    // pre-decide the outcome). The server's win is AUTHORITATIVE — settleBet
+    // credits it, ignoring the client's cascade-computed total.
+    const _roundBet = skipBetDeductRef.current ? settleBetRef.current : bet;
+    const _serverRoundPromise = beginRound(_roundBet, 'wild-bounty', usingFree);
     setSpinning(true);
     sfx.winStop();
     sfx.spin();
@@ -524,11 +529,14 @@ export function useWildBounty() {
     savePendingRound('wild-bounty', { win: 0, bet, state: pendingStateRef.current });
     setMessage('SPINNING...');
 
+    // Wait for the server's pre-decided outcome before generating the grid.
+    const serverRound = await _serverRoundPromise;
+    serverWinRef.current = Number(serverRound.win_amount ?? 0);
+
     let finalGrid = REEL_ROWS.map(r => buildReel(r));
-    // Match chance = admin RTP (default 35%): 65% no-match, 35% match.
-    // During free spins, lower the base win chance so fewer value symbols land
-    // and multiplier cascade rounds trigger less often.
-    const wantWin = Math.random() < (rtpRef.current / 100) * (usingFree ? 0.05 : 0.04);
+    // Use the server's win decision (from beginRound) — NOT Math.random().
+    // The server pre-decided whether this spin is a win and for how much.
+    const wantWin = serverWinRef.current > 0;
     if (wantWin) {
       // During free spins, force a LOW-value symbol (J/Q) so high-value matches
       // (A/K) rarely form even on forced wins.

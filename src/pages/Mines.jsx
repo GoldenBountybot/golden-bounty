@@ -134,6 +134,7 @@ export default function Mines() {
   const [lastWin, setLastWin] = useState(0);
   const [message, setMessage] = useState('Place yer bet an\' pick the mines');
   const [forceFirstMine, setForceFirstMine] = useState(false);
+  const serverWinRef = useRef(0);
   const logActivity = useLogActivity();
 
   const currentMult = pot;
@@ -168,13 +169,16 @@ export default function Mines() {
     else startMinesMusic();
   }, [muted]);
 
-  const start = () => {
+  const start = async () => {
     if (phase === 'playing') return;
     if (!bet || bet < MIN_BET) { setMessage('Min bet is $0.05'); return; }
     if (balance < bet) { setMessage('Not enough gold, partner'); return; }
     playClick();
-    beginRound();
+    const _serverRoundPromise = beginRound(bet, 'mines', false, 'cap');
     setBalance((b) => b - bet);
+    // Wait for the server's pre-decided outcome.
+    const serverRound = await _serverRoundPromise;
+    serverWinRef.current = Number(serverRound.win_amount ?? 0);
     const positions = Array.from({ length: TOTAL }, (_, i) => i);
     for (let i = positions.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -185,7 +189,7 @@ export default function Mines() {
     setRevealedOrder([]);
     setPot(1);
     setLastWin(0);
-    setForceFirstMine(Math.random() >= (rtp / 100) * 0.75);
+    setForceFirstMine(serverWinRef.current === 0);
     setPhase('playing');
     setMessage(`Find ${safe} gold bars · dodge ${mines} TNT`);
   };
@@ -227,7 +231,7 @@ export default function Mines() {
     const newPot = multiplierFor(k, mines);
     setPot(newPot);
     if (k === safe) {
-      const win = bet * newPot;
+      const win = Math.min(bet * newPot, serverWinRef.current);
       settleBet(bet, win, 'mines');
       setLastWin(win);
       setMessage(`Strike it rich! +$${win.toFixed(2)} (${newPot.toFixed(2)}x)`);
@@ -240,7 +244,7 @@ export default function Mines() {
 
   const cashout = () => {
     if (phase !== 'playing' || revealed.size === 0) return;
-    const win = bet * pot;
+    const win = Math.min(bet * pot, serverWinRef.current);
     settleBet(bet, win, 'mines');
     setLastWin(win);
     setMessage(`Cashed out $${win.toFixed(2)} (${pot.toFixed(2)}x)`);
@@ -428,7 +432,7 @@ export default function Mines() {
             </div>
             <div className="text-center">
               <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>WIN</p>
-              <p className="text-base text-amber-100 tabular-nums" style={W}>${(bet * pot).toFixed(2)}</p>
+              <p className="text-base text-amber-100 tabular-nums" style={W}>${Math.min(bet * pot, serverWinRef.current).toFixed(2)}</p>
             </div>
             <div className="text-right">
               <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>NEXT</p>
@@ -440,7 +444,7 @@ export default function Mines() {
         {/* Action buttons */}
         {phase === 'playing' && (
           <button onClick={cashout} disabled={revealed.size === 0} className="w-full py-4 rounded-xl text-base font-black transition-all disabled:opacity-40" style={{ ...woodBtn(true), ...W }}>
-            CASH OUT ${(bet * pot).toFixed(2)}
+            CASH OUT ${Math.min(bet * pot, serverWinRef.current).toFixed(2)}
           </button>
         )}
         {isOver && (

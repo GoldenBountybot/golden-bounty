@@ -42,6 +42,7 @@ export function useBigBrown() {
     }
   });
   const rtpRef = useRef(50);
+  const serverWinRef = useRef(0);
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
   const minBet = settings.minBet || 0.10;
   const maxBet = settings.maxBet || 500;
@@ -67,7 +68,9 @@ export function useBigBrown() {
     finalGrid.forEach((reel, ri) => reel.forEach((s, row) => { if (s === 'scatter') scPos.add(`${ri}-${row}`); }));
 
     const { wins, scatterCount, scatterWin } = evaluateWins(expanded, bet);
-    const totalWin = wins.reduce((sum, w) => sum + w.pay, 0) + scatterWin;
+    // Override the client-computed total with the server's pre-decided win.
+    // settleBet credits the server's amount, not the grid-computed total.
+    const totalWin = serverWinRef.current;
 
     // Only expand wild reels that are part of a winning way. A wild on reel ri
     // is part of a win only when ri falls within the consecutive winning range
@@ -136,7 +139,7 @@ export function useBigBrown() {
     logActivity('big-brown', bet, totalWin, totalWin > 0 ? 'win' : 'loss');
   }, [bet, setBalance, settleBet, logActivity]);
 
-  const spin = useCallback(() => {
+  const spin = useCallback(async () => {
     if (spinning) return;
     const usingFree = freeSpins > 0;
     if (!usingFree && balance < bet) {
@@ -153,15 +156,19 @@ export function useBigBrown() {
     setScatterPositions(new Set());
     setLastWin(0);
     setAnticipation(false);
-    beginRound();
+    const _serverRoundPromise = beginRound(bet, 'big-brown', usingFree);
     if (!usingFree) setBalance(b => b - bet);
     if (usingFree) setFreeSpins(f => f - 1);
     setMessage('Spinning...');
 
+    // Wait for the server's pre-decided outcome before generating the grid.
+    const serverRound = await _serverRoundPromise;
+    serverWinRef.current = Number(serverRound.win_amount ?? 0);
+
     let finalGrid = buildGrid();
 
-    // RTP bias: force a win or a clean loss (reduced for Big Brown).
-    const wantWin = Math.random() < (rtpRef.current / 100) * 0.24;
+    // Use the server's win decision (from beginRound) — NOT Math.random().
+    const wantWin = serverWinRef.current > 0;
     if (wantWin) {
       // Clear any natural wilds first so at most one wild exists on the board,
       // then place matching symbols on reels 0 & 2 and a single wild on either

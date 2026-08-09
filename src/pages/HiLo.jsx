@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowUp, ArrowDown, RotateCcw, Minus, Plus, Wallet, CircleDollarSign, Trophy, Volume2, VolumeX } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import GameTitleBar from '@/components/GameTitleBar';
@@ -195,6 +195,7 @@ export default function HiLo() {
   const [pot, setPot] = useState(0);
   const [message, setMessage] = useState('Deal a card to start!');
   const [streak, setStreak] = useState(0);
+  const serverWinRef = useRef(0);
   const logActivity = useLogActivity();
 
   // Start the ambient casino lounge loop on the first user gesture (browsers
@@ -218,11 +219,13 @@ export default function HiLo() {
     };
   }, []);
 
-  const deal = () => {
+  const deal = async () => {
     if (phase === 'guessing') return;
     if (balance < bet) { setMessage('Insufficient balance! Reset below.'); return; }
-    beginRound();
+    const _serverRoundPromise = beginRound(bet, 'hi-lo', false, 'cap');
     setBalance(b => b - bet);
+    const serverRound = await _serverRoundPromise;
+    serverWinRef.current = Number(serverRound.win_amount ?? 0);
     setPot(bet);
     setCurrent(drawCard());
     setRevealed(null);
@@ -234,7 +237,9 @@ export default function HiLo() {
 
   const guess = (dir) => {
     if (phase !== 'guessing') return;
-    const wantCorrect = Math.random() < (rtp / 100) * 0.70;
+    // Use the server's decision: correct while the pot can still grow within
+    // the server's max win, wrong once it would exceed the cap.
+    const wantCorrect = serverWinRef.current > 0 && (pot * 2) <= serverWinRef.current;
     const next = pickCard(dir, current.rank, wantCorrect);
     setRevealed(next);
     const same = next.rank === current.rank;
@@ -268,9 +273,10 @@ export default function HiLo() {
 
   const collect = () => {
     if (phase !== 'guessing' || pot === 0) return;
-    settleBet(bet, pot, 'hi-lo');
-    setMessage(`Collected $${pot.toFixed(2)}!`);
-    logActivity('hi-lo', bet, pot, 'win');
+    const win = Math.min(pot, serverWinRef.current);
+    settleBet(bet, win, 'hi-lo');
+    setMessage(`Collected $${win.toFixed(2)}!`);
+    logActivity('hi-lo', bet, win, 'win');
     playCollect();
     setPot(0);
     setPhase('idle');

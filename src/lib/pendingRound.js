@@ -71,9 +71,9 @@ export function usePendingRoundRecovery(gameId, setBalance, onRestoreState) {
     }
     const win = Number(r.win) || 0;
     const hasState = !!(r.state && r.state.freeSpinsActive && r.state.freeSpins > 0);
-    if (win > 0) {
-      setBalance((b) => b + win);
-    }
+    // Win credit is handled by useCasinoBalance's pending-round recovery
+    // (settleBet with the stored round_token) — not here, to avoid
+    // double-crediting. We only restore the visual state below.
     if (onRestoreState && r.state) {
       onRestoreState(r.state);
     }

@@ -56,6 +56,7 @@ export function useGates() {
     }
   });
   const rtpRef = useRef(50);
+  const serverWinRef = useRef(0);
   const demoModeRef = useRef(false);
   useEffect(() => { rtpRef.current = settings.rtp; }, [settings.rtp]);
   useEffect(() => { demoModeRef.current = settings.demoMode; }, [settings.demoMode]);
@@ -74,7 +75,7 @@ export function useGates() {
 
   useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
 
-  const spin = useCallback(() => {
+  const spin = useCallback(async () => {
     if (spinning) return;
     const usingFree = freeSpins > 0;
     if (!usingFree && balance < bet) {
@@ -94,7 +95,7 @@ export function useGates() {
     setWinList([]);
     setWinHistory([]);
     setScatterGlow(new Set());
-    beginRound();
+    const _serverRoundPromise = beginRound(bet, 'gates-of-olympus', usingFree);
     if (!usingFree) setBalance((b) => b - bet);
     if (usingFree) setFreeSpins((f) => f - 1);
     setMessage('Spinning…');
@@ -102,8 +103,9 @@ export function useGates() {
 
     // RTP-biased forced win/loss gate. Free spins get a slightly higher chance
     // of landing 8+ matching symbols so the bonus round feels more rewarding.
-    const baseChance = (rtpRef.current / 100) * 0.42;
-    const wantWin = Math.random() < (usingFree ? baseChance + 0.12 : baseChance);
+    const serverRound = await _serverRoundPromise;
+    serverWinRef.current = Number(serverRound.win_amount ?? 0);
+    const wantWin = serverWinRef.current > 0;
     const freeMode = usingFree;
     const result = computeSpin(bet, wantWin, freeMode, runningMultRef.current, demoModeRef.current);
     // Persist this spin's already-determined outcome plus the in-progress free
@@ -205,7 +207,7 @@ export function useGates() {
       clearPendingRound('gates-of-olympus');
       setShatter(new Set());
       setWinPositions(new Set());
-      const win = result.spinWin;
+      const win = serverWinRef.current;
       settleBet(bet, win, 'gates-of-olympus', freeMode);
       if (win > 0) {
         setLastWin(win);

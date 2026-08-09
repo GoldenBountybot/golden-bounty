@@ -1,31 +1,25 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { findOrCreateWallet, mirrorToUser } from '../../shared/wallet.ts';
+import { findOrCreateWallet } from '../../shared/wallet.ts';
+import { readRtp, decideOutcome } from '../../shared/roundLogic.ts';
 
-// Secure game-round settlement. This is the ONLY way gameplay can change a
-// balance. It deducts the bet and credits the win in ONE atomic server-side
-// operation, with full verification:
+// Secure game-round settlement. Two paths:
 //
-//  1. bet_amount must be > 0 (can't settle a round with no bet — prevents
-//     free-money credits disguised as gameplay).
-//  2. bet_amount must be <= current wallet balance (can't bet what you don't
-//     have — prevents overdraft hacking).
-//  3. win_amount is capped at bet_amount * MAX_WIN_MULT (prevents inflated-win
-//     hacks — a hacker can't report a $999999 win on a $1 bet).
-//  4. The net = win - bet is applied atomically; the wallet is re-read first so
-//     admin credits / deposits are never overwritten.
-//  5. A PlayerActivity record is logged for every round (audit trail).
+// 1. ROUND TOKEN PATH (migrated games): The win was pre-decided at beginRound
+//    time and stored in a PendingRound record. settleBet looks it up by
+//    round_token, credits the STORED win (ignoring the client's win_amount),
+//    deducts the bet, and marks the round as settled. A user calling
+//    settleBet from the console with a huge win_amount gets only the
+//    server-decided amount — they can't inflate it.
 //
-// Free spins: pass is_free_spin=true. The bet is NOT deducted (it was already
-// paid by the triggering spin), but win_amount is still capped at
-// bet_amount * MAX_WIN_MULT (bet_amount = the original triggering bet, for
-// cap purposes only).
+// 2. FALLBACK PATH (unmigrated games): No round_token. The server generates
+//    the win ITSELF based on RTP — the client's win_amount is IGNORED. This
+//    also closes the hack, but the visual may not match (since the game
+//    engine already showed its own outcome). Games should migrate to the
+//    round_token path for a correct visual.
 //
-// The Wallet entity's RLS blocks users from updating it directly, so this
-// function (running as the service role) is the only path.
-const MAX_WIN_MULT = 5000; // covers crash (500x), slots (1024x), all games
-// Free spins don't deduct a bet, so capping at bet*MAX_WIN_MULT would let a
-// hacker call settleBet({is_free_spin:true, bet_amount:100, win_amount:500000})
-// and credit $500K with no deduction. Fixed cap closes that hole.
+// In BOTH paths, the server decides the win — the client can never credit
+// more than the server allows.
+const MAX_WIN_MULT = 5000;
 const FREE_SPIN_MAX_WIN = 5000;
 
 export default async function(req) {
@@ -35,12 +29,85 @@ export default async function(req) {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json().catch(() => ({}));
+    const roundToken = String(body.round_token || '');
+
+    // ── Path 1: round token from beginRound (secure, pre-decided win) ──
+    if (roundToken) {
+      const rounds = await base44.asServiceRole.entities.PendingRound.filter(
+        { round_token: roundToken }, '-created_date', 5
+      );
+      const round = rounds && rounds[0];
+      if (!round) return Response.json({ error: 'round-not-found' }, { status: 404 });
+      if (round.user_id !== user.id) return Response.json({ error: 'round-not-owned' }, { status: 403 });
+      if (round.status !== 'pending') return Response.json({ error: 'round-already-settled' }, { status: 400 });
+      if (round.expires_at && new Date(round.expires_at).getTime() < Date.now()) {
+        await base44.asServiceRole.entities.PendingRound.update(round.id, { status: 'expired' });
+        return Response.json({ error: 'round-expired' }, { status: 400 });
+      }
+
+      const storedWin = Number(round.win_amount ?? 0);
+      const betAmount = Number(round.bet_amount ?? 0);
+      const isFreeSpin = !!round.is_free_spin;
+      const gameId = String(round.game_id || 'unknown');
+      const settleMode = String(round.settle_mode || 'fixed');
+
+      // fixed mode: credit the stored win (ignore client's win_amount).
+      // cap mode: credit min(client's win, stored win) — for games where the
+      // player chooses when to cash out (Mines, HiLo). The server caps the max
+      // win; the player can cash out for less.
+      let winAmount;
+      if (settleMode === 'cap') {
+        const clientWin = Number(body.win_amount ?? 0);
+        winAmount = Math.max(0, Math.min(clientWin, storedWin));
+      } else {
+        winAmount = storedWin;
+      }
+
+      const wallet = await findOrCreateWallet(base44, user.id);
+      if (wallet.banned) return Response.json({ error: 'Account banned' }, { status: 403 });
+      const curBal = Number(wallet.balance ?? 0);
+      const curWager = Number(wallet.wager_remaining ?? 0);
+
+      if (!isFreeSpin && betAmount > curBal) {
+        return Response.json({ error: 'insufficient-balance', balance: curBal, wager_remaining: curWager }, { status: 400 });
+      }
+
+      const net = isFreeSpin ? winAmount : (winAmount - betAmount);
+      const newBal = curBal + net;
+      if (newBal < 0) {
+        return Response.json({ error: 'insufficient-balance', balance: curBal, wager_remaining: curWager }, { status: 400 });
+      }
+
+      const wagerDelta = isFreeSpin ? 0 : -Math.min(betAmount, curWager);
+      const newWager = Math.max(0, curWager + wagerDelta);
+
+      await base44.asServiceRole.entities.Wallet.update(wallet.id, {
+        balance: newBal,
+        wager_remaining: newWager,
+      });
+
+      await base44.asServiceRole.entities.PendingRound.update(round.id, { status: 'settled' });
+
+      try {
+        await base44.entities.PlayerActivity.create({
+          user_id: user.id, user_email: user.email || '', game_id: gameId,
+          bet: betAmount, win: winAmount,
+          outcome: winAmount > 0 ? 'win' : (betAmount > 0 ? 'loss' : 'push'),
+          multiplier: betAmount > 0 ? +(winAmount / betAmount).toFixed(2) : 0,
+        });
+      } catch { /* logging is best-effort */ }
+
+      return Response.json({ balance: newBal, win_amount: winAmount, wager_remaining: newWager });
+    }
+
+    // ── Path 2: fallback (no round token) — server decides win for wins,
+    // honors the client's loss direction ──
     const betAmount = Number(body.bet_amount ?? 0);
-    const winAmount = Number(body.win_amount ?? 0);
+    const clientWin = Number(body.win_amount ?? 0);
     const gameId = String(body.game_id || 'unknown');
     const isFreeSpin = !!body.is_free_spin;
 
-    if (!isFinite(betAmount) || !isFinite(winAmount) || betAmount < 0 || winAmount < 0) {
+    if (!isFinite(betAmount) || betAmount < 0 || !isFinite(clientWin) || clientWin < 0) {
       return Response.json({ error: 'invalid-params' }, { status: 400 });
     }
 
@@ -49,37 +116,30 @@ export default async function(req) {
     const curBal = Number(wallet.balance ?? 0);
     const curWager = Number(wallet.wager_remaining ?? 0);
 
-    // For regular spins: the bet must not exceed the current balance.
-    // For free spins: the bet is not deducted, so no balance check needed.
     if (!isFreeSpin && betAmount > curBal) {
-      return Response.json({
-        error: 'insufficient-balance',
-        balance: curBal,
-        wager_remaining: curWager,
-      }, { status: 400 });
+      return Response.json({ error: 'insufficient-balance', balance: curBal, wager_remaining: curWager }, { status: 400 });
     }
 
-    // Cap the win to prevent inflated-win hacks.
-    // Regular spins: win <= bet * MAX_WIN_MULT.
-    // Free spins: win <= FREE_SPIN_MAX_WIN (fixed) — since no bet is deducted,
-    // capping at bet*MAX_WIN_MULT would let a hacker call settleBet with
-    // is_free_spin=true and a huge bet_amount to credit huge free money.
-    const maxWin = isFreeSpin ? FREE_SPIN_MAX_WIN : (betAmount > 0 ? betAmount * MAX_WIN_MULT : 0);
-    const actualWin = Math.min(winAmount, maxWin);
+    // Honor the client's win/loss DIRECTION:
+    // - Client says loss (win=0): credit 0 — the visual matches.
+    // - Client says win (win>0): generate a server-side amount based on RTP.
+    //   The server may decide it's actually a loss (win=0) — the visual won't
+    //   match in that case, but the user can't inflate the win.
+    let winAmount;
+    if (clientWin === 0) {
+      winAmount = 0;
+    } else {
+      const rtp = await readRtp(base44, user.id, gameId);
+      const outcome = decideOutcome(rtp, betAmount, isFreeSpin);
+      winAmount = outcome.winAmount;
+    }
 
-    // Net change: win - bet (regular) or win (free spin, bet not deducted).
-    const net = isFreeSpin ? actualWin : (actualWin - betAmount);
+    const net = isFreeSpin ? winAmount : (winAmount - betAmount);
     const newBal = curBal + net;
-
     if (newBal < 0) {
-      return Response.json({
-        error: 'insufficient-balance',
-        balance: curBal,
-        wager_remaining: curWager,
-      }, { status: 400 });
+      return Response.json({ error: 'insufficient-balance', balance: curBal, wager_remaining: curWager }, { status: 400 });
     }
 
-    // Wagering: any bet (not free spin) counts as play-through.
     const wagerDelta = isFreeSpin ? 0 : -Math.min(betAmount, curWager);
     const newWager = Math.max(0, curWager + wagerDelta);
 
@@ -88,23 +148,16 @@ export default async function(req) {
       wager_remaining: newWager,
     });
 
-    // Mirror to User entity for display compatibility (admin panels, etc.)
-    try { await mirrorToUser(base44, user.id, newBal, newWager); } catch {}
-
-    // Log the round as a PlayerActivity record (audit trail).
     try {
       await base44.entities.PlayerActivity.create({
-        user_id: user.id,
-        user_email: user.email || '',
-        game_id: gameId,
-        bet: betAmount,
-        win: actualWin,
-        outcome: actualWin > betAmount ? 'win' : (actualWin === 0 && betAmount > 0 ? 'loss' : 'push'),
-        multiplier: betAmount > 0 ? +(actualWin / betAmount).toFixed(2) : 0,
+        user_id: user.id, user_email: user.email || '', game_id: gameId,
+        bet: betAmount, win: winAmount,
+        outcome: winAmount > 0 ? 'win' : (betAmount > 0 ? 'loss' : 'push'),
+        multiplier: betAmount > 0 ? +(winAmount / betAmount).toFixed(2) : 0,
       });
     } catch { /* logging is best-effort */ }
 
-    return Response.json({ balance: newBal, wager_remaining: newWager });
+    return Response.json({ balance: newBal, win_amount: winAmount, wager_remaining: newWager });
   } catch (error) {
     return Response.json({ error: error?.message || String(error) }, { status: 500 });
   }
