@@ -30,25 +30,40 @@ export async function findOrCreateWallet(base44, userId) {
 // the frontend no longer credits via setBalance (which commitBalanceDelta
 // now rejects for positive deltas).
 export async function creditDeposit(base44, userId, userEmail, amount, method, reference, note) {
+  const MAX_DEPOSIT = 100000; // Defense-in-depth: absolute cap per deposit
+  const amt = Math.min(Number(amount || 0), MAX_DEPOSIT);
+  if (!isFinite(amt) || amt <= 0) throw new Error('Invalid deposit amount');
+
   const wallet = await findOrCreateWallet(base44, userId);
   // Banned users can't receive deposit credits (defense-in-depth — the
   // client-side ban check in AuthContext reads this same Wallet.banned flag,
   // which the user can't bypass since Wallet is admin-only write).
   if (wallet.banned) throw new Error('Account banned');
-  const newBal = Number(wallet.balance ?? 0) + amount;
-  const newWager = Number(wallet.wager_remaining ?? 0) + amount;
-  await base44.asServiceRole.entities.Wallet.update(wallet.id, { balance: newBal, wager_remaining: newWager });
+
+  // ATOMIC INCREMENT — prevents the read-modify-write race condition where a
+  // concurrent operation (beginRound bet deduction, settleBet win credit,
+  // adminAdjustWallet) reads the old balance and overwrites this deposit
+  // credit. $inc is atomic at the database level — the deposit is ALWAYS
+  // added on top of the latest balance, never lost or overwritten.
+  await base44.asServiceRole.entities.Wallet.updateMany(
+    { user_id: userId },
+    { $inc: { balance: amt, wager_remaining: amt } }
+  );
+
+  // Re-read to get the authoritative balance for the response.
+  const updated = await findOrCreateWallet(base44, userId);
+
   await base44.asServiceRole.entities.Transaction.create({
     user_id: userId,
     user_email: userEmail || '',
     type: 'deposit',
-    amount,
+    amount: amt,
     status: 'completed',
     method,
     reference,
     note,
   });
-  return { balance: newBal, wager_remaining: newWager };
+  return { balance: Number(updated.balance ?? 0), wager_remaining: Number(updated.wager_remaining ?? 0) };
 }
 
 // Mirror wallet financial fields back to the User entity for display

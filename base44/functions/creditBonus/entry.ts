@@ -197,16 +197,17 @@ export default async function(req) {
       }
     }
 
-    // ── Credit the wallet ──
-    const curBal = Number(wallet.balance ?? 0);
+    // ── Credit the wallet (ATOMIC $inc — prevents race condition) ──
     const curWager = Number(wallet.wager_remaining ?? 0);
-    const newBal = curBal + amount;
 
-    await base44.asServiceRole.entities.Wallet.update(wallet.id, {
-      balance: newBal,
-      wager_remaining: curWager,
-      ...extraWalletUpdate,
-    });
+    await base44.asServiceRole.entities.Wallet.updateMany(
+      { user_id: user.id },
+      { $inc: { balance: amount }, $set: extraWalletUpdate }
+    );
+
+    // Re-read for the authoritative balance to return.
+    const updated = await findOrCreateWallet(base44, user.id);
+    const newBal = Number(updated.balance ?? 0);
 
     try { await mirrorToUser(base44, user.id, newBal, curWager); } catch {}
 

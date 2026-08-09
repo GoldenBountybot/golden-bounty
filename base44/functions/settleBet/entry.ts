@@ -106,18 +106,20 @@ export default async function(req) {
     // The bet was already deducted at beginRound time. Only credit the win.
     const wallet = await findOrCreateWallet(base44, user.id);
     if (wallet.banned) return Response.json({ error: 'Account banned' }, { status: 403 });
-    const curBal = Number(wallet.balance ?? 0);
-    const curWager = Number(wallet.wager_remaining ?? 0);
 
-    const newBal = curBal + winAmount;
-    // This should never go negative (we're only crediting), but guard anyway.
-    if (newBal < 0) {
-      return Response.json({ error: 'insufficient-balance', balance: curBal, wager_remaining: curWager }, { status: 400 });
-    }
+    // ATOMIC INCREMENT — prevents the read-modify-write race condition where
+    // a concurrent deposit credit or admin adjustment overwrites this win.
+    // $inc is atomic at the database level — the win is ALWAYS added on top
+    // of the latest balance, never lost or overwritten.
+    await base44.asServiceRole.entities.Wallet.updateMany(
+      { user_id: user.id },
+      { $inc: { balance: winAmount } }
+    );
 
-    await base44.asServiceRole.entities.Wallet.update(wallet.id, {
-      balance: newBal,
-    });
+    // Re-read for the authoritative balance to return.
+    const settled = await findOrCreateWallet(base44, user.id);
+    const newBal = Number(settled.balance ?? 0);
+    const curWager = Number(settled.wager_remaining ?? 0);
 
     try {
       await base44.entities.PlayerActivity.create({
