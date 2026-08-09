@@ -47,6 +47,7 @@ import Swap from './pages/Swap';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import BottomNavLayout from '@/components/BottomNavLayout';
 import AppLoadingImage from '@/components/AppLoadingImage';
+import AppLoadingScreen from '@/components/AppLoadingScreen';
 import { LanguageProvider } from '@/lib/LanguageContext';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { preloadAssets, preloadDynamicAssets, preloadAllGameAssets } from '@/lib/assetPreloader';
@@ -93,18 +94,25 @@ const AuthenticatedApp = () => {
       .catch(() => setDynamicReady(true));
   }, [loading]);
 
-  const showSplash = loading || !imgReady || !staticReady || !dynamicReady || !minDone;
+  // Phase 1: static splash image — show until the image loads AND a minimum
+  // display time elapses, so the user sees the full-screen splash first.
+  const showSplashImage = !imgReady || !minDone;
+  // Phase 2: loading screen — after the splash image, while assets/auth load.
+  const showLoadingScreen = !showSplashImage && (loading || !staticReady || !dynamicReady);
 
   // Once the splash is done, warm all game assets in the background so they
   // are already cached when the user taps into a game — near-instant load.
   useEffect(() => {
-    if (showSplash) return;
+    if (showLoadingScreen) return;
     const t = setTimeout(() => { preloadAllGameAssets(); }, 1500);
     return () => clearTimeout(t);
-  }, [showSplash]);
+  }, [showLoadingScreen]);
 
-  if (showSplash) {
+  if (showSplashImage) {
     return <AppLoadingImage />;
+  }
+  if (showLoadingScreen) {
+    return <AppLoadingScreen />;
   }
 
   // Handle authentication errors
