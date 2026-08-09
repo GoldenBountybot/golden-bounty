@@ -554,6 +554,73 @@
   100% { transform: translateX(250%); }
 }
 
+/* ===== App loading — premium iconic splash ===== */
+
+/* Splash image slow Ken Burns zoom + fade in */
+@keyframes appSplashZoom {
+  0%   { transform: scale(1.08); }
+  100% { transform: scale(1.18); }
+}
+/* Diagonal gold light sweep across the splash image */
+@keyframes appLightSweep {
+  0%   { transform: translateX(-120%) rotate(15deg); opacity: 0; }
+  30%  { opacity: 0.5; }
+  70%  { opacity: 0.5; }
+  100% { transform: translateX(120%) rotate(15deg); opacity: 0; }
+}
+/* Rotating sunburst light rays behind the emblem */
+@keyframes appRayRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+/* Emblem breathing glow */
+@keyframes appEmblemBreath {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255,200,80,0.5)) brightness(1); transform: scale(1); }
+  50%      { filter: drop-shadow(0 0 18px rgba(255,220,120,0.85)) brightness(1.15); transform: scale(1.03); }
+}
+/* Outer ring slow spin with gold stud dots */
+@keyframes appRingOuter {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+/* Middle ring counter spin */
+@keyframes appRingMid {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+/* Inner ring fast spin */
+@keyframes appRingInner {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+/* Coin medallion glow pulse */
+@keyframes appCoinGlow {
+  0%, 100% { box-shadow: 0 0 18px rgba(255,200,80,0.6), inset 0 0 8px rgba(255,210,120,0.25); }
+  50%      { box-shadow: 0 0 32px rgba(255,220,120,0.9), inset 0 0 14px rgba(255,230,150,0.4); }
+}
+/* Wordmark rises into view */
+@keyframes appWordRise {
+  0%   { opacity: 0; transform: translateY(14px); letter-spacing: 0.5em; }
+  100% { opacity: 1; transform: translateY(0); letter-spacing: 0.28em; }
+}
+/* Tagline fade in after wordmark */
+@keyframes appTaglineFade {
+  0%   { opacity: 0; }
+  100% { opacity: 0.7; }
+}
+/* Progress bar glow pulse */
+@keyframes appBarGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(255,200,80,0.4); }
+  50%      { box-shadow: 0 0 16px rgba(255,220,120,0.7); }
+}
+/* Gold particle drift upward */
+@keyframes appParticle {
+  0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+  15%  { opacity: 0.8; }
+  85%  { opacity: 0.8; }
+  100% { transform: translateY(-180px) scale(1); opacity: 0; }
+}
+
 /* SuperAce — golden light flare behind winning cards (JILI style) */
 @keyframes saWinFlare {
   0%   { opacity: 0.6; transform: scale(0.95); }
