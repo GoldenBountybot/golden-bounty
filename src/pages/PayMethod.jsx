@@ -10,6 +10,7 @@ import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
 import PhantomSolanaDeposit from '@/components/wallet/PhantomSolanaDeposit';
 import TxIdRow from '@/components/wallet/TxIdSubmit';
 import { useLanguage } from '@/lib/LanguageContext';
+import { getCryptoPrices } from '@/lib/cryptoPrices';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -132,12 +133,45 @@ export default function PayMethod() {
   const [view, setView] = useState(params.get('method') === 'phantom-sol' ? 'phantom-sol' : 'choose'); // 'choose' | 'usdt' | 'usdc' | 'crypto' | 'binance'
   const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, usdc: USDC_NETWORKS, crypto: CRYPTO_NETWORKS });
   const [enteredAmount, setEnteredAmount] = useState('');
+  const [prices, setPrices] = useState({});
+
+  // Map a network name to a crypto price key for equivalent-amount display.
+  const priceKeyFor = (name) => {
+    const k = String(name || '').toLowerCase();
+    if (k.includes('btc') || k.includes('bitcoin')) return 'btc';
+    if (k.includes('eth') || k.includes('erc')) return 'eth';
+    if (k.includes('bnb') || k.includes('bep')) return 'bnb';
+    if (k.includes('trx') || k.includes('tron') || k.includes('trc')) return 'trx';
+    if (k.includes('ltc') || k.includes('lite')) return 'ltc';
+    if (k.includes('doge')) return 'doge';
+    if (k.includes('apt')) return 'apt';
+    if (k.includes('ton')) return 'ton';
+    if (k.includes('sol') || k.includes('solana')) return 'sol';
+    if (k.includes('usdt') || k.includes('tether')) return 'usdt';
+    if (k.includes('usdc')) return 'usdc';
+    return null;
+  };
+
+  // Compute the equivalent crypto amount for a given USD amount + network.
+  const equivAmount = (name) => {
+    if (!amount) return null;
+    const key = priceKeyFor(name);
+    if (!key) return null;
+    if (key === 'usdt' || key === 'usdc') return amount; // stablecoins ≈ 1:1
+    const price = prices[key];
+    if (!price || price <= 0) return null;
+    return amount / price;
+  };
 
   const confirmAmount = () => {
     const n = Number(enteredAmount);
     if (!n || n < 3) { toast({ title: t("Minimum deposit is $3.00") }); return; }
     window.location.href = `/pay?amount=${encodeURIComponent(n)}`;
   };
+
+  useEffect(() => {
+    getCryptoPrices().then(p => setPrices(p || {})).catch(() => {});
+  }, []);
 
   useEffect(() => {
     base44.entities.PaymentAddress.filter({ active: true }, 'order', 100)
@@ -274,6 +308,21 @@ export default function PayMethod() {
                   </div>
                   <CopyAddr addr={n.address} />
                 </div>
+                {(() => {
+                  const eq = equivAmount(n.name);
+                  if (eq == null) return null;
+                  const key = priceKeyFor(n.name);
+                  const coin = (key === 'usdt' || key === 'usdc') ? (key === 'usdt' ? 'USDT' : 'USDC') : (key || '').toUpperCase();
+                  const decimals = (key === 'btc') ? 6 : (key === 'usdt' || key === 'usdc') ? 2 : 4;
+                  return (
+                    <div className="flex items-center justify-between rounded-[12px] px-3 py-2" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)' }}>
+                      <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'rgba(212,175,55,0.85)' }}>{t("Send exactly")}</span>
+                      <span className="text-sm font-extrabold tabular-nums" style={{ color: '#fff' }}>
+                        ≈ {eq.toFixed(decimals)} <span style={{ color: '#D4AF37' }}>{coin}</span>
+                      </span>
+                    </div>
+                  );
+                })()}
                 <div className="rounded-[14px] px-3 py-2.5" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(212,175,55,0.18)' }}>
                   <p className="text-[12px] break-all font-mono" style={{ color: 'rgba(255,255,255,0.85)' }}>{n.address}</p>
                 </div>
