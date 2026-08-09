@@ -19,7 +19,11 @@ import { findOrCreateWallet } from '../../shared/wallet.ts';
 // bypasses RLS) and return success.
 
 const MIN_WITHDRAWAL = 5;
+const MAX_WITHDRAWAL = 10000;           // Defense in depth: cap per-request
+const DAILY_WITHDRAWAL_LIMIT = 25000;    // Total withdrawals per day
 const MAX_PENDING_WITHDRAWALS = 3;
+const NEW_ACCOUNT_COOLDOWN_HOURS = 24;  // New accounts can't withdraw for 24h
+const AUTO_BAN_REJECTED_THRESHOLD = 5; // 5+ rejected tx in 24h → auto-ban
 
 export default async function(req: Request): Promise<Response> {
   try {
@@ -39,6 +43,11 @@ export default async function(req: Request): Promise<Response> {
     if (!amount || amount < MIN_WITHDRAWAL) {
       return Response.json({ error: `Minimum withdrawal is $${MIN_WITHDRAWAL.toFixed(2)}` }, { status: 400 });
     }
+    if (amount > MAX_WITHDRAWAL) {
+      return Response.json({
+        error: `Maximum withdrawal is $${MAX_WITHDRAWAL.toFixed(2)} per request`,
+      }, { status: 400 });
+    }
     if (!reference) {
       return Response.json({ error: 'Wallet address required' }, { status: 400 });
     }
@@ -47,6 +56,45 @@ export default async function(req: Request): Promise<Response> {
     const wallet = await findOrCreateWallet(base44, user.id);
     if (wallet.banned) {
       return Response.json({ error: 'Account banned' }, { status: 403 });
+    }
+
+    // ── New account cooldown: accounts < 24h old can't withdraw ──
+    const accountAgeHours = (Date.now() - new Date(user.created_date).getTime()) / 3600000;
+    if (accountAgeHours < NEW_ACCOUNT_COOLDOWN_HOURS) {
+      return Response.json({
+        error: 'New account cooldown',
+        detail: `Withdrawals are available ${NEW_ACCOUNT_COOLDOWN_HOURS}h after registration. Your account is ${accountAgeHours.toFixed(1)}h old.`,
+      }, { status: 403 });
+    }
+
+    // ── Auto-ban: 5+ rejected transactions in 24h = abuse pattern ──
+    const oneDayAgo = new Date(Date.now() - 86400000).toISOString();
+    const recentRejected = await base44.asServiceRole.entities.Transaction.filter({
+      user_id: user.id, status: 'rejected',
+    }, '-created_date', 50);
+    const rejectedIn24h = recentRejected.filter(t => new Date(t.created_date) > new Date(oneDayAgo));
+    if (rejectedIn24h.length >= AUTO_BAN_REJECTED_THRESHOLD) {
+      // Auto-ban the wallet — stops the abuse immediately.
+      await base44.asServiceRole.entities.Wallet.update(wallet.id, { banned: true });
+      return Response.json({
+        error: 'Account auto-banned',
+        detail: 'Suspicious activity detected. Too many rejected transactions. Your account has been flagged for review.',
+      }, { status: 403 });
+    }
+
+    // ── Daily withdrawal limit: max $25,000 total per day ──
+    const todayStart = new Date(Date.now() - 86400000).toISOString();
+    const recentWithdrawals = await base44.asServiceRole.entities.Transaction.filter({
+      user_id: user.id, type: 'withdraw',
+    }, '-created_date', 50);
+    const withdrawnToday = recentWithdrawals
+      .filter(t => new Date(t.created_date) > new Date(todayStart) && t.status !== 'rejected')
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    if (withdrawnToday + amount > DAILY_WITHDRAWAL_LIMIT) {
+      return Response.json({
+        error: 'Daily limit exceeded',
+        detail: `You've requested $${withdrawnToday.toFixed(2)} in withdrawals today. Daily limit is $${DAILY_WITHDRAWAL_LIMIT.toFixed(2)}.`,
+      }, { status: 400 });
     }
 
     const balance = Number(wallet.balance ?? 0);
