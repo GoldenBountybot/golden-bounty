@@ -60,11 +60,6 @@
         },
         {
           "data.user_id": "{{user.id}}",
-          "data.type": "withdraw",
-          "data.status": "pending"
-        },
-        {
-          "data.user_id": "{{user.id}}",
           "data.type": "deposit",
           "data.status": "pending"
         }
