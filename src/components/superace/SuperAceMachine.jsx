@@ -202,17 +202,11 @@ export default function SuperAceMachine() {
 
     // 3-scatter free-spin trigger is an independent 0.1% roll, separate from the
     // 10% line-win gate. The win gate controls line wins; scatters are gated here.
-    // Generate preliminary grid and start the drop animation IMMEDIATELY
-    // (before awaiting the server response) so the user sees no delay.
-    let g = makeGrid();
-    setSpinning(true);
-    setGrid(g.map((c) => ({ ...c })));
-
-    // Await server response while the animation is already running
     const serverRound = await _serverRoundPromise;
     serverWinRef.current = Number(serverRound.win_amount ?? 0);
     const forceWin = serverWinRef.current > 0;
     const scatterHit = Math.random() < 0.001; // 0.1%
+    let g = makeGrid();
     let ev0 = evaluate(g, b);
     if (scatterHit) {
       // Place 1 scatter in col 0 + 1 in col 1 (triggers the slow-mo tease),
@@ -279,7 +273,7 @@ export default function SuperAceMachine() {
     }
     setTeaseStart(teaseStart);
     setTeaseCols(teaseSet);
-    // Update grid with adjusted symbols (same IDs → no remount, animation continues)
+    setSpinning(true);
     setGrid(g.map((c) => ({ ...c })));
     const baseSpin = turboRef.current ? 600 : 1000;
     let spinDur = baseSpin;
