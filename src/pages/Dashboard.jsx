@@ -341,7 +341,7 @@ export default function Dashboard() {
 
             <StackMining staked={stake.staked} pendingProfit={stake.pendingProfit} daysLocked={stake.daysLocked} unlocked={stake.unlocked} rate={stake.rate} />
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-3">
               {[
                 { icon: Lock, label: t("Staked"), value: `$${stake.staked.toFixed(2)}` },
                 { icon: Sparkles, label: t("Pending Profit"), value: `$${stake.pendingProfit.toFixed(2)}` },

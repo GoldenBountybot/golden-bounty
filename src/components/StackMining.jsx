@@ -35,7 +35,7 @@ export default function StackMining({ staked, pendingProfit, daysLocked, unlocke
 
   return (
     <div className="relative w-full overflow-hidden rounded-2xl border border-emerald-700/40"
-      style={{ aspectRatio: '16 / 9', background: 'radial-gradient(circle at 50% 110%, rgba(38,161,123,0.35), rgba(2,6,8,0.95) 70%)', boxShadow: 'inset 0 0 60px rgba(0,0,0,0.7)' }}>
+      style={{ aspectRatio: '16 / 9', maxHeight: '420px', background: 'radial-gradient(circle at 50% 110%, rgba(38,161,123,0.35), rgba(2,6,8,0.95) 70%)', boxShadow: 'inset 0 0 60px rgba(0,0,0,0.7)' }}>
 
       {/* faint grid */}
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">

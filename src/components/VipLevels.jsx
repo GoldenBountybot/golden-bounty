@@ -77,7 +77,7 @@ export default function VipLevels({ totalDeposits }) {
       </div>
 
       {/* Tier ladder: Regular (No level) → Diamond */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
         <div
           className="dash-card p-4 flex items-center gap-4"
           style={{ animation: 'dashFadeIn 400ms ease both', border: '1px solid rgba(212,175,55,0.25)' }}
