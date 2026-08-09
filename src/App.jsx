@@ -56,7 +56,7 @@ import { preloadAssets, preloadDynamicAssets, preloadAllGameAssets } from '@/lib
 import { APP_ASSETS } from '@/lib/appAssets';
 import { base44 } from '@/api/base44Client';
 
-const MIN_SPLASH_MS = 3500;
+const MIN_SPLASH_MS = 1500;
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -79,8 +79,10 @@ const AuthenticatedApp = () => {
   // Phase 1: static splash image — show until the image loads AND a minimum
   // display time elapses, so the user sees the full-screen splash first.
   const showSplashImage = !imgReady || !minDone;
-  // Phase 2: loading screen — after the splash image, while assets/auth load.
-  const showLoadingScreen = !showSplashImage && (loading || !staticReady || !dynamicReady);
+  // Phase 2: loading screen — after the splash image, while static assets/auth load.
+  // Dynamic assets (banners, QR codes) load in the BACKGROUND and don't block
+  // the app from showing — they pop in gracefully once fetched.
+  const showLoadingScreen = !showSplashImage && (loading || !staticReady);
 
   useEffect(() => {
     // Skip the splash entirely if it was already shown earlier this session.
@@ -110,14 +112,14 @@ const AuthenticatedApp = () => {
     // Track static preload progress (0..100) for the loading bar; dynamic
     // assets don't report progress so we just fold them into the final 100.
     preloadAssets(APP_ASSETS, (p) => setLoadProgress(Math.min(p, 90)))
-      .then(() => { setStaticReady(true); setLoadProgress(95); })
+      .then(() => { setStaticReady(true); setLoadProgress(100); })
       .catch(() => setStaticReady(true));
-    if (!loading) {
-      preloadDynamicAssets(base44)
-        .then(() => { setDynamicReady(true); setLoadProgress(100); })
-        .catch(() => setDynamicReady(true));
-    }
-  }, [showSplashImage, loading]);
+    // Start dynamic asset preloading immediately in the background — don't
+    // block the app on it. Banners/QR codes pop in once fetched.
+    preloadDynamicAssets(base44)
+      .then(() => setDynamicReady(true))
+      .catch(() => setDynamicReady(true));
+  }, [showSplashImage]);
 
   // Once the splash is done, warm all game assets in the background so they
   // are already cached when the user taps into a game — near-instant load.

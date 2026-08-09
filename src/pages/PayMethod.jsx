@@ -131,6 +131,13 @@ export default function PayMethod() {
   // and can process the encrypted connect/sign response params).
   const [view, setView] = useState(params.get('method') === 'phantom-sol' ? 'phantom-sol' : 'choose'); // 'choose' | 'usdt' | 'usdc' | 'crypto' | 'binance'
   const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, usdc: USDC_NETWORKS, crypto: CRYPTO_NETWORKS });
+  const [enteredAmount, setEnteredAmount] = useState('');
+
+  const confirmAmount = () => {
+    const n = Number(enteredAmount);
+    if (!n || n < 3) { toast({ title: t("Minimum deposit is $3.00") }); return; }
+    window.location.href = `/pay?amount=${encodeURIComponent(n)}`;
+  };
 
   useEffect(() => {
     base44.entities.PaymentAddress.filter({ active: true }, 'order', 100)
@@ -196,10 +203,26 @@ export default function PayMethod() {
           </div>
         ) : amount <= 0 ? (
           <div className="dash-card p-5 flex flex-col items-center gap-3 text-center" style={{ animation: 'dashFadeIn 300ms ease both' }}>
-            <AlertTriangle className="w-8 h-8" style={{ color: '#D4AF37' }} />
-            <p className="text-sm font-semibold" style={{ color: '#fff' }}>{t("No deposit amount selected.")}</p>
-            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>{t("Please choose a deposit amount from the dashboard.")}</p>
-            <button onClick={() => window.location.href = '/dashboard'} className="dash-btn-gold px-5 py-2.5 text-sm">{t("Go to Dashboard")}</button>
+            <Wallet className="w-8 h-8" style={{ color: '#D4AF37' }} />
+            <p className="text-sm font-semibold" style={{ color: '#fff' }}>{t("Enter deposit amount")}</p>
+            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>{t("Minimum deposit $3.00")}</p>
+            <div className="flex items-center gap-2 w-full max-w-xs">
+              <span className="text-lg font-bold" style={{ color: '#D4AF37' }}>$</span>
+              <input
+                type="number"
+                min="3"
+                step="0.01"
+                placeholder="3.00"
+                onChange={(e) => setEnteredAmount(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') confirmAmount(); }}
+                className="dash-input flex-1 px-4 py-2.5 text-lg font-bold text-center"
+                style={{ color: '#fff' }}
+                autoFocus
+              />
+            </div>
+            <button onClick={confirmAmount} disabled={Number(enteredAmount) < 3} className="dash-btn-gold px-5 py-2.5 text-sm w-full max-w-xs disabled:opacity-40">
+              {t("Continue to Payment")}
+            </button>
           </div>
         ) : (
         <>
