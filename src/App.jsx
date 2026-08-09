@@ -69,30 +69,29 @@ const AuthenticatedApp = () => {
   const [minDone, setMinDone] = useState(false);
 
   useEffect(() => {
-    // Preload BOTH splash images (background + logo) so they're cached
-    // before the splash renders — no visible download flash.
+    // Preload ONLY the splash image so it shows instantly — no other assets
+    // yet, so the loading screen phase has work to do after the splash.
     const splashImg = new Image();
     splashImg.onload = () => setImgReady(true);
     splashImg.onerror = () => setImgReady(true);
     splashImg.src = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8c7eb4bd_golden_bounty_fullscreen_vertical.png';
-    // Preload all static app-wide images (banners, icons, backgrounds) during
-    // the splash so every page renders instantly with no visible downloading.
-    preloadAssets(APP_ASSETS)
-      .then(() => setStaticReady(true))
-      .catch(() => setStaticReady(true));
     const t = setTimeout(() => setMinDone(true), MIN_SPLASH_MS);
     return () => clearTimeout(t);
   }, []);
 
-  // Dynamic entity images (admin banners, payment QRs, site settings, avatars)
-  // require authentication — wait until auth completes before fetching them
-  // so the API calls don't fail silently and leave images uncached.
+  // Start preloading static + dynamic assets ONLY after the splash image
+  // phase is done, so the loading screen is visible while they fetch.
   useEffect(() => {
-    if (loading) return;
-    preloadDynamicAssets(base44)
-      .then(() => setDynamicReady(true))
-      .catch(() => setDynamicReady(true));
-  }, [loading]);
+    if (showSplashImage) return;
+    preloadAssets(APP_ASSETS)
+      .then(() => setStaticReady(true))
+      .catch(() => setStaticReady(true));
+    if (!loading) {
+      preloadDynamicAssets(base44)
+        .then(() => setDynamicReady(true))
+        .catch(() => setDynamicReady(true));
+    }
+  }, [showSplashImage, loading]);
 
   // Phase 1: static splash image — show until the image loads AND a minimum
   // display time elapses, so the user sees the full-screen splash first.
