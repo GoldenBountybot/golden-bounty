@@ -88,7 +88,7 @@ export default function Airdrop() {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-md lg:max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-md lg:max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
             title="Back"
@@ -128,7 +128,7 @@ export default function Airdrop() {
         </div>
       )}
 
-      <main className="relative z-10 max-w-md lg:max-w-5xl mx-auto px-4 py-4 flex flex-col gap-4">
+      <main className="relative z-10 max-w-md lg:max-w-7xl mx-auto px-4 py-4 flex flex-col gap-4">
         {/* Roadmap button */}
         <button
           onClick={() => setRoadmapOpen(true)}
@@ -277,7 +277,7 @@ export default function Airdrop() {
       </main>
 
       {/* Listing notice */}
-      <div className="relative z-10 max-w-md lg:max-w-5xl mx-auto px-4 pb-6">
+      <div className="relative z-10 max-w-md lg:max-w-7xl mx-auto px-4 pb-6">
        <div
          className="dash-card p-4 flex items-center gap-3"
          style={{ animation: 'dashFadeIn 400ms ease both', background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.02))', border: '1px solid rgba(212,175,55,0.3)' }}

@@ -18,7 +18,7 @@ export default function Referrals() {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-md lg:max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-md lg:max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => window.history.back()}
             title="Back"
@@ -34,7 +34,7 @@ export default function Referrals() {
         </div>
       </header>
 
-      <main className="relative z-10 max-w-md lg:max-w-5xl mx-auto px-4 py-4">
+      <main className="relative z-10 max-w-md lg:max-w-7xl mx-auto px-4 py-4">
         {user ? (
           <ReferralStats profile={user} onBack={() => window.history.back()} />
         ) : (

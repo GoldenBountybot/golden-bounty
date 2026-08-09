@@ -118,7 +118,7 @@ export default function HistoryPage() {
         className="sticky top-0 z-20 backdrop-blur-xl"
         style={{ background: 'rgba(13,13,13,0.78)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-3xl lg:max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-3xl lg:max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
           <BackButton href="/" label={t('Back')} />
           <div className="flex-1 flex items-center justify-center gap-2">
             <HistoryIcon className="w-5 h-5" style={{ color: '#D4AF37' }} />
@@ -128,7 +128,7 @@ export default function HistoryPage() {
         </div>
       </header>
 
-      <main className="relative z-10 max-w-3xl lg:max-w-5xl mx-auto w-full px-4 py-6">
+      <main className="relative z-10 max-w-3xl lg:max-w-7xl mx-auto w-full px-4 py-6">
         {/* Summary cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           <StatCard icon={ArrowDownToLine} label={t('Total Deposit')} value={totals.deposit} color={{ color: '#34d399', bg: 'rgba(52,211,153,0.14)', border: 'rgba(52,211,153,0.4)' }} prefix="$" />

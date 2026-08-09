@@ -13,7 +13,7 @@ export default function InfoLayout({ title, subtitle, icon: Icon, children }) {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.78)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-3xl lg:max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-3xl lg:max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}
             className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
@@ -29,7 +29,7 @@ export default function InfoLayout({ title, subtitle, icon: Icon, children }) {
         </div>
       </header>
 
-      <main className="relative z-10 max-w-3xl lg:max-w-5xl mx-auto px-4 py-6">
+      <main className="relative z-10 max-w-3xl lg:max-w-7xl mx-auto px-4 py-6">
         {subtitle && <p className="text-xs mb-5 uppercase tracking-[0.18em]" style={{ color: 'rgba(255,255,255,0.45)' }}>{subtitle}</p>}
         {children}
       </main>

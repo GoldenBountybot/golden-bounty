@@ -52,7 +52,7 @@ export default function Notifications() {
         </div>
       </header>
 
-      <div className="max-w-3xl lg:max-w-5xl mx-auto px-4 pt-5">
+      <div className="max-w-3xl lg:max-w-7xl mx-auto px-4 pt-5">
         <p className="text-center text-[11px] text-amber-100/55 italic mb-4" style={{ fontFamily: 'Georgia, serif' }}>
           {items.length} {t("total")} · {unreadCount} {t("unread")}
         </p>
