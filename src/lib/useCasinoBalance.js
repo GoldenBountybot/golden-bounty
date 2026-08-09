@@ -166,7 +166,7 @@ function beginRound() {
 // Settle a game round atomically on the server. Deducts the bet and credits
 // the win in one verified operation (bet <= balance, win <= bet * MAX_MULT).
 // Replaces the local balance with the server's authoritative response.
-async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false) {
+async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, preserveDelta = 0) {
   if (demoMode) {
     // In demo mode, settle locally only (no backend commit).
     const net = isFreeSpin ? winAmount : (winAmount - betAmount);
@@ -197,7 +197,10 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false) {
     const newWager = Number(res?.data?.wager_remaining ?? 0);
     committedBalance = newBackend;
     committedWager = newWager;
-    balance = newBackend;
+    // Re-apply preserved delta from other active rounds (e.g., CrashGame's
+    // second bet panel still in play when the first panel settles).
+    uncommittedDelta = preserveDelta;
+    balance = newBackend + preserveDelta;
     wagerRemaining = newWager;
     setCache(balance);
     notify();

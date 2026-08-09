@@ -19,7 +19,7 @@ import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/
 
 export function useGates() {
   const [grid, setGrid] = useState(() => buildGrid(false));
-  const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
+  const { balance, setBalance, reset: resetBalance, beginRound, settleBet } = useCasinoBalance();
   const [bet, setBet] = useState(MIN_BET);
   const [spinning, setSpinning] = useState(false);
   const [lastWin, setLastWin] = useState(0);
@@ -94,6 +94,7 @@ export function useGates() {
     setWinList([]);
     setWinHistory([]);
     setScatterGlow(new Set());
+    beginRound();
     if (!usingFree) setBalance((b) => b - bet);
     if (usingFree) setFreeSpins((f) => f - 1);
     setMessage('Spinning…');
@@ -205,8 +206,8 @@ export function useGates() {
       setShatter(new Set());
       setWinPositions(new Set());
       const win = result.spinWin;
+      settleBet(bet, win, 'gates-of-olympus', freeMode);
       if (win > 0) {
-        setBalance((b) => b + win);
         setLastWin(win);
         if (freeMode) freeSpinsTotalRef.current += win;
         setMessage(`WIN $${win.toFixed(2)}`);

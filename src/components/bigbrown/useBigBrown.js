@@ -9,7 +9,7 @@ import { SYMBOLS } from '@/lib/bigBrownEngine';
 
 export function useBigBrown() {
   const [grid, setGrid] = useState(() => buildGrid());
-  const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
+  const { balance, setBalance, reset: resetBalance, beginRound, settleBet, addRealBalance } = useCasinoBalance();
   const [bet, setBet] = useState(0.10);
   const [spinning, setSpinning] = useState(false);
   const [lastWin, setLastWin] = useState(0);
@@ -96,8 +96,8 @@ export function useBigBrown() {
       }
     });
 
+    settleBet(bet, totalWin, 'big-brown', wasFree);
     if (totalWin > 0) {
-      setBalance(b => b + totalWin);
       setLastWin(totalWin);
       setWinningPositions(wpos);
       setMessage(`WIN ${totalWin.toFixed(2)}`);
@@ -153,6 +153,7 @@ export function useBigBrown() {
     setScatterPositions(new Set());
     setLastWin(0);
     setAnticipation(false);
+    beginRound();
     if (!usingFree) setBalance(b => b - bet);
     if (usingFree) setFreeSpins(f => f - 1);
     setMessage('Spinning...');
@@ -285,7 +286,7 @@ export function useBigBrown() {
   const cancelFreeSpinStart = useCallback(() => {
     if (lastBonusPurchase.current) {
       const { cost, games } = lastBonusPurchase.current;
-      setBalance(b => b + cost);
+      addRealBalance(cost);
       setFreeSpins(f => Math.max(0, f - games));
       lastBonusPurchase.current = null;
       setMessage('Bonus cancelled — refunded');
