@@ -185,6 +185,8 @@ export default function SuperAceMachine() {
     setShatterCells(new Set());
     setFlipCells(new Set());
     setFlyingWilds([]);
+    setNewCells(new Set());
+    setScatterLand(new Set());
     goldenWildIdxRef.current = null;
     maxMultRef.current = 0;
     goldenTargetsRef.current = [];
