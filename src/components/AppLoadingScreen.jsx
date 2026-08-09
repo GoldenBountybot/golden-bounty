@@ -16,6 +16,18 @@ export default function AppLoadingScreen({ progress = 0 }) {
       className="fixed inset-0 z-[9998] flex flex-col items-center justify-center overflow-hidden"
       style={{ background: 'linear-gradient(to bottom, #0a0805 0%, #1a1208 50%, #0a0805 100%)' }}
     >
+      {/* App background image */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          opacity: 0.35,
+        }}
+      />
+
       {/* Pulsing center radial gold glow */}
       <div
         className="absolute pointer-events-none"
