@@ -28,7 +28,7 @@ const BOARD_DIAM_FRAC = 0.547;   // board diameter = opening diameter
 const CENTER_X_FRAC = 0.5;     // opening center X
 const CENTER_Y_FRAC = 0.424;     // opening center Y
 
-export default function SpinWheel({ rotation, onRest, size = 340 }) {
+export default function SpinWheel({ rotation, onRest, size = 340, highlight = false }) {
   const boardPx = size * BOARD_DIAM_FRAC;
   const leftPx = size * CENTER_X_FRAC;
   const topPx = size * (CENTER_Y_FRAC - BOARD_DIAM_FRAC / 2);
@@ -114,6 +114,28 @@ export default function SpinWheel({ rotation, onRest, size = 340 }) {
           }}
         />
       </div>
+
+      {/* Winning-segment highlight — a golden radial glow at the top of the
+          wheel (under the pointer) that pulses after the wheel stops, so the
+          player clearly sees which segment they landed on. Sits above the
+          rotating board but below the pointer, and does NOT rotate. */}
+      {highlight && (
+        <div
+          style={{
+            position: 'absolute',
+            left: leftPx,
+            top: topPx,
+            width: boardPx,
+            height: boardPx,
+            transform: 'translateX(-50%)',
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            zIndex: 15,
+            background: 'radial-gradient(circle at 50% 0%, rgba(255,225,120,0.55) 0%, rgba(255,200,80,0.28) 16%, transparent 34%)',
+            animation: 'lwHighlightPulse 1.1s ease-in-out infinite',
+          }}
+        />
+      )}
     </div>
   );
 }

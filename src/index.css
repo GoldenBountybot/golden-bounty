@@ -715,6 +715,10 @@
   0%, 91%, 100% { opacity: 0; }
   94%, 97%      { opacity: 1; }
 }
+@keyframes lwHighlightPulse {
+  0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(1); }
+  50%      { opacity: 1;    transform: translateX(-50%) scale(1.04); }
+}
 @keyframes lwPushFade {
   0%   { opacity: 0; }
   40%  { opacity: 1; }

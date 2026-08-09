@@ -267,7 +267,7 @@ export default function FreeSpin() {
         </div>
 
         {/* Wheel — transparent surroundings, floats on the page bg */}
-        <SpinWheel segments={SEGMENTS} rotation={rotation} onRest={handleRest} size={380} />
+        <SpinWheel segments={SEGMENTS} rotation={rotation} onRest={handleRest} size={380} highlight={!!result} />
 
         {/* Spin / cooldown control — ornate gold SPIN button */}
         <div className="-mt-5 w-full max-w-[160px]">
