@@ -60,7 +60,7 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-[#0b0b0d] pb-10">
       <header className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
-        <div className="max-w-md lg:max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-none mx-auto px-4 py-3 flex items-center gap-3">
           <BackButton />
           <div className="flex-1 flex items-center justify-center gap-2">
             <Shield className="w-4 h-4 text-amber-300" />
@@ -68,7 +68,7 @@ export default function Admin() {
           </div>
         </div>
       </header>
-      <main className="max-w-md lg:max-w-6xl mx-auto px-4 py-5 flex flex-col gap-4">
+      <main className="max-w-none mx-auto px-4 py-5 flex flex-col gap-4">
         <div className="grid grid-cols-4 gap-2">
           {TABS.map(t => {
             const Icon = t.icon;

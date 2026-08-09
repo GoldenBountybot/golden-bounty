@@ -232,7 +232,7 @@ export default function FreeSpin() {
               </button>
             </>
           }
-          maxWidth="max-w-5xl"
+          maxWidth="max-w-none"
         />
       </header>
 
