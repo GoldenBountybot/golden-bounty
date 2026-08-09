@@ -45,6 +45,7 @@ import Referrals from './pages/Referrals';
 import Events from './pages/Events';
 import Swap from './pages/Swap';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminRoute from '@/components/AdminRoute';
 import BottomNavLayout from '@/components/BottomNavLayout';
 import NotificationToaster from '@/components/NotificationToaster';
 import AppLoadingImage from '@/components/AppLoadingImage';
@@ -151,49 +152,56 @@ const AuthenticatedApp = () => {
     <>
     <NotificationToaster />
     <Routes>
-      {/* Public lobby & auth */}
-      <Route path="/" element={<Home />} />
+      {/* Public auth pages — no login required */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/promo-welcome" element={<PromoWelcome />} />
 
-      {/* Game pages — own headers, no bottom nav */}
-      <Route path="/free-spin" element={<FreeSpin />} />
-      <Route path="/games/wild-bounty" element={<SlotGame />} />
-      <Route path="/games/hi-lo" element={<HiLo />} />
-      <Route path="/games/plinko" element={<Plinko />} />
-      <Route path="/games/mines" element={<Mines />} />
-      <Route path="/games/fullhouse" element={<FullHouse />} />
-      <Route path="/games/rocket-crash" element={<RocketCrash />} />
-      <Route path="/games/crown-coins" element={<CrownCoins />} />
-      <Route path="/games/big-brown" element={<BigBrown />} />
-      <Route path="/games/argonauts" element={<Argonauts />} />
-      <Route path="/games/gates-of-olympus" element={<GatesOfOlympus />} />
-      <Route path="/games/thimbles" element={<Thimbles />} />
+      {/* Everything below requires authentication */}
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        {/* Lobby */}
+        <Route path="/" element={<Home />} />
+        <Route path="/promo-welcome" element={<PromoWelcome />} />
 
-      {/* Admin — own layout */}
-      <Route path="/admin" element={<Admin />} />
+        {/* Game pages — own headers, no bottom nav */}
+        <Route path="/free-spin" element={<FreeSpin />} />
+        <Route path="/games/wild-bounty" element={<SlotGame />} />
+        <Route path="/games/hi-lo" element={<HiLo />} />
+        <Route path="/games/plinko" element={<Plinko />} />
+        <Route path="/games/mines" element={<Mines />} />
+        <Route path="/games/fullhouse" element={<FullHouse />} />
+        <Route path="/games/rocket-crash" element={<RocketCrash />} />
+        <Route path="/games/crown-coins" element={<CrownCoins />} />
+        <Route path="/games/big-brown" element={<BigBrown />} />
+        <Route path="/games/argonauts" element={<Argonauts />} />
+        <Route path="/games/gates-of-olympus" element={<GatesOfOlympus />} />
+        <Route path="/games/thimbles" element={<Thimbles />} />
 
-      {/* App pages — persistent bottom nav */}
-      <Route element={<BottomNavLayout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/history" element={<HistoryPage />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/pay" element={<PayMethod />} />
-        <Route path="/withdraw" element={<Withdraw />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/agreement" element={<Agreement />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/responsible-gaming" element={<ResponsibleGaming />} />
-        <Route path="/licenses" element={<Licenses />} />
-        <Route path="/faq" element={<Faq />} />
-        <Route path="/airdrop" element={<Airdrop />} />
-        <Route path="/live-support" element={<LiveSupport />} />
-        <Route path="/referrals" element={<Referrals />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/swap" element={<Swap />} />
+        {/* Admin — admin-only */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<Admin />} />
+        </Route>
+
+        {/* App pages — persistent bottom nav */}
+        <Route element={<BottomNavLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/history" element={<HistoryPage />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/pay" element={<PayMethod />} />
+          <Route path="/withdraw" element={<Withdraw />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/agreement" element={<Agreement />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/responsible-gaming" element={<ResponsibleGaming />} />
+          <Route path="/licenses" element={<Licenses />} />
+          <Route path="/faq" element={<Faq />} />
+          <Route path="/airdrop" element={<Airdrop />} />
+          <Route path="/live-support" element={<LiveSupport />} />
+          <Route path="/referrals" element={<Referrals />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/swap" element={<Swap />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<PageNotFound />} />
