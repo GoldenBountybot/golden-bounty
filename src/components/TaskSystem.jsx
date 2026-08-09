@@ -100,6 +100,7 @@ export default function TaskSystem({ profile, onClaimed }) {
         <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>{t('Tasks · Earn BOUNTY')}</h3>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
       {tasks.map((task) => {
         const Icon = (task.name === 'x' ? XLogo : task.name === 'telegram' ? TelegramLogo : Gift);
         const claimed = claimedSet.has(task.name);
@@ -151,6 +152,7 @@ export default function TaskSystem({ profile, onClaimed }) {
           </div>
         );
       })}
+      </div>
 
     </div>
   );

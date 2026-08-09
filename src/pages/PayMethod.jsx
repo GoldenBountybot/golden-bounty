@@ -157,7 +157,7 @@ export default function PayMethod() {
   const methodLabel = view === 'usdt' ? t("USDT Deposit") : view === 'usdc' ? t("USDC Deposit") : view === 'crypto' ? t("Crypto Deposit") : view === 'metamask' ? t("MetaMask Deposit") : view === 'phantom-sol' ? t("Phantom Solana Deposit") : view === 'tonkeeper' ? t("Ton Wallet Deposit") : t("Trust Wallet Pay");
 
   return (
-    <div className="relative min-h-screen pb-24" style={{ background: '#0D0D0D', fontFamily: SANS }}>
+    <div className="relative min-h-screen pb-24 lg:pb-6" style={{ background: '#0D0D0D', fontFamily: SANS }}>
       <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 55% at 50% -10%, rgba(212,175,55,0.12), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.06), transparent 60%), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat', backgroundAttachment: 'fixed' }} />
 
       {/* Header — text unchanged */}
