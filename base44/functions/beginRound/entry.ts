@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { findOrCreateWallet } from '../../shared/wallet.ts';
 import { readRtp, decideOutcome } from '../../shared/roundLogic.ts';
+import { getGameConfig } from '../../shared/gameRegistry.ts';
 
 // Begins a secure game round. The server DEDUCTS THE BET IMMEDIATELY and
 // pre-decides the outcome (win/loss + win amount) based on RTP, storing it
@@ -34,17 +35,69 @@ export default async function(req) {
     const body = await req.json().catch(() => ({}));
     const betAmount = Number(body.bet_amount ?? 0);
     const gameId = String(body.game_id || 'unknown');
-    const isFreeSpin = !!body.is_free_spin;
-    const settleMode = String(body.settle_mode || 'fixed');
+    const requestedFreeSpin = !!body.is_free_spin;
+
+    // ── SECURITY: validate game_id against the server-side registry ──
+    // A hacker cannot use a fake game_id to get a different RTP or game config.
+    const gameConfig = getGameConfig(gameId);
+    if (!gameConfig) {
+      return Response.json({ error: 'invalid-game' }, { status: 400 });
+    }
+
+    // ── SECURITY: override settle_mode from the registry ──
+    // The client cannot switch from 'fixed' (server-decided win) to 'cap'
+    // (uncapped client win) to bypass the server's win decision.
+    const settleMode = gameConfig.settleMode;
+
+    // ── SECURITY: validate is_free_spin ──
+    // Only games that support free spins can have is_free_spin=true.
+    // For games that don't support it, is_free_spin is forced to false
+    // (the bet WILL be deducted).
+    const isFreeSpin = requestedFreeSpin && gameConfig.supportsFreeSpins;
 
     if (!isFinite(betAmount) || betAmount < 0) {
       return Response.json({ error: 'invalid-params' }, { status: 400 });
+    }
+
+    // ── SECURITY: validate bet against GameSetting min/max ──
+    // A hacker cannot send bet_amount=0 (no risk) or bet_amount=999999
+    // (huge potential win). The server enforces the admin-configured range.
+    let minBet = 0.01;
+    let maxBet = 500;
+    try {
+      const settings = await base44.asServiceRole.entities.GameSetting.list();
+      const per = settings.find(r => r.game_id === gameId);
+      const global = settings.find(r => r.game_id === '*');
+      const active = per && per.enabled !== false ? per : (global && global.enabled !== false ? global : null);
+      if (active) {
+        minBet = Number(active.min_bet ?? 0.01);
+        maxBet = Number(active.max_bet ?? 500);
+      }
+    } catch { /* best-effort */ }
+    if (betAmount < minBet || betAmount > maxBet) {
+      return Response.json({ error: 'bet-out-of-range', min: minBet, max: maxBet }, { status: 400 });
     }
 
     const wallet = await findOrCreateWallet(base44, user.id);
     if (wallet.banned) return Response.json({ error: 'Account banned' }, { status: 403 });
     const curBal = Number(wallet.balance ?? 0);
     const curWager = Number(wallet.wager_remaining ?? 0);
+
+    // ── SECURITY: free spin rate limiting ──
+    // Prevent is_free_spin abuse: a hacker sending is_free_spin=true every
+    // time to avoid bet deduction. Count the user's recent free spin rounds
+    // and reject if the count or ratio is too high. Legitimate users rarely
+    // have more than 10 free spins per 100 rounds (from scatter triggers).
+    if (isFreeSpin) {
+      const recentRounds = await base44.asServiceRole.entities.PendingRound.filter(
+        { user_id: user.id }, '-created_date', 100
+      );
+      const total = recentRounds.length;
+      const freeCount = recentRounds.filter(r => r.is_free_spin).length;
+      if (freeCount >= 15 || (total >= 20 && freeCount / total > 0.25)) {
+        return Response.json({ error: 'free-spin-rate-limit' }, { status: 429 });
+      }
+    }
 
     // Deduct the bet immediately (non-free-spin). This prevents the user
     // from avoiding a loss by closing the page before settleBet.
