@@ -621,6 +621,37 @@
   100% { transform: translateY(-180px) scale(1); opacity: 0; }
 }
 
+/* Wordmark shimmer sweep — light passes across the gold text */
+@keyframes appWordShimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+/* Radial gold burst behind the wordmark */
+@keyframes appRadialBurst {
+  0%, 100% { opacity: 0.3; transform: scale(0.9); }
+  50%      { opacity: 0.6; transform: scale(1.05); }
+}
+/* Corner ornamental flourish glow */
+@keyframes appCornerGlow {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.8; }
+}
+/* Reeded coin edge — subtle rotation of the ridged ring */
+@keyframes appCoinEdge {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+/* Progress bar leading dot glow pulse */
+@keyframes appBarDot {
+  0%, 100% { box-shadow: 0 0 6px rgba(255,220,120,0.7), 0 0 12px rgba(255,200,80,0.4); }
+  50%      { box-shadow: 0 0 10px rgba(255,235,150,1), 0 0 20px rgba(255,210,100,0.7); }
+}
+/* Slow emblem float — gentle vertical bob */
+@keyframes appEmblemFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
 /* SuperAce — golden light flare behind winning cards (JILI style) */
 @keyframes saWinFlare {
   0%   { opacity: 0.6; transform: scale(0.95); }
