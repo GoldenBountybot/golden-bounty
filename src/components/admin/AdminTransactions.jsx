@@ -9,6 +9,7 @@ import WithdrawalRiskPanel from '@/components/admin/WithdrawalRiskPanel';
 export default function AdminTransactions() {
   const [txs, setTxs] = useState([]);
   const [users, setUsers] = useState([]);
+  const [wallets, setWallets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -19,19 +20,22 @@ export default function AdminTransactions() {
   const load = async () => {
     setLoading(true);
     try {
-      const [list, ulist] = await Promise.all([
+      const [list, ulist, wlist] = await Promise.all([
         base44.entities.Transaction.list('-created_date', 100),
         base44.entities.User.list(),
+        base44.entities.Wallet.list('-created_date', 500),
       ]);
       setTxs(list);
       setUsers(ulist);
+      setWallets(wlist);
     } catch { toast({ title: 'Failed to load' }); }
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
 
   const userMap = Object.fromEntries(users.map(u => [u.id, u]));
-  const userBal = (id) => Number(userMap[id]?.balance ?? 0);
+  const walletMap = Object.fromEntries(wallets.map(w => [w.user_id, w]));
+  const userBal = (id) => Number(walletMap[id]?.balance ?? 0);
 
   const addTx = async () => {
     const amt = Number(form.amount);

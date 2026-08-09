@@ -123,7 +123,7 @@ function schedulePersist() {
 // task/airdrop rewards. Routes through the secure creditBonus backend function
 // (which caps the amount and logs a Transaction) instead of commitBalanceDelta
 // (which now rejects positive deltas to prevent free-money hacks).
-async function addRealBalance(amount) {
+async function addRealBalance(amount, type = 'bonus', note = '', claimedLoss = 0) {
   const n = Number(amount);
   if (!isFinite(n) || n === 0) return;
   if (demoMode) {
@@ -138,9 +138,11 @@ async function addRealBalance(amount) {
   balance = committedBalance + uncommittedDelta;
   setCache(balance);
   notify();
-  // Push through the secure creditBonus backend function.
+  // Push through the secure creditBonus backend function. For cashback
+  // claims, pass type + claimed_loss so creditBonus atomically updates
+  // Wallet.cashback_claimed_loss (preventing double-claims).
   try {
-    const res = await base44.functions.invoke('creditBonus', { amount: n, type: 'bonus' });
+    const res = await base44.functions.invoke('creditBonus', { amount: n, type, note, claimed_loss: claimedLoss });
     const newBackend = Number(res?.data?.balance ?? 0);
     committedBalance = newBackend;
     balance = newBackend + uncommittedDelta;

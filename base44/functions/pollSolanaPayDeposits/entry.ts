@@ -111,8 +111,8 @@ Deno.serve(async (req) => {
         const newBal = Number(wallet.balance || 0) + receivedUsd;
         const newWager = Number(wallet.wager_remaining || 0) + receivedUsd;
         await base44.asServiceRole.entities.Wallet.update(wallet.id, { balance: newBal, wager_remaining: newWager });
-        // Mirror to User entity for display compatibility.
-        try { await base44.asServiceRole.entities.User.update(match.user_id, { balance: newBal, wager_remaining: newWager }); } catch {}
+        // balance & wager_remaining are no longer on the User entity (moved to
+        // the RLS-protected Wallet entity). No mirror needed.
       } catch (e) {
         // Balance credit failed — roll the request back to pending so a later
         // poll can retry. Don't lose the user's money.

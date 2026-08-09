@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { Address } from 'npm:@ton/core@0.60.1';
+import { creditDeposit } from '../../shared/wallet.ts';
 
 // Verifies a native TON deposit sent from the user's Tonkeeper wallet to the
 // admin wallet, then records a completed Transaction credited with the requested
@@ -70,16 +71,7 @@ Deno.serve(async (req) => {
               return Response.json({ ok: false, reason: 'amount-mismatch' });
             }
           }
-          await base44.asServiceRole.entities.Transaction.create({
-            user_id: user.id,
-            user_email: user.email,
-            type: 'deposit',
-            amount,
-            status: 'completed',
-            method: 'wallet-tonkeeper-native',
-            reference: ref,
-            note: 'Tonkeeper · TON native',
-          });
+          await creditDeposit(base44, user.id, user.email, amount, 'wallet-tonkeeper-native', ref, 'Tonkeeper · TON native');
           return Response.json({ ok: true, amount, already: false });
         }
       }

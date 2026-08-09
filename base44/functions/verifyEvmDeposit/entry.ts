@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { creditDeposit } from '../../shared/wallet.ts';
 
 // Verifies a USDT deposit (EVM) sent from the user's wallet to the admin wallet
 // on the selected network, then records a completed Transaction. Idempotent by
@@ -94,16 +95,7 @@ Deno.serve(async (req) => {
     }
     if (!verified) return Response.json({ ok: false, reason: 'transfer-not-found' });
 
-    await base44.asServiceRole.entities.Transaction.create({
-      user_id: user.id,
-      user_email: user.email,
-      type: 'deposit',
-      amount,
-      status: 'completed',
-      method: 'wallet-trust',
-      reference: txHash,
-      note: `Trust Wallet · ${net.label}`,
-    });
+    await creditDeposit(base44, user.id, user.email, amount, 'wallet-trust', txHash, `Trust Wallet · ${net.label}`);
 
     return Response.json({ ok: true, amount, already: false });
   } catch (error) {

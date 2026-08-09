@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { creditDeposit } from '../../shared/wallet.ts';
 
 // Verifies a native SOL deposit sent from the user's Phantom wallet to the
 // admin Solana wallet, then records a completed Transaction. Idempotent by
@@ -54,16 +55,7 @@ Deno.serve(async (req) => {
     // Allow a 1% rounding tolerance on the transferred lamports.
     if (received < expectedLamports * 0.99) return Response.json({ ok: false, reason: 'amount-mismatch' });
 
-    await base44.asServiceRole.entities.Transaction.create({
-      user_id: user.id,
-      user_email: user.email,
-      type: 'deposit',
-      amount,
-      status: 'completed',
-      method: 'wallet-phantom-solana',
-      reference: signature,
-      note: 'Phantom · Solana (SOL)',
-    });
+    await creditDeposit(base44, user.id, user.email, amount, 'wallet-phantom-solana', signature, 'Phantom · Solana (SOL)');
 
     return Response.json({ ok: true, amount, already: false });
   } catch (error) {

@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { Address } from 'npm:@ton/core@0.60.1';
+import { creditDeposit } from '../../shared/wallet.ts';
 
 // Auto-verifies a MANUAL crypto deposit (Pay USDT / Pay USDC / Pay Crypto) by
 // the transaction hash the user pastes. The sender wallet is NOT known (user
@@ -373,16 +374,7 @@ async function verifyAptNative(hash, amount) {
 
     if (!res.ok) return Response.json({ ok: false, reason: res.reason });
 
-    await base44.asServiceRole.entities.Transaction.create({
-      user_id: user.id,
-      user_email: user.email,
-      type: 'deposit',
-      amount,
-      status: 'completed',
-      method: 'manual-auto',
-      reference: txHash,
-      note: res.note || `Manual · ${netKey}`,
-    });
+    await creditDeposit(base44, user.id, user.email, amount, 'manual-auto', txHash, res.note || `Manual · ${netKey}`);
 
     return Response.json({ ok: true, amount, already: false });
   } catch (error) {

@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { creditDeposit } from '../../shared/wallet.ts';
 
 // Verifies a native BNB / ETH deposit sent from the user's wallet to the admin
 // wallet, then records a completed Transaction credited with the requested $
@@ -83,16 +84,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    await base44.asServiceRole.entities.Transaction.create({
-      user_id: user.id,
-      user_email: user.email,
-      type: 'deposit',
-      amount,
-      status: 'completed',
-      method: 'wallet-trust-native',
-      reference: txHash,
-      note: `Trust Wallet · ${net.label}`,
-    });
+    await creditDeposit(base44, user.id, user.email, amount, 'wallet-trust-native', txHash, `Trust Wallet · ${net.label}`);
 
     return Response.json({ ok: true, amount, already: false });
   } catch (error) {

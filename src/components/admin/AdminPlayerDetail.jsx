@@ -35,7 +35,7 @@ const OUTCOME_META = {
 export default function AdminPlayerDetail({ user, onBack, onSaved }) {
   const { toast } = useToast();
   const [rtp, setRtp] = useState(user.rtp ?? 50);
-  const [balance, setBalance] = useState(user.balance ?? 0);
+  const [balance, setBalance] = useState(0);
   const [txs, setTxs] = useState([]);
   const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,13 +46,15 @@ export default function AdminPlayerDetail({ user, onBack, onSaved }) {
     (async () => {
       setLoading(true);
       try {
-        const [t, a] = await Promise.all([
+        const [t, a, w] = await Promise.all([
           base44.entities.Transaction.filter({ user_id: user.id }, '-created_date', 50),
           base44.entities.PlayerActivity.filter({ user_id: user.id }, '-created_date', 50),
+          base44.entities.Wallet.filter({ user_id: user.id }, '-created_date', 10),
         ]);
         if (!active) return;
         setTxs(t);
         setActivity(a);
+        if (w && w[0]) setBalance(Number(w[0].balance ?? 0));
       } catch {
         /* ignore */
       } finally {
@@ -65,10 +67,11 @@ export default function AdminPlayerDetail({ user, onBack, onSaved }) {
   const save = async () => {
     setSaving(true);
     try {
-      await base44.entities.User.update(user.id, {
-        balance: Number(balance),
-        rtp: Number(rtp),
-      });
+      // Set the REAL wallet balance via adminAdjustWallet (service role).
+      // Only RTP is saved on the User entity now (balance is no longer a
+      // User field — it lives on the RLS-protected Wallet entity).
+      await base44.functions.invoke('adminAdjustWallet', { user_id: user.id, set_balance: true, delta: Number(balance) });
+      await base44.entities.User.update(user.id, { rtp: Number(rtp) });
       toast({ title: 'Player updated' });
       onSaved?.();
     } catch {

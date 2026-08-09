@@ -7,6 +7,7 @@ import { Search, Eye, Hash, Ban, ShieldCheck } from 'lucide-react';
 
 export default function AdminPlayers() {
   const [users, setUsers] = useState([]);
+  const [wallets, setWallets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ balance: 0, role: 'user', phone: '' });
@@ -16,11 +17,20 @@ export default function AdminPlayers() {
 
   const load = async () => {
     setLoading(true);
-    try { setUsers(await base44.entities.User.list()); }
+    try {
+      const [ulist, wlist] = await Promise.all([
+        base44.entities.User.list(),
+        base44.entities.Wallet.list('-created_date', 500),
+      ]);
+      setUsers(ulist);
+      setWallets(wlist);
+    }
     catch { toast({ title: 'Failed to load users' }); }
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
+
+  const walletMap = Object.fromEntries(wallets.map(w => [w.user_id, w]));
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -34,11 +44,16 @@ export default function AdminPlayers() {
 
   const startEdit = (u) => {
     setEditing(u.id);
-    setForm({ balance: u.balance ?? 0, role: u.role || 'user', phone: u.phone || '' });
+    setForm({ balance: walletMap[u.id]?.balance ?? 0, role: u.role || 'user', phone: u.phone || '' });
   };
   const save = async (u) => {
     try {
-      await base44.entities.User.update(u.id, { balance: Number(form.balance), role: form.role, phone: form.phone });
+      // Set the REAL wallet balance via the secure adminAdjustWallet function
+      // (service role). Setting User.balance directly had no effect on the
+      // authoritative Wallet balance — now we set Wallet and only update
+      // non-financial fields (role, phone) on the User entity.
+      await base44.functions.invoke('adminAdjustWallet', { user_id: u.id, set_balance: true, delta: Number(form.balance) });
+      await base44.entities.User.update(u.id, { role: form.role, phone: form.phone });
       toast({ title: 'User updated' });
       setEditing(null);
       load();
@@ -84,7 +99,7 @@ export default function AdminPlayers() {
               <p className="font-bold text-amber-100 truncate">{u.email}</p>
               <p className="text-xs text-amber-100/60 flex items-center gap-1"><Hash className="w-3 h-3 text-amber-400/60" />{u.uid || '—'}</p>
               <p className="text-xs text-amber-100/60">Role: {u.role} · Phone: {u.phone || '—'}</p>
-              <p className="text-sm text-yellow-200 font-bold">${(u.balance ?? 0).toFixed(2)}{u.rtp != null ? ` · RTP ${u.rtp}%` : ''}</p>
+              <p className="text-sm text-yellow-200 font-bold">${(walletMap[u.id]?.balance ?? 0).toFixed(2)}{u.rtp != null ? ` · RTP ${u.rtp}%` : ''}</p>
               {u.banned && <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 border border-red-500/50 text-red-400">BANNED</span>}
             </div>
             <div className="flex flex-col gap-1.5 items-end">

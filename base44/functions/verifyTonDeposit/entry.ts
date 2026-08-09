@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { Address } from 'npm:@ton/core@0.60.1';
+import { creditDeposit } from '../../shared/wallet.ts';
 
 // Verifies a USDT (Jetton) deposit on TON sent from the user's Tonkeeper wallet
 // to the admin wallet, then records a completed Transaction. Idempotent by the
@@ -58,16 +59,7 @@ Deno.serve(async (req) => {
           if (existing && existing.length) {
             return Response.json({ ok: true, already: true, amount: Number(existing[0].amount) });
           }
-          await base44.asServiceRole.entities.Transaction.create({
-            user_id: user.id,
-            user_email: user.email,
-            type: 'deposit',
-            amount,
-            status: 'completed',
-            method: 'wallet-tonkeeper',
-            reference: e.event_id,
-            note: 'Tonkeeper · USDT TON',
-          });
+          await creditDeposit(base44, user.id, user.email, amount, 'wallet-tonkeeper', e.event_id, 'Tonkeeper · USDT TON');
           return Response.json({ ok: true, amount, already: false });
         }
       }

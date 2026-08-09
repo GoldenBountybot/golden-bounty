@@ -34,13 +34,8 @@ export default async function(req) {
       wager_remaining: newWager,
     });
 
-    // Mirror to User entity for display compatibility.
-    try {
-      await base44.asServiceRole.entities.User.update(targetUserId, {
-        balance: newBal,
-        wager_remaining: newWager,
-      });
-    } catch { /* mirror is best-effort */ }
+    // balance & wager_remaining are no longer on the User entity (moved to the
+    // RLS-protected Wallet entity to prevent updateMe hacks). No mirror needed.
 
     return Response.json({ balance: newBal, wager_remaining: newWager });
   } catch (error) {

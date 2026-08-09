@@ -20,6 +20,29 @@ export async function findOrCreateWallet(base44, userId) {
   return wallet;
 }
 
+// Credits a verified deposit to the user's wallet (service role) and creates
+// the completed Transaction record in one atomic operation. Used by all the
+// verify*Deposit backend functions so the balance is credited SERVER-SIDE —
+// the frontend no longer credits via setBalance (which commitBalanceDelta
+// now rejects for positive deltas).
+export async function creditDeposit(base44, userId, userEmail, amount, method, reference, note) {
+  const wallet = await findOrCreateWallet(base44, userId);
+  const newBal = Number(wallet.balance ?? 0) + amount;
+  const newWager = Number(wallet.wager_remaining ?? 0) + amount;
+  await base44.asServiceRole.entities.Wallet.update(wallet.id, { balance: newBal, wager_remaining: newWager });
+  await base44.asServiceRole.entities.Transaction.create({
+    user_id: userId,
+    user_email: userEmail || '',
+    type: 'deposit',
+    amount,
+    status: 'completed',
+    method,
+    reference,
+    note,
+  });
+  return { balance: newBal, wager_remaining: newWager };
+}
+
 // Mirror wallet financial fields back to the User entity for display
 // compatibility (admin panels, profile, etc.). Best-effort — never throws.
 //

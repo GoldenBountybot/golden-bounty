@@ -24,12 +24,12 @@ export default function CashbackPanel({ profile, onBack }) {
       // Always fetch the freshest cashback_claimed_loss from the backend so
       // a stale profile prop can't reset already-claimed losses to zero
       // (which would let the same losses be double-claimed after remount).
-      const [me, rows] = await Promise.all([
-        base44.auth.me(),
+      const [walletRes, rows] = await Promise.all([
+        base44.functions.invoke('getWallet', {}),
         base44.entities.Transaction.filter({ user_id: profile.id }, '-created_date', 1000),
       ]);
       setTransactions(rows);
-      setClaimedLoss(Number(me?.cashback_claimed_loss ?? 0));
+      setClaimedLoss(Number(walletRes?.data?.cashback_claimed_loss ?? 0));
     } catch { /* ignore */ } finally {
       setLoading(false);
     }
@@ -57,23 +57,15 @@ export default function CashbackPanel({ profile, onBack }) {
     if (cashbackAmount <= 0 || claiming) return;
     setClaiming(true);
     try {
-      // 1. Credit the real wallet
-      addRealBalance(cashbackAmount);
-      // 2. Record as a bonus transaction
-      await base44.entities.Transaction.create({
-        user_id: profile.id,
-        user_email: profile.email || '',
-        type: 'bonus',
-        amount: cashbackAmount,
-        status: 'completed',
-        method: 'cashback',
-        note: `3% Cashback on $${unclaimedLoss.toFixed(2)} losses`,
-      });
-      // 3. Mark claimed loss so it can't be double-claimed
+      // Credit the real wallet + atomically update cashback_claimed_loss on
+      // the Wallet entity (RLS-protected) via creditBonus. The Transaction
+      // audit record is created by creditBonus (service role), and the
+      // cashback_claimed_loss is updated server-side so it can't be reset
+      // to 0 via updateMe to re-claim.
       const newClaimed = claimedLoss + unclaimedLoss;
-      await base44.auth.updateMe({ cashback_claimed_loss: newClaimed });
+      addRealBalance(cashbackAmount, 'cashback', `3% Cashback on $${unclaimedLoss.toFixed(2)} losses`, unclaimedLoss);
       setClaimedLoss(newClaimed);
-      // 4. Create a notification so it shows in the Notifications list
+      // Create a notification so it shows in the Notifications list
       try {
         await base44.entities.UserNotification.create({
           user_id: profile.id,

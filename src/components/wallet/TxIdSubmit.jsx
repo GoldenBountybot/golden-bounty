@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
-import { useCasinoBalance, addWagerRequirement } from '@/lib/useCasinoBalance';
+import { useCasinoBalance, addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
 import { useLanguage } from '@/lib/LanguageContext';
 import { Send, Loader2, ShieldCheck, AlertTriangle, Clock, HelpCircle, ChevronDown } from 'lucide-react';
 
@@ -73,9 +73,8 @@ export default function TxIdRow({ amount, method, network }) {
 
   const dispatchKey = dispatchKeyFor(network);
 
-  const credit = (amt) => {
-    setBalance((b) => b + amt);
-    addWagerRequirement(amt);
+  const credit = () => {
+    reloadBalance();
   };
 
   // Fallback: create a pending Transaction for manual admin review.
@@ -118,7 +117,7 @@ export default function TxIdRow({ amount, method, network }) {
       const res = await base44.functions.invoke('verifyManualDeposit', { network: dispatchKey, txHash: id, amount });
       const ok = res?.data?.ok;
       if (ok) {
-        if (!res.data.already) credit(Number(res.data.amount || amount));
+        if (!res.data.already) credit();
         setStatus('credited');
         setDone(true);
         toast({ title: 'Deposit verified & credited', description: `$${Number(res.data.amount || amount).toFixed(2)} added to your balance.` });

@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { creditDeposit } from '../../shared/wallet.ts';
 
 // Verifies a USDC (SPL token) deposit on Solana sent from the user's Phantom
 // wallet to the admin's USDC Associated Token Account, then records a
@@ -59,16 +60,7 @@ Deno.serve(async (req) => {
     // Allow a 1% rounding tolerance on the transferred units.
     if (received < BigInt(Math.round(expectedUnits * 0.99))) return Response.json({ ok: false, reason: 'amount-mismatch' });
 
-    await base44.asServiceRole.entities.Transaction.create({
-      user_id: user.id,
-      user_email: user.email,
-      type: 'deposit',
-      amount,
-      status: 'completed',
-      method: 'wallet-phantom-solana-usdc',
-      reference: signature,
-      note: 'Phantom · Solana (USDC)',
-    });
+    await creditDeposit(base44, user.id, user.email, amount, 'wallet-phantom-solana-usdc', signature, 'Phantom · Solana (USDC)');
 
     return Response.json({ ok: true, amount, already: false });
   } catch (error) {
