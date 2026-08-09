@@ -94,7 +94,7 @@ function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild
       style={{
         ...style,
         overflow: (isWin && !shatter) ? 'visible' : 'hidden',
-        willChange: isWin ? 'transform' : 'auto',
+        willChange: (isWin || spinning) ? 'transform' : 'auto',
         animation: spinning
           ? dropAnim
           : shatter
@@ -104,7 +104,7 @@ function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild
               : isWin
                 ? 'saGlowScaleInset 0.7s ease-in-out infinite'
                 : 'none',
-        transition: 'transform 0.15s',
+        transition: spinning ? 'none' : 'transform 0.15s',
       }}
     >
       {/* Outer glow ring — constant box-shadow on an overlay with GPU opacity
