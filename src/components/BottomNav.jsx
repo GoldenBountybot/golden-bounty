@@ -38,7 +38,7 @@ export default function BottomNav() {
   return (
     <div className="fixed bottom-0 inset-x-0 z-30">
       <div
-        className="mx-auto max-w-md lg:max-w-5xl px-3 pt-2 pb-2 rounded-t-[10px]"
+        className="mx-auto max-w-md lg:max-w-none px-3 pt-2 pb-2 rounded-t-[10px]"
         style={{
           borderTop: '1px solid rgba(214,178,98,0.4)',
           background: 'rgba(10,9,8,0.82)',

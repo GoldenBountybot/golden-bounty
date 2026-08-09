@@ -151,12 +151,12 @@ export default function Home() {
           {/* Main column */}
           <div>
             {/* Category tabs */}
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide lg:overflow-visible">
               {CATEGORY_KEYS.map(c => (
                 <button
                   key={c}
                   onClick={() => setCat(c)}
-                  className="px-4 py-2 rounded-[7px] text-sm font-bold italic whitespace-nowrap transition-colors"
+                  className="px-4 py-2 rounded-[7px] text-sm font-bold italic whitespace-nowrap transition-colors lg:flex-1"
                   style={{
                     fontFamily: 'Georgia, serif',
                     border: cat === c
