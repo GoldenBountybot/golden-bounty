@@ -7,7 +7,7 @@ import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, 
 import { connectWalletConnect, disconnectWalletConnect, disconnectInjected, hasWalletConnect, onWalletConnectUri, preloadWalletConnect } from '@/lib/walletConnect';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
-import { addWagerRequirement } from '@/lib/useCasinoBalance';
+import { addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -165,9 +165,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     const res = await base44.functions.invoke(fn, payload);
     if (res?.data?.ok) {
       if (!res.data.already) {
-        const credited = Number(res.data.amount || amt);
-        setBalance((b) => b + credited);
-        addWagerRequirement(credited);
+        reloadBalance();
       }
       setStatus('done');
       toast({ title: 'Deposit successful', description: `$${Number(res.data.amount || amt).toFixed(2)} has been added to your balance.` });

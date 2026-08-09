@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useCasinoBalance, addWagerRequirement } from '@/lib/useCasinoBalance';
+import { useCasinoBalance, addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ArrowRight, ExternalLink, LogOut } from 'lucide-react';
 import { SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
@@ -79,9 +79,7 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
     const res = await base44.functions.invoke(fn, payload);
     if (res?.data?.ok) {
       if (!res.data.already) {
-        const credited = Number(res.data.amount || amt);
-        setBalance((b) => b + credited);
-        addWagerRequirement(credited);
+        reloadBalance();
       }
       setStatus('done');
       toast({ title: 'Deposit successful', description: `$${Number(res.data.amount || amt).toFixed(2)} has been added to your balance.` });

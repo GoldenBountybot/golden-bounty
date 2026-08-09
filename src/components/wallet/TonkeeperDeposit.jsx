@@ -7,7 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, LogOut } from 'lucide-react';
 import { TON_USDT_DECIMALS, TON_ADMIN, getUserJettonWallet } from '@/lib/tonConfig';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
-import { addWagerRequirement } from '@/lib/useCasinoBalance';
+import { addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -96,9 +96,7 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
       const res = await base44.functions.invoke(fn, verifyPayload);
       if (res?.data?.ok) {
         if (!res.data.already) {
-          const credited = Number(res.data.amount || amount);
-          setBalance((b) => b + credited);
-          addWagerRequirement(credited);
+          reloadBalance();
         }
         setStatus('done');
         toast({ title: 'Deposit successful', description: `$${Number(res.data.amount || amount).toFixed(2)} has been added to your balance.` });
