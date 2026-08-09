@@ -64,10 +64,15 @@ const AuthenticatedApp = () => {
   // Keep the branded splash visible until the app has finished loading AND the
   // image has finished downloading AND a minimum splash duration has elapsed,
   // so users actually see it instead of a flash.
-  const [imgReady, setImgReady] = useState(false);
+  // Show the splash image ONLY on the first app entry per browser session.
+  // sessionStorage persists across refreshes but clears when the tab closes,
+  // so the splash appears once when the user first opens the app and never
+  // again until they close and reopen the tab.
+  const splashAlreadyShown = (() => { try { return sessionStorage.getItem('gb_splash_shown') === '1'; } catch { return false; } })();
+  const [imgReady, setImgReady] = useState(splashAlreadyShown);
   const [staticReady, setStaticReady] = useState(false);
   const [dynamicReady, setDynamicReady] = useState(false);
-  const [minDone, setMinDone] = useState(false);
+  const [minDone, setMinDone] = useState(splashAlreadyShown);
   const [loadProgress, setLoadProgress] = useState(0);
 
   // Phase 1: static splash image — show until the image loads AND a minimum
@@ -77,6 +82,8 @@ const AuthenticatedApp = () => {
   const showLoadingScreen = !showSplashImage && (loading || !staticReady || !dynamicReady);
 
   useEffect(() => {
+    // Skip the splash entirely if it was already shown earlier this session.
+    if (splashAlreadyShown) return;
     // Preload ONLY the splash image so it shows instantly — no other assets
     // yet, so the loading screen phase has work to do after the splash.
     const splashImg = new Image();
@@ -86,6 +93,14 @@ const AuthenticatedApp = () => {
     const t = setTimeout(() => setMinDone(true), MIN_SPLASH_MS);
     return () => clearTimeout(t);
   }, []);
+
+  // Mark the splash as shown in sessionStorage the moment it finishes, so
+  // it never reappears on refresh or re-navigation within the same session.
+  useEffect(() => {
+    if (!showSplashImage) {
+      try { sessionStorage.setItem('gb_splash_shown', '1'); } catch {}
+    }
+  }, [showSplashImage]);
 
   // Start preloading static + dynamic assets ONLY after the splash image
   // phase is done, so the loading screen is visible while they fetch.
