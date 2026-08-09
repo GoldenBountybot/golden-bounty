@@ -20,7 +20,7 @@ export function isTierCoin(key) {
 export function tierCoinLabel(key) { return key.slice(2); }
 // Weighted random coin key — 15% chance of a tier coin, otherwise a regular value coin.
 // Tier coins are weighted so MIN/MID are common and MAX/ULTRA are very rare.
-const TIER_WEIGHTS = { MIN: 50, MID: 30, MAX: 15, ULTRA: 5 };
+const TIER_WEIGHTS = { MIN: 65, MID: 25, MAX: 8, ULTRA: 2 };
 const TIER_TOTAL = Object.values(TIER_WEIGHTS).reduce((a, b) => a + b, 0);
 export function randomCoinKey() {
   if (Math.random() < 0.15) {
@@ -105,7 +105,7 @@ export const PAYLINES = [
 // appear less often; the RTP gates wins so losing spins are common.
 export function spinGrid(rtp = 50) {
   // weighted reel strips — low symbols land more often
-  const strip = ['cherry','cherry','cherry','lemon','lemon','lemon','orange','orange','orange','plum','plum','watermelon','grape','bell','bar','seven','coin','cherry','lemon','orange','plum','watermelon','grape','bell','coin','vc1','vc5','vc20','vc3','vc15'];
+  const strip = ['cherry','cherry','cherry','cherry','lemon','lemon','lemon','orange','orange','orange','plum','plum','plum','watermelon','grape','bell','bar','cherry','lemon','orange','plum','watermelon','grape','coin','vc1','vc3','vc5','vc15','vc20'];
   const pick = () => strip[Math.floor(Math.random() * strip.length)];
   const grid = Array.from({ length: 9 }, () => pick());
 
@@ -201,7 +201,7 @@ export function spinGrid(rtp = 50) {
       const candLines = PAYLINES.filter(ln => ln.idxs.every(i => grid[i] !== 'coin' && !isValueCoin(grid[i])));
       const ln = candLines.length ? candLines[Math.floor(Math.random() * candLines.length)] : PAYLINES[Math.floor(Math.random() * PAYLINES.length)];
       // Weight toward low-value symbols so high-value matches stay rare.
-      const LOW = ['cherry','cherry','cherry','cherry','lemon','lemon','lemon','orange','orange','orange','plum','plum','watermelon','grape','bell','bar','seven'];
+      const LOW = ['cherry','cherry','cherry','cherry','cherry','lemon','lemon','lemon','orange','orange','orange','plum','plum','watermelon','grape','bell'];
       const sym = LOW[Math.floor(Math.random() * LOW.length)];
       ln.idxs.forEach(i => { grid[i] = sym; });
     }
