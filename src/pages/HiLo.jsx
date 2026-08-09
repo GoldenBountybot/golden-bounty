@@ -184,7 +184,7 @@ const dealBtn = {
 };
 
 export default function HiLo() {
-  const { balance, setBalance } = useCasinoBalance();
+  const { balance, setBalance, beginRound, settleBet } = useCasinoBalance();
   const [muted, toggleMute] = useMute();
   const [loaded, setLoaded] = useState(false);
   const { rtp } = useGameSettings('hi-lo');
@@ -221,6 +221,7 @@ export default function HiLo() {
   const deal = () => {
     if (phase === 'guessing') return;
     if (balance < bet) { setMessage('Insufficient balance! Reset below.'); return; }
+    beginRound();
     setBalance(b => b - bet);
     setPot(bet);
     setCurrent(drawCard());
@@ -242,6 +243,7 @@ export default function HiLo() {
       setPhase('result');
       setMessage(`Same rank — push lost! Card was ${RANKS[next.rank]}.`);
       setPot(0);
+      settleBet(bet, 0, 'hi-lo');
       logActivity('hi-lo', bet, 0, 'loss');
       playLoss();
     } else if (correct) {
@@ -258,6 +260,7 @@ export default function HiLo() {
       setPhase('result');
       setMessage(`Wrong! The card was ${RANKS[next.rank]}. You lost the pot.`);
       setPot(0);
+      settleBet(bet, 0, 'hi-lo');
       logActivity('hi-lo', bet, 0, 'loss');
       playLoss();
     }
@@ -265,7 +268,7 @@ export default function HiLo() {
 
   const collect = () => {
     if (phase !== 'guessing' || pot === 0) return;
-    setBalance(b => b + pot);
+    settleBet(bet, pot, 'hi-lo');
     setMessage(`Collected $${pot.toFixed(2)}!`);
     logActivity('hi-lo', bet, pot, 'win');
     playCollect();

@@ -73,7 +73,7 @@ function genHash() {
 }
 
 export default function Thimbles() {
-  const { balance, setBalance } = useCasinoBalance();
+  const { balance, setBalance, beginRound, settleBet } = useCasinoBalance();
   const [loaded, setLoaded] = useState(false);
   const { rtp } = useGameSettings('thimbles');
   const [bet, setBet] = useState(DEFAULT_BET);
@@ -107,6 +107,7 @@ export default function Thimbles() {
     if (phase !== 'idle' && phase !== 'over') return;
     if (!bet || bet < MIN_BET) { setMessage(`Min bet is ${MIN_BET} USDT`); return; }
     if (balance < bet) { setMessage('Not enough balance'); return; }
+    beginRound();
     setBalance((b) => b - bet);
 
     const numBalls = mode === 'single' ? 1 : 2;
@@ -193,7 +194,7 @@ export default function Thimbles() {
 
     if (willWin) {
       const win = bet * mult;
-      setBalance((b) => b + win);
+      settleBet(bet, win, 'thimbles');
       setLastWin(win);
       setWon(true);
       setMessage(`You found it! +${win.toFixed(2)} (${mult}x)`);
@@ -202,6 +203,7 @@ export default function Thimbles() {
     } else {
       setLastWin(0);
       setWon(false);
+      settleBet(bet, 0, 'thimbles');
       setMessage('Wrong cup! Try again');
       playLose();
       logActivity('thimbles', bet, 0, 'loss', 0);

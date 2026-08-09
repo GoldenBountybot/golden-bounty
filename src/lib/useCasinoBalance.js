@@ -27,6 +27,7 @@ let loaded = false;
 let loadingPromise = null;
 let persistTimer = null;
 let persisting = false;
+let roundActive = false; // when true, setBalance is local-display-only (no backend commit). Gameplay settles atomically via settleBet().
 const listeners = new Set();
 
 // Demo mode: a local-only balance used to try every game without touching the
@@ -118,17 +119,92 @@ function schedulePersist() {
   persistTimer = setTimeout(flushPersist, 250);
 }
 
-// Credit the REAL wallet directly — used by Stack claim/unlock, which are
-// real-wallet actions and must credit the main balance even while Demo mode
-// is on (the real funds are preserved and become visible once demo is off).
-function addRealBalance(amount) {
+// Credit the REAL wallet directly — used by cashback, free-spin wins, and
+// task/airdrop rewards. Routes through the secure creditBonus backend function
+// (which caps the amount and logs a Transaction) instead of commitBalanceDelta
+// (which now rejects positive deltas to prevent free-money hacks).
+async function addRealBalance(amount) {
   const n = Number(amount);
   if (!isFinite(n) || n === 0) return;
+  if (demoMode) {
+    // In demo mode, credit the in-memory demo balance only.
+    demoBalance += n;
+    setDemoCache(demoBalance);
+    notify();
+    return;
+  }
+  // Optimistic local update for instant visual feedback.
   uncommittedDelta += n;
   balance = committedBalance + uncommittedDelta;
   setCache(balance);
   notify();
-  schedulePersist();
+  // Push through the secure creditBonus backend function.
+  try {
+    const res = await base44.functions.invoke('creditBonus', { amount: n, type: 'bonus' });
+    const newBackend = Number(res?.data?.balance ?? 0);
+    committedBalance = newBackend;
+    balance = newBackend + uncommittedDelta;
+    setCache(balance);
+    notify();
+  } catch {
+    // revert optimistic update on failure
+    uncommittedDelta -= n;
+    balance = committedBalance + uncommittedDelta;
+    setCache(balance);
+    notify();
+  }
+}
+
+// Begin a game round: suspend backend commits so setBalance calls during the
+// round are local-display-only (instant UX feedback). The round is settled
+// atomically via settleBet() at the end, which verifies the bet and caps the
+// win server-side.
+function beginRound() {
+  roundActive = true;
+}
+
+// Settle a game round atomically on the server. Deducts the bet and credits
+// the win in one verified operation (bet <= balance, win <= bet * MAX_MULT).
+// Replaces the local balance with the server's authoritative response.
+async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false) {
+  if (demoMode) {
+    // In demo mode, settle locally only (no backend commit).
+    const net = isFreeSpin ? winAmount : (winAmount - betAmount);
+    demoBalance = Math.max(0, demoBalance + net);
+    setDemoCache(demoBalance);
+    roundActive = false;
+    notify();
+    return;
+  }
+  roundActive = false;
+  // Optimistic local update: the setBalance calls during the round already
+  // adjusted the local display. Now flush any remaining non-round deltas and
+  // sync with the server's authoritative balance.
+  try {
+    // Flush any pending non-round deltas first (e.g., wager changes).
+    if (uncommittedDelta !== 0 || uncommittedWagerDelta !== 0) {
+      // Clear local deltas — settleBet will give us the authoritative balance.
+      uncommittedDelta = 0;
+      uncommittedWagerDelta = 0;
+    }
+    const res = await base44.functions.invoke('settleBet', {
+      bet_amount: betAmount,
+      win_amount: winAmount,
+      game_id: gameId,
+      is_free_spin: isFreeSpin,
+    });
+    const newBackend = Number(res?.data?.balance ?? 0);
+    const newWager = Number(res?.data?.wager_remaining ?? 0);
+    committedBalance = newBackend;
+    committedWager = newWager;
+    balance = newBackend;
+    wagerRemaining = newWager;
+    setCache(balance);
+    notify();
+  } catch (e) {
+    // If settlement fails, reload the authoritative balance from the server.
+    await loadBalance();
+  }
 }
 
 export function useCasinoBalance() {
@@ -185,7 +261,9 @@ export function useCasinoBalance() {
     balance = v;
     setCache(v);
     notify();
-    schedulePersist();
+    // During a game round, setBalance is local-display-only — the round is
+    // settled atomically via settleBet() at the end (server-verified).
+    if (!roundActive) schedulePersist();
   }, []);
 
   const reset = useCallback(() => setBalance(0), [setBalance]);
@@ -198,6 +276,8 @@ export function useCasinoBalance() {
     balance: demoMode ? demoBalance : balance,
     setBalance,
     addRealBalance,
+    beginRound,
+    settleBet,
     reset,
     demoMode,
     setDemoMode: toggleDemo,

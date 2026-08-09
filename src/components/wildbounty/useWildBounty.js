@@ -12,7 +12,7 @@ sfx.preload && sfx.preload();
 export function useWildBounty() {
   const [grid, setGrid] = useState(() => REEL_ROWS.map(r => buildReel(r)));
   const [finalGrid, setFinalGrid] = useState(null);
-  const { balance, setBalance, reset: resetBalance } = useCasinoBalance();
+  const { balance, setBalance, beginRound, settleBet, reset: resetBalance } = useCasinoBalance();
   const [bet, setBet] = useState(0.10);
   const [spinning, setSpinning] = useState(false);
   const [multIndex, setMultIndex] = useState(0);
@@ -53,6 +53,7 @@ export function useWildBounty() {
   const [bannerPending, setBannerPending] = useState(false); // blocks auto/free spin while a round-end banner is delayed for the flying animation
   const forceScatterBuyRef = useRef(false); // Feature Buy: force 3 scatters on the next spin to trigger the free-spins banner
   const skipBetDeductRef = useRef(false); // Feature Buy: the triggering spin's bet is already covered by the feature cost
+  const settleBetRef = useRef(0); // the bet amount used for server-side settlement (per-line bet, or feature-buy cost)
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
@@ -371,7 +372,10 @@ export function useWildBounty() {
       sfx.winStop();
       setCascadeSlow(1);
       setWinningPositions(new Set());
-      if (totalWin > 0) { setBalance(b => b + totalWin); setWinFlashKey(k => k + 1); }
+      // Settle the round atomically on the server: deducts the bet (if not a
+      // free spin) and credits the capped win in one verified operation.
+      settleBet(settleBetRef.current, totalWin, 'wild-bounty', wasFree);
+      if (totalWin > 0) setWinFlashKey(k => k + 1);
       // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
       if (pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
       clearPendingRound('wild-bounty');
@@ -469,6 +473,10 @@ export function useWildBounty() {
     timers.current.forEach(clearTimeout);
     timers.current = [];
 
+    // Begin a secure game round: setBalance calls during the round are
+    // local-display-only. The round is settled atomically via settleBet()
+    // at cascade-chain end, which verifies the bet and caps the win server-side.
+    beginRound();
     setSpinning(true);
     sfx.winStop();
     sfx.spin();
@@ -496,11 +504,16 @@ export function useWildBounty() {
     if (!usingFree) {
       if (skipBetDeductRef.current) {
         skipBetDeductRef.current = false;
+        // settleBetRef was already set to the feature-buy cost by confirmFeatureBuy
       } else {
+        settleBetRef.current = bet;
         setBalance(b => b - bet);
       }
       freeSpinsTotalRef.current = 0;
       freeSpinsCountRef.current = 0;
+    } else {
+      // Free spin: no bet deducted, but use the per-line bet for the win cap
+      settleBetRef.current = bet;
     }
     if (usingFree) { setFreeSpins(f => f - 1); freeSpinsCountRef.current = Math.max(0, freeSpinsCountRef.current - 1); }
     // Each free spin (re)starts at 8x; normal spins start at 1x.
@@ -798,6 +811,8 @@ export function useWildBounty() {
       setShowFeatureBuyConfirm(false);
       return;
     }
+    beginRound();
+    settleBetRef.current = cost;
     setBalance(b => b - cost);
     skipBetDeductRef.current = true;
     setShowFeatureBuyConfirm(false);

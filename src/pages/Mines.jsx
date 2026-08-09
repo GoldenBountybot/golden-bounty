@@ -115,7 +115,7 @@ const woodBtn = (active, color = 'amber') => ({
 });
 
 export default function Mines() {
-  const { balance, setBalance } = useCasinoBalance();
+  const { balance, setBalance, beginRound, settleBet } = useCasinoBalance();
   const [loaded, setLoaded] = useState(false);
   const [muted] = useMute();
   const musicStartedRef = useRef(false);
@@ -173,6 +173,7 @@ export default function Mines() {
     if (!bet || bet < MIN_BET) { setMessage('Min bet is $0.05'); return; }
     if (balance < bet) { setMessage('Not enough gold, partner'); return; }
     playClick();
+    beginRound();
     setBalance((b) => b - bet);
     const positions = Array.from({ length: TOTAL }, (_, i) => i);
     for (let i = positions.length - 1; i > 0; i--) {
@@ -216,6 +217,7 @@ export default function Mines() {
       playBoom();
       setPhase('over');
       setPot(0);
+      settleBet(bet, 0, 'mines');
       setMessage('BOOM! Yer gold went up in smoke');
       logActivity('mines', bet, 0, 'loss');
       return;
@@ -226,7 +228,7 @@ export default function Mines() {
     setPot(newPot);
     if (k === safe) {
       const win = bet * newPot;
-      setBalance((b) => b + win);
+      settleBet(bet, win, 'mines');
       setLastWin(win);
       setMessage(`Strike it rich! +$${win.toFixed(2)} (${newPot.toFixed(2)}x)`);
       logActivity('mines', bet, win, 'win');
@@ -239,7 +241,7 @@ export default function Mines() {
   const cashout = () => {
     if (phase !== 'playing' || revealed.size === 0) return;
     const win = bet * pot;
-    setBalance((b) => b + win);
+    settleBet(bet, win, 'mines');
     setLastWin(win);
     setMessage(`Cashed out $${win.toFixed(2)} (${pot.toFixed(2)}x)`);
     logActivity('mines', bet, win, 'win');

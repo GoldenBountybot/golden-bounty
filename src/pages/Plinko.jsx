@@ -176,7 +176,7 @@ function Stat({ label, value, accent }) {
 }
 
 export default function Plinko() {
-  const { balance, setBalance } = useCasinoBalance();
+  const { balance, setBalance, beginRound, settleBet } = useCasinoBalance();
   const [loaded, setLoaded] = useState(false);
   const { rtp } = useGameSettings('plinko');
   const [betIdx, setBetIdx] = useState(1);
@@ -238,6 +238,7 @@ export default function Plinko() {
     if (balance < bet) { setMessage('Not enough balance'); return; }
     timers.current.forEach(clearTimeout);
     timers.current = [];
+    beginRound();
     setBalance((b) => b - bet);
     setDropping(true);
     setResultBucket(null);
@@ -304,7 +305,7 @@ export default function Plinko() {
           const t2 = setTimeout(() => {
             const mult = MULTS[finalCol];
             const win = bet * mult;
-            if (win > 0) setBalance((b) => b + win);
+            settleBet(bet, win, 'plinko');
             if (mult > 1) playWin(); else playLose();
             setLastWin(win);
             setResultBucket(finalCol);

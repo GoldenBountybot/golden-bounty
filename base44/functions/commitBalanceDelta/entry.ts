@@ -24,6 +24,22 @@ export default async function(req) {
       return Response.json({ error: 'invalid-params' }, { status: 400 });
     }
 
+    // SECURITY: reject positive balance deltas. Positive deltas (crediting
+    // money) must go through verified pathways — settleBet (gameplay wins),
+    // creditBonus (cashback / free-spin / task rewards), adminAdjustWallet
+    // (admin), or deposit-verification functions. This prevents the "free
+    // money" console hack: base44.functions.invoke('commitBalanceDelta',
+    // { delta: 1000 }) is now rejected. Only negative deltas (bet deductions)
+    // and zero (balance read) are allowed.
+    if (delta > 0) {
+      const wallet = await findOrCreateWallet(base44, user.id);
+      return Response.json({
+        error: 'positive-delta-not-allowed',
+        balance: Number(wallet.balance ?? 0),
+        wager_remaining: Number(wallet.wager_remaining ?? 0),
+      }, { status: 403 });
+    }
+
     // Nothing to apply — just return the current balance.
     if (delta === 0 && wagerDelta === 0) {
       const wallet = await findOrCreateWallet(base44, user.id);
