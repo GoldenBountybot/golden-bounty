@@ -173,7 +173,7 @@ export default function FreeSpin() {
     } else {
       // Credit the win through the secure creditBonus pathway (server-verified,
       // capped, logged). addRealBalance handles both demo and real mode.
-      addRealBalance(win);
+      addRealBalance(win, 'free_spin');
       setResult({ ...prize, win });
     }
     setLastSpinAt(ts);

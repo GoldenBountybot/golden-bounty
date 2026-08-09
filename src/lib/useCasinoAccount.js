@@ -36,7 +36,7 @@ const defaultClaim = {
 };
 
 export function useCasinoAccount() {
-  const { balance, setBalance, demoMode, wagerRemaining, maxWithdrawable } = useCasinoBalance();
+  const { balance, setBalance, addRealBalance, demoMode, wagerRemaining, maxWithdrawable } = useCasinoBalance();
   const [userId, setUserId] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
   const [settings, setSettings] = useState([]);
@@ -115,28 +115,28 @@ export function useCasinoAccount() {
 
   const claimSignup = () => {
     if (!signupCfg.active || claim.signupClaimed) return false;
-    setBalance((b) => b + signupCfg.amount);
+    addRealBalance(signupCfg.amount, 'signup');
     setClaim((prev) => ({ ...prev, signupClaimed: true }));
     if (userId) pushNotification({ user_id: userId, type: 'bonus_claimed', title: 'Signup bonus claimed', body: `+$${signupCfg.amount.toFixed(2)} added to your balance`, amount: signupCfg.amount });
     return true;
   };
   const claimDaily = () => {
     if (!dailyCfg.active || claim.dailyLast === todayStr()) return false;
-    setBalance((b) => b + dailyCfg.amount);
+    addRealBalance(dailyCfg.amount, 'daily');
     setClaim((prev) => ({ ...prev, dailyLast: todayStr() }));
     if (userId) pushNotification({ user_id: userId, type: 'bonus_claimed', title: 'Daily bonus claimed', body: `+$${dailyCfg.amount.toFixed(2)} added to your balance`, amount: dailyCfg.amount });
     return true;
   };
   const claimWeekly = () => {
     if (!weeklyCfg.active || claim.weeklyLast === weekStr()) return false;
-    setBalance((b) => b + weeklyCfg.amount);
+    addRealBalance(weeklyCfg.amount, 'weekly');
     setClaim((prev) => ({ ...prev, weeklyLast: weekStr() }));
     if (userId) pushNotification({ user_id: userId, type: 'bonus_claimed', title: 'Weekly bonus claimed', body: `+$${weeklyCfg.amount.toFixed(2)} added to your balance`, amount: weeklyCfg.amount });
     return true;
   };
   const claimMonthly = () => {
     if (!monthlyCfg.active || claim.monthlyLast === monthStr()) return false;
-    setBalance((b) => b + monthlyCfg.amount);
+    addRealBalance(monthlyCfg.amount, 'monthly');
     setClaim((prev) => ({ ...prev, monthlyLast: monthStr() }));
     if (userId) pushNotification({ user_id: userId, type: 'bonus_claimed', title: 'Monthly bonus claimed', body: `+$${monthlyCfg.amount.toFixed(2)} added to your balance`, amount: monthlyCfg.amount });
     return true;
@@ -144,7 +144,7 @@ export function useCasinoAccount() {
   const claimDeposit = () => {
     if (!depositCfg.active || !claim.depositAvailable) return false;
     const bonus = Math.round(claim.depositAmount * (depositCfg.deposit_percent / 100) * 100) / 100;
-    setBalance((b) => b + bonus);
+    addRealBalance(bonus, 'deposit_bonus');
     setClaim((prev) => ({ ...prev, depositAvailable: false }));
     if (userId) pushNotification({ user_id: userId, type: 'bonus_claimed', title: 'Deposit bonus claimed', body: `+$${bonus.toFixed(2)} added to your balance`, amount: bonus });
     return bonus;

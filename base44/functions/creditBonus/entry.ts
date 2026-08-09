@@ -4,17 +4,28 @@ import { findOrCreateWallet, mirrorToUser } from '../../shared/wallet.ts';
 // Credits a legitimate non-gameplay bonus to the user's wallet. Used for:
 //   - cashback (3% loss rebate)
 //   - free-spin wins from the daily FreeSpin mini-game
-//   - task / airdrop reward claims
+//   - signup / daily / weekly / monthly / deposit bonuses
 //
-// Security: the amount is capped at MAX_BONUS to prevent large hacks, and
-// every credit is logged as a Transaction record (audit trail). The Wallet
-// entity's RLS blocks users from updating it directly, so this function
-// (running as the service role) is the only path for positive credits outside
-// of settleBet / adminAdjustWallet / deposit functions.
+// SECURITY: Each bonus type is verified SERVER-SIDE before crediting:
+//   - cashback: re-calculates actual unclaimed loss from transactions + wallet.
+//   - free_spin: checks no free_spin bonus in the last 24h (Transaction history).
+//   - signup: checks no signup bonus ever.
+//   - daily/weekly/monthly: checks no same-type bonus in the current period.
+//   - deposit_bonus: checks no deposit_bonus in the last hour.
 //
-// commitBalanceDelta is locked to reject positive deltas, so this function
-// is the verified pathway for all legitimate bonus credits.
-const MAX_BONUS = 2000; // single-credit cap — large enough for all legit bonuses
+// This prevents console hacking: a user calling creditBonus directly from the
+// browser console is rejected because the server verifies eligibility using
+// data the user can't fake (Transaction records are RLS-protected — users
+// can't create bonus-type Transactions, only this service-role function can).
+//
+// Additional guards:
+//   - MAX_BONUS: single-credit cap ($2,000).
+//   - MIN_INTERVAL_MS: 2s between calls.
+//   - DAILY_BONUS_CAP: $10,000 aggregate bonus credits per user per 24h.
+const MAX_BONUS = 2000;
+const DAILY_BONUS_CAP = 10000;
+const MIN_INTERVAL_MS = 2000;
+const ALLOWED_TYPES = ['cashback', 'free_spin', 'signup', 'daily', 'weekly', 'monthly', 'deposit_bonus'];
 
 export default async function(req) {
   try {
@@ -24,20 +35,18 @@ export default async function(req) {
 
     const body = await req.json().catch(() => ({}));
     const amount = Number(body.amount ?? 0);
-    const type = String(body.type || 'bonus');
+    const type = String(body.type || '');
     const note = String(body.note || '');
+    const claimedLoss = Number(body.claimed_loss ?? 0);
 
+    if (!ALLOWED_TYPES.includes(type)) {
+      return Response.json({ error: 'invalid-type' }, { status: 400 });
+    }
     if (!isFinite(amount) || amount <= 0 || amount > MAX_BONUS) {
       return Response.json({ error: 'invalid-amount', max: MAX_BONUS }, { status: 400 });
     }
 
-    // ── Rate limiting: prevent repeated creditBonus abuse from the console ──
-    // A hacker could call creditBonus({amount:2000}) in a loop. These two
-    // guards bound the damage:
-    //   1. Min 2s between calls (slows rapid exploitation).
-    //   2. Daily aggregate cap: max $10,000 bonus credits per user per 24h.
-    const DAILY_BONUS_CAP = 10000;
-    const MIN_INTERVAL_MS = 2000;
+    // ── Rate limiting ──
     try {
       const recent = await base44.asServiceRole.entities.Transaction.filter(
         { user_id: user.id, type: 'bonus' }, '-created_date', 200
@@ -58,28 +67,87 @@ export default async function(req) {
       }
     } catch { /* rate-limit check is best-effort */ }
 
+    // ── Load wallet + bonus transaction history for eligibility checks ──
     const wallet = await findOrCreateWallet(base44, user.id);
+    const bonusTxns = await base44.asServiceRole.entities.Transaction.filter(
+      { user_id: user.id, type: 'bonus' }, '-created_date', 500
+    );
+    const now = Date.now();
+    const hasClaimed = (method, sinceMs) =>
+      (bonusTxns || []).some((t) => t.method === method && new Date(t.created_date).getTime() >= sinceMs);
+
+    let extraWalletUpdate = {};
+
+    // ── Per-type eligibility verification ──
+    if (type === 'cashback') {
+      if (!isFinite(claimedLoss) || claimedLoss <= 0) {
+        return Response.json({ error: 'invalid-claimed-loss' }, { status: 400 });
+      }
+      if (Math.abs(amount - claimedLoss * 0.03) > 1) {
+        return Response.json({ error: 'amount-mismatch' }, { status: 400 });
+      }
+      // Re-calculate actual unclaimed loss from transactions + wallet.
+      const allTxns = await base44.asServiceRole.entities.Transaction.filter(
+        { user_id: user.id }, '-created_date', 1000
+      );
+      const deposits = (allTxns || [])
+        .filter((t) => t.type === 'deposit' && (t.status === 'completed' || t.status === 'approved'))
+        .reduce((s, t) => s + (Number(t.amount) || 0), 0);
+      const withdrawals = (allTxns || [])
+        .filter((t) => t.type === 'withdraw' && (t.status === 'completed' || t.status === 'approved'))
+        .reduce((s, t) => s + (Number(t.amount) || 0), 0);
+      const currentBalance = Number(wallet.balance ?? 0);
+      const totalLoss = Math.max(0, deposits - withdrawals - currentBalance);
+      const alreadyClaimed = Number(wallet.cashback_claimed_loss ?? 0) || 0;
+      const unclaimedLoss = Math.max(0, totalLoss - alreadyClaimed);
+      if (claimedLoss > unclaimedLoss + 1) {
+        return Response.json({ error: 'loss-exceeds-actual', unclaimed: unclaimedLoss }, { status: 400 });
+      }
+      extraWalletUpdate.cashback_claimed_loss = alreadyClaimed + claimedLoss;
+    } else if (type === 'free_spin') {
+      const dayAgo = now - 24 * 60 * 60 * 1000;
+      if (hasClaimed('free_spin', dayAgo)) {
+        return Response.json({ error: 'already-claimed' }, { status: 429 });
+      }
+    } else if (type === 'signup') {
+      if (hasClaimed('signup', 0)) {
+        return Response.json({ error: 'already-claimed' }, { status: 429 });
+      }
+    } else if (type === 'daily') {
+      const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
+      if (hasClaimed('daily', dayStart.getTime())) {
+        return Response.json({ error: 'already-claimed-today' }, { status: 429 });
+      }
+    } else if (type === 'weekly') {
+      const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
+      if (hasClaimed('weekly', weekAgo)) {
+        return Response.json({ error: 'already-claimed-this-week' }, { status: 429 });
+      }
+    } else if (type === 'monthly') {
+      const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+      if (hasClaimed('monthly', monthStart.getTime())) {
+        return Response.json({ error: 'already-claimed-this-month' }, { status: 429 });
+      }
+    } else if (type === 'deposit_bonus') {
+      const hourAgo = now - 60 * 60 * 1000;
+      if (hasClaimed('deposit_bonus', hourAgo)) {
+        return Response.json({ error: 'already-claimed' }, { status: 429 });
+      }
+    }
+
+    // ── Credit the wallet ──
     const curBal = Number(wallet.balance ?? 0);
     const curWager = Number(wallet.wager_remaining ?? 0);
     const newBal = curBal + amount;
 
-    const walletUpdate = {
+    await base44.asServiceRole.entities.Wallet.update(wallet.id, {
       balance: newBal,
       wager_remaining: curWager,
-    };
-    // For cashback claims: atomically update cashback_claimed_loss so the
-    // same loss can't be double-claimed. This field is now on the Wallet
-    // entity (RLS-protected), so users can't reset it to 0 via updateMe.
-    const claimedLossDelta = Number(body.claimed_loss ?? 0);
-    if (type === 'cashback' && isFinite(claimedLossDelta) && claimedLossDelta > 0) {
-      walletUpdate.cashback_claimed_loss = (Number(wallet.cashback_claimed_loss ?? 0) || 0) + claimedLossDelta;
-    }
-    await base44.asServiceRole.entities.Wallet.update(wallet.id, walletUpdate);
+      ...extraWalletUpdate,
+    });
 
-    // Mirror to User entity for display compatibility.
     try { await mirrorToUser(base44, user.id, newBal, curWager); } catch {}
 
-    // Log as a bonus Transaction (audit trail).
     try {
       await base44.entities.Transaction.create({
         user_id: user.id,
