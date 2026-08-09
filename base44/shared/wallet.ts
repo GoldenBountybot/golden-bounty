@@ -16,6 +16,10 @@ export async function findOrCreateWallet(base44, userId) {
     staked_at: u?.staked_at || null,
     last_profit_claim: u?.last_profit_claim || null,
     cashback_claimed_loss: Number(u?.cashback_claimed_loss ?? 0) || 0,
+    // Security fields migrated from the User entity so users can't set them
+    // via updateMe: banned (account block) and rtp (win-chance override).
+    banned: !!u?.banned,
+    rtp: u?.rtp != null ? Number(u.rtp) : null,
   });
   return wallet;
 }
@@ -27,6 +31,10 @@ export async function findOrCreateWallet(base44, userId) {
 // now rejects for positive deltas).
 export async function creditDeposit(base44, userId, userEmail, amount, method, reference, note) {
   const wallet = await findOrCreateWallet(base44, userId);
+  // Banned users can't receive deposit credits (defense-in-depth — the
+  // client-side ban check in AuthContext reads this same Wallet.banned flag,
+  // which the user can't bypass since Wallet is admin-only write).
+  if (wallet.banned) throw new Error('Account banned');
   const newBal = Number(wallet.balance ?? 0) + amount;
   const newWager = Number(wallet.wager_remaining ?? 0) + amount;
   await base44.asServiceRole.entities.Wallet.update(wallet.id, { balance: newBal, wager_remaining: newWager });

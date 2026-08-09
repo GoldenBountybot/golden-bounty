@@ -62,8 +62,9 @@ export default function AdminPlayers() {
 
   const toggleBan = async (u) => {
     try {
-      await base44.entities.User.update(u.id, { banned: !u.banned });
-      toast({ title: u.banned ? 'User unbanned' : 'User banned' });
+      const newBanned = !(walletMap[u.id]?.banned);
+      await base44.functions.invoke('adminAdjustWallet', { user_id: u.id, banned: newBanned });
+      toast({ title: newBanned ? 'User banned' : 'User unbanned' });
       load();
     } catch { toast({ title: 'Action failed' }); }
   };
@@ -99,8 +100,8 @@ export default function AdminPlayers() {
               <p className="font-bold text-amber-100 truncate">{u.email}</p>
               <p className="text-xs text-amber-100/60 flex items-center gap-1"><Hash className="w-3 h-3 text-amber-400/60" />{u.uid || '—'}</p>
               <p className="text-xs text-amber-100/60">Role: {u.role} · Phone: {u.phone || '—'}</p>
-              <p className="text-sm text-yellow-200 font-bold">${(walletMap[u.id]?.balance ?? 0).toFixed(2)}{u.rtp != null ? ` · RTP ${u.rtp}%` : ''}</p>
-              {u.banned && <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 border border-red-500/50 text-red-400">BANNED</span>}
+              <p className="text-sm text-yellow-200 font-bold">${(walletMap[u.id]?.balance ?? 0).toFixed(2)}{walletMap[u.id]?.rtp != null ? ` · RTP ${walletMap[u.id].rtp}%` : ''}</p>
+              {walletMap[u.id]?.banned && <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 border border-red-500/50 text-red-400">BANNED</span>}
             </div>
             <div className="flex flex-col gap-1.5 items-end">
               {editing === u.id ? (
@@ -128,12 +129,12 @@ export default function AdminPlayers() {
                       className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold italic"
                       style={{
                         fontFamily: 'Georgia, serif',
-                        background: u.banned ? 'rgba(52,211,153,0.15)' : 'rgba(248,113,113,0.15)',
-                        border: u.banned ? '1px solid rgba(52,211,153,0.5)' : '1px solid rgba(248,113,113,0.5)',
-                        color: u.banned ? '#34d399' : '#f87171',
+                        background: walletMap[u.id]?.banned ? 'rgba(52,211,153,0.15)' : 'rgba(248,113,113,0.15)',
+                        border: walletMap[u.id]?.banned ? '1px solid rgba(52,211,153,0.5)' : '1px solid rgba(248,113,113,0.5)',
+                        color: walletMap[u.id]?.banned ? '#34d399' : '#f87171',
                       }}
                     >
-                      {u.banned ? <><ShieldCheck className="w-3.5 h-3.5" /> Unban</> : <><Ban className="w-3.5 h-3.5" /> Ban</>}
+                      {walletMap[u.id]?.banned ? <><ShieldCheck className="w-3.5 h-3.5" /> Unban</> : <><Ban className="w-3.5 h-3.5" /> Ban</>}
                     </button>
                   )}
                 </div>

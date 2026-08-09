@@ -69,6 +69,7 @@ export default async function(req) {
 
     // ── Load wallet + bonus transaction history for eligibility checks ──
     const wallet = await findOrCreateWallet(base44, user.id);
+    if (wallet.banned) return Response.json({ error: 'Account banned' }, { status: 403 });
     const bonusTxns = await base44.asServiceRole.entities.Transaction.filter(
       { user_id: user.id, type: 'bonus' }, '-created_date', 500
     );

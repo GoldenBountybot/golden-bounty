@@ -34,7 +34,7 @@ const OUTCOME_META = {
 // transaction history, and game win/loss history.
 export default function AdminPlayerDetail({ user, onBack, onSaved }) {
   const { toast } = useToast();
-  const [rtp, setRtp] = useState(user.rtp ?? 50);
+  const [rtp, setRtp] = useState(50);
   const [balance, setBalance] = useState(0);
   const [txs, setTxs] = useState([]);
   const [activity, setActivity] = useState([]);
@@ -54,7 +54,10 @@ export default function AdminPlayerDetail({ user, onBack, onSaved }) {
         if (!active) return;
         setTxs(t);
         setActivity(a);
-        if (w && w[0]) setBalance(Number(w[0].balance ?? 0));
+        if (w && w[0]) {
+          setBalance(Number(w[0].balance ?? 0));
+          if (w[0].rtp != null) setRtp(Number(w[0].rtp));
+        }
       } catch {
         /* ignore */
       } finally {
@@ -67,11 +70,10 @@ export default function AdminPlayerDetail({ user, onBack, onSaved }) {
   const save = async () => {
     setSaving(true);
     try {
-      // Set the REAL wallet balance via adminAdjustWallet (service role).
-      // Only RTP is saved on the User entity now (balance is no longer a
-      // User field — it lives on the RLS-protected Wallet entity).
-      await base44.functions.invoke('adminAdjustWallet', { user_id: user.id, set_balance: true, delta: Number(balance) });
-      await base44.entities.User.update(user.id, { rtp: Number(rtp) });
+      // Balance AND per-player RTP are both set on the RLS-protected Wallet
+      // entity via one adminAdjustWallet call (admin-only write). RTP no
+      // longer goes through User.update — that was hackable via updateMe.
+      await base44.functions.invoke('adminAdjustWallet', { user_id: user.id, set_balance: true, delta: Number(balance), rtp: Number(rtp) });
       toast({ title: 'Player updated' });
       onSaved?.();
     } catch {

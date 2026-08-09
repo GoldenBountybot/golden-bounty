@@ -23,11 +23,20 @@ export function useGameSettings(gameId) {
         const global = rows.find(r => r.game_id === '*');
         const active = per && per.enabled !== false ? per : (global && global.enabled !== false ? global : null);
 
-        // Real-mode RTP: per-player override wins over game/global.
+        // Real-mode RTP: per-player override wins over game/global. The
+        // override is read from the RLS-protected Wallet entity (admin-only
+        // write) — NOT from me.rtp, which users could set via updateMe to
+        // rig games to always win.
         let rtp = active ? Number(active.rtp ?? 50) : 50;
-        if (me && me.rtp !== undefined && me.rtp !== null) {
-          const userRtp = Number(me.rtp);
-          if (!Number.isNaN(userRtp)) rtp = userRtp;
+        if (me) {
+          try {
+            const wallets = await base44.entities.Wallet.filter({ user_id: me.id }, 'created_date', 1);
+            const w = wallets && wallets[0];
+            if (w && w.rtp !== undefined && w.rtp !== null) {
+              const userRtp = Number(w.rtp);
+              if (!Number.isNaN(userRtp)) rtp = userRtp;
+            }
+          } catch { /* no wallet = no override */ }
         }
 
         // Demo-mode RTP: per-game demo_rtp (when enabled) > global demo_rtp > 50.

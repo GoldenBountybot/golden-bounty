@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { findOrCreateWallet } from '../../shared/wallet.ts';
 
 // Notifies all admin users by email when a player submits a withdrawal.
 // Admins are auto-picked from the User entity via service role (no hardcoded
@@ -9,6 +10,10 @@ export default async function(req) {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Banned users can't submit withdrawals.
+    const _bw = await findOrCreateWallet(base44, user.id);
+    if (_bw.banned) return Response.json({ error: 'Account banned' }, { status: 403 });
 
     let body: any = {};
     try { body = await req.json(); } catch (_e) {}

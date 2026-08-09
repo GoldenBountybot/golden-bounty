@@ -29,13 +29,27 @@ export default async function(req) {
     const newBal = setBalance ? Math.max(0, delta) : Math.max(0, Number(wallet.balance ?? 0) + delta);
     const newWager = Math.max(0, Number(wallet.wager_remaining ?? 0) + wagerDelta);
 
-    await base44.asServiceRole.entities.Wallet.update(wallet.id, {
-      balance: newBal,
-      wager_remaining: newWager,
-    });
+    // Admin-only security fields: banned (block account) and rtp (per-player
+    // winning-chance override). These live on the Wallet entity (admin-only
+    // update RLS) so users can't set them on themselves via updateMe.
+    const update = { balance: newBal, wager_remaining: newWager };
+    if (body.banned !== undefined) update.banned = !!body.banned;
+    if (body.rtp !== undefined) {
+      const rtpVal = Number(body.rtp);
+      update.rtp = isFinite(rtpVal) && rtpVal >= 0 && rtpVal <= 100 ? rtpVal : null;
+    }
 
-    // balance & wager_remaining are no longer on the User entity (moved to the
-    // RLS-protected Wallet entity to prevent updateMe hacks). No mirror needed.
+    await base44.asServiceRole.entities.Wallet.update(wallet.id, update);
+
+    // Mirror banned/rtp to the User entity for admin display compatibility.
+    try {
+      const userUpdate = {};
+      if (body.banned !== undefined) userUpdate.banned = !!body.banned;
+      if (body.rtp !== undefined) userUpdate.rtp = update.rtp;
+      if (Object.keys(userUpdate).length) {
+        await base44.asServiceRole.entities.User.update(targetUserId, userUpdate);
+      }
+    } catch { /* best-effort mirror */ }
 
     return Response.json({ balance: newBal, wager_remaining: newWager });
   } catch (error) {

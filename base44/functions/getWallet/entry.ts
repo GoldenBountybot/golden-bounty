@@ -19,6 +19,8 @@ export default async function(req) {
       staked_at: wallet.staked_at || null,
       last_profit_claim: wallet.last_profit_claim || null,
       cashback_claimed_loss: Number(wallet.cashback_claimed_loss ?? 0),
+      banned: !!wallet.banned,
+      rtp: wallet.rtp != null ? Number(wallet.rtp) : null,
     });
   } catch (error) {
     return Response.json({ error: error?.message || String(error) }, { status: 500 });

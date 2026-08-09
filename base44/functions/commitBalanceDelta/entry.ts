@@ -24,6 +24,12 @@ export default async function(req) {
       return Response.json({ error: 'invalid-params' }, { status: 400 });
     }
 
+    // SECURITY: banned users can't change their balance.
+    {
+      const _bw = await findOrCreateWallet(base44, user.id);
+      if (_bw.banned) return Response.json({ error: 'Account banned' }, { status: 403 });
+    }
+
     // SECURITY: reject positive balance deltas. Positive deltas (crediting
     // money) must go through verified pathways — settleBet (gameplay wins),
     // creditBonus (cashback / free-spin / task rewards), adminAdjustWallet

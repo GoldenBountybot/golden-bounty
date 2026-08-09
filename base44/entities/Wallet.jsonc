@@ -35,6 +35,15 @@
       "type": "number",
       "default": 0,
       "description": "Cumulative net loss (from deposited funds) already cashbacked, so the same loss can't be double-claimed. Authoritative source \u2014 moved from the User entity (which users could write via updateMe) to here so users can't reset it to 0 to re-claim cashback."
+    },
+    "banned": {
+      "type": "boolean",
+      "default": false,
+      "description": "Authoritative ban flag. When true the user is blocked from the app and all money operations. Moved from the User entity (which users could write via updateMe) to here so users can't unban themselves. Admins set this via adminAdjustWallet."
+    },
+    "rtp": {
+      "type": "number",
+      "description": "Per-player winning-chance override (0-100). When set, overrides global/per-game RTP for this player across all games. Moved from the User entity (which users could write via updateMe to rig games) to here so only admins can set it."
     }
   },
   "required": [

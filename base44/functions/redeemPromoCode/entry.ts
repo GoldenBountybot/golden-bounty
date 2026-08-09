@@ -60,6 +60,7 @@ export default async function(req) {
     // staked_amount). The Wallet RLS blocks users from modifying it, so this
     // promo bonus can't be faked or inflated by the user.
     const wallet = await findOrCreateWallet(base44, user.id);
+    if (wallet.banned) return Response.json({ error: 'Account banned' }, { status: 403 });
     const curStaked = Number(wallet.staked_amount ?? 0) || 0;
     const walletUpdate = {
       staked_amount: curStaked + PROMO_BONUS,

@@ -45,6 +45,7 @@ export default async function(req) {
     }
 
     const wallet = await findOrCreateWallet(base44, user.id);
+    if (wallet.banned) return Response.json({ error: 'Account banned' }, { status: 403 });
     const curBal = Number(wallet.balance ?? 0);
     const curWager = Number(wallet.wager_remaining ?? 0);
 

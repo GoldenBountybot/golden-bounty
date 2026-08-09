@@ -95,9 +95,16 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingAuth(true);
       const currentUser = await base44.auth.me();
       // Banned users are blocked from the app entirely — show the banned
-      // screen instead of letting them in. The token stays so an unban +
-      // refresh restores access.
-      if (currentUser?.banned) {
+      // screen instead of letting them in. The ban flag lives on the
+      // RLS-protected Wallet entity (admin-only write) so users can't unban
+      // themselves via updateMe. The token stays so an unban + refresh
+      // restores access.
+      let isBanned = false;
+      try {
+        const wallets = await base44.entities.Wallet.filter({ user_id: currentUser.id }, 'created_date', 1);
+        isBanned = !!(wallets && wallets[0] && wallets[0].banned);
+      } catch { /* no wallet yet = not banned */ }
+      if (isBanned) {
         setAuthError({ type: 'user_banned', message: 'Your account has been banned' });
         setIsAuthenticated(false);
         setIsLoadingAuth(false);
