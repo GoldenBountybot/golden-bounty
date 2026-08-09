@@ -53,7 +53,11 @@ Deno.serve(async (req) => {
           if (j.sender?.address !== userWalletRaw) continue;
           if (j.recipient?.address !== adminRaw) continue;
           if (j.jetton?.address !== USDT_MASTER_RAW) continue;
-          if (j.amount !== expected) continue;
+          // $0.10 flat tolerance (USDT = 6 decimals → 100,000 units = $0.10).
+          const sentBig = BigInt(String(j.amount || '0'));
+          const expBig = BigInt(expected);
+          const tol = 100000n;
+          if (sentBig + tol < expBig) continue;
           // Matched — idempotent by event_id.
           const existing = await base44.asServiceRole.entities.Transaction.filter({ reference: e.event_id });
           if (existing && existing.length) {

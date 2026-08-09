@@ -58,18 +58,21 @@ Deno.serve(async (req) => {
           if (!t) continue;
           if (t.sender?.address !== userWalletRaw) continue;
           if (t.recipient?.address !== adminRaw) continue;
-          if (String(t.amount) !== expectedNano) continue;
+          // Loose quick filter: reject if sent is less than half of expected.
+          const sentNano = BigInt(String(t.amount || '0'));
+          const wantNano = BigInt(expectedNano);
+          if (sentNano * 2n < wantNano) continue;
           const ref = 'ton-native-' + e.event_id;
           const existing = await base44.asServiceRole.entities.Transaction.filter({ reference: ref });
           if (existing && existing.length) {
             return Response.json({ ok: true, already: true, amount: Number(existing[0].amount) });
           }
+          // $0.10 flat tolerance — crypto prices fluctuate slightly.
           const price = await getPrice();
-          if (price && isFinite(price)) {
-            const tonAmt = Number(expectedNano) / 1e9;
-            if (tonAmt * price < amount * 0.85) {
-              return Response.json({ ok: false, reason: 'amount-mismatch' });
-            }
+          if (!price || !isFinite(price)) return Response.json({ ok: false, reason: 'price-unavailable' });
+          const tonAmt = Number(sentNano) / 1e9;
+          if (tonAmt * price < amount - 0.10) {
+            return Response.json({ ok: false, reason: 'amount-mismatch' });
           }
           await creditDeposit(base44, user.id, user.email, amount, 'wallet-tonkeeper-native', ref, 'Tonkeeper · TON native');
           return Response.json({ ok: true, amount, already: false });

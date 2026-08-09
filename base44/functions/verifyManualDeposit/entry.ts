@@ -119,7 +119,7 @@ async function verifyEvm(net, txHash, amount, token) {
     if (sentWei <= 0n) return { ok: false, reason: 'transfer-not-found' };
     const price = await getPrice(net.coin);
     if (!price) return { ok: false, reason: 'price-unavailable' };
-    if ((Number(sentWei) / 1e18) * price < amount * 0.9) return { ok: false, reason: 'amount-mismatch' };
+    if ((Number(sentWei) / 1e18) * price < amount - 0.10) return { ok: false, reason: 'amount-mismatch' };
     return { ok: true, amount, note: `Manual · ${net.label} (native)` };
   }
 
@@ -138,7 +138,9 @@ async function verifyEvm(net, txHash, amount, token) {
       if (String(topics[2] || '').toLowerCase() !== toTopic) continue;
       let sent = 0n;
       try { sent = BigInt(String(log.data || '0x0')); } catch { continue; }
-      if (sent * 100n < expected * 99n) continue;
+      // $0.10 flat tolerance (token units = 10^(dec-1)).
+      const tol = 10n ** BigInt(dec) / 10n;
+      if (sent + tol < expected) continue;
       return { ok: true, amount, note: `Manual · ${net.label} (${token.toUpperCase()})` };
     }
   }
@@ -159,7 +161,7 @@ async function verifySolana(signature, amount, token) {
     if (received <= 0) return { ok: false, reason: 'transfer-not-found' };
     const price = await getPrice('solana');
     if (!price) return { ok: false, reason: 'price-unavailable' };
-    if ((received / 1e9) * price < amount * 0.9) return { ok: false, reason: 'amount-mismatch' };
+    if ((received / 1e9) * price < amount - 0.10) return { ok: false, reason: 'amount-mismatch' };
     return { ok: true, amount, note: 'Manual · Solana (native SOL)' };
   }
   const mint = token === 'usdt' ? SOL_USDT : SOL_USDC;
@@ -169,7 +171,9 @@ async function verifySolana(signature, amount, token) {
     return e ? BigInt(String(e.uiTokenAmount?.amount || '0')) : 0n;
   };
   const received = findAmt(tx.meta.postTokenBalances) - findAmt(tx.meta.preTokenBalances);
-  if (received < BigInt(Math.round(Number(expected) * 0.99))) return { ok: false, reason: 'amount-mismatch' };
+  // $0.10 flat tolerance (USDT/USDC = 6 decimals → 100,000 units = $0.10).
+  const tol = 100000n;
+  if (received + tol < expected) return { ok: false, reason: 'amount-mismatch' };
   return { ok: true, amount, note: `Manual · Solana (${token.toUpperCase()})` };
 }
 
@@ -185,7 +189,7 @@ async function verifyUtxo(chain, txid, amount, admin, coinId) {
   if (total <= 0) return { ok: false, reason: 'recipient-not-found' };
   const price = await getPrice(coinId);
   if (!price) return { ok: false, reason: 'price-unavailable' };
-  if ((total / 1e8) * price < amount * 0.9) return { ok: false, reason: 'amount-mismatch' };
+  if ((total / 1e8) * price < amount - 0.10) return { ok: false, reason: 'amount-mismatch' };
   return { ok: true, amount, note: `Manual · ${chain.toUpperCase()}` };
 }
 
@@ -197,7 +201,7 @@ async function verifyBtc(txid, amount) {
   if (sats <= 0) return { ok: false, reason: 'recipient-not-found' };
   const price = await getPrice('bitcoin');
   if (!price) return { ok: false, reason: 'price-unavailable' };
-  if ((sats / 1e8) * price < amount * 0.9) return { ok: false, reason: 'amount-mismatch' };
+  if ((sats / 1e8) * price < amount - 0.10) return { ok: false, reason: 'amount-mismatch' };
   return { ok: true, amount, note: 'Manual · Bitcoin (BTC)' };
 }
 
@@ -214,7 +218,7 @@ async function verifyTron(hash, amount, token) {
     if (sun <= 0) return { ok: false, reason: 'transfer-not-found' };
     const price = await getPrice('tron');
     if (!price) return { ok: false, reason: 'price-unavailable' };
-    if ((sun / 1e6) * price < amount * 0.9) return { ok: false, reason: 'amount-mismatch' };
+    if ((sun / 1e6) * price < amount - 0.10) return { ok: false, reason: 'amount-mismatch' };
     return { ok: true, amount, note: 'Manual · Tron (native TRX)' };
   }
   // TRC20 USDT
@@ -225,7 +229,9 @@ async function verifyTron(hash, amount, token) {
     if (String(t.to_address || '') !== TRX_ADMIN) continue;
     let sent = 0n;
     try { sent = BigInt(String(t.amount_str || t.amount || '0')); } catch { continue; }
-    if (sent * 100n < expected * 99n) continue;
+    // $0.10 flat tolerance (TRC20 USDT = 6 decimals → 100,000 units = $0.10).
+    const tol = 100000n;
+    if (sent + tol < expected) continue;
     return { ok: true, amount, note: 'Manual · Tron (USDT)' };
   }
   return { ok: false, reason: 'transfer-not-found' };
@@ -253,7 +259,7 @@ async function verifyTon(hash, amount, token) {
           if (nano <= 0) continue;
           const price = await getPrice('the-open-network');
           if (!price) return { ok: false, reason: 'price-unavailable' };
-          if ((nano / 1e9) * price < amount * 0.9) return { ok: false, reason: 'amount-mismatch' };
+          if ((nano / 1e9) * price < amount - 0.10) return { ok: false, reason: 'amount-mismatch' };
           return { ok: true, amount, note: 'Manual · TON (native)' };
         }
         if (token === 'usdt' && a.type === 'JettonTransfer') {
@@ -264,7 +270,9 @@ async function verifyTon(hash, amount, token) {
           const expected = BigInt(Math.round(amount * 1e6));
           let sent = 0n;
           try { sent = BigInt(String(t.amount || '0')); } catch { continue; }
-          if (sent * 100n < expected * 99n) continue;
+          // $0.10 flat tolerance (TON USDT = 6 decimals → 100,000 units = $0.10).
+          const tol = 100000n;
+          if (sent + tol < expected) continue;
           return { ok: true, amount, note: 'Manual · TON (USDT)' };
         }
       }
@@ -289,7 +297,7 @@ async function verifyAptNative(hash, amount) {
   if (octas <= 0) return { ok: false, reason: 'transfer-not-found' };
   const price = await getPrice('aptos');
   if (!price) return { ok: false, reason: 'price-unavailable' };
-  if ((octas / 1e8) * price < amount * 0.9) return { ok: false, reason: 'amount-mismatch' };
+  if ((octas / 1e8) * price < amount - 0.10) return { ok: false, reason: 'amount-mismatch' };
   return { ok: true, amount, note: 'Manual · Aptos (native APT)' };
   }
 
@@ -321,7 +329,9 @@ async function verifyAptNative(hash, amount) {
   const sent = Number(args[2] || 0);
   if (sent <= 0) return { ok: false, reason: 'transfer-not-found' };
   const expected = Math.round(amount * Math.pow(10, decimals));
-  if (sent * 100 < expected * 99) return { ok: false, reason: 'amount-mismatch' };
+  // $0.10 flat tolerance (token units = 10^(dec-1)).
+  const tol = Math.pow(10, decimals) / 10;
+  if (sent + tol < expected) return { ok: false, reason: 'amount-mismatch' };
   return { ok: true, amount, note: `Manual · Aptos (${token.toUpperCase()})` };
   }
 

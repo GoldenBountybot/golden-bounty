@@ -67,19 +67,21 @@ Deno.serve(async (req) => {
     const fromOk = String(tx.from || '').toLowerCase() === userWallet;
     const toOk = String(tx.to || '').toLowerCase() === ADMIN;
     // Compare the sent value numerically (RPC hex may be padded/normalized
-    // differently than the hex the frontend built), with 1% tolerance.
+    // differently than the hex the frontend built). Loose 10% quick filter —
+    // the price check below enforces the exact $0.10 tolerance.
     let sentWei = 0n; let wantWei = 0n;
     try { sentWei = BigInt(String(tx.value || '0x0')); wantWei = BigInt(expectedWei); } catch {}
-    const valOk = wantWei > 0n && sentWei * 100n >= wantWei * 99n;
+    const valOk = wantWei > 0n && sentWei * 100n >= wantWei * 90n;
     if (!fromOk || !toOk || !valOk) {
       return Response.json({ ok: false, reason: 'transfer-not-found' });
     }
 
-    // Sanity: the sent coin must be worth ~ the requested $ amount (15% tolerance).
+    // Sanity: the sent coin must be worth ~ the requested $ amount, with a
+    // $0.10 flat tolerance (crypto prices fluctuate slightly).
     const price = await getPrice(net);
     if (price && isFinite(price)) {
-      const coinAmt = Number(BigInt(expectedWei)) / Math.pow(10, net.decimals);
-      if (coinAmt * price < amount * 0.85) {
+      const coinAmt = Number(sentWei) / Math.pow(10, net.decimals);
+      if (coinAmt * price < amount - 0.10) {
         return Response.json({ ok: false, reason: 'amount-mismatch' });
       }
     }

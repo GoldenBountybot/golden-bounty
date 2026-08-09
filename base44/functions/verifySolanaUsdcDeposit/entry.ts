@@ -57,8 +57,9 @@ Deno.serve(async (req) => {
       return e ? BigInt(String(e.uiTokenAmount?.amount || '0')) : 0n;
     };
     const received = findAmt(tx.meta.postTokenBalances) - findAmt(tx.meta.preTokenBalances);
-    // Allow a 1% rounding tolerance on the transferred units.
-    if (received < BigInt(Math.round(expectedUnits * 0.99))) return Response.json({ ok: false, reason: 'amount-mismatch' });
+    // $0.10 flat tolerance (USDC = 6 decimals → 100,000 units = $0.10).
+    const tol = 100000n;
+    if (received + tol < BigInt(Math.round(expectedUnits))) return Response.json({ ok: false, reason: 'amount-mismatch' });
 
     await creditDeposit(base44, user.id, user.email, amount, 'wallet-phantom-solana-usdc', signature, 'Phantom · Solana (USDC)');
 
