@@ -26,7 +26,7 @@ export default function DesktopSidebar() {
 
   return (
     <aside
-      className="hidden lg:flex fixed left-0 top-0 bottom-0 z-30 w-20 flex-col items-center py-5 gap-3"
+      className="hidden lg:flex fixed left-0 top-0 bottom-0 z-30 w-20 flex-col items-center py-6 gap-5"
       style={{
         borderRight: '1px solid rgba(214,178,98,0.4)',
         background: 'rgba(10,9,8,0.82)',
@@ -40,7 +40,7 @@ export default function DesktopSidebar() {
           {item.center && <div className="my-1 h-px w-10 bg-amber-200/20" />}
           <Link
             to={item.to}
-            className={`group flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg transition-all hover:bg-amber-200/5 active:scale-95 ${isActive(item) ? 'bg-amber-200/10' : ''}`}
+            className={`group flex flex-col items-center justify-center gap-1.5 py-3 px-1 rounded-lg transition-all hover:bg-amber-200/5 active:scale-95 ${isActive(item) ? 'bg-amber-200/10' : ''}`}
           >
             <img
               src={item.src}
