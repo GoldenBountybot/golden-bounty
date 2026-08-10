@@ -244,7 +244,7 @@ export default function HiLo() {
     const rtpVal = Number(rtp || 50);
     const rtpFrac = Math.max(0, Math.min(1, rtpVal / 100));
     const withinCap = serverWinRef.current > 0 && (pot * 2) <= serverWinRef.current;
-    const wantCorrect = withinCap && Math.random() < (rtpFrac * 1.4);
+    const wantCorrect = withinCap && Math.random() < (rtpFrac * 0.8);
     const next = pickCard(dir, current.rank, wantCorrect);
     setRevealed(next);
     const same = next.rank === current.rank;
