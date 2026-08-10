@@ -27,6 +27,7 @@ export function useGates() {
   const [winPositions, setWinPositions] = useState(new Set());
   const [shatter, setShatter] = useState(new Set());
   const [dropCells, setDropCells] = useState(new Set());
+  const [tumbleSeq, setTumbleSeq] = useState(0);
   const [freeSpins, setFreeSpins] = useState(0);
   const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
@@ -170,6 +171,7 @@ export function useGates() {
         setGrid(tb.grid);
         setWinPositions(tb.winPositions);
         setDropCells(fresh);
+        setTumbleSeq((s) => s + 1);
         // Base game: show base wins during the spin (multiplier applied at settle).
         // Free spins: show the actual per-tumble cascading multiplied win.
         runningWin += freeMode ? tb.tumbleWin : tb.win;
@@ -367,7 +369,7 @@ export function useGates() {
   };
 
   return {
-    grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells,
+    grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells, tumbleSeq,
     freeSpins, turbo, autoSpin, spinMult, winFlash, winList, winHistory, scatterGlow,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart, bigWinBanner, setBigWinBanner,

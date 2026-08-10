@@ -27,7 +27,6 @@ const fmt = (v) => `$${Number(v || 0).toFixed(2)}`;
 export default function GatesMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
-  const [dropTick, setDropTick] = useState(0);
   const [shatterTick, setShatterTick] = useState(0);
   const [stoppedReels, setStoppedReels] = useState(() => new Set(Array.from({ length: REELS }, (_, i) => i)));
   const revealTimers = useRef([]);
@@ -44,8 +43,6 @@ export default function GatesMachine() {
 
   const g = useGates();
 
-  // re-trigger the reel-drop animation every time the grid changes
-  useEffect(() => { setDropTick((t) => t + 1); }, [g.grid]);
   // bump shatter key whenever the shatter set changes so the blast replays
   useEffect(() => { setShatterTick((t) => t + 1); }, [g.shatter]);
 
@@ -85,7 +82,7 @@ export default function GatesMachine() {
       }, c * gap));
     }
     return () => { revealTimers.current.forEach(clearTimeout); };
-  }, [dropTick, g.turbo]);
+  }, [g.tumbleSeq, g.turbo]);
 
   useEffect(() => () => { revealTimers.current.forEach(clearTimeout); }, []);
 
@@ -207,7 +204,7 @@ export default function GatesMachine() {
         });
       }, dur);
     });
-  }, [stoppedReels, grid, dropCells, dropTick, turbo]);
+  }, [stoppedReels, grid, dropCells, g.tumbleSeq, turbo]);
 
   return (
     <div ref={machineRef} className="relative w-full max-w-none mx-auto flex flex-col overflow-hidden select-none"
@@ -275,7 +272,7 @@ export default function GatesMachine() {
                       // other fresh symbol; the lightning reveal is handled by
                       // the GatesMultReveal overlay.
                       const dropAnim = isFresh;
-                      const animKey = isShatter ? `sh${shatterTick}` : dropAnim ? `dr${dropTick}` : 'st';
+                      const animKey = isShatter ? `sh${shatterTick}` : dropAnim ? `dr${g.tumbleSeq}` : 'st';
                       return (
                         <div key={winKey} ref={(el) => { cellRefs.current[winKey] = el; }} className="relative rounded-[5px] flex-1 min-h-0"
                           style={{ opacity: stopped ? 1 : 0,
