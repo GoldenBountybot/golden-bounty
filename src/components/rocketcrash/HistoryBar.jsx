@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 function colorFor(m) {
   if (m < 2) return 'bg-indigo-500/80 text-indigo-50';
@@ -6,7 +6,9 @@ function colorFor(m) {
   return 'bg-rose-500/85 text-rose-50';
 }
 
-export default function HistoryBar({ history }) {
+// Memoized so it doesn't re-render on every multiplier frame — history only
+// changes when a round crashes, not 60×/sec.
+function HistoryBar({ history }) {
   return (
     <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1">
       {history.map((m, i) => (
@@ -18,3 +20,5 @@ export default function HistoryBar({ history }) {
     </div>
   );
 }
+
+export default memo(HistoryBar);

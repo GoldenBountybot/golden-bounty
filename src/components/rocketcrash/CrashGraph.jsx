@@ -8,7 +8,13 @@ const SAMPLES = 48;
 export default function CrashGraph({ phase, multiplier, countdown }) {
   const elapsed = phase === 'waiting' ? 0 : Math.log(Math.max(multiplier, 1)) / Math.log(GROWTH);
   const WIN_T = 8; // seconds of flight visible across the x axis
-  const maxM = Math.max(2, multiplier * 1.18);
+  // Quantize the y-axis scale to powers of 2 so it only changes at discrete
+  // steps (2, 4, 8, 16, 32 …). Without this, maxM changes every frame and the
+  // entire curve + bomber rescale/jump on every tick — the visual "lag/stutter"
+  // the user sees. With quantization the curve grows smoothly within each
+  // band and only rescales (doubles) when crossing a power-of-2 threshold.
+  const rawMax = Math.max(2, multiplier * 1.18);
+  const maxM = Math.pow(2, Math.ceil(Math.log2(rawMax)));
   const PLOT_TOP = 0.5; // reserve the top half so the bomber flies above the tip inside the graph
   const W = 100, H = 100;
   // scrolling window: pin the leading tip near the right so the curve scrolls
