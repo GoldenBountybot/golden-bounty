@@ -491,21 +491,6 @@ export function useWildBounty() {
     timers.current.forEach(clearTimeout);
     timers.current = [];
     setSpinning(true);
-    // Wait for any pending settleBet from the previous round to complete
-    // before starting a new beginRound — prevents the race where the next
-    // beginRound's server deduction overlaps the previous settleBet's
-    // response, double-deducting the bet.
-    if (settlePromiseRef.current) {
-      await settlePromiseRef.current;
-      settlePromiseRef.current = null;
-    }
-
-    // Start the server round (sets roundActive = true synchronously so the
-    // setBalance below is local-display-only, then calls the backend to
-    // pre-decide the outcome). The server's win is AUTHORITATIVE — settleBet
-    // credits it, ignoring the client's cascade-computed total.
-    const _roundBet = skipBetDeductRef.current ? settleBetRef.current : bet;
-    const _serverRoundPromise = beginRound(_roundBet, 'wild-bounty', usingFree);
     sfx.winStop();
     sfx.spin();
     if (usingFree) sfx.startFreeSpinReel();
@@ -529,6 +514,27 @@ export function useWildBounty() {
     setScatterGlow(new Set());
     setFlyingMult(null);
     setBulletHit(new Set());
+    if (usingFree) { setFreeSpins(f => f - 1); freeSpinsCountRef.current = Math.max(0, freeSpinsCountRef.current - 1); }
+    // Each free spin (re)starts at 8x; normal spins start at 1x.
+    setMultIndex(usingFree ? 3 : 0);
+    setMessage('SPINNING...');
+
+    // Wait for any pending settleBet from the previous round to complete
+    // before starting a new beginRound — prevents the race where the next
+    // beginRound's server deduction overlaps the previous settleBet's
+    // response, double-deducting the bet. Visual feedback (sound, state
+    // resets) already happened above, so the user sees immediate action.
+    if (settlePromiseRef.current) {
+      await settlePromiseRef.current;
+      settlePromiseRef.current = null;
+    }
+
+    // Start the server round (sets roundActive = true synchronously so the
+    // setBalance below is local-display-only, then calls the backend to
+    // pre-decide the outcome). The server's win is AUTHORITATIVE — settleBet
+    // credits it, ignoring the client's cascade-computed total.
+    const _roundBet = skipBetDeductRef.current ? settleBetRef.current : bet;
+    const _serverRoundPromise = beginRound(_roundBet, 'wild-bounty', usingFree);
     if (!usingFree) {
       if (skipBetDeductRef.current) {
         skipBetDeductRef.current = false;
@@ -543,14 +549,10 @@ export function useWildBounty() {
       // Free spin: no bet deducted, but use the per-line bet for the win cap
       settleBetRef.current = bet;
     }
-    if (usingFree) { setFreeSpins(f => f - 1); freeSpinsCountRef.current = Math.max(0, freeSpinsCountRef.current - 1); }
-    // Each free spin (re)starts at 8x; normal spins start at 1x.
-    setMultIndex(usingFree ? 3 : 0);
     // Snapshot the free-spins round state for recovery; the running win is
     // updated each cascade and the whole total is credited at chain end.
     pendingStateRef.current = { freeSpins: usingFree ? Math.max(0, freeSpins - 1) : 0, freeSpinsActive: usingFree };
     savePendingRound('wild-bounty', { win: 0, bet, state: pendingStateRef.current });
-    setMessage('SPINNING...');
 
     // Wait for the server's pre-decided outcome before generating the grid.
     const serverRound = await _serverRoundPromise;
