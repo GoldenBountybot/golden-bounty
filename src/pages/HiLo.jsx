@@ -225,7 +225,15 @@ export default function HiLo() {
     const _serverRoundPromise = beginRound(bet, 'hi-lo', false, 'cap');
     setBalance(b => b - bet);
     const serverRound = await _serverRoundPromise;
-    serverWinRef.current = Number(serverRound.win_amount ?? 0);
+    // If beginRound failed (e.g. bet out of range, network error), refund the
+    // bet and abort — otherwise serverWinRef stays 0 and every guess is a
+    // forced loss.
+    if (!serverRound || serverRound.win_amount == null || Number(serverRound.win_amount) <= 0) {
+      setBalance(b => b + bet);
+      setMessage('Round failed — try a different bet amount.');
+      return;
+    }
+    serverWinRef.current = Number(serverRound.win_amount);
     setPot(bet);
     setCurrent(drawCard());
     setRevealed(null);
