@@ -321,9 +321,16 @@ export function useCasinoBalance() {
     } else {
       l();
     }
-    // pick up admin-approved deposits when the user returns to the tab
-    const onFocus = () => { if (mounted) loadBalance(); };
-    const onHide = () => { flushPersist(); };
+    // pick up admin-approved deposits when the user returns to the tab.
+    // SKIP during an active round — loadBalance reads the server balance
+    // which may not yet reflect the beginRound bet deduction (the server call
+    // is still in flight). If we sync mid-round, committedBalance gets the
+    // pre-deduction balance, uncommittedDelta is cleared, and the local
+    // display jumps back UP to the original balance — making it look like
+    // the bet was never placed. settleBet sets the authoritative balance
+    // at round end, so skipping here is safe.
+    const onFocus = () => { if (mounted && !roundActive) loadBalance(); };
+    const onHide = () => { if (!roundActive) flushPersist(); };
     window.addEventListener('focus', onFocus);
     window.addEventListener('pagehide', onHide);
     return () => {
