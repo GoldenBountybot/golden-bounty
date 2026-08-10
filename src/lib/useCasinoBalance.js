@@ -63,11 +63,28 @@ async function loadBalance() {
     const res = await base44.functions.invoke('getWallet', {});
     const b = Number(res?.data?.balance ?? 0);
     committedBalance = isFinite(b) ? b : 0;
-    balance = committedBalance + uncommittedDelta;
-    setCache(balance);
-    const w = Number(res?.data?.wager_remaining ?? 0);
-    committedWager = isFinite(w) ? w : 0;
-    wagerRemaining = committedWager + uncommittedWagerDelta;
+    // During an active round, the server balance already reflects the bet
+    // deduction (beginRound deducted it atomically). The local uncommittedDelta
+    // (-bet) is just a display mirror of that server-side deduction. Adding it
+    // again here would double-count the bet — the balance briefly drops by 2×
+    // the bet, then "increases" back when settleBet corrects it. During a round,
+    // trust the server balance directly and clear the local deltas (settleBet
+    // will set the authoritative balance at round end anyway).
+    if (roundActive) {
+      uncommittedDelta = 0;
+      uncommittedWagerDelta = 0;
+      balance = committedBalance;
+      setCache(balance);
+      const w = Number(res?.data?.wager_remaining ?? 0);
+      committedWager = isFinite(w) ? w : 0;
+      wagerRemaining = committedWager;
+    } else {
+      balance = committedBalance + uncommittedDelta;
+      setCache(balance);
+      const w = Number(res?.data?.wager_remaining ?? 0);
+      committedWager = isFinite(w) ? w : 0;
+      wagerRemaining = committedWager + uncommittedWagerDelta;
+    }
   } catch {
     // not logged in: fall back to cached value
     let s = 0;
@@ -86,7 +103,11 @@ async function loadBalance() {
 // balance first (which may include an admin-approved deposit) and add our delta
 // on top — so admin credits are never overwritten by gameplay.
 async function flushPersist() {
-  if (!userId || persisting || (uncommittedDelta === 0 && uncommittedWagerDelta === 0)) return;
+  // During an active round, uncommittedDelta is just a display mirror of the
+  // server-side bet deduction (beginRound already deducted it). Pushing it via
+  // commitBalanceDelta would double-deduct on the server. Skip — settleBet
+  // handles the authoritative balance at round end.
+  if (!userId || persisting || roundActive || (uncommittedDelta === 0 && uncommittedWagerDelta === 0)) return;
   persisting = true;
   const d = uncommittedDelta;
   const wd = uncommittedWagerDelta;
