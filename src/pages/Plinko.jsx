@@ -15,9 +15,9 @@ const ROWS = MULTS.length - 1; // 12 rows: bottom row has 12 pegs between 13 slo
 const BOARD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/41d1489a2_file_000000005b9881faa2d49d948685f05d.png';
 const DROP_BTN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a402172b3_file_000000002200820baadd0a1f2df2f8ce.png';
 const BETS = [0.1, 1, 5, 10];
-// Absolute per-bucket landing chance (percent), symmetric across both edges.
-// 100x: 0.1% · 50x: 0.3% · 25x: 0.5% · 10x: 1% · 5x: 2% · 2x: 26% (split each side).
-const WEIGHTS = [0.02, 0.06, 0.1, 0.2, 0.4, 13, 80, 13, 0.4, 0.2, 0.1, 0.06, 0.02];
+// Per-bucket landing weights, symmetric across both edges (owner-specified).
+// 100x: 0.2% · 50x: 0.8% · 25x: 4% · 10x: 8% · 5x: 14% · 2x: 20% · 0.1x: 45%.
+const WEIGHTS = [0.1, 0.4, 2, 4, 7, 10, 45, 10, 7, 4, 2, 0.4, 0.1];
 const WEIGHT_TOTAL = WEIGHTS.reduce((a, b) => a + b, 0);
 
 const FONT = "Rye, Georgia, serif";

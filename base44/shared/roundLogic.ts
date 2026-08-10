@@ -36,27 +36,19 @@ export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
   // (not a random float) so the ball always lands on a real bucket and the
   // displayed win matches the bucket multiplier exactly.
   if (gameId === 'plinko') {
-    const LOSS_MULT = 0.1;
-    const WIN_MULTS = [2, 5, 10, 25, 50, 100];
-    const WIN_WEIGHTS = [50, 25, 15, 7, 2, 1]; // 2x common, 100x rare
-    const totalW = WIN_WEIGHTS.reduce((a, b) => a + b, 0);
-    const avgWinMult = WIN_MULTS.reduce((s, m, i) => s + m * WIN_WEIGHTS[i], 0) / totalW;
+    // Fixed probability distribution per bucket (owner-specified).
+    // Weights are normalized internally, so they need not sum to 100.
+    //   0.1x: 45  (massive loss zone) · 2x: 20 · 5x: 14 · 10x: 8
+    //   25x: 4 · 50x: 0.8 · 100x: 0.2
+    const BUCKETS = [0.1, 2, 5, 10, 25, 50, 100];
+    const WEIGHTS = [45, 20, 14, 8, 4, 0.8, 0.2];
+    const totalW = WEIGHTS.reduce((a, b) => a + b, 0);
 
-    // lossProb * LOSS_MULT + (1 - lossProb) * avgWinMult = rtpFrac
-    let lossProb = (avgWinMult - rtpFrac) / (avgWinMult - LOSS_MULT);
-    lossProb = Math.max(0.5, Math.min(0.999, lossProb));
-
-    if (Math.random() < lossProb) {
-      const winAmount = Math.round(betAmount * LOSS_MULT * 100) / 100;
-      return { isWin: false, winAmount, multiplier: LOSS_MULT };
-    }
-
-    // Pick a winning bucket via weighted random
     let r2 = Math.random() * totalW;
-    let mult = WIN_MULTS[0];
-    for (let i = 0; i < WIN_MULTS.length; i++) {
-      r2 -= WIN_WEIGHTS[i];
-      if (r2 <= 0) { mult = WIN_MULTS[i]; break; }
+    let mult = BUCKETS[0];
+    for (let i = 0; i < BUCKETS.length; i++) {
+      r2 -= WEIGHTS[i];
+      if (r2 <= 0) { mult = BUCKETS[i]; break; }
     }
 
     const maxMult = isFreeSpin
@@ -66,7 +58,7 @@ export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
     let winAmount = mult * betAmount;
     if (isFreeSpin) winAmount = Math.min(winAmount, FREE_SPIN_MAX_WIN);
     winAmount = Math.round(winAmount * 100) / 100;
-    return { isWin: true, winAmount, multiplier: mult };
+    return { isWin: mult > 1, winAmount, multiplier: mult };
   }
 
   // ── All other games: continuous multiplier distribution ──
