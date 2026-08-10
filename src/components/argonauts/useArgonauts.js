@@ -285,7 +285,7 @@ export function useArgonauts() {
     }
   }, [lineBet, bet, setBalance, settleBet, logActivity, startCoinRound]);
 
-  const spin = useCallback(() => {
+  const spin = useCallback(async () => {
     if (spinning || coinModeRef.current) return;
     const usingFree = freeSpins > 0;
     if (!usingFree && balance < bet) {
@@ -301,7 +301,13 @@ export function useArgonauts() {
     setSpinningReels(new Set());
     setAnticipateReels(new Set());
     setSlowMoReels(new Set());
-    if (riskActive && pendingWin > 0) settleBet(bet, pendingWin, 'argonauts', false);
+    // Await the previous round's settlement BEFORE starting the new round.
+    // Without this, settleBet and beginRound race: settleBet clears
+    // uncommittedDelta then overwrites committedBalance mid-flight, while
+    // beginRound's setBalance(-bet) runs against a stale committedBalance —
+    // causing the balance to flicker (bet appears double-deducted or the
+    // previous win briefly vanishes).
+    if (riskActive && pendingWin > 0) await settleBet(bet, pendingWin, 'argonauts', false);
     setPendingWin(0);
     setRiskActive(false);
     const _serverRoundPromise = beginRound(bet, 'argonauts', usingFree, 'cap');
