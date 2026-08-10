@@ -206,13 +206,13 @@ export default function Thimbles() {
     setBallCups(cups);
 
     if (willWin) {
-      const win = serverWinRef.current;
+      const win = +(bet * mult).toFixed(2);
       settleBet(bet, win, 'thimbles');
       setLastWin(win);
       setWon(true);
       setMessage(`You found it! +${win.toFixed(2)}`);
       playWin();
-      logActivity('thimbles', bet, win, 'win', win > 0 ? win / bet : 0);
+      logActivity('thimbles', bet, win, 'win', mult);
     } else {
       setLastWin(0);
       setWon(false);
