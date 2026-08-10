@@ -302,7 +302,7 @@ export function useCrashGame() {
             .filter((x) => x.b.placed && !x.b.cashedOut);
           uncashed.reduce(async (p, x) => {
             await p;
-            settleBet(x.b.amount, 0, 'rocket-crash', false, otherActiveDelta(x.idx), panelTokensRef.current[x.idx]);
+            settleBet(x.b.amount, 0, 'rocket-crash', false, 0, panelTokensRef.current[x.idx]);
             panelTokensRef.current[x.idx] = null;
           }, Promise.resolve());
         }
@@ -312,27 +312,26 @@ export function useCrashGame() {
         }
 
         // auto cashout — player bets
-        let balAdd = 0;
         let changed = false;
         const cashedIdxs = [];
         const next = betsRef.current.map((b, idx) => {
           if (b.placed && !b.cashedOut && b.autoCashout > 0 && m >= b.autoCashout) {
             const win = +(b.amount * b.autoCashout).toFixed(2);
-            balAdd += win; changed = true;
+            changed = true;
             cashedIdxs.push(idx);
             return { ...b, cashedOut: true, cashOutMult: +m.toFixed(2), win };
           }
           return b;
         });
         if (changed) {
-          betsRef.current = next; setBets(next); setBalance((bal) => bal + balAdd); syncPlayerEntries();
-          // Settle each auto-cashouted panel on the server, preserving other
-          // active panels' deltas. Sequential to avoid clearing uncommittedDelta.
+          betsRef.current = next; setBets(next); syncPlayerEntries();
+          // Settle each auto-cashouted panel on the server — the authoritative
+          // balance is set in one update per panel (no optimistic setBalance).
           cashedIdxs.reduce(async (p, idx) => {
             await p;
             const bb = betsRef.current[idx];
             if (bb) {
-              settleBet(bb.amount, bb.win, 'rocket-crash', false, otherActiveDelta(idx), panelTokensRef.current[idx]);
+              settleBet(bb.amount, bb.win, 'rocket-crash', false, 0, panelTokensRef.current[idx]);
               panelTokensRef.current[idx] = null;
             }
           }, Promise.resolve());
@@ -362,15 +361,6 @@ export function useCrashGame() {
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
-
-  // Sum the uncommitted bet deductions of all OTHER active (placed, not
-  // cashed out) panels — passed as preserveDelta to settleBet so the local
-  // balance stays correct when one panel settles while another is still live.
-  const otherActiveDelta = (skipIdx) => betsRef.current.reduce((sum, bb, idx) => {
-    if (idx === skipIdx) return sum;
-    if (bb.placed && !bb.cashedOut) return sum - bb.amount;
-    return sum;
-  }, 0);
 
   const placeBet = (i) => {
     if (phaseRef.current !== 'waiting') return;
@@ -413,7 +403,7 @@ export function useCrashGame() {
     setBets(next);
     syncPlayerEntries();
     // Net-zero settlement (refund the bet) with other panel's delta preserved.
-    settleBet(b.amount, b.amount, 'rocket-crash', false, otherActiveDelta(i), panelTokensRef.current[i]);
+    settleBet(b.amount, b.amount, 'rocket-crash', false, 0, panelTokensRef.current[i]);
     panelTokensRef.current[i] = null;
   };
 
@@ -423,15 +413,14 @@ export function useCrashGame() {
     if (!b.placed || b.cashedOut) return;
     const m = multRef.current;
     const win = +(b.amount * m).toFixed(2);
-    setBalance((bal) => bal + win);
-    balanceRef.current += win;
     const next = betsRef.current.map((bb, idx) =>
       (idx === i ? { ...bb, cashedOut: true, cashOutMult: +m.toFixed(2), win } : bb));
     betsRef.current = next;
     setBets(next);
     syncPlayerEntries();
-    // Settle this panel's bet on the server, preserving other active panels' deltas.
-    settleBet(b.amount, win, 'rocket-crash', false, otherActiveDelta(i), panelTokensRef.current[i]);
+    // Settle on the server — the authoritative balance (with win credited) is
+    // set in one update. No optimistic setBalance to avoid double-animation.
+    settleBet(b.amount, win, 'rocket-crash', false, 0, panelTokensRef.current[i]);
     panelTokensRef.current[i] = null;
   };
 
