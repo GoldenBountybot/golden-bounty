@@ -116,6 +116,22 @@ export function useGates() {
     const wantWin = serverWinRef.current > 0;
     const freeMode = usingFree;
     const result = computeSpin(bet, wantWin, freeMode, runningMultRef.current, demoModeRef.current);
+    // Scale the engine's tumble wins to match the server's pre-decided win.
+    // The engine generates the visual tumble sequence (positions, symbols,
+    // multipliers), but the server decides the actual win amount. Scale each
+    // tumble's displayed win proportionally so the running total during the
+    // animation ends at the server's win — no visual/balance desync.
+    const serverWin = serverWinRef.current;
+    if (wantWin && result.spinWin > 0 && serverWin > 0 && Math.abs(result.spinWin - serverWin) > 0.01) {
+      const scale = serverWin / result.spinWin;
+      result.tumbles.forEach((tb) => {
+        tb.win = Math.round(tb.win * scale * 100) / 100;
+        if (freeMode) tb.tumbleWin = Math.round(tb.tumbleWin * scale * 100) / 100;
+        if (tb.wins) tb.wins = tb.wins.map((w) => ({ ...w, pay: Math.round(w.pay * scale * 100) / 100 }));
+      });
+      result.spinWin = serverWin;
+      result.totalWin = serverWin;
+    }
     // Persist this spin's already-determined outcome plus the in-progress free
     // spins round state, so a mid-spin exit can be fully recovered on return:
     // the pending win is credited AND the free spins round resumes where it
@@ -216,6 +232,7 @@ export function useGates() {
       setShatter(new Set());
       setWinPositions(new Set());
       const win = serverWinRef.current;
+      setWinFlash(win);
       settleBet(bet, win, 'gates-of-olympus', freeMode);
       if (win > 0) {
         setLastWin(win);
