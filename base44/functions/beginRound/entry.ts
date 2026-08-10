@@ -50,7 +50,7 @@ export default async function(req) {
     // HARD OVERRIDE for plinko: always 'fixed' — the server decides the exact
     // bucket multiplier win. This guards against a stale registry deployment
     // that still has plinko as 'cap' (which would give every round $5000).
-    // v4: owner-specified bucket distribution (0.1x:45% · 2x:20% · 5x:14% ...).
+    // v5: owner-specified bucket distribution (0.1x:65% · 2x:25% · 5x:5% ...).
     const settleMode = gameId === 'plinko' ? 'fixed' : gameConfig.settleMode;
 
     // ── SECURITY: validate is_free_spin ──
