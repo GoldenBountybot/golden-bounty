@@ -73,6 +73,11 @@ function genCrashPoint(rtp, recent = []) {
   if (crash > capHi && rand() < 0.70) {
     crash = 10 + rand() * 40;
   }
+  // 100x+ is the rarest tier: pull almost all back down, but let a tiny
+  // fraction through so 100x+ happens very rarely.
+  if (crash > 100 && rand() < 0.92) {
+    crash = 20 + rand() * 80;
+  }
 
   if (crash < 1.00) {
     crash = 1.00 + rand();
