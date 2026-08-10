@@ -110,7 +110,7 @@ export default function Withdraw() {
       // wager requirement, banned check, pending-withdrawal spam limit).
       // The client-side maxWithdrawable check is kept only for a faster
       // user-facing hint; the server is the real authority.
-      if (amount > maxWithdrawable) {
+      if (Math.round(amount * 100) > Math.round(maxWithdrawable * 100)) {
         showNotify(
           t("Wagering requirement not met"),
           wagerRemaining > 0

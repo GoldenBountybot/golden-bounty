@@ -98,8 +98,10 @@ export default function Dashboard() {
     await reloadBalance();
     const freshBalance = getBalance();
     const freshMax = getMaxWithdrawable();
-    if (n > freshBalance) { toast({ title: t("Insufficient balance") }); return; }
-    if (n > freshMax) {
+    // Compare in whole cents to avoid floating-point false negatives
+    // (e.g. balance 2.6499999 vs entered 2.65).
+    if (Math.round(n * 100) > Math.round(freshBalance * 100)) { toast({ title: t("Insufficient balance") }); return; }
+    if (Math.round(n * 100) > Math.round(freshMax * 100)) {
       showNotify(
         t("Wagering requirement not met"),
         freshBalance - freshMax > 0

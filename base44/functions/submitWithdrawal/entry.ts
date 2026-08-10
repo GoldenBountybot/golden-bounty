@@ -107,14 +107,16 @@ export default async function(req: Request): Promise<Response> {
     // and makes the user's real withdrawable balance appear as $0.
     const available = Math.max(0, balance - wagerRemaining);
 
-    if (amount > balance) {
+    // Compare in whole cents to avoid floating-point false negatives
+    // (e.g. balance 2.6499999 vs requested 2.65).
+    if (Math.round(amount * 100) > Math.round(balance * 100)) {
       return Response.json({
         error: 'Insufficient balance',
         detail: `Your balance is $${balance.toFixed(2)} but you requested $${amount.toFixed(2)}.`,
       }, { status: 400 });
     }
 
-    if (amount > available) {
+    if (Math.round(amount * 100) > Math.round(available * 100)) {
       return Response.json({
         error: 'Wagering requirement not met',
         detail: wagerRemaining > 0
