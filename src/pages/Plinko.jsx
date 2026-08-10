@@ -16,7 +16,7 @@ const BOARD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b66377
 const DROP_BTN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a402172b3_file_000000002200820baadd0a1f2df2f8ce.png';
 const BETS = [0.1, 1, 5, 10];
 // Bucket multipliers are decided server-side (see roundLogic.ts plinko branch):
-// 0.1x: 65% · 2x: 25% · 5x: 5% · 10x: 4% · 25x: 0.8% · 50x: 0.5% · 100x: 0.1%.
+// 0.1x: 67.4% · 2x: 25% · 5x: 5% · 10x: 2% · 25x: 0.4% · 50x: 0.5% · 100x: 0.1%.
 
 const FONT = "Rye, Georgia, serif";
 
