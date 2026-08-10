@@ -18,7 +18,7 @@ import { findOrCreateWallet } from '../../shared/wallet.ts';
 // Only after all checks pass does it create the Transaction (service role,
 // bypasses RLS) and return success.
 
-const MIN_WITHDRAWAL = 5;
+const MIN_WITHDRAWAL = 2;
 const MAX_WITHDRAWAL = 10000;           // Defense in depth: cap per-request
 const DAILY_WITHDRAWAL_LIMIT = 25000;    // Total withdrawals per day
 const MAX_PENDING_WITHDRAWALS = 3;
