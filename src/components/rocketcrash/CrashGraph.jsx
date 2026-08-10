@@ -3,18 +3,16 @@ import React from 'react';
 const GROWTH = 1.10;
 
 const BOMBER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/15e34753b_generated_image.png';
-const SAMPLES = 48;
+const SAMPLES = 24; // reduced from 48 — halves per-frame path computation cost
 
 export default function CrashGraph({ phase, multiplier, countdown }) {
   const elapsed = phase === 'waiting' ? 0 : Math.log(Math.max(multiplier, 1)) / Math.log(GROWTH);
   const WIN_T = 8; // seconds of flight visible across the x axis
-  // Quantize the y-axis scale to powers of 2 so it only changes at discrete
-  // steps (2, 4, 8, 16, 32 …). Without this, maxM changes every frame and the
-  // entire curve + bomber rescale/jump on every tick — the visual "lag/stutter"
-  // the user sees. With quantization the curve grows smoothly within each
-  // band and only rescales (doubles) when crossing a power-of-2 threshold.
-  const rawMax = Math.max(2, multiplier * 1.18);
-  const maxM = Math.pow(2, Math.ceil(Math.log2(rawMax)));
+  // Smooth, monotonically-growing y-axis scale. Since multiplier only
+  // increases during a round, maxM only increases — the tip NEVER drops down.
+  // (The previous power-of-2 quantization caused the plane to suddenly drop
+  // when the scale doubled.) The smooth growth is GPU-friendly and jitter-free.
+  const maxM = Math.max(2, multiplier * 1.18);
   const PLOT_TOP = 0.5; // reserve the top half so the bomber flies above the tip inside the graph
   const W = 100, H = 100;
   // scrolling window: pin the leading tip near the right so the curve scrolls
@@ -67,8 +65,10 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
               </linearGradient>
             </defs>
             <path d={area} fill="url(#crashFill)" />
-            <path d={path} fill="none" stroke="url(#crashLine)" strokeWidth="1.1" strokeLinecap="round"
-              style={{ filter: crashed ? 'drop-shadow(0 0 2px rgba(244,63,94,0.8))' : 'drop-shadow(0 0 2px rgba(129,140,248,0.8))' }} />
+            {/* Cheap glow: a wider semi-transparent stroke behind the main line.
+                Replaces the expensive per-frame drop-shadow filter that caused lag. */}
+            <path d={path} fill="none" stroke={crashed ? 'rgba(244,63,94,0.35)' : 'rgba(129,140,248,0.35)'} strokeWidth="3" strokeLinecap="round" />
+            <path d={path} fill="none" stroke="url(#crashLine)" strokeWidth="1.1" strokeLinecap="round" />
           </>
         )}
       </svg>
