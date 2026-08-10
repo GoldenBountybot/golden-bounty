@@ -61,16 +61,17 @@ function genCrashPoint(rtp, recent = []) {
   // Occasional outlier spike or early dip for extra entropy — rate varies.
   if (rand() < 0.08 + rand() * 0.10) crash *= 0.25 + rand() * 3;
 
-  // Cap high flyers: pull most anything above 50x back down into a lower
-  // band so x50+ outcomes stay rare. Threshold jitters so it's not a hard
-  // visible wall.
-  const capHi = 40 + rand() * 20;
-  if (crash > capHi && rand() < 0.85) {
-    crash = 8 + rand() * 42;
-  }
-  // Pull a random fraction of x10–x50 outcomes down into the 2x–10x band.
-  if (crash > 10 && crash <= 50 && rand() < 0.45 + rand() * 0.25) {
+  // Allow high flyers (10x, 20x, 30x, 40x, 50x+) to occur randomly but rarely.
+  // Only pull a small fraction down so the high band stays reachable.
+  // Pull a small fraction of x10–x50 down to 2x–10x (most survive).
+  if (crash > 10 && crash <= 50 && rand() < 0.15 + rand() * 0.10) {
     crash = 2 + rand() * 8;
+  }
+  // Cap very high flyers: pull most above 50x back down, but let some
+  // through so 50x+ is rare but possible.
+  const capHi = 50 + rand() * 25;
+  if (crash > capHi && rand() < 0.70) {
+    crash = 10 + rand() * 40;
   }
 
   if (crash < 1.00) {
