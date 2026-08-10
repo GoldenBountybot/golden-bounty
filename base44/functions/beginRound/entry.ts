@@ -5,7 +5,7 @@ import { getGameConfig } from '../../shared/gameRegistry.ts';
 
 // Begins a secure game round. The server DEDUCTS THE BET IMMEDIATELY and
 // pre-decides the outcome (win/loss + win amount) based on RTP, storing it
-// in a PendingRound record. (redeploy trigger v2)
+// in a PendingRound record. (redeploy trigger v3 — force redeploy with fixed Plinko logic)
 //
 // Deducting the bet at begin time (not settle time) closes the "avoid loss
 // by not settling" hack — a user who closes the page mid-round has already
@@ -47,7 +47,10 @@ export default async function(req) {
     // ── SECURITY: override settle_mode from the registry ──
     // The client cannot switch from 'fixed' (server-decided win) to 'cap'
     // (uncapped client win) to bypass the server's win decision.
-    const settleMode = gameConfig.settleMode;
+    // HARD OVERRIDE for plinko: always 'fixed' — the server decides the exact
+    // bucket multiplier win. This guards against a stale registry deployment
+    // that still has plinko as 'cap' (which would give every round $5000).
+    const settleMode = gameId === 'plinko' ? 'fixed' : gameConfig.settleMode;
 
     // ── SECURITY: validate is_free_spin ──
     // Only games that support free spins can have is_free_spin=true.
