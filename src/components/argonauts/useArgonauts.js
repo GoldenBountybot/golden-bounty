@@ -259,9 +259,10 @@ export function useArgonauts() {
         settleBet(bet, baseWin, 'argonauts', true);
         setMessage(awardedFree ? `WIN $${baseWin.toFixed(2)} · +${FREE_SPINS_AWARD} FREE` : `WIN $${baseWin.toFixed(2)}`);
       } else {
-        setPendingWin(baseWin);
-        setRiskActive(true);
-        setMessage(awardedFree ? `WIN $${baseWin.toFixed(2)} · +${FREE_SPINS_AWARD} FREE` : `WIN $${baseWin.toFixed(2)} · TAKE / RISK?`);
+        // Settle immediately — credit the win to the balance right away,
+        // no TAKE/RISK hold step.
+        settleBet(bet, baseWin, 'argonauts', false);
+        setMessage(awardedFree ? `WIN $${baseWin.toFixed(2)} · +${FREE_SPINS_AWARD} FREE` : `WIN $${baseWin.toFixed(2)}`);
       }
     } else {
       if (!usingFree) settleBet(bet, 0, 'argonauts', false);
