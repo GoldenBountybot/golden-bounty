@@ -15,11 +15,13 @@ import AdminNotices from '@/components/admin/AdminNotices';
 import AdminTasks from '@/components/admin/AdminTasks';
 import AdminXPosts from '@/components/admin/AdminXPosts';
 import AdminSupport from '@/components/admin/AdminSupport';
-import { Image, Layers, Megaphone, CheckCircle, MessageCircle } from 'lucide-react';
+import AdminGameStats from '@/components/admin/AdminGameStats';
+import { Image, Layers, Megaphone, CheckCircle, MessageCircle, BarChart3 } from 'lucide-react';
 
 const TABS = [
   { id: 'players', label: 'Players', icon: Users, comp: AdminPlayers },
   { id: 'transactions', label: 'Transactions', icon: Receipt, comp: AdminTransactions },
+  { id: 'stats', label: 'Game Stats', icon: BarChart3, comp: AdminGameStats },
   { id: 'games', label: 'Game RTP', icon: SlidersHorizontal, comp: AdminGameSettings },
   { id: 'bonuses', label: 'Bonuses', icon: Gift, comp: AdminBonuses },
   { id: 'banners', label: 'Banners', icon: Image, comp: AdminBanners },
