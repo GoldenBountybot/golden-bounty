@@ -151,12 +151,28 @@ export default async function(req) {
     // rtp was already resolved above from the single GameSetting + Wallet read.
     let outcome;
     if (settleMode === 'cap') {
-      // Cap mode: store a generous max-win cap. The actual win is the
-      // client's (the game's real outcome), capped at this amount.
-      const cap = isFreeSpin
-        ? FREE_SPIN_MAX_WIN
-        : Math.min(betAmount * MAX_WIN_MULT, FREE_SPIN_MAX_WIN);
-      outcome = { isWin: true, winAmount: cap, multiplier: MAX_WIN_MULT };
+      if (gameId === 'rocket-crash') {
+        // Crash: the crash point (set by crashRoundTick) is the RTP control.
+        // The cap must always be max so legitimate cashouts are honored.
+        const cap = isFreeSpin
+          ? FREE_SPIN_MAX_WIN
+          : Math.min(betAmount * MAX_WIN_MULT, FREE_SPIN_MAX_WIN);
+        outcome = { isWin: true, winAmount: cap, multiplier: MAX_WIN_MULT };
+      } else {
+        // Mines, HiLo, Thimbles: the SERVER decides win/loss based on RTP.
+        // On win, cap = max so the player's choices determine the actual win.
+        // On loss, cap = 0 so the client game produces a losing outcome and
+        // settleBet credits min(client_win, 0) = 0.
+        const dec = decideOutcome(rtp, betAmount, isFreeSpin, gameId);
+        if (!dec.isWin) {
+          outcome = { isWin: false, winAmount: 0, multiplier: 0 };
+        } else {
+          const cap = isFreeSpin
+            ? FREE_SPIN_MAX_WIN
+            : Math.min(betAmount * MAX_WIN_MULT, FREE_SPIN_MAX_WIN);
+          outcome = { isWin: true, winAmount: cap, multiplier: MAX_WIN_MULT };
+        }
+      }
     } else {
       outcome = decideOutcome(rtp, betAmount, isFreeSpin, gameId);
     }

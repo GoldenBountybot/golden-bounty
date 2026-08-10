@@ -197,7 +197,11 @@ export default function Mines() {
     setRevealedOrder([]);
     setPot(1);
     setLastWin(0);
-    setForceFirstMine(serverWinRef.current === 0 || Math.random() > ((rtp ?? 50) / 100) * 0.7);
+    // The server now decides win/loss (cap mode). On a server-decided loss
+    // (cap = 0), force the first pick to be a mine so the player loses
+    // immediately. On a server-decided win (cap = max), let the player play
+    // normally — their tile choices determine the actual win, capped at max.
+    setForceFirstMine(serverWinRef.current === 0);
     setPhase('playing');
     setMessage(`Find ${safe} gold bars · dodge ${mines} TNT`);
   };

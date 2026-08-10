@@ -228,7 +228,7 @@ export default function HiLo() {
     // If beginRound failed (e.g. bet out of range, network error), refund the
     // bet and abort — otherwise serverWinRef stays 0 and every guess is a
     // forced loss.
-    if (!serverRound || serverRound.win_amount == null || Number(serverRound.win_amount) <= 0) {
+    if (!serverRound || serverRound.failed || serverRound.win_amount == null) {
       setBalance(b => b + bet);
       setMessage('Round failed — try a different bet amount.');
       return;
