@@ -28,6 +28,7 @@ export function useGates() {
   const [shatter, setShatter] = useState(new Set());
   const [dropCells, setDropCells] = useState(new Set());
   const [tumbleSeq, setTumbleSeq] = useState(0);
+  const [shatterSeq, setShatterSeq] = useState(0);
   const [freeSpins, setFreeSpins] = useState(0);
   const [showFreeSpinStart, setShowFreeSpinStart] = useState(false);
   const [freeSpinsActive, setFreeSpinsActive] = useState(false);
@@ -151,7 +152,7 @@ export function useGates() {
     const hold = turbo ? 260 : 520;        // winners grow big — longer so the match is clearly visible before the blast
     const shatterDur = turbo ? 300 : 580;  // winners blast away — smoother, more dramatic
     const firstGap = turbo ? 360 : 660;    // reels stop, first grid drops in
-    const refillGap = 0;                  // no empty pause — new symbols drop the instant the blast ends
+    const refillGap = turbo ? 50 : 120;  // brief pause so the blast fully clears before new symbols drop
     let acc = 0;
     let runningWin = 0;
     let multSeen = 0; // sum of multipliers revealed so far across tumbles
@@ -215,7 +216,7 @@ export function useGates() {
         if (tb.multipliers.length) {
           acc += tb.bannerBefore > 0 ? 5200 : 2900;
         }
-        timers.current.push(setTimeout(() => setShatter(tb.winPositions), acc));
+        timers.current.push(setTimeout(() => { setShatter(tb.winPositions); setShatterSeq((s) => s + 1); }, acc));
         acc += shatterDur;
         if (i < lastIdx) {
           // New symbols drop in the instant the blast ends (no empty pause),
@@ -369,7 +370,7 @@ export function useGates() {
   };
 
   return {
-    grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells, tumbleSeq,
+    grid, balance, bet, spinning, lastWin, message, winPositions, shatter, dropCells, tumbleSeq, shatterSeq,
     freeSpins, turbo, autoSpin, spinMult, winFlash, winList, winHistory, scatterGlow,
     showFreeSpinStart, freeSpinsActive, startFreeSpins, awardedFreeSpins,
     cancelFreeSpinStart, bigWinBanner, setBigWinBanner,

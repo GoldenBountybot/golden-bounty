@@ -27,7 +27,6 @@ const fmt = (v) => `$${Number(v || 0).toFixed(2)}`;
 export default function GatesMachine() {
   const [showInfo, setShowInfo] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
-  const [shatterTick, setShatterTick] = useState(0);
   const [stoppedReels, setStoppedReels] = useState(() => new Set(Array.from({ length: REELS }, (_, i) => i)));
   const revealTimers = useRef([]);
   const revealedRef = useRef(false);
@@ -43,8 +42,7 @@ export default function GatesMachine() {
 
   const g = useGates();
 
-  // bump shatter key whenever the shatter set changes so the blast replays
-  useEffect(() => { setShatterTick((t) => t + 1); }, [g.shatter]);
+
 
   // reset reels to spinning on spin start; reveal all on spin end
   useEffect(() => {
@@ -272,7 +270,7 @@ export default function GatesMachine() {
                       // other fresh symbol; the lightning reveal is handled by
                       // the GatesMultReveal overlay.
                       const dropAnim = isFresh;
-                      const animKey = isShatter ? `sh${shatterTick}` : dropAnim ? `dr${g.tumbleSeq}` : 'st';
+                      const animKey = isShatter ? `sh${g.shatterSeq}` : dropAnim ? `dr${g.tumbleSeq}` : 'st';
                       return (
                         <div key={winKey} ref={(el) => { cellRefs.current[winKey] = el; }} className="relative rounded-[5px] flex-1 min-h-0"
                           style={{ opacity: stopped ? 1 : 0,
