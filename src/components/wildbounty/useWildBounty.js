@@ -251,7 +251,7 @@ export function useWildBounty() {
     }
 
     if (stepWin > 0) {
-      const slow = cascadeCount >= 1 ? 1.2 : 1.0;
+      const slow = cascadeCount >= 1 ? 1.6 : 1.2;
       setCascadeSlow(slow);
       // High-value symbols (bandit, revolver) play a distinct match sound.
       sfx.symbolMatch();
@@ -329,7 +329,7 @@ export function useWildBounty() {
       // From the second cascade, run everything in a slight slow motion so the
       // shatter/drop animation lines up with the (also slowed) win sound.
       // Hold matched (popped) symbols big for ~1s, then blast them directly.
-      const holdMs = cascadeCount >= 1 ? 600 : 500;
+      const holdMs = cascadeCount >= 1 ? 1200 : 1000;
       const shatterT = setTimeout(() => { setShattering(shatterPos); }, holdMs);
       timers.current.push(shatterT);
 
@@ -362,9 +362,9 @@ export function useWildBounty() {
           setCascading(false);
           setCascadePositions(new Set());
           evaluateAndCascade(newGrid, cascadeCount + 1, newTotal, newMult, wasFree, awarded, framedPositions);
-        }, 300 * slow);
+        }, 450 * slow);
         timers.current.push(evalT);
-      }, 500 * slow);
+      }, 1000 * slow);
       timers.current.push(cascadeT);
     } else {
       // No more wins — end the chain. Override the client-computed total with
