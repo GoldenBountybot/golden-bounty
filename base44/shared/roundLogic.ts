@@ -30,6 +30,46 @@ export async function readRtp(base44, userId, gameId) {
 // the client can never override it. P(win) * mean_multiplier ≈ rtpFrac.
 export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
   const rtpFrac = Math.max(0, Math.min(1, rtp / 100));
+
+  // ── Plinko: multiplier must match an actual bucket value ──
+  // Buckets: [0.1, 2, 5, 10, 25, 50, 100]. The server picks one of these
+  // (not a random float) so the ball always lands on a real bucket and the
+  // displayed win matches the bucket multiplier exactly.
+  if (gameId === 'plinko') {
+    const LOSS_MULT = 0.1;
+    const WIN_MULTS = [2, 5, 10, 25, 50, 100];
+    const WIN_WEIGHTS = [50, 25, 15, 7, 2, 1]; // 2x common, 100x rare
+    const totalW = WIN_WEIGHTS.reduce((a, b) => a + b, 0);
+    const avgWinMult = WIN_MULTS.reduce((s, m, i) => s + m * WIN_WEIGHTS[i], 0) / totalW;
+
+    // lossProb * LOSS_MULT + (1 - lossProb) * avgWinMult = rtpFrac
+    let lossProb = (avgWinMult - rtpFrac) / (avgWinMult - LOSS_MULT);
+    lossProb = Math.max(0.5, Math.min(0.999, lossProb));
+
+    if (Math.random() < lossProb) {
+      const winAmount = Math.round(betAmount * LOSS_MULT * 100) / 100;
+      return { isWin: false, winAmount, multiplier: LOSS_MULT };
+    }
+
+    // Pick a winning bucket via weighted random
+    let r2 = Math.random() * totalW;
+    let mult = WIN_MULTS[0];
+    for (let i = 0; i < WIN_MULTS.length; i++) {
+      r2 -= WIN_WEIGHTS[i];
+      if (r2 <= 0) { mult = WIN_MULTS[i]; break; }
+    }
+
+    const maxMult = isFreeSpin
+      ? (FREE_SPIN_MAX_WIN / Math.max(betAmount, 0.01))
+      : MAX_WIN_MULT;
+    mult = Math.min(mult, maxMult);
+    let winAmount = mult * betAmount;
+    if (isFreeSpin) winAmount = Math.min(winAmount, FREE_SPIN_MAX_WIN);
+    winAmount = Math.round(winAmount * 100) / 100;
+    return { isWin: true, winAmount, multiplier: mult };
+  }
+
+  // ── All other games: continuous multiplier distribution ──
   // Win frequency: ~15% of RTP as win chance (at 50% RTP → ~7.5% win chance).
   // Super Ace (fullhouse): reduced to ~8% of RTP so fewer spins land on the
   // win line and cascade multipliers chain less often.
