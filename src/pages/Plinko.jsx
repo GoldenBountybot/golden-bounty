@@ -250,6 +250,14 @@ export default function Plinko() {
     // Wait for the server's pre-decided outcome, then pick the bucket whose
     // multiplier is closest to the server's win amount.
     const serverRound = await _serverRoundPromise;
+    // If beginRound failed, the server did NOT deduct the bet. Revert the
+    // local display deduction and abort.
+    if (serverRound.failed) {
+      setBalance((b) => b + bet);
+      setDropping(false);
+      setMessage('Connection error — try again');
+      return;
+    }
     const serverWin = Number(serverRound.win_amount ?? 0);
     const _targetMult = bet > 0 ? serverWin / bet : 0;
     let bucket = 0;

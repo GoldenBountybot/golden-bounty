@@ -104,6 +104,14 @@ export function useGates() {
     // RTP-biased forced win/loss gate. Free spins get a slightly higher chance
     // of landing 8+ matching symbols so the bonus round feels more rewarding.
     const serverRound = await _serverRoundPromise;
+    // If beginRound failed (network error, server reject, etc.), the server
+    // did NOT deduct the bet. Revert the local display deduction and abort.
+    if (serverRound.failed) {
+      if (!usingFree) setBalance((b) => b + bet);
+      setSpinning(false);
+      setMessage('Connection error — try again');
+      return;
+    }
     serverWinRef.current = Number(serverRound.win_amount ?? 0);
     const wantWin = serverWinRef.current > 0;
     const freeMode = usingFree;

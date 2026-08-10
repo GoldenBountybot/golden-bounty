@@ -178,6 +178,14 @@ export default function Mines() {
     setBalance((b) => b - bet);
     // Wait for the server's pre-decided outcome.
     const serverRound = await _serverRoundPromise;
+    // If beginRound failed, the server did NOT deduct the bet. Revert the
+    // local display deduction and abort.
+    if (serverRound.failed) {
+      setBalance((b) => b + bet);
+      setPhase('idle');
+      setMessage('Connection error — try again');
+      return;
+    }
     serverWinRef.current = Number(serverRound.win_amount ?? 0);
     const positions = Array.from({ length: TOTAL }, (_, i) => i);
     for (let i = positions.length - 1; i > 0; i--) {

@@ -304,7 +304,7 @@ export function useArgonauts() {
     if (riskActive && pendingWin > 0) settleBet(bet, pendingWin, 'argonauts', false);
     setPendingWin(0);
     setRiskActive(false);
-    beginRound(bet, 'argonauts', usingFree, 'cap');
+    const _serverRoundPromise = beginRound(bet, 'argonauts', usingFree, 'cap');
     if (!usingFree) {
       setTotalWin(0);
       setBalance((b) => b - bet);
@@ -386,7 +386,20 @@ export function useArgonauts() {
             stopScatterLongSound();
             setAnticipateReels(new Set());
           }
-          const t2 = setTimeout(() => settle(finalGrid, usingFree), turbo ? 150 : 320);
+          const t2 = setTimeout(async () => {
+            const serverRound = await _serverRoundPromise;
+            // If beginRound failed, the server did NOT deduct the bet. Revert
+            // the local display deduction and abort — don't call settleBet
+            // (no round_token, would fail and loadBalance would restore the
+            // original balance, making it look like the bet "increased").
+            if (serverRound.failed) {
+              if (!usingFree) setBalance((b) => b + bet);
+              setSpinning(false);
+              setMessage('Connection error — try again');
+              return;
+            }
+            settle(finalGrid, usingFree);
+          }, turbo ? 150 : 320);
           timers.current.push(t2);
         }
       }, gap);

@@ -248,7 +248,7 @@ export default function CrownCoinsMachine() {
     setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
     setWinLines([]);
     setAmountCell(null);
-    beginRound(bet, 'crown-coins', isFree, 'cap');
+    const _serverRoundPromise = beginRound(bet, 'crown-coins', isFree, 'cap');
     if (!isFree) setBalance(b => Math.max(0, b - bet));
     clearTimers();
 
@@ -346,6 +346,17 @@ export default function CrownCoinsMachine() {
     // after the last reel lands, settle + evaluate
     const settleAt = base + 2 * step + anticiDelay + landMs;
     const tEnd = setTimeout(async () => {
+      // If beginRound failed, the server did NOT deduct the bet. Revert the
+      // local display deduction and abort — don't call settleBet (no
+      // round_token, would fail and loadBalance would restore the original
+      // balance, making it look like the bet "increased").
+      const serverRound = await _serverRoundPromise;
+      if (serverRound.failed) {
+        if (!isFree) setBalance(b => b + bet);
+        setSpinning(false);
+        setPhases(['idle', 'idle', 'idle']);
+        return;
+      }
       setPhases(['idle', 'idle', 'idle']);
 
       // Free spins: coins accumulate and stick; no line wins, no flying coins.

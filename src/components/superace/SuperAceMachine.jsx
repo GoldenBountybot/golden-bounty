@@ -252,6 +252,16 @@ export default function SuperAceMachine() {
 
     // Await server response while animation is running
     const serverRound = await _serverRoundPromise;
+    // If beginRound failed (network error, server reject, etc.), the server
+    // did NOT deduct the bet. Revert the local display deduction and abort.
+    if (serverRound.failed) {
+      if (!inFreeRef.current) setBalance((x) => x + b);
+      busyRef.current = false;
+      setPhase('idle');
+      setSpinning(false);
+      setMessage('Connection error — try again');
+      return;
+    }
     serverWinRef.current = Number(serverRound.win_amount ?? 0);
     const forceWin = serverWinRef.current > 0;
 
