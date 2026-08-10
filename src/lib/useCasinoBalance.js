@@ -228,9 +228,14 @@ async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed')
     try { if (pendingRoundToken) localStorage.setItem(ROUND_TOKEN_KEY, pendingRoundToken); } catch {}
     return { is_win: !!data.is_win, win_amount: pendingServerWin, round_token: pendingRoundToken };
   } catch {
-    // If beginRound fails, settleBet will use the fallback path (which also
-    // decides the win server-side). Continue without a server round.
-    return { is_win: null, win_amount: null, round_token: null };
+    // beginRound failed — the server did NOT deduct the bet. Reset roundActive
+    // so the caller's setBalance(b => b - bet) reverts via schedulePersist
+    // (commitBalanceDelta) instead of being stuck in "round display-only" mode.
+    // Without this, the local display shows the bet deducted but the server
+    // never deducted it — settleBet then fails (no round_token), loadBalance
+    // reads the original server balance, and the balance "increases" back.
+    roundActive = false;
+    return { is_win: null, win_amount: null, round_token: null, failed: true };
   }
 }
 
