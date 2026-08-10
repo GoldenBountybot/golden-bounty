@@ -300,6 +300,20 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
       uncommittedDelta = 0;
       uncommittedWagerDelta = 0;
     }
+    // Optimistic: show the server-decided win IMMEDIATELY in the local balance
+    // (before the server confirms). pendingServerWin holds the server's pre-
+    // decided win from beginRound — the server will credit this exact amount,
+    // so the optimistic display matches the final balance. For cap-mode games
+    // (Mines, HiLo) where the client's win may be below the cap, use the
+    // smaller of the two so we never over-show. balance is currently
+    // committedBalance - bet (the round's setBalance deduction); adding the
+    // win gives the correct post-round display instantly.
+    const optimisticWin = Math.max(0, pendingServerWin > 0 ? Math.min(winAmount, pendingServerWin) : winAmount);
+    if (optimisticWin > 0) {
+      balance = balance + optimisticWin;
+      setCache(balance);
+      notify();
+    }
     // Send the round_token so the server credits the pre-decided win (from
     // beginRound). The client's win_amount is IGNORED by the server — it
     // uses the stored server-side decision. If no round_token (legacy call),
