@@ -197,6 +197,22 @@ async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed')
   roundActive = true;
   if (demoMode) {
     // Demo mode: decide locally (no backend call).
+    // Plinko: use the server's exact bucket distribution (0.1x–100x) so the
+    // ball lands on a real bucket with the correct frequency. The generic
+    // fixed/cap branches below don't match Plinko's bucket model.
+    if (gameId === 'plinko') {
+      const BUCKETS = [0.1, 2, 5, 10, 25, 50, 100];
+      const WEIGHTS = [65, 25, 5, 4, 0.8, 0.5, 0.1];
+      const totalW = WEIGHTS.reduce((a, b) => a + b, 0);
+      let r2 = Math.random() * totalW;
+      let mult = BUCKETS[0];
+      for (let i = 0; i < BUCKETS.length; i++) {
+        r2 -= WEIGHTS[i];
+        if (r2 <= 0) { mult = BUCKETS[i]; break; }
+      }
+      pendingServerWin = mult * (bet || 0.10);
+      return { is_win: mult > 1, win_amount: pendingServerWin, round_token: null };
+    }
     // Cap-mode games (HiLo, Mines, Crash, Thimbles): return a generous CAP so
     // the client-side game logic can decide wins/losses freely. Returning 0
     // here would force withinCap=false and make every guess a guaranteed loss.

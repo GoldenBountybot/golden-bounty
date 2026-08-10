@@ -15,10 +15,8 @@ const ROWS = MULTS.length - 1; // 12 rows: bottom row has 12 pegs between 13 slo
 const BOARD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/41d1489a2_file_000000005b9881faa2d49d948685f05d.png';
 const DROP_BTN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a402172b3_file_000000002200820baadd0a1f2df2f8ce.png';
 const BETS = [0.1, 1, 5, 10];
-// Per-bucket landing weights, symmetric across both edges (owner-specified).
-// 100x: 0.1% · 50x: 0.5% · 25x: 0.8% · 10x: 4% · 5x: 5% · 2x: 25% · 0.1x: 65%.
-const WEIGHTS = [0.05, 0.25, 0.4, 2, 2.5, 12.5, 65, 12.5, 2.5, 2, 0.4, 0.25, 0.05];
-const WEIGHT_TOTAL = WEIGHTS.reduce((a, b) => a + b, 0);
+// Bucket multipliers are decided server-side (see roundLogic.ts plinko branch):
+// 0.1x: 65% · 2x: 25% · 5x: 5% · 10x: 4% · 25x: 0.8% · 50x: 0.5% · 100x: 0.1%.
 
 const FONT = "Rye, Georgia, serif";
 
@@ -258,13 +256,23 @@ export default function Plinko() {
       setMessage('Connection error — try again');
       return;
     }
-    const serverWin = Number(serverRound.win_amount ?? 0);
+    const rawServerWin = Number(serverRound.win_amount ?? 0);
+    // Defense in depth: cap the win at 100x bet (the max Plinko bucket).
+    // The server already caps at 100x for plinko, but this guards against
+    // any stale/cached response returning an impossible multiplier.
+    const MAX_PLINKO_MULT = 100;
+    const serverWin = Math.min(rawServerWin, bet * MAX_PLINKO_MULT);
     const _targetMult = bet > 0 ? serverWin / bet : 0;
-    let bucket = 0;
+    let bucket = 6; // default to center (0.1x) — the most common bucket
     let _closest = Infinity;
     for (let i = 0; i < MULTS.length; i++) {
       const _d = Math.abs(MULTS[i] - _targetMult);
       if (_d < _closest) { _closest = _d; bucket = i; }
+    }
+    // For the 100x edge buckets (indices 0 and 12), randomly pick left or
+    // right so the ball doesn't always hug the same side.
+    if (_targetMult >= 100 && Math.random() < 0.5) {
+      bucket = MULTS.length - 1; // right edge (12)
     }
 
     // Random, erratic descent — but the ball ALWAYS passes through the peg
