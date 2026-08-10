@@ -22,21 +22,9 @@ function genCrashPoint(rtp, recent = []) {
     return buf[0] / 4294967296;
   };
 
-  // Streak detection: count how many of the most recent consecutive rounds
-  // were "high" (>=2x) or "low" (<2x). If a streak is forming, force-break
-  // it so the history never shows a long run of similar outcomes that a
-  // player could read as a predictable pattern.
-  let streakHigh = 0, streakLow = 0;
-  for (const h of recent) {
-    if (h >= 2) streakHigh++; else break;
-  }
-  for (const h of recent) {
-    if (h < 2) streakLow++; else break;
-  }
-  // 3+ highs in a row → next round strongly biased to bust low.
-  // 3+ lows in a row → next round strongly biased to fly higher.
-  const forceLow = streakHigh >= 3;
-  const forceHigh = streakLow >= 3;
+  // No streak-breaking: every round is fully independent so no predictable
+  // "3 lows then 1 high" pattern can form. The distribution already has
+  // plenty of entropy (regimes, jitter, noise, outliers) to stay varied.
 
   // Jitter the effective RTP round-to-round with a variable band so the
   // average payout itself drifts and can't be nailed to a single value.
@@ -87,14 +75,6 @@ function genCrashPoint(rtp, recent = []) {
 
   if (crash < 1.00) {
     crash = 1.00 + rand();
-  }
-  // Streak-break only: if the last few rounds clustered all high, nudge
-  // this one lower; if all low, nudge it higher. Keeps the history bar
-  // varied without flattening the whole distribution into one band.
-  if (forceLow) {
-    crash = 1.00 + rand() * 1.8;
-  } else if (forceHigh) {
-    crash = 2 + rand() * 12;
   }
   return Math.min(Math.max(crash, 1.00), 250);
 }
