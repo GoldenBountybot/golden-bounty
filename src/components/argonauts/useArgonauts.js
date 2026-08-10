@@ -310,7 +310,17 @@ export function useArgonauts() {
     if (riskActive && pendingWin > 0) await settleBet(bet, pendingWin, 'argonauts', false);
     setPendingWin(0);
     setRiskActive(false);
-    const _serverRoundPromise = beginRound(bet, 'argonauts', usingFree, 'cap');
+    // Start the server round and AWAIT the decision before generating the grid.
+    // The server pre-decides win/loss based on RTP (cap mode). The client's grid
+    // MUST match that decision — otherwise the screen shows winning lines but the
+    // server credits 0 (cap = min(client win, server win)), so the balance never
+    // increases. This was the root cause of "win not adding to balance".
+    const serverRound = await beginRound(bet, 'argonauts', usingFree, 'cap');
+    if (serverRound.failed) {
+      setSpinning(false);
+      setMessage('Connection error — try again');
+      return;
+    }
     if (!usingFree) {
       setTotalWin(0);
       setBalance((b) => b - bet);
@@ -319,11 +329,21 @@ export function useArgonauts() {
     }
     setMessage('Spinning...');
 
-    const wantWin = Math.random() < (rtpRef.current / 200);
+    // Use the SERVER's pre-decided outcome to generate the grid — not a
+    // client-side random. If the server says loss, ensure no line win so the
+    // screen matches the balance.
+    const serverIsWin = Number(serverRound.win_amount ?? 0) > 0;
     let finalGrid;
     if (usingFree) {
       finalGrid = generateGrid(true);
-    } else if (wantWin) {
+      if (!serverIsWin) {
+        let attempts = 0;
+        while (attempts < 5 && evaluate(finalGrid, lineBet, bet).lineWin > 0) {
+          finalGrid = generateGrid(true);
+          attempts++;
+        }
+      }
+    } else if (serverIsWin) {
       finalGrid = forceWinGrid();
     } else {
       finalGrid = generateGrid(false);
@@ -392,18 +412,7 @@ export function useArgonauts() {
             stopScatterLongSound();
             setAnticipateReels(new Set());
           }
-          const t2 = setTimeout(async () => {
-            const serverRound = await _serverRoundPromise;
-            // If beginRound failed, the server did NOT deduct the bet. Revert
-            // the local display deduction and abort — don't call settleBet
-            // (no round_token, would fail and loadBalance would restore the
-            // original balance, making it look like the bet "increased").
-            if (serverRound.failed) {
-              if (!usingFree) setBalance((b) => b + bet);
-              setSpinning(false);
-              setMessage('Connection error — try again');
-              return;
-            }
+          const t2 = setTimeout(() => {
             settle(finalGrid, usingFree);
           }, turbo ? 150 : 320);
           timers.current.push(t2);
