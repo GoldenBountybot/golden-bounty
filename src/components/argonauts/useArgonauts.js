@@ -319,7 +319,7 @@ export function useArgonauts() {
     // MUST match that decision — otherwise the screen shows winning lines but the
     // server credits 0 (cap = min(client win, server win)), so the balance never
     // increases. This was the root cause of "win not adding to balance".
-    const serverRound = await beginRound(bet, 'argonauts', usingFree, 'cap');
+    const serverRound = await beginRound(bet, 'argonauts', usingFree, 'fixed');
     if (serverRound.failed) {
       setSpinning(false);
       setMessage('Connection error — try again');
