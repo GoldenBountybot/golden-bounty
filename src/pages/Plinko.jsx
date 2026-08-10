@@ -322,19 +322,20 @@ export default function Plinko() {
   };
 
   // Peg positions matching the image's 12-row triangle (12%–78%).
-  // Bottom row pegs sit BETWEEN the slots (offset by half a slot).
-  const SPACING = 84 / 12; // horizontal spacing = same for pegs and slots
+  // Board is 140% wide (visible center = 20%–80% of inner container), so
+  // pegs and buckets are constrained to that range to stay on-screen.
+  const PEG_SPACING = 60 / 11;   // bottom row pegs span 20%–80%
+  const BUCKET_SPACING = 60 / 12; // 13 buckets span 20%–80%
   const pos = (row, col) => {
     const rowFrac = row / (ROWS - 1);
     const top = 12 + rowFrac * 66;
-    const left = row === 0 ? 50 : 50 + (col - row / 2) * SPACING;
+    const left = row === 0 ? 50 : 50 + (col - row / 2) * PEG_SPACING;
     return { left: `${left}%`, top: `${top}%` };
   };
 
-  // 13 multiplier slots at the base, evenly spaced from 8% to 92%.
-  // Each slot sits in the gap between two pegs of the bottom row.
+  // 13 multiplier slots at the base, evenly spaced from 20% to 80%.
   const bucketPos = (b) => {
-    const left = 8 + b * SPACING;
+    const left = 20 + b * BUCKET_SPACING;
     const top = 85;
     return { left: `${left}%`, top: `${top}%` };
   };
@@ -381,8 +382,8 @@ export default function Plinko() {
       {/* Board area */}
       <main className="relative z-10 max-w-none mx-auto w-full px-3 flex-1 flex flex-col">
         {/* Board — image with overlaid ball, enlarged beyond viewport width */}
-        <div className="relative overflow-hidden w-full">
-          <div className="relative w-full">
+        <div className="relative overflow-hidden" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)' }}>
+          <div className="relative" style={{ width: '140%', marginLeft: '-20%' }}>
           <img src={BOARD_IMG} alt="Plinko Board" draggable={false} className="w-full h-auto block select-none" />
 
           {/* Peg hit glow — brief flash when the ball strikes a peg */}
