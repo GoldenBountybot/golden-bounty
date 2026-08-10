@@ -447,7 +447,7 @@ export default function SuperAceMachine() {
     const total = winThisSpinRef.current;
     const sc = scatterAwardRef.current;
     const grand = serverWinRef.current;
-    await settleBet(betRef.current, grand, 'fullhouse', inFreeRef.current);
+    settleBet(betRef.current, grand, 'fullhouse', inFreeRef.current);
     if (grand > 0) {
       setLastWin(grand);
       if (total > 0) playBigWin();
