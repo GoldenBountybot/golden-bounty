@@ -191,7 +191,7 @@ export function useArgonauts() {
     timers.current.push(t);
   }, [coinSpin]);
 
-  const settle = useCallback((finalGrid, usingFree) => {
+  const settle = useCallback((finalGrid, usingFree, serverWin = 0) => {
     clearPendingRound('argonauts');
     setGrid(finalGrid);
     setSpinningReels(new Set([0, 1, 2, 3, 4]));
@@ -227,7 +227,10 @@ export function useArgonauts() {
     );
     if (wildInWin) playWildSound();
 
-    const baseWin = lineWin + scatterPay;
+    // Fixed mode: the SERVER's pre-decided win_amount is the authoritative win.
+    // The grid evaluation still drives winning positions + feature triggers
+    // (scatter/bonus/coin), but the credited/displayed win is the server's.
+    const baseWin = serverWin;
 
     // Value-coin hold-and-spin trigger (base game only)
     const coinTrig = !usingFree && coinTriggered(finalGrid);
@@ -333,7 +336,8 @@ export function useArgonauts() {
     // Use the SERVER's pre-decided outcome to generate the grid — not a
     // client-side random. If the server says loss, ensure no line win so the
     // screen matches the balance.
-    const serverIsWin = Number(serverRound.win_amount ?? 0) > 0;
+    const serverWin = Number(serverRound.win_amount ?? 0);
+    const serverIsWin = serverWin > 0;
     let finalGrid;
     if (usingFree) {
       finalGrid = generateGrid(true);
@@ -414,7 +418,7 @@ export function useArgonauts() {
             setAnticipateReels(new Set());
           }
           const t2 = setTimeout(() => {
-            settle(finalGrid, usingFree);
+            settle(finalGrid, usingFree, serverWin);
           }, turbo ? 150 : 320);
           timers.current.push(t2);
         }
