@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Copy, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { pushNotification } from '@/lib/notify';
@@ -15,7 +16,17 @@ export default function AdminTransactions() {
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ user_id: '', amount: '', type: 'deposit', note: '' });
   const [review, setReview] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
   const { toast } = useToast();
+
+  const copyAddr = async (tx, text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(tx.id);
+      toast({ title: 'Address copied' });
+      setTimeout(() => setCopiedId(null), 1500);
+    } catch { toast({ title: 'Copy failed' }); }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -150,7 +161,22 @@ export default function AdminTransactions() {
             <p className="font-bold text-amber-100 truncate">{t.user_email || t.user_id}</p>
             <p className="text-xs text-amber-100/60 capitalize">{t.type} · ${t.amount} · {t.status} · {t.method}</p>
             {t.note && <p className="text-xs text-amber-100/40 italic">{t.note}</p>}
-            {t.reference && <p className="text-[10px] text-amber-100/50 font-mono break-all">TXID: {t.reference}</p>}
+            {t.reference && (
+              <div className="flex items-start gap-1.5 mt-0.5">
+                <p className="text-[10px] text-amber-100/50 font-mono break-all flex-1">
+                  {t.type === 'withdraw' ? 'Wallet:' : 'TXID:'} {t.reference}
+                </p>
+                {t.type === 'withdraw' && (
+                  <button
+                    onClick={() => copyAddr(t, t.reference)}
+                    className="shrink-0 flex items-center justify-center w-6 h-6 rounded bg-amber-500/20 border border-amber-500/40 text-amber-200 hover:bg-amber-500/30 transition-colors"
+                    title="Copy wallet address"
+                  >
+                    {copiedId === t.id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
           {t.status === 'pending' && (
             <div className="flex gap-1">
