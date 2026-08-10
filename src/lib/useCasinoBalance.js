@@ -287,8 +287,14 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     committedWager = newWager;
     // Re-apply preserved delta from other active rounds (e.g., CrashGame's
     // second bet panel still in play when the first panel settles).
-    uncommittedDelta = preserveDelta;
-    balance = newBackend + preserveDelta;
+    // IMPORTANT: ADD preserveDelta to the CURRENT uncommittedDelta, don't
+    // overwrite it. If a new round started during the server call (auto-spin
+    // or free-spin chain), its setBalance(b => b - bet) already set
+    // uncommittedDelta = -newBet. Overwriting with preserveDelta (0) would
+    // lose the new bet deduction — the balance would jump back UP, making
+    // it look like the bet was never placed.
+    uncommittedDelta += preserveDelta;
+    balance = newBackend + uncommittedDelta;
     wagerRemaining = newWager;
     setCache(balance);
     notify();
