@@ -377,7 +377,12 @@ export function useWildBounty() {
       setWinningPositions(new Set());
       // Settle the round atomically on the server: deducts the bet (if not a
       // free spin) and credits the capped win in one verified operation.
-      settleBet(settleBetRef.current, totalWin, 'wild-bounty', wasFree);
+      // AWAIT the settlement before allowing the next spin — otherwise the
+      // next auto-spin/free-spin beginRound races this settleBet, and the
+      // settleBet response (which may include the next bet's server-side
+      // deduction) combined with the local -bet uncommittedDelta double-
+      // deducts the next bet, making wins appear uncredited.
+      const settlePromise = settleBet(settleBetRef.current, totalWin, 'wild-bounty', wasFree);
       if (totalWin > 0) setWinFlashKey(k => k + 1);
       // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
       if (pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
@@ -453,8 +458,12 @@ export function useWildBounty() {
       } else if (cascadeCount === 0) {
         setMessage(sc === 2 ? 'ONE MORE SCATTER!' : 'WIN UP TO 3600 WAYS!');
       }
-      setSpinning(false);
       logActivity('wild-bounty', bet, totalWin, totalWin > 0 ? 'win' : 'loss');
+      // Delay setSpinning(false) until settleBet completes — prevents the next
+      // auto-spin/free-spin from starting a new beginRound before this round's
+      // settleBet finishes, which would race the two server calls and double-
+      // deduct the next bet (making wins appear uncredited).
+      settlePromise.then(() => setSpinning(false));
     }
   };
 
