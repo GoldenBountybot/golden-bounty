@@ -99,10 +99,13 @@ export default async function(req: Request): Promise<Response> {
 
     const balance = Number(wallet.balance ?? 0);
     const wagerRemaining = Number(wallet.wager_remaining ?? 0);
-    const stakedAmount = Number(wallet.staked_amount ?? 0);
 
-    // Available = balance minus locked stake minus unplayed-through deposit.
-    const available = Math.max(0, balance - stakedAmount - wagerRemaining);
+    // Available = balance minus unplayed-through deposit.
+    // NOTE: staked_amount is already deducted from `balance` at stake time
+    // (stakeOperation does $inc: { balance: -amount, staked_amount: +amount }),
+    // so it must NOT be subtracted again here — doing so double-counts the lock
+    // and makes the user's real withdrawable balance appear as $0.
+    const available = Math.max(0, balance - wagerRemaining);
 
     if (amount > balance) {
       return Response.json({
