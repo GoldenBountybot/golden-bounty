@@ -317,18 +317,16 @@ export default function Plinko() {
       } else {
         const t = setTimeout(() => {
           setBallPos({ kind: 'bucket', col: finalCol });
-          const t2 = setTimeout(() => {
-            const mult = MULTS[finalCol];
-            const win = serverWin; // server-decided, not bet * mult
-            settleBet(bet, win, 'plinko');
-            if (win > 0) playWin(); else playLose();
-            setLastWin(win);
-            setResultBucket(finalCol);
-            setMessage(`${mult}x · ${win > 0 ? `+$${win.toFixed(2)}` : 'No win'}`);
-            logActivity('plinko', bet, win, win > 0 ? 'win' : 'loss');
-            setDropping(false);
-            setBallPos(null);
-          }, 200);
+          const mult = MULTS[finalCol];
+          const win = serverWin; // server-decided, not bet * mult
+          settleBet(bet, win, 'plinko');
+          if (win > 0) playWin(); else playLose();
+          setLastWin(win);
+          setResultBucket(finalCol);
+          setMessage(`${mult}x · ${win > 0 ? `+$${win.toFixed(2)}` : 'No win'}`);
+          logActivity('plinko', bet, win, win > 0 ? 'win' : 'loss');
+          setDropping(false);
+          const t2 = setTimeout(() => { setBallPos(null); }, 300);
           timers.current.push(t2);
         }, 200);
         timers.current.push(t);

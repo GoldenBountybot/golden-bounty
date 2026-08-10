@@ -55,6 +55,7 @@ export function useWildBounty() {
   const skipBetDeductRef = useRef(false); // Feature Buy: the triggering spin's bet is already covered by the feature cost
   const settleBetRef = useRef(0); // the bet amount used for server-side settlement (per-line bet, or feature-buy cost)
   const serverWinRef = useRef(0); // server-decided win amount for the current round (from beginRound)
+  const settlePromiseRef = useRef(null); // pending settleBet — awaited in spin() before the next beginRound
 
   const settings = useGameSettings('wild-bounty');
   const logActivity = useLogActivity();
@@ -383,6 +384,7 @@ export function useWildBounty() {
       // deduction) combined with the local -bet uncommittedDelta double-
       // deducts the next bet, making wins appear uncredited.
       const settlePromise = settleBet(settleBetRef.current, totalWin, 'wild-bounty', wasFree);
+      settlePromiseRef.current = settlePromise;
       if (totalWin > 0) setWinFlashKey(k => k + 1);
       // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
       if (pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
@@ -463,7 +465,11 @@ export function useWildBounty() {
       // auto-spin/free-spin from starting a new beginRound before this round's
       // settleBet finishes, which would race the two server calls and double-
       // deduct the next bet (making wins appear uncredited).
-      settlePromise.then(() => setSpinning(false));
+      // Enable the spin button immediately — the user can click as soon as
+      // the visual round ends. The pending settleBet is awaited in spin()
+      // before the next beginRound, so the server race is still prevented.
+      setSpinning(false);
+      settlePromise.then(() => { settlePromiseRef.current = null; });
     }
   };
 
@@ -484,6 +490,15 @@ export function useWildBounty() {
     }
     timers.current.forEach(clearTimeout);
     timers.current = [];
+    setSpinning(true);
+    // Wait for any pending settleBet from the previous round to complete
+    // before starting a new beginRound — prevents the race where the next
+    // beginRound's server deduction overlaps the previous settleBet's
+    // response, double-deducting the bet.
+    if (settlePromiseRef.current) {
+      await settlePromiseRef.current;
+      settlePromiseRef.current = null;
+    }
 
     // Start the server round (sets roundActive = true synchronously so the
     // setBalance below is local-display-only, then calls the backend to
@@ -491,7 +506,6 @@ export function useWildBounty() {
     // credits it, ignoring the client's cascade-computed total.
     const _roundBet = skipBetDeductRef.current ? settleBetRef.current : bet;
     const _serverRoundPromise = beginRound(_roundBet, 'wild-bounty', usingFree);
-    setSpinning(true);
     sfx.winStop();
     sfx.spin();
     if (usingFree) sfx.startFreeSpinReel();

@@ -259,7 +259,7 @@ export default function HiLo() {
     const same = next.rank === current.rank;
     const correct = dir === 'high' ? next.rank > current.rank : next.rank < current.rank;
     if (same) {
-      setPhase('result');
+      setPhase('idle');
       setMessage(`Same rank — push lost! Card was ${RANKS[next.rank]}.`);
       setPot(0);
       settleBet(bet, 0, 'hi-lo');
@@ -276,7 +276,7 @@ export default function HiLo() {
         setRevealed(null);
       }, 1100);
     } else {
-      setPhase('result');
+      setPhase('idle');
       setMessage(`Wrong! The card was ${RANKS[next.rank]}. You lost the pot.`);
       setPot(0);
       settleBet(bet, 0, 'hi-lo');

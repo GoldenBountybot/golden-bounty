@@ -135,6 +135,7 @@ export default function Mines() {
   const [message, setMessage] = useState('Place yer bet an\' pick the mines');
   const [forceFirstMine, setForceFirstMine] = useState(false);
   const serverWinRef = useRef(0);
+  const startingRef = useRef(false);
   const logActivity = useLogActivity();
 
   const currentMult = pot;
@@ -170,10 +171,11 @@ export default function Mines() {
   }, [muted]);
 
   const start = async () => {
-    if (phase === 'playing') return;
+    if (phase === 'playing' || startingRef.current) return;
     if (!bet || bet < MIN_BET) { setMessage('Min bet is $0.05'); return; }
     if (balance < bet) { setMessage('Not enough gold, partner'); return; }
     playClick();
+    startingRef.current = true;
     const _serverRoundPromise = beginRound(bet, 'mines', false, 'cap');
     setBalance((b) => b - bet);
     // Wait for the server's pre-decided outcome.
@@ -182,6 +184,7 @@ export default function Mines() {
     // local display deduction and abort.
     if (serverRound.failed) {
       setBalance((b) => b + bet);
+      startingRef.current = false;
       setPhase('idle');
       setMessage('Connection error — try again');
       return;
@@ -202,6 +205,7 @@ export default function Mines() {
     // immediately. On a server-decided win (cap = max), let the player play
     // normally — their tile choices determine the actual win, capped at max.
     setForceFirstMine(serverWinRef.current === 0);
+    startingRef.current = false;
     setPhase('playing');
     setMessage(`Find ${safe} gold bars · dodge ${mines} TNT`);
   };
@@ -460,8 +464,8 @@ export default function Mines() {
           </button>
         )}
         {isOver && (
-          <button onClick={newGame} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2" style={{ ...woodBtn(true), ...W }}>
-            <RotateCcw className="w-5 h-5" /> NEW GAME
+          <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40" style={{ ...woodBtn(true), ...W }}>
+            <Pickaxe className="w-5 h-5" /> BET ${bet.toFixed(2)} · {mines} MINES
           </button>
         )}
       </main>

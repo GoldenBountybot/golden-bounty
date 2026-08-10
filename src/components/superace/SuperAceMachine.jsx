@@ -167,6 +167,7 @@ export default function SuperAceMachine() {
 
   const doSpin = async () => {
     if (busyRef.current) return;
+    setSuperWin(null); setMegaWin(null);
     primeSpeech(); // unlock speech engine within the click gesture
     const b = betRef.current;
     if (!inFreeRef.current && balance < b) {
@@ -354,7 +355,6 @@ export default function SuperAceMachine() {
     }
 
     await settle();
-    busyRef.current = false;
   };
 
   const resolveCascades = async (g) => {
@@ -455,8 +455,12 @@ export default function SuperAceMachine() {
       playLose();
     }
     if (!inFreeRef.current) {
-      logActivity('fullhouse', betRef.current, grand, grand > 0 ? 'win' : 'loss');
+        logActivity('fullhouse', betRef.current, grand, grand > 0 ? 'win' : 'loss');
     }
+
+    // Enable the spin button immediately — the Super/Mega win banner is
+    // visual only and no longer blocks the button.
+    busyRef.current = false;
 
     // Mega Win banner: x8+ multiplier reached. Super Win banner: x5+ (but <8)
     // or a big payout (≥ 15× bet). Mega Win takes priority when both qualify.
@@ -464,13 +468,9 @@ export default function SuperAceMachine() {
     const isMega = maxMult >= 10;
     const isSuper = !isMega && (maxMult >= 5 || (grand >= betRef.current * 15 && grand > 0));
     if (isMega && !inFreeRef.current) {
-      setMegaWin({ amount: grand, multiplier: maxMult });
-      await new Promise((resolve) => { megaWinResolverRef.current = resolve; });
-      megaWinResolverRef.current = null;
+        setMegaWin({ amount: grand, multiplier: maxMult });
     } else if (isSuper && !inFreeRef.current) {
-      setSuperWin({ amount: grand, multiplier: maxMult });
-      await new Promise((resolve) => { superWinResolverRef.current = resolve; });
-      superWinResolverRef.current = null;
+        setSuperWin({ amount: grand, multiplier: maxMult });
     }
 
     if (inFreeRef.current) {
