@@ -237,14 +237,15 @@ export default function HiLo() {
 
   const guess = (dir) => {
     if (phase !== 'guessing') return;
-    // Decide correctness PROBABILISTICALLY based on RTP. Each correct guess
-    // doubles the pot, so P(correct) = rtp/200 gives expected return ≈ rtp%
-    // (e.g. 50% RTP → 25% win chance per guess). The server cap is still
-    // enforced as a hard ceiling — if the pot would exceed it, force a loss.
+    // Decide correctness PROBABILISTICALLY based on RTP. The win chance per
+    // guess is DIRECTLY the RTP fraction (e.g. 50% RTP → 50% win chance per
+    // guess), so admin RTP changes are immediately visible in gameplay.
+    // The server cap is still enforced as a hard ceiling — if the pot would
+    // exceed it, force a loss.
     const rtpVal = Number(rtp || 50);
     const rtpFrac = Math.max(0, Math.min(1, rtpVal / 100));
     const withinCap = serverWinRef.current > 0 && (pot * 2) <= serverWinRef.current;
-    const wantCorrect = withinCap && Math.random() < (rtpFrac * 0.8);
+    const wantCorrect = withinCap && Math.random() < rtpFrac;
     const next = pickCard(dir, current.rank, wantCorrect);
     setRevealed(next);
     const same = next.rank === current.rank;
