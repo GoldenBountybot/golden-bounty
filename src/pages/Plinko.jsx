@@ -381,8 +381,8 @@ export default function Plinko() {
       {/* Board area */}
       <main className="relative z-10 max-w-none mx-auto w-full px-3 flex-1 flex flex-col">
         {/* Board — image with overlaid ball, enlarged beyond viewport width */}
-        <div className="relative overflow-hidden" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)' }}>
-          <div className="relative" style={{ width: '140%', marginLeft: '-20%' }}>
+        <div className="relative overflow-hidden w-full">
+          <div className="relative w-full">
           <img src={BOARD_IMG} alt="Plinko Board" draggable={false} className="w-full h-auto block select-none" />
 
           {/* Peg hit glow — brief flash when the ball strikes a peg */}
