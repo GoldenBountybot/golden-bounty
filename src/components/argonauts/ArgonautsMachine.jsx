@@ -56,11 +56,14 @@ const ArgoSpinStrip = React.memo(function ArgoSpinStrip({ reelIndex, turbo, slow
               alt=""
               draggable={false}
               className="w-full h-full object-cover"
-              style={{ filter: 'blur(0.6px) brightness(0.85)' }}
+              style={{ opacity: 0.82 }}
             />
           </div>
         ))}
       </div>
+      {/* Single dark tint overlay — replaces per-image blur (80 blurred images
+          was the #1 lag source during spin). */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(7,13,30,0.25)' }} />
     </div>
   );
 });

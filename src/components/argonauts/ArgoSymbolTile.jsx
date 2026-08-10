@@ -41,6 +41,17 @@ function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 0, stuck = fals
   const isScatter = meta.kind === 'scatter';
   const isBonus = meta.kind === 'bonus';
 
+  // GPU-friendly glow: box-shadow on the container instead of expensive
+  // drop-shadow / conic-gradient + mask filters. These were the #2 lag source
+  // (15 tiles × animated drop-shadow + conic-gradient mask = main-thread thrash).
+  const glowBox = win
+    ? '0 0 8px rgba(255,215,0,0.9), inset 0 0 6px rgba(255,235,150,0.5)'
+    : isScatter
+      ? '0 0 8px rgba(255,215,0,0.85), inset 0 0 6px rgba(255,235,150,0.4)'
+      : isBonus
+        ? '0 0 8px rgba(255,180,40,0.85), inset 0 0 6px rgba(255,200,80,0.4)'
+        : 'none';
+
   return (
     <div
       className="relative flex items-center justify-center transition-opacity duration-200"
@@ -48,12 +59,10 @@ function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 0, stuck = fals
         width: '100%',
         aspectRatio: '1 / 1',
         opacity: dim ? 0.32 : 1,
-        filter: spinning
-          ? 'blur(1.4px) brightness(0.82)'
-          : win
-            ? 'brightness(1.18) drop-shadow(0 0 6px rgba(255,215,0,0.85))'
-            : 'none',
+        filter: spinning ? 'brightness(0.82)' : 'none',
         animation: spinning ? 'ccReelSpin 0.16s linear infinite' : undefined,
+        boxShadow: spinning ? 'none' : glowBox,
+        borderRadius: '7px',
       }}
     >
       {meta.image ? (
@@ -76,62 +85,28 @@ function ArgoSymbolTile({ sym, spinning, win, dim = false, bet = 0, stuck = fals
           className="relative z-10"
           style={{
             fontSize: '2rem',
-            filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.7))',
             transform: isWild ? 'scale(1.35)' : 'none',
           }}
         >
           {meta.emoji}
         </span>
       )}
-      {isScatter && (
-        <>
-          <span
-            className="absolute inset-0 rounded-[7px] pointer-events-none z-20"
-            style={{
-              padding: '2.5px',
-              background: 'linear-gradient(135deg, #FFE9A8 0%, #FFD700 25%, #FFFBE0 50%, #FFB300 75%, #FFE9A8 100%)',
-              WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-              WebkitMaskComposite: 'xor',
-              maskComposite: 'exclude',
-              filter: 'drop-shadow(0 0 4px rgba(255,215,0,0.95))',
-            }}
-          />
-          <span
-            className="absolute inset-0 rounded-[7px] pointer-events-none z-10"
-            style={{ animation: 'argoGoldPulse 1.3s ease-in-out infinite' }}
-          />
-        </>
+      {(isScatter || isBonus) && !spinning && (
+        <span
+          className="absolute inset-0 rounded-[7px] pointer-events-none z-20"
+          style={{
+            border: '2px solid',
+            borderColor: isScatter ? '#FFD700' : '#FFC107',
+            animation: 'argoGoldPulse 1.3s ease-in-out infinite',
+          }}
+        />
       )}
-      {isBonus && (
-        <>
-          <span
-            className="absolute inset-0 rounded-[7px] pointer-events-none z-20"
-            style={{
-              padding: '2.5px',
-              background: 'linear-gradient(135deg, #FFE9A8 0%, #FFC107 25%, #FFF6C0 50%, #FF8C00 75%, #FFE9A8 100%)',
-              WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-              WebkitMaskComposite: 'xor',
-              maskComposite: 'exclude',
-              filter: 'drop-shadow(0 0 4px rgba(255,180,40,0.95))',
-            }}
-          />
-          <span
-            className="absolute inset-0 rounded-[7px] pointer-events-none z-10"
-            style={{ animation: 'argoGoldPulse 1.3s ease-in-out infinite' }}
-          />
-        </>
-      )}
-      {win && (
+      {win && !spinning && (
         <span
           className="absolute inset-0 rounded-[7px] pointer-events-none z-30"
           style={{
-            padding: '2px',
-            background: 'conic-gradient(from 0deg, rgba(255,215,0,0) 0%, #FFD700 25%, rgba(255,255,224,0.9) 40%, #FFD700 55%, rgba(255,215,0,0) 75%, #FFD700 90%, rgba(255,215,0,0) 100%)',
-            WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-            WebkitMaskComposite: 'xor',
-            maskComposite: 'exclude',
+            border: '2px solid #FFD700',
             animation: 'argoWinSpin 1.1s linear infinite',
-            filter: 'drop-shadow(0 0 4px rgba(255,215,0,0.9))',
           }}
         />
       )}
