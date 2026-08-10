@@ -24,7 +24,7 @@ export const GAME_REGISTRY: Record<string, {
   'big-brown':        { settleMode: 'fixed', supportsFreeSpins: true },
   'argonauts':        { settleMode: 'cap',   supportsFreeSpins: true },
   'crown-coins':      { settleMode: 'fixed', supportsFreeSpins: true },
-  'plinko':           { settleMode: 'cap',   supportsFreeSpins: false },
+  'plinko':           { settleMode: 'fixed', supportsFreeSpins: false },
   'mines':            { settleMode: 'cap',   supportsFreeSpins: false },
   'hi-lo':            { settleMode: 'cap',   supportsFreeSpins: false },
   'rocket-crash':     { settleMode: 'cap',   supportsFreeSpins: false },
