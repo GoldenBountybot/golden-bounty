@@ -115,6 +115,20 @@ async function flushPersist() {
   uncommittedWagerDelta = 0;
   const committedBefore = committedBalance;
   const wagerBefore = committedWager;
+  // Positive deltas are rejected by commitBalanceDelta (anti-hack). Don't
+  // try to push them — they'd be rejected (403) and the catch block would
+  // restore them forever, inflating the displayed balance above the server.
+  // Instead, reload the authoritative balance from the server.
+  if (d > 0) {
+    try {
+      await loadBalance();
+    } catch {
+      uncommittedDelta += d;
+      uncommittedWagerDelta += wd;
+    }
+    persisting = false;
+    return;
+  }
   try {
     // Push the delta through the secure commitBalanceDelta backend function
     // (service role). It re-reads the authoritative Wallet balance, applies
@@ -424,6 +438,17 @@ export function useCasinoBalance() {
 }
 
 export async function reloadBalance() { await loadBalance(); }
+
+// Returns the current authoritative balance (module-level, always fresh after
+// reloadBalance/loadBalance). Use this when you need the balance AFTER an
+// await reloadBalance() — the React hook's closure still holds the pre-await
+// value, so reading acct.balance would be stale.
+export function getBalance() {
+  return demoMode ? demoBalance : balance;
+}
+export function getMaxWithdrawable() {
+  return demoMode ? 0 : Math.max(0, balance - wagerRemaining);
+}
 
 // Mark a freshly-credited deposit as needing play-through before withdrawal.
 // Called by the wallet deposit flows when a deposit is confirmed & credited.

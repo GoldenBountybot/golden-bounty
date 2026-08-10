@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History, Menu, CheckCircle2, Clock, XCircle, Gift, ArrowLeftRight } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
+import { reloadBalance, getBalance, getMaxWithdrawable } from '@/lib/useCasinoBalance';
 import { useStake, LOCK_DAYS } from '@/lib/useStake';
 import StackMining from '@/components/StackMining';
 import TotalFundsPanel from '@/components/TotalFundsPanel';
@@ -85,16 +86,24 @@ export default function Dashboard() {
     setDepAmt('');
   };
 
-  const doWithdraw = () => {
+  const doWithdraw = async () => {
     const n = Number(wdAmt);
     if (!n || n <= 0) { toast({ title: t("Enter a valid amount") }); return; }
     if (n < 2) { toast({ title: t("Minimum withdrawal is $2.00") }); return; }
-    if (n > acct.balance) { toast({ title: t("Insufficient balance") }); return; }
-    if (n > acct.maxWithdrawable) {
+    // Force a fresh server sync before the balance check — the local cache
+    // can be stale (e.g., after a deposit that hasn't been picked up yet),
+    // causing a false "Insufficient balance" even when the server has enough.
+    // Read the fresh values via getBalance()/getMaxWithdrawable() because the
+    // acct.* closure still holds the pre-await (stale) values.
+    await reloadBalance();
+    const freshBalance = getBalance();
+    const freshMax = getMaxWithdrawable();
+    if (n > freshBalance) { toast({ title: t("Insufficient balance") }); return; }
+    if (n > freshMax) {
       showNotify(
         t("Wagering requirement not met"),
-        acct.wagerRemaining > 0
-          ? `Play through or stack $${acct.wagerRemaining.toFixed(2)} of your deposit before withdrawing.`
+        freshBalance - freshMax > 0
+          ? `Play through or stack $${(freshBalance - freshMax).toFixed(2)} of your deposit before withdrawing.`
           : t("Only winnings above your locked deposit can be withdrawn.")
       );
       return;
