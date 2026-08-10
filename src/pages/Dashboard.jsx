@@ -88,7 +88,7 @@ export default function Dashboard() {
   const doWithdraw = () => {
     const n = Number(wdAmt);
     if (!n || n <= 0) { toast({ title: t("Enter a valid amount") }); return; }
-    if (n < 5) { toast({ title: t("Minimum withdrawal is $5.00") }); return; }
+    if (n < 2) { toast({ title: t("Minimum withdrawal is $2.00") }); return; }
     if (n > acct.balance) { toast({ title: t("Insufficient balance") }); return; }
     if (n > acct.maxWithdrawable) {
       showNotify(
