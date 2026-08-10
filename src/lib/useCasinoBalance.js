@@ -174,6 +174,11 @@ async function addRealBalance(amount, type = 'bonus', note = '', claimedLoss = 0
   try {
     const res = await base44.functions.invoke('creditBonus', { amount: n, type, note, claimed_loss: claimedLoss });
     const newBackend = Number(res?.data?.balance ?? 0);
+    // Revert the optimistic +n — the server balance now includes the credit,
+    // so keeping it in uncommittedDelta would double-count the bonus and make
+    // the displayed balance higher than the real server balance (causing
+    // "Insufficient balance" on withdrawal).
+    uncommittedDelta -= n;
     committedBalance = newBackend;
     balance = newBackend + uncommittedDelta;
     setCache(balance);
