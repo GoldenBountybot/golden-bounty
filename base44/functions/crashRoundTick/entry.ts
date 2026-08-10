@@ -86,41 +86,15 @@ function genCrashPoint(rtp, recent = []) {
   }
 
   if (crash < 1.00) {
-    // 50% fewer exact 1.00x busts, the rest spread across (1.00, 2.00).
-    crash = rand() < 0.5 ? 1.00 : 1.00 + rand();
-  }
-  // Pull ~83% of 2x–3x outcomes back down below 2x so the curve lands
-  // above 2x noticeably less often.
-  if (crash >= 2 && crash < 3 && rand() < 0.83) {
     crash = 1.00 + rand();
   }
-  // Pull ~68% of 3x–10x outcomes back down below 2x as well, so high
-  // multipliers are rarer and more rounds bust early.
-  if (crash >= 3 && crash <= 10 && rand() < 0.68) {
-    crash = 1.00 + rand();
-  }
-  // Anti-pattern scatter: with ~43% chance, remap the outcome to a fresh
-  // draw across a low band (1x–2x). This flattens the visible histogram so
-  // no single band dominates the history bar and a player watching recent
-  // multipliers can't lock onto a "most common" zone to exploit. Draws
-  // stay fully independent — history never feeds the next.
-  if (rand() < 0.44) {
-    crash = 1.00 + rand() * 1.1;
-  }
-  // Secondary shuffle: occasionally swap a low outcome for a mid one and
-  // vice-versa, so consecutive rounds rarely follow a readable trend.
-  if (rand() < 0.15) {
-    if (crash < 2) crash = 2 + rand() * 6;
-    else crash = 1.00 + rand() * 1.5;
-  }
-  // Streak-break: if the last few rounds clustered high, force this one
-  // low; if they clustered low, force it higher. This guarantees the
-  // history bar never shows a long unbroken run of similar colors that
-  // a player could read as a pattern.
+  // Streak-break only: if the last few rounds clustered all high, nudge
+  // this one lower; if all low, nudge it higher. Keeps the history bar
+  // varied without flattening the whole distribution into one band.
   if (forceLow) {
-    crash = 1.00 + rand() * 0.9;          // bust under 2x
+    crash = 1.00 + rand() * 1.8;
   } else if (forceHigh) {
-    crash = 2.5 + rand() * 7.5;           // fly above 2.5x
+    crash = 2 + rand() * 12;
   }
   return Math.min(Math.max(crash, 1.00), 250);
 }
