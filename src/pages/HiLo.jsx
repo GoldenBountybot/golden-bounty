@@ -404,6 +404,15 @@ export default function HiLo() {
           </button>
         )}
 
+        {/* Win chance indicator — visible so the player can see the current RTP */}
+        <div className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-full" style={{
+          background: `linear-gradient(to bottom, ${DEEP_BLACK}, #071D14)`,
+          border: `1px solid ${GOLD}`,
+        }}>
+          <span className="text-xs font-bold tracking-wider uppercase" style={{ color: GOLD, fontFamily: SERIF }}>Win Chance:</span>
+          <span className="text-lg font-black tabular-nums" style={{ color: GOLD_HIGHLIGHT, fontFamily: SERIF, textShadow: '0 0 8px rgba(255,224,138,0.5)' }}>{Math.round(rtp)}%</span>
+        </div>
+
         {/* Guessing actions */}
         {phase === 'guessing' && (
           <div className="grid grid-cols-2 gap-3 w-full">
