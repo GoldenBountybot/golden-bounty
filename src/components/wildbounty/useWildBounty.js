@@ -545,10 +545,12 @@ export function useWildBounty() {
     // Use the server's win decision (from beginRound) — NOT Math.random().
     // The server pre-decided whether this spin is a win and for how much.
     const wantWin = serverWinRef.current > 0;
+    let forcedSym = null;
     if (wantWin) {
       // During free spins, force a LOW-value symbol (J/Q) so high-value matches
       // (A/K) rarely form even on forced wins.
       const X = usingFree ? (Math.random() < 0.5 ? 'J' : 'Q') : (Math.random() < 0.5 ? 'J' : 'Q');
+      forcedSym = X;
       finalGrid = finalGrid.map((reel, ri) => {
         const copy = [...reel];
         if (ri < 3) {
@@ -580,14 +582,15 @@ export function useWildBounty() {
     // whose symbol isn't the forced one; when no forced win, break all wins
     // except at most one (keep the first, break the rest).
     {
-      const forcedSym = wantWin ? (usingFree ? (Math.random() < 0.5 ? 'J' : 'Q') : (Math.random() < 0.5 ? 'J' : 'Q')) : null;
       let guard = 0;
       const lows = ['Q', 'J', 'K'];
       while (guard++ < 14) {
         const { wins } = evaluateWins(finalGrid, bet);
         if (wins.length === 0) break;
-        // Keep only the forced symbol's win (or the first win if no forced).
-        const keepSym = forcedSym || wins[0].symbol;
+        // Keep only the forced symbol's win (the same X used to generate the
+        // grid). When the server decided a loss (!wantWin), break ALL wins
+        // so the visual matches the balance — no cascade win shown, 0 credited.
+        const keepSym = forcedSym || (wantWin ? wins[0].symbol : '__none__');
         const extras = wins.filter(w => w.symbol !== keepSym);
         if (extras.length === 0) break;
         let fixed = false;
@@ -663,6 +666,30 @@ export function useWildBounty() {
           if (fixed) break;
         }
         if (!fixed) break;
+      }
+    }
+
+    // Final safety: when the server decided a loss, ensure NO wins remain on
+    // the grid so the visual matches the balance (no cascade win shown, 0 credited).
+    if (!wantWin) {
+      const lows = ['Q', 'J', 'K', 'A', 'whiskey', 'hat'];
+      let guard = 0;
+      while (guard++ < 30) {
+        const { wins } = evaluateWins(finalGrid, bet);
+        if (wins.length === 0) break;
+        for (const w of wins) {
+          let fixed = false;
+          for (let targetReel = 2; targetReel >= 0 && !fixed; targetReel--) {
+            const reel = finalGrid[targetReel];
+            for (let row = 0; row < reel.length; row++) {
+              if (reel[row] === w.symbol) {
+                reel[row] = lows[Math.floor(Math.random() * lows.length)];
+                fixed = true;
+                break;
+              }
+            }
+          }
+        }
       }
     }
 
