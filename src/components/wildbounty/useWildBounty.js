@@ -12,7 +12,7 @@ sfx.preload && sfx.preload();
 export function useWildBounty() {
   const [grid, setGrid] = useState(() => REEL_ROWS.map(r => buildReel(r)));
   const [finalGrid, setFinalGrid] = useState(null);
-  const { balance, setBalance, beginRound, settleBet, reset: resetBalance } = useCasinoBalance();
+  const { balance, setBalance, beginRound, settleBet, addRoundWin, reset: resetBalance } = useCasinoBalance();
   const [bet, setBet] = useState(0.10);
   const [spinning, setSpinning] = useState(false);
   const [multIndex, setMultIndex] = useState(0);
@@ -258,6 +258,10 @@ export function useWildBounty() {
       sfx.symbolMatch();
       sfx.win(cascadeCount);
       const newTotal = totalWin + stepWin;
+      // Credit this cascade's win to the display balance immediately so the
+      // user sees the balance climb with each cascade — no waiting for the
+      // chain to end. settleBet adjusts the difference at chain end.
+      addRoundWin(stepWin);
       const newMult = Math.min(currentMultIndex + 1, MULTIPLIERS.length - 1);
 
       // Wild conversion: a 4/5+ of-a-kind turns the matching symbol on the

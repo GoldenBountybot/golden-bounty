@@ -28,6 +28,7 @@ let loadingPromise = null;
 let persistTimer = null;
 let persisting = false;
 let roundActive = false; // when true, setBalance is local-display-only (no backend commit). Gameplay settles atomically via settleBet().
+let roundDisplayWin = 0; // accumulated display-only win added incrementally during cascades (adjusted at settle)
 const listeners = new Set();
 let pendingRoundToken = null;   // round_token from beginRound (server-side outcome)
 let pendingServerWin = 0;       // server-decided win amount for the current round
@@ -166,6 +167,25 @@ function schedulePersist() {
   persistTimer = setTimeout(flushPersist, 250);
 }
 
+// Add a cascade win to the display balance DURING an active round — gives
+// the user instant feedback as each cascade wins, instead of waiting for
+// settleBet at chain end. The actual server credit happens via settleBet;
+// the difference between the accumulated display win and the server's win
+// is adjusted at settle time so the final balance is always authoritative.
+function addRoundWin(amount) {
+  const n = Number(amount);
+  if (!isFinite(n) || n === 0) return;
+  roundDisplayWin += n;
+  if (demoMode) {
+    demoBalance += n;
+    setDemoCache(demoBalance);
+  } else {
+    balance += n;
+    setCache(balance);
+  }
+  notify();
+}
+
 // Credit the REAL wallet directly — used by cashback, free-spin wins, and
 // task/airdrop rewards. Routes through the secure creditBonus backend function
 // (which caps the amount and logs a Transaction) instead of commitBalanceDelta
@@ -230,6 +250,7 @@ async function addRealBalance(amount, type = 'bonus', note = '', claimedLoss = 0
 //      = preBet + (multiplier - 1) × bet. This matches real slot games.
 async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed') {
   roundActive = true;
+  roundDisplayWin = 0;
   // Instant visual feedback: deduct the bet locally right away. The server
   // will deduct it too, and we'll sync committedBalance to the post-deduction
   // balance when the server responds. This gives the user immediate feedback
@@ -323,7 +344,10 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     // already deducted by beginRound from demoBalance, so just credit the
     // total win amount (which includes the bet, real-casino style). Net
     // result: demoBalance += (winAmount - bet) = profit/loss.
-    demoBalance = Math.max(0, demoBalance + winAmount);
+    // Subtract roundDisplayWin (already added incrementally during cascades)
+    // so the win isn't double-counted.
+    demoBalance = Math.max(0, demoBalance + winAmount - roundDisplayWin);
+    roundDisplayWin = 0;
     setDemoCache(demoBalance);
     roundActive = false;
     notify();
@@ -344,8 +368,13 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     // committedBalance (post-deduction, synced by beginRound); adding the win
     // gives the correct post-round display instantly.
     const optimisticWin = Math.max(0, pendingServerWin > 0 ? Math.min(winAmount, pendingServerWin) : winAmount);
-    if (optimisticWin > 0) {
-      balance = committedBalance + optimisticWin;
+    // Adjust for incremental display updates during cascades: we already
+    // added roundDisplayWin to the display balance. Now adjust by the
+    // difference so the final balance = committedBalance + optimisticWin.
+    const adjust = optimisticWin - roundDisplayWin;
+    roundDisplayWin = 0;
+    if (adjust !== 0) {
+      balance += adjust;
       setCache(balance);
       notify();
     }
@@ -481,6 +510,7 @@ export function useCasinoBalance() {
     balance: demoMode ? demoBalance : balance,
     setBalance,
     addRealBalance,
+    addRoundWin,
     beginRound,
     settleBet,
     reset,
