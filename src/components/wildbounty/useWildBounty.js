@@ -263,6 +263,8 @@ export function useWildBounty() {
       // chain to end. settleBet adjusts the difference at chain end.
       addRoundWin(stepWin);
       const newMult = Math.min(currentMultIndex + 1, MULTIPLIERS.length - 1);
+      // Show the ACCUMULATED total in the banner (not just this cascade's
+      // step win) so the banner always matches the balance addition.
 
       // Wild conversion: a 4/5+ of-a-kind turns the matching symbol on the
       // last matched reel into a wild (which persists through the cascade).
@@ -305,11 +307,9 @@ export function useWildBounty() {
       // X1 (first cascade) has no flying multiplier, so it shows after a
       // short delay instead.
       const flySlow = cascadeCount >= 1 ? 1.6 : 1.2;
-      // Show only THIS cascade round's win in the banner — not the accumulated total.
-      const winMsg = justAwarded ? `WIN ${stepWin.toFixed(2)} · +${wasFree ? 5 : 10} FREE SPINS` : `WIN ${stepWin.toFixed(2)}`;
-      // During cascades, always show the individual step win — the accumulated
-      // TOTAL WIN is only revealed at round end.
-      const winValue = stepWin;
+      // Show the ACCUMULATED total in the banner so it matches the balance.
+      const winMsg = justAwarded ? `WIN ${newTotal.toFixed(2)} · +${wasFree ? 5 : 10} FREE SPINS` : `WIN ${newTotal.toFixed(2)}`;
+      const winValue = newTotal;
       if (currentMultIndex >= 1) {
         setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
         // The multiplier arrives at the banner at ~86% of the fly duration.
@@ -399,23 +399,21 @@ export function useWildBounty() {
       // Accumulate this spin's win into the free-spins running total.
       if (wasFree) freeSpinsTotalRef.current += totalWin;
 
-      // Decide which banner (if any) to show at round end. Super Win covers
-      // x16–x32; Mega Win covers x64 and every tier beyond. Free-spins rounds
-      // show a Mega Win banner with the accumulated 10-spin total instead.
-      const peak = peakMultRef.current;
+      // Decide which banner (if any) to show at round end. Based on the
+      // win-to-bet ratio so banners show for real wins, not just rare x8+
+      // multiplier chains. Total Win ≥ 2x bet, Super Win ≥ 10x, Mega ≥ 50x.
+      const ratio = bet > 0 ? totalWin / bet : 0;
       let showdownDurMs = 0;
-      if (peak >= 8 && totalWin > 0) {
+      if (ratio >= 2 && totalWin > 0) {
         setEndSkull(true);
         // Only count up from 0 + play the total-win sting when NO Super/Mega
-        // win banner is showing (peak < 32) — those banners have their own
+        // win banner is showing (ratio < 10) — those banners have their own
         // count-up + sound, so the plaque just shows the plain total.
-        if (peak < 32) {
+        if (ratio < 10) {
           showdownDurMs = (sfx.showdown() || 2.2) * 1000;
           setTotalWinCountUp(true);
           setTotalWinDur(showdownDurMs * 0.9);
           setTotalWinKey(k => k + 1);
-          // Show the accumulated round total (all previous cascade wins +
-          // this one) counting up from 0, not just the last cascade's win.
           setLastWin(totalWin);
         }
       }
@@ -424,19 +422,19 @@ export function useWildBounty() {
       if (fsEnding) {
         const fsTotal = freeSpinsTotalRef.current;
         freeSpinsTotalRef.current = 0;
-        banner = { type: 'freeSpinsEnd', amount: fsTotal, multiplier: peak };
+        banner = { type: 'freeSpinsEnd', amount: fsTotal, multiplier: peakMultRef.current };
       } else {
-        const isMega = peak >= 128;
-        const isSuper = !isMega && peak >= 32;
-        if (isMega && totalWin > 0) banner = { type: 'mega', amount: totalWin, multiplier: peak };
-        else if (isSuper && totalWin > 0) banner = { type: 'super', amount: totalWin, multiplier: peak };
+        const isMega = ratio >= 50;
+        const isSuper = !isMega && ratio >= 10;
+        if (isMega && totalWin > 0) banner = { type: 'mega', amount: totalWin, multiplier: peakMultRef.current };
+        else if (isSuper && totalWin > 0) banner = { type: 'super', amount: totalWin, multiplier: peakMultRef.current };
       }
 
       if (banner) {
-        // If a flying-multiplier animation is still playing (peak >= 2 means a
-        // flying mult was triggered this round), delay the banner ~800ms so it
-        // appears right after the animation finishes — never overlapping it.
-        if (peak >= 2) {
+        // If a flying-multiplier animation is still playing (multiplier >= 2
+        // means a flying mult was triggered this round), delay the banner so
+        // it appears right after the animation finishes — never overlapping.
+        if (peakMultRef.current >= 2) {
           setBannerPending(true);
           const bt = setTimeout(() => {
             applyBanner(banner);
