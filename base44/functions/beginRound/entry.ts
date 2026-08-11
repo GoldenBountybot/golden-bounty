@@ -5,7 +5,7 @@ import { getGameConfig } from '../../shared/gameRegistry.ts';
 
 // Begins a secure game round. The server DEDUCTS THE BET IMMEDIATELY and
 // pre-decides the outcome (win/loss + win amount) based on RTP, storing it
-// in a PendingRound record. (redeploy trigger v3 — force redeploy with fixed Plinko logic)
+// in a PendingRound record. (redeploy trigger v4 — force redeploy with wild-bounty cap mode)
 //
 // Deducting the bet at begin time (not settle time) closes the "avoid loss
 // by not settling" hack — a user who closes the page mid-round has already
