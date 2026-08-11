@@ -75,7 +75,7 @@ export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
   // Win frequency: ~15% of RTP as win chance (at 50% RTP → ~7.5% win chance).
   // Super Ace (fullhouse): reduced to ~8% of RTP so fewer spins land on the
   // win line and cascade multipliers chain less often.
-  const winChanceMult = gameId === 'fullhouse' ? 0.20 : (gameId === 'wild-bounty' ? 0.16 : (gameId === 'gates-of-olympus' ? 0.22 : (gameId === 'argonauts' ? 0.07 : (gameId === 'thimbles' ? 0.75 : (gameId === 'hi-lo' ? 0.75 : (gameId === 'mines' ? 0.75 : 0.15))))));
+  const winChanceMult = gameId === 'fullhouse' ? 0.20 : (gameId === 'wild-bounty' ? 0.22 : (gameId === 'gates-of-olympus' ? 0.22 : (gameId === 'argonauts' ? 0.07 : (gameId === 'thimbles' ? 0.75 : (gameId === 'hi-lo' ? 0.75 : (gameId === 'mines' ? 0.75 : 0.15))))));
   const winChance = rtpFrac * winChanceMult;
   const isWin = Math.random() < winChance;
   if (!isWin) {
