@@ -196,6 +196,7 @@ export default function HiLo() {
   const [message, setMessage] = useState('Deal a card to start!');
   const [streak, setStreak] = useState(0);
   const serverWinRef = useRef(0);
+  const serverRoundPromiseRef = useRef(null); // pending beginRound promise — awaited lazily on first guess/collect
   const logActivity = useLogActivity();
 
   // Start the ambient casino lounge loop on the first user gesture (browsers
@@ -219,18 +220,14 @@ export default function HiLo() {
     };
   }, []);
 
-  const deal = async () => {
+  const deal = () => {
     if (phase === 'guessing') return;
     if (balance < bet) { setMessage('Insufficient balance! Reset below.'); return; }
-    const _serverRoundPromise = beginRound(bet, 'hi-lo', false, 'cap');
-    const serverRound = await _serverRoundPromise;
-    // If beginRound failed (e.g. bet out of range, network error), abort —
-    // beginRound already reverted its local deduction.
-    if (!serverRound || serverRound.failed || serverRound.win_amount == null) {
-      setMessage('Round failed — try a different bet amount.');
-      return;
-    }
-    serverWinRef.current = Number(serverRound.win_amount);
+    // Kick off the server round in the background — beginRound deducts the
+    // bet instantly for immediate visual feedback. The promise is awaited
+    // lazily on the first guess/collect so the server's win cap is known.
+    serverRoundPromiseRef.current = beginRound(bet, 'hi-lo', false, 'cap');
+    // Immediate UI feedback — card appears instantly, no waiting for server.
     setPot(bet);
     setCurrent(drawCard());
     setRevealed(null);
@@ -240,8 +237,28 @@ export default function HiLo() {
     playDeal();
   };
 
-  const guess = (dir) => {
+  // Await the pending beginRound promise (if still in flight) and stash the
+  // server-decided win cap. Returns true on success, false on failure.
+  const ensureServerRound = async () => {
+    if (!serverRoundPromiseRef.current) return true;
+    const serverRound = await serverRoundPromiseRef.current;
+    serverRoundPromiseRef.current = null;
+    if (!serverRound || serverRound.failed || serverRound.win_amount == null) {
+      setMessage('Round failed — try a different bet amount.');
+      setPhase('idle');
+      setCurrent(null);
+      setRevealed(null);
+      setPot(0);
+      return false;
+    }
+    serverWinRef.current = Number(serverRound.win_amount);
+    return true;
+  };
+
+  const guess = async (dir) => {
     if (phase !== 'guessing') return;
+    // Wait for the server round to complete so we know the win cap.
+    if (!(await ensureServerRound())) return;
     // Decide correctness PROBABILISTICALLY based on RTP. The win chance per
     // guess is DIRECTLY the RTP fraction (e.g. 50% RTP → 50% win chance per
     // guess), so admin RTP changes are immediately visible in gameplay.
@@ -282,8 +299,10 @@ export default function HiLo() {
     }
   };
 
-  const collect = () => {
+  const collect = async () => {
     if (phase !== 'guessing' || pot === 0) return;
+    // Wait for the server round to complete so we know the win cap.
+    if (!(await ensureServerRound())) return;
     const win = Math.min(pot, serverWinRef.current);
     settleBet(bet, win, 'hi-lo');
     setMessage(`Collected $${win.toFixed(2)}!`);
