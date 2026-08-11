@@ -246,6 +246,10 @@ export default function CrownCoinsMachine() {
       if (balance < bet) { toast({ title: 'Insufficient balance' }); autoRef.current = false; setAutoSpin(false); return; }
     }
     setSpinning(true);
+    // Start reels spinning IMMEDIATELY for instant visual feedback on click.
+    // The ReelColumn generates its own random strip during 'spin' phase, so
+    // the final result (setReels) can be computed afterward without delay.
+    setPhases(['spin', 'spin', 'spin']);
     setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
     setWinLines([]);
     setAmountCell(null);
@@ -321,7 +325,6 @@ export default function CrownCoinsMachine() {
 
     // start all reels spinning
     setReels(cols);
-    setPhases(['spin', 'spin', 'spin']);
     const base = turbo ? 420 : 720;
     const step = turbo ? 160 : 260;
     const landMs = 460;
@@ -809,7 +812,7 @@ export default function CrownCoinsMachine() {
 
           <button
             onClick={doSpin}
-            disabled={spinning || sLoading || freeSpins > 0}
+            disabled={spinning || freeSpins > 0}
             className="relative w-16 h-16 rounded-full flex items-center justify-center disabled:opacity-60"
             style={{
               background: 'radial-gradient(circle at center, #fff2c0 0%, #e8a93a 55%, #b8860b 100%)',
