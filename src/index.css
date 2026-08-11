@@ -555,6 +555,38 @@
   0%   { transform: translateX(-100%); }
   100% { transform: translateX(250%); }
 }
+/* Premium game loader — gold dust particle drifting upward */
+@keyframes loaderParticle {
+  0%   { transform: translateY(0) scale(0.4); opacity: 0; }
+  15%  { opacity: 0.85; }
+  85%  { opacity: 0.85; }
+  100% { transform: translateY(-220px) scale(1); opacity: 0; }
+}
+/* Premium game loader — corner ornamental flourish glow */
+@keyframes loaderCornerGlow {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.8; }
+}
+/* Premium game loader — reeded coin edge slow rotation */
+@keyframes loaderCoinEdge {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+/* Premium game loader — progress bar leading dot glow pulse */
+@keyframes loaderBarDot {
+  0%, 100% { box-shadow: 0 0 6px rgba(255,220,120,0.7), 0 0 12px rgba(255,200,80,0.4); }
+  50%      { box-shadow: 0 0 10px rgba(255,235,150,1), 0 0 20px rgba(255,210,100,0.7); }
+}
+/* Premium game loader — wordmark shimmer sweep */
+@keyframes loaderWordShimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+/* Premium game loader — radial gold burst behind wordmark */
+@keyframes loaderRadialBurst {
+  0%, 100% { opacity: 0.25; transform: scale(0.9); }
+  50%      { opacity: 0.55; transform: scale(1.05); }
+}
 
 /* ===== App loading — premium iconic splash ===== */
 
