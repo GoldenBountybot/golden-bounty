@@ -275,7 +275,9 @@ export default function SuperAceMachine() {
     const forceWin = serverWinRef.current > 0;
 
     // Nudge the grid to match the server's win/loss decision so the displayed
-    // outcome matches what the server will credit. Preserve scatter cells.
+    // outcome matches what the server will credit. Preserve scatter cells AND
+    // cell ids — changing only the sym in place so React doesn't re-mount
+    // cards and re-trigger the drop animation (which caused the double-drop).
     {
       const scatterIdxs = new Set(g.map((c, i) => (c.sym === 'SC' ? i : -1)).filter((i) => i >= 0));
       let guard = 0;
@@ -284,12 +286,14 @@ export default function SuperAceMachine() {
         const hasLineWin = ev.pay > 0;
         if (forceWin && hasLineWin) break;
         if (!forceWin && !hasLineWin) break;
-        // Regenerate non-scatter cells and retry
+        // Change non-scatter cell symbols in place (preserve cell ids)
         for (let i = 0; i < g.length; i++) {
-          if (!scatterIdxs.has(i)) g[i] = makeCell();
+          if (!scatterIdxs.has(i)) {
+            g[i] = { ...g[i], sym: PAY_SYMBOLS[Math.floor(Math.random() * PAY_SYMBOLS.length)], golden: false };
+          }
         }
       }
-      // Re-apply golden cards on the nudged grid
+      // Re-apply golden cards on the nudged grid (preserve ids)
       const candidates = [];
       for (const c of GOLDEN_COLS) {
         for (let r = 0; r < ROWS; r++) {
