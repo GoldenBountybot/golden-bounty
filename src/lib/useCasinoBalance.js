@@ -383,6 +383,15 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     // non-zero adjust that silently subtracts small wins (e.g. $0.01).
     const adjust = Math.round((optimisticWin - roundDisplayWin) * 100) / 100;
     roundDisplayWin = 0;
+    // Track the balance BEFORE the optimistic update so the server response
+    // reconciliation can compute the correct authoritative value without
+    // double-counting the optimistic win. The server's post-round balance
+    // should be: committedBalance (post-deduction) + creditedWin. The
+    // optimistic update added `optimisticWin` to `balance`; the server
+    // response will REPLACE the display (not add to it), so we must cap
+    // the authoritative value at what the display SHOULD be — not at the
+    // current `balance` which may have been changed by a concurrent operation.
+    const balanceBeforeOptimistic = balance;
     if (adjust !== 0) {
       balance += adjust;
       setCache(balance);
@@ -414,12 +423,15 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     // the win but the balance drops back, causing a mismatch.
     const expectedMin = committedBalance + creditedWin;
     const authoritativeBal = Math.max(newBackend, expectedMin);
-    // Don't let the balance jump ABOVE the optimistic display — a stale server
-    // read can return a pre-deduction balance, which would revert the bet
-    // deduction. Cap authoritativeBal at the current display (which already
-    // reflects the correct post-round balance). Then re-apply uncommittedDelta
-    // (e.g., a new round's bet deduction from auto-spin).
-    const safeAuthoritative = Math.min(authoritativeBal, balance);
+    // The correct post-round display is committedBalance (post-deduction) +
+    // creditedWin. The optimistic update already added `optimisticWin` to the
+    // display. To avoid double-crediting, cap the authoritative value at the
+    // balance BEFORE the optimistic update plus the credited win — NOT at the
+    // current `balance` (which includes the optimistic win and may have been
+    // changed by a concurrent operation). This ensures the server response
+    // REPLACES the optimistic display rather than adding to it.
+    const postRoundDisplay = balanceBeforeOptimistic + creditedWin;
+    const safeAuthoritative = Math.min(authoritativeBal, postRoundDisplay);
     committedBalance = safeAuthoritative;
     committedWager = newWager;
     uncommittedDelta += preserveDelta;
