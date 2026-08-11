@@ -19,11 +19,11 @@ export const SYMBOLS = {
   J:        { id: 'J',        label: 'J',      type: 'low',     pay: { 3: 1, 4: 2, 5: 3, 6: 5 } },
 };
 
-// Weighted pool — scatter rare, high symbols uncommon, low symbols common.
-// Wild never appears directly from a spin — only via the 4/5-of-a-kind conversion.
-// Scatter can land naturally (1–2); 3 together only via the forced 0.01% trigger.
+// Weighted pool — scatter and wild are NOT in the pool. Scatters are placed
+// exclusively by the explicit targetScatters logic in spin(); wilds only via
+// the 4/5-of-a-kind conversion. This prevents randomSymbol() from sprinkling
+// scatters during the win/loss matching loop and cascade fills.
 const POOL = [
-  'scatter',
   'hat', 'hat', 'hat', 'hat', 'hat', 'hat',
   'whiskey', 'whiskey', 'whiskey', 'whiskey', 'whiskey', 'whiskey',
   'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A',
