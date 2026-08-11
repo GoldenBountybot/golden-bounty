@@ -133,6 +133,20 @@ export function useGates() {
       result.spinWin = serverWin;
       result.totalWin = serverWin;
     }
+    // When the server decided a loss, suppress all visual tumble wins so the
+    // display matches the 0 credit — forceLossGrid may fail to produce a
+    // clean no-win grid after 10 attempts, leaving natural wins visible.
+    if (!wantWin && result.spinWin > 0) {
+      result.tumbles.forEach((tb) => {
+        tb.win = 0;
+        tb.tumbleWin = 0;
+        tb.wins = [];
+        tb.winPositions = new Set();
+        tb.multipliers = [];
+      });
+      result.spinWin = 0;
+      result.totalWin = 0;
+    }
     // Persist this spin's already-determined outcome plus the in-progress free
     // spins round state, so a mid-spin exit can be fully recovered on return:
     // the pending win is credited AND the free spins round resumes where it

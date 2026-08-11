@@ -83,10 +83,13 @@ export function useBigBrown() {
       }
     });
 
-    setExpandedReels(expReels);
-    // Build the display grid: only wild reels that are part of a win expand
-    // to a full wild column; other reels keep their original landed symbols.
-    const displayGrid = finalGrid.map((reel, ri) => expReels.has(ri) ? expanded[ri] : reel);
+    // Only expand wild reels when the server decided a win — a server loss
+    // must not show the expanding wild animation (visual must match the 0 credit).
+    const hasWin = totalWin > 0;
+    setExpandedReels(hasWin ? expReels : new Set());
+    const displayGrid = hasWin
+      ? finalGrid.map((reel, ri) => expReels.has(ri) ? expanded[ri] : reel)
+      : finalGrid;
     setGrid(displayGrid);
     setScatterPositions(scPos);
 
