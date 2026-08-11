@@ -419,13 +419,17 @@ export function useCrashGame() {
     if (!b.placed || b.cashedOut) return;
     const m = multRef.current;
     const win = +(b.amount * m).toFixed(2);
+    // Optimistic: credit the win to the local balance immediately. The flying
+    // coin animation is purely visual — the balance is already updated.
+    balanceRef.current += win;
+    setBalance(balanceRef.current);
     const next = betsRef.current.map((bb, idx) =>
       (idx === i ? { ...bb, cashedOut: true, cashOutMult: +m.toFixed(2), win } : bb));
     betsRef.current = next;
     setBets(next);
     syncPlayerEntries();
-    // Settle on the server — the authoritative balance (with win credited) is
-    // set in one update. No optimistic setBalance to avoid double-animation.
+    // Settle on the server — syncs the authoritative balance (matches the
+    // optimistic update, so no visible jump).
     settlePromiseRef.current = settleBet(b.amount, win, 'rocket-crash', false, 0, panelTokensRef.current[i]);
     panelTokensRef.current[i] = null;
   };
