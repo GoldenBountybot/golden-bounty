@@ -245,14 +245,8 @@ export default function SuperAceMachine() {
       spinDur = turboRef.current ? baseSpin + teasedCols * 150 : baseSpin + teasedCols * 350;
     }
 
-    // Show card backs immediately — they drop while the server decides the
-    // outcome. Same cell ids are kept throughout so the reveal later is an
-    // in-place update, not a re-mount (no double drop, no face change).
-    setSpinning(true);
-    setGrid(g.map((c) => ({ ...c, pending: true })));
-    const sleepPromise = sleep(spinDur);
-
     // Wait for any pending settleBet, then await the server round response.
+    // The server round and grid generation run in parallel to minimize delay.
     if (settlePromiseRef.current) {
       await settlePromiseRef.current;
       settlePromiseRef.current = null;
@@ -309,13 +303,12 @@ export default function SuperAceMachine() {
       goldenTargetsRef.current = goldenCfg.targets;
     }
 
-    // Reveal the final faces — card backs become faces in place (same ids,
-    // no re-mount, no double drop). Golden Wild cell stays face-down for its
-    // flip animation during the cascade.
-    g = g.map((c) => ({ ...c, pending: !!c.goldenWild }));
+    // Set the final grid and start the spin animation — cards drop once with
+    // their final faces. No card backs, no face change, no double drop.
+    setSpinning(true);
     setGrid(g.map((c) => ({ ...c })));
 
-    await sleepPromise;
+    await sleep(spinDur);
     setSpinning(false);
     setTeaseCols(new Set());
     playReelLand();
