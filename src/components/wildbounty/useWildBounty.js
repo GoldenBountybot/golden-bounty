@@ -390,8 +390,12 @@ export function useWildBounty() {
       const settlePromise = settleBet(settleBetRef.current, totalWin, 'wild-bounty', wasFree);
       settlePromiseRef.current = settlePromise;
       if (totalWin > 0) setWinFlashKey(k => k + 1);
-      // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
-      if (pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
+      // Always show the server-authoritative win in the banner (not the
+      // client-computed cascade total) so the banner matches the credited
+      // balance exactly. The balance gets serverWin added via settleBet;
+      // the banner must show the same amount.
+      if (pendingWinRef.current > 0) pendingWinRef.current = 0;
+      if (totalWin > 0) setLastWin(totalWin);
       clearPendingRound('wild-bounty');
       pendingStateRef.current = null;
       if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
