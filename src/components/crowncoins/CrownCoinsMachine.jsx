@@ -414,18 +414,20 @@ export default function CrownCoinsMachine() {
           mask[col][row] = true;
         });
       });
-      // Low-value symbol (cherry, lemon, orange) line win → play low-value sound.
-      const hasLowValueWin = lines.some(ln => {
-        const sym = symbolByKey(ln.symbol);
-        return sym && sym.pay <= 20;
-      });
-      if (hasLowValueWin) playLowValueSound();
-      // High-value symbol (watermelon, grape, bell, bar, seven) line win → play high-value sound.
-      const hasHighValueWin = lines.some(ln => {
-        const sym = symbolByKey(ln.symbol);
-        return sym && sym.pay >= 80;
-      });
-      if (hasHighValueWin) playHighValueSound();
+      // Only play win sounds when the server decided a win — a server loss must
+      // not play win sounds even if the grid has natural line wins.
+      if (win > 0) {
+        const hasLowValueWin = lines.some(ln => {
+          const sym = symbolByKey(ln.symbol);
+          return sym && sym.pay <= 20;
+        });
+        if (hasLowValueWin) playLowValueSound();
+        const hasHighValueWin = lines.some(ln => {
+          const sym = symbolByKey(ln.symbol);
+          return sym && sym.pay >= 80;
+        });
+        if (hasHighValueWin) playHighValueSound();
+      }
       // Free spin trigger: Crown Coin in center + value coins in both side columns.
       let triggered = false;
       if (!isFree && isFreeSpinTrigger(resultGrid)) {
