@@ -557,214 +557,57 @@ export function useWildBounty() {
 
     let finalGrid = REEL_ROWS.map(r => buildReel(r));
     // Use the server's win decision (from beginRound) — NOT Math.random().
-    // The server pre-decided whether this spin is a win and for how much.
     const wantWin = serverWinRef.current > 0;
-    let forcedSym = null;
-    if (wantWin) {
-      // During free spins, force a LOW-value symbol (J/Q) so high-value matches
-      // (A/K) rarely form even on forced wins.
-      const X = usingFree ? (Math.random() < 0.5 ? 'J' : 'Q') : (Math.random() < 0.5 ? 'J' : 'Q');
-      forcedSym = X;
-      finalGrid = finalGrid.map((reel, ri) => {
-        const copy = [...reel];
-        if (ri < 3) {
-          // Cap to exactly 1 matching symbol per early reel to keep ways low
-          const aIdx = copy.map((s, i) => s === X ? i : -1).filter(i => i >= 0);
-          if (aIdx.length === 0) {
-            copy[Math.floor(Math.random() * copy.length)] = X;
-          } else {
-            aIdx.slice(1).forEach(i => { let s = randomSymbol(); while (s === X) s = randomSymbol(); copy[i] = s; });
-          }
-        } else {
-          // Strip the matching symbol from late reels so the win stays at 3
-          // reels (no 4/5-of-a-kind → far fewer symbols match at once)
-          copy.forEach((s, i) => { if (s === X) { let ns = randomSymbol(); while (ns === X) ns = randomSymbol(); copy[i] = ns; } });
-        }
-        return copy;
-      });
-    } else {
-      // Suppress natural wins harder so fewer symbols match at once.
-      let attempts = 0;
-      while (attempts < 8 && evaluateWins(finalGrid, bet).wins.length > 0) {
-        finalGrid = REEL_ROWS.map(r => buildReel(r));
-        attempts++;
-      }
-    }
 
-    // Limit to a single winning symbol type per spin so many symbols don't
-    // match at once. When a forced win was placed, break every natural win
-    // whose symbol isn't the forced one; when no forced win, break all wins
-    // except at most one (keep the first, break the rest).
-    {
-      let guard = 0;
-      const lows = ['Q', 'J', 'K'];
-      const pickDiff3 = (sym) => { let s = lows[Math.floor(Math.random() * lows.length)]; while (s === sym) s = lows[Math.floor(Math.random() * lows.length)]; return s; };
-      while (guard++ < 14) {
-        const { wins } = evaluateWins(finalGrid, bet);
-        if (wins.length === 0) break;
-        // Keep only the forced symbol's win (the same X used to generate the
-        // grid). When the server decided a loss (!wantWin), break ALL wins
-        // so the visual matches the balance — no cascade win shown, 0 credited.
-        const keepSym = forcedSym || (wantWin ? wins[0].symbol : '__none__');
-        const extras = wins.filter(w => w.symbol !== keepSym);
-        if (extras.length === 0) break;
-        let fixed = false;
-        for (const w of extras) {
-          for (const targetReel of [2, 1, 0]) {
-            const reel = finalGrid[targetReel];
-            for (let row = 0; row < reel.length; row++) {
-              if (reel[row] === w.symbol) {
-                reel[row] = pickDiff3(w.symbol);
-                fixed = true;
-                break;
-              }
-            }
-            if (fixed) break;
-          }
-          if (fixed) break;
-        }
-        if (!fixed) break;
-      }
-    }
-
-    // Cap the single kept win to exactly 1 matching symbol per early reel so
-    // fewer symbols match at once (minimal ways for a 3-reel contiguous win).
-    {
-      const { wins } = evaluateWins(finalGrid, bet);
-      if (wins.length > 0) {
-        const keepSym = wins[0].symbol;
-        const lows = ['Q', 'J', 'K', 'A', 'whiskey', 'hat'];
-        for (let r = 0; r < 3; r++) {
-          const reel = finalGrid[r];
-          let foundFirst = false;
-          for (let row = 0; row < reel.length; row++) {
-            if (reel[row] === keepSym) {
-              if (foundFirst) {
-                reel[row] = lows[Math.floor(Math.random() * lows.length)];
-              } else {
-                foundFirst = true;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Suppress high-value (bandit / revolver) matches: proactively strip ALL
-    // bandit/revolver symbols from the early reels (0-2) so a 3+ contiguous-
-    // from-left high-value win can never form, then reactively break any
-    // remaining high-value win that slipped through. The forced 'A' win is
-    // unaffected.
-    {
-      const lows = ['Q', 'J', 'K', 'A', 'whiskey', 'hat'];
-      const isHv = (s) => s === 'bandit' || s === 'revolver';
-      // Strip every high-value symbol from reels 0, 1, 2.
-      for (let r = 0; r < 3; r++) {
-        finalGrid[r] = finalGrid[r].map(s => isHv(s) ? lows[Math.floor(Math.random() * lows.length)] : s);
-      }
-      // Reactive fallback: break any high-value win that still formed.
-      let guard = 0;
-      while (guard++ < 8) {
-        const { wins } = evaluateWins(finalGrid, bet);
-        const hv = wins.find(w => isHv(w.symbol));
-        if (!hv) break;
-        let fixed = false;
-        for (const targetReel of [2, 1, 0]) {
-          const reel = finalGrid[targetReel];
-          for (let row = 0; row < reel.length; row++) {
-            if (reel[row] === hv.symbol) {
-              reel[row] = lows[Math.floor(Math.random() * lows.length)];
-              fixed = true;
-              break;
-            }
-          }
-          if (fixed) break;
-        }
-        if (!fixed) break;
-      }
-    }
-
-    // Scatter distribution per spin: 3+ = 1% (free-spin trigger), 2 = 5%, 1 = 10%.
+    // --- Scatter placement (before win/loss matching so scatters are preserved) ---
     finalGrid = finalGrid.map(reel => [...reel]);
     const nonScatter = () => { let s = randomSymbol(); while (s === 'scatter') s = randomSymbol(); return s; };
-    // Remove any natural scatters so we control the exact count.
     finalGrid.forEach(reel => { for (let i = 0; i < reel.length; i++) if (reel[i] === 'scatter') reel[i] = nonScatter(); });
     const roll = Math.random();
     let targetScatters = 0;
     if (roll < 0.004) targetScatters = 3;              // 0.4%  (free-spin trigger)
     else if (roll < 0.029) targetScatters = 2;          // 2.5%
     else if (roll < 0.16) targetScatters = 1;          // 10%
-    // Feature Buy: force 3 scatters so the spin triggers the free-spins banner
     if (forceScatterBuyRef.current) {
       targetScatters = 3;
       forceScatterBuyRef.current = false;
     }
-    // Place scatters so the slow-motion anticipation can reveal one. When 3
-    // scatters are rolled (0.4% chance), put 2 on the early reels (0-2) and 1
-    // on a late reel (3-5) so it lands during the slow-motion phase. For 1-2
-    // scatters the placement stays fully random.
-    const cells = [];
-    finalGrid.forEach((reel, ri) => reel.forEach((sym, row) => {
-      // When the server decided a win, don't place scatters on the forced
-      // symbol cells (reels 0-2) — that would break the forced win and the
-      // user would see no banner/balance update despite the server deciding a win.
-      if (wantWin && ri < 3 && sym === forcedSym) return;
-      cells.push([ri, row]);
-    }));
-    if (targetScatters === 3) {
-      const early = cells.filter(([ri]) => ri <= 2);
-      const late = cells.filter(([ri]) => ri >= 3);
-      // 2 scatters on early reels
-      for (let i = 0; i < 2 && early.length; i++) {
-        const idx = Math.floor(Math.random() * early.length);
-        const [ri, row] = early.splice(idx, 1)[0];
-        finalGrid[ri][row] = 'scatter';
-      }
-      // 1 scatter on a late reel (revealed during slow motion)
-      if (late.length) {
-        const idx = Math.floor(Math.random() * late.length);
-        const [ri, row] = late.splice(idx, 1)[0];
-        finalGrid[ri][row] = 'scatter';
-      }
-    } else {
-      for (let i = 0; i < targetScatters && cells.length; i++) {
-        const idx = Math.floor(Math.random() * cells.length);
-        const [ri, row] = cells.splice(idx, 1)[0];
-        finalGrid[ri][row] = 'scatter';
+    {
+      const cells = [];
+      finalGrid.forEach((reel, ri) => reel.forEach((_, row) => cells.push([ri, row])));
+      if (targetScatters === 3) {
+        const early = cells.filter(([ri]) => ri <= 2);
+        const late = cells.filter(([ri]) => ri >= 3);
+        for (let i = 0; i < 2 && early.length; i++) {
+          const idx = Math.floor(Math.random() * early.length);
+          const [ri, row] = early.splice(idx, 1)[0];
+          finalGrid[ri][row] = 'scatter';
+        }
+        if (late.length) {
+          const idx = Math.floor(Math.random() * late.length);
+          const [ri, row] = late.splice(idx, 1)[0];
+          finalGrid[ri][row] = 'scatter';
+        }
+      } else {
+        for (let i = 0; i < targetScatters && cells.length; i++) {
+          const idx = Math.floor(Math.random() * cells.length);
+          const [ri, row] = cells.splice(idx, 1)[0];
+          finalGrid[ri][row] = 'scatter';
+        }
       }
     }
 
-    // Final safety (AFTER scatter placement): when the server decided a loss,
-    // ensure NO wins remain on the grid so the visual matches the balance (no
-    // cascade win shown, 0 credited). Must run AFTER scatter placement because
-    // nonScatter() replacements and scatter swaps can create new wins that
-    // weren't present when the earlier win-breaking loops ran.
-    // BULLETPROOF: (1) strip ALL wilds from early reels — wilds substitute for
-    // any symbol and keep a win alive even after the matching symbol is removed;
-    // (2) remove ALL instances of the winning symbol from the target reel, not
-    // just one row — evaluateWins counts a win if ANY row has the symbol.
-    if (!wantWin) {
-      const lows = ['Q', 'J', 'K', 'A', 'whiskey', 'hat'];
-      const pickDiff = (sym) => { let s = lows[Math.floor(Math.random() * lows.length)]; while (s === sym) s = lows[Math.floor(Math.random() * lows.length)]; return s; };
-      // Step 1: strip ALL wilds from reels 0-2 so they can't substitute.
-      for (let r = 0; r < 3; r++) {
-        finalGrid[r] = finalGrid[r].map(s => s === 'wild' ? pickDiff('wild') : s);
-      }
-      // Step 2: break every remaining win by clearing ALL instances of the
-      // winning symbol from one reel (reel 2 first, then 1, then 0).
+    // --- Win/loss matching: regenerate non-scatter cells on reels 0-2 until
+    // the grid matches the server's decision. Simple and reliable — no complex
+    // win-breaking loops that can fail and leave phantom wins. ---
+    {
       let guard = 0;
-      while (guard++ < 50) {
+      while (guard++ < 80) {
         const { wins } = evaluateWins(finalGrid, bet);
-        if (wins.length === 0) break;
-        for (const w of wins) {
-          for (let targetReel = 2; targetReel >= 0; targetReel--) {
-            const reel = finalGrid[targetReel];
-            let hadSym = false;
-            for (let row = 0; row < reel.length; row++) {
-              if (reel[row] === w.symbol) { reel[row] = pickDiff(w.symbol); hadSym = true; }
-            }
-            if (hadSym) break;
-          }
+        if (wantWin && wins.length > 0) break;
+        if (!wantWin && wins.length === 0) break;
+        for (let r = 0; r < 3; r++) {
+          finalGrid[r] = finalGrid[r].map(s => s === 'scatter' ? s : randomSymbol());
         }
       }
     }
