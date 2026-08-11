@@ -565,9 +565,9 @@ export function useWildBounty() {
     finalGrid.forEach(reel => { for (let i = 0; i < reel.length; i++) if (reel[i] === 'scatter') reel[i] = nonScatter(); });
     const roll = Math.random();
     let targetScatters = 0;
-    if (roll < 0.001) targetScatters = 3;              // 0.1%  (free-spin trigger)
-    else if (roll < 0.015) targetScatters = 2;          // 1.4%
-    else if (roll < 0.10) targetScatters = 1;          // 8.5%
+    if (roll < 0.0003) targetScatters = 3;             // 0.03% (free-spin trigger)
+    else if (roll < 0.008) targetScatters = 2;          // 0.77%
+    else if (roll < 0.07) targetScatters = 1;          // 6.2%
     if (forceScatterBuyRef.current) {
       targetScatters = 3;
       forceScatterBuyRef.current = false;
