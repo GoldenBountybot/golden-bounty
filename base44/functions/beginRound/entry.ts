@@ -163,9 +163,15 @@ export default async function(req) {
         // On win, cap = max so the player's choices determine the actual win.
         // On loss, cap = 0 so the client game produces a losing outcome and
         // settleBet credits min(client_win, 0) = 0.
+        // EXCEPTION — HiLo: on loss, cap = bet (not 0) so that collecting
+        // WITHOUT guessing returns the full bet. The user only loses when they
+        // actually guess wrong (client sends win = 0, settleBet credits
+        // min(0, bet) = 0). The client's withinCap check still forces a loss
+        // on any guess when the server decided a loss.
         const dec = decideOutcome(rtp, betAmount, isFreeSpin, gameId);
         if (!dec.isWin) {
-          outcome = { isWin: false, winAmount: 0, multiplier: 0 };
+          const lossCap = gameId === 'hi-lo' ? betAmount : 0;
+          outcome = { isWin: false, winAmount: lossCap, multiplier: 0 };
         } else {
           const cap = isFreeSpin
             ? FREE_SPIN_MAX_WIN
