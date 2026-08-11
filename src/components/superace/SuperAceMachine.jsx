@@ -86,6 +86,16 @@ function Medallion({ size, active, children }) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// After a cascade refill, compute the set of indices that hold NEW cells
+// (cells with IDs not present in the old grid). These are the cards that
+// dropped from the top and should animate the cascade drop.
+function computeNewCells(oldGrid, newGrid) {
+  const oldIds = new Set(oldGrid.map((c) => c.id));
+  const newCells = new Set();
+  newGrid.forEach((c, i) => { if (!oldIds.has(c.id)) newCells.add(i); });
+  return newCells;
+}
+
 export default function SuperAceMachine() {
   const { balance, setBalance, beginRound, settleBet, addRoundWin } = useCasinoBalance();
   const { rtp } = useGameSettings('fullhouse');
@@ -401,13 +411,15 @@ export default function SuperAceMachine() {
         const shatterSet = new Set(ev.winCells);
         setShatterCells(shatterSet);
         await sleep(turboRef.current ? 280 : 340);
+        const oldG = g;
         g = cascade(g, ev.winCells, new Set());
+        const refilled = computeNewCells(oldG, g);
         setGrid(g.map((c) => ({ ...c })));
         setWinningCells(new Set());
         setShatterCells(new Set());
         setFlipCells(new Set());
         setFloatWin(null);
-        setNewCells(shatterSet);
+        setNewCells(refilled);
         playCascade(); playCardDrop();
         await sleep(turboRef.current ? 220 : 400);
         setNewCells(new Set());
@@ -436,14 +448,15 @@ export default function SuperAceMachine() {
       setShatterCells(shatterSet);
       await sleep(turboRef.current ? 280 : 340);
 
-      const dropped = new Set([...ev.winCells].filter((i) => !gw.has(i)));
+      const oldG = g;
       g = cascade(g, ev.winCells, gw);
+      const refilled = computeNewCells(oldG, g);
       setGrid(g.map((c) => ({ ...c })));
       setWinningCells(new Set());
       setShatterCells(new Set());
       setFlipCells(new Set());
       setFloatWin(null);
-      setNewCells(dropped);
+      setNewCells(refilled);
       playCascade(); playCardDrop();
       await sleep(turboRef.current ? 220 : 400);
       setNewCells(new Set());

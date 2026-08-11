@@ -37,6 +37,9 @@ function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild
   const dropAnim = tease
     ? `saSlowDrop 0.3s ease-out ${0.15 + ((col - (teaseStart ?? col)) * ROWS + (ROWS - 1 - row)) * 0.22}s both`
     : `saReelDrop 0.35s ease-out ${((col * ROWS) + (ROWS - 1 - row)) * 0.03}s both`;
+  // Cascade refill: same staggered drop as the initial spin, so new cards
+  // glide in smoothly from the top after the blast — not a jarring pop.
+  const cascadeDropAnim = `saReelDrop 0.4s ease-out ${((col * ROWS) + (ROWS - 1 - row)) * 0.03}s both`;
   const isFace = ['A', 'K', 'Q', 'J'].includes(sym);
   const isSuit = ['S', 'H', 'D', 'C'].includes(sym);
   const isWild = sym === 'W';
@@ -100,7 +103,7 @@ function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild
           : shatter
             ? 'saShatter 0.36s ease-in forwards'
             : isNew
-              ? 'saReelDrop 0.4s ease-out both'
+              ? cascadeDropAnim
               : isWin
                 ? 'saGlowScaleInset 0.7s ease-in-out infinite'
                 : 'none',
