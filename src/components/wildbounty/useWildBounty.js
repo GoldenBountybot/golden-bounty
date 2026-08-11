@@ -305,15 +305,21 @@ export function useWildBounty() {
       // Show the ACCUMULATED total in the banner so it matches the balance.
       const winMsg = justAwarded ? `WIN ${newTotal.toFixed(2)} · +${wasFree ? 5 : 10} FREE SPINS` : `WIN ${newTotal.toFixed(2)}`;
       const winValue = newTotal;
-      // Server already confirmed a win (the outer condition guarantees
-      // serverWinRef.current > 0) — add the win to the balance AND show the
-      // banner IMMEDIATELY, at the same time, no delay.
+      // Balance updates immediately (instant feedback). The WIN BANNER
+      // amount is delayed until the flying multiplier lands on it — so the
+      // player sees: multiplier flies in → lands → amount counts up.
       addRoundWin(stepWin);
-      setLastWin(newTotal);
-      setMessage(winMsg);
       pendingWinRef.current = winValue;
       if (currentMultIndex >= 1) {
+        // Flying multiplier active — delay banner reveal until it lands.
         setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
+      } else {
+        // First cascade (×1, no flying multiplier) — show after a short delay.
+        const revealT = setTimeout(() => {
+          setLastWin(newTotal);
+          setMessage(winMsg);
+        }, 350);
+        timers.current.push(revealT);
       }
       if (justAwarded) setMessage(`+${wasFree ? 5 : 10} FREE SPINS!`);
 
@@ -708,7 +714,16 @@ export function useWildBounty() {
     else if (banner.type === 'freeSpinsEnd') setFreeSpinsEndWin({ amount: banner.amount, multiplier: banner.multiplier });
   }, []);
 
-  const clearFlyingMult = useCallback(() => setFlyingMult(null), []);
+  const clearFlyingMult = useCallback(() => {
+    setFlyingMult(null);
+    // Reveal the pending win amount in the banner NOW — the flying
+    // multiplier has just landed on it.
+    if (pendingWinRef.current > 0) {
+      setLastWin(pendingWinRef.current);
+      setMessage(`WIN ${pendingWinRef.current.toFixed(2)}`);
+      pendingWinRef.current = 0;
+    }
+  }, []);
   const dismissSuperWin = useCallback(() => setSuperWin(null), []);
   const dismissMegaWin = useCallback(() => setMegaWin(null), []);
   const dismissFreeSpinsEndWin = useCallback(() => setFreeSpinsEndWin(null), []);
