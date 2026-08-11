@@ -250,7 +250,7 @@ export function useWildBounty() {
       justAwarded = true;
     }
 
-    if (stepWin > 0) {
+    if (stepWin > 0 && serverWinRef.current > 0) {
       const slow = cascadeCount >= 1 ? 1.6 : 1.2;
       setCascadeSlow(slow);
       // High-value symbols (bandit, revolver) play a distinct match sound.
@@ -377,9 +377,7 @@ export function useWildBounty() {
       // Only show win effects if the SERVER decided a win. If the server
       // decided a loss, totalWin is meaningless (accidental grid match) —
       // don't show banners, flash, or credit anything.
-      // Show win effects whenever the grid produced a win — the simplified grid
-      // generation already ensures the grid matches the server's decision.
-      const isServerWin = totalWin > 0;
+      const isServerWin = serverWinRef.current > 0;
       if (isServerWin && totalWin > 0) setWinFlashKey(k => k + 1);
       // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
       if (isServerWin && pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
