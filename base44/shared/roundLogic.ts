@@ -109,7 +109,7 @@ export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
   // Mean ≈ 6.7 so that 0.15 * rtpFrac * 6.7 ≈ rtpFrac (expected return ≈ RTP).
   const r = Math.random();
   let multiplier;
-  if (r < 0.85) multiplier = 1 + Math.random() * 3;         // 85%: 1-4x
+  if (r < 0.85) multiplier = 1.5 + Math.random() * 2.5;     // 85%: 1.5-4x (always a real profit)
   else if (r < 0.96) multiplier = 4 + Math.random() * 16;   // 11%: 4-20x
   else if (r < 0.995) multiplier = 20 + Math.random() * 80; // 3.5%: 20-100x
   else multiplier = 100 + Math.random() * 400;              // 0.5%: 100-500x
