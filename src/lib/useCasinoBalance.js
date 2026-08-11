@@ -353,7 +353,10 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     notify();
     return;
   }
-  roundActive = false;
+  // Keep roundActive = true DURING the server call so that onFocus's
+  // loadBalance() doesn't fire mid-settle and revert the addRoundWin
+  // balance addition (reading a stale server balance before the $inc
+  // lands). roundActive is set to false AFTER the server responds.
   try {
     // Clear any stale local deltas — settleBet will give us the authoritative
     // balance from the server.
@@ -411,8 +414,12 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     wagerRemaining = newWager;
     setCache(balance);
     notify();
+    // Server responded — now safe to release the round lock.
+    roundActive = false;
+    notify();
   } catch (e) {
     // If settlement fails, reload the authoritative balance from the server.
+    roundActive = false;
     await loadBalance();
   }
 }
