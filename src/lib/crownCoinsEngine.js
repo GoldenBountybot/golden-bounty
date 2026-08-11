@@ -172,9 +172,9 @@ export function spinGrid(rtp = 50) {
     }
   }
 
-  // Win gate scales with RTP: at RTP 50 → 12% win chance (the original
-  // default). Doubling RTP in demo mode doubles the win chance.
-  const winChance = (rtp / 50) * 5;
+  // Win gate scales with RTP: at RTP 50 → 22% win chance. Doubling RTP in
+  // demo mode doubles the win chance.
+  const winChance = (rtp / 50) * 22;
   const forceLoss = Math.random() * 100 > winChance;
   if (forceLoss) {
     for (let iter = 0; iter < 4; iter++) {
