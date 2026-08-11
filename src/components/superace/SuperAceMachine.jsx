@@ -208,6 +208,13 @@ export default function SuperAceMachine() {
     } else {
       setMessage(`Free Spin · ${freeSpinsLeftRef.current} left`);
     }
+    // Wait for the previous round's settleBet to finish BEFORE starting a new
+    // server round — otherwise the settleBet response lands after this round's
+    // deduction and overwrites it, making the balance appear to revert.
+    if (settlePromiseRef.current) {
+      await settlePromiseRef.current;
+      settlePromiseRef.current = null;
+    }
     const _serverRoundPromise = beginRound(b, 'fullhouse', inFreeRef.current, 'cap');
 
     // 3-scatter free-spin trigger is an independent 0.1% roll.
@@ -263,11 +270,6 @@ export default function SuperAceMachine() {
     setGrid(g.map((c) => ({ ...c })));
     const sleepPromise = sleep(spinDur);
 
-    // Wait for any pending settleBet, then await the server round response.
-    if (settlePromiseRef.current) {
-      await settlePromiseRef.current;
-      settlePromiseRef.current = null;
-    }
     const serverRound = await _serverRoundPromise;
     if (serverRound.failed) {
       busyRef.current = false;
