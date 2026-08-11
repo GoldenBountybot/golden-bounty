@@ -311,10 +311,15 @@ async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed')
     // function. Now we sync so committedBalance matches the server and
     // uncommittedDelta is cleared — the balance is authoritative.
     const newBal = Number(data.balance ?? 0);
-    committedBalance = newBal;
+    // Prevent revert: if the server returns a higher balance than the local
+    // deducted balance (stale read replica), keep the local balance so the
+    // bet deduction is never visually undone. The authoritative balance is
+    // set at settleBet time.
+    const safeBal = Math.min(newBal, balance);
+    committedBalance = safeBal;
     uncommittedDelta = 0;
     uncommittedWagerDelta = 0;
-    balance = newBal;
+    balance = safeBal;
     setCache(balance);
     notify();
     try { if (pendingRoundToken) localStorage.setItem(ROUND_TOKEN_KEY, pendingRoundToken); } catch {}
