@@ -331,9 +331,9 @@ export default function CrownCoinsMachine() {
 
     // start all reels spinning
     setReels(cols);
-    const base = turbo ? 280 : 480;
-    const step = turbo ? 110 : 180;
-    const landMs = 320;
+    const base = turbo ? 200 : 300;
+    const step = turbo ? 75 : 120;
+    const landMs = 240;
     // Slow-motion linger lasts exactly as long as the slow-mo sound plays.
     const anticiDelay = anticipate ? (getSlowMoDuration() || 3000) : 0;
 
@@ -643,7 +643,7 @@ export default function CrownCoinsMachine() {
           />
           <div ref={reelsRef} className="relative flex items-start rounded-md overflow-hidden" style={{ background: 'transparent' }}>
             {reels.map((col, i) => (
-              <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.32 : 0.65} bet={bet} colIndex={i} amountCell={amountCell} anticipate={anticipateCol === i} />
+              <ReelColumn key={i} result={col} phase={phases[i]} winMask={winMask[i]} speed={turbo ? 0.22 : 0.4} bet={bet} colIndex={i} amountCell={amountCell} anticipate={anticipateCol === i} />
             ))}
             {stuckView.some(k => !!k) && (
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none z-20" style={{ gap: '0' }}>
