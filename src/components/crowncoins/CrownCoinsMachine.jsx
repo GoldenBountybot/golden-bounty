@@ -264,6 +264,12 @@ export default function CrownCoinsMachine() {
     const _serverRoundPromise = beginRound(bet, 'crown-coins', isFree, 'cap');
     clearTimers();
 
+    // Await the server's win/loss decision BEFORE generating the grid so the
+    // visible result always matches the server-decided outcome — no more
+    // winning lines showing $0.00 because the server decided a loss.
+    const serverRound = await _serverRoundPromise;
+    const serverForceWin = serverRound && !serverRound.failed ? !!serverRound.is_win : null;
+
     // compute final result
     let resultGrid;
     let freeDropped = 0;
@@ -276,7 +282,7 @@ export default function CrownCoinsMachine() {
       const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
       resultGrid = r.grid.map((k, i) => (r.stuck[i] ? REG[Math.floor(Math.random() * REG.length)] : k));
     } else {
-      resultGrid = spinGrid(rtp);
+      resultGrid = spinGrid(rtp, serverForceWin);
     }
     const cols = [
       [resultGrid[0], resultGrid[3], resultGrid[6]],

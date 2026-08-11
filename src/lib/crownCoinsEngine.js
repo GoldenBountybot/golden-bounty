@@ -103,7 +103,7 @@ export const PAYLINES = [
 
 // Build a biased 3x3 grid for the given RTP (0-100). Higher-value symbols
 // appear less often; the RTP gates wins so losing spins are common.
-export function spinGrid(rtp = 50) {
+export function spinGrid(rtp = 50, forceWin = null) {
   // weighted reel strips — low symbols land more often
   const strip = ['cherry','cherry','cherry','cherry','lemon','lemon','lemon','orange','orange','orange','plum','plum','plum','watermelon','grape','bell','bar','cherry','lemon','orange','plum','watermelon','grape','coin','vc1','vc3','vc5','vc15','vc20'];
   const pick = () => strip[Math.floor(Math.random() * strip.length)];
@@ -172,10 +172,11 @@ export function spinGrid(rtp = 50) {
     }
   }
 
-  // Win gate scales with RTP: at RTP 50 → 40% win chance. Doubling RTP in
-  // demo mode doubles the win chance.
+  // Win gate: when forceWin is provided (server-decided outcome), use it
+  // directly so the visible grid always matches the server's win/loss
+  // decision. Otherwise fall back to the RTP-scaled random chance.
   const winChance = (rtp / 50) * 40;
-  const forceLoss = Math.random() * 100 > winChance;
+  const forceLoss = forceWin === true ? false : forceWin === false ? true : (Math.random() * 100 > winChance);
   if (forceLoss) {
     for (let iter = 0; iter < 4; iter++) {
       const { lines } = evaluateGrid(grid);
