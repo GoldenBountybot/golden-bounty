@@ -32,14 +32,16 @@ export const PAY = {
   yellow: [0.25, 0.5, 1, 2],
 };
 
-// Multiplier symbol tiers. A tier is chosen by weight, then a random value
-// within that tier's range is picked — so any × value in the range can land.
-// Green is common; blue/pink/red are increasingly rare (combined ≈ 0.005%).
+// Multiplier symbol tiers. Colour ranges (per spec):
+//   green 1–49x · blue 50–99x · pink 100–499x · red 500–5000x
+// Only 1–9x lands commonly; every value 10x–5000x collectively has a
+// 0.001% drop chance (split across the four upper bands).
 export const MULT_TIERS = [
-  { color: 'green', min: 1,   max: 9,   weight: 93 },
-  { color: 'blue',  min: 10,  max: 50,  weight: 0.004 },
-  { color: 'pink',  min: 51,  max: 100, weight: 0.0008 },
-  { color: 'red',   min: 101, max: 500, weight: 0.0002 },
+  { color: 'green', min: 1,    max: 9,    weight: 99.999 },
+  { color: 'green', min: 10,  max: 49,   weight: 0.00025 },
+  { color: 'blue',  min: 50,  max: 99,   weight: 0.00025 },
+  { color: 'pink',  min: 100, max: 499,  weight: 0.00025 },
+  { color: 'red',   min: 500, max: 5000, weight: 0.00025 },
 ];
 const MULT_TIER_TOTAL = MULT_TIERS.reduce((s, t) => s + t.weight, 0);
 
@@ -112,9 +114,9 @@ export function multValue(cell) {
 // Colour tiers (per spec): green = 1x–50x, blue = 100x only,
 // pink = 250x only, red = 500x only.
 export function multColor(v) {
-  if (v <= 9) return 'green';
-  if (v <= 50) return 'blue';
-  if (v <= 100) return 'pink';
+  if (v <= 49) return 'green';
+  if (v <= 99) return 'blue';
+  if (v <= 499) return 'pink';
   return 'red';
 }
 
