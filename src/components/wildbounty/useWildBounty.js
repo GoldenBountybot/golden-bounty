@@ -131,27 +131,26 @@ export function useWildBounty() {
         }
       });
     } else {
-      // Force a non-win: break any 3-reel contiguity by swapping a blasted
-      // cell on reel 2 (then 1, then 0) to a symbol different from the win.
+      // Force a non-win: break any 3-reel contiguity. BULLETPROOF — strip
+      // wilds from early reels and clear ALL instances of the winning symbol
+      // from the target reel (not just one blasted cell), because evaluateWins
+      // counts a win if ANY row on the reel has the symbol.
+      for (let r = 0; r < 3; r++) {
+        grid[r] = grid[r].map(s => s === 'wild' ? randBase() : s);
+      }
       let guard = 0;
-      while (guard++ < 12 && evaluateWins(grid, bet).wins.length > 0) {
+      while (guard++ < 30 && evaluateWins(grid, bet).wins.length > 0) {
         const wins = evaluateWins(grid, bet).wins;
-        let fixed = false;
         for (const w of wins) {
-          for (const targetReel of [2, 1, 0]) {
-            const pos = removed.find(p => Number(p.split('-')[0]) === targetReel);
-            if (pos) {
-              const [, row] = pos.split('-').map(Number);
-              let alt = randBase();
-              while (alt === w.symbol) alt = randBase();
-              grid[targetReel][row] = alt;
-              fixed = true;
-              break;
+          for (let targetReel = 2; targetReel >= 0; targetReel--) {
+            const reel = grid[targetReel];
+            let hadSym = false;
+            for (let row = 0; row < reel.length; row++) {
+              if (reel[row] === w.symbol) { reel[row] = randBase(); while (reel[row] === w.symbol) reel[row] = randBase(); hadSym = true; }
             }
+            if (hadSym) break;
           }
-          if (fixed) break;
         }
-        if (!fixed) break;
       }
     }
 
@@ -251,16 +250,13 @@ export function useWildBounty() {
       justAwarded = true;
     }
 
-    if (stepWin > 0) {
+    if (stepWin > 0 && serverWinRef.current > 0) {
       const slow = cascadeCount >= 1 ? 1.6 : 1.2;
       setCascadeSlow(slow);
       // High-value symbols (bandit, revolver) play a distinct match sound.
       sfx.symbolMatch();
       sfx.win(cascadeCount);
       const newTotal = totalWin + stepWin;
-      // NOTE: addRoundWin is called inside the banner-reveal timeout below so
-      // the balance updates SIMULTANEOUSLY with the banner (not before). This
-      // prevents the balance from being ahead of the displayed win amount.
       const newMult = Math.min(currentMultIndex + 1, MULTIPLIERS.length - 1);
       // Show the ACCUMULATED total in the banner (not just this cascade's
       // step win) so the banner always matches the balance addition.
@@ -309,17 +305,14 @@ export function useWildBounty() {
       // Show the ACCUMULATED total in the banner so it matches the balance.
       const winMsg = justAwarded ? `WIN ${newTotal.toFixed(2)} · +${wasFree ? 5 : 10} FREE SPINS` : `WIN ${newTotal.toFixed(2)}`;
       const winValue = newTotal;
-      // Only credit the win if the SERVER decided a win. If the server
-      // decided a loss (serverWinRef = 0) but the grid accidentally has a
-      // match, skip addRoundWin + banner so the balance never increases
-      // (and thus never gets "taken back" at settlement).
-      const isServerWin = serverWinRef.current > 0;
-      // Add the win to the balance + show the win banner IMMEDIATELY (per
-      // spin/round) so the user sees the balance climb AND the win message
-      // at the same time — no delay.
-      if (isServerWin) { addRoundWin(stepWin); setLastWin(newTotal); setMessage(winMsg); }
+      // Server already confirmed a win (the outer condition guarantees
+      // serverWinRef.current > 0) — add the win to the balance AND show the
+      // banner IMMEDIATELY, at the same time, no delay.
+      addRoundWin(stepWin);
+      setLastWin(newTotal);
+      setMessage(winMsg);
       pendingWinRef.current = winValue;
-      if (currentMultIndex >= 1 && isServerWin) {
+      if (currentMultIndex >= 1) {
         setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
       }
       if (justAwarded) setMessage(`+${wasFree ? 5 : 10} FREE SPINS!`);
@@ -693,24 +686,31 @@ export function useWildBounty() {
 
     // Final safety: when the server decided a loss, ensure NO wins remain on
     // the grid so the visual matches the balance (no cascade win shown, 0 credited).
+    // BULLETPROOF: (1) strip ALL wilds from early reels — wilds substitute for
+    // any symbol and keep a win alive even after the matching symbol is removed;
+    // (2) remove ALL instances of the winning symbol from the target reel, not
+    // just one row — evaluateWins counts a win if ANY row has the symbol.
     if (!wantWin) {
       const lows = ['Q', 'J', 'K', 'A', 'whiskey', 'hat'];
       const pickDiff = (sym) => { let s = lows[Math.floor(Math.random() * lows.length)]; while (s === sym) s = lows[Math.floor(Math.random() * lows.length)]; return s; };
+      // Step 1: strip ALL wilds from reels 0-2 so they can't substitute.
+      for (let r = 0; r < 3; r++) {
+        finalGrid[r] = finalGrid[r].map(s => s === 'wild' ? pickDiff('wild') : s);
+      }
+      // Step 2: break every remaining win by clearing ALL instances of the
+      // winning symbol from one reel (reel 2 first, then 1, then 0).
       let guard = 0;
-      while (guard++ < 30) {
+      while (guard++ < 50) {
         const { wins } = evaluateWins(finalGrid, bet);
         if (wins.length === 0) break;
         for (const w of wins) {
-          let fixed = false;
-          for (let targetReel = 2; targetReel >= 0 && !fixed; targetReel--) {
+          for (let targetReel = 2; targetReel >= 0; targetReel--) {
             const reel = finalGrid[targetReel];
+            let hadSym = false;
             for (let row = 0; row < reel.length; row++) {
-              if (reel[row] === w.symbol) {
-                reel[row] = pickDiff(w.symbol);
-                fixed = true;
-                break;
-              }
+              if (reel[row] === w.symbol) { reel[row] = pickDiff(w.symbol); hadSym = true; }
             }
+            if (hadSym) break;
           }
         }
       }
