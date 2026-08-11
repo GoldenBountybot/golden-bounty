@@ -224,7 +224,13 @@ export function useWildBounty() {
   const evaluateAndCascade = (currentGrid, cascadeCount, totalWin, currentMultIndex, wasFree, scatterAwarded = false, framedPositions = new Set()) => {
     const { wins, scatterCount: sc } = evaluateWins(currentGrid, bet);
     const multiplier = MULTIPLIERS[currentMultIndex];
-    const stepWin = Math.round(wins.reduce((sum, w) => sum + w.pay, 0) * multiplier * 100) / 100;
+    const rawStepWin = Math.round(wins.reduce((sum, w) => sum + w.pay, 0) * multiplier * 100) / 100;
+    // Cap the step win at the remaining server-decided win so the displayed
+    // banner amount never exceeds what the server will actually credit (cap
+    // mode credits min(clientWin, serverWin)). This keeps banner ↔ balance
+    // perfectly in sync — no mismatch.
+    const remainingServerWin = Math.max(0, Math.round((serverWinRef.current - totalWin) * 100) / 100);
+    const stepWin = Math.min(rawStepWin, remainingServerWin);
     if (stepWin > 0 && multiplier > peakMultRef.current) peakMultRef.current = multiplier;
 
     const wpos = new Set();
