@@ -97,7 +97,7 @@ function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild
       style={{
         ...style,
         overflow: (isWin && !shatter) ? 'visible' : 'hidden',
-        willChange: (isWin || spinning) ? 'transform' : 'auto',
+        willChange: (isWin || spinning || shatter) ? 'transform, opacity' : 'auto',
         animation: spinning
           ? dropAnim
           : shatter

@@ -501,9 +501,9 @@
   100% { transform: translate(calc(-50% + var(--sx)), calc(-50% + var(--sy))) scale(0.15) rotate(180deg); opacity: 0; }
 }
 @keyframes saShatter {
-  0%   { transform: scale(1.13); opacity: 1; filter: brightness(1.6) drop-shadow(0 0 12px rgba(255,210,120,1)); }
-  40%  { transform: scale(1.5) rotate(4deg); opacity: 1; filter: brightness(2.3) drop-shadow(0 0 18px rgba(255,220,140,1)); }
-  100% { transform: scale(2.1) rotate(9deg); opacity: 0; filter: blur(6px) brightness(2.5) drop-shadow(0 0 22px rgba(255,200,40,0.9)); }
+  0%   { transform: scale(1.13) rotate(0deg); opacity: 1; }
+  35%  { transform: scale(1.4) rotate(3deg); opacity: 0.85; }
+  100% { transform: scale(1.9) rotate(8deg); opacity: 0; }
 }
 @keyframes saWinPop {
   0%   { transform: scale(0.3); opacity: 0; }
