@@ -772,8 +772,8 @@ export function useWildBounty() {
     // stops (dropping in with the symbol), instead of popping in after every
     // reel has landed.
     setGoldFrames(frames);
-    const baseGap = turbo ? 110 : 200;
-    const slowGap = turbo ? 750 : 1300; // slow-motion anticipation for remaining reels
+    const baseGap = turbo ? 95 : 175;
+    const slowGap = turbo ? 650 : 1150; // slow-motion anticipation for remaining reels
 
     let stoppedScatter = 0;
     const stopReel = (i, slow) => {
