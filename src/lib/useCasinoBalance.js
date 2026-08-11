@@ -79,11 +79,16 @@ async function loadBalance() {
       committedWager = isFinite(w) ? w : 0;
       wagerRemaining = committedWager;
     } else {
-      balance = committedBalance + uncommittedDelta;
+      // No active round — the server balance is authoritative. Clear any
+      // stale uncommittedDelta (e.g., from a failed beginRound refund) so it
+      // can't inflate the displayed balance above the real server balance.
+      uncommittedDelta = 0;
+      uncommittedWagerDelta = 0;
+      balance = committedBalance;
       setCache(balance);
       const w = Number(res?.data?.wager_remaining ?? 0);
       committedWager = isFinite(w) ? w : 0;
-      wagerRemaining = committedWager + uncommittedWagerDelta;
+      wagerRemaining = committedWager;
     }
   } catch {
     // not logged in: fall back to cached value
@@ -212,8 +217,28 @@ async function addRealBalance(amount, type = 'bonus', note = '', claimedLoss = 0
 // is settled via settleBet() at the end, which credits the SERVER-DECIDED win
 // (the client's win_amount is ignored or capped) — so users can't hack their
 // balance by calling settleBet from the console.
+//
+// BALANCE FLOW (single deduction, real-casino style):
+//   1. beginRound deducts the bet locally (instant visual feedback) AND on the
+//      server (authoritative). After the server responds, committedBalance is
+//      synced to the post-deduction balance.
+//   2. setBalance is a NO-OP during a round (roundActive=true) — the game's
+//      setBalance(b => b - bet) call is ignored because beginRound already
+//      deducted. This prevents the double-deduction bug.
+//   3. settleBet credits the server-decided win (total payout = multiplier ×
+//      bet, which INCLUDES the bet). Final balance = preBet - bet + winAmount
+//      = preBet + (multiplier - 1) × bet. This matches real slot games.
 async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed') {
   roundActive = true;
+  // Instant visual feedback: deduct the bet locally right away. The server
+  // will deduct it too, and we'll sync committedBalance to the post-deduction
+  // balance when the server responds. This gives the user immediate feedback
+  // that the bet was placed, without waiting for the server round-trip.
+  if (!demoMode && !isFreeSpin && bet > 0) {
+    balance = balance - bet;
+    setCache(balance);
+    notify();
+  }
   if (demoMode) {
     // Demo mode: decide locally (no backend call).
     // Plinko: use the server's exact bucket distribution (0.1x–100x) so the
@@ -255,20 +280,28 @@ async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed')
     const data = res?.data || {};
     pendingRoundToken = data.round_token || null;
     pendingServerWin = Number(data.win_amount ?? 0);
-    // NOTE: do NOT sync committedBalance here. The game's setBalance call
-    // already reduces the local display by the bet (uncommittedDelta = -bet),
-    // and committedBalance still holds the pre-deduction server balance — so
-    // balance = committedBalance + (-bet) = correct. Syncing here would
-    // double-deduct. settleBet syncs the authoritative balance at the end.
+    // Sync committedBalance to the post-deduction server balance. The server
+    // already deducted the bet, and we deducted it locally at the top of this
+    // function. Now we sync so committedBalance matches the server and
+    // uncommittedDelta is cleared — the balance is authoritative.
+    const newBal = Number(data.balance ?? 0);
+    committedBalance = newBal;
+    uncommittedDelta = 0;
+    uncommittedWagerDelta = 0;
+    balance = newBal;
+    setCache(balance);
+    notify();
     try { if (pendingRoundToken) localStorage.setItem(ROUND_TOKEN_KEY, pendingRoundToken); } catch {}
     return { is_win: !!data.is_win, win_amount: pendingServerWin, round_token: pendingRoundToken };
   } catch {
-    // beginRound failed — the server did NOT deduct the bet. Reset roundActive
-    // so the caller's setBalance(b => b - bet) reverts via schedulePersist
-    // (commitBalanceDelta) instead of being stuck in "round display-only" mode.
-    // Without this, the local display shows the bet deducted but the server
-    // never deducted it — settleBet then fails (no round_token), loadBalance
-    // reads the original server balance, and the balance "increases" back.
+    // beginRound failed — the server did NOT deduct the bet. Revert the local
+    // deduction we made at the top of beginRound and reset roundActive so the
+    // game's refund setBalance(b => b + bet) is handled correctly.
+    if (!isFreeSpin && bet > 0) {
+      balance = balance + bet;
+      setCache(balance);
+      notify();
+    }
     roundActive = false;
     return { is_win: null, win_amount: null, round_token: null, failed: true };
   }
@@ -281,36 +314,32 @@ async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed')
 // is used by CrashGame to settle a specific panel's round independently.
 async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, preserveDelta = 0, roundTokenOverride = null) {
   if (demoMode) {
-    // In demo mode, settle locally only (no backend commit).
-    const net = isFreeSpin ? winAmount : (winAmount - betAmount);
-    demoBalance = Math.max(0, demoBalance + net);
+    // In demo mode, settle locally only (no backend commit). The bet was
+    // already deducted by setBalance(b => b - bet) at spin time, so just
+    // credit the total win amount (which includes the bet, real-casino style).
+    demoBalance = Math.max(0, demoBalance + winAmount);
     setDemoCache(demoBalance);
     roundActive = false;
     notify();
     return;
   }
   roundActive = false;
-  // Optimistic local update: the setBalance calls during the round already
-  // adjusted the local display. Now flush any remaining non-round deltas and
-  // sync with the server's authoritative balance.
   try {
-    // Flush any pending non-round deltas first (e.g., wager changes).
-    if (uncommittedDelta !== 0 || uncommittedWagerDelta !== 0) {
-      // Clear local deltas — settleBet will give us the authoritative balance.
-      uncommittedDelta = 0;
-      uncommittedWagerDelta = 0;
-    }
+    // Clear any stale local deltas — settleBet will give us the authoritative
+    // balance from the server.
+    uncommittedDelta = 0;
+    uncommittedWagerDelta = 0;
     // Optimistic: show the server-decided win IMMEDIATELY in the local balance
     // (before the server confirms). pendingServerWin holds the server's pre-
     // decided win from beginRound — the server will credit this exact amount,
     // so the optimistic display matches the final balance. For cap-mode games
     // (Mines, HiLo) where the client's win may be below the cap, use the
     // smaller of the two so we never over-show. balance is currently
-    // committedBalance - bet (the round's setBalance deduction); adding the
-    // win gives the correct post-round display instantly.
+    // committedBalance (post-deduction, synced by beginRound); adding the win
+    // gives the correct post-round display instantly.
     const optimisticWin = Math.max(0, pendingServerWin > 0 ? Math.min(winAmount, pendingServerWin) : winAmount);
     if (optimisticWin > 0) {
-      balance = balance + optimisticWin;
+      balance = committedBalance + optimisticWin;
       setCache(balance);
       notify();
     }
@@ -408,6 +437,11 @@ export function useCasinoBalance() {
       notify();
       return;
     }
+    // During an active round, setBalance is a NO-OP. beginRound already
+    // deducted the bet locally and on the server. The game's setBalance(b =>
+    // b - bet) call is ignored to prevent double-deduction. settleBet credits
+    // the win at round end and syncs the authoritative balance.
+    if (roundActive) return;
     const prev = balance;
     const next = typeof updater === 'function' ? updater(prev) : updater;
     const v = isFinite(next) ? Number(next) : 0;
@@ -426,9 +460,7 @@ export function useCasinoBalance() {
     balance = v;
     setCache(v);
     notify();
-    // During a game round, setBalance is local-display-only — the round is
-    // settled atomically via settleBet() at the end (server-verified).
-    if (!roundActive) schedulePersist();
+    schedulePersist();
   }, []);
 
   const reset = useCallback(() => setBalance(0), [setBalance]);
