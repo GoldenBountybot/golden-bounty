@@ -414,18 +414,16 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     // the win but the balance drops back, causing a mismatch.
     const expectedMin = committedBalance + creditedWin;
     const authoritativeBal = Math.max(newBackend, expectedMin);
-    committedBalance = authoritativeBal;
+    // Don't let the balance jump ABOVE the optimistic display — a stale server
+    // read can return a pre-deduction balance, which would revert the bet
+    // deduction. Cap authoritativeBal at the current display (which already
+    // reflects the correct post-round balance). Then re-apply uncommittedDelta
+    // (e.g., a new round's bet deduction from auto-spin).
+    const safeAuthoritative = Math.min(authoritativeBal, balance);
+    committedBalance = safeAuthoritative;
     committedWager = newWager;
-    // Re-apply preserved delta from other active rounds (e.g., CrashGame's
-    // second bet panel still in play when the first panel settles).
-    // IMPORTANT: ADD preserveDelta to the CURRENT uncommittedDelta, don't
-    // overwrite it. If a new round started during the server call (auto-spin
-    // or free-spin chain), its setBalance(b => b - bet) already set
-    // uncommittedDelta = -newBet. Overwriting with preserveDelta (0) would
-    // lose the new bet deduction — the balance would jump back UP, making
-    // it look like the bet was never placed.
     uncommittedDelta += preserveDelta;
-    balance = authoritativeBal + uncommittedDelta;
+    balance = safeAuthoritative + uncommittedDelta;
     wagerRemaining = newWager;
     setCache(balance);
     notify();
