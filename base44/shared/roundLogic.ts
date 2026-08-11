@@ -76,7 +76,7 @@ export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
   // determines the payout. The cap is set high (bet × 5000) so normal
   // paytable wins are never limited, but still bounded for safety. ──
   if (gameId === 'big-brown') {
-    const winChanceMult = 0.24;
+    const winChanceMult = 0.30;
     const winChance = rtpFrac * winChanceMult;
     const isWin = Math.random() < winChance;
     if (!isWin) {
