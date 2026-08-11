@@ -12,7 +12,7 @@ sfx.preload && sfx.preload();
 export function useWildBounty() {
   const [grid, setGrid] = useState(() => REEL_ROWS.map(r => buildReel(r)));
   const [finalGrid, setFinalGrid] = useState(null);
-  const { balance, setBalance, beginRound, settleBet, reset: resetBalance } = useCasinoBalance();
+  const { balance, setBalance, beginRound, settleBet, addRoundWin, reset: resetBalance } = useCasinoBalance();
   const [bet, setBet] = useState(0.10);
   const [spinning, setSpinning] = useState(false);
   const [multIndex, setMultIndex] = useState(0);
@@ -258,6 +258,10 @@ export function useWildBounty() {
       sfx.symbolMatch();
       sfx.win(cascadeCount);
       const newTotal = totalWin + stepWin;
+      // Credit this cascade's win to the display balance immediately so the
+      // user sees the balance climb with each cascade — no waiting for the
+      // chain to end. settleBet adjusts the difference at chain end.
+      addRoundWin(stepWin);
       const newMult = Math.min(currentMultIndex + 1, MULTIPLIERS.length - 1);
 
       // Wild conversion: a 4/5+ of-a-kind turns the matching symbol on the
@@ -372,12 +376,7 @@ export function useWildBounty() {
       // the server's pre-decided win (from beginRound). settleBet credits the
       // server's amount, not the cascade-computed total — so users can't hack
       // their balance by calling settleBet from the console.
-      // For normal spins, the server credits only the PROFIT (win − bet) —
-      // the bet is NOT returned. So display and log the profit too. Free
-      // spins don't deduct a bet, so the full win IS the profit.
-      totalWin = wasFree
-        ? serverWinRef.current
-        : Math.max(0, serverWinRef.current - settleBetRef.current);
+      totalWin = serverWinRef.current;
       sfx.winStop();
       setCascadeSlow(1);
       setWinningPositions(new Set());
@@ -465,7 +464,7 @@ export function useWildBounty() {
       } else if (cascadeCount === 0) {
         setMessage(sc === 2 ? 'ONE MORE SCATTER!' : 'WIN UP TO 3600 WAYS!');
       }
-      logActivity('wild-bounty', bet, totalWin, serverWinRef.current > 0 ? 'win' : 'loss');
+      logActivity('wild-bounty', bet, totalWin, totalWin > 0 ? 'win' : 'loss');
       // Delay setSpinning(false) until settleBet completes — prevents the next
       // auto-spin/free-spin from starting a new beginRound before this round's
       // settleBet finishes, which would race the two server calls and double-
