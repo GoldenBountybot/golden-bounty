@@ -401,7 +401,15 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     }
     const newBackend = Number(res?.data?.balance ?? 0);
     const newWager = Number(res?.data?.wager_remaining ?? 0);
-    committedBalance = newBackend;
+    const creditedWin = Number(res?.data?.win_amount ?? 0);
+    // Safeguard against stale server reads: if the server's balance response
+    // doesn't include the win credit (read replica lag after $inc), use the
+    // locally-known correct minimum (committedBalance + creditedWin) instead.
+    // This prevents the win from being silently reverted — the banner shows
+    // the win but the balance drops back, causing a mismatch.
+    const expectedMin = committedBalance + creditedWin;
+    const authoritativeBal = Math.max(newBackend, expectedMin);
+    committedBalance = authoritativeBal;
     committedWager = newWager;
     // Re-apply preserved delta from other active rounds (e.g., CrashGame's
     // second bet panel still in play when the first panel settles).
@@ -412,7 +420,7 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     // lose the new bet deduction — the balance would jump back UP, making
     // it look like the bet was never placed.
     uncommittedDelta += preserveDelta;
-    balance = newBackend + uncommittedDelta;
+    balance = authoritativeBal + uncommittedDelta;
     wagerRemaining = newWager;
     setCache(balance);
     notify();
