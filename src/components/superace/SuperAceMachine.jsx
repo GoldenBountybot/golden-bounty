@@ -418,7 +418,7 @@ export default function SuperAceMachine() {
       setFloatWin(null);
       setNewCells(refilled);
       playCascade(); playCardDrop();
-      await sleep(turboRef.current ? 500 : 950);
+      await sleep(turboRef.current ? 350 : 600);
       setNewCells(new Set());
     }
     return g;
