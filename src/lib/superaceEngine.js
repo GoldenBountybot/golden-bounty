@@ -35,7 +35,7 @@ export const GOLDEN_CHANCE = 0.20;
 // WILD never spawns directly — it only appears via golden-card transformation.
 const WEIGHTS = {
   A: 0.4, K: 0.6, Q: 0.9, J: 1.2,
-  S: 28, H: 28, D: 20, C: 20,
+  S: 31, H: 31, D: 17, C: 17,
   SC: 1.5,
 };
 
