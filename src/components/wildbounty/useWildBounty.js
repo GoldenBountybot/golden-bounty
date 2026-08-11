@@ -314,18 +314,21 @@ export function useWildBounty() {
       // match, skip addRoundWin + banner so the balance never increases
       // (and thus never gets "taken back" at settlement).
       const isServerWin = serverWinRef.current > 0;
+      // Add the win to the balance IMMEDIATELY (per spin/round) so the user
+      // sees the balance climb as each cascade wins — no delay.
+      if (isServerWin) { addRoundWin(stepWin); setLastWin(newTotal); }
       if (currentMultIndex >= 1) {
         if (isServerWin) setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
         pendingWinRef.current = winValue;
         const winT = setTimeout(() => {
-          if (isServerWin) { addRoundWin(stepWin); setLastWin(pendingWinRef.current); setMessage(winMsg); }
+          if (isServerWin) { setMessage(winMsg); }
           pendingWinRef.current = 0;
         }, 1150 * flySlow * 0.86);
         timers.current.push(winT);
       } else {
         pendingWinRef.current = winValue;
         const winT = setTimeout(() => {
-          if (isServerWin) { addRoundWin(stepWin); setLastWin(pendingWinRef.current); setMessage(winMsg); }
+          if (isServerWin) { setMessage(winMsg); }
           pendingWinRef.current = 0;
         }, 600);
         timers.current.push(winT);
