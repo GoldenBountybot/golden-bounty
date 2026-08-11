@@ -347,10 +347,10 @@ export default function SuperAceMachine() {
         freeSpinsLeftRef.current = FREE_SPINS_AWARD; setFreeSpinsLeft(FREE_SPINS_AWARD);
         setMessage(`${FREE_SPINS_AWARD} Free Spins Awarded!`);
         playScatter(); playBigWin();
-        // Pause on the Western "Start Free Spin" interstitial until the player taps start.
-        await new Promise((resolve) => { freeStartResolverRef.current = resolve; setShowFreeStart(true); });
+        // Show the "Start Free Spin" banner briefly, then auto-start — no tap required.
+        setShowFreeStart(true);
+        await sleep(1500);
         setShowFreeStart(false);
-        freeStartResolverRef.current = null;
         await sleep(200);
       }
     }
