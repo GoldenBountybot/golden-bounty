@@ -7,7 +7,6 @@ import {
 } from './argonautsEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
-import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
 import { playReelLandSound, playValueCoinSound, playDoveSound, playAmphoraSound, playLyreSound, playSpartanSound, playGoddessSound, playDragonSound, playBowSound, playPotionSound, playWildSound, playScatterSound, playScatterLongSound, stopScatterLongSound, playScatterWinSound, playCoinFeatureSound } from './argoSounds';
 
@@ -76,7 +75,6 @@ export function useArgonauts() {
   const [slowMoReels, setSlowMoReels] = useState(new Set());
 
   const settings = useGameSettings('argonauts');
-  const logActivity = useLogActivity('argonauts');
   usePendingRoundRecovery('argonauts', setBalance, (state) => {
     if (state && state.freeSpinsActive && state.freeSpins > 0) {
       setFreeSpins(state.freeSpins);
@@ -120,12 +118,8 @@ export function useArgonauts() {
     // Restore a normal symbol board so the maroon coin grid doesn't linger.
     setGrid(generateGrid(false));
     setSpinningReels(new Set([0, 1, 2, 3, 4]));
-    // Log the combined base-spin + coin-round win as a single activity entry
-    // (the bet was only deducted once, at beginRound).
-    const combinedWin = coinBaseWinRef.current + total;
     coinBaseWinRef.current = 0;
-    logActivity('argonauts', betRef.current, combinedWin, 'win', 0);
-  }, [setBalance, settleBet, logActivity]);
+  }, [setBalance, settleBet]);
 
   const coinSpin = useCallback(() => {
     if (!coinModeRef.current || Object.keys(coinStuckRef.current).length === 0) return;
@@ -296,10 +290,7 @@ export function useArgonauts() {
     }
 
     setSpinning(false);
-    if (!usingFree && !awardedFree && bonusCount < BONUS_TRIGGER_COUNT) {
-      logActivity('argonauts', bet, baseWin, baseWin > 0 ? 'win' : 'loss');
-    }
-  }, [lineBet, bet, setBalance, settleBet, logActivity, startCoinRound]);
+  }, [lineBet, bet, setBalance, settleBet, startCoinRound]);
 
   const spin = useCallback(async () => {
     if (spinning || coinModeRef.current) return;
@@ -455,9 +446,8 @@ export function useArgonauts() {
       setMessage(`FREE SPINS ENDED · TOTAL $${totalWin.toFixed(2)}`);
       setSpinning(false);
       if (totalWin > 0) setFreeSpinEnd({ total: totalWin });
-      logActivity('argonauts', 0, totalWin, totalWin > 0 ? 'win' : 'loss', 0);
     }
-  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, bonusActive, coinMode, turbo, spin, totalWin, logActivity]);
+  }, [freeSpinsActive, spinning, freeSpins, showFreeSpinStart, bonusActive, coinMode, turbo, spin, totalWin]);
 
   // Auto spin
   useEffect(() => {
@@ -483,10 +473,9 @@ export function useArgonauts() {
     setTotalWin((t) => t + bonusPrize);
     setMessage(`GOLDEN FLEECE · WON $${bonusPrize.toFixed(2)}${bonusExtra ? ' · ULTRA JACKPOT!' : ''}`);
     setSpinning(false);
-    logActivity('argonauts', bet, bonusPrize, 'win', 0);
     setBonusPrize(0);
     setBonusExtra(false);
-  }, [bonusPrize, bonusExtra, setBalance, settleBet, logActivity, bet]);
+  }, [bonusPrize, bonusExtra, setBalance, settleBet, bet]);
 
   // Gamble (risk) feature — card based
   const startRisk = useCallback(() => {
@@ -549,8 +538,7 @@ export function useArgonauts() {
     setRevealedIdx(null);
     setRiskOutcome(null);
     setSpinning(false);
-    logActivity('argonauts', bet, pendingWin, 'win', 0);
-  }, [pendingWin, setBalance, settleBet, logActivity, bet]);
+  }, [pendingWin, setBalance, settleBet, bet]);
 
   const loseRisk = useCallback(() => {
     setMessage('RISK GAME · LOST');
@@ -566,8 +554,7 @@ export function useArgonauts() {
     setSpinning(false);
     settlePromiseRef.current = settleBet(bet, 0, 'argonauts', false);
     settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
-    logActivity('argonauts', bet, 0, 'loss', 0);
-  }, [logActivity, bet, settleBet]);
+  }, [bet, settleBet]);
 
   const dismissCoinWin = useCallback(() => setCoinWin(null), []);
   const dismissFreeSpinEnd = useCallback(() => setFreeSpinEnd(null), []);
