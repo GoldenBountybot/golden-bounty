@@ -69,9 +69,11 @@ export function useBigBrown() {
     finalGrid.forEach((reel, ri) => reel.forEach((s, row) => { if (s === 'scatter') scPos.add(`${ri}-${row}`); }));
 
     const { wins, scatterCount, scatterWin } = evaluateWins(expanded, bet);
-    // Override the client-computed total with the server's pre-decided win.
-    // settleBet credits the server's amount, not the grid-computed total.
-    const totalWin = serverWinRef.current;
+    // Symbol-value-based payout: the win comes from the paytable (actual
+    // symbols on the grid), not the server's pre-decided amount. The server
+    // still controls win/loss via the cap (cap mode) — if the server decided
+    // a loss, the cap is 0 and settleBet credits min(paytableWin, 0) = 0.
+    const totalWin = Math.round((wins.reduce((s, w) => s + w.pay, 0) + scatterWin) * 100) / 100;
 
     // Only expand wild reels that are part of a winning way. A wild on reel ri
     // is part of a win only when ri falls within the consecutive winning range
@@ -188,22 +190,29 @@ export function useBigBrown() {
     let finalGrid = buildGrid();
 
     // Use the server's win decision (from beginRound) — NOT Math.random().
+    // The server decides win/loss; the grid generates naturally and the
+    // paytable determines the payout amount.
     const wantWin = serverWinRef.current > 0;
     if (wantWin) {
-      // Clear any natural wilds first so at most one wild exists on the board,
-      // then place matching symbols on reels 0 & 2 and a single wild on either
-      // reel 1 or reel 2 for a guaranteed 3-of-a-kind. This distributes forced
-      // wilds across lines 2 & 3 instead of always dropping them on reel 1.
-      // Wilds on reels 3 & 4 (lines 4 & 5) come from the natural WILD_CHANCE.
-      finalGrid = clearWilds(finalGrid);
-      const sym = 'A';
-      finalGrid[0][0] = sym;
-      finalGrid[2][0] = sym;
-      const wildReel = Math.random() < 0.5 ? 1 : 2;
-      finalGrid[wildReel][Math.floor(Math.random() * 4)] = 'brown';
+      // Generate naturally; if no winning combination appears, retry a few
+      // times. If still no win, place a natural-looking 3-of-a-kind using
+      // a random symbol (not always 'A') so the win feels organic.
+      let attempts = 0;
+      while (attempts < 10 && evaluateWins(expandWilds(finalGrid), bet).wins.length === 0) {
+        finalGrid = buildGrid();
+        attempts++;
+      }
+      if (evaluateWins(expandWilds(finalGrid), bet).wins.length === 0) {
+        finalGrid = clearWilds(finalGrid);
+        const winSyms = ['A', 'K', 'Q', 'J', '10', '9', 'deer', 'wolf', 'cougar', 'eagle', 'buffalo'];
+        const sym = winSyms[Math.floor(Math.random() * winSyms.length)];
+        finalGrid[0][Math.floor(Math.random() * 4)] = sym;
+        finalGrid[1][Math.floor(Math.random() * 4)] = sym;
+        finalGrid[2][Math.floor(Math.random() * 4)] = sym;
+      }
     } else {
       let attempts = 0;
-      while (attempts < 6 && evaluateWins(expandWilds(finalGrid), bet).wins.length > 0) {
+      while (attempts < 10 && evaluateWins(expandWilds(finalGrid), bet).wins.length > 0) {
         finalGrid = buildGrid();
         attempts++;
       }

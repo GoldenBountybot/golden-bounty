@@ -71,6 +71,22 @@ export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
     return { isWin: true, winAmount, multiplier: mult };
   }
 
+  // ── Big Brown: symbol-value-based payouts (cap mode). The server decides
+  // win/loss based on RTP; the grid generates naturally and the paytable
+  // determines the payout. The cap is set high (bet × 5000) so normal
+  // paytable wins are never limited, but still bounded for safety. ──
+  if (gameId === 'big-brown') {
+    const winChanceMult = 0.19;
+    const winChance = rtpFrac * winChanceMult;
+    const isWin = Math.random() < winChance;
+    if (!isWin) {
+      return { isWin: false, winAmount: 0, multiplier: 0 };
+    }
+    const cap = Math.min(betAmount * 5000, isFreeSpin ? FREE_SPIN_MAX_WIN : MAX_WIN_MULT * betAmount);
+    const winAmount = Math.round(cap * 100) / 100;
+    return { isWin: true, winAmount, multiplier: winAmount / Math.max(betAmount, 0.01) };
+  }
+
   // ── All other games: continuous multiplier distribution ──
   // Win frequency: ~15% of RTP as win chance (at 50% RTP → ~7.5% win chance).
   // Super Ace (fullhouse): reduced to ~8% of RTP so fewer spins land on the
