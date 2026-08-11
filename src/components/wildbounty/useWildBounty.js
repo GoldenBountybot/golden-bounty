@@ -50,6 +50,7 @@ export function useWildBounty() {
   const freeSpinsCountRef = useRef(0); // remaining free spins (synced ref for chain-end checks)
   const roundEndSoundDurRef = useRef(800); // ms to wait for the round-end sound to finish before the next free spin
   const pendingWinRef = useRef(0); // win amount waiting to be revealed when the flying multiplier lands on the banner
+  const pendingCreditRef = useRef(0); // balance credit waiting for the flying multiplier to land (credited the moment the banner shows the win)
   const [bannerPending, setBannerPending] = useState(false); // blocks auto/free spin while a round-end banner is delayed for the flying animation
   const forceScatterBuyRef = useRef(false); // Feature Buy: force 3 scatters on the next spin to trigger the free-spins banner
   const skipBetDeductRef = useRef(false); // Feature Buy: the triggering spin's bet is already covered by the feature cost
@@ -314,19 +315,21 @@ export function useWildBounty() {
       // Show the ACCUMULATED total in the banner so it matches the balance.
       const winMsg = justAwarded ? `WIN ${newTotal.toFixed(2)} · +${wasFree ? 5 : 10} FREE SPINS` : `WIN ${newTotal.toFixed(2)}`;
       const winValue = newTotal;
-      // Balance updates immediately (instant feedback). The WIN BANNER
-      // amount is delayed until the flying multiplier lands on it — so the
-      // player sees: multiplier flies in → lands → amount counts up.
-      addRoundWin(stepWin);
       pendingWinRef.current = winValue;
       if (currentMultIndex >= 1) {
-        // Flying multiplier active — delay banner reveal until it lands.
+        // Multiplier round: BOTH the banner reveal AND the balance credit
+        // wait for the flying multiplier to land — the player sees the
+        // multiplier fly in → land → win amount shows → balance adds, all
+        // in the same moment (clearFlyingMult).
+        pendingCreditRef.current += stepWin;
         setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
       } else {
-        // First cascade (×1, no flying multiplier) — show after a short delay.
+        // First cascade (×1, no flying multiplier) — reveal the win and add
+        // it to the balance together, right as the round result shows.
         const revealT = setTimeout(() => {
           setLastWin(newTotal);
           setMessage(winMsg);
+          addRoundWin(stepWin);
         }, 350);
         timers.current.push(revealT);
       }
@@ -387,6 +390,9 @@ export function useWildBounty() {
       // settleBet response (which may include the next bet's server-side
       // deduction) combined with the local -bet uncommittedDelta double-
       // deducts the next bet, making wins appear uncredited.
+      // Safety: any win still waiting for a flying animation is credited now,
+      // BEFORE settleBet reconciles, so the displayed total is never lost.
+      if (pendingCreditRef.current > 0) { addRoundWin(pendingCreditRef.current); pendingCreditRef.current = 0; }
       const settlePromise = settleBet(settleBetRef.current, totalWin, 'wild-bounty', wasFree);
       settlePromiseRef.current = settlePromise;
       // Only show win effects if the SERVER decided a win. If the server
@@ -502,6 +508,7 @@ export function useWildBounty() {
     if (usingFree) sfx.startFreeSpinReel();
     peakMultRef.current = 1;
     pendingWinRef.current = 0;
+    pendingCreditRef.current = 0;
     setBannerPending(false);
     setSuperWin(null);
     setMegaWin(null);
@@ -725,12 +732,16 @@ export function useWildBounty() {
 
   const clearFlyingMult = useCallback(() => {
     setFlyingMult(null);
-    // Reveal the pending win amount in the banner NOW — the flying
-    // multiplier has just landed on it.
+    // The flying multiplier has just landed on the banner: reveal the win
+    // amount AND add it to the balance at the same moment.
     if (pendingWinRef.current > 0) {
       setLastWin(pendingWinRef.current);
       setMessage(`WIN ${pendingWinRef.current.toFixed(2)}`);
       pendingWinRef.current = 0;
+    }
+    if (pendingCreditRef.current > 0) {
+      addRoundWin(pendingCreditRef.current);
+      pendingCreditRef.current = 0;
     }
   }, []);
   const dismissSuperWin = useCallback(() => setSuperWin(null), []);
