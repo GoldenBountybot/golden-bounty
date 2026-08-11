@@ -245,8 +245,13 @@ export default function SuperAceMachine() {
       spinDur = turboRef.current ? baseSpin + teasedCols * 150 : baseSpin + teasedCols * 350;
     }
 
+    // Start the spin animation immediately — cards drop with their initial
+    // faces while the server decides the outcome in the background.
+    setSpinning(true);
+    setGrid(g.map((c) => ({ ...c })));
+    const sleepPromise = sleep(spinDur);
+
     // Wait for any pending settleBet, then await the server round response.
-    // The server round and grid generation run in parallel to minimize delay.
     if (settlePromiseRef.current) {
       await settlePromiseRef.current;
       settlePromiseRef.current = null;
@@ -262,24 +267,36 @@ export default function SuperAceMachine() {
     serverWinRef.current = Number(serverRound.win_amount ?? 0);
     const forceWin = serverWinRef.current > 0;
 
-    // Nudge the grid to match the server's win/loss decision. Preserve scatter
-    // cells and cell ids — changing only the sym in place.
+    // Minimal nudge: change as FEW cells as possible to match the server's
+    // decision. Most spins need zero changes; the rest change only 1-4 cells
+    // (not all 20). The arePropsEqual comparator skips re-renders for unchanged
+    // cells, so only the nudged cards visually update.
     {
-      const scatterIdxs = new Set(g.map((c, i) => (c.sym === 'SC' ? i : -1)).filter((i) => i >= 0));
-      let guard = 0;
-      while (guard++ < 60) {
-        const ev = evaluate(g, betRef.current);
-        const hasLineWin = ev.pay > 0;
-        if (forceWin && hasLineWin) break;
-        if (!forceWin && !hasLineWin) break;
-        for (let i = 0; i < g.length; i++) {
-          if (!scatterIdxs.has(i)) {
-            let ns = makeCell().sym;
-            while (ns === 'SC') ns = makeCell().sym;
-            g[i] = { ...g[i], sym: ns, golden: false };
+      const ev = evaluate(g, betRef.current);
+      if (forceWin && ev.pay === 0) {
+        // Create a line win: set 3 cells in row 0 to the same paying symbol.
+        const s = PAY_SYMBOLS[Math.floor(Math.random() * PAY_SYMBOLS.length)];
+        for (let c = 0; c < 3; c++) {
+          const idx = c; // row 0, column c
+          if (g[idx].sym !== 'SC' && g[idx].sym !== s) {
+            g[idx] = { ...g[idx], sym: s, golden: false };
+          }
+        }
+      } else if (!forceWin && ev.pay > 0) {
+        // Break the win: for each winning symbol, change matching cells in
+        // column 0 to a non-matching symbol.
+        for (const s of ev.winSymbols) {
+          for (let r = 0; r < ROWS; r++) {
+            const idx = r * COLS; // column 0
+            if (g[idx].sym === s || g[idx].sym === 'W') {
+              let ns = makeCell().sym;
+              while (ns === s || ns === 'SC' || ns === 'W') ns = makeCell().sym;
+              g[idx] = { ...g[idx], sym: ns, golden: false };
+            }
           }
         }
       }
+      // Apply golden cards to middle columns.
       const candidates = [];
       for (const c of GOLDEN_COLS) {
         for (let r = 0; r < ROWS; r++) {
@@ -303,12 +320,11 @@ export default function SuperAceMachine() {
       goldenTargetsRef.current = goldenCfg.targets;
     }
 
-    // Set the final grid and start the spin animation — cards drop once with
-    // their final faces. No card backs, no face change, no double drop.
-    setSpinning(true);
+    // Apply the nudged grid — only changed cells re-render (comparator skips
+    // unchanged ones), so the visual update is minimal.
     setGrid(g.map((c) => ({ ...c })));
 
-    await sleep(spinDur);
+    await sleepPromise;
     setSpinning(false);
     setTeaseCols(new Set());
     playReelLand();
