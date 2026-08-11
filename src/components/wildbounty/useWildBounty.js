@@ -607,6 +607,7 @@ export function useWildBounty() {
     {
       let guard = 0;
       const lows = ['Q', 'J', 'K'];
+      const pickDiff3 = (sym) => { let s = lows[Math.floor(Math.random() * lows.length)]; while (s === sym) s = lows[Math.floor(Math.random() * lows.length)]; return s; };
       while (guard++ < 14) {
         const { wins } = evaluateWins(finalGrid, bet);
         if (wins.length === 0) break;
@@ -622,7 +623,7 @@ export function useWildBounty() {
             const reel = finalGrid[targetReel];
             for (let row = 0; row < reel.length; row++) {
               if (reel[row] === w.symbol) {
-                reel[row] = lows[Math.floor(Math.random() * lows.length)];
+                reel[row] = pickDiff3(w.symbol);
                 fixed = true;
                 break;
               }
@@ -696,6 +697,7 @@ export function useWildBounty() {
     // the grid so the visual matches the balance (no cascade win shown, 0 credited).
     if (!wantWin) {
       const lows = ['Q', 'J', 'K', 'A', 'whiskey', 'hat'];
+      const pickDiff = (sym) => { let s = lows[Math.floor(Math.random() * lows.length)]; while (s === sym) s = lows[Math.floor(Math.random() * lows.length)]; return s; };
       let guard = 0;
       while (guard++ < 30) {
         const { wins } = evaluateWins(finalGrid, bet);
@@ -706,7 +708,7 @@ export function useWildBounty() {
             const reel = finalGrid[targetReel];
             for (let row = 0; row < reel.length; row++) {
               if (reel[row] === w.symbol) {
-                reel[row] = lows[Math.floor(Math.random() * lows.length)];
+                reel[row] = pickDiff(w.symbol);
                 fixed = true;
                 break;
               }
