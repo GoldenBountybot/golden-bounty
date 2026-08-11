@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { BETS, buildGrid, clearWilds, expandWilds, evaluateWins, freeSpinsForScatters, WILD_REELS, bonusPopCost } from '@/lib/bigBrownEngine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
-import { useLogActivity } from '@/lib/useLogActivity';
+
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
 import { playReelDropSound, playScatterDropSound, playLowValueWinSound, playHighValueWinSound } from '@/lib/bigBrownSound';
 import { SYMBOLS } from '@/lib/bigBrownEngine';
@@ -30,7 +30,6 @@ export function useBigBrown() {
   const [anticipation, setAnticipation] = useState(false);
 
   const settings = useGameSettings('big-brown');
-  const logActivity = useLogActivity();
   usePendingRoundRecovery('big-brown', setBalance, (state) => {
     // Restore an in-progress free spins round so the player resumes exactly
     // where they left off. The free-spins auto-trigger effect will spin the
@@ -143,8 +142,9 @@ export function useBigBrown() {
     }
 
     setSpinning(false);
-    logActivity('big-brown', wasFree ? 0 : bet, totalWin, totalWin > 0 ? 'win' : 'loss');
-  }, [bet, setBalance, settleBet, logActivity]);
+    // PlayerActivity is logged authoritatively by the backend settleBet
+    // function — logging here too double-records each round in history.
+  }, [bet, setBalance, settleBet]);
 
   const spin = useCallback(async () => {
     if (spinning) return;
