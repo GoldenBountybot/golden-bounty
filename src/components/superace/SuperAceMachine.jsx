@@ -280,7 +280,7 @@ export default function SuperAceMachine() {
     const forceWin = serverWinRef.current > 0;
 
     // Golden Wild (only on server-decided wins; uses flip animation after drop)
-    const goldenCfg = forceWin && !scatterHit && Math.random() < 0.35 ? findGoldenWildConfig(g, b) : null;
+    const goldenCfg = forceWin && !scatterHit && Math.random() < 0.05 ? findGoldenWildConfig(g, b) : null;
     if (goldenCfg) {
       g[goldenCfg.sourceIdx] = { ...g[goldenCfg.sourceIdx], sym: 'W', golden: false, goldenWild: true, pending: true };
       goldenWildIdxRef.current = goldenCfg.sourceIdx;
