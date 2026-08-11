@@ -376,7 +376,12 @@ export function useWildBounty() {
       // the server's pre-decided win (from beginRound). settleBet credits the
       // server's amount, not the cascade-computed total — so users can't hack
       // their balance by calling settleBet from the console.
-      totalWin = serverWinRef.current;
+      // For normal spins, the server credits only the PROFIT (win − bet) —
+      // the bet is NOT returned. So display and log the profit too. Free
+      // spins don't deduct a bet, so the full win IS the profit.
+      totalWin = wasFree
+        ? serverWinRef.current
+        : Math.max(0, serverWinRef.current - settleBetRef.current);
       sfx.winStop();
       setCascadeSlow(1);
       setWinningPositions(new Set());
@@ -464,7 +469,7 @@ export function useWildBounty() {
       } else if (cascadeCount === 0) {
         setMessage(sc === 2 ? 'ONE MORE SCATTER!' : 'WIN UP TO 3600 WAYS!');
       }
-      logActivity('wild-bounty', bet, totalWin, totalWin > 0 ? 'win' : 'loss');
+      logActivity('wild-bounty', bet, totalWin, serverWinRef.current > 0 ? 'win' : 'loss');
       // Delay setSpinning(false) until settleBet completes — prevents the next
       // auto-spin/free-spin from starting a new beginRound before this round's
       // settleBet finishes, which would race the two server calls and double-
