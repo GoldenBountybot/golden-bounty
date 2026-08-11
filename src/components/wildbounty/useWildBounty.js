@@ -258,10 +258,9 @@ export function useWildBounty() {
       sfx.symbolMatch();
       sfx.win(cascadeCount);
       const newTotal = totalWin + stepWin;
-      // Credit this cascade's win to the display balance immediately so the
-      // user sees the balance climb with each cascade. settleBet adjusts the
-      // difference at chain end so the final balance is always authoritative.
-      addRoundWin(stepWin);
+      // NOTE: addRoundWin is called inside the banner-reveal timeout below so
+      // the balance updates SIMULTANEOUSLY with the banner (not before). This
+      // prevents the balance from being ahead of the displayed win amount.
       const newMult = Math.min(currentMultIndex + 1, MULTIPLIERS.length - 1);
       // Show the ACCUMULATED total in the banner (not just this cascade's
       // step win) so the banner always matches the balance addition.
@@ -315,6 +314,7 @@ export function useWildBounty() {
         // The multiplier arrives at the banner at ~86% of the fly duration.
         pendingWinRef.current = winValue;
         const winT = setTimeout(() => {
+          addRoundWin(stepWin);
           setLastWin(pendingWinRef.current);
           pendingWinRef.current = 0;
           setMessage(winMsg);
@@ -323,6 +323,7 @@ export function useWildBounty() {
       } else {
         pendingWinRef.current = winValue;
         const winT = setTimeout(() => {
+          addRoundWin(stepWin);
           setLastWin(pendingWinRef.current);
           pendingWinRef.current = 0;
           setMessage(winMsg);
