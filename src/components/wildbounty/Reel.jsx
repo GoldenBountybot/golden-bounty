@@ -43,7 +43,7 @@ function Reel({ reelIndex, rowCount, symbols, finalSymbols, spinning, speed, win
   }, [spinning, symbols, finalSymbols, rowCount, anticipationGlow]);
 
   return (
-    <div className={`relative w-full ${spinning ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount, contain: 'layout style', transform: 'translate3d(0,0,0)' }}>
+    <div className={`relative w-full ${spinning || cascading ? 'overflow-hidden' : 'overflow-visible'}`} style={{ aspectRatio: '1 / ' + rowCount, contain: 'layout style', transform: 'translate3d(0,0,0)' }}>
       {/* Anticipation golden border glow — intense vertical beams on both
           sides of the reel with massive bloom that floods adjacent reel lines */}
       {anticipationGlow && spinning && (
