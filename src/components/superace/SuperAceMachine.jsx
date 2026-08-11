@@ -144,7 +144,6 @@ export default function SuperAceMachine() {
   const goldenWildIdxRef = useRef(null);
   const goldenTargetsRef = useRef([]);
   const normalWildSpawnedRef = useRef(false);
-  const announcedFirstRef = useRef(false);
   const maxMultRef = useRef(0);
   const serverWinRef = useRef(0);
   const superWinResolverRef = useRef(null);
@@ -306,14 +305,6 @@ export default function SuperAceMachine() {
       }, i * 150);
     });
 
-    // Announce the win immediately as the reels land — no delay.
-    announcedFirstRef.current = false;
-    const evImm = evaluate(g, betRef.current);
-    if (serverWinRef.current > 0 && evImm.pay > 0 && evImm.winSymbols && evImm.winSymbols.length > 0) {
-      playComboWin(1);
-      announceWin(evImm.winSymbols, multiplierFor(0, inFreeRef.current));
-      announcedFirstRef.current = true;
-    }
 
     await sleep(150);
 
@@ -385,17 +376,14 @@ export default function SuperAceMachine() {
       }
       const remainingServer = Math.max(0, Math.round((serverWinRef.current - winThisSpinRef.current) * 100) / 100);
       win = Math.min(win, remainingServer);
+      if (win <= 0) break; // server win budget exhausted — stop cascading, no 0.00 display
       comboCount++; setCombo(comboCount);
       winThisSpinRef.current += win; setWinThisSpin(winThisSpinRef.current);
       addRoundWin(win);
       setWinningCells(new Set(ev.winCells));
       setFloatWin({ value: win, key: comboCount + '-' + Date.now() + Math.random() });
       playComboWin(comboCount);
-      if (announcedFirstRef.current) {
-        announcedFirstRef.current = false;
-      } else {
-        announceWin(ev.winSymbols, mult);
-      }
+      announceWin(ev.winSymbols, mult);
       await sleep(turboRef.current ? 380 : 560);
 
       // When a Golden Wild is active this spin, normal wilds never appear:
