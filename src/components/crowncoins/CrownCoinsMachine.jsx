@@ -150,7 +150,7 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, 
     phase === 'spin'
       ? `reelFall ${spinSpeed}s linear infinite`
       : phase === 'land'
-      ? 'reelLand 0.5s cubic-bezier(0.22, 1, 0.36, 1)'
+      ? 'reelLand 0.32s cubic-bezier(0.22, 1, 0.36, 1)'
       : 'none';
 
   const showGlow = anticipate && phase !== 'idle';
@@ -331,9 +331,9 @@ export default function CrownCoinsMachine() {
 
     // start all reels spinning
     setReels(cols);
-    const base = turbo ? 420 : 720;
-    const step = turbo ? 160 : 260;
-    const landMs = 460;
+    const base = turbo ? 280 : 480;
+    const step = turbo ? 110 : 180;
+    const landMs = 320;
     // Slow-motion linger lasts exactly as long as the slow-mo sound plays.
     const anticiDelay = anticipate ? (getSlowMoDuration() || 3000) : 0;
 
