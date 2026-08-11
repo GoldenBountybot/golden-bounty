@@ -132,22 +132,13 @@ export function evaluate(g, bet) {
 // Remove winning cells, turn golden winners into WILD, compact down, refill top.
 export function cascade(g, winCells, goldenToWild) {
   const res = new Array(TOTAL);
-  for (let c = 0; c < COLS; c++) {
-    const keepers = [];
-    for (let r = 0; r < ROWS; r++) {
-      const idx = r * COLS + c;
-      const cell = g[idx];
-      if (goldenToWild.has(idx)) keepers.push({ ...cell, sym: 'W', golden: false });
-      else if (!winCells.has(idx)) keepers.push(cell);
-    }
-    const offset = ROWS - keepers.length;
-    for (let r = 0; r < ROWS; r++) {
-      const idx = r * COLS + c;
-      if (r >= offset) {
-        res[idx] = keepers[r - offset];
-      } else {
-        res[idx] = makeCascadeCell();
-      }
+  for (let i = 0; i < TOTAL; i++) {
+    if (goldenToWild.has(i)) {
+      res[i] = { ...g[i], sym: 'W', golden: false };
+    } else if (winCells.has(i)) {
+      res[i] = makeCascadeCell();
+    } else {
+      res[i] = g[i];
     }
   }
   return res;
