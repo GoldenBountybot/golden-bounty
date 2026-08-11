@@ -314,26 +314,15 @@ export function useWildBounty() {
       // match, skip addRoundWin + banner so the balance never increases
       // (and thus never gets "taken back" at settlement).
       const isServerWin = serverWinRef.current > 0;
-      // Add the win to the balance IMMEDIATELY (per spin/round) so the user
-      // sees the balance climb as each cascade wins — no delay.
-      if (isServerWin) { addRoundWin(stepWin); setLastWin(newTotal); }
-      if (currentMultIndex >= 1) {
-        if (isServerWin) setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
-        pendingWinRef.current = winValue;
-        const winT = setTimeout(() => {
-          if (isServerWin) { setMessage(winMsg); }
-          pendingWinRef.current = 0;
-        }, 1150 * flySlow * 0.86);
-        timers.current.push(winT);
-      } else {
-        pendingWinRef.current = winValue;
-        const winT = setTimeout(() => {
-          if (isServerWin) { setMessage(winMsg); }
-          pendingWinRef.current = 0;
-        }, 600);
-        timers.current.push(winT);
+      // Add the win to the balance + show the win banner IMMEDIATELY (per
+      // spin/round) so the user sees the balance climb AND the win message
+      // at the same time — no delay.
+      if (isServerWin) { addRoundWin(stepWin); setLastWin(newTotal); setMessage(winMsg); }
+      pendingWinRef.current = winValue;
+      if (currentMultIndex >= 1 && isServerWin) {
+        setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
       }
-      setMessage(justAwarded ? `+${wasFree ? 5 : 10} FREE SPINS!` : '');
+      if (justAwarded) setMessage(`+${wasFree ? 5 : 10} FREE SPINS!`);
 
       // From the second cascade, run everything in a slight slow motion so the
       // shatter/drop animation lines up with the (also slowed) win sound.
