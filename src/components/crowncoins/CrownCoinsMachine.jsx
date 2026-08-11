@@ -331,9 +331,12 @@ export default function CrownCoinsMachine() {
 
     // start all reels spinning
     setReels(cols);
-    const base = turbo ? 420 : 720;
-    const step = turbo ? 160 : 260;
-    const landMs = 460;
+    // Reduced timings to keep the total spin snappy now that the server
+    // round is awaited before the grid is generated (the await adds ~300ms
+    // which is hidden behind the first reel's spin).
+    const base = turbo ? 260 : 420;
+    const step = turbo ? 100 : 150;
+    const landMs = turbo ? 320 : 380;
     // Slow-motion linger lasts exactly as long as the slow-mo sound plays.
     const anticiDelay = anticipate ? (getSlowMoDuration() || 3000) : 0;
 
