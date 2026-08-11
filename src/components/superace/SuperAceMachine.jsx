@@ -3,7 +3,6 @@ import { Settings, Zap, Minus, Plus, Play, RotateCw, Wallet, Coins, Trophy, Hist
 import { Link } from 'react-router-dom';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
-import { useLogActivity } from '@/lib/useLogActivity';
 import CardTile from '@/components/superace/CardTile';
 import FlyingWilds from '@/components/superace/FlyingWilds';
 import MultiplierBar from '@/components/superace/MultiplierBar';
@@ -99,7 +98,6 @@ function computeNewCells(oldGrid, newGrid) {
 export default function SuperAceMachine() {
   const { balance, setBalance, beginRound, settleBet, addRoundWin } = useCasinoBalance();
   const { rtp } = useGameSettings('fullhouse');
-  const logActivity = useLogActivity();
 
   const [bet, setBet] = useState(0.10);
   const [grid, setGrid] = useState(() => makeGrid());
@@ -447,7 +445,10 @@ export default function SuperAceMachine() {
     } else if (!inFreeRef.current) {
       playLose();
     }
-    logActivity('fullhouse', inFreeRef.current ? 0 : betRef.current, total, total > 0 ? 'win' : 'loss');
+    // NOTE: PlayerActivity is logged authoritatively by the settleBet backend
+    // function (with the correct bet, win, and multiplier). Do NOT log again
+    // client-side — that creates a duplicate history row per spin with
+    // mismatched bet/multiplier values, making the history look chaotic.
 
     // Enable the spin button immediately — the Super/Mega win banner is
     // visual only and no longer blocks the button.
