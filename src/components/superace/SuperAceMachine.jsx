@@ -251,8 +251,6 @@ export default function SuperAceMachine() {
     }
     setTeaseStart(teaseStart);
     setTeaseCols(teaseSet);
-    setSpinning(true);
-    setGrid(g.map((c) => ({ ...c })));
     const baseSpin = turboRef.current ? 600 : 1000;
     let spinDur = baseSpin;
     if (teaseSet.size > 0) {
@@ -260,10 +258,10 @@ export default function SuperAceMachine() {
       spinDur = turboRef.current ? baseSpin + teasedCols * 150 : baseSpin + teasedCols * 350;
     }
 
-    // Await server response while animation is running
+    // Await server response BEFORE setting the grid so the nudge can adjust
+    // the grid to match the server's decision before the cards are displayed.
+    // This prevents the cards from dropping with one face then changing.
     const serverRound = await _serverRoundPromise;
-    // If beginRound failed (network error, server reject, etc.), the server
-    // did NOT deduct the bet. Revert the local display deduction and abort.
     if (serverRound.failed) {
       busyRef.current = false;
       setPhase('idle');
@@ -274,10 +272,8 @@ export default function SuperAceMachine() {
     serverWinRef.current = Number(serverRound.win_amount ?? 0);
     const forceWin = serverWinRef.current > 0;
 
-    // Nudge the grid to match the server's win/loss decision so the displayed
-    // outcome matches what the server will credit. Preserve scatter cells AND
-    // cell ids — changing only the sym in place so React doesn't re-mount
-    // cards and re-trigger the drop animation (which caused the double-drop).
+    // Nudge the grid to match the server's win/loss decision. Preserve scatter
+    // cells and cell ids — changing only the sym in place.
     {
       const scatterIdxs = new Set(g.map((c, i) => (c.sym === 'SC' ? i : -1)).filter((i) => i >= 0));
       let guard = 0;
@@ -286,14 +282,12 @@ export default function SuperAceMachine() {
         const hasLineWin = ev.pay > 0;
         if (forceWin && hasLineWin) break;
         if (!forceWin && !hasLineWin) break;
-        // Change non-scatter cell symbols in place (preserve cell ids)
         for (let i = 0; i < g.length; i++) {
           if (!scatterIdxs.has(i)) {
             g[i] = { ...g[i], sym: PAY_SYMBOLS[Math.floor(Math.random() * PAY_SYMBOLS.length)], golden: false };
           }
         }
       }
-      // Re-apply golden cards on the nudged grid (preserve ids)
       const candidates = [];
       for (const c of GOLDEN_COLS) {
         for (let r = 0; r < ROWS; r++) {
@@ -307,7 +301,6 @@ export default function SuperAceMachine() {
       }
       const gn = Math.min(candidates.length, 3 + Math.floor(Math.random() * 3));
       for (let i = 0; i < gn; i++) g[candidates[i]].golden = true;
-      setGrid(g.map((c) => ({ ...c })));
     }
 
     // Golden Wild (applied after server response, uses flip animation)
@@ -316,8 +309,12 @@ export default function SuperAceMachine() {
       g[goldenCfg.sourceIdx] = { ...g[goldenCfg.sourceIdx], sym: 'W', golden: false, goldenWild: true, pending: true };
       goldenWildIdxRef.current = goldenCfg.sourceIdx;
       goldenTargetsRef.current = goldenCfg.targets;
-      setGrid(g.map((c) => ({ ...c })));
     }
+
+    // Set the final grid and start the spin animation AFTER the nudge/golden
+    // wild so the cards drop with their final faces — no face change after.
+    setSpinning(true);
+    setGrid(g.map((c) => ({ ...c })));
 
     await sleep(spinDur);
     setSpinning(false);
