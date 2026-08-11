@@ -194,14 +194,14 @@ export default function SuperAceMachine() {
     maxMultRef.current = 0;
     goldenTargetsRef.current = [];
     normalWildSpawnedRef.current = false;
-    // Start the spin sound and generate the grid IMMEDIATELY so the cards
-    // drop as soon as the user clicks — no waiting for the server.
+    // Start the spin sound and server round IMMEDIATELY (in parallel).
     playSpinStart();
     if (!inFreeRef.current) {
       setMessage(`Spinning…`);
     } else {
       setMessage(`Free Spin · ${freeSpinsLeftRef.current} left`);
     }
+    const _serverRoundPromise = beginRound(b, 'fullhouse', inFreeRef.current, 'cap');
 
     // 3-scatter free-spin trigger is an independent 0.1% roll.
     const scatterHit = Math.random() < 0.001;
@@ -245,19 +245,11 @@ export default function SuperAceMachine() {
       spinDur = turboRef.current ? baseSpin + teasedCols * 150 : baseSpin + teasedCols * 350;
     }
 
-    // Start the spin animation immediately with the initial grid.
-    setSpinning(true);
-    setGrid(g.map((c) => ({ ...c })));
-
-    // Start the spin timer in parallel with the server round.
-    const sleepPromise = sleep(spinDur);
-
-    // Wait for any pending settleBet, then start the server round.
+    // Wait for any pending settleBet, then await the server round response.
     if (settlePromiseRef.current) {
       await settlePromiseRef.current;
       settlePromiseRef.current = null;
     }
-    const _serverRoundPromise = beginRound(b, 'fullhouse', inFreeRef.current, 'cap');
     const serverRound = await _serverRoundPromise;
     if (serverRound.failed) {
       busyRef.current = false;
@@ -270,8 +262,7 @@ export default function SuperAceMachine() {
     const forceWin = serverWinRef.current > 0;
 
     // Nudge the grid to match the server's win/loss decision. Preserve scatter
-    // cells and cell ids — changing only the sym in place (no setGrid here;
-    // the nudged grid is applied at the end of the spin).
+    // cells and cell ids — changing only the sym in place.
     {
       const scatterIdxs = new Set(g.map((c, i) => (c.sym === 'SC' ? i : -1)).filter((i) => i >= 0));
       let guard = 0;
@@ -311,9 +302,12 @@ export default function SuperAceMachine() {
       goldenTargetsRef.current = goldenCfg.targets;
     }
 
-    // Wait for the spin timer to finish, then apply the nudged grid and stop.
-    await sleepPromise;
+    // Set the final grid and start the spin animation — cards drop with their
+    // final faces, no face change after.
+    setSpinning(true);
     setGrid(g.map((c) => ({ ...c })));
+
+    await sleep(spinDur);
     setSpinning(false);
     setTeaseCols(new Set());
     playReelLand();
