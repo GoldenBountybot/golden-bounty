@@ -370,97 +370,62 @@ export default function SuperAceMachine() {
 
   const resolveCascades = async (g) => {
     if (serverWinRef.current === 0) return g;
-    let comboCount = 0;
-    while (true) {
-      const ev = evaluate(g, betRef.current);
-      if (ev.pay === 0) break;
-      const mult = multiplierFor(comboCount, inFreeRef.current);
-      if (mult > maxMultRef.current) maxMultRef.current = mult;
-      let win = ev.pay * mult;
-      // cap at game max
-      if (winThisSpinRef.current + win > MAX_WIN_CAP * betRef.current) {
-        win = Math.max(0, MAX_WIN_CAP * betRef.current - winThisSpinRef.current);
-      }
-      // Cap at the remaining server-decided win so the displayed total never
-      // exceeds what the server will credit. With 'cap' mode, settleBet credits
-      // min(clientTotal, serverWin) — since total is capped at serverWin here,
-      // the credited amount exactly matches the displayed amount. No mismatch.
-      const remainingServer = Math.max(0, Math.round((serverWinRef.current - winThisSpinRef.current) * 100) / 100);
-      win = Math.min(win, remainingServer);
-      comboCount++; setCombo(comboCount);
-      winThisSpinRef.current += win; setWinThisSpin(winThisSpinRef.current);
-      addRoundWin(win);
-      setWinningCells(new Set(ev.winCells));
-      setFloatWin({ value: win, key: comboCount + '-' + Date.now() + Math.random() });
-      playComboWin(comboCount);
-      // Skip the first announce if it was already spoken when the reels landed.
-      if (announcedFirstRef.current) {
-        announcedFirstRef.current = false;
-      } else {
-        announceWin(ev.winSymbols, mult);
-      }
-      await sleep(turboRef.current ? 380 : 560);
-
-      // Multiplier gate: each extra cascade is increasingly unlikely to chain,
-      // so higher multipliers (2×,3×,5×) trigger far less often.
-      const stopChance = inFreeRef.current
-        ? [0, 0.78, 0.92, 0.97][Math.min(comboCount, 3)] || 0.99
-        : [0, 0.85, 0.94, 0.98][Math.min(comboCount, 3)] || 0.995;
-      if (Math.random() < stopChance) {
-        // shatter the winning cells and end the round without further cascades
-        const shatterSet = new Set(ev.winCells);
-        setShatterCells(shatterSet);
-        await sleep(turboRef.current ? 280 : 340);
-        const oldG = g;
-        g = cascade(g, ev.winCells, new Set());
-        const refilled = computeNewCells(oldG, g);
-        setGrid(g.map((c) => ({ ...c })));
-        setWinningCells(new Set());
-        setShatterCells(new Set());
-        setFlipCells(new Set());
-        setFloatWin(null);
-        setNewCells(refilled);
-        playCascade(); playCardDrop();
-        await sleep(turboRef.current ? 220 : 400);
-        setNewCells(new Set());
-        break;
-      }
-
-      // When a Golden Wild is active this spin, normal wilds never appear:
-      // golden cards just shatter like ordinary winners.
-      let gw = goldenWildIdxRef.current != null ? new Set() : ev.goldenToWild;
-      // Only 1 normal wild per round — keep the first golden card; the rest shatter.
-      if (goldenWildIdxRef.current == null && gw.size > 0) {
-        if (normalWildSpawnedRef.current) {
-          gw = new Set();
-        } else {
-          gw = new Set([gw.values().next().value]);
-          normalWildSpawnedRef.current = true;
-        }
-      }
-      if (gw.size > 0) {
-        setFlipCells(new Set(gw));
-        await sleep(turboRef.current ? 520 : 680);
-      }
-
-      // remaining winning cards blast/shatter then vanish
-      const shatterSet = new Set([...ev.winCells].filter((i) => !gw.has(i)));
-      setShatterCells(shatterSet);
-      await sleep(turboRef.current ? 280 : 340);
-
-      const oldG = g;
-      g = cascade(g, ev.winCells, gw);
-      const refilled = computeNewCells(oldG, g);
-      setGrid(g.map((c) => ({ ...c })));
-      setWinningCells(new Set());
-      setShatterCells(new Set());
-      setFlipCells(new Set());
-      setFloatWin(null);
-      setNewCells(refilled);
-      playCascade(); playCardDrop();
-      await sleep(turboRef.current ? 220 : 400);
-      setNewCells(new Set());
+    // Process only ONE cascade — no hidden automatic re-evaluation rounds.
+    const ev = evaluate(g, betRef.current);
+    if (ev.pay === 0) return g;
+    const mult = multiplierFor(0, inFreeRef.current);
+    if (mult > maxMultRef.current) maxMultRef.current = mult;
+    let win = ev.pay * mult;
+    if (winThisSpinRef.current + win > MAX_WIN_CAP * betRef.current) {
+      win = Math.max(0, MAX_WIN_CAP * betRef.current - winThisSpinRef.current);
     }
+    const remainingServer = Math.max(0, Math.round((serverWinRef.current - winThisSpinRef.current) * 100) / 100);
+    win = Math.min(win, remainingServer);
+    setCombo(1);
+    winThisSpinRef.current += win; setWinThisSpin(winThisSpinRef.current);
+    addRoundWin(win);
+    setWinningCells(new Set(ev.winCells));
+    setFloatWin({ value: win, key: '1-' + Date.now() + Math.random() });
+    playComboWin(1);
+    if (announcedFirstRef.current) {
+      announcedFirstRef.current = false;
+    } else {
+      announceWin(ev.winSymbols, mult);
+    }
+    await sleep(turboRef.current ? 380 : 560);
+
+    // Golden Wild flip + normal wild spawn (same as before, single pass)
+    let gw = goldenWildIdxRef.current != null ? new Set() : ev.goldenToWild;
+    if (goldenWildIdxRef.current == null && gw.size > 0) {
+      if (normalWildSpawnedRef.current) {
+        gw = new Set();
+      } else {
+        gw = new Set([gw.values().next().value]);
+        normalWildSpawnedRef.current = true;
+      }
+    }
+    if (gw.size > 0) {
+      setFlipCells(new Set(gw));
+      await sleep(turboRef.current ? 520 : 680);
+    }
+
+    // Blast winning cards and drop new cards — ONE cascade only, then stop
+    const shatterSet = new Set([...ev.winCells].filter((i) => !gw.has(i)));
+    setShatterCells(shatterSet);
+    await sleep(turboRef.current ? 280 : 340);
+
+    const oldG = g;
+    g = cascade(g, ev.winCells, gw);
+    const refilled = computeNewCells(oldG, g);
+    setGrid(g.map((c) => ({ ...c })));
+    setWinningCells(new Set());
+    setShatterCells(new Set());
+    setFlipCells(new Set());
+    setFloatWin(null);
+    setNewCells(refilled);
+    playCascade(); playCardDrop();
+    await sleep(turboRef.current ? 220 : 400);
+    setNewCells(new Set());
     return g;
   };
 
