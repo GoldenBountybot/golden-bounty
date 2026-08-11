@@ -11,6 +11,9 @@ const GAME_LABELS = {
   'rocket-crash': 'Aviator',
   'crown-coins': 'Crown Coins',
   'argonauts': 'Argonauts',
+  'gates-of-olympus': 'Gates of Olympus',
+  'big-brown': 'Big Brown',
+  'thimbles': 'Thimbles',
 };
 
 function fmtDate(d) {

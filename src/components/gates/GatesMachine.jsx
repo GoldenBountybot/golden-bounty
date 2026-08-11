@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { RotateCcw, Plus, Minus, AlignJustify, Info, X } from 'lucide-react';
+import { RotateCcw, Plus, Minus, AlignJustify, Info, X, History, BookOpen } from 'lucide-react';
 import GatesSymbol, { SYM_IMG } from './GatesSymbol';
 import GatesSpinStrip from './GatesSpinStrip';
 import GatesWinBoard from './GatesWinBoard';
@@ -12,6 +12,8 @@ import GatesTumbleWinBanner from './GatesTumbleWinBanner';
 import GatesBigWinBanner from './GatesBigWinBanner';
 import GatesFreeSpinEndBanner from './GatesFreeSpinEndBanner';
 import GatesZeusElectric from './GatesZeusElectric';
+import GatesRules from './GatesRules';
+import PlayerHistoryButton from '@/components/PlayerHistoryButton';
 import { useGates } from './useGates';
 import { BETS, SYMBOLS, isMult, multValue, multColor, MIN_BET, MAX_BET, BET_STEP } from '@/lib/gatesEngine';
 import {
@@ -26,6 +28,8 @@ const fmt = (v) => `$${Number(v || 0).toFixed(2)}`;
 
 export default function GatesMachine() {
   const [showInfo, setShowInfo] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
   const [stoppedReels, setStoppedReels] = useState(() => new Set(Array.from({ length: REELS }, (_, i) => i)));
   const revealTimers = useRef([]);
@@ -209,6 +213,14 @@ export default function GatesMachine() {
       style={{ minHeight: '100dvh', background: 'transparent' }}>
 
       {showInfo && <GatesInfoPanel bet={bet} onClose={() => setShowInfo(false)} />}
+      {showRules && <GatesRules onClose={() => setShowRules(false)} />}
+      <PlayerHistoryButton
+        renderButton={false}
+        externalOpen={showHistory}
+        onExternalClose={() => setShowHistory(false)}
+        gameId="gates-of-olympus"
+        title="Gates of Olympus History"
+      />
 
       {/* ── GATES OF OLYMPUS TITLE BANNER ── sits just above the board border */}
       <div className="relative flex items-center justify-start shrink-0 pt-10 pb-0 pl-1"
@@ -410,6 +422,20 @@ export default function GatesMachine() {
             className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
             style={{ background: 'rgba(0,0,0,0.35)', border: '1.5px solid rgba(255,255,255,0.4)' }}>
             <Info className="w-4 h-4 text-white/80" />
+          </button>
+
+          <button onClick={() => { playUIClick(); setShowRules(true); }}
+            onMouseEnter={playButtonHover}
+            className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+            style={{ background: 'rgba(0,0,0,0.35)', border: '1.5px solid rgba(255,255,255,0.4)' }}>
+            <BookOpen className="w-4 h-4 text-white/80" />
+          </button>
+
+          <button onClick={() => { playUIClick(); setShowHistory(true); }}
+            onMouseEnter={playButtonHover}
+            className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+            style={{ background: 'rgba(0,0,0,0.35)', border: '1.5px solid rgba(255,255,255,0.4)' }}>
+            <History className="w-4 h-4 text-white/80" />
           </button>
 
           <button onClick={() => { playUIClick(); setAutoSpin(a => !a); }}
