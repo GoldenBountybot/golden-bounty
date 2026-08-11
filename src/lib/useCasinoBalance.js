@@ -234,9 +234,14 @@ async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed')
   // will deduct it too, and we'll sync committedBalance to the post-deduction
   // balance when the server responds. This gives the user immediate feedback
   // that the bet was placed, without waiting for the server round-trip.
-  if (!demoMode && !isFreeSpin && bet > 0) {
-    balance = balance - bet;
-    setCache(balance);
+  if (!isFreeSpin && bet > 0) {
+    if (demoMode) {
+      demoBalance = Math.max(0, demoBalance - bet);
+      setDemoCache(demoBalance);
+    } else {
+      balance = balance - bet;
+      setCache(balance);
+    }
     notify();
   }
   if (demoMode) {
@@ -315,8 +320,9 @@ async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed')
 async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, preserveDelta = 0, roundTokenOverride = null) {
   if (demoMode) {
     // In demo mode, settle locally only (no backend commit). The bet was
-    // already deducted by setBalance(b => b - bet) at spin time, so just
-    // credit the total win amount (which includes the bet, real-casino style).
+    // already deducted by beginRound from demoBalance, so just credit the
+    // total win amount (which includes the bet, real-casino style). Net
+    // result: demoBalance += (winAmount - bet) = profit/loss.
     demoBalance = Math.max(0, demoBalance + winAmount);
     setDemoCache(demoBalance);
     roundActive = false;
@@ -427,8 +433,10 @@ export function useCasinoBalance() {
 
   const setBalance = useCallback((updater) => {
     // In demo mode, mutate the in-memory demo balance only — never touch the
-    // real wallet or push to the backend.
+    // real wallet or push to the backend. During an active round, setBalance
+    // is a NO-OP (beginRound already deducted the bet from demoBalance).
     if (demoMode) {
+      if (roundActive) return;
       const prev = demoBalance;
       const next = typeof updater === 'function' ? updater(prev) : updater;
       const v = isFinite(next) ? Number(next) : 0;
