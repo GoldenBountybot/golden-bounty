@@ -684,8 +684,61 @@ export function useWildBounty() {
       }
     }
 
-    // Final safety: when the server decided a loss, ensure NO wins remain on
-    // the grid so the visual matches the balance (no cascade win shown, 0 credited).
+    // Scatter distribution per spin: 3+ = 1% (free-spin trigger), 2 = 5%, 1 = 10%.
+    finalGrid = finalGrid.map(reel => [...reel]);
+    const nonScatter = () => { let s = randomSymbol(); while (s === 'scatter') s = randomSymbol(); return s; };
+    // Remove any natural scatters so we control the exact count.
+    finalGrid.forEach(reel => { for (let i = 0; i < reel.length; i++) if (reel[i] === 'scatter') reel[i] = nonScatter(); });
+    const roll = Math.random();
+    let targetScatters = 0;
+    if (roll < 0.004) targetScatters = 3;              // 0.4%  (free-spin trigger)
+    else if (roll < 0.029) targetScatters = 2;          // 2.5%
+    else if (roll < 0.16) targetScatters = 1;          // 10%
+    // Feature Buy: force 3 scatters so the spin triggers the free-spins banner
+    if (forceScatterBuyRef.current) {
+      targetScatters = 3;
+      forceScatterBuyRef.current = false;
+    }
+    // Place scatters so the slow-motion anticipation can reveal one. When 3
+    // scatters are rolled (0.4% chance), put 2 on the early reels (0-2) and 1
+    // on a late reel (3-5) so it lands during the slow-motion phase. For 1-2
+    // scatters the placement stays fully random.
+    const cells = [];
+    finalGrid.forEach((reel, ri) => reel.forEach((sym, row) => {
+      // When the server decided a win, don't place scatters on the forced
+      // symbol cells (reels 0-2) — that would break the forced win and the
+      // user would see no banner/balance update despite the server deciding a win.
+      if (wantWin && ri < 3 && sym === forcedSym) return;
+      cells.push([ri, row]);
+    }));
+    if (targetScatters === 3) {
+      const early = cells.filter(([ri]) => ri <= 2);
+      const late = cells.filter(([ri]) => ri >= 3);
+      // 2 scatters on early reels
+      for (let i = 0; i < 2 && early.length; i++) {
+        const idx = Math.floor(Math.random() * early.length);
+        const [ri, row] = early.splice(idx, 1)[0];
+        finalGrid[ri][row] = 'scatter';
+      }
+      // 1 scatter on a late reel (revealed during slow motion)
+      if (late.length) {
+        const idx = Math.floor(Math.random() * late.length);
+        const [ri, row] = late.splice(idx, 1)[0];
+        finalGrid[ri][row] = 'scatter';
+      }
+    } else {
+      for (let i = 0; i < targetScatters && cells.length; i++) {
+        const idx = Math.floor(Math.random() * cells.length);
+        const [ri, row] = cells.splice(idx, 1)[0];
+        finalGrid[ri][row] = 'scatter';
+      }
+    }
+
+    // Final safety (AFTER scatter placement): when the server decided a loss,
+    // ensure NO wins remain on the grid so the visual matches the balance (no
+    // cascade win shown, 0 credited). Must run AFTER scatter placement because
+    // nonScatter() replacements and scatter swaps can create new wins that
+    // weren't present when the earlier win-breaking loops ran.
     // BULLETPROOF: (1) strip ALL wilds from early reels — wilds substitute for
     // any symbol and keep a win alive even after the matching symbol is removed;
     // (2) remove ALL instances of the winning symbol from the target reel, not
@@ -713,50 +766,6 @@ export function useWildBounty() {
             if (hadSym) break;
           }
         }
-      }
-    }
-
-    // Scatter distribution per spin: 3+ = 1% (free-spin trigger), 2 = 5%, 1 = 10%.
-    finalGrid = finalGrid.map(reel => [...reel]);
-    const nonScatter = () => { let s = randomSymbol(); while (s === 'scatter') s = randomSymbol(); return s; };
-    // Remove any natural scatters so we control the exact count.
-    finalGrid.forEach(reel => { for (let i = 0; i < reel.length; i++) if (reel[i] === 'scatter') reel[i] = nonScatter(); });
-    const roll = Math.random();
-    let targetScatters = 0;
-    if (roll < 0.004) targetScatters = 3;              // 0.4%  (free-spin trigger)
-    else if (roll < 0.029) targetScatters = 2;          // 2.5%
-    else if (roll < 0.16) targetScatters = 1;          // 10%
-    // Feature Buy: force 3 scatters so the spin triggers the free-spins banner
-    if (forceScatterBuyRef.current) {
-      targetScatters = 3;
-      forceScatterBuyRef.current = false;
-    }
-    // Place scatters so the slow-motion anticipation can reveal one. When 3
-    // scatters are rolled (0.4% chance), put 2 on the early reels (0-2) and 1
-    // on a late reel (3-5) so it lands during the slow-motion phase. For 1-2
-    // scatters the placement stays fully random.
-    const cells = [];
-    finalGrid.forEach((reel, ri) => reel.forEach((_, row) => cells.push([ri, row])));
-    if (targetScatters === 3) {
-      const early = cells.filter(([ri]) => ri <= 2);
-      const late = cells.filter(([ri]) => ri >= 3);
-      // 2 scatters on early reels
-      for (let i = 0; i < 2 && early.length; i++) {
-        const idx = Math.floor(Math.random() * early.length);
-        const [ri, row] = early.splice(idx, 1)[0];
-        finalGrid[ri][row] = 'scatter';
-      }
-      // 1 scatter on a late reel (revealed during slow motion)
-      if (late.length) {
-        const idx = Math.floor(Math.random() * late.length);
-        const [ri, row] = late.splice(idx, 1)[0];
-        finalGrid[ri][row] = 'scatter';
-      }
-    } else {
-      for (let i = 0; i < targetScatters && cells.length; i++) {
-        const idx = Math.floor(Math.random() * cells.length);
-        const [ri, row] = cells.splice(idx, 1)[0];
-        finalGrid[ri][row] = 'scatter';
       }
     }
 
