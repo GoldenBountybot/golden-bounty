@@ -87,7 +87,7 @@ function Medallion({ size, active, children }) {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export default function SuperAceMachine() {
-  const { balance, setBalance, beginRound, settleBet } = useCasinoBalance();
+  const { balance, setBalance, beginRound, settleBet, addRoundWin } = useCasinoBalance();
   const { rtp } = useGameSettings('fullhouse');
   const logActivity = useLogActivity();
 
@@ -379,6 +379,7 @@ export default function SuperAceMachine() {
       win = Math.min(win, remainingServer);
       comboCount++; setCombo(comboCount);
       winThisSpinRef.current += win; setWinThisSpin(winThisSpinRef.current);
+      addRoundWin(win);
       setWinningCells(new Set(ev.winCells));
       setFloatWin({ value: win, key: comboCount + '-' + Date.now() + Math.random() });
       playComboWin(comboCount);
@@ -559,7 +560,7 @@ export default function SuperAceMachine() {
                 style={{ border: '1px solid rgba(214,178,98,0.45)', background: 'rgba(20,17,13,0.6)' }}
               >
                 <Wallet className="w-3.5 h-3.5 text-yellow-300" />
-                <AnimatedNumber value={balance} prefix="$" />
+                <span className="tabular-nums">${balance.toFixed(2)}</span>
               </span>
               <button onClick={toggleMute} className="shrink-0">
                 <span className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95" style={metalBtn(false)}>
