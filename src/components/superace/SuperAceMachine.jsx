@@ -238,11 +238,11 @@ export default function SuperAceMachine() {
     }
     setTeaseStart(teaseStart);
     setTeaseCols(teaseSet);
-    const baseSpin = turboRef.current ? 600 : 1000;
+    const baseSpin = turboRef.current ? 350 : 600;
     let spinDur = baseSpin;
     if (teaseSet.size > 0) {
       const teasedCols = COLS - teaseStart;
-      spinDur = turboRef.current ? baseSpin + teasedCols * 150 : baseSpin + teasedCols * 350;
+      spinDur = turboRef.current ? baseSpin + teasedCols * 80 : baseSpin + teasedCols * 150;
     }
 
     // Start the spin animation immediately — cards drop with their faces.
@@ -289,8 +289,8 @@ export default function SuperAceMachine() {
       setTimeout(() => {
         playScatterLand();
         setScatterLand(new Set([idx]));
-        setTimeout(() => setScatterLand(new Set()), 700);
-      }, i * 300);
+        setTimeout(() => setScatterLand(new Set()), 500);
+      }, i * 150);
     });
 
     // Announce the win immediately as the reels land — no delay.
