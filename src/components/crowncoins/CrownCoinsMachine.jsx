@@ -392,12 +392,22 @@ export default function CrownCoinsMachine() {
         return;
       }
 
+      const serverWin = Number(serverRound.win_amount ?? 0);
       const { lines, totalMul, coins, scatterMul } = evaluateGrid(resultGrid);
       let win = totalMul * (bet / 5) + scatterMul * bet;
+      // Cap mode: the server's win_amount is a hard ceiling. When the server
+      // decided a loss (cap = 0), force the visual to match — no win credited,
+      // no winning lines highlighted — so the screen never shows a win the
+      // balance didn't receive.
+      if (serverWin === 0) {
+        win = 0;
+      } else {
+        win = Math.min(win, serverWin);
+      }
 
       // build win mask per reel (which rows are part of a winning line)
       const mask = cols.map(() => [false, false, false]);
-      lines.forEach(ln => {
+      if (win > 0) lines.forEach(ln => {
         ln.idxs.forEach(idx => {
           const col = idx % 3;
           const row = Math.floor(idx / 3);
@@ -441,10 +451,10 @@ export default function CrownCoinsMachine() {
         setShowRoyalBanner(true);
       }
       setWinMask(mask);
-      setWinLines(triggered ? [] : lines);
+      setWinLines(triggered || win === 0 ? [] : lines);
 
       let bonusResult = preBonusRef.current;
-      if (bonusResult) win += bonusResult.total;
+      if (bonusResult && serverWin > 0) win += bonusResult.total;
 
       settleBet(bet, win, 'crown-coins', false);
       if (win > 0) setLastWin(win);
@@ -496,7 +506,7 @@ export default function CrownCoinsMachine() {
           timers.current.push(tClear);
         }
       }
-      if (bonusResult) { setBonus(bonusResult); setRevealStep(0); autoRef.current = false; setAutoSpin(false); }
+      if (bonusResult && serverWin > 0) { setBonus(bonusResult); setRevealStep(0); autoRef.current = false; setAutoSpin(false); }
       logActivity('crown-coins', bet, win, win > 0 ? 'win' : 'loss');
       try { base44.analytics.track({ eventName: 'crown_coins_spin', properties: { bet, win: Math.round(win * 100) / 100, coins, free: isFree } }); } catch {}
 

@@ -196,41 +196,37 @@ export function useArgonauts() {
     setGrid(finalGrid);
     setSpinningReels(new Set([0, 1, 2, 3, 4]));
     const { wins, scatterCount, scatterPay, bonusCount, lineWin } = evaluate(finalGrid, lineBet, bet);
-    const positions = new Set();
-    wins.forEach((w) => w.positions.forEach((p) => positions.add(p)));
-    setWinningPositions(positions);
-    setWinningLines(wins.map((w) => ({ line: w.line, symbol: w.symbol, count: w.count, pay: w.pay })));
-
-    // Dove (pigeon) symbol line win → play the dove sound.
-    if (wins.some((w) => w.symbol === 'dove')) playDoveSound();
-    // Amphora (cup) symbol line win → play the amphora sound.
-    if (wins.some((w) => w.symbol === 'cup')) playAmphoraSound();
-    // Golden Lyre (harp) symbol line win → play the lyre sound.
-    if (wins.some((w) => w.symbol === 'harp')) playLyreSound();
-    // Spartan Warrior (Jason) symbol line win → play the spartan sound.
-    if (wins.some((w) => w.symbol === 'jason')) playSpartanSound();
-    // Goddess (Atlanta) symbol line win → play the goddess sound.
-    if (wins.some((w) => w.symbol === 'atlanta')) playGoddessSound();
-    // Green Dragon (lizard/serpent) symbol line win → play the dragon sound.
-    if (wins.some((w) => w.symbol === 'lizard')) playDragonSound();
-    // Bow (arrow) symbol line win → play the bow sound.
-    if (wins.some((w) => w.symbol === 'bow')) playBowSound();
-    // Potion symbol line win → play the potion sound.
-    if (wins.some((w) => w.symbol === 'potion')) playPotionSound();
-    // Wild Bull — play the bull roar when a Wild is part of any winning line
-    // (either an all-wild line or a line where wild substitutes for a symbol).
-    const wildInWin = wins.some((w) =>
-      w.positions.some((pos) => {
-        const [r, row] = pos.split('-');
-        return finalGrid[Number(r)][Number(row)] === 'wild';
-      })
-    );
-    if (wildInWin) playWildSound();
-
     // Fixed mode: the SERVER's pre-decided win_amount is the authoritative win.
-    // The grid evaluation still drives winning positions + feature triggers
-    // (scatter/bonus/coin), but the credited/displayed win is the server's.
+    // When the server decided a loss (serverWin = 0), do NOT highlight winning
+    // positions/lines — the grid may have natural wins after the suppression
+    // attempts, but the balance gets 0, so the visual must match.
     const baseWin = serverWin;
+    const positions = new Set();
+    if (baseWin > 0) wins.forEach((w) => w.positions.forEach((p) => positions.add(p)));
+    setWinningPositions(positions);
+    setWinningLines(baseWin > 0 ? wins.map((w) => ({ line: w.line, symbol: w.symbol, count: w.count, pay: w.pay })) : []);
+
+    // Only play win sounds when the server decided a win — a server loss must
+    // not play win sounds even if the grid has natural wins after suppression.
+    if (baseWin > 0) {
+      if (wins.some((w) => w.symbol === 'dove')) playDoveSound();
+      if (wins.some((w) => w.symbol === 'cup')) playAmphoraSound();
+      if (wins.some((w) => w.symbol === 'harp')) playLyreSound();
+      if (wins.some((w) => w.symbol === 'jason')) playSpartanSound();
+      if (wins.some((w) => w.symbol === 'atlanta')) playGoddessSound();
+      if (wins.some((w) => w.symbol === 'lizard')) playDragonSound();
+      if (wins.some((w) => w.symbol === 'bow')) playBowSound();
+      if (wins.some((w) => w.symbol === 'potion')) playPotionSound();
+      const wildInWin = wins.some((w) =>
+        w.positions.some((pos) => {
+          const [r, row] = pos.split('-');
+          return finalGrid[Number(r)][Number(row)] === 'wild';
+        })
+      );
+      if (wildInWin) playWildSound();
+    }
+
+    // (baseWin already declared above from serverWin)
 
     // Value-coin hold-and-spin trigger (base game only)
     const coinTrig = !usingFree && coinTriggered(finalGrid);
