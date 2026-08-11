@@ -367,7 +367,7 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     // smaller of the two so we never over-show. balance is currently
     // committedBalance (post-deduction, synced by beginRound); adding the win
     // gives the correct post-round display instantly.
-    const optimisticWin = Math.max(0, pendingServerWin > 0 ? Math.min(winAmount, pendingServerWin) : winAmount);
+    const optimisticWin = pendingServerWin > 0 ? Math.min(winAmount, pendingServerWin) : 0;
     // Adjust for incremental display updates during cascades: we already
     // added roundDisplayWin to the display balance. Now adjust by the
     // difference so the final balance = committedBalance + optimisticWin.

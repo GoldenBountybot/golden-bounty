@@ -309,24 +309,24 @@ export function useWildBounty() {
       // Show the ACCUMULATED total in the banner so it matches the balance.
       const winMsg = justAwarded ? `WIN ${newTotal.toFixed(2)} · +${wasFree ? 5 : 10} FREE SPINS` : `WIN ${newTotal.toFixed(2)}`;
       const winValue = newTotal;
+      // Only credit the win if the SERVER decided a win. If the server
+      // decided a loss (serverWinRef = 0) but the grid accidentally has a
+      // match, skip addRoundWin + banner so the balance never increases
+      // (and thus never gets "taken back" at settlement).
+      const isServerWin = serverWinRef.current > 0;
       if (currentMultIndex >= 1) {
-        setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
-        // The multiplier arrives at the banner at ~86% of the fly duration.
+        if (isServerWin) setFlyingMult({ value: MULTIPLIERS[currentMultIndex], key: Date.now(), slow: flySlow });
         pendingWinRef.current = winValue;
         const winT = setTimeout(() => {
-          addRoundWin(stepWin);
-          setLastWin(pendingWinRef.current);
+          if (isServerWin) { addRoundWin(stepWin); setLastWin(pendingWinRef.current); setMessage(winMsg); }
           pendingWinRef.current = 0;
-          setMessage(winMsg);
         }, 1150 * flySlow * 0.86);
         timers.current.push(winT);
       } else {
         pendingWinRef.current = winValue;
         const winT = setTimeout(() => {
-          addRoundWin(stepWin);
-          setLastWin(pendingWinRef.current);
+          if (isServerWin) { addRoundWin(stepWin); setLastWin(pendingWinRef.current); setMessage(winMsg); }
           pendingWinRef.current = 0;
-          setMessage(winMsg);
         }, 600);
         timers.current.push(winT);
       }
@@ -389,22 +389,26 @@ export function useWildBounty() {
       // deducts the next bet, making wins appear uncredited.
       const settlePromise = settleBet(settleBetRef.current, totalWin, 'wild-bounty', wasFree);
       settlePromiseRef.current = settlePromise;
-      if (totalWin > 0) setWinFlashKey(k => k + 1);
+      // Only show win effects if the SERVER decided a win. If the server
+      // decided a loss, totalWin is meaningless (accidental grid match) —
+      // don't show banners, flash, or credit anything.
+      const isServerWin = serverWinRef.current > 0;
+      if (isServerWin && totalWin > 0) setWinFlashKey(k => k + 1);
       // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
-      if (pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
+      if (isServerWin && pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
       clearPendingRound('wild-bounty');
       pendingStateRef.current = null;
       if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
 
       // Accumulate this spin's win into the free-spins running total.
-      if (wasFree) freeSpinsTotalRef.current += totalWin;
+      if (wasFree && isServerWin) freeSpinsTotalRef.current += totalWin;
 
       // Decide which banner (if any) to show at round end. Super Win covers
       // x16–x32; Mega Win covers x64 and every tier beyond. Free-spins rounds
       // show a Mega Win banner with the accumulated 10-spin total instead.
       const peak = peakMultRef.current;
       let showdownDurMs = 0;
-      if (peak >= 8 && totalWin > 0) {
+      if (isServerWin && peak >= 8 && totalWin > 0) {
         setEndSkull(true);
         // Only count up from 0 + play the total-win sting when NO Super/Mega
         // win banner is showing (peak < 32) — those banners have their own
@@ -426,8 +430,8 @@ export function useWildBounty() {
       } else {
         const isMega = peak >= 128;
         const isSuper = !isMega && peak >= 32;
-        if (isMega && totalWin > 0) banner = { type: 'mega', amount: totalWin, multiplier: peak };
-        else if (isSuper && totalWin > 0) banner = { type: 'super', amount: totalWin, multiplier: peak };
+        if (isMega && isServerWin && totalWin > 0) banner = { type: 'mega', amount: totalWin, multiplier: peak };
+        else if (isSuper && isServerWin && totalWin > 0) banner = { type: 'super', amount: totalWin, multiplier: peak };
       }
 
       if (banner) {
@@ -462,7 +466,7 @@ export function useWildBounty() {
       } else if (cascadeCount === 0) {
         setMessage(sc === 2 ? 'ONE MORE SCATTER!' : 'WIN UP TO 3600 WAYS!');
       }
-      logActivity('wild-bounty', bet, totalWin, totalWin > 0 ? 'win' : 'loss');
+      logActivity('wild-bounty', bet, isServerWin ? totalWin : 0, isServerWin && totalWin > 0 ? 'win' : 'loss');
       // Delay setSpinning(false) until settleBet completes — prevents the next
       // auto-spin/free-spin from starting a new beginRound before this round's
       // settleBet finishes, which would race the two server calls and double-
