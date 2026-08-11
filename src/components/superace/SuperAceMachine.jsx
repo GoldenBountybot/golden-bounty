@@ -21,6 +21,7 @@ import {
   COLS, ROWS, TOTAL, BASE_MULTS, FREE_MULTS, FREE_SPINS_AWARD, RETRIGGER_AWARD,
   BUY_BONUS_MULT, MAX_WIN_CAP, makeGrid, makeCell, evaluate, cascade, nudgeForWin,
   multiplierFor, PAYS, SCATTER_PAY, findWildTargets, findGoldenWildConfig, PAY_SYMBOLS,
+  GOLDEN_COLS,
 } from '@/lib/superaceEngine';
 import {
   playSpinStart, playReelLand, playComboWin, playCascade, playScatter,
@@ -201,7 +202,7 @@ export default function SuperAceMachine() {
       await settlePromiseRef.current;
       settlePromiseRef.current = null;
     }
-    const _serverRoundPromise = beginRound(b, 'fullhouse', inFreeRef.current);
+    const _serverRoundPromise = beginRound(b, 'fullhouse', inFreeRef.current, 'cap');
     if (!inFreeRef.current) {
       setMessage(`Spinning…`);
     } else {
@@ -272,6 +273,38 @@ export default function SuperAceMachine() {
     }
     serverWinRef.current = Number(serverRound.win_amount ?? 0);
     const forceWin = serverWinRef.current > 0;
+
+    // Nudge the grid to match the server's win/loss decision so the displayed
+    // outcome matches what the server will credit. Preserve scatter cells.
+    {
+      const scatterIdxs = new Set(g.map((c, i) => (c.sym === 'SC' ? i : -1)).filter((i) => i >= 0));
+      let guard = 0;
+      while (guard++ < 60) {
+        const ev = evaluate(g, betRef.current);
+        const hasLineWin = ev.pay > 0;
+        if (forceWin && hasLineWin) break;
+        if (!forceWin && !hasLineWin) break;
+        // Regenerate non-scatter cells and retry
+        for (let i = 0; i < g.length; i++) {
+          if (!scatterIdxs.has(i)) g[i] = makeCell();
+        }
+      }
+      // Re-apply golden cards on the nudged grid
+      const candidates = [];
+      for (const c of GOLDEN_COLS) {
+        for (let r = 0; r < ROWS; r++) {
+          const idx = r * COLS + c;
+          if (PAY_SYMBOLS.includes(g[idx].sym)) candidates.push(idx);
+        }
+      }
+      for (let i = candidates.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+      }
+      const gn = Math.min(candidates.length, 3 + Math.floor(Math.random() * 3));
+      for (let i = 0; i < gn; i++) g[candidates[i]].golden = true;
+      setGrid(g.map((c) => ({ ...c })));
+    }
 
     // Golden Wild (applied after server response, uses flip animation)
     const goldenCfg = forceWin && !scatterHit && Math.random() < 0.35 ? findGoldenWildConfig(g, b) : null;
@@ -373,10 +406,16 @@ export default function SuperAceMachine() {
       const mult = multiplierFor(comboCount, inFreeRef.current);
       if (mult > maxMultRef.current) maxMultRef.current = mult;
       let win = ev.pay * mult;
-      // cap
+      // cap at game max
       if (winThisSpinRef.current + win > MAX_WIN_CAP * betRef.current) {
         win = Math.max(0, MAX_WIN_CAP * betRef.current - winThisSpinRef.current);
       }
+      // Cap at the remaining server-decided win so the displayed total never
+      // exceeds what the server will credit. With 'cap' mode, settleBet credits
+      // min(clientTotal, serverWin) — since total is capped at serverWin here,
+      // the credited amount exactly matches the displayed amount. No mismatch.
+      const remainingServer = Math.max(0, Math.round((serverWinRef.current - winThisSpinRef.current) * 100) / 100);
+      win = Math.min(win, remainingServer);
       comboCount++; setCombo(comboCount);
       winThisSpinRef.current += win; setWinThisSpin(winThisSpinRef.current);
       setWinningCells(new Set(ev.winCells));
@@ -452,17 +491,19 @@ export default function SuperAceMachine() {
 
   const settle = async () => {
     const total = winThisSpinRef.current;
-    const sc = scatterAwardRef.current;
-    const grand = serverWinRef.current;
-    settlePromiseRef.current = settleBet(betRef.current, grand, 'fullhouse', inFreeRef.current);
+    // Use the client-computed (server-capped) total for both display and
+    // settlement. With 'cap' mode, settleBet credits min(total, serverWin) —
+    // since total is already capped at serverWin during cascades, this is
+    // exactly total. The displayed win always matches the credited balance.
+    settlePromiseRef.current = settleBet(betRef.current, total, 'fullhouse', inFreeRef.current);
     settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
-    if (grand > 0) {
-      setLastWin(grand);
-      if (total > 0) playBigWin();
+    if (total > 0) {
+      setLastWin(total);
+      playBigWin();
     } else if (!inFreeRef.current) {
       playLose();
     }
-    logActivity('fullhouse', inFreeRef.current ? 0 : betRef.current, grand, grand > 0 ? 'win' : 'loss');
+    logActivity('fullhouse', inFreeRef.current ? 0 : betRef.current, total, total > 0 ? 'win' : 'loss');
 
     // Enable the spin button immediately — the Super/Mega win banner is
     // visual only and no longer blocks the button.
@@ -472,11 +513,11 @@ export default function SuperAceMachine() {
     // or a big payout (≥ 15× bet). Mega Win takes priority when both qualify.
     const maxMult = maxMultRef.current;
     const isMega = maxMult >= 10;
-    const isSuper = !isMega && (maxMult >= 5 || (grand >= betRef.current * 15 && grand > 0));
+    const isSuper = !isMega && (maxMult >= 5 || (total >= betRef.current * 15 && total > 0));
     if (isMega && !inFreeRef.current) {
-        setMegaWin({ amount: grand, multiplier: maxMult });
+        setMegaWin({ amount: total, multiplier: maxMult });
     } else if (isSuper && !inFreeRef.current) {
-        setSuperWin({ amount: grand, multiplier: maxMult });
+        setSuperWin({ amount: total, multiplier: maxMult });
     }
 
     if (inFreeRef.current) {
@@ -493,10 +534,10 @@ export default function SuperAceMachine() {
         setMessage(`Free Spins ended · Total $${total.toFixed(2)}`);
       }
     } else {
-      setMessage(grand > 0 ? `Won $${grand.toFixed(2)}!` : 'No win — spin again');
+      setMessage(total > 0 ? `Won $${total.toFixed(2)}!` : 'No win — spin again');
     }
     setPhase('idle');
-    if (autoRef.current && !inFreeRef.current && balance + grand >= betRef.current) {
+    if (autoRef.current && !inFreeRef.current && balance + total >= betRef.current) {
       setTimeout(() => { doSpinRef.current && doSpinRef.current(); }, 700);
     }
     };
