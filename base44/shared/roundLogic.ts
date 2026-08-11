@@ -61,6 +61,16 @@ export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
     return { isWin: mult > 1, winAmount, multiplier: mult };
   }
 
+  // ── Thimbles: fixed client multiplier (2.88x single / 1.44x two-ball).
+  // Set the cap to 3x so min(clientWin, cap) always credits the full client win. ──
+  if (gameId === 'thimbles') {
+    const mult = 3;
+    let winAmount = mult * Math.max(betAmount, 0.01);
+    if (isFreeSpin) winAmount = Math.min(winAmount, FREE_SPIN_MAX_WIN);
+    winAmount = Math.round(winAmount * 100) / 100;
+    return { isWin: true, winAmount, multiplier: mult };
+  }
+
   // ── All other games: continuous multiplier distribution ──
   // Win frequency: ~15% of RTP as win chance (at 50% RTP → ~7.5% win chance).
   // Super Ace (fullhouse): reduced to ~8% of RTP so fewer spins land on the
