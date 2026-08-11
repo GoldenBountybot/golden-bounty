@@ -284,7 +284,9 @@ export default function SuperAceMachine() {
         if (!forceWin && !hasLineWin) break;
         for (let i = 0; i < g.length; i++) {
           if (!scatterIdxs.has(i)) {
-            g[i] = { ...g[i], sym: PAY_SYMBOLS[Math.floor(Math.random() * PAY_SYMBOLS.length)], golden: false };
+            let ns = makeCell().sym;
+            while (ns === 'SC') ns = makeCell().sym;
+            g[i] = { ...g[i], sym: ns, golden: false };
           }
         }
       }
