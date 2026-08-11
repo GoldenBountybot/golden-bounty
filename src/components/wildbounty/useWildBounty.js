@@ -372,11 +372,10 @@ export function useWildBounty() {
       }, 1000 * slow);
       timers.current.push(cascadeT);
     } else {
-      // No more wins — end the chain. Override the client-computed total with
-      // the server's pre-decided win (from beginRound). settleBet credits the
-      // server's amount, not the cascade-computed total — so users can't hack
-      // their balance by calling settleBet from the console.
-      totalWin = serverWinRef.current;
+      // No more wins — end the chain. Use the CLIENT-computed cascade total
+      // (what the user actually saw win). settleBet runs in 'cap' mode, so
+      // the server credits min(clientTotal, serverCap) — the balance gets
+      // EXACTLY the displayed win, never more.
       sfx.winStop();
       setCascadeSlow(1);
       setWinningPositions(new Set());
@@ -390,12 +389,8 @@ export function useWildBounty() {
       const settlePromise = settleBet(settleBetRef.current, totalWin, 'wild-bounty', wasFree);
       settlePromiseRef.current = settlePromise;
       if (totalWin > 0) setWinFlashKey(k => k + 1);
-      // Always show the server-authoritative win in the banner (not the
-      // client-computed cascade total) so the banner matches the credited
-      // balance exactly. The balance gets serverWin added via settleBet;
-      // the banner must show the same amount.
-      if (pendingWinRef.current > 0) pendingWinRef.current = 0;
-      if (totalWin > 0) setLastWin(totalWin);
+      // Safety: if the delayed win-reveal timer hasn't fired yet, show it now.
+      if (pendingWinRef.current > 0) { setLastWin(pendingWinRef.current); pendingWinRef.current = 0; }
       clearPendingRound('wild-bounty');
       pendingStateRef.current = null;
       if (cascadeCount === 0) { setLastWin(0); sfx.loss(); }
@@ -540,7 +535,7 @@ export function useWildBounty() {
     // pre-decide the outcome). The server's win is AUTHORITATIVE — settleBet
     // credits it, ignoring the client's cascade-computed total.
     const _roundBet = skipBetDeductRef.current ? settleBetRef.current : bet;
-    const _serverRoundPromise = beginRound(_roundBet, 'wild-bounty', usingFree);
+    const _serverRoundPromise = beginRound(_roundBet, 'wild-bounty', usingFree, 'cap');
     if (!usingFree) {
       if (skipBetDeductRef.current) {
         skipBetDeductRef.current = false;
