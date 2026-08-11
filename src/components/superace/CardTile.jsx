@@ -35,7 +35,7 @@ function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild
   const col = idx % COLS;
   const row = Math.floor(idx / COLS);
   const dropAnim = tease
-    ? `saSlowDrop 0.3s ease-out ${0.15 + ((col - (teaseStart ?? col)) * ROWS + (ROWS - 1 - row)) * 0.22}s both`
+    ? `saSlowDrop 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) ${0.15 + ((col - (teaseStart ?? col)) * ROWS + (ROWS - 1 - row)) * 0.28}s both`
     : `saReelDrop 0.35s ease-out ${((col * ROWS) + (ROWS - 1 - row)) * 0.03}s both`;
   // Cascade refill: same staggered drop as the initial spin, so new cards
   // glide in smoothly from the top after the blast — not a jarring pop.

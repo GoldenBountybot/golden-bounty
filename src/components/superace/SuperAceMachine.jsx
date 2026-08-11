@@ -250,7 +250,12 @@ export default function SuperAceMachine() {
     let spinDur = baseSpin;
     if (teaseSet.size > 0) {
       const teasedCols = COLS - teaseStart;
-      spinDur = turboRef.current ? baseSpin + teasedCols * 80 : baseSpin + teasedCols * 150;
+      // Slow-motion tease: each teased column needs time for all ROWS cards
+      // to drop at 0.8s duration + 0.28s stagger. Give enough total time so
+      // spinning stays true until every slow-mo card lands.
+      spinDur = turboRef.current
+        ? baseSpin + teasedCols * (ROWS * 280 + 400)
+        : baseSpin + teasedCols * (ROWS * 280 + 600);
     }
 
     // Start the spin animation immediately — cards drop with their faces.
