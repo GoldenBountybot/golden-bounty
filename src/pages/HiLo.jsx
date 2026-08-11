@@ -196,6 +196,8 @@ export default function HiLo() {
   const [message, setMessage] = useState('Deal a card to start!');
   const [streak, setStreak] = useState(0);
   const serverWinRef = useRef(0);
+  const roundStartedRef = useRef(false); // true once the first guess commits the bet via beginRound
+  const guessingRef = useRef(false); // guards against double-clicks during async beginRound / reveal
   const logActivity = useLogActivity();
 
   // Start the ambient casino lounge loop on the first user gesture (browsers
@@ -222,15 +224,11 @@ export default function HiLo() {
   const deal = async () => {
     if (phase === 'guessing') return;
     if (balance < bet) { setMessage('Insufficient balance! Reset below.'); return; }
-    const _serverRoundPromise = beginRound(bet, 'hi-lo', false, 'cap');
-    const serverRound = await _serverRoundPromise;
-    // If beginRound failed (e.g. bet out of range, network error), abort —
-    // beginRound already reverted its local deduction.
-    if (!serverRound || serverRound.failed || serverRound.win_amount == null) {
-      setMessage('Round failed — try a different bet amount.');
-      return;
-    }
-    serverWinRef.current = Number(serverRound.win_amount);
+    // The bet is NOT deducted at deal time. It is only committed when the
+    // user makes their first guess (via beginRound). This way, collecting
+    // without guessing returns the full bet — no risk was taken yet.
+    roundStartedRef.current = false;
+    serverWinRef.current = 0;
     setPot(bet);
     setCurrent(drawCard());
     setRevealed(null);
@@ -240,8 +238,28 @@ export default function HiLo() {
     playDeal();
   };
 
-  const guess = (dir) => {
-    if (phase !== 'guessing') return;
+  const guess = async (dir) => {
+    if (phase !== 'guessing' || guessingRef.current) return;
+    guessingRef.current = true;
+    // Commit the bet on the first guess via beginRound (deducts the bet and
+    // starts the server round with the pre-decided win cap).
+    if (!roundStartedRef.current) {
+      if (balance < bet) {
+        setMessage('Insufficient balance! Reset below.');
+        setPhase('idle');
+        guessingRef.current = false;
+        return;
+      }
+      const serverRound = await beginRound(bet, 'hi-lo', false, 'cap');
+      if (!serverRound || serverRound.failed || serverRound.win_amount == null) {
+        setMessage('Round failed — try a different bet amount.');
+        setPhase('idle');
+        guessingRef.current = false;
+        return;
+      }
+      serverWinRef.current = Number(serverRound.win_amount);
+      roundStartedRef.current = true;
+    }
     // Decide correctness PROBABILISTICALLY based on RTP. The win chance per
     // guess is DIRECTLY the RTP fraction (e.g. 50% RTP → 50% win chance per
     // guess), so admin RTP changes are immediately visible in gameplay.
@@ -262,6 +280,7 @@ export default function HiLo() {
       settleBet(bet, 0, 'hi-lo');
       logActivity('hi-lo', bet, 0, 'loss');
       playLoss();
+      guessingRef.current = false;
     } else if (correct) {
       const newPot = pot * 2;
       setPot(newPot);
@@ -271,6 +290,7 @@ export default function HiLo() {
       setTimeout(() => {
         setCurrent(next);
         setRevealed(null);
+        guessingRef.current = false;
       }, 1100);
     } else {
       setPhase('idle');
@@ -279,11 +299,25 @@ export default function HiLo() {
       settleBet(bet, 0, 'hi-lo');
       logActivity('hi-lo', bet, 0, 'loss');
       playLoss();
+      guessingRef.current = false;
     }
   };
 
   const collect = () => {
     if (phase !== 'guessing' || pot === 0) return;
+    // If no guess was made, the bet was never deducted — just return to idle.
+    // The user gets their full balance back (no risk was taken).
+    if (!roundStartedRef.current) {
+      setMessage('Collected — bet returned.');
+      setPot(0);
+      setPhase('idle');
+      setCurrent(null);
+      setRevealed(null);
+      setStreak(0);
+      playCollect();
+      return;
+    }
+    // After at least one guess, settle with the server's cap.
     const win = Math.min(pot, serverWinRef.current);
     settleBet(bet, win, 'hi-lo');
     setMessage(`Collected $${win.toFixed(2)}!`);
