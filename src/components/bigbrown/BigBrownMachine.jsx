@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Info, Zap, Plus, Repeat, DollarSign, Menu, Play } from 'lucide-react';
+import { Info, Zap, Plus, Repeat, DollarSign, Menu, History, ScrollText } from 'lucide-react';
 import BigBrownSymbol from './BigBrownSymbol';
 import BigBrownInfo from './BigBrownInfo';
 import BigBrownFreeSpinStart from './BigBrownFreeSpinStart';
 import BigBrownBonusPop from './BigBrownBonusPop';
 import BigBrownSuperWinBanner from './BigBrownSuperWinBanner';
+import PlayerHistoryButton from '@/components/PlayerHistoryButton';
 import { useBigBrown } from './useBigBrown';
 import { WAYS, BETS, WILD_EXPAND_IMG, randomSymbol, SYMBOLS } from '@/lib/bigBrownEngine';
 import { incBet } from '@/lib/betStepper';
@@ -67,7 +68,9 @@ const BRANCH_FRAME = `
 
 export default function BigBrownMachine() {
   const [showInfo, setShowInfo] = useState(false);
-  const [showBetMenu, setShowBetMenu] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showCustomBet, setShowCustomBet] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [spinPulse, setSpinPulse] = useState(false);
   const g = useBigBrown();
   const {
@@ -99,6 +102,8 @@ export default function BigBrownMachine() {
       </svg>
 
       {showInfo && <BigBrownInfo bet={bet} onClose={() => setShowInfo(false)} />}
+
+      <PlayerHistoryButton gameId="big-brown" externalOpen={showHistory} onExternalClose={() => setShowHistory(false)} renderButton={false} />
 
       {showSuperWin && (
         <BigBrownSuperWinBanner
@@ -287,55 +292,76 @@ export default function BigBrownMachine() {
 
       </div>
 
-      {/* Bet menu popover */}
-      {showBetMenu && (
-        <div className="absolute bottom-24 left-3 z-40 rounded-[8px] p-1.5 flex flex-col gap-1" style={{ background: 'rgba(5,12,28,0.96)', border: '1px solid rgba(214,178,98,0.5)', boxShadow: '0 6px 18px rgba(0,0,0,0.6)' }}>
-          {BETS.map((b) => {
-            const active = Math.abs(bet - b) < 0.001;
-            return (
-              <button
-                key={b}
-                onClick={() => { setBet(b); setShowBetMenu(false); }}
-                className={`px-3 py-1 rounded text-[11px] italic font-bold text-left ${active ? 'text-yellow-300' : 'text-white/70'}`}
-                style={{ fontFamily: 'Georgia, serif' }}
-              >
-                {fmt(b)}
-              </button>
-            );
-          })}
-          {/* Custom bet input */}
+      {/* Menu popover — History + Rules + Bet presets */}
+      {showMenu && (
+        <div className="absolute bottom-24 left-3 z-40 rounded-[8px] p-2 flex flex-col gap-1.5" style={{ background: 'rgba(5,12,28,0.97)', border: '1px solid rgba(214,178,98,0.5)', boxShadow: '0 6px 18px rgba(0,0,0,0.6)' }}>
+          <button
+            onClick={() => { setShowHistory(true); setShowMenu(false); }}
+            className="flex items-center gap-2 px-3 py-1.5 rounded text-[11px] italic font-bold text-left text-yellow-300 hover:bg-white/5"
+            style={{ fontFamily: 'Georgia, serif' }}
+          >
+            <History className="w-4 h-4" /> History
+          </button>
+          <button
+            onClick={() => { setShowInfo(true); setShowMenu(false); }}
+            className="flex items-center gap-2 px-3 py-1.5 rounded text-[11px] italic font-bold text-left text-yellow-300 hover:bg-white/5"
+            style={{ fontFamily: 'Georgia, serif' }}
+          >
+            <ScrollText className="w-4 h-4" /> Rules
+          </button>
           <div className="pt-1 mt-0.5" style={{ borderTop: '1px solid rgba(214,178,98,0.25)' }}>
-            <div className="text-[8px] text-white/45 tracking-widest mb-1 px-1" style={{ fontFamily: 'Georgia, serif' }}>CUSTOM</div>
-            <div className="flex items-center gap-1">
-              <span className="text-amber-300 text-[12px] font-black" style={{ fontFamily: 'Georgia, serif' }}>$</span>
-              <input
-                type="number"
-                inputMode="decimal"
-                step="0.50"
-                min={minBet}
-                max={maxBet}
-                defaultValue={bet}
-                key={bet}
-                onBlur={(e) => setCustomBet(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { setCustomBet(e.target.value); setShowBetMenu(false); } }}
-                className="w-20 px-2 py-1 rounded text-[11px] font-bold text-yellow-300 tabular-nums outline-none"
-                style={{
-                  fontFamily: 'Georgia, serif',
-                  background: 'rgba(0,0,0,0.5)',
-                  border: '1px solid rgba(214,178,98,0.5)',
-                }}
-              />
-              <button
-                onClick={(e) => { const v = e.currentTarget.previousSibling.value; setCustomBet(v); setShowBetMenu(false); }}
-                className="px-2 py-1 rounded text-[10px] font-black italic"
-                style={{ fontFamily: 'Georgia, serif', color: '#ffe9a8', background: 'linear-gradient(to bottom,#8b4513,#4a280a)', border: '1px solid rgba(255,234,160,0.7)' }}
-              >
-                SET
-              </button>
-            </div>
-            <div className="text-[8px] text-white/35 mt-1 px-1" style={{ fontFamily: 'Georgia, serif' }}>
-              Min {fmt(minBet)} · Max {fmt(maxBet)}
-            </div>
+            <div className="text-[8px] text-white/45 tracking-widest mb-1 px-1" style={{ fontFamily: 'Georgia, serif' }}>BET</div>
+            {BETS.map((b) => {
+              const active = Math.abs(bet - b) < 0.001;
+              return (
+                <button
+                  key={b}
+                  onClick={() => { setBet(b); setShowMenu(false); }}
+                  className={`block w-full px-3 py-1 rounded text-[11px] italic font-bold text-left ${active ? 'text-yellow-300' : 'text-white/70'} hover:bg-white/5`}
+                  style={{ fontFamily: 'Georgia, serif' }}
+                >
+                  {fmt(b)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Custom bet popover — opened from the $ button */}
+      {showCustomBet && (
+        <div className="absolute bottom-24 right-3 z-40 rounded-[8px] p-2" style={{ background: 'rgba(5,12,28,0.97)', border: '1px solid rgba(214,178,98,0.5)', boxShadow: '0 6px 18px rgba(0,0,0,0.6)' }}>
+          <div className="text-[8px] text-white/45 tracking-widest mb-1 px-1" style={{ fontFamily: 'Georgia, serif' }}>CUSTOM BET</div>
+          <div className="flex items-center gap-1">
+            <span className="text-amber-300 text-[12px] font-black" style={{ fontFamily: 'Georgia, serif' }}>$</span>
+            <input
+              type="number"
+              inputMode="decimal"
+              step="0.50"
+              min={minBet}
+              max={maxBet}
+              defaultValue={bet}
+              key={bet}
+              autoFocus
+              onBlur={(e) => setCustomBet(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { setCustomBet(e.target.value); setShowCustomBet(false); } }}
+              className="w-20 px-2 py-1 rounded text-[11px] font-bold text-yellow-300 tabular-nums outline-none"
+              style={{
+                fontFamily: 'Georgia, serif',
+                background: 'rgba(0,0,0,0.5)',
+                border: '1px solid rgba(214,178,98,0.5)',
+              }}
+            />
+            <button
+              onClick={(e) => { const v = e.currentTarget.previousSibling.value; setCustomBet(v); setShowCustomBet(false); }}
+              className="px-2 py-1 rounded text-[10px] font-black italic"
+              style={{ fontFamily: 'Georgia, serif', color: '#ffe9a8', background: 'linear-gradient(to bottom,#8b4513,#4a280a)', border: '1px solid rgba(255,234,160,0.7)' }}
+            >
+              SET
+            </button>
+          </div>
+          <div className="text-[8px] text-white/35 mt-1 px-1" style={{ fontFamily: 'Georgia, serif' }}>
+            Min {fmt(minBet)} · Max {fmt(maxBet)}
           </div>
         </div>
       )}
@@ -357,7 +383,7 @@ export default function BigBrownMachine() {
               <Zap className={`w-4 h-4 ${turbo ? 'text-yellow-300' : 'text-amber-200/70'}`} fill={turbo ? 'currentColor' : 'none'} />
             </button>
             <button
-              onClick={() => setShowBetMenu(s => !s)}
+              onClick={() => setShowMenu(s => !s)}
               className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
               style={{ border: '1.5px solid rgba(214,178,98,0.45)', background: 'rgba(8,18,38,0.85)' }}
             >
@@ -410,12 +436,13 @@ export default function BigBrownMachine() {
             >
               <Repeat className={`w-4 h-4 ${autoSpin ? 'text-emerald-300' : 'text-amber-200/70'}`} />
             </button>
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center"
+            <button
+              onClick={() => setShowCustomBet(s => !s)}
+              className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
               style={{ border: '1.5px solid rgba(214,178,98,0.45)', background: 'rgba(8,18,38,0.85)' }}
             >
               <DollarSign className="w-4 h-4 text-amber-200/70" />
-            </div>
+            </button>
           </div>
         </div>
       </div>
