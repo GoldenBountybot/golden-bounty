@@ -264,10 +264,15 @@ export default function CrownCoinsMachine() {
     const _serverRoundPromise = beginRound(bet, 'crown-coins', isFree, 'cap');
     clearTimers();
 
-    // Await the server's win/loss decision BEFORE generating the grid so the
-    // visible result always matches the server-decided outcome — no more
-    // winning lines showing $0.00 because the server decided a loss.
+    // Spin the reels visually WHILE the server decides the outcome, so the
+    // server round-trip is hidden inside the spin animation rather than
+    // adding dead time before the reels start. Enforce a minimum spin
+    // duration so very fast server responses still feel like a real spin.
+    const minSpinMs = turbo ? 300 : 500;
+    const spinStart = Date.now();
     const serverRound = await _serverRoundPromise;
+    const elapsed = Date.now() - spinStart;
+    if (elapsed < minSpinMs) await new Promise(r => setTimeout(r, minSpinMs - elapsed));
     const serverForceWin = serverRound && !serverRound.failed ? !!serverRound.is_win : null;
 
     // compute final result
@@ -331,9 +336,9 @@ export default function CrownCoinsMachine() {
 
     // start all reels spinning
     setReels(cols);
-    const base = turbo ? 280 : 480;
-    const step = turbo ? 120 : 180;
-    const landMs = 320;
+    const base = turbo ? 120 : 200;
+    const step = turbo ? 60 : 100;
+    const landMs = 200;
     // Slow-motion linger lasts exactly as long as the slow-mo sound plays.
     const anticiDelay = anticipate ? (getSlowMoDuration() || 3000) : 0;
 
