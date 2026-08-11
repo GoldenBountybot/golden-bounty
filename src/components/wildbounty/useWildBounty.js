@@ -95,7 +95,10 @@ export function useWildBounty() {
   // CONTINUE_PROB[i] = chance the NEXT cascade wins after a win paid at tier i,
   // derived from the requested cumulative reach odds:
   //   reach X2 5%, X4 3.33%, X8 1.67%, X16 0.1%, X32 0.02%, X64 0.01%, X128 0.0006%.
-  const CONTINUE_PROB = [0.00009, 0.000018, 0.0000035, 0.0000009, 0.00000009, 0.00000004, 0.00000002];
+  // Cascade continuation odds per tier. X1→X2 and X2→X4 and X4→X8 kept as-is;
+  // above 8x the odds drop HARD, and each higher tier drops even faster:
+  //   X8→X16 greatly reduced, X16→X32 further reduced, X32→X64 even more reduced.
+  const CONTINUE_PROB = [0.00009, 0.000018, 0.0000035, 0.0000003, 0.00000002, 0.000000001, 0.00000000005];
 
   // Drop new symbols into the blasted positions and rig them so the next
   // cascade either wins (chain continues toward a higher multiplier tier) or
@@ -336,9 +339,9 @@ export function useWildBounty() {
       // to exactly 0.1% (0.001). Below x8, use the tiered CONTINUE_PROB.
       // Demo mode doubles the cascade continuation chance so multiplier
       // chains climb higher more often during demo play.
-      const baseContProb = (!wasFree && currentMultIndex >= 3)
-        ? 0.001
-        : CONTINUE_PROB[currentMultIndex] * (wasFree ? 0.3 : 0.25);
+      // No flat lock — use the tiered CONTINUE_PROB so odds keep dropping at
+      // every higher multiplier (8x→16x→32x→64x all progressively rarer).
+      const baseContProb = CONTINUE_PROB[currentMultIndex] * (wasFree ? 0.3 : 0.25);
       const contProb = demoModeRef.current ? Math.min(1, baseContProb * 2) : baseContProb;
       const cont = currentMultIndex < CONTINUE_PROB.length && Math.random() < contProb;
       const cascadeT = setTimeout(() => {
