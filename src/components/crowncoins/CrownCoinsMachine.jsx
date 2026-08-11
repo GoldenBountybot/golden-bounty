@@ -249,6 +249,14 @@ export default function CrownCoinsMachine() {
     setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
     setWinLines([]);
     setAmountCell(null);
+    // Wait for any pending settleBet from the previous round to complete
+    // before starting a new beginRound — prevents the race where the next
+    // beginRound's server deduction overlaps the previous settleBet's
+    // response, double-deducting the bet and making wins appear uncredited.
+    if (settlePromiseRef.current) {
+      try { await settlePromiseRef.current; } catch {}
+      settlePromiseRef.current = null;
+    }
     const _serverRoundPromise = beginRound(bet, 'crown-coins', isFree, 'cap');
     clearTimers();
 
@@ -382,7 +390,8 @@ export default function CrownCoinsMachine() {
         } else {
           // free spins ended — pay out accumulated total
           const total = +runningTotal.toFixed(2);
-          settleBet(bet, total, 'crown-coins', true);
+          settlePromiseRef.current = settleBet(bet, total, 'crown-coins', true);
+          settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
           setLastWin(total);
           stuckRef.current = new Array(9).fill(null);
           setStuckView(new Array(9).fill(null));
@@ -459,7 +468,8 @@ export default function CrownCoinsMachine() {
       let bonusResult = preBonusRef.current;
       if (bonusResult && serverWin > 0) win += bonusResult.total;
 
-      settleBet(bet, win, 'crown-coins', false);
+      settlePromiseRef.current = settleBet(bet, win, 'crown-coins', false);
+      settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
       if (win > 0) setLastWin(win);
       setSpinning(false);
       // Base game fully settled and no free-spin round started — clear the
@@ -537,7 +547,8 @@ export default function CrownCoinsMachine() {
     if (!r) return;
     clearPendingRound('crown-coins');
     const win = Number(r.win) || 0;
-    settleBet(bet, win, 'crown-coins', true);
+    settlePromiseRef.current = settleBet(bet, win, 'crown-coins', true);
+    settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
     const state = r.state;
     if (state && state.freeSpins > 0) {
       stuckRef.current = (state.stuck && state.stuck.length === 9)

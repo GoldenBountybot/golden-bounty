@@ -113,6 +113,7 @@ export function useCrashGame() {
   const crashSettledRef = useRef(0);
   const panelTokensRef = useRef([null, null]);
   const playerNameRef = useRef('You');
+  const settlePromiseRef = useRef(null); // latest settleBet chain — awaited before auto-bet beginRound
 
   // Fetch the player's display name once so their bet shows at the top of the list.
   useEffect(() => {
@@ -191,12 +192,21 @@ export function useCrashGame() {
       });
       if (balDelta) { balanceRef.current += balDelta; }
       // Deduct each auto-placed bet on the server and store its round token.
+      // Wait for any pending settleBet from the previous round to complete
+      // first — prevents the race where beginRound's server deduction
+      // overlaps the previous settleBet's response, double-deducting the
+      // bet and making wins appear uncredited.
       reset.forEach((b, i) => {
         if (b.placed && b.autoBet) {
           panelTokensRef.current[i] = null;
-          beginRound(b.amount, 'rocket-crash', false, 'cap').then((r) => {
+          const doBegin = () => beginRound(b.amount, 'rocket-crash', false, 'cap').then((r) => {
             if (r?.round_token) panelTokensRef.current[i] = r.round_token;
           });
+          if (settlePromiseRef.current) {
+            settlePromiseRef.current.then(doBegin).catch(doBegin).finally(() => { settlePromiseRef.current = null; });
+          } else {
+            doBegin();
+          }
         }
       });
       betsRef.current = reset;
@@ -297,14 +307,14 @@ export function useCrashGame() {
         // Settle any uncashed bets (bet lost, win = 0) on the server.
         // Guard with crashSettledRef to ensure we settle once per round.
         if (crashSettledRef.current !== roundIdRef.current) {
-          crashSettledRef.current = roundIdRef.current;
-          const uncashed = betsRef.current.map((b, idx) => ({ b, idx }))
-            .filter((x) => x.b.placed && !x.b.cashedOut);
-          uncashed.reduce(async (p, x) => {
-            await p;
-            settleBet(x.b.amount, 0, 'rocket-crash', false, 0, panelTokensRef.current[x.idx]);
-            panelTokensRef.current[x.idx] = null;
-          }, Promise.resolve());
+        crashSettledRef.current = roundIdRef.current;
+        const uncashed = betsRef.current.map((b, idx) => ({ b, idx }))
+          .filter((x) => x.b.placed && !x.b.cashedOut);
+        settlePromiseRef.current = uncashed.reduce(async (p, x) => {
+          await p;
+          settleBet(x.b.amount, 0, 'rocket-crash', false, 0, panelTokensRef.current[x.idx]);
+          panelTokensRef.current[x.idx] = null;
+        }, Promise.resolve());
         }
         } else {
           multRef.current = m;
@@ -327,7 +337,7 @@ export function useCrashGame() {
           betsRef.current = next; setBets(next); syncPlayerEntries();
           // Settle each auto-cashouted panel on the server — the authoritative
           // balance is set in one update per panel (no optimistic setBalance).
-          cashedIdxs.reduce(async (p, idx) => {
+          settlePromiseRef.current = cashedIdxs.reduce(async (p, idx) => {
             await p;
             const bb = betsRef.current[idx];
             if (bb) {
@@ -399,7 +409,7 @@ export function useCrashGame() {
     syncPlayerEntries();
     // Net-zero settlement (refund the bet) — settleBet syncs the authoritative
     // balance from the server.
-    settleBet(b.amount, b.amount, 'rocket-crash', false, 0, panelTokensRef.current[i]);
+    settlePromiseRef.current = settleBet(b.amount, b.amount, 'rocket-crash', false, 0, panelTokensRef.current[i]);
     panelTokensRef.current[i] = null;
   };
 
@@ -416,7 +426,7 @@ export function useCrashGame() {
     syncPlayerEntries();
     // Settle on the server — the authoritative balance (with win credited) is
     // set in one update. No optimistic setBalance to avoid double-animation.
-    settleBet(b.amount, win, 'rocket-crash', false, 0, panelTokensRef.current[i]);
+    settlePromiseRef.current = settleBet(b.amount, win, 'rocket-crash', false, 0, panelTokensRef.current[i]);
     panelTokensRef.current[i] = null;
   };
 
