@@ -14,7 +14,6 @@ const ALL_CELLS = (() => {
 })();
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
-import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, usePendingRoundRecovery } from '@/lib/pendingRound';
 
 export function useGates() {
@@ -44,7 +43,6 @@ export function useGates() {
   const [freeSpinEndBanner, setFreeSpinEndBanner] = useState(null); // { amount } | null
 
   const settings = useGameSettings('gates-of-olympus');
-  const logActivity = useLogActivity();
   usePendingRoundRecovery('gates-of-olympus', setBalance, (state) => {
     // Restore an in-progress free spins round so the player resumes exactly
     // where they left off. The free-spins auto-trigger effect will spin the
@@ -306,9 +304,10 @@ export function useGates() {
       // A short gap lets the settle message show before the next spin.
       nextSpinDelayRef.current = turbo ? 800 : 1200;
       setSpinning(false);
-      logActivity('gates-of-olympus', freeMode ? 0 : bet, win, win > 0 ? 'win' : 'loss', result.effectiveMult || 0);
+      // PlayerActivity is logged authoritatively by the backend settleBet
+      // function — logging here too double-records each round in history.
     }, acc));
-  }, [spinning, balance, bet, freeSpins, turbo, setBalance, settleBet, logActivity]);
+  }, [spinning, balance, bet, freeSpins, turbo, setBalance, settleBet]);
 
   // auto spin (base game) — pause briefly so the win amount is readable
   useEffect(() => {
