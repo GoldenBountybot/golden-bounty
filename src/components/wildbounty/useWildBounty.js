@@ -224,7 +224,7 @@ export function useWildBounty() {
   const evaluateAndCascade = (currentGrid, cascadeCount, totalWin, currentMultIndex, wasFree, scatterAwarded = false, framedPositions = new Set()) => {
     const { wins, scatterCount: sc } = evaluateWins(currentGrid, bet);
     const multiplier = MULTIPLIERS[currentMultIndex];
-    const stepWin = wins.reduce((sum, w) => sum + w.pay, 0) * multiplier;
+    const stepWin = Math.round(wins.reduce((sum, w) => sum + w.pay, 0) * multiplier * 100) / 100;
     if (stepWin > 0 && multiplier > peakMultRef.current) peakMultRef.current = multiplier;
 
     const wpos = new Set();

@@ -374,7 +374,9 @@ async function settleBet(betAmount, winAmount, gameId, isFreeSpin = false, prese
     // Adjust for incremental display updates during cascades: we already
     // added roundDisplayWin to the display balance. Now adjust by the
     // difference so the final balance = committedBalance + optimisticWin.
-    const adjust = optimisticWin - roundDisplayWin;
+    // Round to 2 decimals to avoid floating-point drift causing a tiny
+    // non-zero adjust that silently subtracts small wins (e.g. $0.01).
+    const adjust = Math.round((optimisticWin - roundDisplayWin) * 100) / 100;
     roundDisplayWin = 0;
     if (adjust !== 0) {
       balance += adjust;
