@@ -105,27 +105,20 @@ function CardTile({ cell, idx, isWin, spinning, isNew, shatter, flip, goldenWild
             : isNew
               ? cascadeDropAnim
               : isWin
-                ? 'saGlowScaleInset 0.7s ease-in-out infinite'
+                ? 'saWinPulse 0.7s ease-in-out infinite'
                 : 'none',
         transition: spinning ? 'none' : 'transform 0.15s',
       }}
     >
-      {/* Outer glow ring — constant box-shadow on an overlay with GPU opacity
-          animation, replacing the expensive main-thread box-shadow repaint
-          that caused lag when many winning cards pulse at once. */}
+      {/* Single GPU-friendly glow overlay — opacity-only pulse, no box-shadow
+          repaint on the main thread. Replaces the old dual-overlay (box-shadow
+          + radial-gradient) that caused lag when many cards won at once. */}
       {isWin && !shatter && (
         <div
           className="absolute inset-0 rounded-md pointer-events-none"
-          style={{ boxShadow: '0 0 22px rgba(255,220,140,1)', animation: 'saGlowOpacity 0.7s ease-in-out infinite' }}
-        />
-      )}
-      {/* Golden light flare behind winning cards — JILI Super Ace style */}
-      {isWin && !shatter && (
-        <div
-          className="absolute inset-0 pointer-events-none z-0"
           style={{
-            background: 'radial-gradient(ellipse at center, rgba(255,215,0,0.85) 0%, rgba(255,180,40,0.5) 35%, rgba(255,140,0,0.15) 65%, transparent 100%)',
-            animation: 'saWinFlare 0.6s ease-in-out infinite alternate',
+            background: 'radial-gradient(circle at center, rgba(255,215,0,0.45), transparent 70%)',
+            animation: 'saGlowOpacity 0.7s ease-in-out infinite',
           }}
         />
       )}

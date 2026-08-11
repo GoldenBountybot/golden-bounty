@@ -534,13 +534,12 @@
   50%      { transform: scale(1.13); box-shadow: 0 0 22px rgba(255,220,140,1), inset 0 0 0 2px rgba(255,245,180,1); }
 }
 
-/* SuperAce — GPU-friendly win glow: separates the expensive outer box-shadow
-   (moved to an overlay div with opacity animation) from the cell's transform
-   scale + cheap inset border. Eliminates main-thread box-shadow repaint lag
-   when multiple winning cards pulse simultaneously. */
-@keyframes saGlowScaleInset {
-  0%, 100% { transform: scale(1.07); box-shadow: inset 0 0 0 2px rgba(255,235,150,0.9); }
-  50%      { transform: scale(1.13); box-shadow: inset 0 0 0 2px rgba(255,245,180,1); }
+/* SuperAce — GPU-friendly win pulse: transform-only animation (no box-shadow
+   repaint on the main thread). Eliminates lag when many winning cards pulse
+   simultaneously. The golden border + glow are static on the cell style. */
+@keyframes saWinPulse {
+  0%, 100% { transform: scale(1.06); }
+  50%      { transform: scale(1.12); }
 }
 @keyframes saGlowOpacity {
   0%, 100% { opacity: 0.7; }

@@ -6,6 +6,27 @@ import React from 'react';
 export default function WinOverlay({ floatWin, combo }) {
   return (
     <>
+      {/* COMBO / multiplier badge — clearly shows which multiplier round is active */}
+      {combo > 1 && floatWin && (
+        <div
+          key={'combo-' + combo + '-' + floatWin.key}
+          className="absolute left-1/2 top-[18%] z-30 pointer-events-none"
+          style={{ animation: 'saComboFlash 0.5s ease-out both' }}
+        >
+          <span
+            className="text-2xl font-black italic tabular-nums"
+            style={{
+              color: '#ffe066',
+              WebkitTextStroke: '1.5px #8b1a1a',
+              textShadow: '0 2px 6px rgba(0,0,0,0.9), 0 0 16px rgba(255,140,0,0.7)',
+              fontFamily: 'Rye, Georgia, serif',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            COMBO ×{combo}
+          </span>
+        </div>
+      )}
       {floatWin && (
         <div
           key={floatWin.key}
