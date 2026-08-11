@@ -78,7 +78,16 @@ export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
   const winChanceMult = gameId === 'fullhouse' ? 0.20 : (gameId === 'wild-bounty' ? 0.16 : (gameId === 'gates-of-olympus' ? 0.22 : (gameId === 'argonauts' ? 0.07 : (gameId === 'thimbles' ? 0.75 : (gameId === 'hi-lo' ? 0.75 : (gameId === 'mines' ? 0.75 : 0.15))))));
   const winChance = rtpFrac * winChanceMult;
   const isWin = Math.random() < winChance;
-  if (!isWin) return { isWin: false, winAmount: 0, multiplier: 0 };
+  if (!isWin) {
+    // HiLo (cap mode): the cap must be at least the bet so that collecting
+    // without guessing returns the full bet. The user only loses when they
+    // actually guess wrong (client sends win = 0, server credits min(0, bet) = 0).
+    if (gameId === 'hi-lo') {
+      const cap = Math.round(Math.max(betAmount, 0.01) * 100) / 100;
+      return { isWin: false, winAmount: cap, multiplier: 0 };
+    }
+    return { isWin: false, winAmount: 0, multiplier: 0 };
+  }
 
   // Multiplier distribution: mostly small wins, rare big wins.
   // Mean ≈ 6.7 so that 0.15 * rtpFrac * 6.7 ≈ rtpFrac (expected return ≈ RTP).
