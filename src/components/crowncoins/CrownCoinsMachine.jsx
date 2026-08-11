@@ -331,9 +331,9 @@ export default function CrownCoinsMachine() {
 
     // start all reels spinning
     setReels(cols);
-    const base = turbo ? 420 : 720;
-    const step = turbo ? 160 : 260;
-    const landMs = 460;
+    const base = turbo ? 280 : 480;
+    const step = turbo ? 120 : 180;
+    const landMs = 320;
     // Slow-motion linger lasts exactly as long as the slow-mo sound plays.
     const anticiDelay = anticipate ? (getSlowMoDuration() || 3000) : 0;
 
