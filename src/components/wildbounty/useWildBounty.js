@@ -252,7 +252,7 @@ export function useWildBounty() {
     }
 
     if (stepWin > 0) {
-      const slow = cascadeCount >= 1 ? 1.6 : 1.2;
+      const slow = cascadeCount >= 1 ? 1.4 : 1.1;
       setCascadeSlow(slow);
       // High-value symbols (bandit, revolver) play a distinct match sound.
       sfx.symbolMatch();
@@ -334,7 +334,7 @@ export function useWildBounty() {
       // From the second cascade, run everything in a slight slow motion so the
       // shatter/drop animation lines up with the (also slowed) win sound.
       // Hold matched (popped) symbols big for ~1s, then blast them directly.
-      const holdMs = cascadeCount >= 1 ? 1200 : 1000;
+      const holdMs = cascadeCount >= 1 ? 1000 : 850;
       const shatterT = setTimeout(() => { setShattering(shatterPos); }, holdMs);
       timers.current.push(shatterT);
 
@@ -367,9 +367,9 @@ export function useWildBounty() {
           setCascading(false);
           setCascadePositions(new Set());
           evaluateAndCascade(newGrid, cascadeCount + 1, newTotal, newMult, wasFree, awarded, framedPositions);
-        }, 450 * slow);
+        }, 380 * slow);
         timers.current.push(evalT);
-      }, 1000 * slow);
+      }, 850 * slow);
       timers.current.push(cascadeT);
     } else {
       // No more wins — end the chain. Override the client-computed total with
@@ -772,8 +772,8 @@ export function useWildBounty() {
     // stops (dropping in with the symbol), instead of popping in after every
     // reel has landed.
     setGoldFrames(frames);
-    const baseGap = turbo ? 130 : 230;
-    const slowGap = turbo ? 900 : 1500; // slow-motion anticipation for remaining reels
+    const baseGap = turbo ? 110 : 200;
+    const slowGap = turbo ? 750 : 1300; // slow-motion anticipation for remaining reels
 
     let stoppedScatter = 0;
     const stopReel = (i, slow) => {
