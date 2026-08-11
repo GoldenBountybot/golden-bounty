@@ -462,9 +462,7 @@ export default function SuperAceMachine() {
     } else if (!inFreeRef.current) {
       playLose();
     }
-    if (!inFreeRef.current) {
-        logActivity('fullhouse', betRef.current, grand, grand > 0 ? 'win' : 'loss');
-    }
+    logActivity('fullhouse', inFreeRef.current ? 0 : betRef.current, grand, grand > 0 ? 'win' : 'loss');
 
     // Enable the spin button immediately — the Super/Mega win banner is
     // visual only and no longer blocks the button.

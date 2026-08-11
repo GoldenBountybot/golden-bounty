@@ -141,7 +141,7 @@ export function useBigBrown() {
     }
 
     setSpinning(false);
-    logActivity('big-brown', bet, totalWin, totalWin > 0 ? 'win' : 'loss');
+    logActivity('big-brown', wasFree ? 0 : bet, totalWin, totalWin > 0 ? 'win' : 'loss');
   }, [bet, setBalance, settleBet, logActivity]);
 
   const spin = useCallback(async () => {

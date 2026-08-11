@@ -466,7 +466,7 @@ export function useWildBounty() {
       } else if (cascadeCount === 0) {
         setMessage(sc === 2 ? 'ONE MORE SCATTER!' : 'WIN UP TO 3600 WAYS!');
       }
-      logActivity('wild-bounty', bet, isServerWin ? totalWin : 0, isServerWin && totalWin > 0 ? 'win' : 'loss');
+      logActivity('wild-bounty', wasFree ? 0 : bet, isServerWin ? totalWin : 0, isServerWin && totalWin > 0 ? 'win' : 'loss');
       // Delay setSpinning(false) until settleBet completes — prevents the next
       // auto-spin/free-spin from starting a new beginRound before this round's
       // settleBet finishes, which would race the two server calls and double-

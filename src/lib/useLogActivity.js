@@ -8,8 +8,9 @@ export function useLogActivity() {
   const { user } = useAuth();
   return useCallback(async (game_id, bet, win, outcome, multiplier = 0) => {
     if (!user) return;
-    // Only record rounds where the player actually placed a bet.
-    if (!(Number(bet) > 0)) return;
+    // Record rounds where the player placed a bet (bet > 0) OR won without a
+    // bet (free spin wins: bet = 0, win > 0). Skip no-bet no-win entries.
+    if (!(Number(bet) > 0) && !(Number(win) > 0)) return;
     try {
       await base44.entities.PlayerActivity.create({
         user_id: user.id,

@@ -398,6 +398,7 @@ export default function CrownCoinsMachine() {
           setRoyalWin(total);
           setShowRoyalBanner(true);
           clearPendingRound('crown-coins');
+          logActivity('crown-coins', 0, total, total > 0 ? 'win' : 'loss');
         }
         return;
       }

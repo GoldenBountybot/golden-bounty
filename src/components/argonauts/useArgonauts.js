@@ -90,6 +90,7 @@ export function useArgonauts() {
   const timers = useRef([]);
   const lineBet = bet / 10;
   const settlePromiseRef = useRef(null); // pending settleBet — awaited in spin() before the next beginRound
+  const coinBaseWinRef = useRef(0); // base spin win stored when a coin round triggers — logged combined at coin round end
 
   // refs to avoid stale closures in chained coin-spin timers
   const betRef = useRef(bet); betRef.current = bet;
@@ -119,7 +120,11 @@ export function useArgonauts() {
     // Restore a normal symbol board so the maroon coin grid doesn't linger.
     setGrid(generateGrid(false));
     setSpinningReels(new Set([0, 1, 2, 3, 4]));
-    logActivity('argonauts', betRef.current, total, 'win', 0);
+    // Log the combined base-spin + coin-round win as a single activity entry
+    // (the bet was only deducted once, at beginRound).
+    const combinedWin = coinBaseWinRef.current + total;
+    coinBaseWinRef.current = 0;
+    logActivity('argonauts', betRef.current, combinedWin, 'win', 0);
   }, [setBalance, settleBet, logActivity]);
 
   const coinSpin = useCallback(() => {
@@ -241,7 +246,10 @@ export function useArgonauts() {
       }
       setMessage(baseWin > 0 ? `WIN $${baseWin.toFixed(2)} · COIN FEATURE!` : 'COIN FEATURE!');
       setSpinning(false);
-      logActivity('argonauts', bet, baseWin, baseWin > 0 ? 'win' : 'loss');
+      // Don't log the base spin separately — the coin round's endCoinRound
+      // will log the combined base + coin win as a single entry (the bet was
+      // only deducted once). Stash the base win so endCoinRound can add it.
+      coinBaseWinRef.current = baseWin;
       startCoinRound(finalGrid);
       return;
     }

@@ -306,7 +306,7 @@ export function useGates() {
       // A short gap lets the settle message show before the next spin.
       nextSpinDelayRef.current = turbo ? 800 : 1200;
       setSpinning(false);
-      logActivity('gates-of-olympus', bet, win, win > 0 ? 'win' : 'loss', result.effectiveMult || 0);
+      logActivity('gates-of-olympus', freeMode ? 0 : bet, win, win > 0 ? 'win' : 'loss', result.effectiveMult || 0);
     }, acc));
   }, [spinning, balance, bet, freeSpins, turbo, setBalance, settleBet, logActivity]);
 
