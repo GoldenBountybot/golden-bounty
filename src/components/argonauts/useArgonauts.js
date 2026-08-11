@@ -89,6 +89,7 @@ export function useArgonauts() {
 
   const timers = useRef([]);
   const lineBet = bet / 10;
+  const settlePromiseRef = useRef(null); // pending settleBet — awaited in spin() before the next beginRound
 
   // refs to avoid stale closures in chained coin-spin timers
   const betRef = useRef(bet); betRef.current = bet;
@@ -110,7 +111,8 @@ export function useArgonauts() {
     setCoinStuck({});
     setCoinSpins(0);
     setCoinDropped(new Set());
-    settleBet(betRef.current, total, 'argonauts', true);
+    settlePromiseRef.current = settleBet(betRef.current, total, 'argonauts', true);
+    settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
     setLastWin(total);
     setTotalWin((t) => t + total);
     setMessage(`COIN FEATURE · WON $${total.toFixed(2)}`);
@@ -231,7 +233,8 @@ export function useArgonauts() {
     // Value-coin hold-and-spin trigger (base game only)
     const coinTrig = !usingFree && coinTriggered(finalGrid);
     if (coinTrig) {
-      settleBet(bet, baseWin, 'argonauts', false);
+      settlePromiseRef.current = settleBet(bet, baseWin, 'argonauts', false);
+      settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
       if (baseWin > 0) {
         setLastWin(baseWin);
         setTotalWin((t) => t + baseWin);
@@ -255,16 +258,21 @@ export function useArgonauts() {
       setLastWin(baseWin);
       setTotalWin((t) => t + baseWin);
       if (usingFree) {
-        settleBet(bet, baseWin, 'argonauts', true);
+        settlePromiseRef.current = settleBet(bet, baseWin, 'argonauts', true);
+        settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
         setMessage(awardedFree ? `WIN $${baseWin.toFixed(2)} · +${FREE_SPINS_AWARD} FREE` : `WIN $${baseWin.toFixed(2)}`);
       } else {
         // Settle immediately — credit the win to the balance right away,
         // no TAKE/RISK hold step.
-        settleBet(bet, baseWin, 'argonauts', false);
+        settlePromiseRef.current = settleBet(bet, baseWin, 'argonauts', false);
+        settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
         setMessage(awardedFree ? `WIN $${baseWin.toFixed(2)} · +${FREE_SPINS_AWARD} FREE` : `WIN $${baseWin.toFixed(2)}`);
       }
     } else {
-      if (!usingFree) settleBet(bet, 0, 'argonauts', false);
+      if (!usingFree) {
+        settlePromiseRef.current = settleBet(bet, 0, 'argonauts', false);
+        settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
+      }
       if (!awardedFree) setMessage(usingFree ? 'FREE SPIN · NO WIN' : 'NO WIN · SPIN AGAIN');
     }
 
@@ -310,6 +318,11 @@ export function useArgonauts() {
     if (riskActive && pendingWin > 0) await settleBet(bet, pendingWin, 'argonauts', false);
     setPendingWin(0);
     setRiskActive(false);
+    // Wait for any pending settleBet from the previous regular spin too.
+    if (settlePromiseRef.current) {
+      await settlePromiseRef.current;
+      settlePromiseRef.current = null;
+    }
     // Start the server round and AWAIT the decision before generating the grid.
     // The server pre-decides win/loss based on RTP (cap mode). The client's grid
     // MUST match that decision — otherwise the screen shows winning lines but the
@@ -456,7 +469,8 @@ export function useArgonauts() {
   const finishBonus = useCallback(() => {
     setBonusActive(false);
     setBonusSteps([]);
-    settleBet(bet, bonusPrize, 'argonauts', true);
+    settlePromiseRef.current = settleBet(bet, bonusPrize, 'argonauts', true);
+    settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
     setLastWin(bonusPrize);
     setTotalWin((t) => t + bonusPrize);
     setMessage(`GOLDEN FLEECE · WON $${bonusPrize.toFixed(2)}${bonusExtra ? ' · ULTRA JACKPOT!' : ''}`);
@@ -513,7 +527,8 @@ export function useArgonauts() {
   }, [riskResult]);
 
   const collectRisk = useCallback(() => {
-    settleBet(bet, pendingWin, 'argonauts', false);
+    settlePromiseRef.current = settleBet(bet, pendingWin, 'argonauts', false);
+    settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
     setLastWin(pendingWin);
     setMessage(`RISK WIN · COLLECTED $${pendingWin.toFixed(2)}`);
     setRiskMode(false);
@@ -541,7 +556,8 @@ export function useArgonauts() {
     setRevealedIdx(null);
     setRiskOutcome(null);
     setSpinning(false);
-    settleBet(bet, 0, 'argonauts', false);
+    settlePromiseRef.current = settleBet(bet, 0, 'argonauts', false);
+    settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
     logActivity('argonauts', bet, 0, 'loss', 0);
   }, [logActivity, bet, settleBet]);
 

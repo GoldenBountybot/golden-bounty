@@ -140,6 +140,7 @@ export default function SuperAceMachine() {
   const serverWinRef = useRef(0);
   const superWinResolverRef = useRef(null);
   const megaWinResolverRef = useRef(null);
+  const settlePromiseRef = useRef(null); // pending settleBet — awaited in doSpin before the next beginRound
 
   useEffect(() => { betRef.current = bet; }, [bet]);
   useEffect(() => { rtpRef.current = rtp; }, [rtp]);
@@ -192,6 +193,14 @@ export default function SuperAceMachine() {
     maxMultRef.current = 0;
     goldenTargetsRef.current = [];
     normalWildSpawnedRef.current = false;
+    // Wait for any pending settleBet from the previous round to complete
+    // before starting a new beginRound — prevents the race where the next
+    // beginRound's server deduction overlaps the previous settleBet's
+    // response, double-deducting the bet and making wins appear uncredited.
+    if (settlePromiseRef.current) {
+      await settlePromiseRef.current;
+      settlePromiseRef.current = null;
+    }
     const _serverRoundPromise = beginRound(b, 'fullhouse', inFreeRef.current);
     if (!inFreeRef.current) {
       setMessage(`Spinning…`);
@@ -445,7 +454,8 @@ export default function SuperAceMachine() {
     const total = winThisSpinRef.current;
     const sc = scatterAwardRef.current;
     const grand = serverWinRef.current;
-    settleBet(betRef.current, grand, 'fullhouse', inFreeRef.current);
+    settlePromiseRef.current = settleBet(betRef.current, grand, 'fullhouse', inFreeRef.current);
+    settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
     if (grand > 0) {
       setLastWin(grand);
       if (total > 0) playBigWin();

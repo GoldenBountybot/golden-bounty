@@ -69,6 +69,7 @@ export function useGates() {
   const runningMultRef = useRef(0);
   const freeSpinsTotalRef = useRef(0); // accumulated win across the whole free spins round
   const nextSpinDelayRef = useRef(1200); // dynamic gap before the next auto/free spin
+  const settlePromiseRef = useRef(null); // pending settleBet — awaited in spin() before the next beginRound
 
   const setCustomBet = useCallback((amount) => {
     const n = Math.max(minBet, Math.min(maxBet, Number(amount) || minBet));
@@ -97,6 +98,14 @@ export function useGates() {
     setWinList([]);
     setWinHistory([]);
     setScatterGlow(new Set());
+    // Wait for any pending settleBet from the previous round to complete
+    // before starting a new beginRound — prevents the race where the next
+    // beginRound's server deduction overlaps the previous settleBet's
+    // response, double-deducting the bet and making wins appear uncredited.
+    if (settlePromiseRef.current) {
+      await settlePromiseRef.current;
+      settlePromiseRef.current = null;
+    }
     const _serverRoundPromise = beginRound(bet, 'gates-of-olympus', usingFree);
     if (usingFree) setFreeSpins((f) => f - 1);
     setMessage('Spinning…');
@@ -249,7 +258,9 @@ export function useGates() {
       setWinPositions(new Set());
       const win = serverWinRef.current;
       setWinFlash(win);
-      settleBet(bet, win, 'gates-of-olympus', freeMode);
+      const settlePromise = settleBet(bet, win, 'gates-of-olympus', freeMode);
+      settlePromiseRef.current = settlePromise;
+      settlePromise.then(() => { settlePromiseRef.current = null; });
       if (win > 0) {
         setLastWin(win);
         if (freeMode) freeSpinsTotalRef.current += win;

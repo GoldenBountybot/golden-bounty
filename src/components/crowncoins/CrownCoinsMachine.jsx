@@ -228,6 +228,7 @@ export default function CrownCoinsMachine() {
   const [anticipateCol, setAnticipateCol] = useState(-1);
   const [bannerBlast, setBannerBlast] = useState(false);
   const blastTimerRef = useRef(null);
+  const settlePromiseRef = useRef(null); // pending settleBet — awaited in doSpin before the next beginRound
 
   const clearTimers = () => { timers.current.forEach(t => clearTimeout(t)); timers.current = []; };
 

@@ -49,6 +49,7 @@ export function useBigBrown() {
 
   const timers = useRef([]);
   const lastBonusPurchase = useRef(null); // { cost, games } when banner came from Bonus Pop
+  const settlePromiseRef = useRef(null); // pending settleBet — awaited in spin() before the next beginRound
 
   // Clamp a custom bet amount to the allowed min/max and round to 2 decimals.
   const setCustomBet = useCallback((amount) => {
@@ -102,7 +103,8 @@ export function useBigBrown() {
       }
     });
 
-    settleBet(bet, totalWin, 'big-brown', wasFree);
+    settlePromiseRef.current = settleBet(bet, totalWin, 'big-brown', wasFree);
+    settlePromiseRef.current.then(() => { settlePromiseRef.current = null; }).catch(() => {});
     if (totalWin > 0) {
       setLastWin(totalWin);
       setWinningPositions(wpos);
@@ -159,6 +161,14 @@ export function useBigBrown() {
     setScatterPositions(new Set());
     setLastWin(0);
     setAnticipation(false);
+    // Wait for any pending settleBet from the previous round to complete
+    // before starting a new beginRound — prevents the race where the next
+    // beginRound's server deduction overlaps the previous settleBet's
+    // response, double-deducting the bet and making wins appear uncredited.
+    if (settlePromiseRef.current) {
+      await settlePromiseRef.current;
+      settlePromiseRef.current = null;
+    }
     const _serverRoundPromise = beginRound(bet, 'big-brown', usingFree);
     if (usingFree) setFreeSpins(f => f - 1);
     setMessage('Spinning...');
