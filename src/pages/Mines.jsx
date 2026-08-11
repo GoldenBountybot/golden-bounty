@@ -177,13 +177,11 @@ export default function Mines() {
     playClick();
     startingRef.current = true;
     const _serverRoundPromise = beginRound(bet, 'mines', false, 'cap');
-    setBalance((b) => b - bet);
     // Wait for the server's pre-decided outcome.
     const serverRound = await _serverRoundPromise;
-    // If beginRound failed, the server did NOT deduct the bet. Revert the
-    // local display deduction and abort.
+    // If beginRound failed, the server did NOT deduct the bet (beginRound
+    // already reverted its local deduction). Just abort.
     if (serverRound.failed) {
-      setBalance((b) => b + bet);
       startingRef.current = false;
       setPhase('idle');
       setMessage('Connection error — try again');

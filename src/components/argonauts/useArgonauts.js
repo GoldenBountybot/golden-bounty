@@ -327,7 +327,6 @@ export function useArgonauts() {
     }
     if (!usingFree) {
       setTotalWin(0);
-      setBalance((b) => b - bet);
     } else {
       setFreeSpins((f) => f - 1);
     }

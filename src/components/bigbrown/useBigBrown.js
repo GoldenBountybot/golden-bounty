@@ -157,18 +157,15 @@ export function useBigBrown() {
     setLastWin(0);
     setAnticipation(false);
     const _serverRoundPromise = beginRound(bet, 'big-brown', usingFree);
-    if (!usingFree) setBalance(b => b - bet);
     if (usingFree) setFreeSpins(f => f - 1);
     setMessage('Spinning...');
 
     // Wait for the server's pre-decided outcome before generating the grid.
     const serverRound = await _serverRoundPromise;
     // If beginRound failed (network error, server reject, etc.), the server
-    // did NOT deduct the bet. Revert the local display deduction and abort —
-    // otherwise settleBet would fail (no round_token) and loadBalance would
-    // restore the original balance, making it look like the bet "increased".
+    // did NOT deduct the bet (beginRound already reverted its local
+    // deduction). Just abort.
     if (serverRound.failed) {
-      if (!usingFree) setBalance(b => b + bet);
       setSpinning(false);
       setMessage('Connection error — try again');
       return;

@@ -237,7 +237,6 @@ export default function Plinko() {
     timers.current.forEach(clearTimeout);
     timers.current = [];
     const _serverRoundPromise = beginRound(bet, 'plinko');
-    setBalance((b) => b - bet);
     setDropping(true);
     setResultBucket(null);
     setLastWin(0);
@@ -248,10 +247,9 @@ export default function Plinko() {
     // Wait for the server's pre-decided outcome, then pick the bucket whose
     // multiplier is closest to the server's win amount.
     const serverRound = await _serverRoundPromise;
-    // If beginRound failed, the server did NOT deduct the bet. Revert the
-    // local display deduction and abort.
+    // If beginRound failed, the server did NOT deduct the bet (beginRound
+    // already reverted its local deduction). Just abort.
     if (serverRound.failed) {
-      setBalance((b) => b + bet);
       setDropping(false);
       setMessage('Connection error — try again');
       return;

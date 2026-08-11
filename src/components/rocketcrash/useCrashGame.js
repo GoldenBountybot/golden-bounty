@@ -189,7 +189,7 @@ export function useCrashGame() {
         }
         return r;
       });
-      if (balDelta) { balanceRef.current += balDelta; setBalance((bal) => bal + balDelta); }
+      if (balDelta) { balanceRef.current += balDelta; }
       // Deduct each auto-placed bet on the server and store its round token.
       reset.forEach((b, i) => {
         if (b.placed && b.autoBet) {
@@ -367,7 +367,6 @@ export function useCrashGame() {
     const b = betsRef.current[i];
     if (b.placed) return;
     if (balanceRef.current < b.amount) return;
-    setBalance((bal) => bal - b.amount);
     balanceRef.current -= b.amount;
     const next = betsRef.current.map((bb, idx) => (idx === i ? { ...bb, placed: true } : bb));
     betsRef.current = next;
@@ -378,11 +377,8 @@ export function useCrashGame() {
       if (r?.round_token) {
         panelTokensRef.current[i] = r.round_token;
       } else if (r?.failed) {
-        // beginRound failed — server did NOT deduct the bet. Refund locally
-        // and unplace the panel so the round doesn't try to settle a bet the
-        // server never accepted (which would restore the balance, making it
-        // look like the bet "increased").
-        setBalance((bal) => bal + b.amount);
+        // beginRound failed — server did NOT deduct the bet (beginRound
+        // already reverted its local deduction). Just unplace the panel.
         balanceRef.current += b.amount;
         const next = betsRef.current.map((bb, idx) => (idx === i ? { ...bb, placed: false } : bb));
         betsRef.current = next;
@@ -396,13 +392,13 @@ export function useCrashGame() {
     if (phaseRef.current !== 'waiting') return;
     const b = betsRef.current[i];
     if (!b.placed) return;
-    setBalance((bal) => bal + b.amount);
     balanceRef.current += b.amount;
     const next = betsRef.current.map((bb, idx) => (idx === i ? { ...bb, placed: false } : bb));
     betsRef.current = next;
     setBets(next);
     syncPlayerEntries();
-    // Net-zero settlement (refund the bet) with other panel's delta preserved.
+    // Net-zero settlement (refund the bet) — settleBet syncs the authoritative
+    // balance from the server.
     settleBet(b.amount, b.amount, 'rocket-crash', false, 0, panelTokensRef.current[i]);
     panelTokensRef.current[i] = null;
   };

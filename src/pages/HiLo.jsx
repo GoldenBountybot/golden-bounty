@@ -223,13 +223,10 @@ export default function HiLo() {
     if (phase === 'guessing') return;
     if (balance < bet) { setMessage('Insufficient balance! Reset below.'); return; }
     const _serverRoundPromise = beginRound(bet, 'hi-lo', false, 'cap');
-    setBalance(b => b - bet);
     const serverRound = await _serverRoundPromise;
-    // If beginRound failed (e.g. bet out of range, network error), refund the
-    // bet and abort — otherwise serverWinRef stays 0 and every guess is a
-    // forced loss.
+    // If beginRound failed (e.g. bet out of range, network error), abort —
+    // beginRound already reverted its local deduction.
     if (!serverRound || serverRound.failed || serverRound.win_amount == null) {
-      setBalance(b => b + bet);
       setMessage('Round failed — try a different bet amount.');
       return;
     }

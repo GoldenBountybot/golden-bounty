@@ -194,7 +194,6 @@ export default function SuperAceMachine() {
     normalWildSpawnedRef.current = false;
     const _serverRoundPromise = beginRound(b, 'fullhouse', inFreeRef.current);
     if (!inFreeRef.current) {
-      setBalance((x) => x - b);
       setMessage(`Spinning…`);
     } else {
       setMessage(`Free Spin · ${freeSpinsLeftRef.current} left`);
@@ -256,7 +255,6 @@ export default function SuperAceMachine() {
     // If beginRound failed (network error, server reject, etc.), the server
     // did NOT deduct the bet. Revert the local display deduction and abort.
     if (serverRound.failed) {
-      if (!inFreeRef.current) setBalance((x) => x + b);
       busyRef.current = false;
       setPhase('idle');
       setSpinning(false);

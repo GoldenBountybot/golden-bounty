@@ -541,7 +541,6 @@ export function useWildBounty() {
         // settleBetRef was already set to the feature-buy cost by confirmFeatureBuy
       } else {
         settleBetRef.current = bet;
-        setBalance(b => b - bet);
       }
       freeSpinsTotalRef.current = 0;
       freeSpinsCountRef.current = 0;
@@ -559,7 +558,6 @@ export function useWildBounty() {
     // If beginRound failed (network error, server reject, etc.), the server
     // did NOT deduct the bet. Revert the local display deduction and abort.
     if (serverRound.failed) {
-      if (!usingFree) setBalance(b => b + _roundBet);
       setSpinning(false);
       setMessage('Connection error — try again');
       return;

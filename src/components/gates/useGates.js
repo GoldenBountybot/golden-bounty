@@ -98,7 +98,6 @@ export function useGates() {
     setWinHistory([]);
     setScatterGlow(new Set());
     const _serverRoundPromise = beginRound(bet, 'gates-of-olympus', usingFree);
-    if (!usingFree) setBalance((b) => b - bet);
     if (usingFree) setFreeSpins((f) => f - 1);
     setMessage('Spinning…');
     playSpinSound();
@@ -107,9 +106,9 @@ export function useGates() {
     // of landing 8+ matching symbols so the bonus round feels more rewarding.
     const serverRound = await _serverRoundPromise;
     // If beginRound failed (network error, server reject, etc.), the server
-    // did NOT deduct the bet. Revert the local display deduction and abort.
+    // did NOT deduct the bet (beginRound already reverted its local
+    // deduction). Just abort.
     if (serverRound.failed) {
-      if (!usingFree) setBalance((b) => b + bet);
       setSpinning(false);
       setMessage('Connection error — try again');
       return;

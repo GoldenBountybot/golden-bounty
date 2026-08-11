@@ -249,7 +249,6 @@ export default function CrownCoinsMachine() {
     setWinLines([]);
     setAmountCell(null);
     const _serverRoundPromise = beginRound(bet, 'crown-coins', isFree, 'cap');
-    if (!isFree) setBalance(b => Math.max(0, b - bet));
     clearTimers();
 
     // compute final result
@@ -352,7 +351,6 @@ export default function CrownCoinsMachine() {
       // balance, making it look like the bet "increased").
       const serverRound = await _serverRoundPromise;
       if (serverRound.failed) {
-        if (!isFree) setBalance(b => b + bet);
         setSpinning(false);
         setPhases(['idle', 'idle', 'idle']);
         return;
