@@ -30,6 +30,8 @@ const imgStyle = (img) => ({
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
   filter: 'saturate(1.18) contrast(1.06)',
+  transform: 'translateZ(0)',
+  backfaceVisibility: 'hidden',
 });
 
 export default function GatesSymbol({ sym, highlight }) {
@@ -46,9 +48,10 @@ export default function GatesSymbol({ sym, highlight }) {
       backgroundSize: size,
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
-      transform: `scale(${scale})`,
+      transform: `scale(${scale}) translateZ(0)`,
       transformOrigin: 'center center',
       filter: 'saturate(1.25) contrast(1.08)',
+      backfaceVisibility: 'hidden',
     };
     return (
       <div className="w-full h-full flex items-center justify-center relative rounded-[5px] overflow-hidden"
