@@ -241,92 +241,91 @@ export default function Plinko() {
     setBallPos(null);
     playDropStart();
 
-    // Wait for the server's pre-decided outcome, then pick the bucket whose
-    // multiplier is closest to the server's win amount.
-    const serverRound = await _serverRoundPromise;
-    // If beginRound failed, the server did NOT deduct the bet (beginRound
-    // already reverted its local deduction). Just abort.
-    if (serverRound.failed) {
-      setDropping(false);
-      setMessage('Connection error — try again');
-      return;
-    }
-    const rawServerWin = Number(serverRound.win_amount ?? 0);
-    // Defense in depth: cap the win at 100x bet (the max Plinko bucket).
-    // The server already caps at 100x for plinko, but this guards against
-    // any stale/cached response returning an impossible multiplier.
-    const MAX_PLINKO_MULT = 100;
-    const serverWin = Math.min(rawServerWin, bet * MAX_PLINKO_MULT);
-    const _targetMult = bet > 0 ? serverWin / bet : 0;
-    let bucket = 6; // default to center (0.1x) — the most common bucket
-    let _closest = Infinity;
-    for (let i = 0; i < MULTS.length; i++) {
-      const _d = Math.abs(MULTS[i] - _targetMult);
-      if (_d < _closest) { _closest = _d; bucket = i; }
-    }
-    // For the 100x edge buckets (indices 0 and 12), randomly pick left or
-    // right so the ball doesn't always hug the same side.
-    if (_targetMult >= 100 && Math.random() < 0.5) {
-      bucket = MULTS.length - 1; // right edge (12)
-    }
-
-    // Random, erratic descent — but the ball ALWAYS passes through the peg
-    // directly above the target multiplier (row 10, col bucket-1) before
-    // dropping into the bucket.
-    const pegPath = [{ row: 0, col: 0 }];
-    let col = 0;
-    if (bucket === 0 || bucket === MULTS.length - 1) {
-      // Edge bucket: ball must hug one side all the way down.
-      const edge = bucket === 0 ? 0 : ROWS - 1;
-      for (let r = 1; r < ROWS; r++) {
-        col += col < edge ? 1 : 0;
-        pegPath.push({ row: r, col });
-      }
-    } else {
-      // Middle bucket: random shuffled path to the peg directly above the
-      // bucket, then one final bounce to a peg adjacent to the bucket.
-      const aboveCol = bucket - 1;
-      const upperSteps = Array.from({ length: 10 }, (_, i) => (i < aboveCol ? 1 : 0));
-      for (let i = upperSteps.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [upperSteps[i], upperSteps[j]] = [upperSteps[j], upperSteps[i]];
-      }
-      for (let r = 1; r <= 10; r++) {
-        col += upperSteps[r - 1];
-        pegPath.push({ row: r, col });
-      }
-      col += Math.random() < 0.5 ? 0 : 1;
-      pegPath.push({ row: ROWS - 1, col });
-    }
-    const finalCol = bucket;
-
-    let step = 0;
-    const animate = () => {
-      const cur = pegPath[step];
-      setBallPos({ kind: 'peg', row: cur.row, col: cur.col });
-      setHitPeg(cur);
-      if (step > 0) playPeg();
-      if (step < pegPath.length - 1) {
-        const t = setTimeout(() => { step++; animate(); }, 200);
-        timers.current.push(t);
-      } else {
-        const t = setTimeout(() => {
-          setBallPos({ kind: 'bucket', col: finalCol });
-          const mult = MULTS[finalCol];
-          const win = serverWin; // server-decided, not bet * mult
-          settleBet(bet, win, 'plinko');
-          if (win > 0) playWin(); else playLose();
-          setLastWin(win);
-          setResultBucket(finalCol);
-          setMessage(`${mult}x · ${win > 0 ? `+$${win.toFixed(2)}` : 'No win'}`);
-          setDropping(false);
-          const t2 = setTimeout(() => { setBallPos(null); }, 300);
-          timers.current.push(t2);
-        }, 200);
-        timers.current.push(t);
-      }
+    // The ball starts falling IMMEDIATELY — no waiting for the server.
+    // While the outcome is in flight the ball does a random walk; the moment
+    // the server responds (usually within the first 1-2 pegs) the remaining
+    // path is steered to the bucket closest to the server-decided win.
+    let serverWin = null; // null = still pending
+    let failed = false;
+    const readOutcome = (sr) => {
+      if (!sr || sr.failed) { failed = true; serverWin = 0; return; }
+      // Defense in depth: cap the win at 100x bet (the max Plinko bucket).
+      serverWin = Math.min(Number(sr.win_amount ?? 0), bet * 100);
     };
-    animate();
+    _serverRoundPromise.then(readOutcome).catch(() => { failed = true; serverWin = 0; });
+
+    const sleep = (ms) => new Promise((r) => { const t = setTimeout(r, ms); timers.current.push(t); });
+    const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+    let row = 0, col = 0;
+    setBallPos({ kind: 'peg', row: 0, col: 0 });
+    setHitPeg({ row: 0, col: 0 });
+
+    let plan = null;   // remaining peg path once the outcome is known
+    let bucket = null;
+
+    while (row < ROWS - 1) {
+      await sleep(200);
+      // Outcome still unknown near the bottom — pause at the current peg.
+      if (serverWin === null && row >= ROWS - 3) {
+        try { readOutcome(await _serverRoundPromise); } catch { failed = true; serverWin = 0; }
+      }
+      if (failed) {
+        setBallPos(null); setHitPeg(null);
+        setDropping(false);
+        setMessage('Connection error — try again');
+        return;
+      }
+      if (serverWin !== null && plan === null) {
+        // Pick the bucket whose multiplier is closest to the server's win.
+        const targetMult = bet > 0 ? serverWin / bet : 0;
+        bucket = 6; let closest = Infinity;
+        for (let i = 0; i < MULTS.length; i++) {
+          const d = Math.abs(MULTS[i] - targetMult);
+          if (d < closest) { closest = d; bucket = i; }
+        }
+        // The ball can only move right as it falls — mirror to the reachable
+        // side (multipliers are symmetric), then clamp to what's reachable.
+        if (bucket < col && (MULTS.length - 1 - bucket) >= col) bucket = MULTS.length - 1 - bucket;
+        bucket = Math.max(col, Math.min(bucket, Math.min(MULTS.length - 1, col + (ROWS - 1 - row) + 1)));
+        // Build the remaining path down to the bucket.
+        plan = [];
+        let c = col;
+        if (bucket === 0 || bucket === MULTS.length - 1) {
+          const edge = bucket === 0 ? 0 : ROWS - 1;
+          for (let r = row + 1; r < ROWS; r++) { c += c < edge ? 1 : 0; plan.push({ row: r, col: c }); }
+        } else {
+          const aboveCol = Math.max(c, Math.min(bucket - 1, c + Math.max(0, ROWS - 2 - row)));
+          const rowsToAbove = (ROWS - 2) - row;
+          if (rowsToAbove > 0) {
+            const steps = shuffle(Array.from({ length: rowsToAbove }, (_, i) => (i < aboveCol - c ? 1 : 0)));
+            for (let i = 0; i < rowsToAbove; i++) { c += steps[i]; plan.push({ row: row + 2 + i - 1, col: c }); }
+          }
+          c += Math.random() < 0.5 ? 0 : 1;
+          c = Math.min(c, ROWS - 1);
+          plan.push({ row: ROWS - 1, col: c });
+        }
+      }
+      const next = plan ? plan.shift() : { row: row + 1, col: col + (Math.random() < 0.5 ? 1 : 0) };
+      row = next.row; col = next.col;
+      setBallPos({ kind: 'peg', row, col });
+      setHitPeg({ row, col });
+      playPeg();
+    }
+
+    await sleep(200);
+    const finalCol = bucket != null ? bucket : col;
+    setBallPos({ kind: 'bucket', col: finalCol });
+    const mult = MULTS[finalCol];
+    const win = serverWin || 0; // server-decided, not bet * mult
+    settleBet(bet, win, 'plinko');
+    if (win > 0) playWin(); else playLose();
+    setLastWin(win);
+    setResultBucket(finalCol);
+    setMessage(`${mult}x · ${win > 0 ? `+$${win.toFixed(2)}` : 'No win'}`);
+    setDropping(false);
+    const t2 = setTimeout(() => { setBallPos(null); }, 300);
+    timers.current.push(t2);
   };
 
   // Peg positions matching the image's 12-row triangle (12%–78%).
