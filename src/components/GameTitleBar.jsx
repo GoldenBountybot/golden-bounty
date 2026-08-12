@@ -20,7 +20,7 @@ export default function GameTitleBar({ title, icon, left, right, padLeft = 'pl-2
       >
         {icon}
         <span
-          className="text-sm font-black italic tracking-wide text-center"
+          className="text-sm font-black italic tracking-wide text-center whitespace-nowrap"
           style={{ color: '#f3e2b3', fontFamily: 'Rye, Georgia, serif', textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}
         >
           {title}
