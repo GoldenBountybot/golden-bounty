@@ -798,7 +798,7 @@ export default function CrownCoinsMachine() {
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-1.5 text-center">
+        <div className="grid grid-cols-3 gap-1.5 text-center mt-4">
           <div className="rounded-md bg-black/50 border border-yellow-700/40 py-1">
             <div className="text-[8px] text-yellow-300/70 font-bold tracking-wider">BET</div>
             <div className="text-xs font-black text-white tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${bet.toFixed(2)}</div>
