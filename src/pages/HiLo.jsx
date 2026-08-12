@@ -6,7 +6,6 @@ import GameAssetLoader from '@/components/GameAssetLoader';
 import { HILO_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
-import { useLogActivity } from '@/lib/useLogActivity';
 import { incBet, decBet } from '@/lib/betStepper';
 import { useMute } from '@/lib/soundMute';
 import { playDeal, playWin, playLoss, playCollect, startBackgroundMusic, stopBackgroundMusic } from '@/lib/hiloSound';
@@ -197,7 +196,6 @@ export default function HiLo() {
   const [streak, setStreak] = useState(0);
   const serverWinRef = useRef(0);
   const serverRoundPromiseRef = useRef(null); // pending beginRound promise — awaited lazily on first guess/collect
-  const logActivity = useLogActivity();
 
   // Start the ambient casino lounge loop on the first user gesture (browsers
   // block AudioContext until a user interacts), then keep it playing. Stop
@@ -277,7 +275,6 @@ export default function HiLo() {
       setMessage(`Same rank — push lost! Card was ${RANKS[next.rank]}.`);
       setPot(0);
       settleBet(bet, 0, 'hi-lo');
-      logActivity('hi-lo', bet, 0, 'loss');
       playLoss();
     } else if (correct) {
       const newPot = pot * 2;
@@ -294,7 +291,6 @@ export default function HiLo() {
       setMessage(`Wrong! The card was ${RANKS[next.rank]}. You lost the pot.`);
       setPot(0);
       settleBet(bet, 0, 'hi-lo');
-      logActivity('hi-lo', bet, 0, 'loss');
       playLoss();
     }
   };
@@ -306,7 +302,6 @@ export default function HiLo() {
     const win = Math.min(pot, serverWinRef.current);
     settleBet(bet, win, 'hi-lo');
     setMessage(`Collected $${win.toFixed(2)}!`);
-    logActivity('hi-lo', bet, win, 'win');
     playCollect();
     setPot(0);
     setPhase('idle');
