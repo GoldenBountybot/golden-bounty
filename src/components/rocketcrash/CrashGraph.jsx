@@ -36,6 +36,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
   const { path, area, tip } = geom(multiplier, phase === 'waiting');
   const crashed = phase === 'crashed';
 
+  const boxRef = useRef(null);
   const areaRef = useRef(null);
   const glowRef = useRef(null);
   const lineRef = useRef(null);
@@ -48,6 +49,15 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
   useEffect(() => {
     if (phase !== 'running') return;
     let raf = 0;
+    // Cache the box size so the frame loop never reads layout (no reflow).
+    let cw = 0, ch = 0;
+    const measure = () => {
+      const r = boxRef.current?.getBoundingClientRect();
+      if (r) { cw = r.width; ch = r.height; }
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    let lastText = '';
     const tick = () => {
       const m = crashStore.multiplier;
       const g = geom(m, false);
@@ -55,14 +65,16 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
       if (glowRef.current) glowRef.current.setAttribute('d', g.path);
       if (lineRef.current) lineRef.current.setAttribute('d', g.path);
       if (planeRef.current) {
-        planeRef.current.style.left = g.tip[0] + '%';
-        planeRef.current.style.top = g.tip[1] + '%';
+        // GPU-composited move: transform only, never left/top (which reflow).
+        planeRef.current.style.transform =
+          `translate3d(${(g.tip[0] / 100) * cw}px, ${(g.tip[1] / 100) * ch}px, 0) translateY(-100%) rotate(-30deg)`;
       }
-      if (multRef.current) multRef.current.textContent = m.toFixed(2);
+      const txt = m.toFixed(2);
+      if (multRef.current && txt !== lastText) { lastText = txt; multRef.current.textContent = txt; }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', measure); };
   }, [phase]);
   const running = phase === 'running';
 
@@ -70,7 +82,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
   const angle = -30;
 
   return (
-    <div className="relative w-full overflow-hidden rounded-xl bg-gradient-to-b from-slate-950 to-black border border-indigo-900/40"
+    <div ref={boxRef} className="relative w-full overflow-hidden rounded-xl bg-gradient-to-b from-slate-950 to-black border border-indigo-900/40"
       style={{ aspectRatio: '16 / 10', boxShadow: 'inset 0 0 80px rgba(0,0,0,0.7)' }}>
       {/* faint grid */}
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -104,11 +116,10 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
 
       {/* stealth bomber at the tip — takeoff feel with exhaust trail */}
       {running && (
-        <span ref={planeRef} className="absolute z-20" style={{
-          left: `${tip[0]}%`, top: `${tip[1]}%`,
-          transform: `translate(0%, -100%) rotate(${angle}deg)`,
+        <span ref={planeRef} className="absolute z-20 left-0 top-0 pointer-events-none" style={{
+          transform: `translate3d(0,0,0) translateY(-100%) rotate(${angle}deg)`,
           transformOrigin: 'center center',
-          willChange: 'left, top',
+          willChange: 'transform',
           }}>
           <span className="relative flex items-center justify-center" style={{ width: '280px', height: '168px' }}>
             {/* exhaust / jet flame trail behind the bomber */}

@@ -327,7 +327,7 @@ export function useCrashGame() {
           // ~8x/second (for the bet panels), so the 60fps animation never
           // re-renders the heavy bet lists — no stutter on the plane/number.
           crashStore.multiplier = m;
-          if (now - lastMultPushRef.current >= 120) {
+          if (now - lastMultPushRef.current >= 250) {
             lastMultPushRef.current = now;
             setMultiplier(m);
           }
