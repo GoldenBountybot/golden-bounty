@@ -15,11 +15,11 @@ export default function CrownCoins() {
   const [muted, toggleMute] = useMute();
   return (
     <div
-      className="h-screen overflow-hidden bg-cover bg-center bg-no-repeat"
+      className="h-screen overflow-hidden flex flex-col bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: `url(${GAME_BG.crownCoins})` }}
     >
       {!loaded && <GameAssetLoader title="Crown Coins" assets={CROWN_COINS_ASSETS} bgImage={GAME_BG.crownCoins} onDone={() => setLoaded(true)} />}
-      <header className="sticky top-0 z-20 backdrop-blur-xl">
+      <header className="shrink-0 z-20 backdrop-blur-xl">
         <GameTitleBar
           title="Crown Coins"
           left={<BackButton />}
@@ -49,7 +49,9 @@ export default function CrownCoins() {
           maxWidth="max-w-none"
         />
       </header>
-      <CrownCoinsMachine />
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <CrownCoinsMachine />
+      </div>
     </div>
   );
 }

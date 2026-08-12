@@ -612,7 +612,7 @@ export default function CrownCoinsMachine() {
   const incBetLocal = () => setBet(b => incBet(b));
 
   return (
-    <div className="relative min-h-screen overflow-hidden text-white">
+    <div className="relative h-full overflow-hidden text-white">
       {DiamondBG}
 
       <div className="max-w-lg lg:max-w-5xl mx-auto px-3 pt-0 pb-4 flex flex-col gap-0">
