@@ -367,8 +367,9 @@ export default function Mines() {
           </>
         )}
 
-        {/* Controls panel — custom amount + mines presets, below the bet button */}
-        {phase === 'idle' && (
+        {/* Controls panel — custom amount + mines presets, below the bet button.
+            Available whenever a round isn't in progress (idle or finished). */}
+        {phase !== 'playing' && (
           <WesternFrame className="p-4 flex flex-col gap-4">
             {/* Bet */}
             <div>
