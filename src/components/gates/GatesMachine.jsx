@@ -285,9 +285,9 @@ export default function GatesMachine() {
                           style={{ opacity: stopped ? 1 : 0,
                             boxSizing: 'border-box',
                             border: isWin ? '2px solid rgba(255,120,0,0.95)' : '1.5px solid transparent',
-                            boxShadow: isWin ? '0 0 8px 2px rgba(255,80,0,0.85)' : 'none',
-                            animation: isWin ? `gatesMatchFire ${g.turbo ? 0.4 : 0.6}s ease-in-out infinite` : 'none',
-                            willChange: isWin ? 'box-shadow' : 'auto',
+                            boxShadow: isWin ? '0 0 8px 2px rgba(255,80,0,0.9), 0 0 16px 4px rgba(255,140,20,0.7), inset 0 0 8px rgba(255,150,30,0.6)' : 'none',
+                            animation: 'none',
+                            willChange: 'auto',
                             transform: isWin ? 'translateZ(0)' : 'none',
                             contain: 'layout style' }}>
                           {stopped ? (
