@@ -1,24 +1,20 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { crashStore } from './crashStore';
 
 const GROWTH = 1.10;
 
 const BOMBER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/15e34753b_generated_image.png';
 const SAMPLES = 24; // reduced from 48 — halves per-frame path computation cost
+const WIN_T = 8;    // seconds of flight visible across the x axis
+const PLOT_TOP = 0.5; // reserve the top half so the bomber flies above the tip
+const W = 100, H = 100;
 
-export default function CrashGraph({ phase, multiplier, countdown }) {
-  const elapsed = phase === 'waiting' ? 0 : Math.log(Math.max(multiplier, 1)) / Math.log(GROWTH);
-  const WIN_T = 8; // seconds of flight visible across the x axis
-  // Smooth, monotonically-growing y-axis scale. Since multiplier only
-  // increases during a round, maxM only increases — the tip NEVER drops down.
-  // (The previous power-of-2 quantization caused the plane to suddenly drop
-  // when the scale doubled.) The smooth growth is GPU-friendly and jitter-free.
+// Pure geometry for a given multiplier — used both for the React render and
+// for the imperative per-frame updates while the round is running.
+function geom(multiplier, isWaiting) {
+  const elapsed = isWaiting ? 0 : Math.log(Math.max(multiplier, 1)) / Math.log(GROWTH);
   const maxM = Math.max(2, multiplier * 1.18);
-  const PLOT_TOP = 0.5; // reserve the top half so the bomber flies above the tip inside the graph
-  const W = 100, H = 100;
-  // scrolling window: pin the leading tip near the right so the curve scrolls
-  // left under the bomber → reads as left-to-right travel.
   const startT = Math.max(0, elapsed - WIN_T * 0.45);
-
   const pts = [];
   for (let i = 0; i <= SAMPLES; i++) {
     const t = startT + (WIN_T * i) / SAMPLES;
@@ -29,15 +25,48 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
     const y = H * (1 - f * (1 - PLOT_TOP));
     pts.push([x, y]);
   }
+  if (!pts.length) pts.push([0, H]);
   const path = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(2) + ' ' + p[1].toFixed(2)).join(' ');
-  const area = path + ` L ${pts[pts.length - 1][0].toFixed(2)} 100 L 0 100 Z`;
-  const tip = pts[pts.length - 1] || [0, 100];
+  const last = pts[pts.length - 1];
+  const area = path + ` L ${last[0].toFixed(2)} 100 L 0 100 Z`;
+  return { path, area, tip: last };
+}
+
+export default function CrashGraph({ phase, multiplier, countdown }) {
+  const { path, area, tip } = geom(multiplier, phase === 'waiting');
   const crashed = phase === 'crashed';
+
+  const areaRef = useRef(null);
+  const glowRef = useRef(null);
+  const lineRef = useRef(null);
+  const planeRef = useRef(null);
+  const multRef = useRef(null);
+
+  // While the round is running, drive the curve, the plane and the multiplier
+  // text straight from the mutable store on every animation frame. This keeps
+  // the motion perfectly smooth because React never re-renders for it.
+  useEffect(() => {
+    if (phase !== 'running') return;
+    let raf = 0;
+    const tick = () => {
+      const m = crashStore.multiplier;
+      const g = geom(m, false);
+      if (areaRef.current) areaRef.current.setAttribute('d', g.area);
+      if (glowRef.current) glowRef.current.setAttribute('d', g.path);
+      if (lineRef.current) lineRef.current.setAttribute('d', g.path);
+      if (planeRef.current) {
+        planeRef.current.style.left = g.tip[0] + '%';
+        planeRef.current.style.top = g.tip[1] + '%';
+      }
+      if (multRef.current) multRef.current.textContent = m.toFixed(2);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [phase]);
   const running = phase === 'running';
 
   // bomber held at a fixed 30° nose-up takeoff attitude.
-  const prev = pts.length > 1 ? pts[pts.length - 2] : tip;
-  void prev;
   const angle = -30;
 
   return (
@@ -64,21 +93,22 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
                 <stop offset="100%" stopColor={crashed ? '#fb7185' : '#a78bfa'} />
               </linearGradient>
             </defs>
-            <path d={area} fill="url(#crashFill)" />
+            <path ref={areaRef} d={area} fill="url(#crashFill)" />
             {/* Cheap glow: a wider semi-transparent stroke behind the main line.
                 Replaces the expensive per-frame drop-shadow filter that caused lag. */}
-            <path d={path} fill="none" stroke={crashed ? 'rgba(244,63,94,0.35)' : 'rgba(129,140,248,0.35)'} strokeWidth="3" strokeLinecap="round" />
-            <path d={path} fill="none" stroke="url(#crashLine)" strokeWidth="1.1" strokeLinecap="round" />
+            <path ref={glowRef} d={path} fill="none" stroke={crashed ? 'rgba(244,63,94,0.35)' : 'rgba(129,140,248,0.35)'} strokeWidth="3" strokeLinecap="round" />
+            <path ref={lineRef} d={path} fill="none" stroke="url(#crashLine)" strokeWidth="1.1" strokeLinecap="round" />
           </>
         )}
       </svg>
 
       {/* stealth bomber at the tip — takeoff feel with exhaust trail */}
       {running && (
-        <span className="absolute z-20" style={{
+        <span ref={planeRef} className="absolute z-20" style={{
           left: `${tip[0]}%`, top: `${tip[1]}%`,
           transform: `translate(0%, -100%) rotate(${angle}deg)`,
           transformOrigin: 'center center',
+          willChange: 'left, top',
           }}>
           <span className="relative flex items-center justify-center" style={{ width: '280px', height: '168px' }}>
             {/* exhaust / jet flame trail behind the bomber */}
@@ -146,7 +176,7 @@ export default function CrashGraph({ phase, multiplier, countdown }) {
         {running && (
           <span className="text-6xl sm:text-7xl font-black tabular-nums text-white"
             style={{ textShadow: '0 0 10px rgba(167,139,250,0.7)', willChange: 'transform', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}>
-            {multiplier.toFixed(2)}<span className="text-4xl text-indigo-300">x</span>
+            <span ref={multRef}>{multiplier.toFixed(2)}</span><span className="text-4xl text-indigo-300">x</span>
           </span>
         )}
         {crashed && (

@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useLogActivity } from '@/lib/useLogActivity';
 import { playTakeoff, startFlying, stopFlying, playBlast } from './crashSounds';
+import { crashStore } from './crashStore';
 
 const WAIT_MS = 5000;        // betting window (must match server)
 const GROWTH = 1.10;         // multiplier = GROWTH ^ elapsedSec
@@ -114,6 +115,8 @@ export function useCrashGame() {
   const panelTokensRef = useRef([null, null]);
   const playerNameRef = useRef('You');
   const settlePromiseRef = useRef(null); // latest settleBet chain — awaited before auto-bet beginRound
+  const lastMultPushRef = useRef(0);     // throttle React state updates for the multiplier
+  const lastLivePushRef = useRef(0);     // throttle React state updates for the live-bet list
 
   // Fetch the player's display name once so their bet shows at the top of the list.
   useEffect(() => {
@@ -285,7 +288,7 @@ export function useCrashGame() {
             lastCountdownRef.current = left;
             setCountdown(left);
           }
-          if (multRef.current !== 1.00) { multRef.current = 1.00; setMultiplier(1.00); }
+          if (multRef.current !== 1.00) { multRef.current = 1.00; crashStore.multiplier = 1.00; setMultiplier(1.00); }
           // Local takeoff the instant the betting window ends.
           if (now - waitStartRef.current >= WAIT_MS) {
             phaseRef.current = 'running';
@@ -301,6 +304,7 @@ export function useCrashGame() {
         // Local crash the instant the curve reaches the bust point.
         m = cp;
         multRef.current = m;
+        crashStore.multiplier = m;
         setMultiplier(m);
         phaseRef.current = 'crashed';
         setPhase('crashed');
@@ -318,7 +322,15 @@ export function useCrashGame() {
         }
         } else {
           multRef.current = m;
-          setMultiplier(m);
+          // The live multiplier is published to a mutable store every frame and
+          // rendered imperatively by CrashGraph. React state is refreshed only
+          // ~8x/second (for the bet panels), so the 60fps animation never
+          // re-renders the heavy bet lists — no stutter on the plane/number.
+          crashStore.multiplier = m;
+          if (now - lastMultPushRef.current >= 120) {
+            lastMultPushRef.current = now;
+            setMultiplier(m);
+          }
         }
 
         // auto cashout — player bets
@@ -358,10 +370,19 @@ export function useCrashGame() {
           }
           return lb;
         });
-        if (lbChanged) { liveRef.current = lbnext; setLiveBets(lbnext); }
+        if (lbChanged) {
+          liveRef.current = lbnext;
+          // Re-rendering a 200–1200 row list on every frame is what made the
+          // plane hitch — flush it at most ~3x/second instead.
+          if (now - lastLivePushRef.current >= 300) {
+            lastLivePushRef.current = now;
+            setLiveBets(lbnext);
+          }
+        }
       } else if (ph === 'crashed') {
         if (multRef.current !== crashPointRef.current) {
           multRef.current = crashPointRef.current;
+          crashStore.multiplier = crashPointRef.current;
           setMultiplier(crashPointRef.current);
         }
       }
