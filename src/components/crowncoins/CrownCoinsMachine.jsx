@@ -14,7 +14,8 @@ import BetTierBanners from './BetTierBanners';
 import BannerBlast from './BannerBlast';
 import WinLineOverlay from './WinLineOverlay';
 import BetAmountPicker from './BetAmountPicker';
-import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
+import { Info, Zap, Plus, Minus, Play, RotateCw, DollarSign, X, Crown } from 'lucide-react';
+import PlayerHistoryButton from '@/components/PlayerHistoryButton';
 
 // Falling-money backdrop used inside each reel strip so screen-blended symbols
 // have a real backdrop to blend against even while the strip's transform
@@ -845,7 +846,7 @@ export default function CrownCoinsMachine() {
         <p className="text-center text-[10px] font-bold tracking-widest text-yellow-200/80">{freeSpins > 0 ? `FREE SPINS: ${freeSpins}` : (spinning ? 'GOOD LUCK!' : 'PLACE YOUR BET')}</p>
 
         <div className="flex items-center justify-between px-1">
-          <button className="w-8 h-8 flex items-center justify-center text-white/80"><Menu className="w-5 h-5" /></button>
+          <PlayerHistoryButton iconOnly gameId="crown-coins" title="Crown Coins History" />
           <div className="flex flex-col items-center">
             <span className="text-[8px] text-yellow-300/70 font-bold tracking-wider">BALANCE</span>
             <span className="text-sm font-black text-yellow-200 tabular-nums" style={{ fontFamily: 'Georgia, serif' }}>${balance.toFixed(2)}</span>
