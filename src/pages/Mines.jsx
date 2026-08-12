@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bomb, Pickaxe, DollarSign, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import GameHeader from '@/components/GameHeader';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import PlayerHistoryButton from '@/components/PlayerHistoryButton';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -287,21 +288,18 @@ export default function Mines() {
 
       <main className="max-w-none w-full mx-auto px-4 py-5 flex flex-col gap-4 flex-1">
         {/* Balance bar */}
-        <WesternFrame className="p-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="flex items-center justify-center w-9 h-9 rounded-lg relative" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/00dc49c08_generated_image.png') center / cover, radial-gradient(circle, rgba(255,210,120,0.25), rgba(120,80,30,0.4))", border: '1px solid rgba(190,140,55,0.7)' }}>
-              <DollarSign className="w-5 h-5 text-amber-300 relative" />
-            </span>
-            <div>
-              <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>BALANCE</p>
-              <p className="text-lg text-amber-200 tabular-nums" style={W}>${balance.toFixed(2)}</p>
-            </div>
+        <WesternFrame className="px-2.5 py-1.5 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5">
+            <DollarSign className="w-4 h-4 text-amber-300" />
+            <span className="text-[9px] tracking-widest text-amber-300/70" style={W}>BAL</span>
+            <span className="text-sm text-amber-200 tabular-nums" style={W}>${balance.toFixed(2)}</span>
           </div>
-          <div className="text-right">
-            <p className="text-[10px] tracking-widest text-amber-300/70" style={W}>PROFIT</p>
-            <p className={`text-sm tabular-nums ${lastWin > 0 ? 'text-amber-300' : 'text-amber-100/50'}`} style={W}>
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] tracking-widest text-amber-300/70" style={W}>PROFIT</span>
+            <span className={`text-xs tabular-nums ${lastWin > 0 ? 'text-amber-300' : 'text-amber-100/50'}`} style={W}>
               {lastWin > 0 ? `+$${lastWin.toFixed(2)}` : '$0.00'}
-            </p>
+            </span>
+            <PlayerHistoryButton iconOnly gameId="mines" title="Mines History" />
           </div>
         </WesternFrame>
 
