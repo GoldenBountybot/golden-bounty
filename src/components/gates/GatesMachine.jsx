@@ -71,7 +71,7 @@ export default function GatesMachine() {
     revealTimers.current.forEach(clearTimeout);
     revealTimers.current = [];
     setStoppedReels(new Set());
-    const gap = g.turbo ? 15 : 28;
+    const gap = g.turbo ? 8 : 14;
     for (let c = 0; c < REELS; c++) {
       revealTimers.current.push(setTimeout(() => {
         setStoppedReels((prev) => new Set([...prev, c]));
