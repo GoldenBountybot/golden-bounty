@@ -169,7 +169,7 @@ export function useGates() {
     });
     if (freeMode) runningMultRef.current = result.newRunningMult;
 
-    const hold = turbo ? 260 : 520;        // winners grow big — longer so the match is clearly visible before the blast
+    const hold = turbo ? 340 : 700;        // winners grow big — longer so the match is clearly visible before the blast
     const shatterDur = turbo ? 300 : 580;  // winners blast away — smoother, more dramatic
     const firstGap = turbo ? 130 : 210;    // reels stop, first grid drops in
     const refillGap = turbo ? 50 : 120;  // brief pause so the blast fully clears before new symbols drop
