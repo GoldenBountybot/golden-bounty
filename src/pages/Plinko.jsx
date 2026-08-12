@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
-import { useLogActivity } from '@/lib/useLogActivity';
 import GameAssetLoader from '@/components/GameAssetLoader';
 import { PLINKO_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { isMuted, useMute } from '@/lib/soundMute';
@@ -209,8 +208,6 @@ export default function Plinko() {
     setCustomInput('');
     setMessage(`Bet set · $${v.toFixed(2)}`);
   };
-  const logActivity = useLogActivity();
-
   useEffect(() => {
     let started = false;
     const begin = () => {
@@ -322,7 +319,6 @@ export default function Plinko() {
           setLastWin(win);
           setResultBucket(finalCol);
           setMessage(`${mult}x · ${win > 0 ? `+$${win.toFixed(2)}` : 'No win'}`);
-          logActivity('plinko', bet, win, win > 0 ? 'win' : 'loss');
           setDropping(false);
           const t2 = setTimeout(() => { setBallPos(null); }, 300);
           timers.current.push(t2);
