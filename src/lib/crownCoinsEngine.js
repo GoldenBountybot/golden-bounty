@@ -113,7 +113,7 @@ export function spinGrid(rtp = 50, forceWin = null) {
   // Any coin that landed elsewhere is replaced with a regular symbol.
   const REG = ['cherry', 'lemon', 'orange', 'plum', 'watermelon', 'grape', 'bell', 'bar', 'seven'];
   const rReg = () => REG[Math.floor(Math.random() * REG.length)];
-  if (Math.random() < 0.01) {
+  if (Math.random() < 0.006) {
     grid[4] = 'coin';
   } else {
     grid[4] = rReg();
@@ -160,7 +160,7 @@ export function spinGrid(rtp = 50, forceWin = null) {
     [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     grid[[0, 3, 6][Math.floor(Math.random() * 3)]] = randomCoinKey();
     grid[[2, 5, 8][Math.floor(Math.random() * 3)]] = randomCoinKey();
-  } else if (triggerRoll < 0.0802) {
+  } else if (triggerRoll < 0.0602) {
     grid[4] = 'coin';
     [0, 3, 6].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
     [2, 5, 8].forEach(i => { if (isValueCoin(grid[i])) grid[i] = rReg(); });
