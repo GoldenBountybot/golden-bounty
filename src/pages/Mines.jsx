@@ -340,8 +340,8 @@ export default function Mines() {
         </WesternFrame>
 
         {/* Message — dark charcoal plaque, muted gold text */}
-        <div className="w-full rounded-xl py-3 text-center" style={{ background: '#1a1a1a', border: '1px solid #b8860b', boxShadow: '0 2px 6px rgba(0,0,0,0.5)' }}>
-          <span className="text-sm" style={{ color: '#c5a059', ...W }}>{message}</span>
+        <div className="w-full rounded-lg py-1.5 -mt-2 text-center" style={{ background: '#1a1a1a', border: '1px solid #b8860b', boxShadow: '0 2px 6px rgba(0,0,0,0.5)' }}>
+          <span className="text-xs" style={{ color: '#c5a059', ...W }}>{message}</span>
         </div>
 
         {/* Bet button — ornate wood + gold filigree frame */}
