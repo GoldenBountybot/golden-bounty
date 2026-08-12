@@ -295,7 +295,7 @@ export default function GatesMachine() {
                               style={{ animation: isScatterGlow ? 'gatesScatterGlow 0.9s ease-in-out infinite'
                                 : isShatter
                                 ? `shatterWin ${g.turbo ? 0.3 : 0.58}s ease-out forwards`
-                                : isWin ? `gatesMatchGrow ${g.turbo ? 0.22 : 0.35}s ease-out forwards`
+                                : isWin ? `gatesMatchGrow ${g.turbo ? 0.3 : 0.45}s ease-out forwards`
                                 :                                 dropAnim ? `gatesDrop ${g.turbo ? 0.36 : 0.55}s cubic-bezier(0.33,0.04,0.5,1) both` : 'none',
                                 willChange: (isShatter || isWin || isScatterGlow) ? 'transform, opacity' : 'auto',
                                 transform: (isShatter || isWin || isScatterGlow) ? 'translateZ(0)' : 'none' }}>
