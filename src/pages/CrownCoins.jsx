@@ -15,8 +15,8 @@ export default function CrownCoins() {
   const [muted, toggleMute] = useMute();
   return (
     <div
-      className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed"
-      style={{ backgroundImage: `url(${GAME_BG.crownCoins})`, backgroundAttachment: 'fixed' }}
+      className="h-screen overflow-hidden bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${GAME_BG.crownCoins})` }}
     >
       {!loaded && <GameAssetLoader title="Crown Coins" assets={CROWN_COINS_ASSETS} bgImage={GAME_BG.crownCoins} onDone={() => setLoaded(true)} />}
       <header className="sticky top-0 z-20 backdrop-blur-xl">
