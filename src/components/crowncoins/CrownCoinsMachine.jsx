@@ -13,6 +13,7 @@ import RoyalTreasuryBanner from './RoyalTreasuryBanner';
 import BetTierBanners from './BetTierBanners';
 import BannerBlast from './BannerBlast';
 import WinLineOverlay from './WinLineOverlay';
+import BetAmountPicker from './BetAmountPicker';
 import { Info, Zap, Plus, Minus, Play, RotateCw, Menu, DollarSign, X, Crown } from 'lucide-react';
 
 // Falling-money backdrop used inside each reel strip so screen-blended symbols
@@ -210,6 +211,7 @@ export default function CrownCoinsMachine() {
   const [bonus, setBonus] = useState(null);
   const [revealStep, setRevealStep] = useState(0);
   const [showInfo, setShowInfo] = useState(false);
+  const [showBetPicker, setShowBetPicker] = useState(false);
   const [autoSpin, setAutoSpin] = useState(false);
   const [turbo, setTurbo] = useState(false);
   const [freeSpins, setFreeSpins] = useState(0);
@@ -852,7 +854,7 @@ export default function CrownCoinsMachine() {
             <span className="text-[8px] text-yellow-300/70 font-bold tracking-wider">CURRENCY</span>
             <span className="text-xs font-black text-white" style={{ fontFamily: 'Georgia, serif' }}>USD</span>
           </div>
-          <button className="w-8 h-8 rounded-full flex items-center justify-center border border-yellow-600/50 text-yellow-200 bg-black/40">
+          <button onClick={() => setShowBetPicker(true)} disabled={spinning} className="w-8 h-8 rounded-full flex items-center justify-center border border-yellow-600/50 text-yellow-200 bg-black/40 disabled:opacity-40">
             <DollarSign className="w-4 h-4" />
           </button>
         </div>
@@ -933,6 +935,10 @@ export default function CrownCoinsMachine() {
             <button onClick={closeBonus} className="mt-3 w-full py-2 rounded-lg text-stone-950 font-black italic" style={{ fontFamily: 'Georgia, serif', background: 'linear-gradient(to bottom,#f5d590,#e8a93a)' }}>Collect</button>
           </div>
         </div>
+      )}
+
+      {showBetPicker && (
+        <BetAmountPicker bet={bet} onSelect={(a) => setBet(a)} onClose={() => setShowBetPicker(false)} />
       )}
 
       {showRoyalBanner && <RoyalTreasuryBanner onContinue={continueRoyalBanner} winAmount={royalWin} />}
