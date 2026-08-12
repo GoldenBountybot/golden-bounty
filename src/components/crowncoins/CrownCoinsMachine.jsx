@@ -23,7 +23,7 @@ const MONEY_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b663777
 const DiamondBG = (
   <div
     className="absolute inset-0 -z-10"
-    style={{ background: 'radial-gradient(ellipse at center, #a01828 0%, #7a0e1c 45%, #4a0008 100%)' }}
+    style={{ background: 'radial-gradient(ellipse at center, #a01828 0%, #7a0e1c 45%, #4a0008 100%)', opacity: 0.82 }}
   >
     <div
       className="absolute inset-0 opacity-30"
