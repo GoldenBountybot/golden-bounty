@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import GameAssetLoader from '@/components/GameAssetLoader';
 import { BIG_BROWN_ASSETS, GAME_BG } from '@/lib/gameAssets';
-import GameHeader from '@/components/GameHeader';
+import BigBrownHeader from '@/components/bigbrown/BigBrownHeader';
 import BigBrownMachine from '@/components/bigbrown/BigBrownMachine';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { startBgMusic, stopBgMusic } from '@/lib/bigBrownBackgroundMusic';
@@ -36,7 +36,7 @@ export default function BigBrown() {
         backgroundAttachment: 'fixed',
       }}
     >
-      <GameHeader title="Big Brown" balance={Number(balance || 0)} />
+      <BigBrownHeader title="Big Brown" balance={Number(balance || 0)} />
       <BigBrownMachine />
     </div>
   );
