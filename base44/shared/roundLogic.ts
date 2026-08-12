@@ -38,10 +38,10 @@ export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
   if (gameId === 'plinko') {
     // Fixed probability distribution per bucket (owner-specified).
     // Weights are normalized internally, so they need not sum to 100.
-    //   0.1x: 67.4 (massive loss zone) · 2x: 25 · 5x: 5 · 10x: 2
+    //   0.1x: 66.4 (massive loss zone) · 2x: 25 · 5x: 6 · 10x: 2
     //   25x: 0.4 · 50x: 0.5 · 100x: 0.1
     const BUCKETS = [0.1, 2, 5, 10, 25, 50, 100];
-    const WEIGHTS = [67.4, 25, 5, 2, 0.4, 0.5, 0.1];
+    const WEIGHTS = [66.4, 25, 6, 2, 0.4, 0.5, 0.1];
     const totalW = WEIGHTS.reduce((a, b) => a + b, 0);
 
     let r2 = Math.random() * totalW;
