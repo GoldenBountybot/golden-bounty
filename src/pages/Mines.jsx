@@ -347,7 +347,7 @@ export default function Mines() {
         </div>
 
         {/* Bet button — ornate wood + gold filigree frame */}
-        {phase === 'idle' && (
+        {phase !== 'playing' && (
           <>
             <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
               <filter id="minesBetBg" colorInterpolationFilters="sRGB">
@@ -460,11 +460,6 @@ export default function Mines() {
         {phase === 'playing' && (
           <button onClick={cashout} disabled={revealed.size === 0} className="w-full py-4 rounded-xl text-base font-black transition-all disabled:opacity-40" style={{ ...woodBtn(true), ...W }}>
             CASH OUT ${Math.min(bet * pot, serverWinRef.current).toFixed(2)}
-          </button>
-        )}
-        {isOver && (
-          <button onClick={start} disabled={balance < bet} className="w-full py-4 rounded-xl text-base transition-all flex items-center justify-center gap-2 disabled:opacity-40" style={{ ...woodBtn(true), ...W }}>
-            <Pickaxe className="w-5 h-5" /> BET ${bet.toFixed(2)} · {mines} MINES
           </button>
         )}
       </main>
