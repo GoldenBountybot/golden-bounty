@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { SYMBOLS, BETS } from '@/lib/bigBrownEngine';
 
 // Info / Paytable overlay matching the reference screenshots.
@@ -23,8 +23,8 @@ export default function BigBrownInfo({ bet = 0.50, onClose }) {
     <div className="fixed inset-0 z-50 overflow-y-auto" style={{ background: '#000000' }}>
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3" style={{ background: '#000', borderBottom: '1px solid rgba(214,178,98,0.2)' }}>
-        <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ border: '1px solid rgba(214,178,98,0.5)' }}>
-          <X className="w-4 h-4 text-amber-300" />
+        <button onClick={onClose} className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-bold text-amber-300" style={{ border: '1px solid rgba(214,178,98,0.6)', background: 'rgba(255,255,255,0.05)', fontFamily: 'Georgia, serif' }}>
+          <ChevronLeft className="w-4 h-4" /> Back
         </button>
         <h1
           className="text-xl italic font-black"
@@ -37,7 +37,7 @@ export default function BigBrownInfo({ bet = 0.50, onClose }) {
         >
           BIG BROWN
         </h1>
-        <div className="w-8" />
+        <div className="w-14" />
       </div>
 
       <div className="px-4 py-3 max-w-lg mx-auto">
@@ -270,6 +270,14 @@ export default function BigBrownInfo({ bet = 0.50, onClose }) {
             Next <ChevronRight className="w-4 h-4" />
           </button>
         </div>
+
+        <button
+          onClick={onClose}
+          className="w-full mb-6 py-2.5 rounded-lg text-stone-950 font-black italic"
+          style={{ fontFamily: 'Georgia, serif', background: 'linear-gradient(to bottom,#f5d590,#e8a93a)' }}
+        >
+          Back to Game
+        </button>
       </div>
     </div>
   );
