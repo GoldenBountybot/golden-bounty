@@ -50,7 +50,7 @@ export default function CrownCoins() {
           maxWidth="max-w-none"
         />
       </header>
-      <div className="flex-1 min-h-0 overflow-hidden w-full lg:max-w-[480px] lg:mx-auto">
+      <div className="flex-1 min-h-0 overflow-hidden w-full lg:max-w-[560px] xl:max-w-[620px] lg:mx-auto">
         <CrownCoinsMachine />
       </div>
       <GameDesktopPanel gameId="crown-coins" title="Crown Coins Rounds" />

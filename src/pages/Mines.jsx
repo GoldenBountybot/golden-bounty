@@ -287,7 +287,7 @@ export default function Mines() {
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7ad5415af_.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5, mixBlendMode: 'screen' }} />
       <GameHeader title="Mines" balance={Number(balance || 0)} />
 
-      <main className="max-w-none lg:max-w-[520px] w-full mx-auto px-4 py-5 flex flex-col gap-4 flex-1">
+      <main className="max-w-none lg:max-w-[600px] xl:max-w-[660px] w-full mx-auto px-4 py-5 flex flex-col gap-4 flex-1">
         {/* Balance bar */}
         <WesternFrame className="px-2.5 py-1.5 flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">

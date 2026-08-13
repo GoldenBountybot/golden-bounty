@@ -263,7 +263,7 @@ export default function Thimbles() {
       {!loaded && <GameAssetLoader title="Thimbles" assets={THIMBLES_ASSETS} bgImage={GAME_BG.thimbles} onDone={() => setLoaded(true)} />}
       <GameHeader title="Thimbles" balance={balance} />
 
-      <main className="max-w-none lg:max-w-[520px] w-full mx-auto px-3 py-1 flex flex-col gap-1 flex-1 relative z-10" style={{ marginTop: '-60px' }}>
+      <main className="max-w-none lg:max-w-[620px] xl:max-w-[700px] w-full mx-auto px-3 py-1 flex flex-col gap-1 flex-1 relative z-10" style={{ marginTop: '-60px' }}>
         {/* Betting controls bar — ornate gilded banner with baked-in - / + buttons */}
         <div className="relative w-full">
           <img src={BET_BANNER_IMG} alt="Total Bet" draggable={false} className="w-full h-auto select-none block" />
@@ -390,7 +390,7 @@ export default function Thimbles() {
       </main>
 
       {/* Cash display */}
-      <div className="w-full max-w-none lg:max-w-[520px] mx-auto px-3 pb-1 relative z-10">
+      <div className="w-full max-w-none lg:max-w-[620px] xl:max-w-[700px] mx-auto px-3 pb-1 relative z-10">
         <div className="flex items-center justify-end mt-1.5 px-1">
           <span className="text-[10px] font-bold tabular-nums" style={{ color: '#a09080' }}>Cash: {balance.toFixed(2)} USDT</span>
         </div>

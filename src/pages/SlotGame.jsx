@@ -64,7 +64,7 @@ export default function SlotGame() {
         />
       </header>
 
-      <main className="w-full max-w-none lg:max-w-[520px] mx-auto px-0 py-0">
+      <main className="w-full max-w-none lg:max-w-[620px] xl:max-w-[700px] mx-auto px-0 py-0">
         <WildBountyMachine />
       </main>
       <GameDesktopPanel gameId="wild-bounty" title="Wild Bounty Rounds" />

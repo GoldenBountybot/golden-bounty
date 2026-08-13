@@ -550,7 +550,7 @@ export default function SuperAceMachine() {
         />
       </header>
 
-      <main className="max-w-none lg:max-w-[520px] mx-auto px-2 py-2">
+      <main className="max-w-none lg:max-w-[620px] xl:max-w-[700px] mx-auto px-2 py-2">
         {/* Machine card — Western gold frame */}
         <div className="w-full rounded-2xl relative p-[3px]" style={{ background: 'transparent', border: '3px solid #c8932e', boxShadow: '0 0 0 2px #2e1d0a, 0 0 0 4px rgba(200,150,60,0.4), 0 16px 48px rgba(0,0,0,0.75)' }}>
           <div className="flex flex-col gap-2 rounded-[13px] overflow-hidden relative" style={{ background: 'transparent' }}>
