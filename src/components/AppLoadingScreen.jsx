@@ -7,7 +7,7 @@ import React from 'react';
 // ornamental corner flourishes, floating gold particles, and an elegant
 // progress bar with a glowing leading dot. Pure loading indicator.
 
-const LOGO_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e0ebe2f88_InShot_20260722_150739877.jpg';
+const LOGO_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
 
 export default function AppLoadingScreen({ progress = 0 }) {
   const pct = Math.max(0, Math.min(100, Math.round(progress)));
@@ -214,8 +214,8 @@ export default function AppLoadingScreen({ progress = 0 }) {
             <img
               src={LOGO_URL}
               alt="Golden Bounty"
-              className="rounded-full object-cover"
-              style={{ width: '56px', height: '56px', boxShadow: '0 0 8px rgba(255,200,80,0.5)' }}
+              className="object-contain"
+              style={{ width: '64px', height: '64px', filter: 'drop-shadow(0 0 6px rgba(255,200,80,0.5))' }}
             />
           </div>
         </div>
