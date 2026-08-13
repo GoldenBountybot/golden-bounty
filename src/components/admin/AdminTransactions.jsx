@@ -6,6 +6,7 @@ import { pushNotification } from '@/lib/notify';
 import { applyReferralCommission } from '@/lib/referral';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import WithdrawalRiskPanel from '@/components/admin/WithdrawalRiskPanel';
+import { formatDateTime } from '@/lib/dateFormat';
 
 export default function AdminTransactions() {
   const [txs, setTxs] = useState([]);
@@ -160,6 +161,7 @@ export default function AdminTransactions() {
           <div className="flex-1 min-w-0">
             <p className="font-bold text-amber-100 truncate">{t.user_email || t.user_id}</p>
             <p className="text-xs text-amber-100/60 capitalize">{t.type} · ${t.amount} · {t.status} · {t.method}</p>
+            {t.created_date && <p className="text-[10px] text-amber-100/45">{formatDateTime(t.created_date, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>}
             {t.note && <p className="text-xs text-amber-100/40 italic">{t.note}</p>}
             {t.reference && (
               <div className="flex items-start gap-1.5 mt-0.5">

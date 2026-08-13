@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import BackButton from '@/components/BackButton';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { useLanguage } from '@/lib/LanguageContext';
+import { formatDateTime } from '@/lib/dateFormat';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -231,6 +232,11 @@ export default function HistoryPage() {
                       <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold capitalize" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>
                         {tx.status}
                       </span>
+                      {tx.created_date && (
+                        <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                          {formatDateTime(tx.created_date, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <p className="text-sm font-extrabold tabular-nums shrink-0" style={{ color: meta.color }}>

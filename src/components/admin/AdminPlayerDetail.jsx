@@ -6,8 +6,10 @@ import {
   ArrowLeft, ArrowDownToLine, ArrowUpFromLine, Gift, Gamepad2,
   Hash, Mail, Phone, User as UserIcon, Wallet, Save,
 } from 'lucide-react';
+import { formatDateTime } from '@/lib/dateFormat';
 
-const fmtDate = (d) => (d ? new Date(d).toLocaleString() : '');
+// Shows the viewer's own local time (backend stores UTC).
+const fmtDate = (d) => (d ? formatDateTime(d) : '');
 
 const TX_META = {
   deposit: { icon: ArrowDownToLine, color: 'text-emerald-300', sign: '+' },

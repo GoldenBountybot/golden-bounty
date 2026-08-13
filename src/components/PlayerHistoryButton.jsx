@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { History, X } from 'lucide-react';
+import { toDate } from '@/lib/dateFormat';
 
 const GAME_LABELS = {
   'wild-bounty': 'Wild Bounty',
@@ -19,7 +20,7 @@ const GAME_LABELS = {
 function fmtDate(d) {
   if (!d) return '';
   try {
-    const dt = new Date(d);
+    const dt = toDate(d);
     return dt.toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
   } catch { return String(d); }
 }
