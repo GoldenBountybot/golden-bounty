@@ -8,6 +8,7 @@ import GameAssetLoader from '@/components/GameAssetLoader';
 import { PLINKO_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { isMuted, useMute } from '@/lib/soundMute';
 import { startPlinkoMusic, stopPlinkoMusic } from '@/lib/plinkoCasinoMusic';
+import GameDesktopPanel from '@/components/GameDesktopPanel';
 
 const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1; // 12 rows: bottom row has 12 pegs between 13 slots
@@ -551,6 +552,7 @@ export default function Plinko() {
         </div>
       </main>
 
+      <GameDesktopPanel gameId="plinko" title="Plinko Rounds" />
       {showHistory && <PlinkoHistoryModal onClose={() => setShowHistory(false)} />}
     </div>
   );

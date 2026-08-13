@@ -3,6 +3,7 @@ import { Bomb, Pickaxe, DollarSign, RotateCcw, ChevronDown, ChevronUp } from 'lu
 import GameHeader from '@/components/GameHeader';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import PlayerHistoryButton from '@/components/PlayerHistoryButton';
+import GameDesktopPanel from '@/components/GameDesktopPanel';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
 import { useLogActivity } from '@/lib/useLogActivity';
@@ -461,6 +462,7 @@ export default function Mines() {
           </button>
         )}
       </main>
+      <GameDesktopPanel gameId="mines" title="Mines Rounds" />
     </div>
   );
 }

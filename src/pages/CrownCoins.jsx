@@ -4,6 +4,7 @@ import { CROWN_COINS_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import GameTitleBar from '@/components/GameTitleBar';
 import BackButton from '@/components/BackButton';
 import CrownCoinsMachine from '@/components/crowncoins/CrownCoinsMachine';
+import GameDesktopPanel from '@/components/GameDesktopPanel';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { Wallet, Volume2, VolumeX } from 'lucide-react';
 import AnimatedNumber from '@/components/AnimatedNumber';
@@ -52,6 +53,7 @@ export default function CrownCoins() {
       <div className="flex-1 min-h-0 overflow-hidden w-full lg:max-w-[480px] lg:mx-auto">
         <CrownCoinsMachine />
       </div>
+      <GameDesktopPanel gameId="crown-coins" title="Crown Coins Rounds" />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import ArgonautsMachine from '@/components/argonauts/ArgonautsMachine';
 import GameAssetLoader from '@/components/GameAssetLoader';
 import { ARGONAUTS_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { base44 } from '@/api/base44Client';
+import GameDesktopPanel from '@/components/GameDesktopPanel';
 import { startBgMusic, stopBgMusic } from '@/components/argonauts/argoBackgroundMusic';
 
 export default function Argonauts() {
@@ -23,5 +24,10 @@ export default function Argonauts() {
       />
     );
   }
-  return <ArgonautsMachine />;
+  return (
+    <>
+      <ArgonautsMachine />
+      <GameDesktopPanel gameId="argonauts" title="Argonauts Rounds" />
+    </>
+  );
 }

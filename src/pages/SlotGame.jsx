@@ -4,6 +4,7 @@ import GameAssetLoader from "@/components/GameAssetLoader";
 import { WILD_BOUNTY_ASSETS, GAME_BG } from "@/lib/gameAssets";
 import BackButton from "@/components/BackButton";
 import GameTitleBar from "@/components/GameTitleBar";
+import GameDesktopPanel from "@/components/GameDesktopPanel";
 import { useCasinoBalance } from "@/lib/useCasinoBalance";
 import { Wallet, Volume2, VolumeX } from "lucide-react";
 import { startBackgroundMusic, stopBackgroundMusic } from "@/components/wildbounty/sounds";
@@ -66,6 +67,7 @@ export default function SlotGame() {
       <main className="w-full max-w-none lg:max-w-[520px] mx-auto px-0 py-0">
         <WildBountyMachine />
       </main>
+      <GameDesktopPanel gameId="wild-bounty" title="Wild Bounty Rounds" />
     </div>
   );
 }

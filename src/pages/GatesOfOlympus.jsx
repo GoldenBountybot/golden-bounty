@@ -3,6 +3,7 @@ import GameAssetLoader from '@/components/GameAssetLoader';
 import { GATES_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import GameHeader from '@/components/GameHeader';
 import GatesMachine from '@/components/gates/GatesMachine';
+import GameDesktopPanel from '@/components/GameDesktopPanel';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 
 export default function GatesOfOlympus() {
@@ -37,6 +38,7 @@ export default function GatesOfOlympus() {
         <GameHeader title="Gates of Olympus" balance={Number(balance || 0)} />
         <GatesMachine />
       </div>
+      <GameDesktopPanel gameId="gates-of-olympus" title="Gates Rounds" />
     </div>
   );
 }

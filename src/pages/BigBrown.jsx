@@ -3,6 +3,7 @@ import GameAssetLoader from '@/components/GameAssetLoader';
 import { BIG_BROWN_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import GameHeader from '@/components/GameHeader';
 import BigBrownMachine from '@/components/bigbrown/BigBrownMachine';
+import GameDesktopPanel from '@/components/GameDesktopPanel';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { startBgMusic, stopBgMusic } from '@/lib/bigBrownBackgroundMusic';
 
@@ -40,6 +41,7 @@ export default function BigBrown() {
         <GameHeader title="Big Brown" balance={Number(balance || 0)} />
         <BigBrownMachine />
       </div>
+      <GameDesktopPanel gameId="big-brown" title="Big Brown Rounds" />
     </div>
   );
 }

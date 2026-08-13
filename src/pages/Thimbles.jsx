@@ -9,6 +9,7 @@ import { useLogActivity } from '@/lib/useLogActivity';
 import GameAssetLoader from '@/components/GameAssetLoader';
 import { THIMBLES_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { isMuted } from '@/lib/soundMute';
+import GameDesktopPanel from '@/components/GameDesktopPanel';
 
 const MIN_BET = 0.1;
 const MAX_BET = 500;
@@ -395,6 +396,7 @@ export default function Thimbles() {
         </div>
       </div>
 
+      <GameDesktopPanel gameId="thimbles" title="Thimbles Rounds" />
       {showHistory && <HistoryModal onClose={() => setShowHistory(false)} />}
       {showBetMenu && (
         <BetMenuModal
