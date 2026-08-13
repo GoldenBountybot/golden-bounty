@@ -262,7 +262,7 @@ export default function Thimbles() {
       {!loaded && <GameAssetLoader title="Thimbles" assets={THIMBLES_ASSETS} bgImage={GAME_BG.thimbles} onDone={() => setLoaded(true)} />}
       <GameHeader title="Thimbles" balance={balance} />
 
-      <main className="max-w-none w-full mx-auto px-3 py-1 flex flex-col gap-1 flex-1 relative z-10" style={{ marginTop: '-60px' }}>
+      <main className="max-w-none lg:max-w-[520px] w-full mx-auto px-3 py-1 flex flex-col gap-1 flex-1 relative z-10" style={{ marginTop: '-60px' }}>
         {/* Betting controls bar — ornate gilded banner with baked-in - / + buttons */}
         <div className="relative w-full">
           <img src={BET_BANNER_IMG} alt="Total Bet" draggable={false} className="w-full h-auto select-none block" />
@@ -278,7 +278,7 @@ export default function Thimbles() {
         </div>
 
         {/* Game area — ornate gilded wood table with three barrels (full width edge-to-edge) */}
-        <div className="relative overflow-hidden flex-1 flex flex-col justify-center" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', marginTop: '-50px', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div className="relative overflow-hidden flex-1 flex flex-col justify-center lg:!w-full lg:!ml-0" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', marginTop: '-50px', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
 
           {/* Three barrels */}
           <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '200px' }}>
@@ -389,7 +389,7 @@ export default function Thimbles() {
       </main>
 
       {/* Cash display */}
-      <div className="w-full max-w-none mx-auto px-3 pb-1 relative z-10">
+      <div className="w-full max-w-none lg:max-w-[520px] mx-auto px-3 pb-1 relative z-10">
         <div className="flex items-center justify-end mt-1.5 px-1">
           <span className="text-[10px] font-bold tabular-nums" style={{ color: '#a09080' }}>Cash: {balance.toFixed(2)} USDT</span>
         </div>

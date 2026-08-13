@@ -33,7 +33,7 @@ export default function GatesOfOlympus() {
     >
       {/* Faded background overlay — keeps the Olympus scene faint so symbols pop */}
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(10,4,28,0.12), rgba(10,4,28,0.38))' }} />
-      <div className="relative">
+      <div className="relative lg:max-w-[520px] lg:mx-auto">
         <GameHeader title="Gates of Olympus" balance={Number(balance || 0)} />
         <GatesMachine />
       </div>

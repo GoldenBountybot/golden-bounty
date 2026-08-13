@@ -36,8 +36,10 @@ export default function BigBrown() {
         backgroundAttachment: 'fixed',
       }}
     >
-      <GameHeader title="Big Brown" balance={Number(balance || 0)} />
-      <BigBrownMachine />
+      <div className="lg:max-w-[520px] lg:mx-auto">
+        <GameHeader title="Big Brown" balance={Number(balance || 0)} />
+        <BigBrownMachine />
+      </div>
     </div>
   );
 }

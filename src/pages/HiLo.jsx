@@ -355,7 +355,7 @@ export default function HiLo() {
         />
       </header>
 
-      <main className="max-w-none mx-auto px-3 py-4 flex flex-col items-center gap-4 relative z-10">
+      <main className="max-w-none lg:max-w-[560px] mx-auto px-3 py-4 flex flex-col items-center gap-4 relative z-10">
         {/* Main game panel — double gold border + ornate corners */}
         <div className="w-full p-4 rounded-2xl relative" style={{
           background: 'linear-gradient(160deg, #071D14 0%, #050806 100%)',
