@@ -4,7 +4,7 @@ import { useToast } from '@/components/ui/use-toast';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import {
   ArrowLeft, ArrowDownToLine, ArrowUpFromLine, Gift, Gamepad2,
-  Hash, Mail, Phone, User as UserIcon, Wallet, Save,
+  Hash, Mail, Phone, User as UserIcon, Wallet, Save, CalendarDays,
 } from 'lucide-react';
 import { formatDateTime } from '@/lib/dateFormat';
 
@@ -121,6 +121,11 @@ export default function AdminPlayerDetail({ user, onBack, onSaved }) {
             </div>
             <div className="flex items-center gap-1.5 text-xs text-amber-100/80">
               <span className="text-amber-400/70 font-bold">Role</span> {user.role}
+            </div>
+            <div className="col-span-2 flex items-center gap-1.5 text-xs text-amber-100/80">
+              <CalendarDays className="w-3 h-3 text-amber-400/70" />
+              <span className="text-amber-400/70 font-bold">Joined</span>
+              {formatDateTime(user.created_date, { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) || '—'}
             </div>
           </div>
         </WesternFrame>

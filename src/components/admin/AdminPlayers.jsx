@@ -3,7 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
 import AdminPlayerDetail from '@/components/admin/AdminPlayerDetail';
-import { Search, Eye, Hash, Ban, ShieldCheck } from 'lucide-react';
+import { Search, Eye, Hash, Ban, ShieldCheck, CalendarDays } from 'lucide-react';
+import { formatDateTime } from '@/lib/dateFormat';
 
 export default function AdminPlayers() {
   const [users, setUsers] = useState([]);
@@ -100,6 +101,10 @@ export default function AdminPlayers() {
               <p className="font-bold text-amber-100 truncate">{u.email}</p>
               <p className="text-xs text-amber-100/60 flex items-center gap-1"><Hash className="w-3 h-3 text-amber-400/60" />{u.uid || '—'}</p>
               <p className="text-xs text-amber-100/60">Role: {u.role} · Phone: {u.phone || '—'}</p>
+              <p className="text-xs text-amber-100/60 flex items-center gap-1">
+                <CalendarDays className="w-3 h-3 text-amber-400/60" />
+                Joined: {formatDateTime(u.created_date, { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) || '—'}
+              </p>
               <p className="text-sm text-yellow-200 font-bold">${(walletMap[u.id]?.balance ?? 0).toFixed(2)}{walletMap[u.id]?.rtp != null ? ` · RTP ${walletMap[u.id].rtp}%` : ''}</p>
               {walletMap[u.id]?.banned && <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 border border-red-500/50 text-red-400">BANNED</span>}
             </div>
