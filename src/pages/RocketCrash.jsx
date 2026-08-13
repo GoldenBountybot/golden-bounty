@@ -8,7 +8,7 @@ export default function RocketCrash() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-black to-slate-950">
       {!loaded && <GameAssetLoader title="Aviator" assets={ROCKET_CRASH_ASSETS} bgImage={GAME_BG.rocketCrash} onDone={() => setLoaded(true)} />}
-      <main className="max-w-none lg:max-w-[860px] mx-auto px-3 sm:px-4 pt-0 pb-4">
+      <main className="max-w-none lg:max-w-[1180px] mx-auto px-3 sm:px-4 pt-0 pb-4">
         <CrashGame />
       </main>
     </div>
