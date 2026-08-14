@@ -55,6 +55,7 @@ import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { preloadAssets, preloadDynamicAssets, preloadAllGameAssets } from '@/lib/assetPreloader';
 import { APP_ASSETS } from '@/lib/appAssets';
 import { base44 } from '@/api/base44Client';
+import { isStandaloneApp } from '@/lib/isStandaloneApp';
 
 const MIN_SPLASH_MS = 1500;
 
@@ -69,7 +70,9 @@ const AuthenticatedApp = () => {
   // sessionStorage persists across refreshes but clears when the tab closes,
   // so the splash appears once when the user first opens the app and never
   // again until they close and reopen the tab.
-  const splashAlreadyShown = (() => { try { return sessionStorage.getItem('gb_splash_shown') === '1'; } catch { return false; } })();
+  // Installed mobile app: skip the web splash entirely (the native app shows
+  // its own splash). Browser: show it once per session.
+  const splashAlreadyShown = isStandaloneApp() || (() => { try { return sessionStorage.getItem('gb_splash_shown') === '1'; } catch { return false; } })();
   const [imgReady, setImgReady] = useState(splashAlreadyShown);
   const [staticReady, setStaticReady] = useState(false);
   const [dynamicReady, setDynamicReady] = useState(false);
