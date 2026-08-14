@@ -179,10 +179,11 @@ const AuthenticatedApp = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
+      {/* Public lobby — viewable without login */}
+      <Route path="/" element={<Home />} />
+
       {/* Everything below requires authentication */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        {/* Lobby */}
-        <Route path="/" element={<Home />} />
         <Route path="/promo-welcome" element={<PromoWelcome />} />
 
         {/* Game pages — own headers, no bottom nav */}
