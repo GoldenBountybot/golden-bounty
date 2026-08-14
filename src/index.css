@@ -603,16 +603,16 @@
 @keyframes appSplashModelZoom {
   0%   { transform: scale(0.26); }
   10%  { transform: scale(0.26); }
-  18%  { transform: scale(0.38); }
-  28%  { transform: scale(0.38); }
-  36%  { transform: scale(0.52); }
-  46%  { transform: scale(0.52); }
-  54%  { transform: scale(0.68); }
-  64%  { transform: scale(0.68); }
-  72%  { transform: scale(0.86); }
-  80%  { transform: scale(0.86); }
-  88%  { transform: scale(1.0); }
-  100% { transform: scale(1.0); }
+  18%  { transform: scale(0.42); }
+  28%  { transform: scale(0.42); }
+  36%  { transform: scale(0.58); }
+  46%  { transform: scale(0.58); }
+  54%  { transform: scale(0.76); }
+  64%  { transform: scale(0.76); }
+  72%  { transform: scale(0.96); }
+  82%  { transform: scale(0.96); }
+  90%  { transform: scale(1.12); }
+  100% { transform: scale(1.12); }
 }
 /* Diagonal gold light sweep across the splash image */
 @keyframes appLightSweep {

@@ -57,7 +57,7 @@ import { APP_ASSETS } from '@/lib/appAssets';
 import { base44 } from '@/api/base44Client';
 import { isStandaloneApp } from '@/lib/isStandaloneApp';
 
-const MIN_SPLASH_MS = 2600;
+const MIN_SPLASH_MS = 2100;
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();

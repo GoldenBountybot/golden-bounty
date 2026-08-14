@@ -39,7 +39,7 @@ export default function AppLoadingImage() {
         ref={imgRef}
         src={SPLASH_IMG}
         alt="Golden Bounty"
-        className="absolute inset-0 w-full h-full object-contain select-none"
+        className="absolute inset-0 w-full h-full object-cover select-none"
         draggable={false}
         fetchPriority="high"
         decoding="async"
@@ -48,7 +48,7 @@ export default function AppLoadingImage() {
         style={{
           opacity: loaded ? 1 : 0,
           transition: 'opacity 500ms ease',
-          animation: loaded ? 'appSplashModelZoom 2.5s cubic-bezier(0.33, 1, 0.68, 1) forwards' : 'none',
+          animation: loaded ? 'appSplashModelZoom 2s cubic-bezier(0.33, 1, 0.68, 1) forwards' : 'none',
           transformOrigin: 'center center',
         }}
       />
