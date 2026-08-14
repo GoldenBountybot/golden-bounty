@@ -8,6 +8,7 @@ import DesktopSidebar from '@/components/DesktopSidebar';
 import SiteFooter from '@/components/SiteFooter';
 import NotificationBell from '@/components/NotificationBell';
 import HomeSidebar from '@/components/HomeSidebar';
+import FadeImage from '@/components/FadeImage';
 import { Wallet, FlaskConical, Gift } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -100,10 +101,11 @@ export default function Home() {
               </Link>
             </div>
             <div className="flex-1 min-w-0 self-start">
-              <img
+              <FadeImage
                 src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png"
                 alt="Golden Bounty"
                 className="-mt-6 translate-x-2 w-full"
+                durationMs={400}
                 style={{ height: '104px', objectFit: 'contain' }}
               />
               <p className="text-[11px] text-amber-100/55 tracking-wide -mt-4 text-center">{playable} {t('Games Live · Play & Win')}</p>
@@ -186,10 +188,11 @@ export default function Home() {
       {/* Hero banner */}
       <section className="relative z-10 max-w-none mx-auto px-4 lg:px-6 pb-2">
         <div className="relative overflow-hidden rounded-2xl" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
-          <img
+          <FadeImage
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fac3dbda4_file_000000008654821185c00f28c290ba18.png"
             alt="Welcome to Golden Bounty — Play 12 Premium Casino Games + Earn Daily Profit with Staking Plans"
             className="w-full h-auto block"
+            durationMs={500}
           />
         </div>
       </section>
@@ -197,10 +200,11 @@ export default function Home() {
       {/* Airdrop banner */}
       <section className="relative z-10 max-w-none mx-auto px-4 lg:px-6 pb-2">
         <Link to="/airdrop" className="block relative overflow-hidden rounded-2xl transition-transform active:scale-[0.99]" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
-          <img
+          <FadeImage
             src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/954aff594_file_00000000d7b081fab9598b09e1590c28.png"
             alt="Golden Bounty Airdrop — Claim BOUNTY tokens"
             className="w-full h-auto block"
+            durationMs={500}
           />
         </Link>
       </section>

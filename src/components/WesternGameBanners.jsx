@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
+import FadeImage from '@/components/FadeImage';
 
 // Premium iconic Western game banners — gilt gold frames, Rye typography,
 // auto-rotating carousel featuring the flagship games with their logos.
@@ -134,12 +135,12 @@ export default function WesternGameBanners() {
               className="w-full shrink-0 cursor-pointer relative touch-none"
               style={{ aspectRatio: '16 / 7' }}
             >
-              <img
+              <FadeImage
                 src={b.image}
                 alt={b.title}
                 className="absolute inset-0 w-full h-full object-cover"
                 draggable={false}
-                decoding="async"
+                durationMs={500}
               />
               {/* Western vignette + bottom fade for text legibility */}
               <div

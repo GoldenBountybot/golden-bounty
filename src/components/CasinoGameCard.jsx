@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Lock, Play, Share2, Check } from 'lucide-react';
 import { preloadAssets, isCached } from '@/lib/assetPreloader';
 import { GAME_ASSET_MAP } from '@/lib/gameAssets';
+import FadeImage from '@/components/FadeImage';
 
 // Minimal Play-Store style game tile — sharp golden frame, clean image.
 export default function CasinoGameCard({ game }) {
@@ -39,7 +40,7 @@ export default function CasinoGameCard({ game }) {
       }}
     >
       {game.image ? (
-        <img src={game.image} alt={game.title} className="absolute inset-0 w-full h-full object-cover" decoding="async" />
+        <FadeImage src={game.image} alt={game.title} className="absolute inset-0 w-full h-full object-cover" durationMs={350} />
       ) : (
         <div className={`absolute inset-0 bg-gradient-to-br ${game.accent}`} />
       )}
