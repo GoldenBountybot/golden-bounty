@@ -72,23 +72,6 @@ export default function AppLoadingScreen({ progress = 0 }) {
     />
   ));
 
-  // 4 ornamental corner flourishes
-  const CornerFlourish = ({ position }) => (
-    <div className={`absolute pointer-events-none ${position}`} style={{ animation: 'appCornerGlow 3s ease-in-out infinite' }}>
-      <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-        <path d="M2 2 L2 22 M2 2 L22 2" stroke="rgba(214,178,98,0.7)" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M2 2 L14 14" stroke="rgba(255,215,120,0.5)" strokeWidth="1" strokeLinecap="round" />
-        <circle cx="2" cy="2" r="3" fill="url(#cornerGold)" />
-        <defs>
-          <linearGradient id="cornerGold" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#fff3c4" />
-            <stop offset="100%" stopColor="#b8860b" />
-          </linearGradient>
-        </defs>
-      </svg>
-    </div>
-  );
-
   return (
     <div
       className="fixed inset-0 z-[9998] flex flex-col items-center justify-center overflow-hidden"
@@ -126,12 +109,6 @@ export default function AppLoadingScreen({ progress = 0 }) {
 
       {/* Vignette */}
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 32%, rgba(0,0,0,0.72) 100%)' }} />
-
-      {/* Ornamental corner flourishes */}
-      <CornerFlourish position="top-4 left-4" />
-      <CornerFlourish position="top-4 right-4" />
-      <CornerFlourish position="bottom-4 left-4" />
-      <CornerFlourish position="bottom-4 right-4" />
 
       {/* Floating gold particles */}
       {particles}
