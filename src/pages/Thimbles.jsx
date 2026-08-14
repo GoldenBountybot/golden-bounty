@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import GameHeader from '@/components/GameHeader';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
-import { useLogActivity } from '@/lib/useLogActivity';
 import GameAssetLoader from '@/components/GameAssetLoader';
 import { THIMBLES_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { isMuted } from '@/lib/soundMute';
@@ -91,7 +90,6 @@ export default function Thimbles() {
   const [showHistory, setShowHistory] = useState(false);
   const [showBetMenu, setShowBetMenu] = useState(false);
   const navigate = useNavigate();
-  const logActivity = useLogActivity();
   const timers = useRef([]);
   const pendingWin = useRef(false);
   const serverWinRef = useRef(0);
@@ -211,14 +209,12 @@ export default function Thimbles() {
       setWon(true);
       setMessage(`You found it! +${win.toFixed(2)}`);
       playWin();
-      logActivity('thimbles', bet, win, 'win', mult);
     } else {
       setLastWin(0);
       setWon(false);
       settleBet(bet, 0, 'thimbles');
       setMessage('Wrong cup! Try again');
       playLose();
-      logActivity('thimbles', bet, 0, 'loss', 0);
     }
   };
 
