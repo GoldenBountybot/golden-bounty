@@ -283,7 +283,15 @@ async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed')
       pendingServerWin = mult * (bet || 0.10);
       return { is_win: mult > 1, win_amount: pendingServerWin, round_token: null };
     }
-    // Cap-mode games (HiLo, Mines, Crash, Thimbles): return a generous CAP so
+    // Thimbles: the client uses the returned win_amount as THE win/loss
+    // decision (not a cap) — so decide locally with a ~25% win chance,
+    // otherwise every demo round would be a guaranteed win.
+    if (gameId === 'thimbles') {
+      const isWin = Math.random() < 0.25;
+      pendingServerWin = isWin ? Math.min((bet || 0.10) * 5000, 5000) : 0;
+      return { is_win: isWin, win_amount: pendingServerWin, round_token: null };
+    }
+    // Cap-mode games (HiLo, Mines, Crash): return a generous CAP so
     // the client-side game logic can decide wins/losses freely. Returning 0
     // here would force withinCap=false and make every guess a guaranteed loss.
     if (settleMode === 'cap') {
