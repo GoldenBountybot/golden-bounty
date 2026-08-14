@@ -80,7 +80,9 @@ const AuthenticatedApp = () => {
   const [loadProgress, setLoadProgress] = useState(0);
 
   // Splash image phase — cinematic model-reveal zoom (small → full screen).
-  const showSplashImage = true;
+  // Stays true until the splash image has downloaded AND the minimum splash
+  // duration has elapsed, then becomes false so the loading screen takes over.
+  const showSplashImage = !splashAlreadyShown && (!imgReady || !minDone);
   // Phase 2: loading screen — after the splash image, while static assets/auth load.
   // Dynamic assets (banners, QR codes) load in the BACKGROUND and don't block
   // the app from showing — they pop in gracefully once fetched.
