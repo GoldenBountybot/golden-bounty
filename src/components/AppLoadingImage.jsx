@@ -32,12 +32,14 @@ export default function AppLoadingImage() {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden" style={{ background: '#0a0806' }}>
-      {/* Splash image with slow Ken Burns zoom */}
+      {/* Splash image — model-reveal step zoom: starts small, grows in steps
+          to fill the screen. object-contain so it starts as a centered image
+          (matching the native splash), scaling up to fill the screen. */}
       <img
         ref={imgRef}
         src={SPLASH_IMG}
         alt="Golden Bounty"
-        className="absolute inset-0 w-full h-full object-cover lg:object-contain select-none"
+        className="absolute inset-0 w-full h-full object-contain select-none"
         draggable={false}
         fetchPriority="high"
         decoding="async"
@@ -45,8 +47,9 @@ export default function AppLoadingImage() {
         onError={() => setLoaded(true)}
         style={{
           opacity: loaded ? 1 : 0,
-          transition: 'opacity 700ms ease',
-          animation: loaded ? 'appSplashZoom 9s ease-out forwards' : 'none',
+          transition: 'opacity 500ms ease',
+          animation: loaded ? 'appSplashModelZoom 2.5s cubic-bezier(0.33, 1, 0.68, 1) forwards' : 'none',
+          transformOrigin: 'center center',
         }}
       />
 

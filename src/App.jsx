@@ -57,7 +57,7 @@ import { APP_ASSETS } from '@/lib/appAssets';
 import { base44 } from '@/api/base44Client';
 import { isStandaloneApp } from '@/lib/isStandaloneApp';
 
-const MIN_SPLASH_MS = 1500;
+const MIN_SPLASH_MS = 2600;
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -72,15 +72,15 @@ const AuthenticatedApp = () => {
   // again until they close and reopen the tab.
   // Installed mobile app: skip the web splash entirely (the native app shows
   // its own splash). Browser: show it once per session.
-  const splashAlreadyShown = isStandaloneApp() || (() => { try { return sessionStorage.getItem('gb_splash_shown') === '1'; } catch { return false; } })();
+  const splashAlreadyShown = (() => { try { return sessionStorage.getItem('gb_splash_shown') === '1'; } catch { return false; } })();
   const [imgReady, setImgReady] = useState(splashAlreadyShown);
   const [staticReady, setStaticReady] = useState(false);
   const [dynamicReady, setDynamicReady] = useState(false);
   const [minDone, setMinDone] = useState(splashAlreadyShown);
   const [loadProgress, setLoadProgress] = useState(0);
 
-  // Splash image phase disabled — go straight to the loading screen.
-  const showSplashImage = false;
+  // Splash image phase — cinematic model-reveal zoom (small → full screen).
+  const showSplashImage = true;
   // Phase 2: loading screen — after the splash image, while static assets/auth load.
   // Dynamic assets (banners, QR codes) load in the BACKGROUND and don't block
   // the app from showing — they pop in gracefully once fetched.

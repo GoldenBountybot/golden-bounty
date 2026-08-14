@@ -595,6 +595,25 @@
   0%   { transform: scale(1.08); }
   100% { transform: scale(1.18); }
 }
+
+/* Cinematic model-reveal zoom: image starts small (like the native splash
+   icon), holds, then grows in distinct steps — each step slightly bigger
+   with a brief hold — until it fills the full screen. Feels like a 3D model
+   being revealed. */
+@keyframes appSplashModelZoom {
+  0%   { transform: scale(0.26); }
+  10%  { transform: scale(0.26); }
+  18%  { transform: scale(0.38); }
+  28%  { transform: scale(0.38); }
+  36%  { transform: scale(0.52); }
+  46%  { transform: scale(0.52); }
+  54%  { transform: scale(0.68); }
+  64%  { transform: scale(0.68); }
+  72%  { transform: scale(0.86); }
+  80%  { transform: scale(0.86); }
+  88%  { transform: scale(1.0); }
+  100% { transform: scale(1.0); }
+}
 /* Diagonal gold light sweep across the splash image */
 @keyframes appLightSweep {
   0%   { transform: translateX(-120%) rotate(15deg); opacity: 0; }
