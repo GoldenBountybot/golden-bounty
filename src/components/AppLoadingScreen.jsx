@@ -99,7 +99,7 @@ export default function AppLoadingScreen({ progress = 0 }) {
         style={{
           backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e1d861111_golden_bounty_fullscreen_vertical.png)',
           backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
-          opacity: 0.22,
+          opacity: 0.45,
         }}
       />
 

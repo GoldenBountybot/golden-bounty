@@ -27,6 +27,19 @@ export function preloadImage(url, lowPriority = false) {
   if (existing) return existing;
 
   const p = new Promise((resolve) => {
+    // Safety timeout: if an image neither loads nor errors within 8s (e.g.
+    // a blocked/throttled external CDN that holds the connection open without
+    // responding), give up so a single hanging image can never stall the
+    // whole preload batch and freeze the loading screen.
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve();
+    };
+    const timer = setTimeout(finish, 8000);
+
     const img = new Image();
     img.decoding = 'async';
     if ('fetchPriority' in img) img.fetchPriority = lowPriority ? 'low' : 'high';
@@ -34,12 +47,12 @@ export function preloadImage(url, lowPriority = false) {
       // Wait for the image to be fully decoded and ready to paint, so it
       // never pops in after the loading screen disappears.
       if (typeof img.decode === 'function') {
-        img.decode().then(resolve).catch(() => resolve());
+        img.decode().then(finish).catch(finish);
       } else {
-        resolve();
+        finish();
       }
     };
-    img.onerror = () => resolve(); // never reject — a broken image shouldn't block the game
+    img.onerror = finish; // never reject — a broken image shouldn't block the game
     img.src = url;
     retained.push(img);
   });

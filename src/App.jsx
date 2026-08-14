@@ -122,6 +122,15 @@ const AuthenticatedApp = () => {
     preloadDynamicAssets(base44)
       .then(() => setDynamicReady(true))
       .catch(() => setDynamicReady(true));
+    // Global safety net: no matter what happens (a hanging CDN, a stalled
+    // decode, anything), never let the loading screen trap the user — force
+    // the app open after 15s so they can use it even with missing assets.
+    const safety = setTimeout(() => {
+      setStaticReady(true);
+      setDynamicReady(true);
+      setLoadProgress(100);
+    }, 15000);
+    return () => clearTimeout(safety);
   }, [showSplashImage]);
 
   // Once the splash is done, warm all game assets in the background so they
