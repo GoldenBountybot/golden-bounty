@@ -148,6 +148,30 @@ export default async function(req: Request): Promise<Response> {
       note,
     });
 
+    // ── Notify every admin in-app (notification bell) about the new request ──
+    try {
+      const admins = await base44.asServiceRole.entities.User.list(100);
+      const adminList = (admins || []).filter((u: any) => u.role === 'admin');
+      const walletPreview = reference ? reference.slice(0, 10) + '…' : '—';
+      const title = `Withdraw Request · $${amount.toFixed(2)}`;
+      const body = `Player: ${user.email || user.id}\nAmount: $${amount.toFixed(2)}\nWallet: ${walletPreview}`;
+      // Create one notification per admin so each sees it in their bell.
+      if (adminList.length > 0) {
+        await base44.asServiceRole.entities.UserNotification.bulkCreate(
+          adminList.map((a: any) => ({
+            user_id: a.id,
+            type: 'withdraw_requested',
+            title,
+            body,
+            amount,
+            link: '/admin',
+          }))
+        );
+      }
+    } catch (_e) {
+      // notification creation must never block the withdrawal flow
+    }
+
     return Response.json({
       ok: true,
       transaction_id: tx.id,

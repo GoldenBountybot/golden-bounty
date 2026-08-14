@@ -13,6 +13,7 @@ const TYPE_META = {
   token_claimed: { icon: Coins, color: '#f5c542', labelKey: 'Token Claimed' },
   deposit_approved: { icon: ArrowDownToLine, color: '#7bd88f', labelKey: 'Deposit Approved' },
   withdraw_approved: { icon: ArrowUpFromLine, color: '#f0a050', labelKey: 'Withdraw Approved' },
+  withdraw_requested: { icon: ArrowUpFromLine, color: '#f0a050', labelKey: 'Withdraw Requested' },
   system: { icon: Megaphone, color: '#c5a059', labelKey: 'System' },
 };
 

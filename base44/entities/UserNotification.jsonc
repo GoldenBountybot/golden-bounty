@@ -15,6 +15,7 @@
         "token_claimed",
         "deposit_approved",
         "withdraw_approved",
+        "withdraw_requested",
         "system"
       ],
       "default": "system",
