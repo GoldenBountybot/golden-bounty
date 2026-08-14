@@ -79,9 +79,8 @@ const AuthenticatedApp = () => {
   const [minDone, setMinDone] = useState(splashAlreadyShown);
   const [loadProgress, setLoadProgress] = useState(0);
 
-  // Phase 1: static splash image — show until the image loads AND a minimum
-  // display time elapses, so the user sees the full-screen splash first.
-  const showSplashImage = !imgReady || !minDone;
+  // Splash image phase disabled — go straight to the loading screen.
+  const showSplashImage = false;
   // Phase 2: loading screen — after the splash image, while static assets/auth load.
   // Dynamic assets (banners, QR codes) load in the BACKGROUND and don't block
   // the app from showing — they pop in gracefully once fetched.
