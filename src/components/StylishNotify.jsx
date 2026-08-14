@@ -17,9 +17,11 @@ export default function StylishNotify({ data, onDone, duration = 1500 }) {
       <div
         className="mt-2 w-full max-w-md rounded-xl px-3.5 py-2.5 flex items-center gap-2.5"
         style={{
-          background: 'linear-gradient(180deg, #0a0a0c 0%, #15130b 100%)',
-          border: '1px solid rgba(245,210,120,0.55)',
-          boxShadow: '0 6px 22px rgba(0,0,0,0.6), 0 0 18px rgba(255,200,90,0.22), inset 0 1px 0 rgba(255,240,180,0.18)',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,225,150,0.08) 100%)',
+          border: '1px solid rgba(245,210,120,0.5)',
+          boxShadow: '0 8px 28px rgba(0,0,0,0.35), 0 0 18px rgba(255,200,90,0.18), inset 0 1px 0 rgba(255,255,255,0.28)',
+          backdropFilter: 'blur(16px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(160%)',
           animation: `notifyLife ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) both`,
           willChange: 'transform, opacity',
         }}
