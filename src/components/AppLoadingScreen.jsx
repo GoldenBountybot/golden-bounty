@@ -97,7 +97,7 @@ export default function AppLoadingScreen({ progress = 0 }) {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b1a2d7d3e_file_000000009ef4820baac5161c2e45158b.png)',
+          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e1d861111_golden_bounty_fullscreen_vertical.png)',
           backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
           opacity: 0.22,
         }}
