@@ -45,10 +45,9 @@ export default function Notifications() {
         className="sticky top-0 z-20 backdrop-blur-xl"
         style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}
       >
-        <div className="max-w-none mx-auto px-4 py-3 flex items-center justify-between">
-          <BackButton to="/" />
-          <WesternTitleBadge size="lg" fullWidth className="max-w-[60%]">{t("Notifications")}</WesternTitleBadge>
-          <div className="w-8" />
+        <div className="max-w-none mx-auto px-3 py-3 relative flex items-center">
+          <div className="absolute left-3 z-10"><BackButton to="/" /></div>
+          <WesternTitleBadge size="lg" fullWidth className="w-full">{t("Notifications")}</WesternTitleBadge>
         </div>
       </header>
 
