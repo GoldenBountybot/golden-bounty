@@ -90,12 +90,21 @@ const AuthenticatedApp = () => {
   useEffect(() => {
     // Skip the splash entirely if it was already shown earlier this session.
     if (splashAlreadyShown) return;
-    // Preload ONLY the splash image so it shows instantly — no other assets
-    // yet, so the loading screen phase has work to do after the splash.
+    // Preload the splash image AND the loading-screen background + logo so
+    // they're already cached when phase 2 appears — otherwise the user sees
+    // the loading-screen background visibly downloading/popping in.
+    const SPLASH_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8c7eb4bd_golden_bounty_fullscreen_vertical.png';
+    const LOADING_BG_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e1d861111_golden_bounty_fullscreen_vertical.png';
+    const LOGO_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
+    let splashDone = false;
+    const markSplash = () => { if (!splashDone) { splashDone = true; setImgReady(true); } };
     const splashImg = new Image();
-    splashImg.onload = () => setImgReady(true);
-    splashImg.onerror = () => setImgReady(true);
-    splashImg.src = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8c7eb4bd_golden_bounty_fullscreen_vertical.png';
+    splashImg.onload = markSplash;
+    splashImg.onerror = markSplash;
+    splashImg.src = SPLASH_URL;
+    // Warm the loading-screen bg + logo in parallel (don't block phase 1 on them).
+    const bgImg = new Image(); bgImg.src = LOADING_BG_URL;
+    const logoImg = new Image(); logoImg.src = LOGO_URL;
     const t = setTimeout(() => setMinDone(true), MIN_SPLASH_MS);
     return () => clearTimeout(t);
   }, []);
