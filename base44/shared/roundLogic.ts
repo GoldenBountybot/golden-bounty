@@ -62,8 +62,14 @@ export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
   }
 
   // ── Thimbles: fixed client multiplier (2.88x single / 1.44x two-ball).
-  // Set the cap to 3x so min(clientWin, cap) always credits the full client win. ──
+  // The server decides win/loss based on RTP with a reduced win chance
+  // (at 50% RTP → ~20% win chance). On win, the cap is 3x so
+  // min(clientWin, cap) always credits the full client win. ──
   if (gameId === 'thimbles') {
+    const winChance = rtpFrac * 0.4;
+    if (Math.random() >= winChance) {
+      return { isWin: false, winAmount: 0, multiplier: 0 };
+    }
     const mult = 3;
     let winAmount = mult * Math.max(betAmount, 0.01);
     if (isFreeSpin) winAmount = Math.min(winAmount, FREE_SPIN_MAX_WIN);
