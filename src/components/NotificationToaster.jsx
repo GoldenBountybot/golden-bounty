@@ -35,7 +35,10 @@ export default function NotificationToaster() {
       amount: Number(n.amount) || 0,
       link: n.link || '/notifications',
     }));
-    setToasts((prev) => [...prev, ...newToasts]);
+    // Show only the LATEST notification — replace any current toast so
+    // toasts never stack downward. Each one appears at the top and
+    // disappears from the same spot.
+    setToasts(newToasts.slice(-1));
   }, [items]);
 
   // Auto-dismiss each toast after HOLD_MS.
@@ -59,7 +62,7 @@ export default function NotificationToaster() {
   };
 
   return (
-    <div className="fixed top-0 inset-x-0 z-[120] flex flex-col items-center gap-2 px-3 pt-2 pointer-events-none">
+    <div className="fixed top-0 inset-x-0 z-[120] flex flex-col items-center px-3 pt-2 pointer-events-none">
       {toasts.map((t) => (
         <div
           key={t.id}
