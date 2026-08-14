@@ -11,6 +11,10 @@
 
 // url -> Promise<void>  (settles when the image is decoded & ready)
 const cache = new Map();
+// Keep a hard reference to every preloaded Image element so the browser keeps
+// the decoded bitmap alive for the whole session. Without this the elements are
+// garbage-collected and images visibly re-fetch/re-decode when a page remounts.
+const retained = [];
 
 // Preload a single image URL. Returns a promise that resolves when the image
 // is fully decoded and ready to paint. Deduplicates against the global cache
@@ -37,6 +41,7 @@ export function preloadImage(url, lowPriority = false) {
     };
     img.onerror = () => resolve(); // never reject — a broken image shouldn't block the game
     img.src = url;
+    retained.push(img);
   });
 
   cache.set(url, p);

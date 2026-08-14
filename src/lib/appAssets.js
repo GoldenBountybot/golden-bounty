@@ -13,7 +13,9 @@ const u = (id) => `${CDN}/${id}`;
 
 // ---- Splash + shared backgrounds ----
 const SPLASH = [
-  u('b1a2d7d3e_file_000000009ef4820baac5161c2e45158b.png'), // splash image
+  u('e1d861111_golden_bounty_fullscreen_vertical.png'),     // loading screen background
+  u('f8c7eb4bd_golden_bounty_fullscreen_vertical.png'),     // splash image (phase 1)
+  u('b1a2d7d3e_file_000000009ef4820baac5161c2e45158b.png'), // old splash image
   u('42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png'), // app background
   u('c39869f00_file_000000003b6c821193c37e7c968d77f2.png'), // Golden Bounty logo
   u('89345e410_file_00000000f5f88207ba2a1422c54f7ec0.png'), // Bounty Bot support logo
