@@ -1,0 +1,66 @@
+{
+  "name": "PgSoftSession",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Base44 user id this PG SOFT session belongs to. Also used as player_name towards PG SOFT."
+    },
+    "session_token": {
+      "type": "string",
+      "description": "operator_player_session token generated at game launch and validated by VerifySession"
+    },
+    "game_id": {
+      "type": "string",
+      "default": "",
+      "description": "PG SOFT game id the session was launched for"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "expired"
+      ],
+      "default": "active"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this launch session token stops being valid"
+    }
+  },
+  "required": [
+    "user_id",
+    "session_token",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

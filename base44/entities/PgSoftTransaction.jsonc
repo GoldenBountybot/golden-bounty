@@ -1,0 +1,100 @@
+{
+  "name": "PgSoftTransaction",
+  "type": "object",
+  "properties": {
+    "transaction_id": {
+      "type": "string",
+      "description": "PG SOFT transaction_id (bet/payout) or adjustment_transaction_id. The idempotency key \u2014 a repeated request returns the stored response instead of moving money again."
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Base44 user id (player_name)"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "bet_payout",
+        "adjustment"
+      ],
+      "default": "bet_payout"
+    },
+    "game_id": {
+      "type": "string",
+      "default": ""
+    },
+    "bet_id": {
+      "type": "string",
+      "default": ""
+    },
+    "parent_bet_id": {
+      "type": "string",
+      "default": ""
+    },
+    "bet_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "win_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "transfer_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Signed player win/loss amount applied to the wallet"
+    },
+    "balance_after": {
+      "type": "number",
+      "default": 0,
+      "description": "Wallet balance returned to PG SOFT for this transaction"
+    },
+    "updated_time": {
+      "type": "number",
+      "default": 0,
+      "description": "Unix ms timestamp echoed back to PG SOFT in the response"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed"
+      ],
+      "default": "success"
+    }
+  },
+  "required": [
+    "transaction_id",
+    "user_id",
+    "kind",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
