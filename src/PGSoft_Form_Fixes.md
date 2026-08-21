@@ -6,6 +6,13 @@ Two fixes needed: (1) SERVER IP must be IPv4, (2) Currency should be **USDT** (P
 
 ## Sheet 1: "New Integration"
 
+### Part 1: General Information — Basic section
+
+| Field | Current | Correct Value |
+|---|---|---|
+| Target Launch Date / 目标上线时间 | 2026-08-31 | **2026-08-22** ✅ (tomorrow) |
+| *Email Address / 接收邮箱 | goldenbountysupport@gmail.com | goldenbountysupport@gmail.com (no change) |
+
 ### Part 1: General Information — Currency section
 
 | Field | Current | Correct Value |
