@@ -20,17 +20,16 @@ Two fixes needed: (1) SERVER IP must be IPv4, (2) Currency should be **USDT** (P
 | Field | Current (WRONG) | Correct Value |
 |---|---|---|
 | *OFFICE IP | 37.111.223.255 | 37.111.223.255 (no change) |
-| *SERVER IP | **2a06:98c0:3600::103** ❌ IPv6 | **<STATIC_IPV4>** ✅ (from QuotaGuard/Fixie — pending) |
+| *SERVER IP | **2a06:98c0:3600::103** ❌ IPv6 | **172.245.40.68** ✅ (VPS — verified working) |
 
 ### Part 3: Production Environment (IP Whitelist)
 
 | Field | Current (WRONG) | Correct Value |
 |---|---|---|
 | *OFFICE IP | 37.111.223.255 | 37.111.223.255 (no change) |
-| *SERVER IP | **2a06:98c0:3600::103** ❌ IPv6 | **<STATIC_IPV4>** ✅ (same as above) |
+| *SERVER IP | **2a06:98c0:3600::103** ❌ IPv6 | **172.245.40.68** ✅ (same as above) |
 
-> ⚠️ `<STATIC_IPV4>` = the IPv4 you get after signing up to QuotaGuard Static / Fixie (managed static-IP proxy — no server to manage). Once you share it, I'll route PG calls through the proxy and finalize the form.
-> (If you prefer to keep using the existing VPS instead, use 172.245.40.68 here.)
+> ✅ 172.245.40.68 = the VPS with the Nginx reverse proxy — connectivity verified (proxy test returned HTTP 200).
 
 ---
 
@@ -42,9 +41,9 @@ Downline 1 column:
 |---|---|
 | *Brand Name | GoldenBounty |
 | * Production Operator Token | (PG Soft provides — leave blank if not assigned) |
-| * Production SERVER IP | **<STATIC_IPV4>** |
+| * Production SERVER IP | **172.245.40.68** |
 | * Staging Operator Token | (PG Soft provides — leave blank if not assigned) |
-| * Staging SERVER IP | **<STATIC_IPV4>** |
+| * Staging SERVER IP | **172.245.40.68** |
 | * Event Type | Seamless Wallet |
 
 ---
@@ -56,7 +55,7 @@ Dear KIM / PG Soft Team,
 
 Thank you for the feedback. We have corrected the form:
 
-Part A — SERVER IP: corrected to IPv4 format: <STATIC_IPV4>
+Part A — SERVER IP: corrected to IPv4 format: 172.245.40.68
 (both Test and Production environments).
 
 Part B — Currency: we have updated our Choice of Currencies to USDT
@@ -80,4 +79,4 @@ CaseID: P23502
 1. Currency: USD → **USDT** (Part 1, Choice of Currencies)
 2. "Integrate currency USD or SC&GC" → **No** (USDT is neither)
 3. USD disclaimer → **N/A** (kept a fallback agreement line in the email just in case)
-4. SERVER IP (Test + Production + External API Whitelist) → **static IPv4** from QuotaGuard/Fixie (pending), or 172.245.40.68 if keeping the VPS
+4. SERVER IP (Test + Production + External API Whitelist) → **172.245.40.68** (VPS, verified working)
