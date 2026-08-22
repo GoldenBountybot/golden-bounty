@@ -186,6 +186,8 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
     try {
+      await new Promise((r) => setTimeout(r, 800));
+
       if (payAsset === 'native') {
         const pr = price || (await getCryptoPrices())[nativeKey] || 0;
         if (!pr) { setErrMsg('Could not fetch coin price. Please try again.'); setStatus('error'); return; }
@@ -202,15 +204,9 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
 
       const data = '0xa9059cbb' + pad32(net.admin).slice(2) + pad32(toHexAmount(amount, net.decimals)).slice(2);
       const to = net.usdt.toLowerCase();
-      // Gas estimation over WalletConnect can hang for many seconds. Give it a
-      // short window and fall back to the safe default so the transaction
-      // request reaches the wallet without delay.
-      let gas = '0x' + (120000).toString(16);
+      let gas = '0x' + (60000).toString(16);
       try {
-        const est = await Promise.race([
-          p.request({ method: 'eth_estimateGas', params: [{ from: acct, to, data, value: '0x0' }] }),
-          new Promise((r) => setTimeout(() => r(null), 1500)),
-        ]);
+        const est = await p.request({ method: 'eth_estimateGas', params: [{ from: acct, to, data, value: '0x0' }] });
         if (typeof est === 'string' && est.startsWith('0x')) gas = est;
       } catch {}
       const txHash = await p.request({
