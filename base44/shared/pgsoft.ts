@@ -9,16 +9,42 @@ import { secrets } from 'base44:runtime';
 // real_transfer_amount must always equal transfer_amount (no 1:1000 handling).
 export const PG_CURRENCY = 'USDT';
 
+function secret(k) {
+  try { return secrets.get(k) || ''; } catch { return ''; }
+}
+
 export function pgConfig() {
-  const get = (k) => {
-    try { return secrets.get(k) || ''; } catch { return ''; }
-  };
   return {
-    operatorToken: get('PGSOFT_OPERATOR_TOKEN'),
-    secretKey: get('PGSOFT_SECRET_KEY'),
-    salt: get('PGSOFT_HASH_SALT'),
-    apiDomain: get('PGSOFT_API_DOMAIN'),
+    operatorToken: secret('PGSOFT_OPERATOR_TOKEN'),
+    secretKey: secret('PGSOFT_SECRET_KEY'),
+    salt: secret('PGSOFT_HASH_SALT'),
+    apiDomain: secret('PGSOFT_API_DOMAIN'),
+    proxyUrl: secret('PGSOFT_PROXY_URL'),
+    proxyToken: secret('PGSOFT_PROXY_TOKEN'),
   };
+}
+
+// Every outbound call to PG SOFT must leave from our whitelisted static IP.
+// When PGSOFT_PROXY_URL is configured, the request is relayed through the VPS
+// (which owns that static IP) instead of being sent directly.
+export async function pgFetch(url, init = {}) {
+  const cfg = pgConfig();
+  const proxy = (cfg.proxyUrl || '').trim();
+  if (!proxy || proxy.toUpperCase() === 'PENDING') return fetch(url, init);
+
+  return fetch(proxy.replace(/\/+$/, '') + '/relay', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Relay-Token': cfg.proxyToken,
+    },
+    body: JSON.stringify({
+      url,
+      method: init.method || 'GET',
+      headers: init.headers || {},
+      body: init.body ?? null,
+    }),
+  });
 }
 
 function isPending(v) {

@@ -2,7 +2,7 @@
 // for the logged-in player, calls PG SOFT's GetLaunchURLHTML and returns the
 // HTML code, which the frontend renders as-is (iframe / new window).
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { pgConfig } from '../../shared/pgsoft.ts';
+import { pgConfig, pgFetch } from '../../shared/pgsoft.ts';
 import { findOrCreateWallet } from '../../shared/wallet.ts';
 
 export default async function (req) {
@@ -46,7 +46,7 @@ export default async function (req) {
     if (clientIp) form.set('client_ip', clientIp);
 
     const domain = cfg.apiDomain.replace(/\/+$/, '');
-    const pgRes = await fetch(`${domain}/external-game-launcher/api/v1/GetLaunchURLHTML`, {
+    const pgRes = await pgFetch(`${domain}/external-game-launcher/api/v1/GetLaunchURLHTML`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: form.toString(),
