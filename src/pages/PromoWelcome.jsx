@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Ticket, Loader2, Check, Copy, Gift, ChevronRight } from 'lucide-react';
+import { Ticket, Loader2, Check, Gift, ChevronRight } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
@@ -52,10 +52,6 @@ export default function PromoWelcome() {
 
   const myPromo = profile?.promo_code || (profile?.uid ? 'GB' + profile.uid : '');
   const claimed = !!profile?.promo_claimed;
-
-  const copy = async (text, label) => {
-    try { await navigator.clipboard.writeText(text); toast({ title: `${label} copied` }); } catch { /* ignore */ }
-  };
 
   const claim = async () => {
     if (!code.trim()) { toast({ title: 'Enter a promo code' }); return; }
@@ -138,29 +134,6 @@ export default function PromoWelcome() {
           </div>
         )}
 
-        {/* Share your own promo code */}
-        {myPromo && (
-          <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 500ms ease both' }}>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'rgba(212,175,55,0.14)', border: '1px solid rgba(212,175,55,0.35)' }}>
-                <Gift className="w-4 h-4" style={{ color: '#D4AF37' }} />
-              </div>
-              <div>
-                <h2 className="text-base font-bold" style={{ color: '#D4AF37' }}>Your promo code</h2>
-                <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>Share it — earn 5% on every deposit your referrals make</p>
-              </div>
-            </div>
-            <button
-              onClick={() => copy(myPromo, 'Promo code')}
-              className="w-full px-4 py-3 rounded-2xl flex items-center justify-between gap-2 transition-all active:scale-[0.98]"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.35)' }}
-            >
-              <span className="text-[15px] font-bold tracking-[0.15em]" style={{ color: '#fff' }}>{myPromo}</span>
-              <Copy className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.7)' }} />
-            </button>
-            <button onClick={goHome} className="dash-btn-gold w-full py-3 text-sm">Start Playing</button>
-          </div>
-        )}
       </main>
     </div>
   );
