@@ -14,6 +14,10 @@ import React, { useMemo } from 'react';
 
 const LOGO_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e0ebe2f88_InShot_20260722_150739877.jpg';
 
+// Fallback backdrop so the loading screen is never a plain black stage when a
+// screen doesn't pass its own background image (already preloaded at splash).
+const FALLBACK_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png';
+
 // Stable random particle config so it doesn't re-randomize each render.
 function useParticles(count) {
   return useMemo(() => Array.from({ length: count }, (_, i) => ({
@@ -48,17 +52,16 @@ function CornerFlourish({ className, style }) {
 
 export default function PremiumGameLoader({ progress, title = 'Loading', bgImage }) {
   const particles = useParticles(18);
+  const bg = bgImage || FALLBACK_BG;
 
   return (
     <div
       className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
       style={{ background: 'linear-gradient(to bottom, #0a0805 0%, #1a1208 50%, #0a0805 100%)' }}
     >
-      {/* Optional background photo */}
-      {bgImage && (
-        <div className="absolute inset-0" style={{ backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-      )}
-      {bgImage && <div className="absolute inset-0 bg-black/65" />}
+      {/* Background photo (falls back to the app backdrop) */}
+      <div className="absolute inset-0" style={{ backgroundImage: `url(${bg})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+      <div className="absolute inset-0 bg-black/60" />
 
       {/* Pulsing center radial gold glow */}
       <div
