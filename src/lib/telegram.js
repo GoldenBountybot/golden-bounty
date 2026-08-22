@@ -45,6 +45,20 @@ export function tgUser() {
   return tgWebApp()?.initDataUnsafe?.user || null;
 }
 
+// Numeric Telegram user id of whoever launched the mini app right now.
+// Read from the WebApp bridge, falling back to parsing the signed initData —
+// needed to detect account switching when several Telegram accounts share the
+// same client (the stored session would otherwise keep the previous identity).
+export function tgUserId() {
+  const u = tgUser();
+  if (u?.id) return String(u.id);
+  try {
+    const raw = new URLSearchParams(tgInitData()).get('user');
+    if (raw) return String(JSON.parse(raw).id || '');
+  } catch { /* malformed payload */ }
+  return '';
+}
+
 // Expands the mini app to full height and applies the dark casino chrome.
 export function tgReady() {
   const wa = tgWebApp();

@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { supabase } from '@/api/supabaseClient';
-import { isInsideTelegram, tgInitData, tgReady } from '@/lib/telegram';
+import { isInsideTelegram, tgInitData, tgReady, tgUserId } from '@/lib/telegram';
 import { invoke } from '@/api/supabaseFunctions';
 import { setSession } from '@/api/supabaseAuth';
 
@@ -34,15 +34,29 @@ export const AuthProvider = ({ children }) => {
     setAuthError(null);
     setAppPublicSettings(null);
     const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
+    const inTelegram = isInsideTelegram();
+    // One Telegram client can hold several accounts. The stored Supabase
+    // session belongs to whichever account signed in last, so if a DIFFERENT
+    // Telegram account is launching the app now, drop that session and sign
+    // in fresh — otherwise every account would see the first one's identity.
+    const currentTgId = inTelegram ? tgUserId() : '';
+    let storedTgId = '';
+    try { storedTgId = localStorage.getItem('gb_tg_uid') || ''; } catch { /* private mode */ }
+    const switchedAccount = !!(session?.user && currentTgId && storedTgId && storedTgId !== currentTgId);
+    if (switchedAccount) {
+      try { await supabase.auth.signOut(); } catch { /* already gone */ }
+    }
+
+    if (session?.user && !switchedAccount) {
       await checkUserAuth();
-    } else if (isInsideTelegram()) {
+    } else if (inTelegram) {
       // Opened from the Telegram bot with no session yet → sign the player in
       // (and create their account) automatically, no login screen needed.
       try {
         tgReady();
         const { data } = await invoke('telegramAuth', { initData: tgInitData() });
         await setSession(data.session);
+        try { if (currentTgId) localStorage.setItem('gb_tg_uid', currentTgId); } catch { /* private mode */ }
         await checkUserAuth();
         return;
       } catch {

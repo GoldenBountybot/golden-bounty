@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Loader2, Send } from 'lucide-react';
-import { isInsideTelegram, tgInitData, tgReady } from '@/lib/telegram';
+import { isInsideTelegram, tgInitData, tgReady, tgUserId } from '@/lib/telegram';
 import { invoke } from '@/api/supabaseFunctions';
 import { setSession } from '@/api/supabaseAuth';
 
@@ -16,6 +16,12 @@ export default function TelegramSignIn({ onSignedIn }) {
     try {
       const { data } = await invoke('telegramAuth', { initData: tgInitData() });
       await setSession(data.session);
+      // Remember which Telegram account this session belongs to, so launching
+      // the app from another account in the same client re-authenticates.
+      try {
+        const id = tgUserId();
+        if (id) localStorage.setItem('gb_tg_uid', id);
+      } catch { /* private mode */ }
       onSignedIn?.(data);
     } catch (e) {
       setError(e?.message || 'Sign in failed');

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Ticket, Loader2, Check, Gift, ChevronRight } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import FadeImage from '@/components/FadeImage';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f23530b9f_file_00000000588c81f7b3cdd650f71b7b28.png';
@@ -84,10 +85,10 @@ export default function PromoWelcome() {
     <div className="relative min-h-screen flex flex-col" style={{ background: '#0D0D0D', fontFamily: SANS }}>
       <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.12), transparent 60%)' }} />
 
-      <main className="relative z-10 max-w-none w-full mx-auto flex-1 flex flex-col px-4 py-6 gap-5">
+      <main className="relative z-10 max-w-none w-full mx-auto flex-1 flex flex-col justify-center px-4 py-6 gap-5">
         {/* Banner */}
         <div className="rounded-2xl overflow-hidden border shadow-lg" style={{ borderColor: 'rgba(212,175,55,0.4)', boxShadow: '0 10px 36px rgba(0,0,0,0.6), 0 0 22px rgba(212,175,55,0.18)' }}>
-          <img src={BANNER} alt="Use promo code to get $1 USDT — only for Stack" className="w-full h-auto block" />
+          <FadeImage src={BANNER} alt="Use promo code to get $1 USDT — only for Stack" className="w-full h-auto block" />
         </div>
 
         {checking ? (
