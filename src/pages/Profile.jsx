@@ -166,7 +166,7 @@ export default function Profile() {
   };
 
   const uid = profile?.uid || '';
-  const promoCode = profile?.promo_code || (uid ? 'GB' + uid : '');
+  const promoCode = uid;
   const vip = getVipLevel(totalDeposits);
   const next = getNextVipLevel(totalDeposits);
   const vipRate = vip?.rate ?? BASE_RATE;
@@ -301,12 +301,14 @@ export default function Profile() {
 
           {/* Name + edit */}
           <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: '#fff' }}>
-            {profile?.username || profile?.full_name || t("Player")}
+            {profile?.full_name || profile?.username || t("Player")}
             <button onClick={() => setEditOpen(o => !o)} style={{ color: '#D4AF37' }} className="hover:opacity-80 transition-opacity" title={t("Edit Profile")}>
               <Pencil className="w-3.5 h-3.5" />
             </button>
           </h2>
-          <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.55)' }}>{profile?.email}</p>
+          <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            {profile?.username ? `@${profile.username}` : (profile?.email || '')}
+          </p>
 
           {/* User ID pill with copy */}
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.3)' }}>
