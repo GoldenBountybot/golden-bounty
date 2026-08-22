@@ -90,13 +90,14 @@ export default function Profile() {
     (async () => {
       try {
         let u = await base44.auth.me();
-        if (!u.uid || !/^\d{10}$/.test(String(u.uid))) {
-          const uid = genUid();
-          try { await base44.auth.updateMe({ uid }); u = { ...u, uid }; } catch { /* ignore */ }
+        // Player ID: their Telegram id when available, otherwise a generated one.
+        if (!u.uid) {
+          const uid = String(u.telegram_id || genUid());
+          try { await base44.auth.updateMe({ uid, promo_code: uid }); u = { ...u, uid, promo_code: uid }; } catch { u = { ...u, uid }; }
         }
         if (!active) return;
         setProfile(u);
-        setUsername(u.username || '');
+        setUsername(u.username || u.telegram_username || '');
         setPhone(u.phone || '');
         setBountyAllocation(Number(u?.bounty_allocation ?? 0) + Number(u?.task_bounty ?? 0));
         setTaskBounty(Number(u?.task_bounty ?? 0));
@@ -165,7 +166,7 @@ export default function Profile() {
     try { await navigator.clipboard.writeText(text); toast({ title: `${label} ${t("copied")}` }); } catch { /* ignore */ }
   };
 
-  const uid = profile?.uid || '';
+  const uid = String(profile?.uid || profile?.telegram_id || '');
   const promoCode = uid;
   const vip = getVipLevel(totalDeposits);
   const next = getNextVipLevel(totalDeposits);
@@ -301,13 +302,13 @@ export default function Profile() {
 
           {/* Name + edit */}
           <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: '#fff' }}>
-            {profile?.full_name || profile?.username || t("Player")}
+            {profile?.full_name || [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || profile?.username || profile?.telegram_username || t("Player")}
             <button onClick={() => setEditOpen(o => !o)} style={{ color: '#D4AF37' }} className="hover:opacity-80 transition-opacity" title={t("Edit Profile")}>
               <Pencil className="w-3.5 h-3.5" />
             </button>
           </h2>
           <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
-            {profile?.username ? `@${profile.username}` : (profile?.email || '')}
+            {(profile?.username || profile?.telegram_username) ? `@${profile.username || profile.telegram_username}` : ''}
           </p>
 
           {/* User ID pill with copy */}
