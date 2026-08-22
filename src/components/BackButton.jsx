@@ -1,11 +1,15 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Minimal sharp golden-frame back button.
+// Navigates via the router (no full page reload) so preloaded images,
+// balances and app state survive when leaving a game.
 export default function BackButton({ href = '/', label = 'Back', className = '' }) {
+  const navigate = useNavigate();
   return (
     <button
-      onClick={() => { window.location.href = href; }}
+      onClick={() => navigate(href)}
       title={label}
       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] italic font-bold transition-all hover:brightness-125 active:scale-95 whitespace-nowrap ${className}`}
       style={{

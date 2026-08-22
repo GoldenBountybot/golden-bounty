@@ -181,7 +181,7 @@ export default function MigrateTelegram() {
             <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
               {t('{amount} has been added to your Telegram account. The old login has been disabled.', { amount: `$${Number(result?.moved_balance || 0).toFixed(2)}` })}
             </p>
-            <a href="/profile" className="dash-btn-gold px-6 py-2.5 text-sm">{t('Go to Profile')}</a>
+            <Link to="/profile" className="dash-btn-gold px-6 py-2.5 text-sm">{t('Go to Profile')}</Link>
           </div>
         )}
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   User as UserIcon, Phone, Hash, LogOut, Loader2, Check,
   Wallet, ArrowDownToLine, ArrowUpFromLine, Crown, Gamepad2, Copy, Coins, History,
@@ -65,6 +65,7 @@ const TABS = [
 
 export default function Profile() {
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
   const { balance } = useCasinoBalance();
@@ -341,7 +342,7 @@ export default function Profile() {
 
           {/* Bounty token allocation — shown above VIP & Promo */}
           <button
-            onClick={() => window.location.href = '/airdrop'}
+            onClick={() => navigate('/airdrop')}
             className="w-full px-4 py-3 rounded-2xl flex items-center justify-between gap-2 transition-all active:scale-[0.98]"
             style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.4)' }}
           >
