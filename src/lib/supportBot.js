@@ -1,4 +1,4 @@
-import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/supabaseClient';
 
 // Knowledge base about the Golden Bounty platform that the AI support bot
 // uses to answer user questions intelligently. The bot must NEVER discuss
@@ -98,11 +98,10 @@ CRITICAL: Reply in the EXACT same language the user just wrote in — English, G
 Reply as Bounty Bot:`;
 
   try {
-    const res = await base44.integrations.Core.InvokeLLM({
-      prompt,
-      model: 'gemini_3_flash',
-    });
-    const reply = typeof res === 'string' ? res.trim() : (res?.reply || res?.text || '').toString().trim();
+    const { data, error } = await supabase.functions.invoke('support-bot', { body: { prompt } });
+    if (error) throw error;
+    const reply = (data?.reply || '').toString().trim();
+    if (!reply) throw new Error('empty reply');
     // Show the button if the user asked for an agent OR the bot's reply
     // itself offers to connect the user with a human agent.
     const wantsAgent = userWantsAgent || BOT_AGENT_OFFER.test(reply);
