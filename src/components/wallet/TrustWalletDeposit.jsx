@@ -354,6 +354,25 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
           <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#D4AF37' }}>
             <Loader2 className="w-4 h-4 animate-spin" /> {statusText}
           </div>
+          {status === 'connecting' && (
+            <>
+              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                Waiting for the Trust Wallet app to open. If it didn't open automatically, tap the button below.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button onClick={openTrustApp}
+                  className="flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
+                  style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', boxShadow: '0 4px 14px rgba(59,130,246,0.35)' }}>
+                  <Smartphone className="w-4 h-4" /> Open Wallet
+                </button>
+                <button onClick={() => { setStatus('idle'); setErrMsg(''); setWcUri(''); }}
+                  className="flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
+                  style={{ border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.75)' }}>
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
           {status === 'sending' && (
             <>
               <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
@@ -375,6 +394,18 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
           <QRCodeSVG value={wcUri} size={208} level="M" />
           <p className="text-sm font-bold" style={{ color: '#1a1a1a' }}>Scan this QR with the Trust app</p>
           <p className="text-[11px]" style={{ color: '#888' }}>Trust Wallet app → Settings → WalletConnect</p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <button onClick={openTrustApp}
+              className="flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', boxShadow: '0 4px 14px rgba(59,130,246,0.35)' }}>
+              <Smartphone className="w-4 h-4" /> Open Wallet
+            </button>
+            <button onClick={() => { setStatus('idle'); setErrMsg(''); setWcUri(''); }}
+              className="flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
+              style={{ border: '1px solid rgba(0,0,0,0.15)', background: 'rgba(0,0,0,0.04)', color: '#555' }}>
+              Cancel
+            </button>
+          </div>
         </div>
       )}
 
