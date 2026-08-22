@@ -44,6 +44,7 @@ import LiveSupport from './pages/LiveSupport';
 import Referrals from './pages/Referrals';
 import Events from './pages/Events';
 import Swap from './pages/Swap';
+import MigrateTelegram from './pages/MigrateTelegram';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminRoute from '@/components/AdminRoute';
 import BottomNavLayout from '@/components/BottomNavLayout';
@@ -234,6 +235,7 @@ const AuthenticatedApp = () => {
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/events" element={<Events />} />
           <Route path="/swap" element={<Swap />} />
+          <Route path="/migrate" element={<MigrateTelegram />} />
         </Route>
       </Route>
 

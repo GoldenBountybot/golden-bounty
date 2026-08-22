@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   User as UserIcon, Phone, Hash, LogOut, Loader2, Check,
   Wallet, ArrowDownToLine, ArrowUpFromLine, Crown, Gamepad2, Copy, Coins, History,
-  Menu, Pencil, Ticket, Gift, Users, Sparkles, Clock, CheckCircle2, XCircle, Headphones, ChevronRight, RotateCcw,
+  Menu, Pencil, Ticket, Gift, Users, Sparkles, Clock, CheckCircle2, XCircle, Headphones, ChevronRight, RotateCcw, ArrowRightLeft,
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -234,6 +234,7 @@ export default function Profile() {
                 { to: '/referrals', label: t("Referrals"), Icon: Users, color: '#D4AF37' },
                 { to: '/events', label: t("Events"), Icon: Sparkles, color: '#D4AF37' },
                 { to: '/live-support', label: t("Support 7/24"), Icon: Headphones, color: '#34d399' },
+                { to: '/migrate', label: t("Bind Old Account"), Icon: ArrowRightLeft, color: '#D4AF37' },
               ].map((item) => {
                 const Inner = (
                   <>
