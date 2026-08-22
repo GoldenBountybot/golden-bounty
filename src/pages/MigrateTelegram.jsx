@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { Loader2, Mail, KeyRound, ArrowRightLeft, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { legacySupabase } from '@/lib/legacySupabase';
+import { useLanguage } from '@/lib/LanguageContext';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, sans-serif";
 
 export default function MigrateTelegram() {
+  const { t } = useLanguage();
   const [me, setMe] = useState(null);
   const [step, setStep] = useState('verify'); // verify | confirm | done
   const [mode, setMode] = useState('password'); // password | code
@@ -26,8 +28,8 @@ export default function MigrateTelegram() {
   const loadLegacy = async (userId) => {
     const { data: wallet } = await legacySupabase.from('wallets').select('balance, staked_amount').eq('user_id', userId).maybeSingle();
     const { data: prof } = await legacySupabase.from('profiles').select('email, telegram_id, migrated_to').eq('id', userId).maybeSingle();
-    if (prof?.telegram_id) throw new Error('এই অ্যাকাউন্টটি ইতিমধ্যেই একটি টেলিগ্রাম অ্যাকাউন্ট।');
-    if (prof?.migrated_to) throw new Error('এই অ্যাকাউন্টটি ইতিমধ্যেই ট্রান্সফার করা হয়েছে।');
+    if (prof?.telegram_id) throw new Error(t('This account is already a Telegram account.'));
+    if (prof?.migrated_to) throw new Error(t('This account has already been transferred.'));
     setLegacy({
       id: userId,
       email: prof?.email || email,
@@ -68,7 +70,7 @@ export default function MigrateTelegram() {
     setBusy(true); setError('');
     try {
       const tg = Number(me?.telegram_id);
-      if (!tg) throw new Error('আপনার টেলিগ্রাম অ্যাকাউন্ট পাওয়া যায়নি। টেলিগ্রাম দিয়ে লগইন করুন।');
+      if (!tg) throw new Error(t('Your Telegram account was not found. Please log in with Telegram.'));
       const { data, error: e } = await legacySupabase.rpc('migrate_legacy_to_telegram', { p_tg: tg });
       if (e) throw new Error(e.message);
       setResult(data);
@@ -85,22 +87,21 @@ export default function MigrateTelegram() {
           style={{ border: '1px solid rgba(212,175,55,0.3)', color: '#D4AF37' }}>
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
         </Link>
-        <span className="text-lg font-extrabold" style={{ color: '#D4AF37' }}>পুরনো অ্যাকাউন্ট বাইন্ড</span>
+        <span className="text-lg font-extrabold" style={{ color: '#D4AF37' }}>{t('Bind Old Account')}</span>
       </header>
 
       <main className="px-4 py-4 flex flex-col gap-4 max-w-lg mx-auto">
         <div className="dash-card p-4 flex gap-3 items-start">
           <ShieldCheck className="w-5 h-5 shrink-0" style={{ color: '#34d399' }} />
           <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
-            আপনার পুরনো Google / Email অ্যাকাউন্টের ব্যালেন্স, স্টেক ও হিস্ট্রি এই টেলিগ্রাম অ্যাকাউন্টে চলে আসবে।
-            ট্রান্সফারের সাথে সাথে পুরনো Google / Email লগইন স্থায়ীভাবে বন্ধ হয়ে যাবে।
+            {t('Your old Google / Email account balance, stake and history will move to this Telegram account. The old Google / Email login will be permanently disabled right after the transfer.')}
           </p>
         </div>
 
         {step === 'verify' && (
           <div className="dash-card p-5 flex flex-col gap-3">
             <div className="flex gap-2">
-              {[{ id: 'password', label: 'পাসওয়ার্ড' }, { id: 'code', label: 'ইমেইল কোড' }].map((m) => (
+              {[{ id: 'password', label: t('Password') }, { id: 'code', label: t('Email Code') }].map((m) => (
                 <button key={m.id} onClick={() => { setMode(m.id); setError(''); }}
                   className="flex-1 py-2 rounded-xl text-[12px] font-bold transition-all"
                   style={mode === m.id
@@ -111,7 +112,7 @@ export default function MigrateTelegram() {
               ))}
             </div>
 
-            <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>পুরনো অ্যাকাউন্টের ইমেইল</label>
+            <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Old Account Email')}</label>
             <div className="relative">
               <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(212,175,55,0.6)' }} />
               <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="you@gmail.com"
@@ -120,31 +121,31 @@ export default function MigrateTelegram() {
 
             {mode === 'password' ? (
               <>
-                <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>পাসওয়ার্ড</label>
+                <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Password')}</label>
                 <div className="relative">
                   <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(212,175,55,0.6)' }} />
                   <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="••••••••"
                     className="dash-input w-full pl-10 pr-4 py-2.5 text-sm" />
                 </div>
                 <button onClick={signInPassword} disabled={busy || !email || !password} className="dash-btn-gold py-2.5 text-sm flex items-center justify-center gap-2">
-                  {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} যাচাই করুন
+                  {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {t('Verify now')}
                 </button>
               </>
             ) : (
               <>
                 {!codeSent ? (
                   <button onClick={sendCode} disabled={busy || !email} className="dash-btn-gold py-2.5 text-sm flex items-center justify-center gap-2">
-                    {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} ইমেইলে কোড পাঠান
+                    {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {t('Send code to email')}
                   </button>
                 ) : (
                   <>
-                    <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>ইমেইলে আসা কোড</label>
+                    <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Code sent to your email')}</label>
                     <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="123456"
                       className="dash-input w-full px-4 py-2.5 text-sm tracking-[0.3em]" />
                     <button onClick={verifyCode} disabled={busy || !code} className="dash-btn-gold py-2.5 text-sm flex items-center justify-center gap-2">
-                      {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} কোড যাচাই করুন
+                      {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {t('Verify code')}
                     </button>
-                    <button onClick={sendCode} disabled={busy} className="text-[11px] font-semibold" style={{ color: 'rgba(212,175,55,0.8)' }}>আবার কোড পাঠান</button>
+                    <button onClick={sendCode} disabled={busy} className="text-[11px] font-semibold" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Resend code')}</button>
                   </>
                 )}
               </>
@@ -154,21 +155,21 @@ export default function MigrateTelegram() {
 
         {step === 'confirm' && legacy && (
           <div className="dash-card p-5 flex flex-col gap-4">
-            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>যাচাই সফল — নিচের ব্যালেন্স আপনার টেলিগ্রাম অ্যাকাউন্টে যাবে।</p>
+            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>{t('Verified — the balance below will move to your Telegram account.')}</p>
             <div className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.3)' }}>
               <div>
                 <p className="text-[10px] uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{legacy.email}</p>
                 <p className="text-xl font-extrabold tabular-nums" style={{ color: '#fff' }}>${legacy.balance.toFixed(2)}</p>
-                {legacy.staked > 0 && <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>স্টেক: ${legacy.staked.toFixed(2)}</p>}
+                {legacy.staked > 0 && <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>{t('Stake')}: ${legacy.staked.toFixed(2)}</p>}
               </div>
               <ArrowRightLeft className="w-5 h-5" style={{ color: '#D4AF37' }} />
               <div className="text-right">
-                <p className="text-[10px] uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>টেলিগ্রাম</p>
+                <p className="text-[10px] uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Telegram')}</p>
                 <p className="text-[13px] font-bold" style={{ color: '#fff' }}>@{me?.telegram_username || me?.username || '—'}</p>
               </div>
             </div>
             <button onClick={doMigrate} disabled={busy} className="dash-btn-gold py-3 text-sm flex items-center justify-center gap-2">
-              {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} বাইন্ড ও ট্রান্সফার করুন
+              {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {t('Bind & Transfer')}
             </button>
           </div>
         )}
@@ -176,11 +177,11 @@ export default function MigrateTelegram() {
         {step === 'done' && (
           <div className="dash-card p-6 flex flex-col items-center gap-3 text-center">
             <CheckCircle2 className="w-12 h-12" style={{ color: '#34d399' }} />
-            <p className="text-base font-bold" style={{ color: '#fff' }}>ট্রান্সফার সম্পন্ন</p>
+            <p className="text-base font-bold" style={{ color: '#fff' }}>{t('Transfer Complete')}</p>
             <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              ${Number(result?.moved_balance || 0).toFixed(2)} আপনার টেলিগ্রাম অ্যাকাউন্টে যোগ হয়েছে। পুরনো লগইনটি বন্ধ করে দেওয়া হয়েছে।
+              {t('{amount} has been added to your Telegram account. The old login has been disabled.', { amount: `$${Number(result?.moved_balance || 0).toFixed(2)}` })}
             </p>
-            <a href="/profile" className="dash-btn-gold px-6 py-2.5 text-sm">প্রোফাইলে যান</a>
+            <a href="/profile" className="dash-btn-gold px-6 py-2.5 text-sm">{t('Go to Profile')}</a>
           </div>
         )}
 
