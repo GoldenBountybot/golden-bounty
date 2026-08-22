@@ -157,7 +157,7 @@ const AuthenticatedApp = () => {
   // are already cached when the user taps into a game — near-instant load.
   useEffect(() => {
     if (showLoadingScreen) return;
-    const t = setTimeout(() => { preloadAllGameAssets(); }, 1500);
+    const t = setTimeout(() => { preloadAllGameAssets(); }, 300);
     return () => clearTimeout(t);
   }, [showLoadingScreen]);
 

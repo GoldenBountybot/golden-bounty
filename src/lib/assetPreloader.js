@@ -117,12 +117,13 @@ export async function preloadAllGameAssets() {
   warming = true;
   try {
     const { GAME_ASSET_MAP } = await import('@/lib/gameAssets');
-    const games = Object.values(GAME_ASSET_MAP);
-    // Preload one game's bundle at a time, low priority, so the lobby stays
-    // responsive while the cache fills in the background.
-    for (const assets of games) {
-      if (!assets || !assets.length) continue;
-      await preloadAssets(assets, null, true);
+    const games = Object.values(GAME_ASSET_MAP).filter((a) => a && a.length);
+    // Warm several games at once (still low priority) so the whole game
+    // library is cached quickly after entry instead of trickling in one
+    // game at a time while the player is already tapping into a game.
+    const CONCURRENT = 4;
+    for (let i = 0; i < games.length; i += CONCURRENT) {
+      await Promise.all(games.slice(i, i + CONCURRENT).map((assets) => preloadAssets(assets, null, true)));
     }
   } catch {
     // ignore — background warming is best-effort
