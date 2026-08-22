@@ -58,7 +58,7 @@ import { base44 } from '@/api/base44Client';
 import { SUPABASE_URL } from '@/api/supabaseClient';
 import { isStandaloneApp } from '@/lib/isStandaloneApp';
 
-const MIN_SPLASH_MS = 2100;
+const MIN_SPLASH_MS = 2400;
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -96,7 +96,7 @@ const AuthenticatedApp = () => {
     // they're already cached when phase 2 appears — otherwise the user sees
     // the loading-screen background visibly downloading/popping in.
     const SPLASH_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8c7eb4bd_golden_bounty_fullscreen_vertical.png';
-    const LOADING_BG_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e1d861111_golden_bounty_fullscreen_vertical.png';
+    const LOADING_BG_URL = SPLASH_URL;
     const LOGO_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
     let splashDone = false;
     const markSplash = () => { if (!splashDone) { splashDone = true; setImgReady(true); } };
@@ -107,9 +107,16 @@ const AuthenticatedApp = () => {
     // Warm the loading-screen bg + logo in parallel (don't block phase 1 on them).
     const bgImg = new Image(); bgImg.src = LOADING_BG_URL;
     const logoImg = new Image(); logoImg.src = LOGO_URL;
+  }, []);
+
+  // The zoom reveal only starts once the image is decoded, so the minimum
+  // splash time is measured from that moment — otherwise the loading screen
+  // takes over before the image has grown to full screen.
+  useEffect(() => {
+    if (splashAlreadyShown || !imgReady) return;
     const t = setTimeout(() => setMinDone(true), MIN_SPLASH_MS);
     return () => clearTimeout(t);
-  }, []);
+  }, [imgReady, splashAlreadyShown]);
 
   // Mark the splash as shown in sessionStorage the moment it finishes, so
   // it never reappears on refresh or re-navigation within the same session.
