@@ -1,140 +1,25 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
-import AuthLayout from "@/components/AuthLayout";
-import GoogleIcon from "@/components/GoogleIcon";
-import { useLanguage } from "@/lib/LanguageContext";
+import React from 'react';
+import TelegramSignIn from '@/components/auth/TelegramSignIn';
 
+// Telegram Mini App identity is the only login method for Golden Bounty.
 export default function Login() {
-  const { t } = useLanguage();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      await base44.auth.loginViaEmailPassword(email, password);
-      window.location.href = "/";
-    } catch (err) {
-      setError(err.message || t("Invalid email or password"));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", "/");
+  const handleSignedIn = (data) => {
+    const params = new URLSearchParams(window.location.search);
+    const returnTo = params.get('returnTo');
+    const safeReturn = returnTo && returnTo.startsWith('/') ? returnTo : '/';
+    window.location.href = data?.is_new_user ? '/promo-welcome' : safeReturn;
   };
 
   return (
-    <AuthLayout
-      icon={LogIn}
-      title={t("Welcome back")}
-      subtitle={t("Log in to your account")}
-      footer={
-        <>
-          {t("Don't have an account?")}{" "}
-          <Link to="/register" className="text-amber-300 font-bold hover:underline">
-            {t("Sign up here")}
-          </Link>
-        </>
-      }
-    >
-      <Button
-        variant="outline"
-        className="w-full h-9 text-sm font-medium mb-6"
-        onClick={handleGoogle}
-      >
-        <GoogleIcon className="w-4 h-4 mr-1.5" />
-        {t("Continue with Google")}
-      </Button>
-
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-3 text-muted-foreground">{t("or")}</span>
-        </div>
-      </div>
-
-      {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">{t("Email")}</Label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              autoFocus
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="pl-10 h-9"
-              required
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">{t("Password")}</Label>
-            <Link to="/forgot-password" className="text-xs text-primary hover:underline">
-              {t("Forgot password?")}
-            </Link>
-          </div>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="pl-10 h-9"
-              required
-            />
-          </div>
-        </div>
-        <Button type="submit" className="w-full h-9 font-medium" disabled={loading}>
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-              {t("Logging in...")}
-            </>
-          ) : (
-            t("Log in")
-          )}
-        </Button>
-      </form>
-
-      <Link
-        to="/register"
-        className="w-full h-9 flex items-center justify-center rounded-md text-sm font-bold italic transition-colors mt-3"
-        style={{
-          border: '1px solid rgba(214,178,98,0.6)',
-          background: 'rgba(20,17,13,0.6)',
-          color: '#e8c878',
-          fontFamily: 'Georgia, serif',
-        }}
-      >
-        {t("Create new account")}
-      </Link>
-    </AuthLayout>
+    <div className="min-h-screen w-full flex flex-col items-center justify-center px-6 bg-[#0b0805]">
+      <img
+        src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png"
+        alt="Golden Bounty"
+        className="w-24 h-24 object-contain mb-4"
+      />
+      <h1 className="font-cinzel text-2xl font-bold text-[#d4af37] mb-1">GOLDEN BOUNTY</h1>
+      <p className="text-[#f5e6c8]/50 text-xs tracking-[0.3em] uppercase mb-8">Play · Stake · Earn</p>
+      <TelegramSignIn onSignedIn={handleSignedIn} />
+    </div>
   );
 }

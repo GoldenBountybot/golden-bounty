@@ -55,6 +55,7 @@ import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { preloadAssets, preloadDynamicAssets, preloadAllGameAssets } from '@/lib/assetPreloader';
 import { APP_ASSETS } from '@/lib/appAssets';
 import { base44 } from '@/api/base44Client';
+import { SUPABASE_URL } from '@/api/supabaseClient';
 import { isStandaloneApp } from '@/lib/isStandaloneApp';
 
 const MIN_SPLASH_MS = 2100;
@@ -244,7 +245,7 @@ function App() {
         <QueryClientProvider client={queryClientInstance}>
           <Router>
             <ScrollToTop />
-            <TonConnectUIProvider manifestUrl={`${window.location.origin}/api/apps/6a5698edffaa42a5b6637776/functions/tonconnectManifest`}>
+            <TonConnectUIProvider manifestUrl={`${SUPABASE_URL}/functions/v1/tonconnect-manifest`}>
               <AuthenticatedApp />
             </TonConnectUIProvider>
           </Router>
