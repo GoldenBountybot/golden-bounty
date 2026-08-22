@@ -4,6 +4,7 @@ import { Loader2, Mail, KeyRound, ArrowRightLeft, CheckCircle2, ShieldCheck } fr
 import { base44 } from '@/api/base44Client';
 import { legacySupabase } from '@/lib/legacySupabase';
 import { useLanguage } from '@/lib/LanguageContext';
+import GoogleIcon from '@/components/GoogleIcon';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, sans-serif";
 
@@ -24,6 +25,36 @@ export default function MigrateTelegram() {
   useEffect(() => {
     base44.auth.me().then(setMe).catch(() => setMe(null));
   }, []);
+
+  // Coming back from the legacy Google sign-in: tokens arrive in the URL hash.
+  useEffect(() => {
+    const hash = window.location.hash || '';
+    if (!hash.includes('access_token=')) return;
+    const p = new URLSearchParams(hash.slice(1));
+    (async () => {
+      setBusy(true);
+      try {
+        const { data, error: e } = await legacySupabase.auth.setSession({
+          access_token: p.get('access_token'),
+          refresh_token: p.get('refresh_token') || '',
+        });
+        if (e) throw new Error(e.message);
+        window.history.replaceState(null, '', window.location.pathname);
+        await loadLegacy(data.user.id);
+      } catch (er) { setError(er.message); } finally { setBusy(false); }
+    })();
+  }, []);
+
+  const signInGoogle = async () => {
+    setBusy(true); setError('');
+    try {
+      const { error: e } = await legacySupabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + '/migrate', skipBrowserRedirect: false },
+      });
+      if (e) throw new Error(e.message);
+    } catch (er) { setError(er.message); setBusy(false); }
+  };
 
   const loadLegacy = async (userId) => {
     const { data: wallet } = await legacySupabase.from('wallets').select('balance, staked_amount').eq('user_id', userId).maybeSingle();
@@ -118,6 +149,19 @@ export default function MigrateTelegram() {
                 <button onClick={signInPassword} disabled={busy || !email || !password} className="dash-btn-gold py-2.5 text-sm flex items-center justify-center gap-2">
                   {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {t('Verify now')}
                 </button>
+                <div className="flex items-center gap-2 my-0.5">
+                  <span className="flex-1 h-px" style={{ background: 'rgba(212,175,55,0.25)' }} />
+                  <span className="text-[10px] uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.7)' }}>{t('or')}</span>
+                  <span className="flex-1 h-px" style={{ background: 'rgba(212,175,55,0.25)' }} />
+                </div>
+                <button onClick={signInGoogle} disabled={busy}
+                  className="py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2"
+                  style={{ background: '#fff', color: '#1a1408' }}>
+                  <GoogleIcon className="w-4 h-4" /> {t('Verify with Google')}
+                </button>
+                <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  {t('If you created the old account with Google, verify with Google — no password needed.')}
+                </p>
               </>
             ) : (
               <>

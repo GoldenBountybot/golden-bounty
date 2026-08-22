@@ -9,6 +9,9 @@ export const legacySupabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     persistSession: false,
     autoRefreshToken: false,
     detectSessionInUrl: false,
+    // Implicit flow: the Google redirect comes back with tokens in the URL
+    // hash, so no PKCE verifier needs to survive in storage.
+    flowType: 'implicit',
     storageKey: 'gb_legacy_auth',
   },
 });
