@@ -1,17 +1,44 @@
 // Telegram Mini App helpers. The app runs inside Telegram, so the WebApp
 // bridge provides the signed initData used as the only login identity.
 
+const CACHE_KEY = 'gb_tg_init_data';
+
 export function tgWebApp() {
   return typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 }
 
-export function isInsideTelegram() {
-  const wa = tgWebApp();
-  return !!(wa && wa.initData && wa.initData.length > 0);
+// Telegram Web (web.telegram.org / a-version) launches the mini app inside an
+// iframe and passes the signed payload in the URL hash as `tgWebAppData`.
+// The official script normally parses it, but on some web clients the hash is
+// gone by the time it runs (redirects, router rewrites), so read it ourselves
+// and cache it for the rest of the session.
+function fromUrl() {
+  if (typeof window === 'undefined') return '';
+  const grab = (str) => {
+    if (!str) return '';
+    const params = new URLSearchParams(str.replace(/^[#?]/, ''));
+    return params.get('tgWebAppData') || '';
+  };
+  return grab(window.location.hash) || grab(window.location.search);
+}
+
+function cached() {
+  try { return sessionStorage.getItem(CACHE_KEY) || ''; } catch { return ''; }
+}
+
+function cache(value) {
+  if (!value) return;
+  try { sessionStorage.setItem(CACHE_KEY, value); } catch { /* private mode */ }
 }
 
 export function tgInitData() {
-  return tgWebApp()?.initData || '';
+  const data = tgWebApp()?.initData || fromUrl() || cached();
+  cache(data);
+  return data;
+}
+
+export function isInsideTelegram() {
+  return tgInitData().length > 0;
 }
 
 export function tgUser() {
