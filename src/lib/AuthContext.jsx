@@ -35,25 +35,23 @@ export const AuthProvider = ({ children }) => {
     setAppPublicSettings(null);
     const { data: { session } } = await supabase.auth.getSession();
     const inTelegram = isInsideTelegram();
-    // One Telegram client can hold several accounts. The stored Supabase
-    // session belongs to whichever account signed in last, so if a DIFFERENT
-    // Telegram account is launching the app now, drop that session and sign
-    // in fresh — otherwise every account would see the first one's identity.
-    const currentTgId = inTelegram ? tgUserId() : '';
-    let storedTgId = '';
-    try { storedTgId = localStorage.getItem('gb_tg_uid') || ''; } catch { /* private mode */ }
-    const switchedAccount = !!(session?.user && currentTgId && storedTgId && storedTgId !== currentTgId);
-    if (switchedAccount) {
-      try { await supabase.auth.signOut(); } catch { /* already gone */ }
-    }
 
-    if (session?.user && !switchedAccount) {
-      await checkUserAuth();
-    } else if (inTelegram) {
-      // Opened from the Telegram bot with no session yet → sign the player in
-      // (and create their account) automatically, no login screen needed.
+    if (inTelegram) {
+      // A Telegram client can hold several accounts, and the launch data always
+      // tells us WHICH account is opening the app right now. So inside Telegram
+      // we always re-authenticate from that launch data instead of trusting the
+      // session left behind by whoever used the app last — that way every
+      // Telegram ID lands on its own player profile and wallet.
       try {
         tgReady();
+        const currentTgId = tgUserId();
+        let storedTgId = '';
+        try { storedTgId = localStorage.getItem('gb_tg_uid') || ''; } catch { /* private mode */ }
+        // Different account than the stored session → clear it first so no
+        // stale identity or cached data from the previous account survives.
+        if (session?.user && currentTgId && storedTgId !== currentTgId) {
+          try { await supabase.auth.signOut(); } catch { /* already gone */ }
+        }
         const { data } = await invoke('telegramAuth', { initData: tgInitData() });
         await setSession(data.session);
         try { if (currentTgId) localStorage.setItem('gb_tg_uid', currentTgId); } catch { /* private mode */ }
@@ -64,6 +62,9 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
         setAuthChecked(true);
       }
+    } else if (session?.user) {
+      // Outside Telegram (browser session) — keep the existing session.
+      await checkUserAuth();
     } else {
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
