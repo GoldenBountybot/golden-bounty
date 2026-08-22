@@ -49,6 +49,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminRoute from '@/components/AdminRoute';
 import BottomNavLayout from '@/components/BottomNavLayout';
 import NotificationToaster from '@/components/NotificationToaster';
+import PromoWelcomeGate from '@/components/PromoWelcomeGate';
 import AppLoadingImage from '@/components/AppLoadingImage';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
 import { LanguageProvider } from '@/lib/LanguageContext';
@@ -184,6 +185,7 @@ const AuthenticatedApp = () => {
   return (
     <>
     <NotificationToaster />
+    <PromoWelcomeGate />
     <Routes>
       {/* Public auth pages — no login required */}
       <Route path="/login" element={<Login />} />

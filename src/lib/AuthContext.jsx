@@ -1,6 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { supabase } from '@/api/supabaseClient';
+import { isInsideTelegram, tgInitData, tgReady } from '@/lib/telegram';
+import { invoke } from '@/api/supabaseFunctions';
+import { setSession } from '@/api/supabaseAuth';
 
 const AuthContext = createContext();
 
@@ -33,6 +36,20 @@ export const AuthProvider = ({ children }) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       await checkUserAuth();
+    } else if (isInsideTelegram()) {
+      // Opened from the Telegram bot with no session yet → sign the player in
+      // (and create their account) automatically, no login screen needed.
+      try {
+        tgReady();
+        const { data } = await invoke('telegramAuth', { initData: tgInitData() });
+        await setSession(data.session);
+        await checkUserAuth();
+        return;
+      } catch {
+        setIsLoadingAuth(false);
+        setIsAuthenticated(false);
+        setAuthChecked(true);
+      }
     } else {
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
