@@ -130,7 +130,15 @@ export default function PayMethod() {
   // Restore the phantom-sol view after a Phantom deep-link redirect (the
   // return URL carries method=phantom-sol so the deposit component remounts
   // and can process the encrypted connect/sign response params).
-  const [view, setView] = useState(params.get('method') === 'phantom-sol' ? 'phantom-sol' : 'choose'); // 'choose' | 'usdt' | 'usdc' | 'crypto' | 'binance'
+  // Leaving the app for an external wallet can make the mobile/Telegram
+  // webview reload on return, so remember which payment screen was open and
+  // restore it instead of dropping the user back on "Choose Payment".
+  const savedView = (() => { try { return sessionStorage.getItem('gb_pay_view') || ''; } catch { return ''; } })();
+  const [view, setView] = useState(params.get('method') === 'phantom-sol' ? 'phantom-sol' : (savedView || 'choose')); // 'choose' | 'usdt' | 'usdc' | 'crypto' | 'binance'
+
+  useEffect(() => {
+    try { sessionStorage.setItem('gb_pay_view', view); } catch { /* private mode */ }
+  }, [view]);
   const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, usdc: USDC_NETWORKS, crypto: CRYPTO_NETWORKS });
   const [enteredAmount, setEnteredAmount] = useState('');
   const [prices, setPrices] = useState({});
