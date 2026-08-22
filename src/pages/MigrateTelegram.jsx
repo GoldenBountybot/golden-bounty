@@ -100,18 +100,6 @@ export default function MigrateTelegram() {
 
         {step === 'verify' && (
           <div className="dash-card p-5 flex flex-col gap-3">
-            <div className="flex gap-2">
-              {[{ id: 'password', label: t('Password') }, { id: 'code', label: t('Email Code') }].map((m) => (
-                <button key={m.id} onClick={() => { setMode(m.id); setError(''); }}
-                  className="flex-1 py-2 rounded-xl text-[12px] font-bold transition-all"
-                  style={mode === m.id
-                    ? { background: 'linear-gradient(135deg, #FFD700, #C89B3C)', color: '#1a1408' }
-                    : { border: '1px solid rgba(212,175,55,0.25)', color: '#D4AF37' }}>
-                  {m.label}
-                </button>
-              ))}
-            </div>
-
             <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Old Account Email')}</label>
             <div className="relative">
               <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(212,175,55,0.6)' }} />
