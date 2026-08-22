@@ -26,7 +26,7 @@ export default function AdminGameSettings() {
       });
       toast({ title: 'Game setting saved' });
       load();
-    } catch { toast({ title: 'Failed to save' }); }
+    } catch (e) { toast({ title: 'Failed to save', description: e?.message || 'Unknown error' }); }
   };
 
   return (

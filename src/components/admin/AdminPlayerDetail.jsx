@@ -75,11 +75,12 @@ export default function AdminPlayerDetail({ user, onBack, onSaved }) {
       // Balance AND per-player RTP are both set on the RLS-protected Wallet
       // entity via one adminAdjustWallet call (admin-only write). RTP no
       // longer goes through User.update — that was hackable via updateMe.
-      await base44.functions.invoke('adminAdjustWallet', { user_id: user.id, set_balance: true, delta: Number(balance), rtp: Number(rtp) });
+      const res = await base44.functions.invoke('adminAdjustWallet', { user_id: user.id, set_balance: true, delta: Number(balance), rtp: Number(rtp) });
+      if (res?.error || res?.data?.error) throw new Error(res.error?.message || res.data.error);
       toast({ title: 'Player updated' });
       onSaved?.();
-    } catch {
-      toast({ title: 'Update failed' });
+    } catch (e) {
+      toast({ title: 'Update failed', description: e?.message || 'Unknown error' });
     } finally {
       setSaving(false);
     }
