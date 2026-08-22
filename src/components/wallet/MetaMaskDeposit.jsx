@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, ChevronDown, LogOut } from 'lucide-react';
-import { getMetaMaskSdk, disconnectMetaMask, onMetaMaskUri, getInjectedMetaMask } from '@/lib/metaMaskSdk';
+import { getMetaMaskSdk, disconnectMetaMask, onMetaMaskUri, getInjectedMetaMask, preloadMetaMask } from '@/lib/metaMaskSdk';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
@@ -66,6 +66,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       try { window.open('https://metamask.app.link', '_blank'); } catch {}
     }
   };
+
+  // Warm the SDK up front so the connect request reaches MetaMask instantly.
+  useEffect(() => { preloadMetaMask(); }, []);
 
   useEffect(() => { if (!nativeSupported && payAsset === 'native') setPayAsset('usdt'); }, [netKey]);
   useEffect(() => {
@@ -182,8 +185,6 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
     try {
-      await new Promise((r) => setTimeout(r, 800));
-
       if (payAsset === 'native') {
         const pr = price || (await getCryptoPrices())[nativeKey] || 0;
         if (!pr) { setErrMsg('Could not fetch coin price. Please try again.'); setStatus('error'); return; }
@@ -200,9 +201,15 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
 
       const data = '0xa9059cbb' + pad32(net.admin).slice(2) + pad32(toHexAmount(amount, net.decimals)).slice(2);
       const to = net.usdt.toLowerCase();
-      let gas = '0x' + (60000).toString(16);
+      // Gas estimation over a mobile relay can hang for many seconds. Give it
+      // a short window and fall back to the safe default so the transaction
+      // request reaches the wallet without delay.
+      let gas = '0x' + (120000).toString(16);
       try {
-        const est = await p.request({ method: 'eth_estimateGas', params: [{ from: acct, to, data, value: '0x0' }] });
+        const est = await Promise.race([
+          p.request({ method: 'eth_estimateGas', params: [{ from: acct, to, data, value: '0x0' }] }),
+          new Promise((r) => setTimeout(() => r(null), 1500)),
+        ]);
         if (typeof est === 'string' && est.startsWith('0x')) gas = est;
       } catch {}
       const txHash = await p.request({

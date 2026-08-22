@@ -32,6 +32,16 @@ export function getMetaMaskSdk() {
   return sdkInstance;
 }
 
+// Pre-warm the SDK (create + init) so tapping Connect doesn't pay the
+// initialisation cost — the wallet request goes out immediately instead.
+export async function preloadMetaMask() {
+  try {
+    const sdk = getMetaMaskSdk();
+    if (typeof sdk.init === 'function') await sdk.init();
+  } catch { /* connect() will init again if needed */ }
+  return true;
+}
+
 export function onMetaMaskUri(cb) {
   uriSubscriber = cb;
 }
