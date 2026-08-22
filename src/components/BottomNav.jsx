@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/lib/LanguageContext';
+import FadeImage from '@/components/FadeImage';
 
 
 // Minimal premium bottom bar — sharp gold top trim, dark glass.
@@ -13,10 +14,11 @@ export default function BottomNav() {
       onClick={onClick}
       className="group flex flex-col items-center justify-center gap-0.5 py-1.5 transition-all hover:brightness-125 active:scale-95"
     >
-      <img
+      <FadeImage
         src={src}
         alt={label}
         draggable={false}
+        durationMs={250}
         className="block w-11 h-11 lg:w-14 lg:h-14 select-none transition-all group-hover:scale-105"
         style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 2px 6px rgba(200,136,30,0.4))' }}
       />
@@ -63,10 +65,11 @@ export default function BottomNav() {
                 filter: 'drop-shadow(0 3px 8px rgba(200,136,30,0.55))',
               }}
             >
-              <img
+              <FadeImage
                 src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a37f15d57_file_00000000710c8207a086cbd3402c46e3.png"
                 alt="777 Play"
                 draggable={false}
+                durationMs={250}
                 className="block w-full h-full object-cover select-none"
                 style={{ mixBlendMode: 'screen' }}
               />

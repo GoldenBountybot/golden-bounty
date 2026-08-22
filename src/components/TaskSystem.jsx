@@ -3,6 +3,11 @@ import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/LanguageContext';
 import { Loader2, Check, Gift, ExternalLink } from 'lucide-react';
+import FadeImage from '@/components/FadeImage';
+
+// Session cache of the task list, so re-opening Profile shows the tasks
+// instantly instead of a spinner while the same list is refetched.
+let TASKS_CACHE = null;
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const BOUNTY_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
@@ -28,8 +33,8 @@ const TASK_BRAND = {
 export default function TaskSystem({ profile, onClaimed }) {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks] = useState(TASKS_CACHE || []);
+  const [loading, setLoading] = useState(!TASKS_CACHE);
   const [claiming, setClaiming] = useState(null);
   const [claimedSet, setClaimedSet] = useState(new Set());
   const [opened, setOpened] = useState(new Set());
@@ -39,6 +44,7 @@ export default function TaskSystem({ profile, onClaimed }) {
     (async () => {
       try {
         const list = await base44.entities.TaskLink.filter({ active: true }, 'order', 50);
+        TASKS_CACHE = list;
         if (active) setTasks(list);
       } catch { /* ignore */ }
       if (active) setLoading(false);
@@ -120,7 +126,7 @@ export default function TaskSystem({ profile, onClaimed }) {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold" style={{ color: '#fff' }}>{task.label}</p>
               <p className="text-[11px] flex items-center gap-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                <img src={BOUNTY_LOGO} alt="Bounty" className="w-3.5 h-3.5" style={{ mixBlendMode: 'screen' }} />
+                <FadeImage src={BOUNTY_LOGO} alt="Bounty" durationMs={250} className="w-3.5 h-3.5" style={{ mixBlendMode: 'screen' }} />
                 +{reward} BOUNTY
               </p>
             </div>
