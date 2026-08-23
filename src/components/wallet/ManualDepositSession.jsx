@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import { base44 } from '@/api/base44Client';
 import { reloadBalance } from '@/lib/useCasinoBalance';
@@ -44,15 +45,33 @@ export default function ManualDepositSession({ amount, method, network, onBack }
   const [checking, setChecking] = useState(false);
   const [showTx, setShowTx] = useState(false);
   const reqRef = useRef(null);
+  const storeKey = `gb_mdr_${method}_${network.name}`;
+
+  // Reuse a still-valid request that was saved before the user left the app
+  // for their wallet, so the unique amount and countdown survive a webview
+  // reload — a new amount is only requested when the old one is gone/expired.
+  const restore = () => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(storeKey) || 'null');
+      if (saved && Number(saved.amount_usd) === Number(amount) && new Date(saved.expires_at).getTime() > Date.now()) return saved;
+    } catch { /* private mode */ }
+    return null;
+  };
 
   const create = async () => {
+    const saved = restore();
+    if (saved) { reqRef.current = saved; setReq(saved); setPhase('waiting'); return; }
     setPhase('creating');
     const key = dispatchKeyFor(network.name) || dispatchKeyFor(network.network) || '';
     try {
       const res = await base44.functions.invoke('manualDepositCreate', {
         networkKey: key, networkLabel: network.name, address: network.address, method, amount,
       });
-      if (res?.data?.ok) { reqRef.current = res.data; setReq(res.data); setPhase('waiting'); }
+      if (res?.data?.ok) {
+        const r = { ...res.data, amount_usd: amount };
+        reqRef.current = r; setReq(r); setPhase('waiting');
+        try { sessionStorage.setItem(storeKey, JSON.stringify(r)); } catch { /* private mode */ }
+      }
       else if (res?.data?.reason === 'unsupported-network') setPhase('fallback');
       else setPhase('error');
     } catch { setPhase('error'); }
@@ -71,8 +90,13 @@ export default function ManualDepositSession({ amount, method, network, onBack }
     try {
       const res = await base44.functions.invoke('manualDepositCheck', { id: r.id });
       const st = res?.data?.status;
-      if (st === 'completed') { setPhase('completed'); reloadBalance(); }
-      else if (st === 'expired') setPhase('expired');
+      if (st === 'completed') {
+        setPhase('completed'); reloadBalance();
+        try { sessionStorage.removeItem(storeKey); } catch { /* private mode */ }
+      } else if (st === 'expired') {
+        setPhase('expired');
+        try { sessionStorage.removeItem(storeKey); } catch { /* private mode */ }
+      }
     } catch { /* transient — next poll retries */ } finally { setChecking(false); }
   };
 
@@ -80,12 +104,18 @@ export default function ManualDepositSession({ amount, method, network, onBack }
     if (phase !== 'waiting') return;
     const iv = setInterval(check, 15000);
     const first = setTimeout(check, 4000);
-    return () => { clearInterval(iv); clearTimeout(first); };
+    // Coming back from the wallet app — check right away instead of waiting.
+    const onVisible = () => { if (document.visibilityState === 'visible') check(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => { clearInterval(iv); clearTimeout(first); document.removeEventListener('visibilitychange', onVisible); };
   }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const msLeft = req ? Math.max(0, new Date(req.expires_at).getTime() - now) : 0;
   useEffect(() => {
-    if (phase === 'waiting' && req && msLeft <= 0) setPhase('expired');
+    if (phase === 'waiting' && req && msLeft <= 0) {
+      setPhase('expired');
+      try { sessionStorage.removeItem(storeKey); } catch { /* private mode */ }
+    }
   }, [msLeft, phase, req]);
 
   const mm = String(Math.floor(msLeft / 60000)).padStart(2, '0');
@@ -109,7 +139,7 @@ export default function ManualDepositSession({ amount, method, network, onBack }
         <p className="text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>
           {t('{amount} has been credited to your balance.', { amount: `$${Number(amount).toFixed(2)}` })}
         </p>
-        <button onClick={() => { window.location.href = '/dashboard'; }} className="dash-btn-gold px-6 py-2.5 text-sm">{t('Go to Dashboard')}</button>
+        <Link to="/dashboard" className="dash-btn-gold px-6 py-2.5 text-sm">{t('Go to Dashboard')}</Link>
       </div>
     );
   }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BackButton from '@/components/BackButton';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
@@ -127,6 +128,7 @@ export default function PayMethod() {
   const { toast } = useToast();
   const { t } = useLanguage();
   const { demoMode } = useCasinoBalance();
+  const navigate = useNavigate();
   // Restore the phantom-sol view after a Phantom deep-link redirect (the
   // return URL carries method=phantom-sol so the deposit component remounts
   // and can process the encrypted connect/sign response params).
@@ -140,7 +142,19 @@ export default function PayMethod() {
     try { sessionStorage.setItem('gb_pay_view', view); } catch { /* private mode */ }
   }, [view]);
   const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, usdc: USDC_NETWORKS, crypto: CRYPTO_NETWORKS });
-  const [selNet, setSelNet] = useState(null); // selected network → unique-amount deposit session
+  // The chosen network is remembered too, so leaving the app for a wallet and
+  // coming back (even if the webview reloads) restores the exact same deposit
+  // screen instead of dropping the user back on the network list.
+  const [selNet, setSelNet] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem('gb_pay_net') || 'null'); } catch { return null; }
+  });
+
+  useEffect(() => {
+    try {
+      if (selNet) sessionStorage.setItem('gb_pay_net', JSON.stringify(selNet));
+      else sessionStorage.removeItem('gb_pay_net');
+    } catch { /* private mode */ }
+  }, [selNet]);
   const [enteredAmount, setEnteredAmount] = useState('');
   const [prices, setPrices] = useState({});
 
@@ -177,7 +191,7 @@ export default function PayMethod() {
   const confirmAmount = () => {
     const n = Number(enteredAmount);
     if (!n || n < 3) { toast({ title: t("Minimum deposit is $3.00") }); return; }
-    window.location.href = `/pay?amount=${encodeURIComponent(n)}`;
+    navigate(`/pay?amount=${encodeURIComponent(n)}`, { replace: true });
   };
 
   useEffect(() => {
@@ -244,7 +258,7 @@ export default function PayMethod() {
             <AlertTriangle className="w-8 h-8" style={{ color: '#D4AF37' }} />
             <p className="text-sm font-semibold" style={{ color: '#fff' }}>{t("Demo Mode is active.")}</p>
             <p className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>{t("Deposits are disabled while using the practice balance. Turn off Demo from the home page to deposit real funds.")}</p>
-            <button onClick={() => window.location.href = '/'} className="dash-btn-gold px-5 py-2.5 text-sm">{t("Back to Home")}</button>
+            <button onClick={() => navigate('/')} className="dash-btn-gold px-5 py-2.5 text-sm">{t("Back to Home")}</button>
           </div>
         ) : amount <= 0 ? (
           <div className="dash-card p-5 flex flex-col items-center gap-3 text-center" style={{ animation: 'dashFadeIn 300ms ease both' }}>
@@ -346,7 +360,7 @@ export default function PayMethod() {
           <TrustWalletDeposit
             amount={amount}
             onBack={() => { setView('choose'); }}
-            onDone={() => { window.location.href = '/dashboard'; }}
+            onDone={() => { navigate('/dashboard'); }}
           />
         )}
 
@@ -354,14 +368,14 @@ export default function PayMethod() {
           <MetaMaskDeposit
             amount={amount}
             onBack={() => { setView('choose'); }}
-            onDone={() => { window.location.href = '/dashboard'; }}
+            onDone={() => { navigate('/dashboard'); }}
           />
         )}
 
         {view === 'phantom-sol' && (
           <PhantomSolanaDeposit
             amount={amount}
-            onDone={() => { window.location.href = '/dashboard'; }}
+            onDone={() => { navigate('/dashboard'); }}
           />
         )}
 
@@ -369,7 +383,7 @@ export default function PayMethod() {
           <TonkeeperDeposit
             amount={amount}
             onBack={() => { setView('choose'); }}
-            onDone={() => { window.location.href = '/dashboard'; }}
+            onDone={() => { navigate('/dashboard'); }}
           />
         )}
         </>
