@@ -10,7 +10,10 @@ export default function AdminGameSettings() {
 
   const load = async () => {
     setLoading(true);
-    try { setRows(await base44.entities.GameSetting.list()); }
+    // Always the same order — an unordered list came back reshuffled after
+    // every save, so a card would suddenly show another game's RTP and it
+    // looked like lowering the value raised it.
+    try { setRows(await base44.entities.GameSetting.list('game_id')); }
     catch { toast({ title: 'Failed to load' }); }
     setLoading(false);
   };
@@ -24,8 +27,7 @@ export default function AdminGameSettings() {
         rtp: Number(r.rtp), demo_rtp: Number(r.demo_rtp ?? 50), enabled: r.enabled,
         min_bet: Number(r.min_bet), max_bet: Number(r.max_bet),
       });
-      toast({ title: 'Game setting saved' });
-      load();
+      toast({ title: `Saved — RTP ${Number(r.rtp)}%` });
     } catch (e) { toast({ title: 'Failed to save', description: e?.message || 'Unknown error' }); }
   };
 

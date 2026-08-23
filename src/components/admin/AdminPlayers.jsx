@@ -20,7 +20,7 @@ export default function AdminPlayers() {
     setLoading(true);
     try {
       const [ulist, wlist] = await Promise.all([
-        base44.entities.User.list(),
+        base44.entities.User.list('-created_date', 1000),
         base44.entities.Wallet.list('-created_date', 500),
       ]);
       setUsers(ulist);
@@ -39,7 +39,9 @@ export default function AdminPlayers() {
     return users.filter(u =>
       (u.uid && u.uid.includes(q)) ||
       (u.email && u.email.toLowerCase().includes(q)) ||
-      (u.username && u.username.toLowerCase().includes(q))
+      (u.username && u.username.toLowerCase().includes(q)) ||
+      (u.telegram_username && u.telegram_username.toLowerCase().includes(q)) ||
+      (u.full_name && u.full_name.toLowerCase().includes(q))
     );
   }, [users, query]);
 
@@ -84,7 +86,7 @@ export default function AdminPlayers() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by UID, email or username"
+          placeholder="Search by UID, name, email or username"
           className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-black/40 border border-amber-700/40 text-amber-100 placeholder-amber-100/40 outline-none focus:border-amber-500 text-sm"
           style={{ fontFamily: 'Georgia, serif' }}
         />
@@ -98,7 +100,9 @@ export default function AdminPlayers() {
         <WesternFrame key={u.id} className="p-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-amber-100 truncate">{u.email}</p>
+              <p className="font-bold text-amber-100 truncate">{u.full_name || u.first_name || 'Unnamed player'}</p>
+              <p className="text-xs text-amber-300/80 truncate">@{u.username || u.telegram_username || '—'}</p>
+              <p className="text-xs text-amber-100/60 truncate">{u.email}</p>
               <p className="text-xs text-amber-100/60 flex items-center gap-1"><Hash className="w-3 h-3 text-amber-400/60" />{u.uid || '—'}</p>
               <p className="text-xs text-amber-100/60">Role: {u.role} · Phone: {u.phone || '—'}</p>
               <p className="text-xs text-amber-100/60 flex items-center gap-1">
