@@ -8,7 +8,7 @@ import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
 import MetaMaskDeposit from '@/components/wallet/MetaMaskDeposit';
 import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
 import PhantomSolanaDeposit from '@/components/wallet/PhantomSolanaDeposit';
-import TxIdRow from '@/components/wallet/TxIdSubmit';
+import ManualDepositSession from '@/components/wallet/ManualDepositSession';
 import { useLanguage } from '@/lib/LanguageContext';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 
@@ -140,6 +140,7 @@ export default function PayMethod() {
     try { sessionStorage.setItem('gb_pay_view', view); } catch { /* private mode */ }
   }, [view]);
   const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, usdc: USDC_NETWORKS, crypto: CRYPTO_NETWORKS });
+  const [selNet, setSelNet] = useState(null); // selected network → unique-amount deposit session
   const [enteredAmount, setEnteredAmount] = useState('');
   const [prices, setPrices] = useState({});
 
@@ -218,7 +219,7 @@ export default function PayMethod() {
       >
         <div className="max-w-none mx-auto px-4 py-3 flex items-center gap-3">
           {view !== 'choose' ? (
-            <button onClick={() => { setView('choose'); }}
+            <button onClick={() => { if (selNet) { setSelNet(null); } else { setView('choose'); } }}
               className="flex items-center gap-1.5 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
               style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
               <ArrowLeft className="w-4 h-4" /> Back
@@ -306,38 +307,37 @@ export default function PayMethod() {
           </div>
         )}
 
-        {view !== 'choose' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-            <p className="text-[13px] lg:col-span-2" style={{ color: 'rgba(255,255,255,0.7)' }}>{t("Send to one of the addresses below to deposit.")}</p>
+        {(view === 'usdt' || view === 'usdc' || view === 'crypto') && selNet && (
+          <ManualDepositSession
+            key={selNet.name}
+            amount={amount}
+            method={view}
+            network={selNet}
+            onBack={() => setSelNet(null)}
+          />
+        )}
+
+        {(view === 'usdt' || view === 'usdc' || view === 'crypto') && !selNet && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
+            <p className="text-[13px] lg:col-span-2" style={{ color: 'rgba(255,255,255,0.7)' }}>{t("Choose a network — you'll get a unique amount to send. We detect your payment and credit automatically.")}</p>
             {networks.map((n, i) => (
-              <div key={i} className="dash-card p-4 flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both', animationDelay: (50 * i) + 'ms' }}>
-                <div className="flex items-center gap-3">
-                  <CoinLogo symbol={n.symbol} color={n.color} logo={n.logo} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold" style={{ color: '#fff' }}>{n.name}</p>
-                  </div>
-                  <CopyAddr addr={n.address} />
+              <button key={i} onClick={() => setSelNet(n)}
+                className="dash-card p-4 flex items-center gap-3 text-left transition-all active:scale-[0.98]"
+                style={{ animation: 'dashFadeIn 400ms ease both', animationDelay: (50 * i) + 'ms' }}>
+                <CoinLogo symbol={n.symbol} color={n.color} logo={n.logo} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold" style={{ color: '#fff' }}>{n.name}</p>
+                  {(() => {
+                    const eq = equivAmount(n);
+                    if (eq == null) return null;
+                    const key = (n.network && priceKeyFor(n.network)) || priceKeyFor(n.name);
+                    const coin = (key === 'usdt' || key === 'usdc') ? key.toUpperCase() : (key || '').toUpperCase();
+                    const decimals = (key === 'btc') ? 6 : (key === 'usdt' || key === 'usdc') ? 2 : 4;
+                    return <p className="text-[11px] mt-0.5 tabular-nums" style={{ color: 'rgba(255,255,255,0.55)' }}>≈ {eq.toFixed(decimals)} {coin}</p>;
+                  })()}
                 </div>
-                {(() => {
-                  const eq = equivAmount(n);
-                  if (eq == null) return null;
-                  const key = (n.network && priceKeyFor(n.network)) || priceKeyFor(n.name);
-                  const coin = (key === 'usdt' || key === 'usdc') ? (key === 'usdt' ? 'USDT' : 'USDC') : (key || '').toUpperCase();
-                  const decimals = (key === 'btc') ? 6 : (key === 'usdt' || key === 'usdc') ? 2 : 4;
-                  return (
-                    <div className="flex items-center justify-between rounded-[12px] px-3 py-2" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)' }}>
-                      <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'rgba(212,175,55,0.85)' }}>{t("Send exactly")}</span>
-                      <span className="text-sm font-extrabold tabular-nums" style={{ color: '#fff' }}>
-                        ≈ {eq.toFixed(decimals)} <span style={{ color: '#D4AF37' }}>{coin}</span>
-                      </span>
-                    </div>
-                  );
-                })()}
-                <div className="rounded-[14px] px-3 py-2.5" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(212,175,55,0.18)' }}>
-                  <p className="text-[12px] break-all font-mono" style={{ color: 'rgba(255,255,255,0.85)' }}>{n.address}</p>
-                </div>
-                <TxIdRow amount={amount} method={view} network={n.name} />
-              </div>
+                <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="#D4AF37" strokeWidth="2.2" strokeLinecap="round"><path d="M9 6l6 6-6 6" /></svg>
+              </button>
             ))}
           </div>
         )}
