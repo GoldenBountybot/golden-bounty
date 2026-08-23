@@ -51,7 +51,6 @@ import BottomNavLayout from '@/components/BottomNavLayout';
 import NotificationToaster from '@/components/NotificationToaster';
 import TelegramBackButton from '@/components/TelegramBackButton';
 import PromoWelcomeGate from '@/components/PromoWelcomeGate';
-import AppLoadingImage from '@/components/AppLoadingImage';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
 import { LanguageProvider } from '@/lib/LanguageContext';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
@@ -62,82 +61,30 @@ import { SUPABASE_URL } from '@/api/supabaseClient';
 import { isStandaloneApp } from '@/lib/isStandaloneApp';
 import { warmProfileCache } from '@/lib/profileCache';
 
-const MIN_SPLASH_MS = 2400;
-
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const loading = isLoadingPublicSettings || isLoadingAuth;
 
-  // Keep the branded splash visible until the app has finished loading AND the
-  // image has finished downloading AND a minimum splash duration has elapsed,
-  // so users actually see it instead of a flash.
-  // Show the splash image ONLY on the first app entry per browser session.
-  // sessionStorage persists across refreshes but clears when the tab closes,
-  // so the splash appears once when the user first opens the app and never
-  // again until they close and reopen the tab.
-  // Installed mobile app: skip the web splash entirely (the native app shows
-  // its own splash). Browser: show it once per session.
-  const splashAlreadyShown = (() => { try { return sessionStorage.getItem('gb_splash_shown') === '1'; } catch { return false; } })();
-  const [imgReady, setImgReady] = useState(splashAlreadyShown);
+  // No splash image — the app opens straight on the branded loading screen and
+  // stays there until every app image is downloaded AND decoded, so nothing is
+  // ever seen loading in after entry.
   const [staticReady, setStaticReady] = useState(false);
   const [dynamicReady, setDynamicReady] = useState(false);
-  const [minDone, setMinDone] = useState(splashAlreadyShown);
   const [loadProgress, setLoadProgress] = useState(0);
 
-  // Splash image phase — cinematic model-reveal zoom (small → full screen).
-  // Stays true until the splash image has downloaded AND the minimum splash
-  // duration has elapsed, then becomes false so the loading screen takes over.
-  const showSplashImage = !splashAlreadyShown && (!imgReady || !minDone);
-  // Phase 2: loading screen — after the splash image, while static assets/auth load.
-  // Dynamic assets (banners, QR codes) load in the BACKGROUND and don't block
-  // the app from showing — they pop in gracefully once fetched.
-  const showLoadingScreen = !showSplashImage && (loading || !staticReady);
+  // The loading screen stays up until auth AND every app image (static assets
+  // plus admin-uploaded banners / QR codes / avatars) is fully decoded.
+  const showLoadingScreen = loading || !staticReady || !dynamicReady;
 
   useEffect(() => {
-    // Skip the splash entirely if it was already shown earlier this session.
-    if (splashAlreadyShown) return;
-    // Preload the splash image AND the loading-screen background + logo so
-    // they're already cached when phase 2 appears — otherwise the user sees
-    // the loading-screen background visibly downloading/popping in.
-    const SPLASH_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8c7eb4bd_golden_bounty_fullscreen_vertical.png';
-    const LOADING_BG_URL = SPLASH_URL;
-    const LOGO_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
-    // Route these through the shared preloader so they register in its cache —
-    // otherwise components using FadeImage don't know they're already loaded
-    // and hide them until a (never-firing) load event.
-    preloadImage(SPLASH_URL).then(() => setImgReady(true));
-    preloadImage(LOADING_BG_URL);
-    preloadImage(LOGO_URL);
-  }, []);
-
-  // The zoom reveal only starts once the image is decoded, so the minimum
-  // splash time is measured from that moment — otherwise the loading screen
-  // takes over before the image has grown to full screen.
-  useEffect(() => {
-    if (splashAlreadyShown || !imgReady) return;
-    const t = setTimeout(() => setMinDone(true), MIN_SPLASH_MS);
-    return () => clearTimeout(t);
-  }, [imgReady, splashAlreadyShown]);
-
-  // Mark the splash as shown in sessionStorage the moment it finishes, so
-  // it never reappears on refresh or re-navigation within the same session.
-  useEffect(() => {
-    if (!showSplashImage) {
-      try { sessionStorage.setItem('gb_splash_shown', '1'); } catch {}
-    }
-  }, [showSplashImage]);
-
-  // Start preloading static + dynamic assets ONLY after the splash image
-  // phase is done, so the loading screen is visible while they fetch.
-  useEffect(() => {
-    if (showSplashImage) return;
+    // The loading screen's own background + logo first, so it paints instantly.
+    preloadImage('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e1d861111_golden_bounty_fullscreen_vertical.png');
+    preloadImage('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png');
     // Track static preload progress (0..100) for the loading bar; dynamic
     // assets don't report progress so we just fold them into the final 100.
     preloadAssets(APP_ASSETS, (p) => setLoadProgress(Math.min(p, 90)))
       .then(() => { setStaticReady(true); setLoadProgress(100); })
       .catch(() => setStaticReady(true));
-    // Start dynamic asset preloading immediately in the background — don't
-    // block the app on it. Banners/QR codes pop in once fetched.
     preloadDynamicAssets(base44)
       .then(() => setDynamicReady(true))
       .catch(() => setDynamicReady(true));
@@ -148,11 +95,11 @@ const AuthenticatedApp = () => {
       setStaticReady(true);
       setDynamicReady(true);
       setLoadProgress(100);
-    }, 30000);
+    }, 45000);
     return () => clearTimeout(safety);
-  }, [showSplashImage]);
+  }, []);
 
-  // Once the splash is done, warm all game assets in the background so they
+  // Once the loading screen is done, warm all game assets in the background so they
   // are already cached when the user taps into a game — near-instant load.
   useEffect(() => {
     if (showLoadingScreen) return;
@@ -163,9 +110,6 @@ const AuthenticatedApp = () => {
     return () => clearTimeout(t);
   }, [showLoadingScreen]);
 
-  if (showSplashImage) {
-    return <AppLoadingImage />;
-  }
   if (showLoadingScreen) {
     return <AppLoadingScreen progress={loadProgress} />;
   }
