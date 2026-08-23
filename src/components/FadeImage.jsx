@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { isCached } from '@/lib/assetPreloader';
 
 // Drop-in <img> replacement that fades in smoothly when the image is ready,
@@ -19,10 +19,13 @@ export default function FadeImage({
   // If the image is already in the preload cache, we can show it immediately
   // (still fade for polish). Otherwise start hidden and fade on load.
   const [ready, setReady] = useState(() => isCached(src));
+  const imgRef = useRef(null);
 
-  // If the src changes, re-evaluate readiness.
+  // If the src changes, re-evaluate readiness. Also check `complete` directly:
+  // a browser-cached image finishes loading before React attaches onLoad, so
+  // without this check the image would stay invisible forever.
   useEffect(() => {
-    if (isCached(src)) setReady(true);
+    if (isCached(src) || imgRef.current?.complete) setReady(true);
   }, [src]);
 
   const onLoad = (e) => {
@@ -33,6 +36,7 @@ export default function FadeImage({
   return (
     <img
       {...rest}
+      ref={imgRef}
       src={src}
       alt={alt}
       decoding={decoding}

@@ -54,7 +54,7 @@ import AppLoadingImage from '@/components/AppLoadingImage';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
 import { LanguageProvider } from '@/lib/LanguageContext';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
-import { preloadAssets, preloadDynamicAssets, preloadAllGameAssets } from '@/lib/assetPreloader';
+import { preloadAssets, preloadDynamicAssets, preloadAllGameAssets, preloadImage } from '@/lib/assetPreloader';
 import { APP_ASSETS } from '@/lib/appAssets';
 import { base44 } from '@/api/base44Client';
 import { SUPABASE_URL } from '@/api/supabaseClient';
@@ -100,15 +100,12 @@ const AuthenticatedApp = () => {
     const SPLASH_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8c7eb4bd_golden_bounty_fullscreen_vertical.png';
     const LOADING_BG_URL = SPLASH_URL;
     const LOGO_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
-    let splashDone = false;
-    const markSplash = () => { if (!splashDone) { splashDone = true; setImgReady(true); } };
-    const splashImg = new Image();
-    splashImg.onload = markSplash;
-    splashImg.onerror = markSplash;
-    splashImg.src = SPLASH_URL;
-    // Warm the loading-screen bg + logo in parallel (don't block phase 1 on them).
-    const bgImg = new Image(); bgImg.src = LOADING_BG_URL;
-    const logoImg = new Image(); logoImg.src = LOGO_URL;
+    // Route these through the shared preloader so they register in its cache —
+    // otherwise components using FadeImage don't know they're already loaded
+    // and hide them until a (never-firing) load event.
+    preloadImage(SPLASH_URL).then(() => setImgReady(true));
+    preloadImage(LOADING_BG_URL);
+    preloadImage(LOGO_URL);
   }, []);
 
   // The zoom reveal only starts once the image is decoded, so the minimum
@@ -149,7 +146,7 @@ const AuthenticatedApp = () => {
       setStaticReady(true);
       setDynamicReady(true);
       setLoadProgress(100);
-    }, 15000);
+    }, 30000);
     return () => clearTimeout(safety);
   }, [showSplashImage]);
 
