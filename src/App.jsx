@@ -59,6 +59,7 @@ import { APP_ASSETS } from '@/lib/appAssets';
 import { base44 } from '@/api/base44Client';
 import { SUPABASE_URL } from '@/api/supabaseClient';
 import { isStandaloneApp } from '@/lib/isStandaloneApp';
+import { warmProfileCache } from '@/lib/profileCache';
 
 const MIN_SPLASH_MS = 2400;
 
@@ -154,6 +155,9 @@ const AuthenticatedApp = () => {
   // are already cached when the user taps into a game — near-instant load.
   useEffect(() => {
     if (showLoadingScreen) return;
+    // Warm the profile data (name, username, transactions, game history)
+    // right away so the Profile page opens instantly with no loading delay.
+    warmProfileCache();
     const t = setTimeout(() => { preloadAllGameAssets(); }, 300);
     return () => clearTimeout(t);
   }, [showLoadingScreen]);

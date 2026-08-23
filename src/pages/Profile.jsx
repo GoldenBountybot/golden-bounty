@@ -17,6 +17,7 @@ import TaskSystem from '@/components/TaskSystem';
 import XPostTask from '@/components/XPostTask';
 import CashbackPanel from '@/components/CashbackPanel';
 import { formatDateTime } from '@/lib/dateFormat';
+import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -69,22 +70,27 @@ export default function Profile() {
   const { toast } = useToast();
   const { t } = useLanguage();
   const { balance } = useCasinoBalance();
-  const [profile, setProfile] = useState(null);
-  const [username, setUsername] = useState('');
-  const [phone, setPhone] = useState('');
+  // Seed everything from the warm cache (filled at app entry) so the page
+  // renders name/username/history instantly; fresh data still loads behind it.
+  const cached = getProfileCache();
+  const [profile, setProfile] = useState(cached.profile);
+  const [username, setUsername] = useState(cached.profile?.username || cached.profile?.telegram_username || '');
+  const [phone, setPhone] = useState(cached.profile?.phone || '');
   const [saving, setSaving] = useState(false);
   const [tab, setTab] = useState('wallet');
-  const [txs, setTxs] = useState([]);
-  const [activity, setActivity] = useState([]);
-  const [loadingHist, setLoadingHist] = useState(true);
-  const [totalDeposits, setTotalDeposits] = useState(0);
+  const [txs, setTxs] = useState(cached.txs || []);
+  const [activity, setActivity] = useState(cached.activity || []);
+  const [loadingHist, setLoadingHist] = useState(!cached.txs);
+  const [totalDeposits, setTotalDeposits] = useState(() => (cached.txs || [])
+    .filter(x => x.type === 'deposit' && (x.status === 'approved' || x.status === 'completed'))
+    .reduce((s, x) => s + (Number(x.amount) || 0), 0));
   const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [view, setView] = useState('profile');
   const [rewards, setRewards] = useState([]);
   const [loadingRewards, setLoadingRewards] = useState(false);
-  const [bountyAllocation, setBountyAllocation] = useState(0);
-  const [taskBounty, setTaskBounty] = useState(0);
+  const [bountyAllocation, setBountyAllocation] = useState(Number(cached.profile?.bounty_allocation ?? 0) + Number(cached.profile?.task_bounty ?? 0));
+  const [taskBounty, setTaskBounty] = useState(Number(cached.profile?.task_bounty ?? 0));
 
   useEffect(() => {
     let active = true;
@@ -97,6 +103,7 @@ export default function Profile() {
           try { await base44.auth.updateMe({ uid, promo_code: uid }); u = { ...u, uid, promo_code: uid }; } catch { u = { ...u, uid }; }
         }
         if (!active) return;
+        updateProfileCache({ profile: u });
         setProfile(u);
         setUsername(u.username || u.telegram_username || '');
         setPhone(u.phone || '');
@@ -118,12 +125,14 @@ export default function Profile() {
 
   const loadHistory = useCallback(async () => {
     if (!profile) return;
-    setLoadingHist(true);
+    // Only show the loading state when there's no cached data to display.
+    if (!getProfileCache().txs) setLoadingHist(true);
     try {
       const [t, a] = await Promise.all([
         base44.entities.Transaction.filter({ user_id: profile.id }, '-created_date', 50),
         base44.entities.PlayerActivity.filter({ user_id: profile.id }, '-created_date', 50),
       ]);
+      updateProfileCache({ txs: t, activity: a });
       setTxs(t);
       setActivity(a);
       const td = t
