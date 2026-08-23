@@ -25,7 +25,7 @@ function explorerHint(name) {
 
 // Map a network display name to a verifyManualDeposit dispatch key.
 // Returns null for chains not yet auto-verifiable (falls back to manual admin review).
-function dispatchKeyFor(name) {
+export function dispatchKeyFor(name) {
   const s = String(name || '').toLowerCase();
   if (!s) return null;
   const isUsdt = s.includes('usdt');

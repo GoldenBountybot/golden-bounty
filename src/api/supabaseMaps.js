@@ -20,6 +20,7 @@ export const TABLES = {
   XPostSubmission: 'x_post_submissions',
   CrashRound: 'crash_rounds',
   SolanaDepositRequest: 'solana_deposit_requests',
+  ManualDepositRequest: 'manual_deposit_requests',
   PgSoftSession: 'pgsoft_sessions',
   PgSoftTransaction: 'pgsoft_transactions',
 };
@@ -35,6 +36,8 @@ export const FUNCTIONS = {
   getReferralStats: 'referral-stats',
   getWallet: 'get-wallet',
   getWithdrawalRiskAssessment: 'withdrawal-risk-assessment',
+  manualDepositCreate: 'manual-deposit-create',
+  manualDepositCheck: 'manual-deposit-check',
   pgsoftCashAdjustment: 'pgsoft-cash-adjustment',
   pgsoftCashGet: 'pgsoft-cash-get',
   pgsoftCashTransferInOut: 'pgsoft-cash-transfer',
