@@ -209,14 +209,16 @@ export default function PremiumGameLoader({ progress, title = 'Loading', bgImage
         {title}
       </h2>
 
-      {/* Premium jeweled progress bar with shimmer + leading dot */}
-      <div className="relative" style={{ width: '288px' }}>
+      {/* Elegant progress bar — matches the app loading screen exactly:
+          a slim glowing gold hairline with shimmer + leading jewel dot. */}
+      <div className="relative w-[280px] sm:w-[320px] lg:w-[400px]">
         <div
-          className="relative h-2.5 rounded-full overflow-hidden"
+          className="relative w-full h-[3px] rounded-full overflow-hidden"
           style={{
             background: 'rgba(20,14,7,0.95)',
-            border: '1px solid rgba(190,140,55,0.7)',
-            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.6), 0 0 12px rgba(255,200,80,0.2)',
+            border: '1px solid rgba(190,140,55,0.55)',
+            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.6)',
+            animation: 'appBarGlow 2s ease-in-out infinite',
           }}
         >
           <div
@@ -224,7 +226,7 @@ export default function PremiumGameLoader({ progress, title = 'Loading', bgImage
             style={{
               width: `${progress}%`,
               background: 'linear-gradient(to right, #b8860b 0%, #ffd75a 50%, #fff3c4 100%)',
-              boxShadow: '0 0 14px rgba(255,210,100,0.7)',
+              boxShadow: '0 0 10px rgba(255,210,100,0.7)',
             }}
           >
             <div
@@ -236,25 +238,31 @@ export default function PremiumGameLoader({ progress, title = 'Loading', bgImage
             />
           </div>
         </div>
-        {/* Glowing jeweled leading dot */}
-        {progress > 0.5 && (
+        {/* Glowing leading dot at the progress edge */}
+        {progress > 0 && progress < 100 && (
           <div
-            className="absolute top-1/2 rounded-full"
+            className="absolute top-1/2 rounded-full pointer-events-none"
             style={{
-              left: `calc(${progress}% - 5px)`,
+              left: `calc(${progress}% - 4px)`,
+              width: '8px', height: '8px',
               transform: 'translateY(-50%)',
-              width: '10px',
-              height: '10px',
-              background: 'radial-gradient(circle, #fff8d4 0%, #ffd75a 50%, #b8860b 100%)',
-              animation: 'loaderBarDot 1.2s ease-in-out infinite',
+              background: 'radial-gradient(circle, #fff8d4, #ffd75a)',
+              animation: 'appBarDot 1s ease-in-out infinite',
             }}
           />
         )}
       </div>
 
+      {/* Tick marks under the bar */}
+      <div className="relative flex justify-between mt-2 w-[280px] sm:w-[320px] lg:w-[400px]">
+        {[0, 25, 50, 75, 100].map((tk) => (
+          <div key={tk} style={{ width: '1px', height: '5px', background: 'rgba(190,140,55,0.4)' }} />
+        ))}
+      </div>
+
       <p
-        className="mt-3 text-xs tracking-[0.3em] uppercase tabular-nums"
-        style={{ color: 'rgba(255,220,150,0.7)', fontFamily: 'Rye, Georgia, serif' }}
+        className="mt-3 text-[11px] tracking-[0.35em] uppercase tabular-nums"
+        style={{ color: 'rgba(255,220,150,0.6)', fontFamily: 'Cinzel, Georgia, serif' }}
       >
         {Math.round(progress)}% Loading
       </p>
