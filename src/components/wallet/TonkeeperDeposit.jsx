@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, LogOut } from 'lucide-react';
 import { TON_USDT_DECIMALS, TON_ADMIN, getUserJettonWallet } from '@/lib/tonConfig';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
+import { hasTelegramBackButton } from '@/lib/telegram';
 import { addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
@@ -124,11 +125,13 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
     <div className="flex flex-col gap-4" style={{ fontFamily: SANS, animation: 'dashFadeIn 350ms ease both' }}>
       {/* Header — text unchanged */}
       <div className="flex items-center gap-3">
-        <button onClick={onBack}
-          className="flex items-center gap-1.5 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
-          style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
-          <ChevronLeft className="w-4 h-4" /> Back
-        </button>
+        {!hasTelegramBackButton() && (
+          <button onClick={onBack}
+            className="flex items-center gap-1.5 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
+            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
+            <ChevronLeft className="w-4 h-4" /> Back
+          </button>
+        )}
         <h1 className="text-base font-extrabold" style={{ color: '#D4AF37' }}>Ton Wallet (TON) Deposit</h1>
       </div>
 

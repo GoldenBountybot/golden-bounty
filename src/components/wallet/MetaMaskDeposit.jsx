@@ -6,6 +6,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, ChevronDown, LogOut } from 'lucide-react';
 import { getMetaMaskSdk, disconnectMetaMask, onMetaMaskUri, getInjectedMetaMask, preloadMetaMask } from '@/lib/metaMaskSdk';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
+import { hasTelegramBackButton } from '@/lib/telegram';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
 
@@ -238,11 +239,13 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     <div className="flex flex-col gap-4" style={{ fontFamily: SANS, animation: 'dashFadeIn 350ms ease both' }}>
       {/* Header */}
       <div className="flex items-center gap-3">
-        <button onClick={onBack}
-          className="flex items-center gap-1.5 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
-          style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
-          <ChevronLeft className="w-4 h-4" /> Back
-        </button>
+        {!hasTelegramBackButton() && (
+          <button onClick={onBack}
+            className="flex items-center gap-1.5 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
+            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
+            <ChevronLeft className="w-4 h-4" /> Back
+          </button>
+        )}
         <h1 className="text-base font-extrabold" style={{ color: '#F6851A' }}>MetaMask Deposit</h1>
       </div>
 

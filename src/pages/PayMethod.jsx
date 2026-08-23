@@ -233,7 +233,7 @@ export default function PayMethod() {
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
         <div className="max-w-none mx-auto px-4 py-3 flex items-center gap-3">
-          {view !== 'choose' ? (
+          {view !== 'choose' && !hasTelegramBackButton() ? (
             <button onClick={() => { if (selNet) { setSelNet(null); } else { setView('choose'); } }}
               className="flex items-center gap-1.5 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
               style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
