@@ -41,6 +41,13 @@ export function isInsideTelegram() {
   return tgInitData().length > 0;
 }
 
+// True when Telegram's own native back button (top-left of the mini app) is
+// available. The app's in-app back buttons hide in that case so there aren't
+// two back buttons stacked on the same screen.
+export function hasTelegramBackButton() {
+  return !!tgWebApp()?.BackButton?.show;
+}
+
 export function tgUser() {
   return tgWebApp()?.initDataUnsafe?.user || null;
 }

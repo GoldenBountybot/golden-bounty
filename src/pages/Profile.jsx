@@ -18,6 +18,7 @@ import XPostTask from '@/components/XPostTask';
 import CashbackPanel from '@/components/CashbackPanel';
 import { formatDateTime } from '@/lib/dateFormat';
 import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
+import { hasTelegramBackButton } from '@/lib/telegram';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -212,14 +213,16 @@ export default function Profile() {
           >
             <Menu className="w-5 h-5" />
           </button>
-          <button
-            onClick={() => window.history.back()}
-            title={t("Back")}
-            className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
-            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
-          >
-            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
-          </button>
+          {!hasTelegramBackButton() && (
+            <button
+              onClick={() => window.history.back()}
+              title={t("Back")}
+              className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
+              style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
+            >
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+            </button>
+          )}
           <div className="flex-1 text-center">
             <span className="text-lg font-extrabold tracking-tight" style={{ color: '#D4AF37' }}>{t("Profile")}</span>
           </div>

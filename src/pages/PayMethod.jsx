@@ -12,6 +12,7 @@ import PhantomSolanaDeposit from '@/components/wallet/PhantomSolanaDeposit';
 import ManualDepositSession from '@/components/wallet/ManualDepositSession';
 import { useLanguage } from '@/lib/LanguageContext';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
+import { hasTelegramBackButton } from '@/lib/telegram';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -238,13 +239,13 @@ export default function PayMethod() {
               style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
-          ) : (
+          ) : !hasTelegramBackButton() ? (
             <button onClick={() => window.history.back()} title="Back"
               className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
               style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
             </button>
-          )}
+          ) : null}
           <div className="flex-1 text-center">
             <span className="text-base font-extrabold tracking-tight" style={{ color: '#D4AF37' }}>{view === 'choose' ? t("Choose Payment") : methodLabel}</span>
           </div>

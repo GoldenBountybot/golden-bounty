@@ -1,12 +1,16 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { hasTelegramBackButton } from '@/lib/telegram';
 
 // Minimal sharp golden-frame back button.
 // Navigates via the router (no full page reload) so preloaded images,
 // balances and app state survive when leaving a game.
 export default function BackButton({ href = '/', label = 'Back', className = '' }) {
   const navigate = useNavigate();
+  // Inside Telegram the native back button already sits in the top-left
+  // corner, so this in-app one is dropped entirely.
+  if (hasTelegramBackButton()) return null;
   return (
     <button
       onClick={() => navigate(href)}
