@@ -49,6 +49,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminRoute from '@/components/AdminRoute';
 import BottomNavLayout from '@/components/BottomNavLayout';
 import NotificationToaster from '@/components/NotificationToaster';
+import TelegramBackButton from '@/components/TelegramBackButton';
 import PromoWelcomeGate from '@/components/PromoWelcomeGate';
 import AppLoadingImage from '@/components/AppLoadingImage';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
@@ -185,6 +186,7 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <>
+    <TelegramBackButton />
     <NotificationToaster />
     <PromoWelcomeGate />
     <Routes>
