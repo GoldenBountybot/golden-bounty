@@ -204,7 +204,13 @@ export default function Profile() {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-none mx-auto px-4 py-3 flex items-center gap-3 relative" data-menu>
+        <div
+          className="max-w-none mx-auto px-4 py-3 flex items-center gap-3 relative"
+          data-menu
+          /* Telegram fullscreen overlays the very top of the screen with its own
+             chrome, so nudge the row down out of the untappable strip. */
+          style={hasTelegramBackButton() ? { paddingTop: 'calc(env(safe-area-inset-top) + 2.25rem)' } : undefined}
+        >
           <button
             onClick={() => setMenuOpen(o => !o)}
             className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95"

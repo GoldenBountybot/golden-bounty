@@ -1,5 +1,4 @@
 import React from 'react';
-import BackButton from '@/components/BackButton';
 import GameTitleBar from '@/components/GameTitleBar';
 import { Wallet, Volume2, VolumeX } from 'lucide-react';
 import AnimatedNumber from '@/components/AnimatedNumber';
@@ -20,7 +19,7 @@ export default function GameHeader({ title, balance }) {
       <GameTitleBar
         title={title}
         maxWidth="max-w-none"
-        left={<BackButton />}
+        left={null}
         right={
           <>
             {hasBalance && (

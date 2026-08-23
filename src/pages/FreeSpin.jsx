@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Clock, Sparkles, Trophy } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
-import BackButton from '@/components/BackButton';
 import GameTitleBar from '@/components/GameTitleBar';
 import GameAssetLoader from '@/components/GameAssetLoader';
 import { FREE_SPIN_ASSETS, GAME_BG } from '@/lib/gameAssets';
@@ -207,7 +206,7 @@ export default function FreeSpin() {
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <GameTitleBar
           title="Daily Free Spin"
-          left={<BackButton />}
+          left={null}
           right={
             <>
               <div

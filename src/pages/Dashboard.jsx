@@ -143,7 +143,12 @@ export default function Dashboard() {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-none mx-auto px-4 py-3 flex items-center gap-3">
+        <div
+          className="max-w-none mx-auto px-4 py-3 flex items-center gap-3"
+          /* Telegram fullscreen overlays the very top of the screen with its own
+             chrome, so nudge the row down out of the untappable strip. */
+          style={hasTelegramBackButton() ? { paddingTop: 'calc(env(safe-area-inset-top) + 2.25rem)' } : undefined}
+        >
           {!hasTelegramBackButton() && (
             <button
               onClick={() => window.history.back()}
