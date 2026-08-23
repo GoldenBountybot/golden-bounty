@@ -172,8 +172,9 @@ export default function Dashboard() {
           <button
             onClick={() => setMenuOpen(o => !o)}
             title="Menu"
-            className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
-            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
+            className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95 shrink-0"
+            /* Nudged left so Telegram's own top-right controls don't cover it */
+            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37', marginRight: hasTelegramBackButton() ? '2.75rem' : undefined }}
           >
             <Menu className="w-5 h-5" />
           </button>
