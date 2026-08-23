@@ -105,6 +105,8 @@ const COIN_LOGOS = [
   'https://coin-images.coingecko.com/coins/images/17980/large/Gram_Circular_Badge.png?1781524778',
   'https://cdn.simpleicons.org/binance/F0B90B',
   'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Trust_Wallet_logo_%282026%29.png/330px-Trust_Wallet_logo_%282026%29.png',
+  'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg',
+  u('1a373c31c_file_00000000bf088207bca808f6fa5670a3.png'), // Phantom logo
 ];
 
 // ---- Support panel brand icons ----

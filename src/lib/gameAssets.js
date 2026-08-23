@@ -62,6 +62,9 @@ export const WILD_BOUNTY_ASSETS = [
   // win banners
   u('bc8844e96_file_0000000057d881fbaa643e8f2dd979ce.png'), // super win
   u('abe2184b1_file_00000000233881faa2d49279db01c3b7.png'), // mega win
+  u('ed1ba82bf_file_00000000de4c8230a7b6890bc5104bb2.png'), // feature buy confirm
+  u('c59383f07_file_00000000f68481fab97bfcf72831e629.png'), // free spin start
+  u('8252d57aa_generated_image.png'),                        // stat banner
 ];
 
 // ---- Super Ace / Full House ----
@@ -77,6 +80,13 @@ export const SUPER_ACE_ASSETS = [
   u('21f5a1dbb_generated_image.png'), // Q
   u('a23681e83_generated_image.png'), // J
   u('4e53e6ae2_generated_image.png'), // A
+  // machine frame + badges + banners
+  u('4c5d3e4ce_file_00000000541c8211a6dd57b4e4dcf69f.png'), // machine bg
+  u('93a12d6af_wild.png'),                                   // wild badge
+  u('c725b5a50_wild-ace-02.png'),                            // golden wild badge
+  u('eb8a29b62_file_00000000cf3081f895784c4d5383afd4.png'), // free spin start
+  u('4241239e5_file_0000000057d881fbaa643e8f2dd979ce.png'), // super win
+  u('e3c7dc482_file_00000000233881faa2d49279db01c3b7.png'), // mega win
 ];
 
 // ---- Crown Coins ----
@@ -167,6 +177,7 @@ export const ARGONAUTS_ASSETS = [
   u('4ba013c10_file_00000000142481fabe264564bd974c86.png'), // free games banner
   u('6abe5be40_file_0000000057d881fbaa643e8f2dd979ce.png'), // super win banner
   u('cf4003fa2_file_00000000233881faa2d49279db01c3b7.png'), // mega win banner
+  u('b4e358bc4_generated_image.png'), // overlays (free-spin transition bg)
   // symbols
   u('aa8365d9b_file_000000003078820b89250f27c56de62e.png'), // wild
   u('58d0858d9_file_000000008fa0820bb5da9eef0fb09545.png'), // scatter
@@ -204,6 +215,7 @@ export const MINES_ASSETS = [
   u('7ad5415af_.jpg'), // bg
   u('00dc49c08_generated_image.png'), // balance icon bg
   u('67ff4e03b_generated_image.png'), // bet button bg
+  u('47e470df6_file_000000002200820baadd0a1f2df2f8ce.png'), // bet button
 ];
 
 // ---- HiLo ----

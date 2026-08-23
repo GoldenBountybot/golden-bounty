@@ -11,6 +11,10 @@
 
 // url -> Promise<void>  (settles when the image is decoded & ready)
 const cache = new Map();
+// urls that have ACTUALLY finished downloading + decoding. `cache` alone can't
+// tell "done" from "in flight / timed out", which made isCached() lie — images
+// then rendered at full opacity while still streaming in (visible download).
+const loaded = new Set();
 // Keep a hard reference to every preloaded Image element so the browser keeps
 // the decoded bitmap alive for the whole session. Without this the elements are
 // garbage-collected and images visibly re-fetch/re-decode when a page remounts.
@@ -23,22 +27,30 @@ const retained = [];
 // compete with the user's active page navigation.
 export function preloadImage(url, lowPriority = false) {
   if (!url || typeof url !== 'string') return Promise.resolve();
+  if (loaded.has(url)) return Promise.resolve();
   const existing = cache.get(url);
   if (existing) return existing;
 
   const p = new Promise((resolve) => {
-    // Safety timeout: if an image neither loads nor errors within 8s (e.g.
-    // a blocked/throttled external CDN that holds the connection open without
-    // responding), give up so a single hanging image can never stall the
-    // whole preload batch and freeze the loading screen.
     let settled = false;
-    const finish = () => {
+    // Safety timeout: if an image hasn't finished within 8s (slow network,
+    // hanging CDN), release the waiter so one image can never freeze the
+    // loading screen — but DROP it from the cache so a later preload retries
+    // it properly instead of treating a half-downloaded image as "cached".
+    const timer = setTimeout(() => {
       if (settled) return;
       settled = true;
-      clearTimeout(timer);
+      cache.delete(url);
       resolve();
+    }, 8000);
+
+    // The download keeps going after a timeout; when it eventually completes
+    // we still record it as fully loaded so FadeImage/isCached stay accurate.
+    const done = () => {
+      clearTimeout(timer);
+      loaded.add(url);
+      if (!settled) { settled = true; resolve(); }
     };
-    const timer = setTimeout(finish, 8000);
 
     const img = new Image();
     img.decoding = 'async';
@@ -47,12 +59,18 @@ export function preloadImage(url, lowPriority = false) {
       // Wait for the image to be fully decoded and ready to paint, so it
       // never pops in after the loading screen disappears.
       if (typeof img.decode === 'function') {
-        img.decode().then(finish).catch(finish);
+        img.decode().then(done).catch(done);
       } else {
-        finish();
+        done();
       }
     };
-    img.onerror = finish; // never reject — a broken image shouldn't block the game
+    img.onerror = () => {
+      // Never reject — a broken image shouldn't block the game. Un-cache it
+      // so a future attempt can retry (transient network failures).
+      clearTimeout(timer);
+      cache.delete(url);
+      if (!settled) { settled = true; resolve(); }
+    };
     img.src = url;
     retained.push(img);
   });
@@ -80,9 +98,9 @@ export function preloadAssets(urls, onProgress, lowPriority = false) {
   return Promise.all(unique.map((url) => preloadImage(url, lowPriority).then(report)));
 }
 
-// Check whether a URL is already cached (loaded or loading).
+// Check whether a URL has FULLY finished loading (not merely in flight).
 export function isCached(url) {
-  return cache.has(url);
+  return loaded.has(url);
 }
 
 // Fetch dynamic entity images (admin-added banners, payment QR codes, site
