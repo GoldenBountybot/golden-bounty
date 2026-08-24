@@ -53,7 +53,7 @@ export default function Home() {
       >
         <div className="max-w-none mx-auto pl-4 pr-0 lg:px-6 pb-0 flex items-center justify-between" style={{ paddingTop: topInset }}>
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="relative shrink-0 self-end translate-y-[13px] w-12 h-12">
+            <div className="relative z-30 shrink-0 self-end translate-y-[13px] w-12 h-12">
               <button
                 onClick={() => {
                   const next = !demoMode;
