@@ -72,7 +72,7 @@ export default function Home() {
                   });
                 }}
                 title={demoMode ? 'Demo mode is ON' : 'Enable demo mode'}
-                className="absolute -top-[34px] left-1/2 translate-x-[calc(-50%+34px)] flex items-center gap-1.5 pl-2 pr-2.5 py-1 rounded-full transition-all active:scale-95 z-30"
+                className="absolute top-[34px] left-1/2 -translate-x-1/2 flex items-center gap-1.5 pl-2 pr-2.5 py-1 rounded-full transition-all active:scale-95 z-30"
                 style={{
                   border: demoMode ? '1px solid rgba(74,222,128,0.6)' : '1px solid rgba(214,178,98,0.5)',
                   background: demoMode
@@ -116,8 +116,8 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex flex-col items-end gap-1.5 self-end mr-2 -translate-y-2">
-            <span className="block -translate-x-[34px]"><NotificationBell /></span>
+          <div className="flex items-center gap-1.5 self-end mr-2 -translate-y-2">
+            <span className="block"><NotificationBell /></span>
             <Link
               to="/dashboard"
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-all active:scale-95"
