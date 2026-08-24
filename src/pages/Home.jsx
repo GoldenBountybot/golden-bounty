@@ -91,7 +91,7 @@ export default function Home() {
               <Link
                 to="/airdrop"
                 title="Airdrop"
-                className="absolute top-[2px] left-1/2 translate-x-[calc(-50%+10px)] flex items-center gap-1.5 pl-2 pr-2.5 py-1 rounded-full transition-all active:scale-95 z-30"
+                className="absolute top-[2px] left-1/2 translate-x-[calc(-50%+18px)] flex items-center gap-1.5 pl-2 pr-2.5 py-1 rounded-full transition-all active:scale-95 z-30"
                 style={{
                   border: '1px solid rgba(214,178,98,0.5)',
                   background: 'linear-gradient(135deg, rgba(28,25,23,0.92), rgba(10,9,8,0.95))',
@@ -120,7 +120,7 @@ export default function Home() {
             <span className="block -translate-x-[54px]"><NotificationBell /></span>
             <Link
               to="/dashboard"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-all active:scale-95 -translate-x-[10px]"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-all active:scale-95 -translate-x-[18px]"
               style={{
                 border: demoMode ? '1px solid rgba(74,222,128,0.6)' : '1px solid rgba(214,178,98,0.5)',
                 background: demoMode
