@@ -34,7 +34,7 @@ export default function GameTitleBar({ title, icon, left, right, padLeft = 'pl-2
           </span>
         </div>
         {left && <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center">{left}</div>}
-        {right && <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1.5">{right}</div>}
+        {right && <div className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-4 flex items-center gap-1.5">{right}</div>}
       </div>
     </div>
   );
