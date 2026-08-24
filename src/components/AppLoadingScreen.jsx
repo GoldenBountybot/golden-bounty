@@ -76,16 +76,12 @@ export default function AppLoadingScreen({ progress = 0 }) {
       className="fixed inset-0 z-[9998] flex flex-col items-center justify-center overflow-hidden"
       style={{ backgroundColor: '#0a0805' }}
     >
-      {/* Splash background image — dim, fades in when ready */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          opacity: 1,
-          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e1d861111_golden_bounty_fullscreen_vertical.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
+      {/* Splash background image — rendered as a real <img> so it always paints */}
+      <img
+        src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e1d861111_golden_bounty_fullscreen_vertical.png"
+        alt=""
+        className="absolute inset-0 w-full h-full pointer-events-none select-none"
+        style={{ objectFit: 'cover', objectPosition: 'center' }}
       />
 
       {/* Rotating sunburst light rays behind the emblem */}
