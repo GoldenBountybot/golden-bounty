@@ -18,7 +18,7 @@ export default function GameTitleBar({ title, icon, left, right, padLeft = 'pl-2
     >
       <div className="relative">
         <div
-          className={`w-full flex items-center justify-center gap-1.5 py-1.5 ${padLeft} ${padRight}`}
+          className="w-full relative flex items-center justify-center gap-1.5 py-1.5 px-24"
           style={{
             background: PLAQUE_BG,
             border: '1px solid rgba(190,140,55,0.75)',
