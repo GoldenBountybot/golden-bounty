@@ -21,6 +21,8 @@ import BigBrown from './pages/BigBrown';
 import Argonauts from './pages/Argonauts';
 import GatesOfOlympus from './pages/GatesOfOlympus';
 import Thimbles from './pages/Thimbles';
+import PgLobby from './pages/PgLobby';
+import PgGame from './pages/PgGame';
 import FreeSpin from './pages/FreeSpin';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -158,6 +160,8 @@ const AuthenticatedApp = () => {
         <Route path="/games/argonauts" element={<Argonauts />} />
         <Route path="/games/gates-of-olympus" element={<GatesOfOlympus />} />
         <Route path="/games/thimbles" element={<Thimbles />} />
+        <Route path="/games/pg" element={<PgLobby />} />
+        <Route path="/games/pg/:gameId" element={<PgGame />} />
 
         {/* Admin — admin-only */}
         <Route element={<AdminRoute />}>

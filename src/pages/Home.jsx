@@ -28,6 +28,7 @@ const GAMES = [
   { id: 'argonauts', titleKey: 'Argonauts', category: 'Slots', desc: '10 Lines · Free Spins · Bonus', accent: 'from-sky-500 to-indigo-800', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png' },
   { id: 'gates-of-olympus', titleKey: 'Gates of Olympus', category: 'Slots', desc: '8+ Pays · Tumbles · ×500 Mult', accent: 'from-indigo-500 to-amber-700', tag: 'HOT', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2125c8cfd_generated_image.png' },
   { id: 'thimbles', titleKey: 'Thimbles', category: 'Table', desc: 'Find the Ball · 2.88x Payout', accent: 'from-amber-600 to-stone-800', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/25ec953a6_generated_image.png', path: '/games/thimbles' },
+  { id: 'pg-soft', titleKey: 'PG SOFT Games', category: 'Slots', desc: 'Official PG SOFT lobby', accent: 'from-violet-600 to-indigo-900', tag: 'PG', path: '/games/pg' },
 ];
 
 const CATEGORY_KEYS = ['All', 'Slots', 'Cards', 'Table', 'Arcade'];
