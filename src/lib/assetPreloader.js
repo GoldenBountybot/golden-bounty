@@ -31,6 +31,7 @@ const retained = [];
 export function preloadImage(url, lowPriority = false, strict = false) {
   if (!url || typeof url !== 'string') return Promise.resolve();
   if (loaded.has(url)) return Promise.resolve();
+  if (/\.(mp3|ogg|wav|m4a)(\?|$)/i.test(url)) return preloadAudioFile(url);
   const existing = cache.get(url);
   if (existing) {
     if (!strict) return existing;
@@ -91,6 +92,19 @@ export function preloadImage(url, lowPriority = false, strict = false) {
 // Preload many image URLs in parallel, calling `onProgress(0..100)` as each
 // one completes. Returns a promise that resolves when ALL images are loaded
 // (or failed). Deduplicates URLs so repeats don't inflate the count.
+// Preload an audio file by downloading it fully into the browser's HTTP cache,
+// so game sounds/music start instantly instead of streaming in mid-game.
+function preloadAudioFile(url) {
+  const existing = cache.get(url);
+  if (existing) return existing;
+  const p = fetch(url, { cache: 'force-cache' })
+    .then((r) => r.blob())
+    .then(() => { loaded.add(url); })
+    .catch(() => { cache.delete(url); });
+  cache.set(url, p);
+  return p;
+}
+
 // Strict single-image load: resolves only once the image is fully downloaded
 // and decoded (or errors out — a broken URL must never hang forever).
 function loadStrict(url, lowPriority) {

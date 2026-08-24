@@ -8,6 +8,8 @@
 
 const CDN = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776';
 const u = (id) => `${CDN}/${id}`;
+const SND = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776';
+const s = (id) => `${SND}/${id}`;
 
 // ---- Shared assets (logo, plaque, loading screen) ----
 const SHARED = [
@@ -65,6 +67,15 @@ export const WILD_BOUNTY_ASSETS = [
   u('ed1ba82bf_file_00000000de4c8230a7b6890bc5104bb2.png'), // feature buy confirm
   u('c59383f07_file_00000000f68481fab97bfcf72831e629.png'), // free spin start
   u('8252d57aa_generated_image.png'),                        // stat banner
+  // sounds — downloaded during the loading screen so nothing streams in mid-game
+  s('73abdca12_20260717094905.mp3'),
+  s('42593c193_20260717094905_0_0.mp3'),
+  s('3d0b01f51_20260717094905_2.mp3'),
+  s('8260a4cd3_scater_0.mp3'),
+  s('d0ba94ac5_spinbuttonclicksound.mp3'),
+  s('08650935f_SpinSymbleMachSound_0.mp3'),
+  s('d58be1dc8_Totalwinsound.mp3'),
+  s('22fed69b4_backgroundsong.mp3'),
 ];
 
 // ---- Super Ace / Full House ----
@@ -163,6 +174,10 @@ export const BIG_BROWN_ASSETS = [
   u('aa1e47a19_generated_image.png'), // J
   u('9765e60dc_generated_image.png'), // 10
   u('e5f443649_generated_image.png'), // 9
+  // sounds
+  s('8c2379326_spinbuttonx.mp3'),
+  s('f73b711cd_bgbn_0.mp3'),
+  s('b0087b27a_BigBrown.mp3'),
 ];
 
 // ---- Argonauts ----
