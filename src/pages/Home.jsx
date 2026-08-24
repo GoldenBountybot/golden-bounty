@@ -117,7 +117,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col items-end gap-1.5 self-end mr-2 -translate-y-2">
-            <span className="block -translate-x-[34px]"><NotificationBell /></span>
+            <span className="block -translate-x-[44px]"><NotificationBell /></span>
             <Link
               to="/dashboard"
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-all active:scale-95"
