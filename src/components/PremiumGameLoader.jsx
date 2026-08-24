@@ -61,7 +61,7 @@ export default function PremiumGameLoader({ progress, title = 'Loading', bgImage
     >
       {/* Background photo (falls back to the app backdrop) */}
       <div className="absolute inset-0" style={{ backgroundImage: `url(${bg})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-black/30" />
 
       {/* Pulsing center radial gold glow */}
       <div
@@ -76,7 +76,7 @@ export default function PremiumGameLoader({ progress, title = 'Loading', bgImage
       />
 
       {/* Vignette */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.7) 100%)' }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.45) 100%)' }} />
 
       {/* Gold dust particles drifting upward */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
