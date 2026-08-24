@@ -81,7 +81,7 @@ export default function AppLoadingScreen({ progress = 0 }) {
         src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0c0175bae_Screenshot_20260824-1719371.png"
         alt=""
         className="absolute inset-0 w-full h-full pointer-events-none select-none"
-        style={{ objectFit: 'cover', objectPosition: 'center' }}
+        style={{ objectFit: 'contain', objectPosition: 'center' }}
       />
 
       {/* Rotating sunburst light rays behind the emblem */}
