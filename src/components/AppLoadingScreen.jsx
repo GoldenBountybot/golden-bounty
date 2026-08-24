@@ -1,5 +1,4 @@
 import React from 'react';
-import FadeImage from '@/components/FadeImage';
 
 // Premium luxury iconic loading screen (Phase 2) — shown after the cinematic
 // splash while the app preloads assets and auth. Ultra-luxe casino-brand
@@ -78,14 +77,16 @@ export default function AppLoadingScreen({ progress = 0 }) {
       style={{ background: 'linear-gradient(to bottom, #0a0805 0%, #1a1208 50%, #0a0805 100%)' }}
     >
       {/* Splash background image — dim, fades in when ready */}
-      <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.85 }}>
-        <FadeImage
-          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e1d861111_golden_bounty_fullscreen_vertical.png"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          durationMs={600}
-        />
-      </div>
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          opacity: 0.9,
+          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e1d861111_golden_bounty_fullscreen_vertical.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
 
       {/* Rotating sunburst light rays behind the emblem */}
       <div
