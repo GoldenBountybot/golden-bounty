@@ -138,6 +138,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           <img
             src={img}
             alt={symbolId}
+            loading="lazy"
             className="w-full h-full object-cover"
             style={{ '--bs': baseScale, transform: `scale(${baseScale})`, zIndex: 5, willChange: popAnim ? 'transform, filter' : 'auto', animation: popAnim }}
           />
@@ -163,6 +164,7 @@ function SymbolTile({ symbolId, highlighted, goldFramed, shattering, scatterBeam
           <img
             src={img}
             alt={symbolId}
+            loading="lazy"
             className="w-full h-full object-cover"
             style={{ '--bs': baseScale, transform: `scale(${baseScale})`, willChange: popAnim ? 'transform, filter' : 'auto', animation: popAnim, filter: spinning ? undefined : (isScatter ? 'brightness(1.4) drop-shadow(0 0 6px rgba(255,235,150,0.75))' : undefined) }}
           />

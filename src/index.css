@@ -98,15 +98,7 @@
   }
 
   body {
-    @apply text-foreground font-body;
-    /* Dark brand backdrop + splash image — must match index.html so there is
-       never a white flash before React mounts or behind the loading screen. */
-    background-color: #0a0805;
-    background-image: url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0c0175bae_Screenshot_20260824-1719371.png);
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    @apply bg-background text-foreground font-body;
     overflow-x: hidden;
     /* Use the full dynamic viewport height on mobile (covers notches/home bars) */
     min-height: 100vh;

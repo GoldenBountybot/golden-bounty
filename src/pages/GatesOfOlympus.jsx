@@ -10,6 +10,17 @@ export default function GatesOfOlympus() {
   const [ready, setReady] = useState(false);
   const { balance } = useCasinoBalance();
 
+  if (!ready) {
+    return (
+      <GameAssetLoader
+        title="Gates of Olympus"
+        assets={GATES_ASSETS}
+        onDone={() => setReady(true)}
+        bgImage="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1f0dcd8e1_file_00000000534882308373132046ad84c6.png"
+      />
+    );
+  }
+
   return (
     <div
       className="min-h-screen"
@@ -21,14 +32,6 @@ export default function GatesOfOlympus() {
         backgroundAttachment: 'fixed',
       }}
     >
-      {!ready && (
-        <GameAssetLoader
-          title="Gates of Olympus"
-          assets={GATES_ASSETS}
-          onDone={() => setReady(true)}
-          bgImage="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1f0dcd8e1_file_00000000534882308373132046ad84c6.png"
-        />
-      )}
       {/* Faded background overlay — keeps the Olympus scene faint so symbols pop */}
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(10,4,28,0.12), rgba(10,4,28,0.38))' }} />
       <div className="relative lg:max-w-[620px] xl:max-w-[700px] lg:mx-auto">

@@ -71,21 +71,14 @@ const AuthenticatedApp = () => {
   const [staticReady, setStaticReady] = useState(false);
   const [dynamicReady, setDynamicReady] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
-  // Keep the branded loading screen on screen for at least a moment, so it is
-  // actually seen even when every asset resolves instantly from cache.
-  const [minTimeDone, setMinTimeDone] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setMinTimeDone(true), 1800);
-    return () => clearTimeout(t);
-  }, []);
 
   // The loading screen stays up until auth AND every app image (static assets
   // plus admin-uploaded banners / QR codes / avatars) is fully decoded.
-  const showLoadingScreen = loading || !staticReady || !dynamicReady || !minTimeDone;
+  const showLoadingScreen = loading || !staticReady || !dynamicReady;
 
   useEffect(() => {
     // The loading screen's own background + logo first, so it paints instantly.
-    preloadImage('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0c0175bae_Screenshot_20260824-1719371.png');
+    preloadImage('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e1d861111_golden_bounty_fullscreen_vertical.png');
     preloadImage('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png');
     // Track static preload progress (0..100) for the loading bar; dynamic
     // assets don't report progress so we just fold them into the final 100.

@@ -14,17 +14,19 @@ export default function Argonauts() {
     if (authReady && assetsReady) startBgMusic();
     return () => stopBgMusic();
   }, [authReady, assetsReady]);
+  if (!authReady || !assetsReady) {
+    return (
+      <GameAssetLoader
+        title="ARGONAUTS"
+        assets={ARGONAUTS_ASSETS}
+        bgImage={GAME_BG.argonauts}
+        onDone={() => setAssetsReady(true)}
+      />
+    );
+  }
   return (
     <>
-      {(!authReady || !assetsReady) && (
-        <GameAssetLoader
-          title="ARGONAUTS"
-          assets={ARGONAUTS_ASSETS}
-          bgImage={GAME_BG.argonauts}
-          onDone={() => setAssetsReady(true)}
-        />
-      )}
-      {authReady && <ArgonautsMachine />}
+      <ArgonautsMachine />
       <GameDesktopPanel gameId="argonauts" title="Argonauts Rounds" />
     </>
   );

@@ -16,6 +16,17 @@ export default function BigBrown() {
     return () => stopBgMusic();
   }, []);
 
+  if (!ready) {
+    return (
+      <GameAssetLoader
+        title="Big Brown"
+        assets={BIG_BROWN_ASSETS}
+        onDone={() => setReady(true)}
+        bgImage={GAME_BG.bigBrown}
+      />
+    );
+  }
+
   return (
     <div
       className="min-h-screen"
@@ -26,14 +37,6 @@ export default function BigBrown() {
         backgroundAttachment: 'fixed',
       }}
     >
-      {!ready && (
-        <GameAssetLoader
-          title="Big Brown"
-          assets={BIG_BROWN_ASSETS}
-          onDone={() => setReady(true)}
-          bgImage={GAME_BG.bigBrown}
-        />
-      )}
       <div className="lg:max-w-[620px] xl:max-w-[700px] lg:mx-auto">
         <GameHeader title="Big Brown" balance={Number(balance || 0)} />
         <BigBrownMachine />

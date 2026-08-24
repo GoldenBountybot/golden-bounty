@@ -10,20 +10,6 @@ import PremiumGameLoader from '@/components/PremiumGameLoader';
 // A minimum display time (`minDuration`) keeps the branded intro visible even
 // when assets resolve instantly from the browser cache, so the transition
 // never feels jarring on a fast connection.
-// Wait until every <img> already in the document has finished loading.
-// Best-effort: capped at 6s so a broken image can never trap the loader.
-function waitForDomImages() {
-  const pending = Array.from(document.images).filter((img) => !img.complete);
-  if (!pending.length) return Promise.resolve();
-  return Promise.race([
-    Promise.all(pending.map((img) => new Promise((res) => {
-      img.addEventListener('load', res, { once: true });
-      img.addEventListener('error', res, { once: true });
-    }))),
-    new Promise((res) => setTimeout(res, 6000)),
-  ]);
-}
-
 export default function GameAssetLoader({
   title = 'Loading',
   assets = [],
@@ -64,12 +50,7 @@ export default function GameAssetLoader({
         if (elapsed >= minDuration) finish();
         // else: minTimer will fire finish() once minDuration is reached
       }
-    }, false, true).then(async () => {
-      if (cancelled) return;
-      // Safety net for any image the registry doesn't list: wait for every
-      // <img> currently in the document to finish before revealing the game,
-      // so nothing is ever seen downloading after the loader disappears.
-      await waitForDomImages();
+    }, false, true).then(() => {
       if (cancelled) return;
       assetsDoneRef.current = true;
       setProgress(100);

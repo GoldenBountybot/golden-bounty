@@ -1,4 +1,5 @@
 import React from 'react';
+import FadeImage from '@/components/FadeImage';
 
 // Premium luxury iconic loading screen (Phase 2) — shown after the cinematic
 // splash while the app preloads assets and auth. Ultra-luxe casino-brand
@@ -74,15 +75,17 @@ export default function AppLoadingScreen({ progress = 0 }) {
   return (
     <div
       className="fixed inset-0 z-[9998] flex flex-col items-center justify-center overflow-hidden"
-      style={{ backgroundColor: '#0a0805' }}
+      style={{ background: 'linear-gradient(to bottom, #0a0805 0%, #1a1208 50%, #0a0805 100%)' }}
     >
-      {/* Splash background image — rendered as a real <img> so it always paints */}
-      <img
-        src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0c0175bae_Screenshot_20260824-1719371.png"
-        alt=""
-        className="absolute inset-0 w-full h-full pointer-events-none select-none"
-        style={{ objectFit: 'contain', objectPosition: 'center' }}
-      />
+      {/* Splash background image — dim, fades in when ready */}
+      <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.5 }}>
+        <FadeImage
+          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8c7eb4bd_golden_bounty_fullscreen_vertical.png"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          durationMs={600}
+        />
+      </div>
 
       {/* Rotating sunburst light rays behind the emblem */}
       <div
@@ -105,7 +108,7 @@ export default function AppLoadingScreen({ progress = 0 }) {
       />
 
       {/* Vignette */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 48%, rgba(0,0,0,0.4) 100%)' }} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 32%, rgba(0,0,0,0.72) 100%)' }} />
 
       {/* Floating gold particles */}
       {particles}
