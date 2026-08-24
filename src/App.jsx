@@ -71,10 +71,17 @@ const AuthenticatedApp = () => {
   const [staticReady, setStaticReady] = useState(false);
   const [dynamicReady, setDynamicReady] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
+  // Keep the branded loading screen on screen for at least a moment, so it is
+  // actually seen even when every asset resolves instantly from cache.
+  const [minTimeDone, setMinTimeDone] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setMinTimeDone(true), 1800);
+    return () => clearTimeout(t);
+  }, []);
 
   // The loading screen stays up until auth AND every app image (static assets
   // plus admin-uploaded banners / QR codes / avatars) is fully decoded.
-  const showLoadingScreen = loading || !staticReady || !dynamicReady;
+  const showLoadingScreen = loading || !staticReady || !dynamicReady || !minTimeDone;
 
   useEffect(() => {
     // The loading screen's own background + logo first, so it paints instantly.
