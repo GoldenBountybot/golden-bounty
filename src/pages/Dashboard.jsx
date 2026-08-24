@@ -144,7 +144,7 @@ export default function Dashboard() {
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
         <div
-          className="max-w-none mx-auto px-4 py-3 flex items-center gap-3"
+          className="relative max-w-none mx-auto px-4 py-3 flex items-center gap-3"
           /* Telegram fullscreen overlays the very top of the screen with its own
              chrome, so nudge the row down out of the untappable strip. */
           style={hasTelegramBackButton() ? { paddingTop: 'calc(env(safe-area-inset-top) + 2.25rem)' } : undefined}
@@ -160,14 +160,15 @@ export default function Dashboard() {
             </button>
           )}
 
-          <div className="flex-1 flex items-center justify-center gap-2">
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 pointer-events-none">
             <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'linear-gradient(135deg,#FFD700,#C89B3C)', boxShadow: '0 0 14px rgba(212,175,55,0.45)' }}>
               <Wallet className="w-5 h-5" style={{ color: '#1a1408' }} />
             </div>
-            <span className="text-lg font-extrabold tracking-tight" style={{ ...heading, color: '#D4AF37' }}>
+            <span className="text-lg font-extrabold tracking-tight whitespace-nowrap" style={{ ...heading, color: '#D4AF37' }}>
               {tab === 'stack' ? t("Stack") : tab === 'vip' ? t("VIP") : t("Dashboard")}
             </span>
           </div>
+          <div className="flex-1" />
 
           <button
             onClick={() => setMenuOpen(o => !o)}

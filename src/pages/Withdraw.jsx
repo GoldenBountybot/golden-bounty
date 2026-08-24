@@ -170,7 +170,7 @@ export default function Withdraw() {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-none mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="relative max-w-none mx-auto px-4 py-3 flex items-center gap-3">
           {(!hasTelegramBackButton() || view !== 'choose') && (
             <button
               onClick={() => (view !== 'choose' ? (setView('choose'), setSelectedNet(null)) : window.history.back())}
@@ -182,7 +182,7 @@ export default function Withdraw() {
             </button>
           )}
 
-          <div className="flex-1 flex items-center justify-center gap-2">
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center gap-2 pointer-events-none">
             <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ background: 'linear-gradient(135deg,#34d399,#059669)', boxShadow: '0 0 14px rgba(52,211,153,0.45)' }}>
               <ArrowUpFromLine className="w-5 h-5" style={{ color: '#062018' }} />
             </div>
@@ -190,6 +190,7 @@ export default function Withdraw() {
               {view === 'choose' ? t("Withdraw") : t("USDT Withdraw")}
             </span>
           </div>
+          <div className="flex-1" />
 
           <button
             onClick={() => window.location.href = '/dashboard'}

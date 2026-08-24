@@ -230,10 +230,10 @@ export default function Profile() {
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
             </button>
           )}
-          <div className="flex-1 text-center">
-            <span className="text-lg font-extrabold tracking-tight" style={{ color: '#D4AF37' }}>{t("Profile")}</span>
+          <div className="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none">
+            <span className="text-lg font-extrabold tracking-tight whitespace-nowrap" style={{ color: '#D4AF37' }}>{t("Profile")}</span>
           </div>
-          <div className="w-10" />
+          <div className="flex-1" />
 
           {menuOpen && (
             <div className="absolute left-4 top-14 z-40 w-[280px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-3xl p-2.5 flex flex-col gap-1.5"

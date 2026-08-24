@@ -232,7 +232,7 @@ export default function PayMethod() {
         className="sticky top-0 z-30"
         style={{ background: 'rgba(13,13,13,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(212,175,55,0.22)' }}
       >
-        <div className="max-w-none mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="relative max-w-none mx-auto px-4 py-3 flex items-center gap-3">
           {view !== 'choose' && !hasTelegramBackButton() ? (
             <button onClick={() => { if (selNet) { setSelNet(null); } else { setView('choose'); } }}
               className="flex items-center gap-1.5 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
@@ -246,10 +246,9 @@ export default function PayMethod() {
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
             </button>
           ) : null}
-          <div className="flex-1 text-center">
-            <span className="text-base font-extrabold tracking-tight" style={{ color: '#D4AF37' }}>{view === 'choose' ? t("Choose Payment") : methodLabel}</span>
+          <div className="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none">
+            <span className="text-base font-extrabold tracking-tight whitespace-nowrap" style={{ color: '#D4AF37' }}>{view === 'choose' ? t("Choose Payment") : methodLabel}</span>
           </div>
-          <div className="w-10" />
         </div>
       </header>
 
