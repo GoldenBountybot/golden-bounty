@@ -74,7 +74,7 @@ export default function AppLoadingScreen({ progress = 0 }) {
   return (
     <div
       className="fixed inset-0 z-[9998] flex flex-col items-center justify-center overflow-hidden"
-      style={{ background: 'linear-gradient(to bottom, #0a0805 0%, #1a1208 50%, #0a0805 100%)' }}
+      style={{ background: 'transparent' }}
     >
       {/* Splash background image — dim, fades in when ready */}
       <div
