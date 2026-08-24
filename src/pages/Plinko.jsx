@@ -9,6 +9,7 @@ import { PLINKO_ASSETS, GAME_BG } from '@/lib/gameAssets';
 import { isMuted, useMute } from '@/lib/soundMute';
 import { startPlinkoMusic, stopPlinkoMusic } from '@/lib/plinkoCasinoMusic';
 import GameDesktopPanel from '@/components/GameDesktopPanel';
+import { isInsideTelegram } from '@/lib/telegram';
 
 const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1; // 12 rows: bottom row has 12 pegs between 13 slots
