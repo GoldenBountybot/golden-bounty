@@ -13,6 +13,7 @@ import { Wallet, FlaskConical, Gift } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useLanguage } from '@/lib/LanguageContext';
+import { isInsideTelegram } from '@/lib/telegram';
 
 const GAMES = [
   { id: 'free-spin', titleKey: 'Daily Free Spin', category: 'Arcade', desc: 'Spin every 24h · win $1000', accent: 'from-amber-500 to-yellow-700', tag: 'FREE', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png', path: '/free-spin' },
@@ -38,6 +39,9 @@ export default function Home() {
   const { balance, demoMode, setDemoMode } = useCasinoBalance();
   const filtered = cat === 'All' ? GAMES : GAMES.filter(g => g.category === cat);
   const playable = GAMES.filter(g => !g.coming).length;
+  // In Telegram fullscreen the native chrome (clock / close button) sits over the
+  // very top of the page, so push the whole header down and leave space above it.
+  const topInset = isInsideTelegram() ? 'calc(env(safe-area-inset-top, 0px) + 42px)' : '0.5rem';
 
   return (
     <div className="relative min-h-screen pb-24 lg:pl-20 bg-[#0b0b0d]">
@@ -47,7 +51,7 @@ export default function Home() {
         className="sticky top-0 z-20 backdrop-blur-md"
         style={{ background: 'rgba(10,9,8,0.35)', borderBottom: '1px solid rgba(214,178,98,0.06)' }}
       >
-        <div className="max-w-none mx-auto pl-4 pr-0 lg:px-6 pt-2 pb-0 flex items-center justify-between">
+        <div className="max-w-none mx-auto pl-4 pr-0 lg:px-6 pb-0 flex items-center justify-between" style={{ paddingTop: topInset }}>
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className="relative shrink-0 self-end translate-y-[13px] w-12 h-12">
               <button
