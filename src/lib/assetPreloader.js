@@ -25,11 +25,20 @@ const retained = [];
 // so the same URL is never fetched twice.
 // `lowPriority` lowers the fetch priority so background warming doesn't
 // compete with the user's active page navigation.
-export function preloadImage(url, lowPriority = false) {
+// `strict` = never resolve early on a timeout; wait until the image is really
+// downloaded + decoded (used by game loading screens, where nothing may pop in
+// after the game appears).
+export function preloadImage(url, lowPriority = false, strict = false) {
   if (!url || typeof url !== 'string') return Promise.resolve();
   if (loaded.has(url)) return Promise.resolve();
   const existing = cache.get(url);
-  if (existing) return existing;
+  if (existing) {
+    if (!strict) return existing;
+    // In strict mode an in-flight (possibly timed-out) promise isn't enough —
+    // once it settles, if the image still isn't fully loaded, load it for real.
+    return existing.then(() => (loaded.has(url) ? undefined : loadStrict(url, lowPriority)));
+  }
+  if (strict) return loadStrict(url, lowPriority);
 
   const p = new Promise((resolve) => {
     let settled = false;
@@ -82,7 +91,27 @@ export function preloadImage(url, lowPriority = false) {
 // Preload many image URLs in parallel, calling `onProgress(0..100)` as each
 // one completes. Returns a promise that resolves when ALL images are loaded
 // (or failed). Deduplicates URLs so repeats don't inflate the count.
-export function preloadAssets(urls, onProgress, lowPriority = false) {
+// Strict single-image load: resolves only once the image is fully downloaded
+// and decoded (or errors out — a broken URL must never hang forever).
+function loadStrict(url, lowPriority) {
+  const p = new Promise((resolve) => {
+    const img = new Image();
+    img.decoding = 'async';
+    if ('fetchPriority' in img) img.fetchPriority = lowPriority ? 'low' : 'high';
+    const done = () => { loaded.add(url); resolve(); };
+    img.onload = () => {
+      if (typeof img.decode === 'function') img.decode().then(done).catch(done);
+      else done();
+    };
+    img.onerror = () => { cache.delete(url); resolve(); };
+    img.src = url;
+    retained.push(img);
+  });
+  cache.set(url, p);
+  return p;
+}
+
+export function preloadAssets(urls, onProgress, lowPriority = false, strict = false) {
   const unique = [...new Set(urls.filter(Boolean))];
   if (!unique.length) {
     if (onProgress) onProgress(100);
@@ -95,7 +124,7 @@ export function preloadAssets(urls, onProgress, lowPriority = false) {
     if (onProgress) onProgress(Math.round((done / unique.length) * 100));
   };
 
-  return Promise.all(unique.map((url) => preloadImage(url, lowPriority).then(report)));
+  return Promise.all(unique.map((url) => preloadImage(url, lowPriority, strict).then(report)));
 }
 
 // Check whether a URL has FULLY finished loading (not merely in flight).

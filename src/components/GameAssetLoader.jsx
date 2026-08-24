@@ -50,7 +50,7 @@ export default function GameAssetLoader({
         if (elapsed >= minDuration) finish();
         // else: minTimer will fire finish() once minDuration is reached
       }
-    }).then(() => {
+    }, false, true).then(() => {
       if (cancelled) return;
       assetsDoneRef.current = true;
       setProgress(100);
