@@ -3,7 +3,6 @@ import GameTitleBar from '@/components/GameTitleBar';
 import { Wallet, Volume2, VolumeX } from 'lucide-react';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { useMute } from '@/lib/soundMute';
-import { isInsideTelegram } from '@/lib/telegram';
 
 // Shared header for casino game pages: a full-width western plaque with the
 // game title centered, back button on the left, share on the right. Optional
@@ -18,9 +17,6 @@ export default function GameHeader({ title, balance }) {
       style={{
         background: 'rgba(10,9,8,0.78)',
         borderBottom: '1px solid rgba(214,178,98,0.22)',
-        // Telegram fullscreen draws its own chrome over the top of the page, so
-        // leave space above the plaque and push the game content down with it.
-        paddingTop: isInsideTelegram() ? 'calc(env(safe-area-inset-top, 0px) + 42px)' : 0,
       }}
     >
       <GameTitleBar
