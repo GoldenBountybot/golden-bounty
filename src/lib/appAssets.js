@@ -8,6 +8,8 @@
 // Game-specific assets live in gameAssets.js and are preloaded by each
 // game's own loading screen (GameAssetLoader).
 
+import { PG_GAMES } from '@/lib/pgGames';
+
 const CDN = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776';
 const u = (id) => `${CDN}/${id}`;
 
@@ -26,7 +28,6 @@ const SPLASH = [
 
 // ---- Home page banners ----
 const HOME = [
-  u('fac3dbda4_file_000000008654821185c00f28c290ba18.png'), // hero banner
   u('954aff594_file_00000000d7b081fab9598b09e1590c28.png'), // airdrop banner
 ];
 
@@ -116,8 +117,17 @@ const SUPPORT = [
   'https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg',
 ];
 
+// ---- PG SOFT lobby covers ----
+// The catalogue holds 150+ covers — only the first screenful is preloaded on
+// the splash (the lobby mounts 36 tiles at a time). The rest are warmed in the
+// background after entry via PG_CARDS_REST.
+const PG_CARD_URLS = PG_GAMES.map((g) => g.image).filter(Boolean);
+const PG_CARDS = PG_CARD_URLS.slice(0, 40);
+export const PG_CARDS_REST = PG_CARD_URLS.slice(40);
+
 // The complete list of app-wide images to preload during the splash screen.
 export const APP_ASSETS = [
+  ...PG_CARDS,
   ...SPLASH,
   ...HOME,
   ...BANNERS,

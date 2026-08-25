@@ -56,7 +56,7 @@ import AppLoadingScreen from '@/components/AppLoadingScreen';
 import { LanguageProvider } from '@/lib/LanguageContext';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { preloadAssets, preloadDynamicAssets, preloadAllGameAssets, preloadImage } from '@/lib/assetPreloader';
-import { APP_ASSETS } from '@/lib/appAssets';
+import { APP_ASSETS, PG_CARDS_REST } from '@/lib/appAssets';
 import { base44 } from '@/api/base44Client';
 import { SUPABASE_URL } from '@/api/supabaseClient';
 import { isStandaloneApp } from '@/lib/isStandaloneApp';
@@ -83,7 +83,7 @@ const AuthenticatedApp = () => {
     preloadImage('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png');
     // Track static preload progress (0..100) for the loading bar; dynamic
     // assets don't report progress so we just fold them into the final 100.
-    preloadAssets(APP_ASSETS, (p) => setLoadProgress(Math.min(p, 90)))
+    preloadAssets(APP_ASSETS, (p) => setLoadProgress(Math.min(p, 90)), false, true)
       .then(() => { setStaticReady(true); setLoadProgress(100); })
       .catch(() => setStaticReady(true));
     preloadDynamicAssets(base44)
@@ -107,6 +107,9 @@ const AuthenticatedApp = () => {
     // Warm the profile data (name, username, transactions, game history)
     // right away so the Profile page opens instantly with no loading delay.
     warmProfileCache();
+    // Warm the remaining PG SOFT lobby covers (beyond the first screenful) at
+    // low priority so scrolling the lobby never shows an image downloading.
+    preloadAssets(PG_CARDS_REST, null, true);
     const t = setTimeout(() => { preloadAllGameAssets(); }, 300);
     return () => clearTimeout(t);
   }, [showLoadingScreen]);
