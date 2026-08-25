@@ -106,6 +106,10 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       providerRef.current = res.provider;
       accountRef.current = res.account;
       setAccount(res.account);
+      // The pairing URI is consumed once connected — keeping it would make the
+      // "open wallet" link re-open an expired pairing, so the wallet appears
+      // with no pending request at all.
+      wcUriRef.current = '';
       setWcUri('');
       await deposit();
     } else {
@@ -157,6 +161,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       providerRef.current = res.provider;
       accountRef.current = res.account;
       setAccount(res.account);
+      wcUriRef.current = '';
       setWcUri('');
       setStatus('connected');
     } else {

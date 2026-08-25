@@ -113,6 +113,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       providerRef.current = provider;
       accountRef.current = accounts[0];
       setAccount(accounts[0]);
+      // Consumed pairing URI — reusing it would open MetaMask on an expired
+      // pairing, showing no pending request.
+      qrUriRef.current = '';
       setQrUri('');
       await deposit();
     } catch (e) {
@@ -137,6 +140,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       providerRef.current = provider;
       accountRef.current = accounts[0];
       setAccount(accounts[0]);
+      qrUriRef.current = '';
       setQrUri('');
       setStatus('connected');
     } catch (e) {
