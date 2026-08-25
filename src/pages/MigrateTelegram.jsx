@@ -1,23 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2, Mail, KeyRound, ArrowRightLeft, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Loader2, Mail, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { legacySupabase } from '@/lib/legacySupabase';
+import { supabase } from '@/api/supabaseClient';
 import { useLanguage } from '@/lib/LanguageContext';
-import GoogleIcon from '@/components/GoogleIcon';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, sans-serif";
 
+// Binding an old Google / Email account now needs nothing but the email
+// address: the server looks the old account up, moves its balance, stake and
+// history onto the current account, and disables the old login.
 export default function MigrateTelegram() {
   const { t } = useLanguage();
   const [me, setMe] = useState(null);
-  const [step, setStep] = useState('verify'); // verify | confirm | done
-  const [mode, setMode] = useState('password'); // password | code
+  const [step, setStep] = useState('verify'); // verify | done
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [code, setCode] = useState('');
-  const [codeSent, setCodeSent] = useState(false);
-  const [legacy, setLegacy] = useState(null); // { id, balance }
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -26,87 +23,20 @@ export default function MigrateTelegram() {
     base44.auth.me().then(setMe).catch(() => setMe(null));
   }, []);
 
-  // Coming back from the legacy Google sign-in: tokens arrive in the URL hash.
-  useEffect(() => {
-    const hash = window.location.hash || '';
-    if (!hash.includes('access_token=')) return;
-    const p = new URLSearchParams(hash.slice(1));
-    (async () => {
-      setBusy(true);
-      try {
-        const { data, error: e } = await legacySupabase.auth.setSession({
-          access_token: p.get('access_token'),
-          refresh_token: p.get('refresh_token') || '',
-        });
-        if (e) throw new Error(e.message);
-        window.history.replaceState(null, '', window.location.pathname);
-        await loadLegacy(data.user.id);
-      } catch (er) { setError(er.message); } finally { setBusy(false); }
-    })();
-  }, []);
-
-  const signInGoogle = async () => {
-    setBusy(true); setError('');
-    try {
-      const { error: e } = await legacySupabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin + '/migrate', skipBrowserRedirect: false },
-      });
-      if (e) throw new Error(e.message);
-    } catch (er) { setError(er.message); setBusy(false); }
+  const ERRORS = {
+    legacy_account_not_found: 'No old account was found with this email, or it has already been transferred.',
+    same_account: 'This is already your current account.',
+    email_required: 'Please enter the old account email.',
+    not_authenticated: 'Please log in first.',
   };
 
-  const loadLegacy = async (userId) => {
-    const { data: wallet } = await legacySupabase.from('wallets').select('balance, staked_amount').eq('user_id', userId).maybeSingle();
-    const { data: prof } = await legacySupabase.from('profiles').select('email, telegram_id, migrated_to').eq('id', userId).maybeSingle();
-    if (prof?.telegram_id) throw new Error(t('This account is already a Telegram account.'));
-    if (prof?.migrated_to) throw new Error(t('This account has already been transferred.'));
-    setLegacy({
-      id: userId,
-      email: prof?.email || email,
-      balance: Number(wallet?.balance || 0),
-      staked: Number(wallet?.staked_amount || 0),
-    });
-    setStep('confirm');
-  };
-
-  const signInPassword = async () => {
+  const bindByEmail = async () => {
     setBusy(true); setError('');
     try {
-      const { data, error: e } = await legacySupabase.auth.signInWithPassword({ email: email.trim(), password });
-      if (e) throw new Error(e.message);
-      await loadLegacy(data.user.id);
-    } catch (e) { setError(e.message); } finally { setBusy(false); }
-  };
-
-  const sendCode = async () => {
-    setBusy(true); setError('');
-    try {
-      const { error: e } = await legacySupabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false } });
-      if (e) throw new Error(e.message);
-      setCodeSent(true);
-    } catch (e) { setError(e.message); } finally { setBusy(false); }
-  };
-
-  const verifyCode = async () => {
-    setBusy(true); setError('');
-    try {
-      const { data, error: e } = await legacySupabase.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: 'email' });
-      if (e) throw new Error(e.message);
-      await loadLegacy(data.user.id);
-    } catch (e) { setError(e.message); } finally { setBusy(false); }
-  };
-
-  const doMigrate = async () => {
-    setBusy(true); setError('');
-    try {
-      const tg = Number(me?.telegram_id);
-      if (!tg) throw new Error(t('Your Telegram account was not found. Please log in with Telegram.'));
-      const { data, error: e } = await legacySupabase.rpc('migrate_legacy_to_telegram', { p_tg: tg });
-      if (e) throw new Error(e.message);
+      const { data, error: e } = await supabase.rpc('migrate_legacy_by_email', { p_email: email.trim() });
+      if (e) throw new Error(t(ERRORS[e.message] ? ERRORS[e.message] : e.message));
       setResult(data);
       setStep('done');
-      await legacySupabase.auth.signOut({ scope: 'local' });
     } catch (e) { setError(e.message); } finally { setBusy(false); }
   };
 
@@ -125,7 +55,7 @@ export default function MigrateTelegram() {
         <div className="dash-card p-4 flex gap-3 items-start">
           <ShieldCheck className="w-5 h-5 shrink-0" style={{ color: '#34d399' }} />
           <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
-            {t('Your old Google / Email account balance, stake and history will move to this Telegram account. The old Google / Email login will be permanently disabled right after the transfer.')}
+            {t('Just enter your old Google / Email account address — no password or code needed. Its balance, stake and history will move to this account and the old login will be permanently disabled.')}
           </p>
         </div>
 
@@ -137,72 +67,12 @@ export default function MigrateTelegram() {
               <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="you@gmail.com"
                 className="dash-input w-full pl-10 pr-4 py-2.5 text-sm" />
             </div>
-
-            {mode === 'password' ? (
-              <>
-                <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Password')}</label>
-                <div className="relative">
-                  <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(212,175,55,0.6)' }} />
-                  <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="••••••••"
-                    className="dash-input w-full pl-10 pr-4 py-2.5 text-sm" />
-                </div>
-                <button onClick={signInPassword} disabled={busy || !email || !password} className="dash-btn-gold py-2.5 text-sm flex items-center justify-center gap-2">
-                  {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {t('Verify now')}
-                </button>
-                <div className="flex items-center gap-2 my-0.5">
-                  <span className="flex-1 h-px" style={{ background: 'rgba(212,175,55,0.25)' }} />
-                  <span className="text-[10px] uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.7)' }}>{t('or')}</span>
-                  <span className="flex-1 h-px" style={{ background: 'rgba(212,175,55,0.25)' }} />
-                </div>
-                <button onClick={signInGoogle} disabled={busy}
-                  className="py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-2"
-                  style={{ background: '#fff', color: '#1a1408' }}>
-                  <GoogleIcon className="w-4 h-4" /> {t('Verify with Google')}
-                </button>
-                <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  {t('If you created the old account with Google, verify with Google — no password needed.')}
-                </p>
-              </>
-            ) : (
-              <>
-                {!codeSent ? (
-                  <button onClick={sendCode} disabled={busy || !email} className="dash-btn-gold py-2.5 text-sm flex items-center justify-center gap-2">
-                    {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {t('Send code to email')}
-                  </button>
-                ) : (
-                  <>
-                    <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Code sent to your email')}</label>
-                    <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="123456"
-                      className="dash-input w-full px-4 py-2.5 text-sm tracking-[0.3em]" />
-                    <button onClick={verifyCode} disabled={busy || !code} className="dash-btn-gold py-2.5 text-sm flex items-center justify-center gap-2">
-                      {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {t('Verify code')}
-                    </button>
-                    <button onClick={sendCode} disabled={busy} className="text-[11px] font-semibold" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Resend code')}</button>
-                  </>
-                )}
-              </>
-            )}
-          </div>
-        )}
-
-        {step === 'confirm' && legacy && (
-          <div className="dash-card p-5 flex flex-col gap-4">
-            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>{t('Verified — the balance below will move to your Telegram account.')}</p>
-            <div className="flex items-center justify-between px-4 py-3 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.3)' }}>
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{legacy.email}</p>
-                <p className="text-xl font-extrabold tabular-nums" style={{ color: '#fff' }}>${legacy.balance.toFixed(2)}</p>
-                {legacy.staked > 0 && <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>{t('Stake')}: ${legacy.staked.toFixed(2)}</p>}
-              </div>
-              <ArrowRightLeft className="w-5 h-5" style={{ color: '#D4AF37' }} />
-              <div className="text-right">
-                <p className="text-[10px] uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t('Telegram')}</p>
-                <p className="text-[13px] font-bold" style={{ color: '#fff' }}>@{me?.telegram_username || me?.username || '—'}</p>
-              </div>
-            </div>
-            <button onClick={doMigrate} disabled={busy} className="dash-btn-gold py-3 text-sm flex items-center justify-center gap-2">
+            <button onClick={bindByEmail} disabled={busy || !email.trim()} className="dash-btn-gold py-3 text-sm flex items-center justify-center gap-2">
               {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {t('Bind & Transfer')}
             </button>
+            <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              {t('Signed in as')} @{me?.telegram_username || me?.username || me?.email || '—'}
+            </p>
           </div>
         )}
 
@@ -213,6 +83,11 @@ export default function MigrateTelegram() {
             <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
               {t('{amount} has been added to your Telegram account. The old login has been disabled.', { amount: `$${Number(result?.moved_balance || 0).toFixed(2)}` })}
             </p>
+            {Number(result?.moved_staked || 0) > 0 && (
+              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                {t('Stake')}: ${Number(result.moved_staked).toFixed(2)}
+              </p>
+            )}
             <Link to="/profile" className="dash-btn-gold px-6 py-2.5 text-sm">{t('Go to Profile')}</Link>
           </div>
         )}
