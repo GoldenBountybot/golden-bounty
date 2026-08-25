@@ -39,12 +39,16 @@ export default function PgGame() {
 
   return (
     <div className="fixed inset-0 bg-black flex flex-col">
-      <div className="flex items-center gap-3 px-3 py-2" style={{ borderBottom: '1px solid rgba(214,178,98,0.2)' }}>
-        <Link to="/" className="p-1.5 rounded-full" style={{ border: '1px solid rgba(214,178,98,0.4)' }}>
+      {/* Floating back button — no header bar, game runs full screen */}
+      {html && (
+        <Link
+          to="/"
+          className="absolute z-20 p-1.5 rounded-full bg-black/50"
+          style={{ border: '1px solid rgba(214,178,98,0.4)', top: 'calc(env(safe-area-inset-top, 0px) + 8px)', left: '8px' }}
+        >
           <ArrowLeft className="w-4 h-4 text-amber-300" />
         </Link>
-        <span className="flex-1 text-center text-sm font-black italic text-amber-200 pr-8" style={{ fontFamily: 'Georgia, serif' }}>{title}</span>
-      </div>
+      )}
 
       <div className="flex-1 relative">
         {html ? (
