@@ -26,6 +26,9 @@ export const ERR = {
   INVALID_SESSION: { code: '1201', message: 'invalid player session' },
   PLAYER_NOT_FOUND: { code: '1203', message: 'player not found' },
   INSUFFICIENT: { code: '1301', message: 'insufficient balance' },
+  PLAYER_NOT_EXIST: { code: '3004', message: 'Player does not exist' },
+  WALLET_NOT_EXIST: { code: '3005', message: 'Player wallet does not exist' },
+  TRANSACTION_NOT_FOUND: { code: '1401', message: 'transaction not found' },
   INTERNAL: { code: '9999', message: 'internal error' },
 };
 
@@ -65,6 +68,13 @@ export async function readParams(req: Request): Promise<Record<string, string>> 
 export function checkOperatorToken(p: Record<string, string>): boolean {
   if (!OPERATOR_TOKEN) return true; // not configured yet — don't block integration testing
   return !p.operator_token || p.operator_token === OPERATOR_TOKEN;
+}
+
+// PG SOFT sends the shared passphrase on every callback. Only enforced once
+// it is configured, so integration testing isn't blocked.
+export function checkSecretKey(p: Record<string, string>): boolean {
+  if (!SECRET_KEY) return true;
+  return !p.secret_key || p.secret_key === SECRET_KEY;
 }
 
 // Resolves the PG SOFT player_name (our user id) to a wallet row.
