@@ -226,18 +226,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Hero banner */}
-      <section className="relative z-10 max-w-none mx-auto px-4 lg:px-6 pb-2">
-        <div className="relative overflow-hidden rounded-2xl" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
-          <FadeImage
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fac3dbda4_file_000000008654821185c00f28c290ba18.png"
-            alt="Welcome to Golden Bounty — Play 12 Premium Casino Games + Earn Daily Profit with Staking Plans"
-            className="w-full h-auto block"
-            durationMs={500}
-          />
-        </div>
-      </section>
-
       {/* Airdrop banner */}
       <section className="relative z-10 max-w-none mx-auto px-4 lg:px-6 pb-2">
         <Link to="/airdrop" className="block relative overflow-hidden rounded-2xl transition-transform active:scale-[0.99]" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
