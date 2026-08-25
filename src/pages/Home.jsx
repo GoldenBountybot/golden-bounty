@@ -57,8 +57,10 @@ export default function Home() {
   const pickCat = (c) => { setCat(c); setVisible(36); };
   const { toast } = useToast();
   const { balance, demoMode, setDemoMode } = useCasinoBalance();
-  const filtered = cat === 'All' ? ALL_GAMES : ALL_GAMES.filter(g => g.category === cat);
-  const playable = ALL_GAMES.filter(g => !g.coming).length;
+  // Demo mode uses a practice balance, which PG SOFT titles can't run on — hide them.
+  const baseGames = demoMode ? GAMES : ALL_GAMES;
+  const filtered = cat === 'All' ? baseGames : baseGames.filter(g => g.category === cat);
+  const playable = baseGames.filter(g => !g.coming).length;
   // In Telegram fullscreen the native chrome (clock / close button) sits over the
   // very top of the page, so push the whole header down and leave space above it.
   const topInset = isInsideTelegram() ? 'calc(env(safe-area-inset-top, 0px) + 42px)' : '0.5rem';
