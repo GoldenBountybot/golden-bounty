@@ -124,6 +124,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       providerRef.current = res.provider;
       accountRef.current = res.account;
       setAccount(res.account);
+      // Make sure the wallet is on the selected chain before we ask it to send —
+      // a wrong active chain makes the transaction request fail silently.
+      try { await ensureChain(res.provider); } catch {}
       qrUriRef.current = '';
       setQrUri('');
       setStatus('connected');
