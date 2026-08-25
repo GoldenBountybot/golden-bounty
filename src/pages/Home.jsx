@@ -46,6 +46,10 @@ const PG_LOBBY_GAMES = PG_GAMES.map(g => ({
 
 const ALL_GAMES = [...GAMES, ...PG_LOBBY_GAMES];
 
+// Temporarily hidden from the lobby (routes still work if opened directly).
+// Remove an id from this list to show the game again.
+const HIDDEN_GAME_IDS = ['wild-bounty', 'gates-of-olympus'];
+
 const CATEGORY_KEYS = ['All', 'Slots', 'Cards', 'Table', 'Arcade'];
 
 export default function Home() {
@@ -58,7 +62,7 @@ export default function Home() {
   const { toast } = useToast();
   const { balance, demoMode, setDemoMode } = useCasinoBalance();
   // Demo mode uses a practice balance, which PG SOFT titles can't run on — hide them.
-  const baseGames = demoMode ? GAMES : ALL_GAMES;
+  const baseGames = (demoMode ? GAMES : ALL_GAMES).filter(g => !HIDDEN_GAME_IDS.includes(g.id));
   const filtered = cat === 'All' ? baseGames : baseGames.filter(g => g.category === cat);
   const playable = baseGames.filter(g => !g.coming).length;
   // In Telegram fullscreen the native chrome (clock / close button) sits over the

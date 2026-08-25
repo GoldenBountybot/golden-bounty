@@ -6,13 +6,7 @@ import FadeImage from '@/components/FadeImage';
 // Premium iconic Western game banners — gilt gold frames, Rye typography,
 // auto-rotating carousel featuring the flagship games with their logos.
 const BANNERS = [
-  {
-    title: 'Wild Bounty Showdown',
-    subtitle: '3600 Ways · Cascade Wins',
-    image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/400f63f31_generated_image.png',
-    link: '/games/wild-bounty',
-    accent: '#f5c542',
-  },
+  // Wild Bounty Showdown banner temporarily hidden — restore this entry to show it again.
   {
     title: 'Crown Coins',
     subtitle: 'Royal Treasury · 5 Lines',
