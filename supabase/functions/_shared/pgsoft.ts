@@ -62,6 +62,13 @@ export async function readParams(req: Request): Promise<Record<string, string>> 
       for (const [k, v] of new URLSearchParams(raw)) out[k] = v;
     }
   }
+  // PG SOFT sends some fields in PascalCase (OperatorPlayerSession) and some in
+  // snake_case (operator_player_session). Normalise every key to snake_case so
+  // the callbacks read the same field name whichever style arrives.
+  for (const k of Object.keys({ ...out })) {
+    const snake = k.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+    if (snake !== k && out[snake] === undefined) out[snake] = out[k];
+  }
   return out;
 }
 

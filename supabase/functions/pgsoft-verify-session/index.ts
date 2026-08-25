@@ -9,7 +9,15 @@ Deno.serve(async (req) => {
     const p = await readParams(req);
     if (!checkOperatorToken(p)) return fail(ERR.INVALID_TOKEN);
 
-    const token = p.operator_player_session || p.session || '';
+    // PG SOFT may name the launch token differently per API version, so accept
+    // every documented alias; as a last resort pick any 32-char hex value in
+    // the payload (our tokens are 32-char hex).
+    let token =
+      p.operator_player_session || p.operatorplayersession || p.player_session ||
+      p.session || p.ops || p.token || '';
+    if (!token) {
+      token = Object.values(p).find((v) => /^[0-9a-f]{32}$/i.test(String(v))) || '';
+    }
     if (!token) return fail(ERR.INVALID_SESSION);
 
     const { data: session } = await svc
