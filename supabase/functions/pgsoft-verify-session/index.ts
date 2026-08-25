@@ -36,10 +36,12 @@ Deno.serve(async (req) => {
     const wallet = await ensureWallet(session.user_id);
     if (!wallet || wallet.banned) return fail(ERR.PLAYER_NOT_FOUND);
 
+    // Per the Seamless Mode v2.4.12 spec (5.1.2) VerifySession must return
+    // "currency" — NOT "currency_code" (that name belongs to the wallet APIs).
     return ok({
       player_name: session.user_id,
-      currency_code: CURRENCY,
-      nickname: profile?.full_name || (profile?.email || '').split('@')[0] || 'Player',
+      nickname: (profile?.full_name || (profile?.email || '').split('@')[0] || 'Player').slice(0, 30),
+      currency: CURRENCY,
     });
   } catch (e) {
     return fail({ code: ERR.INTERNAL.code, message: String(e?.message || e) });
