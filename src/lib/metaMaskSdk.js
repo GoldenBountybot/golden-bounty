@@ -12,7 +12,9 @@ export function getMetaMaskSdk() {
     sdkInstance = new MetaMaskSDK({
       dappMetadata: {
         name: 'Golden Bounty',
-        url: typeof window !== 'undefined' ? window.location.href : 'https://golden-bounty.base44.app',
+        // Always show the brand domain in MetaMask's connection request,
+        // never the base44 host the Mini App may actually be served from.
+        url: 'https://golden-bounty.com',
       },
       // false → the SDK opens https://metamask.app.link universal links instead
       // of the metamask:// scheme, which webviews (Telegram) refuse to load.

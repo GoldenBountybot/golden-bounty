@@ -6,7 +6,9 @@ export const WALLETCONNECT_PROJECT_ID = 'da17bc578f57a7ecb96c1ae7f2eb988a';
 export const WALLETCONNECT_METADATA = {
   name: 'Golden Bounty',
   description: 'Golden Bounty — casino deposit',
-  url: typeof window !== 'undefined' ? window.location.origin : 'https://golden-bounty.base44.app',
+  // Shown to the user inside the wallet's connection request — always the
+  // brand domain, never the base44 host the Mini App may actually run on.
+  url: 'https://golden-bounty.com',
   // Wallets need at least one icon; an empty array makes some wallets discard
   // the session proposal instead of showing the connection request.
   icons: ['https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png'],
