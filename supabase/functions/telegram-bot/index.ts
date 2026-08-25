@@ -5,7 +5,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
 const TOKEN = Deno.env.get('TG_BOT_TOKEN') || Deno.env.get('TELEGRAM_BOT_TOKEN') || '';
 const BOT = Deno.env.get('TELEGRAM_BOT_USERNAME') || 'GoldenBountybot';
-const APP_URL = Deno.env.get('TELEGRAM_WEBAPP_URL') || 'https://golden-bounty.base44.app';
+const APP_URL = Deno.env.get('TELEGRAM_WEBAPP_URL') || 'https://golden-bounty.com';
 const svc = createClient(
   Deno.env.get('SUPABASE_URL')!,
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
