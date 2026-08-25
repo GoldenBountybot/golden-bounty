@@ -15,6 +15,8 @@ Base URL: `https://ovyrljtgviabkamomjso.supabase.co/functions/v1`
 | Get Player Wallet (CashGet) | `https://ovyrljtgviabkamomjso.supabase.co/functions/v1/pgsoft-cash-get` |
 | Bet Payout (CashTransferInOut) | `https://ovyrljtgviabkamomjso.supabase.co/functions/v1/pgsoft-cash-transfer` |
 | Balance Adjustment | `https://ovyrljtgviabkamomjso.supabase.co/functions/v1/pgsoft-cash-adjustment` |
+| Check Transaction (Cash/Transaction/Get) | `https://ovyrljtgviabkamomjso.supabase.co/functions/v1/pgsoft-transaction-get` |
+| Rollback (Cash/Rollback) | `https://ovyrljtgviabkamomjso.supabase.co/functions/v1/pgsoft-rollback` |
 
 Currency: **USDT** (USD disclaimer agreed, as submitted in the form).
 
@@ -33,10 +35,12 @@ Callback URLs:
 - Get Player Wallet:  https://ovyrljtgviabkamomjso.supabase.co/functions/v1/pgsoft-cash-get
 - Bet Payout:         https://ovyrljtgviabkamomjso.supabase.co/functions/v1/pgsoft-cash-transfer
 - Balance Adjustment: https://ovyrljtgviabkamomjso.supabase.co/functions/v1/pgsoft-cash-adjustment
+- Check Transaction:  https://ovyrljtgviabkamomjso.supabase.co/functions/v1/pgsoft-transaction-get
+- Rollback:           https://ovyrljtgviabkamomjso.supabase.co/functions/v1/pgsoft-rollback
 
 Kindly configure these endpoints for both Staging and Production.
 
 Best regards,
 Golden Bounty Team
 goldenbountysupport@gmail.com
-``
+`
