@@ -12,16 +12,23 @@ export default function PgGame() {
   const [html, setHtml] = useState('');
   const [error, setError] = useState('');
   const [progress, setProgress] = useState(0);
+  const [ready, setReady] = useState(false); // our loader stays until PG is done connecting
   const title = PG_GAMES.find((g) => g.id === gameId)?.title || 'PG SOFT';
 
-  // Branded loading bar creeps up to 90% while the launch request is in flight,
-  // then jumps to 100% once the PG game frame is handed over.
+  // The PG frame mounts hidden behind our branded loader, so PG's own
+  // "connecting" step happens *during* our loading screen instead of after it.
   useEffect(() => {
-    if (html) { setProgress(100); return; }
-    setProgress(6);
-    const iv = setInterval(() => setProgress((p) => (p < 90 ? p + 3 : p)), 120);
+    setReady(false);
+    setProgress(4);
+    const iv = setInterval(() => setProgress((p) => (p < 96 ? p + 2 : p)), 120);
     return () => clearInterval(iv);
-  }, [html]);
+  }, [gameId]);
+
+  // Once the PG document has loaded, give its own connect/boot sequence a few
+  // seconds to finish behind our loader, then reveal the game.
+  const onFrameLoad = () => {
+    setTimeout(() => { setProgress(100); setReady(true); }, 5000);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -40,7 +47,7 @@ export default function PgGame() {
   return (
     <div className="fixed inset-0 bg-black flex flex-col">
       {/* Floating back button — no header bar, game runs full screen */}
-      {html && (
+      {html && ready && (
         <Link
           to="/"
           className="absolute z-20 p-1.5 rounded-full bg-black/50"
@@ -51,22 +58,26 @@ export default function PgGame() {
       )}
 
       <div className="flex-1 relative">
-        {html ? (
+        {html && (
           <iframe
             title={title}
             srcDoc={html}
             allow="autoplay; fullscreen"
+            onLoad={onFrameLoad}
             className="absolute inset-0 w-full h-full border-0"
+            style={{ opacity: ready ? 1 : 0, transition: 'opacity 400ms ease-out' }}
           />
-        ) : error ? (
+        )}
+
+        {error ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-6">
             <p className="text-sm text-amber-100/80">{error}</p>
             <Link to="/" className="px-4 py-2 rounded-lg text-xs font-bold"
               style={{ background: 'linear-gradient(to bottom,#f5c542,#c8881e)', color: '#2a1a06' }}>Back to lobby</Link>
           </div>
-        ) : (
+        ) : !ready ? (
           <AppLoadingScreen progress={progress} />
-        )}
+        ) : null}
       </div>
     </div>
   );
