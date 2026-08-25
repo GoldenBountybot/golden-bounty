@@ -16,9 +16,8 @@ Deno.serve(async (req) => {
 
     const balance = Number(wallet.balance || 0);
     return ok({
-      currency: CURRENCY,
+      currency_code: CURRENCY,
       balance_amount: balance,
-      real_balance_amount: balance,
       updated_time: Date.now(),
     });
   } catch (e) {

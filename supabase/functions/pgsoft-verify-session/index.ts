@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
 
     return ok({
       player_name: session.user_id,
-      currency: CURRENCY,
+      currency_code: CURRENCY,
       nickname: profile?.full_name || (profile?.email || '').split('@')[0] || 'Player',
     });
   } catch (e) {

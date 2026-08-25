@@ -44,10 +44,11 @@ Deno.serve(async (req) => {
       if (!prev) return fail({ code: ERR.INTERNAL.code, message: claim.error.message });
       if (prev.status !== 'success') return fail(ERR.INSUFFICIENT);
       return ok({
-        currency: CURRENCY,
+        currency_code: CURRENCY,
         balance_amount: Number(prev.balance_after || 0),
-        real_balance_amount: Number(prev.balance_after || 0),
         updated_time: Number(prev.updated_time || Date.now()),
+        // real_transfer_amount is only echoed back when PG SOFT asks for it.
+        ...(p.real_transfer_amount !== undefined ? { real_transfer_amount: num(p.real_transfer_amount) } : {}),
       });
     }
 
@@ -83,10 +84,10 @@ Deno.serve(async (req) => {
     }
 
     return ok({
-      currency: CURRENCY,
+      currency_code: CURRENCY,
       balance_amount: balance,
-      real_balance_amount: balance,
       updated_time: updatedTime,
+      ...(p.real_transfer_amount !== undefined ? { real_transfer_amount: num(p.real_transfer_amount) } : {}),
     });
   } catch (e) {
     return fail({ code: ERR.INTERNAL.code, message: String(e?.message || e) });

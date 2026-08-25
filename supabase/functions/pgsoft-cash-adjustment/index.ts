@@ -34,9 +34,8 @@ Deno.serve(async (req) => {
       if (!prev) return fail({ code: ERR.INTERNAL.code, message: claim.error.message });
       if (prev.status !== 'success') return fail(ERR.INSUFFICIENT);
       return ok({
-        currency: CURRENCY,
+        currency_code: CURRENCY,
         balance_amount: Number(prev.balance_after || 0),
-        real_balance_amount: Number(prev.balance_after || 0),
         updated_time: Number(prev.updated_time || Date.now()),
       });
     }
@@ -55,9 +54,8 @@ Deno.serve(async (req) => {
       .eq('transaction_id', txId);
 
     return ok({
-      currency: CURRENCY,
+      currency_code: CURRENCY,
       balance_amount: balance,
-      real_balance_amount: balance,
       updated_time: updatedTime,
     });
   } catch (e) {
