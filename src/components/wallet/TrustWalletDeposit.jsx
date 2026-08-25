@@ -188,6 +188,9 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
     try {
+      // Bring Trust Wallet to the foreground so the signing prompt is actually
+      // seen — over WalletConnect the request is silent until the app opens.
+      if (isMobile()) openTrustApp();
       await new Promise((r) => setTimeout(r, 800));
 
       if (payAsset === 'native') {

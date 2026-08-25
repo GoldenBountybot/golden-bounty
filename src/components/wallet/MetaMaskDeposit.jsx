@@ -187,6 +187,8 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
     try {
+      // Bring MetaMask to the foreground so the signing prompt is actually seen.
+      if (isMobile()) openMetaMaskApp();
       await new Promise((r) => setTimeout(r, 800));
 
       if (payAsset === 'native') {

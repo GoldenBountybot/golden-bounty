@@ -53,6 +53,10 @@ export async function connectWalletConnect(chainId) {
     const accounts = await provider.enable();
     return { provider, account: accounts && accounts[0] };
   } catch {
+    // A failed / cancelled pairing leaves the provider holding a dead proposal,
+    // so the next attempt never emits a fresh display_uri (the "works 1 in 4
+    // tries" symptom). Tear it down so the next connect starts clean.
+    await disconnectWalletConnect();
     return null;
   }
 }
