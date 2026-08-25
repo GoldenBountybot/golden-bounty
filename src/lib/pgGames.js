@@ -163,6 +163,45 @@ const expand = (img) => (img[0] === 'U' ? U + img.slice(1) : I + img.slice(1));
 
 export const PG_CATEGORIES = ['All', 'New', 'Slots', 'Cascading', 'Classic', 'Table'];
 
+// PG SOFT's most popular titles, most popular first. These are pulled to the
+// top of the lobby; everything else keeps the catalogue order after them.
+const POPULAR = [
+  '65',      // Mahjong Ways
+  '74',      // Mahjong Ways 2
+  '135',     // Wild Bounty Showdown
+  '126',     // Fortune Tiger
+  '98',      // Fortune Ox
+  '1543462', // Fortune Rabbit
+  '68',      // Fortune Mouse
+  '1695365', // Fortune Dragon
+  '1879752', // Fortune Snake
+  '57',      // Dragon Hatch
+  '1451122', // Dragon Hatch 2
+  '104',     // Wild Bandito
+  '1312883', // Prosperity Fortune Tree
+  '1529867', // Ninja Raccoon Frenzy
+  '108',     // Buffalo Win
+  '128',     // Legend of Perseus
+  '130',     // Lucky Piggy
+  '123',     // Rooster Rumble
+  '122',     // Garuda Gems
+  '102',     // Mermaid Riches
+  '95',      // Majestic Treasures
+  '94',      // Bali Vacation
+  '42',      // Ganesha Gold
+  '39',      // Piggy Gold
+  '54',      // Captain's Bounty
+  '60',      // Leprechaun Riches
+  '1594259', // Safari Wilds
+  '2100928', // Fortune Horse
+  '132',     // Wild Coaster
+  '127',     // Speed Winner
+];
+const popRank = (id) => {
+  const i = POPULAR.indexOf(id);
+  return i === -1 ? POPULAR.length : i;
+};
+
 export const PG_GAMES = ROWS.map((row, i) => {
   const [id, title, flags, img] = row.split('~');
   const cats = ['All'];
@@ -178,5 +217,6 @@ export const PG_GAMES = ROWS.map((row, i) => {
     image: expand(img),
     cats,
     accent: 'from-violet-600 to-indigo-900',
+    _order: i,
   };
-});
+}).sort((a, b) => popRank(a.id) - popRank(b.id) || a._order - b._order);

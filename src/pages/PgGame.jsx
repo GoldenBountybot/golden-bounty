@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -15,19 +15,37 @@ export default function PgGame() {
   const [ready, setReady] = useState(false); // our loader stays until PG is done connecting
   const title = PG_GAMES.find((g) => g.id === gameId)?.title || 'PG SOFT';
 
+  const frameRef = useRef(null);
+
   // The PG frame mounts hidden behind our branded loader, so PG's own
   // "connecting" step happens *during* our loading screen instead of after it.
   useEffect(() => {
     setReady(false);
-    setProgress(4);
-    const iv = setInterval(() => setProgress((p) => (p < 96 ? p + 2 : p)), 120);
+    setProgress(3);
+    const iv = setInterval(() => setProgress((p) => (p < 96 ? p + 1 : p)), 260);
     return () => clearInterval(iv);
   }, [gameId]);
 
-  // Once the PG document has loaded, give its own connect/boot sequence a few
-  // seconds to finish behind our loader, then reveal the game.
+  // Once the PG document has loaded we keep our loader up and watch the frame
+  // until the game itself is actually rendering (its canvas has real pixels) —
+  // so PG's own black "connecting" screen never becomes visible. A hard cap
+  // makes sure the player is never stuck on our loader.
   const onFrameLoad = () => {
-    setTimeout(() => { setProgress(100); setReady(true); }, 5000);
+    const started = Date.now();
+    const reveal = () => { setProgress(100); setReady(true); };
+    const poll = setInterval(() => {
+      const elapsed = Date.now() - started;
+      let painted = false;
+      try {
+        const doc = frameRef.current?.contentDocument;
+        const c = doc?.querySelector('canvas');
+        painted = !!c && c.clientWidth > 0 && c.clientHeight > 0;
+      } catch { /* cross-origin — fall back to the time cap */ }
+      if ((painted && elapsed > 4000) || elapsed > 20000) {
+        clearInterval(poll);
+        reveal();
+      }
+    }, 400);
   };
 
   useEffect(() => {
@@ -60,6 +78,7 @@ export default function PgGame() {
       <div className="flex-1 relative">
         {html && (
           <iframe
+            ref={frameRef}
             title={title}
             srcDoc={html}
             allow="autoplay; fullscreen"
