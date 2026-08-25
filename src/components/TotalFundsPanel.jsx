@@ -7,8 +7,8 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 // random +/− amounts scrolls beneath it — additions outnumber subtractions so
 // the visible activity always feels net-positive, matching the upward trend.
 
-const BASE = 35_000_000;
-const TARGET = 36_000_000;
+const BASE = 15_000_000;
+const TARGET = 16_000_000;
 const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
 // Fixed global start instant — shared across ALL users so everyone sees the
 // same live total (no per-user localStorage).
