@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Lock, Play, Share2, Check } from 'lucide-react';
+import { Lock, Play } from 'lucide-react';
 import { preloadAssets, isCached } from '@/lib/assetPreloader';
 import { GAME_ASSET_MAP } from '@/lib/gameAssets';
 import FadeImage from '@/components/FadeImage';
 
 // Minimal Play-Store style game tile — sharp golden frame, clean image.
 function CasinoGameCard({ game }) {
-  const [copied, setCopied] = useState(false);
-
   const path = game.path || `/games/${game.id}`;
 
   // Start preloading this game's assets the moment the player hovers or
@@ -17,18 +15,6 @@ function CasinoGameCard({ game }) {
   const warm = () => {
     const assets = GAME_ASSET_MAP[game.id];
     if (assets && !isCached(assets[0])) preloadAssets(assets);
-  };
-  const share = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const url = `${window.location.origin}${path}`;
-    try {
-      navigator.clipboard?.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      // clipboard unavailable — ignore
-    }
   };
 
   const inner = (
@@ -56,17 +42,6 @@ function CasinoGameCard({ game }) {
         >
           {game.tag}
         </span>
-      )}
-
-      {!game.coming && (
-        <button
-          onClick={share}
-          title="Share game link"
-          className="absolute top-1 right-1 z-10 flex items-center justify-center w-4 h-4 rounded-[4px] bg-black/55 text-amber-200/90 hover:bg-black/75 transition-colors"
-          style={{ border: '1px solid rgba(214,178,98,0.4)' }}
-        >
-          {copied ? <Check className="w-2.5 h-2.5 text-emerald-300" /> : <Share2 className="w-2.5 h-2.5" />}
-        </button>
       )}
 
       <div className="absolute bottom-0 inset-x-0 p-2">
