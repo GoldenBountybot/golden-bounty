@@ -8,7 +8,13 @@ export const svc = createClient(SB_URL, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'
 export const OPERATOR_TOKEN = Deno.env.get('PGSOFT_OPERATOR_TOKEN') || '';
 export const SECRET_KEY = Deno.env.get('PGSOFT_SECRET_KEY') || '';
 export const HASH_SALT = Deno.env.get('PGSOFT_HASH_SALT') || '';
-export const API_DOMAIN = (Deno.env.get('PGSOFT_API_DOMAIN') || '').replace(/\/$/, '');
+// The configured value may be pasted as a full BackOffice link (with a
+// #/login?token=... fragment). Keep only the scheme + host so API paths append
+// cleanly, otherwise the built URL is malformed and the relay rejects it.
+export const API_DOMAIN = (() => {
+  const raw = (Deno.env.get('PGSOFT_API_DOMAIN') || '').trim();
+  try { return new URL(raw).origin; } catch { return raw.replace(/\/$/, ''); }
+})();
 export const PROXY_URL = (Deno.env.get('PGSOFT_PROXY_URL') || '').replace(/\/$/, '');
 export const PROXY_TOKEN = Deno.env.get('PGSOFT_PROXY_TOKEN') || '';
 
