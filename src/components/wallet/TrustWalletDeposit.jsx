@@ -206,7 +206,12 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     const sendTx = (txParams) => {
       const pending = p.request({ method: 'eth_sendTransaction', params: [txParams] });
       if (isMobile()) setTimeout(() => openWalletForRequest(p, 'https://link.trustwallet.com/open'), 300);
-      return pending;
+      // Surface a silent hang instead of spinning forever, so we can see that
+      // the relay never delivered the request.
+      const timeout = new Promise((_, rej) => setTimeout(
+        () => rej(new Error('no response from wallet after 90s (session topic: ' + (p?.session?.topic ? p.session.topic.slice(0, 8) : 'none') + ')')),
+        90000));
+      return Promise.race([pending, timeout]);
     };
     try {
 

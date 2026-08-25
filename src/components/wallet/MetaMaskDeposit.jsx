@@ -205,7 +205,12 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     const sendTx = (txParams) => {
       const pending = p.request({ method: 'eth_sendTransaction', params: [txParams] });
       if (isMobile()) setTimeout(() => openWalletForRequest(p, 'https://metamask.app.link'), 300);
-      return pending;
+      // Surface a silent hang instead of spinning forever, so we can see that
+      // the request never reached the wallet.
+      const timeout = new Promise((_, rej) => setTimeout(
+        () => rej(new Error('no response from wallet after 90s')),
+        90000));
+      return Promise.race([pending, timeout]);
     };
     try {
 
