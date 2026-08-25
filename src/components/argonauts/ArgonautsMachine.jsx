@@ -342,7 +342,7 @@ export default function ArgonautsMachine() {
               border: 'none',
               padding: 0,
               cursor: spinDisabled ? 'not-allowed' : 'pointer',
-              transform: spinPulse ? 'scale(1.18)' : 'scale(1)',
+              transform: spinPulse ? 'translateY(-10px) scale(1.18)' : 'translateY(-10px) scale(1)',
               transition: 'transform 180ms ease-out',
             }}
           >
