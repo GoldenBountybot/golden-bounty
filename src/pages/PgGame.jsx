@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { PG_GAMES } from '@/lib/pgGames';
+import AppLoadingScreen from '@/components/AppLoadingScreen';
 
 // Launches a PG SOFT game: our backend creates the seamless-wallet session
 // and returns the PG launch HTML, which we render inside a full-screen frame.
@@ -10,7 +11,17 @@ export default function PgGame() {
   const { gameId } = useParams();
   const [html, setHtml] = useState('');
   const [error, setError] = useState('');
+  const [progress, setProgress] = useState(0);
   const title = PG_GAMES.find((g) => g.id === gameId)?.title || 'PG SOFT';
+
+  // Branded loading bar creeps up to 90% while the launch request is in flight,
+  // then jumps to 100% once the PG game frame is handed over.
+  useEffect(() => {
+    if (html) { setProgress(100); return; }
+    setProgress(6);
+    const iv = setInterval(() => setProgress((p) => (p < 90 ? p + 3 : p)), 120);
+    return () => clearInterval(iv);
+  }, [html]);
 
   useEffect(() => {
     let alive = true;
@@ -43,21 +54,14 @@ export default function PgGame() {
             allow="autoplay; fullscreen"
             className="absolute inset-0 w-full h-full border-0"
           />
-        ) : (
+        ) : error ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-6">
-            {error ? (
-              <>
-                <p className="text-sm text-amber-100/80">{error}</p>
-                <Link to="/" className="px-4 py-2 rounded-lg text-xs font-bold"
-                  style={{ background: 'linear-gradient(to bottom,#f5c542,#c8881e)', color: '#2a1a06' }}>Back to lobby</Link>
-              </>
-            ) : (
-              <>
-                <Loader2 className="w-7 h-7 text-amber-300 animate-spin" />
-                <p className="text-xs text-amber-100/70">Starting {title}…</p>
-              </>
-            )}
+            <p className="text-sm text-amber-100/80">{error}</p>
+            <Link to="/" className="px-4 py-2 rounded-lg text-xs font-bold"
+              style={{ background: 'linear-gradient(to bottom,#f5c542,#c8881e)', color: '#2a1a06' }}>Back to lobby</Link>
           </div>
+        ) : (
+          <AppLoadingScreen progress={progress} />
         )}
       </div>
     </div>
