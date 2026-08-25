@@ -6,7 +6,7 @@ import { GAME_ASSET_MAP } from '@/lib/gameAssets';
 import FadeImage from '@/components/FadeImage';
 
 // Minimal Play-Store style game tile — sharp golden frame, clean image.
-export default function CasinoGameCard({ game }) {
+function CasinoGameCard({ game }) {
   const [copied, setCopied] = useState(false);
 
   const path = game.path || `/games/${game.id}`;
@@ -37,10 +37,13 @@ export default function CasinoGameCard({ game }) {
       style={{
         border: '1px solid rgba(214,178,98,0.42)',
         boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+        // Skip painting tiles that are off-screen while scrolling.
+        contentVisibility: 'auto',
+        containIntrinsicSize: '180px',
       }}
     >
       {game.image ? (
-        <FadeImage src={game.image} alt={game.title} className="absolute inset-0 w-full h-full object-cover" durationMs={350} />
+        <FadeImage src={game.image} alt={game.title} className="absolute inset-0 w-full h-full object-cover" durationMs={350} loading="lazy" decoding="async" />
       ) : (
         <div className={`absolute inset-0 bg-gradient-to-br ${game.accent}`} />
       )}
@@ -93,3 +96,5 @@ export default function CasinoGameCard({ game }) {
   }
   return <Link to={path} onMouseEnter={warm} onTouchStart={warm}>{inner}</Link>;
 }
+
+export default React.memo(CasinoGameCard);

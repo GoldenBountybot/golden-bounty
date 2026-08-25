@@ -51,6 +51,10 @@ const CATEGORY_KEYS = ['All', 'Slots', 'Cards', 'Table', 'Arcade'];
 export default function Home() {
   const { t } = useLanguage();
   const [cat, setCat] = useState('All');
+  // Only a slice of the (very large) catalogue is mounted at once — mounting
+  // 180+ tiles is what made scrolling stutter.
+  const [visible, setVisible] = useState(36);
+  const pickCat = (c) => { setCat(c); setVisible(36); };
   const { toast } = useToast();
   const { balance, demoMode, setDemoMode } = useCasinoBalance();
   const filtered = cat === 'All' ? ALL_GAMES : ALL_GAMES.filter(g => g.category === cat);
@@ -61,7 +65,7 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen pb-24 lg:pl-20 bg-[#0b0b0d]">
-      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.10), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.05), transparent 60%), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat', backgroundAttachment: 'fixed' }} />
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.10), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.05), transparent 60%), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat' }} />
       {/* Header */}
       <header
         className="sticky top-0 z-20 backdrop-blur-md"
@@ -168,7 +172,7 @@ export default function Home() {
       <div className="relative z-10 max-w-none mx-auto px-4 lg:px-6 mt-6">
         <div className="lg:grid lg:grid-cols-[240px_1fr] lg:gap-6">
           {/* Desktop sidebar */}
-          <HomeSidebar cat={cat} setCat={setCat} categories={CATEGORY_KEYS} />
+          <HomeSidebar cat={cat} setCat={pickCat} categories={CATEGORY_KEYS} />
 
           {/* Main column */}
           <div>
@@ -177,7 +181,7 @@ export default function Home() {
               {CATEGORY_KEYS.map(c => (
                 <button
                   key={c}
-                  onClick={() => setCat(c)}
+                  onClick={() => pickCat(c)}
                   className="px-4 py-2 rounded-[7px] text-sm font-bold italic whitespace-nowrap transition-colors lg:flex-1"
                   style={{
                     fontFamily: 'Georgia, serif',
@@ -196,10 +200,21 @@ export default function Home() {
             {/* Game grid */}
             <main id="games" className="scroll-mt-20 py-4">
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-7 gap-3">
-                {filtered.map(g => (
+                {filtered.slice(0, visible).map(g => (
                   <CasinoGameCard key={g.id} game={{ ...g, title: t(g.titleKey) }} />
                 ))}
               </div>
+              {visible < filtered.length && (
+                <div className="flex justify-center pt-4">
+                  <button
+                    onClick={() => setVisible(v => v + 36)}
+                    className="px-5 py-2 rounded-[7px] text-sm font-bold italic"
+                    style={{ fontFamily: 'Georgia, serif', border: '1px solid rgba(214,178,98,0.6)', background: 'rgba(20,17,13,0.75)', color: '#e8c878' }}
+                  >
+                    {t('Show more games')}
+                  </button>
+                </div>
+              )}
             </main>
           </div>
         </div>
