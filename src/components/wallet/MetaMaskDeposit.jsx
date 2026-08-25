@@ -8,6 +8,7 @@ import { getMetaMaskSdk, disconnectMetaMask, onMetaMaskUri, getInjectedMetaMask,
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import { openWalletLink } from '@/lib/openWalletLink';
+import { openWalletForRequest } from '@/lib/walletRedirect';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
 
@@ -64,8 +65,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     const uri = qrUriRef.current;
     if (uri) {
       openWalletLink('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri));
+      return;
     } else {
-      openWalletLink('https://metamask.app.link');
+      openWalletForRequest(providerRef.current, 'https://metamask.app.link');
     }
   };
 
@@ -102,7 +104,14 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   // Primary button — SDK auto-detects: mobile deep-link, desktop extension, or QR
   const connectMobile = async () => {
     setStatus('connecting'); setErrMsg(''); setQrUri('');
-    onMetaMaskUri((uri) => { qrUriRef.current = uri; setQrUri(uri); });
+    const mobile = isMobile();
+    onMetaMaskUri((uri) => {
+      qrUriRef.current = uri;
+      setQrUri(uri);
+      // Hand the pairing link straight to the MetaMask app on mobile, so the
+      // connection prompt appears without the user hunting for a button.
+      if (mobile) openWalletLink('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri));
+    });
     try {
       const sdk = getMetaMaskSdk();
       await sdk.connect();
@@ -191,8 +200,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
     try {
-      // Bring MetaMask to the foreground so the signing prompt is actually seen.
-      if (isMobile()) openMetaMaskApp();
+      // Bring MetaMask to the foreground using the redirect target from the
+      // live session, so the pending signing request is actually shown.
+      if (isMobile()) openWalletForRequest(p, 'https://metamask.app.link');
       await new Promise((r) => setTimeout(r, 800));
 
       if (payAsset === 'native') {

@@ -8,6 +8,7 @@ import { connectWalletConnect, disconnectWalletConnect, disconnectInjected, hasW
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import { openWalletLink } from '@/lib/openWalletLink';
+import { openWalletForRequest } from '@/lib/walletRedirect';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
 
@@ -71,7 +72,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     if (uri) {
       openWalletLink('https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri));
     } else {
-      openWalletLink('https://link.trustwallet.com/open');
+      openWalletForRequest(providerRef.current, 'https://link.trustwallet.com/open');
     }
   };
 
@@ -193,9 +194,10 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
     try {
-      // Bring Trust Wallet to the foreground so the signing prompt is actually
-      // seen — over WalletConnect the request is silent until the app opens.
-      if (isMobile()) openTrustApp();
+      // Bring Trust Wallet to the foreground using the redirect target the
+      // wallet itself supplied in the WalletConnect session — that is the only
+      // link that lands on the pending signing request.
+      if (isMobile()) openWalletForRequest(p, 'https://link.trustwallet.com/open');
       await new Promise((r) => setTimeout(r, 800));
 
       if (payAsset === 'native') {
