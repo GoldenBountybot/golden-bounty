@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { useLanguage } from '@/lib/LanguageContext';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { formatDate } from '@/lib/dateFormat';
+import ReferralLinkCard from '@/components/ReferralLinkCard';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const fmtDate = (d) => formatDate(d);
@@ -71,6 +72,8 @@ export default function ReferralStats({ profile, onBack }) {
         <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>{t("Referrals")}</h3>
         <div className="w-12" />
       </div>
+
+      <ReferralLinkCard telegramId={profile?.telegram_id} />
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3">
