@@ -5,8 +5,9 @@ import { useToast } from '@/components/ui/use-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, ChevronDown, LogOut } from 'lucide-react';
 import { getMetaMaskSdk, disconnectMetaMask, onMetaMaskUri, getInjectedMetaMask, preloadMetaMask } from '@/lib/metaMaskSdk';
+import { connectWalletConnect, disconnectWalletConnect, onWalletConnectUri, hasWalletConnect } from '@/lib/walletConnect';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
-import { hasTelegramBackButton } from '@/lib/telegram';
+import { hasTelegramBackButton, isInsideTelegram } from '@/lib/telegram';
 import { openWalletLink } from '@/lib/openWalletLink';
 import { openWalletForRequest } from '@/lib/walletRedirect';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
@@ -72,7 +73,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   };
 
   // Warm the SDK up front so the connect request reaches MetaMask instantly.
-  useEffect(() => { preloadMetaMask(); }, []);
+  // Skipped inside Telegram, where the SDK's own deep-linking breaks the webview
+  // and we pair over WalletConnect instead.
+  useEffect(() => { if (!isInsideTelegram()) preloadMetaMask(); }, []);
 
   useEffect(() => { if (!nativeSupported && payAsset === 'native') setPayAsset('usdt'); }, [netKey]);
   useEffect(() => {
@@ -101,8 +104,38 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     }
   };
 
+  // Inside the Telegram Mini App the MetaMask SDK navigates the webview to its
+  // own metamask:// deep link, which Telegram cannot load (ERR_UNKNOWN_URL_SCHEME)
+  // — the page dies and the connection request never goes out. There we pair over
+  // WalletConnect and hand the link to MetaMask through Telegram's openLink.
+  const connectViaWalletConnect = async () => {
+    if (!hasWalletConnect()) {
+      setErrMsg('WalletConnect projectId is not set (src/lib/walletConfig.js).');
+      setStatus('error'); return;
+    }
+    setStatus('connecting'); setErrMsg(''); setQrUri('');
+    onWalletConnectUri((uri) => {
+      qrUriRef.current = uri;
+      setQrUri(uri);
+      openWalletLink('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri));
+    });
+    const res = await connectWalletConnect(net.chainId);
+    if (res && res.account) {
+      providerRef.current = res.provider;
+      accountRef.current = res.account;
+      setAccount(res.account);
+      qrUriRef.current = '';
+      setQrUri('');
+      setStatus('connected');
+    } else {
+      setErrMsg('MetaMask connection was cancelled or failed.');
+      setStatus('error'); setQrUri('');
+    }
+  };
+
   // Primary button — SDK auto-detects: mobile deep-link, desktop extension, or QR
   const connectMobile = async () => {
+    if (isInsideTelegram()) { await connectViaWalletConnect(); return; }
     setStatus('connecting'); setErrMsg(''); setQrUri('');
     const mobile = isMobile();
     // Always pair from scratch — a restored session the wallet no longer holds
@@ -140,6 +173,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
 
   // QR scan button — SDK connect but we show our own QR code
   const connectQr = async () => {
+    if (isInsideTelegram()) { await connectViaWalletConnect(); return; }
     setStatus('connecting'); setErrMsg(''); setQrUri('');
     try { await disconnectMetaMask(); } catch {}
     onMetaMaskUri((uri) => { qrUriRef.current = uri; setQrUri(uri); });
@@ -360,6 +394,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
             <button
               onClick={async () => {
                 try { await disconnectMetaMask(); } catch {}
+                try { await disconnectWalletConnect(); } catch {}
                 providerRef.current = null;
                 accountRef.current = null;
                 qrUriRef.current = '';
