@@ -142,6 +142,18 @@ export default function PayMethod() {
   useEffect(() => {
     try { sessionStorage.setItem('gb_pay_view', view); } catch { /* private mode */ }
   }, [view]);
+
+  // Leaving this page normally (back / new deposit request) must forget the
+  // remembered wallet screen, so a fresh deposit always starts on "Choose
+  // Payment". Only a webview reload (which skips React cleanup) restores it.
+  useEffect(() => {
+    return () => {
+      try {
+        sessionStorage.removeItem('gb_pay_view');
+        sessionStorage.removeItem('gb_pay_net');
+      } catch { /* private mode */ }
+    };
+  }, []);
   const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, usdc: USDC_NETWORKS, crypto: CRYPTO_NETWORKS });
   // The chosen network is remembered too, so leaving the app for a wallet and
   // coming back (even if the webview reloads) restores the exact same deposit
