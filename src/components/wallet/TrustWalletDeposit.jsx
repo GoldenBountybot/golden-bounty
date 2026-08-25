@@ -95,7 +95,9 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     }
     setStatus('connecting'); setErrMsg(''); setWcUri('');
     const mobile = isMobile();
+    let freshPairing = false;
     onWalletConnectUri((uri) => {
+      freshPairing = true;
       wcUriRef.current = uri;
       setWcUri(uri);
       if (mobile) {
@@ -112,7 +114,11 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       // with no pending request at all.
       wcUriRef.current = '';
       setWcUri('');
-      await deposit();
+      // A previously saved session reconnects instantly — in that case show the
+      // Send step instead of jumping straight into the wallet, so the player
+      // can review the amount first.
+      if (freshPairing) await deposit();
+      else setStatus('connected');
     } else {
       setErrMsg('Wallet connection was cancelled or failed.');
       setStatus('error'); setWcUri('');
