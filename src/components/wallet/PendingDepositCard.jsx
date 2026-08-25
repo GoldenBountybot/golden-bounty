@@ -15,7 +15,7 @@ export default function PendingDepositCard() {
 
   useEffect(() => {
     let active = true;
-    (async () => {
+    const load = async () => {
       try {
         const me = await base44.auth.me().catch(() => null);
         if (!me) return;
@@ -24,9 +24,13 @@ export default function PendingDepositCard() {
         );
         if (active) setRows(list.filter(r => new Date(r.expires_at).getTime() > Date.now()));
       } catch { /* ignore */ }
-    })();
+    };
+    load();
+    // Re-check so a credited (or expired) request drops off the card on its own,
+    // while the completed deposit stays visible in the transaction history.
+    const poll = setInterval(load, 15000);
     const iv = setInterval(() => setNow(Date.now()), 1000);
-    return () => { active = false; clearInterval(iv); };
+    return () => { active = false; clearInterval(iv); clearInterval(poll); };
   }, []);
 
   const resume = (r) => {
