@@ -199,18 +199,22 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     const acct = accountRef.current;
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
+    // Dispatch the request over the relay FIRST, then foreground the wallet —
+    // opening MetaMask first backgrounds (and in the Telegram webview freezes)
+    // this page, so the request never leaves and the wallet shows nothing.
+    const sendTx = (txParams) => {
+      const pending = p.request({ method: 'eth_sendTransaction', params: [txParams] });
+      if (isMobile()) setTimeout(() => openWalletForRequest(p, 'https://metamask.app.link'), 300);
+      return pending;
+    };
     try {
-      // Bring MetaMask to the foreground using the redirect target from the
-      // live session, so the pending signing request is actually shown.
-      if (isMobile()) openWalletForRequest(p, 'https://metamask.app.link');
-      await new Promise((r) => setTimeout(r, 800));
 
       if (payAsset === 'native') {
         const pr = price || (await getCryptoPrices())[nativeKey] || 0;
         if (!pr) { setErrMsg('Could not fetch coin price. Please try again.'); setStatus('error'); return; }
         const wei = BigInt(Math.round((amount / pr) * 1e18));
         const value = '0x' + wei.toString(16);
-        const txHash = await p.request({ method: 'eth_sendTransaction', params: [{ from: acct, to: net.admin, value }] });
+        const txHash = await sendTx({ from: acct, to: net.admin, value });
         setStatus('confirming');
         const receipt = await fetchReceipt(txHash);
         if (!receipt) { setErrMsg('Confirmation not yet received, please try again shortly.'); setStatus('error'); return; }
@@ -226,10 +230,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
         const est = await p.request({ method: 'eth_estimateGas', params: [{ from: acct, to, data, value: '0x0' }] });
         if (typeof est === 'string' && est.startsWith('0x')) gas = est;
       } catch {}
-      const txHash = await p.request({
-        method: 'eth_sendTransaction',
-        params: [{ from: acct, to, data, value: '0x0', gas }],
-      });
+      const txHash = await sendTx({ from: acct, to, data, value: '0x0', gas });
       setStatus('confirming');
       const receipt = await fetchReceipt(txHash);
       if (!receipt) { setErrMsg('Confirmation not yet received, please try again shortly.'); setStatus('error'); return; }
