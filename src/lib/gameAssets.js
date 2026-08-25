@@ -160,6 +160,7 @@ export const BIG_BROWN_ASSETS = [
   u('f423d208b_generated_image.png'), // title banner
   u('86dd448f2_file_00000000c7fc81fa80de66b90930e468.png'), // spin button
   u('4b986ee28_file_0000000057d881fbaa643e8f2dd979ce.png'), // super win banner
+  u('670fa1a3e_generated_image.png'), // bonus / free-spin banner
   // symbols
   u('98a234d10_generated_image.png'), // scatter
   u('31ddcdcb0_generated_image.png'), // brown/spirit
@@ -206,6 +207,7 @@ export const ARGONAUTS_ASSETS = [
   u('f3c47cc81_file_0000000019e481f8a4cdf17759a2b277.png'), // potion
   u('c3399d723_file_000000006180820b9453462a52494a1b.png'), // bow
   // sounds — loaded up-front too, so nothing streams in mid-game
+  s('8c2379326_spinbuttonx.mp3'),
   s('b5a389fb5_valuecn.mp3'),
   s('2c0205154_mixkobutor.mp3'),
   s('f95aef0f5_AmphoraSymbol.mp3'),
