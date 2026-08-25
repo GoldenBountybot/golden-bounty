@@ -205,6 +205,14 @@ export const ARGONAUTS_ASSETS = [
   u('a7c4a453e_file_00000000330c820bb7083c0ecb826172.png'), // cup
   u('f3c47cc81_file_0000000019e481f8a4cdf17759a2b277.png'), // potion
   u('c3399d723_file_000000006180820b9453462a52494a1b.png'), // bow
+  // sounds — loaded up-front too, so nothing streams in mid-game
+  s('b5a389fb5_valuecn.mp3'),
+  s('2c0205154_mixkobutor.mp3'),
+  s('f95aef0f5_AmphoraSymbol.mp3'),
+  s('a42c40c82_GoldenLyre.mp3'),
+  s('e3ff9a2c4_CrossedSwords.mp3'),
+  s('865659119_GreenDragon.mp3'),
+  s('478cbdd23_SpartanWarrior.mp3'),
 ];
 
 // ---- Rocket Crash (Aviator) ----
