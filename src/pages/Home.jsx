@@ -14,6 +14,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useLanguage } from '@/lib/LanguageContext';
 import { isInsideTelegram } from '@/lib/telegram';
+import { PG_GAMES } from '@/lib/pgGames';
 
 const GAMES = [
   { id: 'free-spin', titleKey: 'Daily Free Spin', category: 'Arcade', desc: 'Spin every 24h · win $1000', accent: 'from-amber-500 to-yellow-700', tag: 'FREE', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png', path: '/free-spin' },
@@ -28,8 +29,22 @@ const GAMES = [
   { id: 'argonauts', titleKey: 'Argonauts', category: 'Slots', desc: '10 Lines · Free Spins · Bonus', accent: 'from-sky-500 to-indigo-800', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png' },
   { id: 'gates-of-olympus', titleKey: 'Gates of Olympus', category: 'Slots', desc: '8+ Pays · Tumbles · ×500 Mult', accent: 'from-indigo-500 to-amber-700', tag: 'HOT', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2125c8cfd_generated_image.png' },
   { id: 'thimbles', titleKey: 'Thimbles', category: 'Table', desc: 'Find the Ball · 2.88x Payout', accent: 'from-amber-600 to-stone-800', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/25ec953a6_generated_image.png', path: '/games/thimbles' },
-  { id: 'pg-soft', titleKey: 'PG SOFT Games', category: 'Slots', desc: 'Official PG SOFT lobby', accent: 'from-violet-600 to-indigo-900', tag: 'PG', path: '/games/pg' },
 ];
+
+// PG SOFT titles are folded straight into the main lobby under their own
+// category — no separate PG lobby page.
+const PG_LOBBY_GAMES = PG_GAMES.map(g => ({
+  id: `pg-${g.id}`,
+  titleKey: g.title,
+  category: g.cats.includes('Table') ? 'Table' : 'Slots',
+  desc: g.desc,
+  accent: g.accent,
+  tag: 'PG',
+  image: g.image,
+  path: `/games/pg/${g.id}`,
+}));
+
+const ALL_GAMES = [...GAMES, ...PG_LOBBY_GAMES];
 
 const CATEGORY_KEYS = ['All', 'Slots', 'Cards', 'Table', 'Arcade'];
 
@@ -38,8 +53,8 @@ export default function Home() {
   const [cat, setCat] = useState('All');
   const { toast } = useToast();
   const { balance, demoMode, setDemoMode } = useCasinoBalance();
-  const filtered = cat === 'All' ? GAMES : GAMES.filter(g => g.category === cat);
-  const playable = GAMES.filter(g => !g.coming).length;
+  const filtered = cat === 'All' ? ALL_GAMES : ALL_GAMES.filter(g => g.category === cat);
+  const playable = ALL_GAMES.filter(g => !g.coming).length;
   // In Telegram fullscreen the native chrome (clock / close button) sits over the
   // very top of the page, so push the whole header down and leave space above it.
   const topInset = isInsideTelegram() ? 'calc(env(safe-area-inset-top, 0px) + 42px)' : '0.5rem';

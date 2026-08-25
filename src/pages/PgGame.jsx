@@ -29,7 +29,7 @@ export default function PgGame() {
   return (
     <div className="fixed inset-0 bg-black flex flex-col">
       <div className="flex items-center gap-3 px-3 py-2" style={{ borderBottom: '1px solid rgba(214,178,98,0.2)' }}>
-        <Link to="/games/pg" className="p-1.5 rounded-full" style={{ border: '1px solid rgba(214,178,98,0.4)' }}>
+        <Link to="/" className="p-1.5 rounded-full" style={{ border: '1px solid rgba(214,178,98,0.4)' }}>
           <ArrowLeft className="w-4 h-4 text-amber-300" />
         </Link>
         <span className="flex-1 text-center text-sm font-black italic text-amber-200 pr-8" style={{ fontFamily: 'Georgia, serif' }}>{title}</span>
@@ -48,8 +48,8 @@ export default function PgGame() {
             {error ? (
               <>
                 <p className="text-sm text-amber-100/80">{error}</p>
-                <Link to="/games/pg" className="px-4 py-2 rounded-lg text-xs font-bold"
-                  style={{ background: 'linear-gradient(to bottom,#f5c542,#c8881e)', color: '#2a1a06' }}>Back to PG lobby</Link>
+                <Link to="/" className="px-4 py-2 rounded-lg text-xs font-bold"
+                  style={{ background: 'linear-gradient(to bottom,#f5c542,#c8881e)', color: '#2a1a06' }}>Back to lobby</Link>
               </>
             ) : (
               <>
