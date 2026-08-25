@@ -14,6 +14,21 @@ export function onWalletConnectUri(cb) {
   uriSubscriber = cb;
 }
 
+// Wipes every WalletConnect v2 key from local storage. A half-finished or
+// wallet-side-deleted pairing leaves records behind that make the provider
+// believe it is still connected — after that no connection request and no
+// transaction request ever reaches the wallet again.
+function purgeWalletConnectStorage() {
+  try {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith('wc@2') || k.startsWith('WALLETCONNECT') || k.startsWith('walletconnect'))) keys.push(k);
+    }
+    keys.forEach((k) => localStorage.removeItem(k));
+  } catch {}
+}
+
 async function getProvider(chainId) {
   if (!WALLETCONNECT_PROJECT_ID) return null;
   // Reuse if already initialised for the same chain.
@@ -29,7 +44,12 @@ async function getProvider(chainId) {
     chains: [chainId],
     optionalChains: [chainId],
     showQrModal: false,
-    methods: ['eth_sendTransaction', 'eth_getTransactionReceipt', 'personal_sign'],
+    // REQUIRED methods must only contain what wallets actually implement.
+    // Asking for anything else (e.g. eth_getTransactionReceipt, which is an RPC
+    // method, not a wallet method) makes the wallet reject the whole session
+    // proposal — the connection request then never appears on the phone.
+    methods: ['eth_sendTransaction', 'personal_sign'],
+    optionalMethods: ['eth_signTypedData', 'eth_signTypedData_v4', 'eth_sign', 'wallet_switchEthereumChain', 'wallet_addEthereumChain'],
     events: ['chainChanged', 'accountsChanged'],
     metadata: WALLETCONNECT_METADATA,
   }).then((p) => {
@@ -46,24 +66,30 @@ export async function preloadWalletConnect(chainId) {
 }
 
 // Connects the user's mobile wallet on the given chain. Returns { provider, account }.
+// Every deposit starts a FRESH pairing: a restored session that the wallet no
+// longer holds looks connected here but silently swallows every request, which
+// is indistinguishable (for the player) from a broken app.
 export async function connectWalletConnect(chainId) {
+  await disconnectWalletConnect();
   const provider = await getProvider(chainId);
   if (!provider) return null;
   try {
     const accounts = await provider.enable();
-    return { provider, account: accounts && accounts[0] };
-  } catch {
+    if (!accounts || !accounts.length) throw new Error('no accounts');
+    return { provider, account: accounts[0] };
+  } catch (e) {
+    console.error('WalletConnect connect failed:', e);
     // A failed / cancelled pairing leaves the provider holding a dead proposal,
-    // so the next attempt never emits a fresh display_uri (the "works 1 in 4
-    // tries" symptom). Tear it down so the next connect starts clean.
+    // so the next attempt never emits a fresh display_uri.
     await disconnectWalletConnect();
     return null;
   }
 }
 
 export async function disconnectWalletConnect() {
-  try { const p = await providerPromise; if (p?.disconnect) await p.disconnect(); } catch {}
+  try { const p = await providerPromise; if (p?.session && p?.disconnect) await p.disconnect(); } catch {}
   providerPromise = null; currentChainId = null;
+  purgeWalletConnectStorage();
 }
 
 // Disconnect an injected EVM provider (MetaMask / Trust Wallet extension) by

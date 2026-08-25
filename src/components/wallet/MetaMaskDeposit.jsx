@@ -105,6 +105,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const connectMobile = async () => {
     setStatus('connecting'); setErrMsg(''); setQrUri('');
     const mobile = isMobile();
+    // Always pair from scratch — a restored session the wallet no longer holds
+    // silently swallows the connection request.
+    try { await disconnectMetaMask(); } catch {}
     onMetaMaskUri((uri) => {
       qrUriRef.current = uri;
       setQrUri(uri);
@@ -138,6 +141,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   // QR scan button — SDK connect but we show our own QR code
   const connectQr = async () => {
     setStatus('connecting'); setErrMsg(''); setQrUri('');
+    try { await disconnectMetaMask(); } catch {}
     onMetaMaskUri((uri) => { qrUriRef.current = uri; setQrUri(uri); });
     try {
       const sdk = getMetaMaskSdk();

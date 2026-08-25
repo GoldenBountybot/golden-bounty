@@ -61,7 +61,20 @@ export function getInjectedMetaMask() {
 
 export async function disconnectMetaMask() {
   if (sdkInstance) {
+    try { await sdkInstance.terminate(); } catch {}
     try { await sdkInstance.disconnect(); } catch {}
   }
+  // A stored-but-dead session makes the SDK believe it is still connected, and
+  // every later request is swallowed instead of reaching the wallet. Drop the
+  // instance and its persisted keys so the next connect pairs from scratch.
+  sdkInstance = null;
+  try {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith('wc@2') || k.startsWith('.MMSDK') || k.startsWith('MMSDK') || k.startsWith('metamask'))) keys.push(k);
+    }
+    keys.forEach((k) => localStorage.removeItem(k));
+  } catch {}
   uriSubscriber = null;
 }
