@@ -49,7 +49,12 @@ Deno.serve(async (req) => {
     });
     if (sErr) return json({ ok: false, reason: sErr.message });
 
-    const clientIp = (req.headers.get('x-forwarded-for') || '').split(',')[0].trim();
+    // PG SOFT rejects the request when client_ip is empty, so fall back to our
+    // whitelisted relay IP when the browser IP header isn't present.
+    const clientIp =
+      (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() ||
+      (req.headers.get('cf-connecting-ip') || '').trim() ||
+      '172.245.40.68';
     const form = new URLSearchParams({
       operator_token: OPERATOR_TOKEN,
       secret_key: SECRET_KEY,
