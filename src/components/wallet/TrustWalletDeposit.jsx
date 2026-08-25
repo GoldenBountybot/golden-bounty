@@ -7,6 +7,7 @@ import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, 
 import { connectWalletConnect, disconnectWalletConnect, disconnectInjected, hasWalletConnect, onWalletConnectUri, preloadWalletConnect } from '@/lib/walletConnect';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
+import { openWalletLink } from '@/lib/openWalletLink';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
 
@@ -68,9 +69,9 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const openTrustApp = () => {
     const uri = wcUriRef.current;
     if (uri) {
-      try { window.open('https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
+      openWalletLink('https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri));
     } else {
-      try { window.open('https://link.trustwallet.com/open', '_blank'); } catch {}
+      openWalletLink('https://link.trustwallet.com/open');
     }
   };
 
@@ -97,7 +98,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       wcUriRef.current = uri;
       setWcUri(uri);
       if (mobile) {
-        try { window.open('https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
+        openWalletLink('https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri));
       }
     });
     const res = await connectWalletConnect(net.chainId);

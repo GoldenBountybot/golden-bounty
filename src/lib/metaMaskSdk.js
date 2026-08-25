@@ -14,7 +14,9 @@ export function getMetaMaskSdk() {
         name: 'Golden Bounty',
         url: typeof window !== 'undefined' ? window.location.href : 'https://golden-bounty.base44.app',
       },
-      useDeeplink: true,
+      // false → the SDK opens https://metamask.app.link universal links instead
+      // of the metamask:// scheme, which webviews (Telegram) refuse to load.
+      useDeeplink: false,
       injectProvider: false,
       checkInstallationImmediately: false,
       checkInstallationOnAllCalls: false,

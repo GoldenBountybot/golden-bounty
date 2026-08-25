@@ -7,6 +7,7 @@ import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, 
 import { getMetaMaskSdk, disconnectMetaMask, onMetaMaskUri, getInjectedMetaMask, preloadMetaMask } from '@/lib/metaMaskSdk';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
+import { openWalletLink } from '@/lib/openWalletLink';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
 
@@ -62,9 +63,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const openMetaMaskApp = () => {
     const uri = qrUriRef.current;
     if (uri) {
-      try { window.open('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri), '_blank'); } catch {}
+      openWalletLink('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri));
     } else {
-      try { window.open('https://metamask.app.link', '_blank'); } catch {}
+      openWalletLink('https://metamask.app.link');
     }
   };
 
