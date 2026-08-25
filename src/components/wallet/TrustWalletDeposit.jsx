@@ -226,12 +226,10 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
 
       const data = '0xa9059cbb' + pad32(net.admin).slice(2) + pad32(toHexAmount(amount, net.decimals)).slice(2);
       const to = net.usdt.toLowerCase();
-      let gas = '0x' + (60000).toString(16);
-      try {
-        const est = await p.request({ method: 'eth_estimateGas', params: [{ from: acct, to, data, value: '0x0' }] });
-        if (typeof est === 'string' && est.startsWith('0x')) gas = est;
-      } catch {}
-      const txHash = await sendTx({ from: acct, to, data, value: '0x0', gas });
+      // No eth_estimateGas here: WalletConnect relays often never answer it, so
+      // awaiting it silently hangs the flow and the wallet never receives the
+      // transaction. The wallet estimates gas itself.
+      const txHash = await sendTx({ from: acct, to, data, value: '0x0' });
       setStatus('confirming');
       const receipt = await fetchReceipt(txHash);
       if (!receipt) { setErrMsg('Confirmation not yet received, please try again shortly.'); setStatus('error'); return; }
