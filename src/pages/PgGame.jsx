@@ -20,7 +20,7 @@ export default function PgGame() {
       .then(({ data }) => {
         if (!alive) return;
         if (data?.ok && data.html) setHtml(data.html);
-        else setError(data?.reason || 'Could not start this game.');
+        else setError([data?.reason, data?.detail].filter(Boolean).join(' — ') || 'Could not start this game.');
       })
       .catch((e) => { if (alive) setError(e.message || 'Could not start this game.'); });
     return () => { alive = false; };
