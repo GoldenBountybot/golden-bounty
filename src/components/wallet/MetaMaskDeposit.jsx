@@ -126,7 +126,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       // Some Telegram clients silently drop the first openLink while the page
       // is still publishing the pairing — one retry makes the direct hand-off
       // land reliably. Skipped once the wallet already answered.
-      setTimeout(() => { if (!accountRef.current) openWalletLink(link); }, 3500);
+      setTimeout(() => { if (!accountRef.current) openWalletLink(link); }, 5000);
     });
     // Never spin forever: if the wallet never answers the pairing, surface it so
     // the player can retry or scan the QR instead of staring at "Connecting…".
