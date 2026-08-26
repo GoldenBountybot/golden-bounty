@@ -2,17 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
-import { QRCodeSVG } from 'qrcode.react';
-import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, Smartphone, Chrome, ChevronDown, LogOut } from 'lucide-react';
-import { getMetaMaskSdk, disconnectMetaMask, onMetaMaskUri, getInjectedMetaMask, preloadMetaMask } from '@/lib/metaMaskSdk';
-import { connectWalletConnect, disconnectWalletConnect, onWalletConnectUri, hasWalletConnect } from '@/lib/walletConnect';
+import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut } from 'lucide-react';
+import { useAppKitAccount, useAppKitProvider, useAppKitNetwork } from '@reown/appkit/react';
+import { appKit, networkByChainId } from '@/lib/appKit';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
-import { hasTelegramBackButton, isInsideTelegram } from '@/lib/telegram';
-import { openWalletLink } from '@/lib/openWalletLink';
-import { buildHandoffUrl } from '@/lib/sessionHandoff';
-import { openWalletForRequest } from '@/lib/walletRedirect';
+import { hasTelegramBackButton } from '@/lib/telegram';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
-import { addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
+import { reloadBalance } from '@/lib/useCasinoBalance';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -35,12 +31,13 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const [account, setAccount] = useState(null);
   const [status, setStatus] = useState('idle'); // idle|connecting|connected|sending|confirming|verifying|done|error
   const [errMsg, setErrMsg] = useState('');
-  const [qrUri, setQrUri] = useState('');
   const [payAsset, setPayAsset] = useState('usdt'); // 'usdt' | 'native'
   const [price, setPrice] = useState(0);
+  const { address, isConnected } = useAppKitAccount();
+  const { walletProvider } = useAppKitProvider('eip155');
+  const { chainId, switchNetwork } = useAppKitNetwork();
   const providerRef = useRef(null);
   const accountRef = useRef(null);
-  const qrUriRef = useRef('');
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
@@ -63,206 +60,38 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return null;
   };
 
-  const openMetaMaskApp = () => {
-    const uri = qrUriRef.current;
-    if (uri) {
-      openWalletLink('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri));
-      return;
+  // AppKit keeps the connection state — mirror it into our local refs so the
+  // existing deposit logic keeps working untouched.
+  useEffect(() => {
+    if (isConnected && address) {
+      providerRef.current = walletProvider || null;
+      accountRef.current = address;
+      setAccount(address);
+      setStatus((s) => (s === 'idle' || s === 'connecting' || s === 'error' ? 'connected' : s));
     } else {
-      openWalletForRequest(providerRef.current, 'https://metamask.app.link');
+      providerRef.current = null;
+      accountRef.current = null;
+      setAccount(null);
+      setStatus((s) => (s === 'connected' ? 'idle' : s));
     }
-  };
+  }, [isConnected, address, walletProvider]);
 
-  // The only path that cannot break: load this page INSIDE MetaMask's own
-  // in-app browser. There MetaMask injects window.ethereum directly, so there
-  // is no WalletConnect relay and no frozen Telegram webview — connect and the
-  // transaction request appear instantly.
-  const openInMetaMaskBrowser = async () => {
-    // Carry the player's session into MetaMask's browser — Telegram launch data
-    // doesn't exist there, so without it the page shows the Telegram sign-in gate.
-    const url = await buildHandoffUrl(`/pay?amount=${amount}&method=metamask`);
-    openWalletLink('https://metamask.app.link/dapp/' + url.replace(/^https?:\/\//, ''));
-  };
-
-  // Already running inside MetaMask's browser → connect straight away.
+  // Keep the wallet on the selected deposit network.
   useEffect(() => {
-    if (getInjectedMetaMask() && status === 'idle') connectInjected();
-  }, []);
-
-  // Warm the SDK up front so the connect request reaches MetaMask instantly.
-  // Skipped inside Telegram, where the SDK's own deep-linking breaks the webview
-  // and we pair over WalletConnect instead.
-  useEffect(() => { if (!isInsideTelegram()) preloadMetaMask(); }, []);
-
-  useEffect(() => { if (!nativeSupported && payAsset === 'native') setPayAsset('usdt'); }, [netKey]);
-  useEffect(() => {
-    if (payAsset === 'native' && nativeSupported) {
-      getCryptoPrices().then((p) => setPrice(p[nativeKey] || 0)).catch(() => {});
+    if (isConnected && Number(chainId) !== net.chainId) {
+      try { switchNetwork(networkByChainId(net.chainId)); } catch {}
     }
-  }, [payAsset, netKey]);
+  }, [netKey, isConnected]);
 
-  // Switch to the target chain (add it if missing)
-  const ensureChain = async (provider) => {
-    try {
-      await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: net.chainIdHex }] });
-    } catch (e) {
-      if (e && (e.code === 4902 || e.code === -32603)) {
-        await provider.request({
-          method: 'wallet_addEthereumChain',
-          params: [{
-            chainId: net.chainIdHex,
-            chainName: net.label,
-            nativeCurrency: { name: net.nativeName, symbol: net.nativeSymbol, decimals: 18 },
-            rpcUrls: [net.rpc],
-            blockExplorerUrls: [net.explorer],
-          }],
-        });
-      } else { throw e; }
-    }
+  const openConnectModal = async () => {
+    setErrMsg('');
+    await appKit.open();
   };
 
-  // Inside the Telegram Mini App the MetaMask SDK navigates the webview to its
-  // own metamask:// deep link, which Telegram cannot load (ERR_UNKNOWN_URL_SCHEME)
-  // — the page dies and the connection request never goes out. There we pair over
-  // WalletConnect and hand the link to MetaMask through Telegram's openLink.
-  const connectViaWalletConnect = async () => {
-    if (!hasWalletConnect()) {
-      setErrMsg('WalletConnect projectId is not set (src/lib/walletConfig.js).');
-      setStatus('error'); return;
-    }
-    setStatus('connecting'); setErrMsg(''); setQrUri('');
-    // MetaMask needs time to launch AND be unlocked before it can pick up a
-    // pairing. So: hand off once to launch the app, and if that pairing goes
-    // unanswered, publish a FRESH pairing and hand it off again — by then
-    // MetaMask is already open and unlocked, so the request lands immediately.
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const ok = await attemptWalletConnect(attempt === 0);
-      if (ok) return;
-    }
-    setErrMsg('MetaMask did not approve the connection. Open the MetaMask app, unlock it, then tap Open Wallet again — or copy the connection link below and paste it into MetaMask → Scan QR.');
-    setStatus('error');
-  };
-
-  const attemptWalletConnect = async (openApp) => {
-    setStatus('connecting'); setErrMsg('');
-    onWalletConnectUri((uri) => {
-      qrUriRef.current = uri;
-      setQrUri(uri);
-      // The connection proposal is published to the relay right AFTER this URI
-      // is emitted. Foregrounding MetaMask instantly freezes this webview before
-      // the publish finishes — MetaMask then finds no pending request and spins
-      // forever. Wait for the publish to flush before handing off.
-      const link = 'https://metamask.app.link/wc?uri=' + encodeURIComponent(uri);
-      // MetaMask must find the pairing already published on the relay, otherwise
-      // it sits on its own "Connecting to MetaMask…" sheet forever. Foregrounding
-      // MetaMask freezes this webview, so give the publish enough time to flush
-      // first. Opening the SAME link twice makes MetaMask restart pairing on an
-      // already-consumed URI — so hand it off exactly once.
-      if (openApp) setTimeout(() => openWalletLink(link), 2500);
-    });
-    // Give this pairing a bounded window; an unanswered one is retried with a
-    // fresh URI by the caller instead of spinning forever.
-    const res = await Promise.race([
-      connectWalletConnect(net.chainId),
-      new Promise((r) => setTimeout(() => r(null), 30000)),
-    ]);
-    if (res && res.account) {
-      providerRef.current = res.provider;
-      accountRef.current = res.account;
-      setAccount(res.account);
-      // Make sure the wallet is on the selected chain before we ask it to send —
-      // a wrong active chain makes the transaction request fail silently.
-      try { await ensureChain(res.provider); } catch {}
-      qrUriRef.current = '';
-      setQrUri('');
-      setStatus('connected');
-      return true;
-    }
-    return false;
-  };
-
-  // Primary button — SDK auto-detects: mobile deep-link, desktop extension, or QR
-  const connectMobile = async () => {
-    if (isInsideTelegram()) { await connectViaWalletConnect(); return; }
-    setStatus('connecting'); setErrMsg(''); setQrUri('');
-    const mobile = isMobile();
-    // Always pair from scratch — a restored session the wallet no longer holds
-    // silently swallows the connection request.
-    try { await disconnectMetaMask(); } catch {}
-    onMetaMaskUri((uri) => {
-      qrUriRef.current = uri;
-      setQrUri(uri);
-      // Hand the pairing link to the MetaMask app on mobile — after a short
-      // delay so the pairing is fully registered on the relay first; opening
-      // the wallet too early leaves it spinning on "Connecting…" with nothing
-      // to show.
-      if (mobile) setTimeout(() => openWalletLink('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri)), 800);
-    });
-    try {
-      const sdk = getMetaMaskSdk();
-      await sdk.connect();
-      const provider = sdk.getProvider();
-      await ensureChain(provider);
-      const accounts = await provider.request({ method: 'eth_accounts' });
-      if (!accounts || !accounts.length) throw new Error('No account returned');
-      providerRef.current = provider;
-      accountRef.current = accounts[0];
-      setAccount(accounts[0]);
-      // Consumed pairing URI — reusing it would open MetaMask on an expired
-      // pairing, showing no pending request.
-      qrUriRef.current = '';
-      setQrUri('');
-      await deposit();
-    } catch (e) {
-      console.error('MetaMask SDK connect error:', e);
-      const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'cancelled/failed');
-      setErrMsg('Connection failed: ' + msg);
-      setStatus('error'); setQrUri('');
-    }
-  };
-
-  // QR scan button — SDK connect but we show our own QR code
-  const connectQr = async () => {
-    if (isInsideTelegram()) { await connectViaWalletConnect(); return; }
-    setStatus('connecting'); setErrMsg(''); setQrUri('');
-    try { await disconnectMetaMask(); } catch {}
-    onMetaMaskUri((uri) => { qrUriRef.current = uri; setQrUri(uri); });
-    try {
-      const sdk = getMetaMaskSdk();
-      await sdk.connect();
-      const provider = sdk.getProvider();
-      await ensureChain(provider);
-      const accounts = await provider.request({ method: 'eth_accounts' });
-      if (!accounts || !accounts.length) throw new Error('No account returned');
-      providerRef.current = provider;
-      accountRef.current = accounts[0];
-      setAccount(accounts[0]);
-      qrUriRef.current = '';
-      setQrUri('');
-      setStatus('connected');
-    } catch (e) {
-      console.error('MetaMask QR connect error:', e);
-      const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'cancelled/failed');
-      setErrMsg('Connection failed: ' + msg);
-      setStatus('error'); setQrUri('');
-    }
-  };
-
-  // Browser extension button — use injected MetaMask provider directly
-  const connectInjected = async () => {
-    const p = getInjectedMetaMask();
-    if (!p) { setErrMsg('MetaMask extension not found. Use the QR scan or mobile app button.'); setStatus('error'); return; }
-    setStatus('connecting'); setErrMsg(''); setQrUri('');
-    try {
-      const accts = await p.request({ method: 'eth_requestAccounts' });
-      await ensureChain(p);
-      providerRef.current = p;
-      accountRef.current = accts[0];
-      setAccount(accts[0]);
-      setStatus('connected');
-    } catch (e) {
-      setErrMsg('Wallet connection was cancelled.'); setStatus('error');
-    }
+  const disconnectWallet = async () => {
+    try { await appKit.disconnect(); } catch {}
+    setErrMsg('');
+    setStatus('idle');
   };
 
   const finishVerify = async (fn, payload, amt) => {
@@ -287,19 +116,10 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     const acct = accountRef.current;
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
-    // Dispatch the request over the relay FIRST, then foreground the wallet —
-    // opening MetaMask first backgrounds (and in the Telegram webview freezes)
-    // this page, so the request never leaves and the wallet shows nothing.
-    const sendTx = (txParams) => {
-      const pending = p.request({ method: 'eth_sendTransaction', params: [txParams] });
-      if (isMobile()) setTimeout(() => openWalletForRequest(p, 'https://metamask.app.link'), 300);
-      // Surface a silent hang instead of spinning forever, so we can see that
-      // the request never reached the wallet.
-      const timeout = new Promise((_, rej) => setTimeout(
-        () => rej(new Error('no response from wallet after 90s')),
-        90000));
-      return Promise.race([pending, timeout]);
-    };
+    // AppKit dispatches the request and foregrounds the wallet itself (via
+    // Telegram's openLink inside the Mini App), so we just await the response.
+    const sendTx = (txParams) =>
+      p.request({ method: 'eth_sendTransaction', params: [txParams] });
     try {
 
       if (payAsset === 'native') {
@@ -442,17 +262,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           <span className="text-[12px] font-mono break-all" style={{ color: 'rgba(255,255,255,0.85)' }}>✓ Connected: {account}</span>
           {!busy && (
             <button
-              onClick={async () => {
-                try { await disconnectMetaMask(); } catch {}
-                try { await disconnectWalletConnect(); } catch {}
-                providerRef.current = null;
-                accountRef.current = null;
-                qrUriRef.current = '';
-                setAccount(null);
-                setQrUri('');
-                setErrMsg('');
-                setStatus('idle');
-              }}
+              onClick={disconnectWallet}
               className="shrink-0 flex items-center gap-1 px-3 h-8 rounded-[12px] text-[11px] font-bold transition-all active:scale-95"
               style={{ border: '1px solid rgba(244,63,94,0.4)', background: 'rgba(244,63,94,0.12)', color: '#fca5a5' }}
             >
@@ -463,94 +273,34 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       )}
 
       {/* Busy status */}
-      {busy && !qrUri && (
+      {busy && (
         <div className="dash-card p-4 flex flex-col gap-3">
           <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#F6851A' }}>
             <Loader2 className="w-4 h-4 animate-spin" /> {statusText}
           </div>
-          {status === 'connecting' && (
-            <>
-              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                Waiting for the MetaMask app to open. If it didn't open automatically, tap the button below.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <button onClick={openMetaMaskApp}
-                  className="flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
-                  style={{ background: 'linear-gradient(135deg, #F6851A, #E2761B)', color: '#fff', boxShadow: '0 4px 14px rgba(246,133,26,0.35)' }}>
-                  <Smartphone className="w-4 h-4" /> Open Wallet
-                </button>
-                <button onClick={() => { setStatus('idle'); setErrMsg(''); setQrUri(''); }}
-                  className="flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
-                  style={{ border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.75)' }}>
-                  Cancel
-                </button>
-              </div>
-            </>
-          )}
           {status === 'sending' && (
             <>
               <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
                 Seeing "<b style={{ color: '#F6851A' }}>0 {net.nativeSymbol}</b>" in the wallet is normal — USDT transfers carry 0 native coin; the actual {amount.toFixed(2)} USDT goes inside the contract call. However, your wallet needs a <b style={{ color: '#F6851A' }}>small amount of {net.nativeSymbol} ($0.05–0.20)</b> for gas — otherwise it will show "Insufficient {net.nativeSymbol} balance".
               </p>
-              <button onClick={openMetaMaskApp}
-                className="self-start flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
-                style={{ background: 'linear-gradient(135deg, #F6851A, #E2761B)', color: '#fff', boxShadow: '0 4px 14px rgba(246,133,26,0.35)' }}>
-                <Smartphone className="w-4 h-4" /> Open MetaMask
-              </button>
             </>
           )}
         </div>
       )}
 
-      {/* QR code — shown when connecting via QR scan */}
-      {(status === 'connecting' || status === 'error') && qrUri && (
-        <div className="dash-card p-5 flex flex-col items-center gap-3" style={{ background: '#fff', border: '1px solid rgba(246,133,26,0.4)' }}>
-          <QRCodeSVG value={qrUri} size={208} level="M" />
-          <p className="text-sm font-bold" style={{ color: '#1a1a1a' }}>Scan this QR with the MetaMask app</p>
-          <p className="text-[11px]" style={{ color: '#888' }}>MetaMask app → Scan QR Code</p>
-          <button onClick={() => { try { navigator.clipboard.writeText(qrUri); toast({ title: 'Connection link copied', description: 'Open MetaMask → Scan QR → paste the link.' }); } catch {} }}
-            className="px-4 h-10 rounded-[12px] text-[12px] font-bold transition-all active:scale-95"
-            style={{ border: '1px solid rgba(0,0,0,0.15)', background: 'rgba(0,0,0,0.05)', color: '#333' }}>
-            Copy connection link
-          </button>
-          {isMobile() && (
-            <button onClick={openMetaMaskApp}
-              className="flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #F6851A, #E2761B)', color: '#fff', boxShadow: '0 4px 14px rgba(246,133,26,0.35)' }}>
-              <Smartphone className="w-4 h-4" /> Open MetaMask App
-            </button>
-          )}
-        </div>
+      {/* Idle — one reliable connect button (Reown AppKit modal handles
+          MetaMask / Trust / QR / extension, and works in Telegram's webview) */}
+      {(status === 'idle' || (status === 'error' && !account)) && (
+        <button onClick={openConnectModal}
+          className="dash-btn-gold w-full flex items-center justify-center gap-2 h-14 rounded-[16px] text-[15px]">
+          <Wallet className="w-5 h-5" /> Connect Wallet
+        </button>
       )}
 
-      {/* Idle action buttons — 3 options like Trust Wallet */}
-      {status === 'idle' && (
-        <div className="flex flex-col gap-2.5">
-          <button onClick={openInMetaMaskBrowser}
-            className="w-full flex flex-col items-center justify-center gap-0.5 h-16 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
-            style={{ background: 'linear-gradient(135deg, #F6851A, #E2761B)', color: '#fff', boxShadow: '0 6px 20px rgba(246,133,26,0.4)' }}>
-            <span className="flex items-center gap-2"><Smartphone className="w-5 h-5" /> Pay inside MetaMask Browser</span>
-            <span className="text-[11px] font-semibold opacity-85">Recommended · connects instantly</span>
-          </button>
-          <button onClick={connectMobile}
-            className="w-full flex items-center justify-center gap-2 h-12 rounded-[16px] font-bold transition-all active:scale-[0.98]"
-            style={{ border: '1px solid rgba(246,133,26,0.45)', background: 'rgba(246,133,26,0.10)', color: '#F6851A' }}>
-            <Smartphone className="w-5 h-5" /> Open in MetaMask App (Auto Pay)
-          </button>
-          <button onClick={connectQr}
-            className="dash-btn-gold w-full flex items-center justify-center gap-2 h-14 rounded-[16px] text-[15px]">
-            <Wallet className="w-5 h-5" /> Connect via QR Scan
-          </button>
-          <button onClick={connectInjected}
-            className="w-full flex items-center justify-center gap-2 h-12 rounded-[16px] font-bold transition-all active:scale-[0.98]"
-            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#fff' }}>
-            <Chrome className="w-5 h-5" style={{ color: '#F6851A' }} /> Browser Extension
-          </button>
-        </div>
-      )}
+
 
       {/* Connected — send */}
-      {status === 'connected' && (
+      {(status === 'connected' || (status === 'error' && account)) && (
         <button onClick={deposit}
           className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', boxShadow: '0 6px 20px rgba(52,211,153,0.4)' }}>
