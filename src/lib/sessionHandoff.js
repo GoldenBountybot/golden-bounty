@@ -1,5 +1,4 @@
 import { supabase } from '@/api/supabaseClient';
-import { setSession } from '@/api/supabaseAuth';
 
 // The app signs in with Telegram launch data, which only exists inside the
 // Telegram client. Opening a page in an external wallet browser (MetaMask)
@@ -38,7 +37,7 @@ export async function adoptHandoffSession() {
     const raw = params.get(PARAM);
     if (!raw) return false;
     const { access_token, refresh_token } = JSON.parse(b64urlDecode(raw));
-    await setSession({ access_token, refresh_token });
+    await supabase.auth.setSession({ access_token, refresh_token });
     params.delete(PARAM);
     const q = params.toString();
     window.history.replaceState({}, '', window.location.pathname + (q ? '?' + q : ''));
