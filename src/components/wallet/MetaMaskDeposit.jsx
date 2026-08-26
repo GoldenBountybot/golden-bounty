@@ -123,7 +123,12 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       // forever. Wait for the publish to flush before handing off.
       setTimeout(() => openWalletLink('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri)), 800);
     });
-    const res = await connectWalletConnect(net.chainId);
+    // Never spin forever: if the wallet never answers the pairing, surface it so
+    // the player can retry or scan the QR instead of staring at "Connecting…".
+    const res = await Promise.race([
+      connectWalletConnect(net.chainId),
+      new Promise((r) => setTimeout(() => r(null), 75000)),
+    ]);
     if (res && res.account) {
       providerRef.current = res.provider;
       accountRef.current = res.account;
@@ -135,8 +140,8 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       setQrUri('');
       setStatus('connected');
     } else {
-      setErrMsg('MetaMask connection was cancelled or failed.');
-      setStatus('error'); setQrUri('');
+      setErrMsg('MetaMask did not approve the connection. Open the MetaMask app manually, or copy the connection link below and paste it into MetaMask → Scan QR → paste.');
+      setStatus('error');
     }
   };
 
@@ -462,11 +467,16 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       )}
 
       {/* QR code — shown when connecting via QR scan */}
-      {status === 'connecting' && qrUri && (
+      {(status === 'connecting' || status === 'error') && qrUri && (
         <div className="dash-card p-5 flex flex-col items-center gap-3" style={{ background: '#fff', border: '1px solid rgba(246,133,26,0.4)' }}>
           <QRCodeSVG value={qrUri} size={208} level="M" />
           <p className="text-sm font-bold" style={{ color: '#1a1a1a' }}>Scan this QR with the MetaMask app</p>
           <p className="text-[11px]" style={{ color: '#888' }}>MetaMask app → Scan QR Code</p>
+          <button onClick={() => { try { navigator.clipboard.writeText(qrUri); toast({ title: 'Connection link copied', description: 'Open MetaMask → Scan QR → paste the link.' }); } catch {} }}
+            className="px-4 h-10 rounded-[12px] text-[12px] font-bold transition-all active:scale-95"
+            style={{ border: '1px solid rgba(0,0,0,0.15)', background: 'rgba(0,0,0,0.05)', color: '#333' }}>
+            Copy connection link
+          </button>
           {isMobile() && (
             <button onClick={openMetaMaskApp}
               className="flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
