@@ -76,6 +76,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     }
   }, [isConnected, address, walletProvider]);
 
+  // Polygon has no native option here — fall back to USDT if it was selected.
+  useEffect(() => { if (!nativeSupported && payAsset === 'native') setPayAsset('usdt'); }, [netKey, nativeSupported]);
+
   // Load the live coin price whenever the native option / network changes so
   // the amount shown (and sent) is never 0.
   useEffect(() => {

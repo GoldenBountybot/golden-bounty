@@ -208,10 +208,14 @@ export default function TonkeeperDeposit({ amount, onBack, onDone }) {
               <Smartphone className="w-5 h-5" /> Connect Ton Wallet
             </button>
           ) : (
-            <button onClick={deposit}
-              className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
+            <button onClick={deposit} disabled={payAsset === 'ton' && !price}
+              className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98] disabled:opacity-50"
               style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', boxShadow: '0 6px 20px rgba(52,211,153,0.4)' }}>
-              <ArrowRight className="w-5 h-5" /> Send {payAsset === 'ton' ? `${coinAmt.toFixed(5)} TON` : `$${amount.toFixed(2)} USDT`} from wallet
+              {payAsset === 'ton' && !price ? (
+                <><Loader2 className="w-5 h-5 animate-spin" /> Loading TON price…</>
+              ) : (
+                <><ArrowRight className="w-5 h-5" /> Send {payAsset === 'ton' ? `${coinAmt.toFixed(5)} TON` : `$${amount.toFixed(2)} USDT`} from wallet</>
+              )}
             </button>
           )}
         </div>

@@ -434,10 +434,14 @@ export default function PhantomSolanaDeposit({ amount, onDone }) {
 
       {/* Connected — send */}
       {status === 'connected' && (
-        <button onClick={deposit}
-          className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
+        <button onClick={deposit} disabled={payAsset === 'sol' && !price}
+          className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98] disabled:opacity-50"
           style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', boxShadow: '0 6px 20px rgba(52,211,153,0.4)' }}>
-          <ArrowRight className="w-5 h-5" /> Send {payAsset === 'sol' ? `${solAmt.toFixed(5)} SOL` : `${amount.toFixed(2)} USDC`} from wallet
+          {payAsset === 'sol' && !price ? (
+            <><Loader2 className="w-5 h-5 animate-spin" /> Loading SOL price…</>
+          ) : (
+            <><ArrowRight className="w-5 h-5" /> Send {payAsset === 'sol' ? `${solAmt.toFixed(5)} SOL` : `${amount.toFixed(2)} USDC`} from wallet</>
+          )}
         </button>
       )}
 
