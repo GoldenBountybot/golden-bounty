@@ -6,7 +6,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useLanguage } from '@/lib/LanguageContext';
 import AnimatedNumber from '@/components/AnimatedNumber';
 
-const CASHBACK_RATE = 0.03; // 3%
+const CASHBACK_RATE = 0.01; // 1%
 
 export default function CashbackPanel({ profile, onBack }) {
   const { toast } = useToast();
@@ -63,7 +63,7 @@ export default function CashbackPanel({ profile, onBack }) {
       // cashback_claimed_loss is updated server-side so it can't be reset
       // to 0 via updateMe to re-claim.
       const newClaimed = claimedLoss + unclaimedLoss;
-      addRealBalance(cashbackAmount, 'cashback', `3% Cashback on $${unclaimedLoss.toFixed(2)} losses`, unclaimedLoss);
+      addRealBalance(cashbackAmount, 'cashback', `1% Cashback on $${unclaimedLoss.toFixed(2)} losses`, unclaimedLoss);
       setClaimedLoss(newClaimed);
       // Create a notification so it shows in the Notifications list
       try {
@@ -107,7 +107,7 @@ export default function CashbackPanel({ profile, onBack }) {
             $<AnimatedNumber value={cashbackAmount} duration={800} decimals={2} />
           </p>
           <p className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            {t('3% of your net game losses')}
+            {t('1% of your net game losses')}
           </p>
         </div>
 
@@ -165,7 +165,7 @@ export default function CashbackPanel({ profile, onBack }) {
       {/* Info note */}
       <div className="dash-card p-4">
         <p className="text-[12px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>
-          {t('Cashback is 3% of your net loss from deposited funds only. Winnings lost after a big win do not count toward cashback.')}
+          {t('Cashback is 1% of your net loss from deposited funds only. Winnings lost after a big win do not count toward cashback.')}
         </p>
       </div>
     </div>

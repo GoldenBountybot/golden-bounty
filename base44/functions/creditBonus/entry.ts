@@ -2,7 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { findOrCreateWallet, mirrorToUser } from '../../shared/wallet.ts';
 
 // Credits a legitimate non-gameplay bonus to the user's wallet. Used for:
-//   - cashback (3% loss rebate)
+//   - cashback (1% loss rebate)
 //   - free-spin wins from the daily FreeSpin mini-game
 //   - signup / daily / weekly / monthly / deposit bonuses
 //
@@ -116,7 +116,7 @@ export default async function(req) {
       if (!isFinite(claimedLoss) || claimedLoss <= 0) {
         return Response.json({ error: 'invalid-claimed-loss' }, { status: 400 });
       }
-      if (Math.abs(amount - claimedLoss * 0.03) > 1) {
+      if (Math.abs(amount - claimedLoss * 0.01) > 1) {
         return Response.json({ error: 'amount-mismatch' }, { status: 400 });
       }
       // Re-calculate actual unclaimed loss from transactions + wallet.
