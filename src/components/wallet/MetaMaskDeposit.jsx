@@ -121,7 +121,12 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       // is emitted. Foregrounding MetaMask instantly freezes this webview before
       // the publish finishes — MetaMask then finds no pending request and spins
       // forever. Wait for the publish to flush before handing off.
-      setTimeout(() => openWalletLink('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri)), 800);
+      const link = 'https://metamask.app.link/wc?uri=' + encodeURIComponent(uri);
+      setTimeout(() => openWalletLink(link), 800);
+      // Some Telegram clients silently drop the first openLink while the page
+      // is still publishing the pairing — one retry makes the direct hand-off
+      // land reliably. Skipped once the wallet already answered.
+      setTimeout(() => { if (!accountRef.current) openWalletLink(link); }, 3500);
     });
     // Never spin forever: if the wallet never answers the pairing, surface it so
     // the player can retry or scan the QR instead of staring at "Connecting…".
