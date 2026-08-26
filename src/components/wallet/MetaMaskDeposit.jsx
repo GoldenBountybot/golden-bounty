@@ -76,6 +76,18 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     }
   }, [isConnected, address, walletProvider]);
 
+  // Load the live coin price whenever the native option / network changes so
+  // the amount shown (and sent) is never 0.
+  useEffect(() => {
+    if (!nativeSupported) { setPrice(0); return; }
+    let alive = true;
+    (async () => {
+      const p = (await getCryptoPrices())[nativeKey] || 0;
+      if (alive) setPrice(p);
+    })();
+    return () => { alive = false; };
+  }, [nativeKey, nativeSupported]);
+
   // Keep the wallet on the selected deposit network.
   useEffect(() => {
     if (isConnected && Number(chainId) !== net.chainId) {
@@ -301,10 +313,14 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
 
       {/* Connected — send */}
       {(status === 'connected' || (status === 'error' && account)) && (
-        <button onClick={deposit}
-          className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
+        <button onClick={deposit} disabled={payAsset === 'native' && !price}
+          className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98] disabled:opacity-50"
           style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', boxShadow: '0 6px 20px rgba(52,211,153,0.4)' }}>
-          <ArrowRight className="w-5 h-5" /> Send {payAsset === 'native' ? `${coinAmt.toFixed(5)} ${net.nativeSymbol}` : `$${amount.toFixed(2)} USDT`} from wallet
+          {payAsset === 'native' && !price ? (
+            <><Loader2 className="w-5 h-5 animate-spin" /> Loading {net.nativeSymbol} price…</>
+          ) : (
+            <><ArrowRight className="w-5 h-5" /> Send {payAsset === 'native' ? `${coinAmt.toFixed(5)} ${net.nativeSymbol}` : `$${amount.toFixed(2)} USDT`} from wallet</>
+          )}
         </button>
       )}
 
