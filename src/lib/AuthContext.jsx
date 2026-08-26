@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { supabase } from '@/api/supabaseClient';
 import { isInsideTelegram, tgInitData, tgReady, tgUserId } from '@/lib/telegram';
@@ -15,6 +15,10 @@ export const AuthProvider = ({ children }) => {
   const [authError, setAuthError] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [appPublicSettings, setAppPublicSettings] = useState(null);
+  // Once the first auth check completed, silent token refreshes must NOT put
+  // the whole app back on the loading screen (it unmounts every open page —
+  // the user sees the app "reload" out of nowhere every ~55 minutes / focus).
+  const authCheckedRef = useRef(false);
 
   useEffect(() => {
     checkAppState();
@@ -24,7 +28,10 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setIsAuthenticated(false);
       } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        checkUserAuth();
+        // A token refresh on an already-authenticated session changes nothing
+        // for the UI — re-checking would flash the loading screen and remount
+        // every page. Only re-check when we haven't established the user yet.
+        if (!authCheckedRef.current) checkUserAuth();
       }
     });
     return () => sub?.subscription?.unsubscribe();
@@ -74,7 +81,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkUserAuth = async () => {
     try {
-      setIsLoadingAuth(true);
+      if (!authCheckedRef.current) setIsLoadingAuth(true);
       const currentUser = await base44.auth.me();
 
       // Banned players are blocked from the app entirely. The ban flag lives on
@@ -97,6 +104,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
       setAuthChecked(true);
+      authCheckedRef.current = true;
     } catch (error) {
       console.error('User auth check failed:', error);
       setUser(null);
