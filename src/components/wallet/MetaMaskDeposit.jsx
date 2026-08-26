@@ -114,6 +114,20 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       setStatus('error'); return;
     }
     setStatus('connecting'); setErrMsg(''); setQrUri('');
+    // MetaMask needs time to launch AND be unlocked before it can pick up a
+    // pairing. So: hand off once to launch the app, and if that pairing goes
+    // unanswered, publish a FRESH pairing and hand it off again — by then
+    // MetaMask is already open and unlocked, so the request lands immediately.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const ok = await attemptWalletConnect(attempt === 0);
+      if (ok) return;
+    }
+    setErrMsg('MetaMask did not approve the connection. Open the MetaMask app, unlock it, then tap Open Wallet again — or copy the connection link below and paste it into MetaMask → Scan QR.');
+    setStatus('error');
+  };
+
+  const attemptWalletConnect = async (openApp) => {
+    setStatus('connecting'); setErrMsg('');
     onWalletConnectUri((uri) => {
       qrUriRef.current = uri;
       setQrUri(uri);
@@ -127,13 +141,13 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       // MetaMask freezes this webview, so give the publish enough time to flush
       // first. Opening the SAME link twice makes MetaMask restart pairing on an
       // already-consumed URI — so hand it off exactly once.
-      setTimeout(() => openWalletLink(link), 2500);
+      if (openApp) setTimeout(() => openWalletLink(link), 2500);
     });
-    // Never spin forever: if the wallet never answers the pairing, surface it so
-    // the player can retry or scan the QR instead of staring at "Connecting…".
+    // Give this pairing a bounded window; an unanswered one is retried with a
+    // fresh URI by the caller instead of spinning forever.
     const res = await Promise.race([
       connectWalletConnect(net.chainId),
-      new Promise((r) => setTimeout(() => r(null), 75000)),
+      new Promise((r) => setTimeout(() => r(null), 30000)),
     ]);
     if (res && res.account) {
       providerRef.current = res.provider;
@@ -145,10 +159,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       qrUriRef.current = '';
       setQrUri('');
       setStatus('connected');
-    } else {
-      setErrMsg('MetaMask did not approve the connection. Open the MetaMask app manually, or copy the connection link below and paste it into MetaMask → Scan QR → paste.');
-      setStatus('error');
+      return true;
     }
+    return false;
   };
 
   // Primary button — SDK auto-detects: mobile deep-link, desktop extension, or QR
