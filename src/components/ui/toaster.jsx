@@ -21,7 +21,7 @@ export function Toaster() {
             className="!bg-black !border-amber-500/60"
             style={{ boxShadow: '0 4px 18px rgba(0,0,0,0.7), 0 0 12px rgba(212,175,55,0.35)' }}
           >
-            <div className="grid gap-1">
+            <div className="grid gap-0.5">
               {title && (
                 <ToastTitle
                   className="!text-amber-300"
