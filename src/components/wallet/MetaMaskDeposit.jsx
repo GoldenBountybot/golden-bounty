@@ -72,6 +72,19 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     }
   };
 
+  // The only path that cannot break: load this page INSIDE MetaMask's own
+  // in-app browser. There MetaMask injects window.ethereum directly, so there
+  // is no WalletConnect relay and no frozen Telegram webview — connect and the
+  // transaction request appear instantly.
+  const openInMetaMaskBrowser = () => {
+    openWalletLink(`https://metamask.app.link/dapp/golden-bounty.com/pay?amount=${amount}&method=metamask`);
+  };
+
+  // Already running inside MetaMask's browser → connect straight away.
+  useEffect(() => {
+    if (getInjectedMetaMask() && status === 'idle') connectInjected();
+  }, []);
+
   // Warm the SDK up front so the connect request reaches MetaMask instantly.
   // Skipped inside Telegram, where the SDK's own deep-linking breaks the webview
   // and we pair over WalletConnect instead.
@@ -509,9 +522,15 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       {/* Idle action buttons — 3 options like Trust Wallet */}
       {status === 'idle' && (
         <div className="flex flex-col gap-2.5">
-          <button onClick={connectMobile}
-            className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
+          <button onClick={openInMetaMaskBrowser}
+            className="w-full flex flex-col items-center justify-center gap-0.5 h-16 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
             style={{ background: 'linear-gradient(135deg, #F6851A, #E2761B)', color: '#fff', boxShadow: '0 6px 20px rgba(246,133,26,0.4)' }}>
+            <span className="flex items-center gap-2"><Smartphone className="w-5 h-5" /> Pay inside MetaMask Browser</span>
+            <span className="text-[11px] font-semibold opacity-85">Recommended · connects instantly</span>
+          </button>
+          <button onClick={connectMobile}
+            className="w-full flex items-center justify-center gap-2 h-12 rounded-[16px] font-bold transition-all active:scale-[0.98]"
+            style={{ border: '1px solid rgba(246,133,26,0.45)', background: 'rgba(246,133,26,0.10)', color: '#F6851A' }}>
             <Smartphone className="w-5 h-5" /> Open in MetaMask App (Auto Pay)
           </button>
           <button onClick={connectQr}

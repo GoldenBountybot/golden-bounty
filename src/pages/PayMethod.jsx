@@ -137,7 +137,7 @@ export default function PayMethod() {
   // webview reload on return, so remember which payment screen was open and
   // restore it instead of dropping the user back on "Choose Payment".
   const savedView = (() => { try { return sessionStorage.getItem('gb_pay_view') || ''; } catch { return ''; } })();
-  const [view, setView] = useState(params.get('method') === 'phantom-sol' ? 'phantom-sol' : (savedView || 'choose')); // 'choose' | 'usdt' | 'usdc' | 'crypto' | 'binance'
+  const [view, setView] = useState(['phantom-sol', 'metamask', 'trust', 'tonkeeper'].includes(params.get('method')) ? params.get('method') : (savedView || 'choose')); // 'choose' | 'usdt' | 'usdc' | 'crypto' | 'binance'
 
   useEffect(() => {
     try { sessionStorage.setItem('gb_pay_view', view); } catch { /* private mode */ }
