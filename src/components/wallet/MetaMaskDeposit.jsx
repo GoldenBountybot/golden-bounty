@@ -9,6 +9,7 @@ import { connectWalletConnect, disconnectWalletConnect, onWalletConnectUri, hasW
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton, isInsideTelegram } from '@/lib/telegram';
 import { openWalletLink } from '@/lib/openWalletLink';
+import { buildHandoffUrl } from '@/lib/sessionHandoff';
 import { openWalletForRequest } from '@/lib/walletRedirect';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { addWagerRequirement, reloadBalance } from '@/lib/useCasinoBalance';
@@ -76,8 +77,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   // in-app browser. There MetaMask injects window.ethereum directly, so there
   // is no WalletConnect relay and no frozen Telegram webview — connect and the
   // transaction request appear instantly.
-  const openInMetaMaskBrowser = () => {
-    openWalletLink(`https://metamask.app.link/dapp/golden-bounty.com/pay?amount=${amount}&method=metamask`);
+  const openInMetaMaskBrowser = async () => {
+    // Carry the player's session into MetaMask's browser — Telegram launch data
+    // doesn't exist there, so without it the page shows the Telegram sign-in gate.
+    const url = await buildHandoffUrl(`/pay?amount=${amount}&method=metamask`);
+    openWalletLink('https://metamask.app.link/dapp/' + url.replace(/^https?:\/\//, ''));
   };
 
   // Already running inside MetaMask's browser → connect straight away.

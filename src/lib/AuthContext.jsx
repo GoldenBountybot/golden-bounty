@@ -4,6 +4,7 @@ import { supabase } from '@/api/supabaseClient';
 import { isInsideTelegram, tgInitData, tgReady, tgUserId } from '@/lib/telegram';
 import { invoke } from '@/api/supabaseFunctions';
 import { setSession } from '@/api/supabaseAuth';
+import { adoptHandoffSession } from '@/lib/sessionHandoff';
 
 const AuthContext = createContext();
 
@@ -40,6 +41,9 @@ export const AuthProvider = ({ children }) => {
   const checkAppState = async () => {
     setAuthError(null);
     setAppPublicSettings(null);
+    // A link opened in an external wallet browser (MetaMask) can carry the
+    // player's session, since Telegram launch data isn't available there.
+    await adoptHandoffSession();
     const { data: { session } } = await supabase.auth.getSession();
     const inTelegram = isInsideTelegram();
 
