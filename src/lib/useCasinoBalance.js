@@ -200,7 +200,7 @@ async function addRealBalance(amount, type = 'bonus', note = '', claimedLoss = 0
     demoBalance += n;
     setDemoCache(demoBalance);
     notify();
-    return;
+    return { ok: true, balance: demoBalance };
   }
   // Optimistic local update for instant visual feedback.
   uncommittedDelta += n;
@@ -212,7 +212,9 @@ async function addRealBalance(amount, type = 'bonus', note = '', claimedLoss = 0
   // Wallet.cashback_claimed_loss (preventing double-claims).
   try {
     const res = await base44.functions.invoke('creditBonus', { amount: n, type, note, claimed_loss: claimedLoss });
-    const newBackend = Number(res?.data?.balance ?? 0);
+    // Never fall back to 0 — a missing balance in the response would wipe the
+    // displayed balance. Keep the last known committed balance instead.
+    const newBackend = Number(res?.data?.balance ?? committedBalance);
     // Revert the optimistic +n — the server balance now includes the credit,
     // so keeping it in uncommittedDelta would double-count the bonus and make
     // the displayed balance higher than the real server balance (causing
@@ -222,12 +224,15 @@ async function addRealBalance(amount, type = 'bonus', note = '', claimedLoss = 0
     balance = newBackend + uncommittedDelta;
     setCache(balance);
     notify();
-  } catch {
-    // revert optimistic update on failure
+    return { ok: true, balance };
+  } catch (e) {
+    // revert optimistic update on failure and surface the real reason so the
+    // UI never shows a fake success.
     uncommittedDelta -= n;
     balance = committedBalance + uncommittedDelta;
     setCache(balance);
     notify();
+    return { ok: false, error: e?.data?.detail || e?.message || 'Credit failed' };
   }
 }
 

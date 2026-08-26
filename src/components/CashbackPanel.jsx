@@ -63,7 +63,14 @@ export default function CashbackPanel({ profile, onBack }) {
       // cashback_claimed_loss is updated server-side so it can't be reset
       // to 0 via updateMe to re-claim.
       const newClaimed = claimedLoss + unclaimedLoss;
-      addRealBalance(cashbackAmount, 'cashback', `1% Cashback on $${unclaimedLoss.toFixed(2)} losses`, unclaimedLoss);
+      const res = await addRealBalance(cashbackAmount, 'cashback', `1% Cashback on $${unclaimedLoss.toFixed(2)} losses`, unclaimedLoss);
+      if (res && res.ok === false) {
+        // The server rejected the claim — show the real reason and re-sync so
+        // the panel never shows a fake success.
+        toast({ title: t('Claim failed'), description: res.error });
+        await load();
+        return;
+      }
       setClaimedLoss(newClaimed);
       // Create a notification so it shows in the Notifications list
       try {
