@@ -101,7 +101,10 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       wcUriRef.current = uri;
       setWcUri(uri);
       if (mobile) {
-        openWalletLink('https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri));
+        // Wait for the session proposal to be fully published to the relay
+        // before foregrounding the wallet — opening it instantly freezes this
+        // webview mid-publish and the wallet spins with no pending request.
+        setTimeout(() => openWalletLink('https://link.trustwallet.com/wc?uri=' + encodeURIComponent(uri)), 800);
       }
     });
     const res = await connectWalletConnect(net.chainId);

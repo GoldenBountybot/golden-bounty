@@ -117,7 +117,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     onWalletConnectUri((uri) => {
       qrUriRef.current = uri;
       setQrUri(uri);
-      openWalletLink('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri));
+      // The connection proposal is published to the relay right AFTER this URI
+      // is emitted. Foregrounding MetaMask instantly freezes this webview before
+      // the publish finishes — MetaMask then finds no pending request and spins
+      // forever. Wait for the publish to flush before handing off.
+      setTimeout(() => openWalletLink('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri)), 800);
     });
     const res = await connectWalletConnect(net.chainId);
     if (res && res.account) {
@@ -147,9 +151,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     onMetaMaskUri((uri) => {
       qrUriRef.current = uri;
       setQrUri(uri);
-      // Hand the pairing link straight to the MetaMask app on mobile, so the
-      // connection prompt appears without the user hunting for a button.
-      if (mobile) openWalletLink('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri));
+      // Hand the pairing link to the MetaMask app on mobile — after a short
+      // delay so the pairing is fully registered on the relay first; opening
+      // the wallet too early leaves it spinning on "Connecting…" with nothing
+      // to show.
+      if (mobile) setTimeout(() => openWalletLink('https://metamask.app.link/wc?uri=' + encodeURIComponent(uri)), 800);
     });
     try {
       const sdk = getMetaMaskSdk();
