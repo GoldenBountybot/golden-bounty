@@ -15,6 +15,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useLanguage } from '@/lib/LanguageContext';
 import { isInsideTelegram } from '@/lib/telegram';
 import { PG_GAMES } from '@/lib/pgGames';
+import { JILI_GAMES } from '@/lib/jiliGames';
 
 const GAMES = [
   { id: 'free-spin', titleKey: 'Daily Free Spin', category: 'Arcade', desc: 'Spin every 24h · win $1000', accent: 'from-amber-500 to-yellow-700', tag: 'FREE', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png', path: '/free-spin' },
@@ -44,7 +45,20 @@ const PG_LOBBY_GAMES = PG_GAMES.map(g => ({
   path: `/games/pg/${g.id}`,
 }));
 
-const ALL_GAMES = [...GAMES, ...PG_LOBBY_GAMES];
+// JILI titles are folded into the same lobby, mapped onto our categories.
+const JILI_CAT_MAP = { 2: 'Slots', 3: 'Slots', 4: 'Arcade', 5: 'Cards', 6: 'Arcade', 8: 'Table', 0: 'Slots' };
+const JILI_LOBBY_GAMES = JILI_GAMES.map(g => ({
+  id: `jili-${g.id}`,
+  titleKey: g.name,
+  category: JILI_CAT_MAP[g.cat] || 'Slots',
+  desc: 'JILI Games',
+  accent: 'from-amber-500 to-orange-700',
+  tag: 'JILI',
+  image: g.cover,
+  path: `/games/jili/${g.id}`,
+}));
+
+const ALL_GAMES = [...GAMES, ...PG_LOBBY_GAMES, ...JILI_LOBBY_GAMES];
 
 // Temporarily hidden from the lobby (routes still work if opened directly).
 // Remove an id from this list to show the game again.
