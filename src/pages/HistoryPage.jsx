@@ -5,6 +5,8 @@ import BackButton from '@/components/BackButton';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { useLanguage } from '@/lib/LanguageContext';
 import { formatDateTime } from '@/lib/dateFormat';
+import PeriodTabs, { periodStart } from '@/components/history/PeriodTabs';
+import BetStatsPanel from '@/components/history/BetStatsPanel';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -70,6 +72,7 @@ export default function HistoryPage() {
   const [transactions, setTransactions] = useState([]);
   const [activities, setActivities] = useState([]);
   const [view, setView] = useState('games'); // 'games' | 'wallet'
+  const [period, setPeriod] = useState('daily'); // daily | weekly | monthly | lifetime
 
   useEffect(() => {
     let active = true;
@@ -78,8 +81,8 @@ export default function HistoryPage() {
         const me = await base44.auth.me();
         if (!me || !active) return;
         const [txs, acts] = await Promise.all([
-          base44.entities.Transaction.filter({ user_id: me.id }, '-created_date', 100).catch(() => []),
-          base44.entities.PlayerActivity.filter({ user_id: me.id }, '-created_date', 100).catch(() => []),
+          base44.entities.Transaction.filter({ user_id: me.id }, '-created_date', 500).catch(() => []),
+          base44.entities.PlayerActivity.filter({ user_id: me.id }, '-created_date', 1000).catch(() => []),
         ]);
         if (!active) return;
 
@@ -110,6 +113,23 @@ export default function HistoryPage() {
   }, []);
 
   const net = totals.win - totals.loss;
+
+  // Bets inside the selected period (daily / weekly / monthly / lifetime).
+  const from = periodStart(period);
+  const periodActivities = activities.filter((a) => {
+    if (!from) return true;
+    const ts = new Date(a.created_date).getTime();
+    return isFinite(ts) && ts >= from;
+  });
+  const periodStats = periodActivities.reduce((s, a) => {
+    const bet = Number(a.bet) || 0;
+    const win = Number(a.win) || 0;
+    s.bet += bet;
+    s.win += win;
+    s.loss += Math.max(0, bet - win);
+    s.rounds += 1;
+    return s;
+  }, { bet: 0, win: 0, loss: 0, rounds: 0 });
 
   return (
     <div className="flex flex-col min-h-screen pb-24" style={{ background: '#0D0D0D', fontFamily: SANS }}>
@@ -170,6 +190,10 @@ export default function HistoryPage() {
           ))}
         </div>
 
+        {/* Bet stats by period */}
+        <PeriodTabs value={period} onChange={setPeriod} />
+        <BetStatsPanel stats={periodStats} />
+
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="w-8 h-8 rounded-full border-2 border-amber-400/30 border-t-amber-400 animate-spin" />
@@ -179,13 +203,13 @@ export default function HistoryPage() {
             {t('Failed to load')}
           </div>
         ) : view === 'games' ? (
-          activities.length === 0 ? (
+          periodActivities.length === 0 ? (
             <div className="dash-card p-6 text-center" style={{ color: 'rgba(255,255,255,0.6)' }}>
               {t('No games played yet.')}
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              {activities.map((a) => {
+              {periodActivities.map((a) => {
                 const meta = OUTCOME_META[a.outcome] || OUTCOME_META.loss;
                 const amt = a.outcome === 'win' ? (Number(a.win) || 0) : (Number(a.bet) || 0);
                 return (
@@ -199,6 +223,10 @@ export default function HistoryPage() {
                         <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: meta.bg, border: `1px solid ${meta.border}`, color: meta.color }}>
                           {t(meta.label)}
                         </span>
+                        <p className="text-[10px] mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                          {t('Bet')} ${(Number(a.bet) || 0).toFixed(2)}
+                          {a.created_date ? ` · ${formatDateTime(a.created_date, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}
+                        </p>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
