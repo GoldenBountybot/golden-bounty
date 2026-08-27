@@ -46,11 +46,13 @@ const PG_LOBBY_GAMES = PG_GAMES.map(g => ({
 }));
 
 // JILI titles are folded into the same lobby, mapped onto our categories.
-const JILI_CAT_MAP = { 2: 'Slots', 3: 'Slots', 4: 'Arcade', 5: 'Cards', 6: 'Arcade', 8: 'Table', 0: 'Slots' };
+// JILI provider category id → our lobby category. Any id we don't know yet
+// (a brand-new JILI category) lands in "Other" so it still shows up.
+const JILI_CAT_MAP = { 2: 'Popular', 3: 'Slots', 4: 'Fishing', 5: 'Cards', 6: 'Bingo', 8: 'Arcade' };
 const JILI_LOBBY_GAMES = JILI_GAMES.map(g => ({
   id: `jili-${g.id}`,
   titleKey: g.name,
-  category: JILI_CAT_MAP[g.cat] || 'Slots',
+  category: JILI_CAT_MAP[g.cat] || 'Other',
   desc: 'JILI Games',
   accent: 'from-amber-500 to-orange-700',
   tag: 'JILI',
@@ -64,7 +66,11 @@ const ALL_GAMES = [...GAMES, ...PG_LOBBY_GAMES, ...JILI_LOBBY_GAMES];
 // Remove an id from this list to show the game again.
 const HIDDEN_GAME_IDS = ['wild-bounty', 'gates-of-olympus'];
 
-const CATEGORY_KEYS = ['All', 'Slots', 'Cards', 'Table', 'Arcade'];
+// Base tabs, plus any extra category that actually has games (e.g. "Other"
+// when JILI ships a category we haven't mapped yet).
+const BASE_CATEGORY_KEYS = ['All', 'Popular', 'Slots', 'Fishing', 'Cards', 'Table', 'Bingo', 'Arcade'];
+const EXTRA_CATEGORIES = [...new Set(ALL_GAMES.map(g => g.category))].filter(c => !BASE_CATEGORY_KEYS.includes(c));
+const CATEGORY_KEYS = [...BASE_CATEGORY_KEYS, ...EXTRA_CATEGORIES];
 
 export default function Home() {
   const { t } = useLanguage();
