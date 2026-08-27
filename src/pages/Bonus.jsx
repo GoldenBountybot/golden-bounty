@@ -88,6 +88,7 @@ export default function Bonus() {
           <BonusCard
             icon={CalendarDays}
             title={t('Weekly Bonus')}
+            image="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8937ed3c0_file_00000000135081fabcf638d619ba25ff.png"
             subtitle={t('$0.10 every 7 days')}
             amount={0.10}
             lastClaimAt={weeklyAt}
@@ -99,6 +100,7 @@ export default function Bonus() {
           <BonusCard
             icon={CalendarRange}
             title={t('Monthly Bonus')}
+            image="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/80d5436a9_file_000000000a9481fa922030e645e55b3f.png"
             subtitle={t('$0.15 every 30 days')}
             amount={0.15}
             lastClaimAt={monthlyAt}
