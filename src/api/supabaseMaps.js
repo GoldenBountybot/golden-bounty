@@ -35,6 +35,7 @@ export const FUNCTIONS = {
   getCryptoPrices: 'crypto-prices',
   getReferralStats: 'referral-stats',
   getWallet: 'get-wallet',
+  jiliLaunchGame: 'jili-launch-game',
   getWithdrawalRiskAssessment: 'withdrawal-risk-assessment',
   manualDepositCreate: 'manual-deposit-create',
   manualDepositCheck: 'manual-deposit-check',
