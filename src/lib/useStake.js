@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useCasinoBalance, reloadBalance } from '@/lib/useCasinoBalance';
+import { useCasinoBalance, applyServerWallet } from '@/lib/useCasinoBalance';
 import { getRateForDeposits, getVipLevel, BASE_RATE } from '@/lib/vipLevels';
 
 // Stack Balance: lock part of your balance to earn daily profit.
@@ -81,7 +81,7 @@ export function useStake() {
               sa = Number(unlockRes.data.staked_amount ?? 0) || 0;
               sat = unlockRes.data.staked_at ?? null;
               lc = unlockRes.data.last_profit_claim ?? null;
-              await reloadBalance();
+              applyServerWallet(unlockRes.data.balance, unlockRes.data.wager_remaining);
             }
           } catch { /* still locked or nothing staked — ignore */ }
         }
@@ -113,7 +113,7 @@ export function useStake() {
         setStaked(Number(res.data.staked_amount ?? 0) || 0);
         setStakedAt(res.data.staked_at ?? null);
         setLastClaim(res.data.last_profit_claim ?? null);
-        await reloadBalance();
+        applyServerWallet(res.data.balance, res.data.wager_remaining);
       }
       return true;
     } catch {
@@ -132,7 +132,7 @@ export function useStake() {
       const res = await base44.functions.invoke('stakeOperation', { action: 'claimProfit' });
       if (res?.data) {
         setLastClaim(res.data.last_profit_claim ?? null);
-        await reloadBalance();
+        applyServerWallet(res.data.balance, res.data.wager_remaining);
       }
       return Number(res?.data?.credited ?? p) || p;
     } catch {
@@ -154,7 +154,7 @@ export function useStake() {
         setStaked(Number(res.data.staked_amount ?? 0) || 0);
         setStakedAt(res.data.staked_at ?? null);
         setLastClaim(res.data.last_profit_claim ?? null);
-        await reloadBalance();
+        applyServerWallet(res.data.balance, res.data.wager_remaining);
       }
     } catch { /* still locked or nothing staked — ignore */ }
   }, [staked, stakedAt, lastClaim, rate]);

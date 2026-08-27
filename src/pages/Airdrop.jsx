@@ -9,6 +9,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import StylishNotify from '@/components/StylishNotify';
 import { hasTelegramBackButton } from '@/lib/telegram';
+import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const BOUNTY_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
@@ -70,6 +71,9 @@ export default function Airdrop() {
       const newTotal = allocation;
       await base44.auth.updateMe({ bounty_allocation: newTotal, bounty_claimed_at: new Date().toISOString() });
       setClaimed(newTotal);
+      // Keep the cached profile fresh so Profile shows the new token total instantly.
+      const cp = getProfileCache().profile;
+      if (cp) updateProfileCache({ profile: { ...cp, bounty_allocation: newTotal } });
       showNotify(t("Airdrop Claimed!"), `${claimable.toFixed(2)} BOUNTY tokens added to your account`);
     } catch (e) {
       toast({ title: t("Claim failed"), description: e.message });

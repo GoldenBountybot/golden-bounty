@@ -90,7 +90,7 @@ export default function Profile() {
   const [view, setView] = useState('profile');
   const [rewards, setRewards] = useState([]);
   const [loadingRewards, setLoadingRewards] = useState(false);
-  const [bountyAllocation, setBountyAllocation] = useState(Number(cached.profile?.bounty_allocation ?? 0) + Number(cached.profile?.task_bounty ?? 0));
+  const [bountyAllocation, setBountyAllocation] = useState(Number(cached.profile?.bounty_allocation ?? 0));
   const [taskBounty, setTaskBounty] = useState(Number(cached.profile?.task_bounty ?? 0));
 
   useEffect(() => {
@@ -108,7 +108,7 @@ export default function Profile() {
         setProfile(u);
         setUsername(u.username || u.telegram_username || '');
         setPhone(u.phone || '');
-        setBountyAllocation(Number(u?.bounty_allocation ?? 0) + Number(u?.task_bounty ?? 0));
+        setBountyAllocation(Number(u?.bounty_allocation ?? 0));
         setTaskBounty(Number(u?.task_bounty ?? 0));
       } catch {
         /* ignore */
@@ -539,10 +539,10 @@ export default function Profile() {
         <>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Social tasks — earn BOUNTY */}
-        <TaskSystem profile={profile} onClaimed={(b) => { setTaskBounty(b); setBountyAllocation((a) => a + (b - taskBounty)); }} />
+        <TaskSystem profile={profile} onClaimed={(b) => setTaskBounty(b)} />
 
         {/* X post task — submit, admin approves within 24h, claim 10 BOUNTY */}
-        <XPostTask profile={profile} onClaimed={(b) => { setTaskBounty(b); setBountyAllocation((a) => a + (b - taskBounty)); }} />
+        <XPostTask profile={profile} onClaimed={(b) => setTaskBounty(b)} />
         </div>
 
         <p className="text-center text-[11px] italic" style={{ color: 'rgba(212,175,55,0.7)' }}>

@@ -4,6 +4,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/LanguageContext';
 import { Loader2, Check, Gift, ExternalLink } from 'lucide-react';
 import FadeImage from '@/components/FadeImage';
+import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
 
 // Session cache of the task list, so re-opening Profile shows the tasks
 // instantly instead of a spinner while the same list is refetched.
@@ -70,6 +71,9 @@ export default function TaskSystem({ profile, onClaimed }) {
         task_bounty: newBounty,
       });
       setClaimedSet(new Set(newClaimed));
+      // Keep the cached profile fresh so Profile shows the new token total instantly.
+      const cp = getProfileCache().profile;
+      if (cp) updateProfileCache({ profile: { ...cp, claimed_tasks: newClaimed.join(','), task_bounty: newBounty } });
       onClaimed?.(newBounty);
       // Create a notification so it shows in the Notifications list
       try {

@@ -568,6 +568,21 @@ export function useCasinoBalance() {
 
 export async function reloadBalance() { await loadBalance(); }
 
+// Apply an authoritative wallet snapshot returned directly by a server
+// operation (e.g. stakeOperation) — instant, no second round-trip needed.
+export function applyServerWallet(bal, wager) {
+  const b = Number(bal);
+  if (!isFinite(b)) return;
+  committedBalance = b;
+  uncommittedDelta = 0;
+  uncommittedWagerDelta = 0;
+  balance = b;
+  const w = Number(wager);
+  if (isFinite(w)) { committedWager = w; wagerRemaining = w; }
+  setCache(balance);
+  notify();
+}
+
 // Returns the current authoritative balance (module-level, always fresh after
 // reloadBalance/loadBalance). Use this when you need the balance AFTER an
 // await reloadBalance() — the React hook's closure still holds the pre-await

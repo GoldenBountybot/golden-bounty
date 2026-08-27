@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/LanguageContext';
 import { Loader2, Check, Gift, ExternalLink, Clock, CheckCircle2, Send, ChevronDown, ChevronUp } from 'lucide-react';
+import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const BOUNTY_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
@@ -138,6 +139,9 @@ export default function XPostTask({ profile, onClaimed }) {
       const newBounty = Number(profile?.task_bounty ?? 0) + REWARD;
       await base44.auth.updateMe({ task_bounty: newBounty });
       setSubmission((s) => ({ ...s, claimed: true }));
+      // Keep the cached profile fresh so Profile shows the new token total instantly.
+      const cp = getProfileCache().profile;
+      if (cp) updateProfileCache({ profile: { ...cp, task_bounty: newBounty } });
       onClaimed?.(newBounty);
       try {
         await base44.entities.UserNotification.create({
