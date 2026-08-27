@@ -249,7 +249,7 @@ export default function Profile() {
                 { to: '/pay', label: t("Deposit"), Icon: ArrowDownToLine, color: '#34d399', active: true },
                 { to: '/withdraw', label: t("Withdraw"), Icon: ArrowUpFromLine, color: '#f87171' },
                 { to: '/history', label: t("History"), Icon: History, color: '#D4AF37' },
-                { onClick: () => { setView('rewards'); setMenuOpen(false); }, label: t("Rewards"), Icon: Gift, color: '#D4AF37' },
+                { to: '/bonus', label: t("Bonus"), Icon: Gift, color: '#D4AF37' },
                 { onClick: () => { setView('cashback'); setMenuOpen(false); }, label: t("Cashback"), Icon: RotateCcw, color: '#34d399' },
                 { to: '/referrals', label: t("Referrals"), Icon: Users, color: '#D4AF37' },
                 { to: '/events', label: t("Events"), Icon: Sparkles, color: '#D4AF37' },

@@ -41,6 +41,7 @@ import ResponsibleGaming from './pages/ResponsibleGaming';
 import Licenses from './pages/Licenses';
 import Faq from './pages/Faq';
 import Airdrop from './pages/Airdrop';
+import Bonus from './pages/Bonus';
 import LiveSupport from './pages/LiveSupport';
 import Referrals from './pages/Referrals';
 import Events from './pages/Events';
@@ -187,6 +188,7 @@ const AuthenticatedApp = () => {
           <Route path="/licenses" element={<Licenses />} />
           <Route path="/faq" element={<Faq />} />
           <Route path="/airdrop" element={<Airdrop />} />
+          <Route path="/bonus" element={<Bonus />} />
           <Route path="/live-support" element={<LiveSupport />} />
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/events" element={<Events />} />
