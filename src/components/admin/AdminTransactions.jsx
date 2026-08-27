@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/supabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import { pushNotification } from '@/lib/notify';
 import { applyReferralCommission } from '@/lib/referral';
@@ -18,6 +19,7 @@ export default function AdminTransactions() {
   const [form, setForm] = useState({ user_id: '', amount: '', type: 'deposit', note: '' });
   const [review, setReview] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+  const [busyId, setBusyId] = useState(null);
   const { toast } = useToast();
 
   const copyAddr = async (tx, text) => {
@@ -81,7 +83,25 @@ export default function AdminTransactions() {
   };
 
   const setStatus = async (tx, status) => {
+    if (busyId) return;
+    setBusyId(tx.id);
     try {
+      // ATOMIC CLAIM — flip the status only while the row is still 'pending'.
+      // If the admin taps Approve several times (or two admins act at once),
+      // only the first call claims the row; the others find nothing and exit
+      // without crediting the balance again.
+      const { data: claimed, error: claimErr } = await supabase
+        .from('transactions')
+        .update({ status })
+        .eq('id', tx.id)
+        .eq('status', 'pending')
+        .select('id');
+      if (claimErr) throw new Error(claimErr.message);
+      if (!claimed || claimed.length === 0) {
+        toast({ title: 'Already processed' });
+        load();
+        return;
+      }
       if (status === 'completed') {
         const credit = tx.type === 'deposit' || tx.type === 'bonus';
         const amt = Number(tx.amount) || 0;
@@ -94,7 +114,6 @@ export default function AdminTransactions() {
         // 5% referral commission to the referrer on approved deposits.
         if (tx.type === 'deposit') applyReferralCommission(tx.user_id, amt);
       }
-      await base44.entities.Transaction.update(tx.id, { status });
       // Notify the player of the status change.
       if (status === 'completed') {
         const credit = tx.type === 'deposit' || tx.type === 'bonus';
@@ -108,6 +127,7 @@ export default function AdminTransactions() {
       toast({ title: `Marked ${status}` });
       load();
     } catch { toast({ title: 'Failed' }); }
+    finally { setBusyId(null); }
   };
 
   const q = search.trim().toLowerCase();
@@ -183,8 +203,8 @@ export default function AdminTransactions() {
           {t.status === 'pending' && (
             <div className="flex gap-1">
               <button onClick={() => setReview(t)} className="px-2 py-1 rounded bg-amber-500 text-stone-950 text-xs font-bold">Review</button>
-              <button onClick={() => setStatus(t, 'completed')} className="px-2 py-1 rounded bg-emerald-500 text-white text-xs font-bold">Approve</button>
-              <button onClick={() => setStatus(t, 'rejected')} className="px-2 py-1 rounded bg-rose-600 text-white text-xs font-bold">Reject</button>
+              <button disabled={!!busyId} onClick={() => setStatus(t, 'completed')} className="px-2 py-1 rounded bg-emerald-500 text-white text-xs font-bold disabled:opacity-40">{busyId === t.id ? '...' : 'Approve'}</button>
+              <button disabled={!!busyId} onClick={() => setStatus(t, 'rejected')} className="px-2 py-1 rounded bg-rose-600 text-white text-xs font-bold disabled:opacity-40">Reject</button>
             </div>
           )}
         </WesternFrame>
