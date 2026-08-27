@@ -174,7 +174,7 @@ export default function Home() {
                 durationMs={400}
                 style={{ height: '104px', objectFit: 'contain' }}
               />
-              <p className="text-[11px] text-amber-100/55 tracking-wide -mt-4 text-center">{playable} {t('Games Live · Play & Win')}</p>
+              <p className="text-[11px] text-amber-100/55 tracking-wide -mt-4 text-center">{t('Play to Win ➤ Stack & Earn')}</p>
             </div>
           </div>
 
