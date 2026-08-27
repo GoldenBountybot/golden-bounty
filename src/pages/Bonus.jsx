@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Gift, Sparkles, CalendarDays, CalendarRange, Clock } from 'lucide-react';
-import { supabase } from '@/api/supabaseClient';
+import { supabase, SUPABASE_URL } from '@/api/supabaseClient';
 import { base44 } from '@/api/base44Client';
 import { reloadBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/LanguageContext';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import BonusCard from '@/components/bonus/BonusCard';
+
+// Banners are served from the app's own Supabase storage bucket (no credits used).
+const BANNER = (name) => `${SUPABASE_URL}/storage/v1/object/public/media/bonus/${name}.png`;
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -88,7 +91,7 @@ export default function Bonus() {
           <BonusCard
             icon={CalendarDays}
             title={t('Weekly Bonus')}
-            image="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8937ed3c0_file_00000000135081fabcf638d619ba25ff.png"
+            image={BANNER('weekly-bonus')}
             subtitle={t('$0.10 every 7 days')}
             amount={0.10}
             lastClaimAt={weeklyAt}
@@ -100,7 +103,7 @@ export default function Bonus() {
           <BonusCard
             icon={CalendarRange}
             title={t('Monthly Bonus')}
-            image="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/80d5436a9_file_000000000a9481fa922030e645e55b3f.png"
+            image={BANNER('monthly-bonus')}
             subtitle={t('$0.15 every 30 days')}
             amount={0.15}
             lastClaimAt={monthlyAt}
