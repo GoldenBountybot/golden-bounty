@@ -65,7 +65,18 @@ const JILI_LOBBY_GAMES = JILI_GAMES.map(g => ({
   path: `/games/jili/${g.id}`,
 }));
 
-const ALL_GAMES = [...GAMES, ...PG_LOBBY_GAMES, ...JILI_LOBBY_GAMES];
+// Popular alternates one PG SOFT title, one JILI title, so the tab shows a
+// balanced mix of both providers.
+const PG_POPULAR = PG_LOBBY_GAMES.filter(g => g.category === 'Popular');
+const JILI_POPULAR = JILI_LOBBY_GAMES.filter(g => g.category === 'Popular');
+const MIXED_POPULAR = [];
+for (let i = 0; i < Math.max(PG_POPULAR.length, JILI_POPULAR.length); i++) {
+  if (PG_POPULAR[i]) MIXED_POPULAR.push(PG_POPULAR[i]);
+  if (JILI_POPULAR[i]) MIXED_POPULAR.push(JILI_POPULAR[i]);
+}
+const OTHER_PROVIDER_GAMES = [...PG_LOBBY_GAMES, ...JILI_LOBBY_GAMES].filter(g => g.category !== 'Popular');
+
+const ALL_GAMES = [...GAMES, ...MIXED_POPULAR, ...OTHER_PROVIDER_GAMES];
 
 // Temporarily hidden from the lobby (routes still work if opened directly).
 // Remove an id from this list to show the game again.
