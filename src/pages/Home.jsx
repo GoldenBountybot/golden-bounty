@@ -34,13 +34,16 @@ const GAMES = [
 
 // PG SOFT titles are folded straight into the main lobby under their own
 // category — no separate PG lobby page.
-const PG_LOBBY_GAMES = PG_GAMES.map(g => ({
+// PG_GAMES is already sorted popular-first, so the leading slice fills the
+// Popular tab; the rest fall into Table / Slots.
+const PG_POPULAR_COUNT = 30;
+const PG_LOBBY_GAMES = PG_GAMES.map((g, i) => ({
   id: `pg-${g.id}`,
   titleKey: g.title,
-  category: g.cats.includes('Table') ? 'Table' : 'Slots',
+  category: i < PG_POPULAR_COUNT ? 'Popular' : g.cats.includes('Table') ? 'Table' : 'Slots',
   desc: g.desc,
   accent: g.accent,
-  tag: 'PG',
+  tag: '',
   provider: 'PG SOFT',
   image: g.image,
   path: `/games/pg/${g.id}`,
@@ -56,7 +59,7 @@ const JILI_LOBBY_GAMES = JILI_GAMES.map(g => ({
   category: JILI_CAT_MAP[g.cat] || 'Other',
   desc: 'JILI Games',
   accent: 'from-amber-500 to-orange-700',
-  tag: 'JILI',
+  tag: '',
   provider: 'JILI',
   image: g.cover,
   path: `/games/jili/${g.id}`,
@@ -70,9 +73,7 @@ const HIDDEN_GAME_IDS = ['wild-bounty', 'gates-of-olympus'];
 
 // Base tabs, plus any extra category that actually has games (e.g. "Other"
 // when JILI ships a category we haven't mapped yet).
-// Provider tabs let players browse a single provider's catalogue on its own.
-const PROVIDER_KEYS = ['PG SOFT', 'JILI'];
-const BASE_CATEGORY_KEYS = ['All', ...PROVIDER_KEYS, 'Popular', 'Slots', 'Fishing', 'Cards', 'Table', 'Bingo', 'Arcade'];
+const BASE_CATEGORY_KEYS = ['All', 'Popular', 'Slots', 'Fishing', 'Cards', 'Table', 'Bingo', 'Arcade'];
 const EXTRA_CATEGORIES = [...new Set(ALL_GAMES.map(g => g.category))].filter(c => !BASE_CATEGORY_KEYS.includes(c));
 const CATEGORY_KEYS = [...BASE_CATEGORY_KEYS, ...EXTRA_CATEGORIES];
 
@@ -87,11 +88,7 @@ export default function Home() {
   const { balance, demoMode, setDemoMode } = useCasinoBalance();
   // Demo mode uses a practice balance, which PG SOFT titles can't run on — hide them.
   const baseGames = (demoMode ? GAMES : ALL_GAMES).filter(g => !HIDDEN_GAME_IDS.includes(g.id));
-  const filtered = cat === 'All'
-    ? baseGames
-    : PROVIDER_KEYS.includes(cat)
-      ? baseGames.filter(g => g.provider === cat)
-      : baseGames.filter(g => g.category === cat);
+  const filtered = cat === 'All' ? baseGames : baseGames.filter(g => g.category === cat);
   const playable = baseGames.filter(g => !g.coming).length;
   // In Telegram fullscreen the native chrome (clock / close button) sits over the
   // very top of the page, so push the whole header down and leave space above it.
