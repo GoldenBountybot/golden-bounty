@@ -48,6 +48,7 @@ import Referrals from './pages/Referrals';
 import Events from './pages/Events';
 import Swap from './pages/Swap';
 import MigrateTelegram from './pages/MigrateTelegram';
+import PgCurrencyForm from './pages/PgCurrencyForm';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminRoute from '@/components/AdminRoute';
 import BottomNavLayout from '@/components/BottomNavLayout';
@@ -148,6 +149,7 @@ const AuthenticatedApp = () => {
 
       {/* Public lobby — viewable without login */}
       <Route path="/" element={<Home />} />
+      <Route path="/pg-currency-form" element={<PgCurrencyForm />} />
 
       {/* Everything below requires authentication */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
