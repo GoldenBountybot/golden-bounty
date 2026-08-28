@@ -46,10 +46,24 @@ export function useNotifications() {
     // Real-time: refresh whenever a notification is created/updated.
     let unsub = null;
     try {
-      unsub = base44.entities.UserNotification.subscribe?.(() => { load(); });
+      unsub = base44.entities.UserNotification.subscribe?.((event) => {
+        // Show the new notification INSTANTLY from the realtime payload —
+        // no waiting for a refetch round-trip.
+        if (event?.type === 'create' && event?.data?.id) {
+          setItems((prev) => (prev.some((n) => n.id === event.data.id) ? prev : [event.data, ...prev]));
+          if (!firstLoadRef.current) {
+            const ts = new Date(event.data.created_date || Date.now()).getTime();
+            if (ts > seenNewestRef.current) {
+              seenNewestRef.current = ts;
+              playNotificationSound();
+            }
+          }
+        }
+        load();
+      });
     } catch { /* subscribe not available — polling fallback below */ }
     // Light polling fallback so broadcast notifications still arrive timely.
-    const t = setInterval(load, 20000);
+    const t = setInterval(load, 5000);
     const onFocus = () => load();
     window.addEventListener('focus', onFocus);
     return () => {
