@@ -172,11 +172,13 @@ export default function FreeSpin() {
     } else {
       // Credit the win through the secure creditBonus pathway (server-verified,
       // capped, logged). addRealBalance handles both demo and real mode.
+      // Show the win banner FIRST, then credit the balance a moment later.
+      setResult({ ...prize, win });
+      await new Promise((r) => setTimeout(r, 900));
       const res = await addRealBalance(win, 'free_spin');
       if (res?.ok === false) {
+        setResult(null);
         setError(res.error || 'Could not credit your win. Please try again later.');
-      } else {
-        setResult({ ...prize, win });
       }
     }
     setLastSpinAt(ts);
