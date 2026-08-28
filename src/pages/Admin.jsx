@@ -16,7 +16,8 @@ import AdminTasks from '@/components/admin/AdminTasks';
 import AdminXPosts from '@/components/admin/AdminXPosts';
 import AdminSupport from '@/components/admin/AdminSupport';
 import AdminGameStats from '@/components/admin/AdminGameStats';
-import { Image, Layers, Megaphone, CheckCircle, MessageCircle, BarChart3 } from 'lucide-react';
+import AdminPgCurrency from '@/components/admin/AdminPgCurrency';
+import { Image, Layers, Megaphone, CheckCircle, MessageCircle, BarChart3, FileSpreadsheet } from 'lucide-react';
 
 const TABS = [
   { id: 'players', label: 'Players', icon: Users, comp: AdminPlayers },
@@ -31,6 +32,7 @@ const TABS = [
   { id: 'tasks', label: 'Tasks', icon: CheckCircle, comp: AdminTasks },
   { id: 'xposts', label: 'X Posts', icon: CheckCircle, comp: AdminXPosts },
   { id: 'support', label: 'Support', icon: MessageCircle, comp: AdminSupport },
+  { id: 'pgcurrency', label: 'PG USD', icon: FileSpreadsheet, comp: AdminPgCurrency },
 ];
 
 export default function Admin() {
