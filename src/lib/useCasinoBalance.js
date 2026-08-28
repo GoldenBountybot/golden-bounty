@@ -232,7 +232,11 @@ async function addRealBalance(amount, type = 'bonus', note = '', claimedLoss = 0
     balance = committedBalance + uncommittedDelta;
     setCache(balance);
     notify();
-    return { ok: false, error: e?.data?.detail || e?.message || 'Credit failed' };
+    const code = e?.data?.error || '';
+    const friendly = code === 'already-claimed' || code === 'already-claimed-today'
+      ? "You've already claimed this reward — try again later."
+      : null;
+    return { ok: false, error: friendly || e?.data?.detail || code || e?.message || 'Credit failed' };
   }
 }
 
