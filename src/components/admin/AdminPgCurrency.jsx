@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download } from 'lucide-react';
+import { Download, ExternalLink } from 'lucide-react';
 import { buildNewCurrencyXls } from '@/lib/pgNewCurrencyForm';
 
 // Admin-only tool: generates the PG SOFT "New Currency" request sheet
@@ -9,17 +9,30 @@ export default function AdminPgCurrency() {
   const [operatorToken, setOperatorToken] = useState('');
   const [server, setServer] = useState('');
 
-  const download = () => {
+  const fileUrl = () => {
     const html = buildNewCurrencyXls({ operatorToken, server });
-    const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
-    const url = URL.createObjectURL(blob);
+    const blob = new Blob(['\ufeff', html], { type: 'application/vnd.ms-excel' });
+    return URL.createObjectURL(blob);
+  };
+
+  const download = () => {
+    const url = fileUrl();
     const a = document.createElement('a');
     a.href = url;
     a.download = 'PG_Soft_New_Currency_USD_GoldenBounty.xls';
+    a.rel = 'noopener';
     document.body.appendChild(a);
     a.click();
     a.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  };
+
+  // In-app previews / Telegram WebView often block direct downloads. Opening
+  // the file in a real browser tab always works — the browser saves it there.
+  const openInTab = () => {
+    const url = fileUrl();
+    window.open(url, '_blank', 'noopener');
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
   };
 
   const inputStyle = { fontFamily: 'Georgia, serif' };
@@ -64,6 +77,16 @@ export default function AdminPgCurrency() {
       >
         <Download className="w-4 h-4" />
         Download New Currency Form
+      </button>
+
+      <button
+        type="button"
+        onClick={openInTab}
+        className="flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-bold italic"
+        style={{ border: '1px solid rgba(214,178,98,0.5)', background: 'rgba(20,17,13,0.6)', color: '#e8c878', fontFamily: 'Georgia, serif' }}
+      >
+        <ExternalLink className="w-4 h-4" />
+        ডাউনলোড না হলে — নতুন ট্যাবে খুলুন
       </button>
     </div>
   );
