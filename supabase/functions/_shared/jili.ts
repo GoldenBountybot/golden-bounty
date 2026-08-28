@@ -3,7 +3,16 @@
 // Wallet/relay primitives are reused from the PG SOFT shared module so the
 // balance logic exists in exactly one place.
 import md5 from 'https://esm.sh/js-md5@0.8.3';
-export { applyDelta, ensureWallet, num, pgFetch as relayFetch, svc } from './pgsoft.ts';
+export { applyDelta, ensureWallet, num, svc } from './pgsoft.ts';
+
+// JILI calls go out directly — the PG SOFT VPS relay only allows PG hosts
+// (it answers "host not allowed" / 403 for any other domain).
+export function relayFetch(
+  url: string,
+  init: { method?: string; headers?: Record<string, string>; body?: string } = {},
+) {
+  return fetch(url, { method: init.method || 'GET', headers: init.headers, body: init.body });
+}
 
 export const AGENT_ID = Deno.env.get('JILI_AGENT_ID') || '';
 export const JILI_ENV = (Deno.env.get('JILI_ENV') || 'uat').toLowerCase();
