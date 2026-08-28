@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Download, ExternalLink } from 'lucide-react';
-import { buildNewCurrencyXls } from '@/lib/pgNewCurrencyForm';
+import { Download, ExternalLink, ClipboardCopy } from 'lucide-react';
+import { buildNewCurrencyXls, buildNewCurrencyForm } from '@/lib/pgNewCurrencyForm';
 
 // Admin-only tool: generates the PG SOFT "New Currency" request sheet
 // (add USD alongside the live USDT setup) pre-filled and correct, and
@@ -33,6 +33,29 @@ export default function AdminPgCurrency() {
     const url = fileUrl();
     window.open(url, '_blank', 'noopener');
     setTimeout(() => URL.revokeObjectURL(url), 10000);
+  };
+
+  // Last-resort path: previews and in-app WebViews block both downloads and
+  // new tabs. The text below can be selected and pasted straight into Excel —
+  // tabs become columns, so the sheet comes out identical.
+  const tsv = buildNewCurrencyForm({ operatorToken, server })
+    .map((r) => r.map((c) => String(c ?? '').replace(/\n/g, ' ')).join('\t'))
+    .join('\n');
+  const [copied, setCopied] = useState(false);
+
+  const copyTsv = async () => {
+    try {
+      await navigator.clipboard.writeText(tsv);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = tsv;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const inputStyle = { fontFamily: 'Georgia, serif' };
@@ -88,6 +111,24 @@ export default function AdminPgCurrency() {
         <ExternalLink className="w-4 h-4" />
         ডাউনলোড না হলে — নতুন ট্যাবে খুলুন
       </button>
+
+      <button
+        type="button"
+        onClick={copyTsv}
+        className="flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-bold italic"
+        style={{ border: '1px solid rgba(214,178,98,0.5)', background: 'rgba(20,17,13,0.6)', color: '#e8c878', fontFamily: 'Georgia, serif' }}
+      >
+        <ClipboardCopy className="w-4 h-4" />
+        {copied ? 'কপি হয়েছে ✓' : 'কপি করুন — Excel-এ পেস্ট করুন'}
+      </button>
+
+      <textarea
+        readOnly
+        value={tsv}
+        onFocus={(e) => e.target.select()}
+        className="dash-input px-3 py-2 text-[10px] leading-relaxed"
+        style={{ fontFamily: 'monospace', height: 220, whiteSpace: 'pre' }}
+      />
     </div>
   );
 }
