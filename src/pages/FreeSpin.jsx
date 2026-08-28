@@ -172,9 +172,8 @@ export default function FreeSpin() {
     } else {
       // Credit the win through the secure creditBonus pathway (server-verified,
       // capped, logged). addRealBalance handles both demo and real mode.
-      // Show the win banner FIRST, then credit the balance a moment later.
+      // Banner and balance appear together the moment the wheel stops.
       setResult({ ...prize, win });
-      await new Promise((r) => setTimeout(r, 900));
       const res = await addRealBalance(win, 'free_spin');
       if (res?.ok === false) {
         setResult(null);
