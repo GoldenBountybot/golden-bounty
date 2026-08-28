@@ -99,7 +99,7 @@ export function decideOutcome(rtp, betAmount, isFreeSpin, gameId) {
   // win line and cascade multipliers chain less often.
   // Wild Bounty: base spins get a slightly higher symbol-match chance (0.31);
   // free-spin (multiplier) rounds keep the original 0.27.
-  const winChanceMult = gameId === 'fullhouse' ? 0.24 : (gameId === 'wild-bounty' ? (isFreeSpin ? 0.27 : 0.31) : (gameId === 'gates-of-olympus' ? 0.22 : (gameId === 'argonauts' ? 0.07 : (gameId === 'big-brown' ? 0.19 : (gameId === 'thimbles' ? 0.75 : (gameId === 'hi-lo' ? 0.75 : (gameId === 'mines' ? 0.75 : 0.15)))))));
+  const winChanceMult = gameId === 'fullhouse' ? 0.24 : (gameId === 'wild-bounty' ? (isFreeSpin ? 0.27 : 0.31) : (gameId === 'gates-of-olympus' ? 0.22 : (gameId === 'argonauts' ? 0.07 : (gameId === 'big-brown' ? 0.19 : (gameId === 'thimbles' ? 0.75 : (gameId === 'hi-lo' ? 0.85 : (gameId === 'mines' ? 0.75 : 0.15)))))));
   const winChance = rtpFrac * winChanceMult;
   const isWin = Math.random() < winChance;
   if (!isWin) {
