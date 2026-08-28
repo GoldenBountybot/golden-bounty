@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Download, ExternalLink, ClipboardCopy } from 'lucide-react';
 import { buildNewCurrencyXls, buildNewCurrencyForm } from '@/lib/pgNewCurrencyForm';
 
@@ -27,13 +27,16 @@ export default function AdminPgCurrency() {
     setTimeout(() => URL.revokeObjectURL(url), 4000);
   };
 
-  // In-app previews / Telegram WebView often block direct downloads. Opening
-  // the file in a real browser tab always works — the browser saves it there.
-  const openInTab = () => {
+  // In-app previews / Telegram WebView block programmatic window.open, but a
+  // REAL anchor the user taps is always allowed — so the link below is a live
+  // <a> element pointing at the generated file, opening in a new tab where the
+  // browser downloads it.
+  const [linkUrl, setLinkUrl] = useState('');
+  useEffect(() => {
     const url = fileUrl();
-    window.open(url, '_blank', 'noopener');
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-  };
+    setLinkUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [operatorToken, server]);
 
   // Last-resort path: previews and in-app WebViews block both downloads and
   // new tabs. The text below can be selected and pasted straight into Excel —
@@ -102,15 +105,17 @@ export default function AdminPgCurrency() {
         Download New Currency Form
       </button>
 
-      <button
-        type="button"
-        onClick={openInTab}
+      <a
+        href={linkUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        download="PG_Soft_New_Currency_USD_GoldenBounty.xls"
         className="flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-bold italic"
         style={{ border: '1px solid rgba(214,178,98,0.5)', background: 'rgba(20,17,13,0.6)', color: '#e8c878', fontFamily: 'Georgia, serif' }}
       >
         <ExternalLink className="w-4 h-4" />
-        ডাউনলোড না হলে — নতুন ট্যাবে খুলুন
-      </button>
+        নতুন ট্যাবে খুলে ডাউনলোড করুন
+      </a>
 
       <button
         type="button"
