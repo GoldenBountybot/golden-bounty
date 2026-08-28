@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { getJiliGame } from '@/lib/jiliGames';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
+import { useGameFullscreen } from '@/lib/useGameFullscreen';
 
 // Launches a JILI game: our backend creates the seamless-wallet token and
 // returns the game URL, which we render full screen.
@@ -14,6 +15,7 @@ export default function JiliGame() {
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
   const title = getJiliGame(gameId)?.name || 'JILI';
+  useGameFullscreen();
 
   useEffect(() => {
     setReady(false);
