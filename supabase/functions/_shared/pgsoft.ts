@@ -19,8 +19,9 @@ export const PROXY_URL = (Deno.env.get('PGSOFT_PROXY_URL') || '').replace(/\/$/,
 export const PROXY_TOKEN = Deno.env.get('PGSOFT_PROXY_TOKEN') || '';
 
 // PG SOFT renders the currency symbol from this code — 'USDT' shows as "T",
-// while 'USD' shows the "$" symbol other operators display.
-export const CURRENCY = 'USD';
+// while 'USD' shows the "$" symbol. Switch to 'USD' once PG SOFT confirms USD
+// is enabled on our operator account.
+export const CURRENCY = 'USDT';
 
 // PG SOFT error codes used by our callbacks.
 export const ERR = {
