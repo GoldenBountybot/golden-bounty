@@ -5,6 +5,7 @@ import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import { reloadBalance, getBalance, getMaxWithdrawable } from '@/lib/useCasinoBalance';
 import { useStake, LOCK_DAYS } from '@/lib/useStake';
 import StackMining from '@/components/StackMining';
+import FadeImage from '@/components/FadeImage';
 import TotalFundsPanel from '@/components/TotalFundsPanel';
 import PendingDepositCard from '@/components/wallet/PendingDepositCard';
 import StackFaq from '@/components/StackFaq';
@@ -366,7 +367,7 @@ export default function Dashboard() {
         {tab === 'stack' && (
           <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
             <div className="rounded-2xl overflow-hidden border shadow-lg" style={{ borderColor: 'rgba(212,175,55,0.3)' }}>
-              <img
+              <FadeImage
                 src={stackBanner}
                 alt={`Stack Balance — Lock your balance to earn ${(stake.rate * 100).toFixed(2)}% daily profit for ${LOCK_DAYS} days`}
                 className="w-full h-auto block"
