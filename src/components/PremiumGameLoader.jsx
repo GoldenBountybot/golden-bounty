@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import GoldenEmblem from '@/components/GoldenEmblem';
 
 // Shared premium loading visual used by all game loading screens.
 // Luxe dark-vignette stage with:
@@ -11,8 +12,6 @@ import React, { useMemo } from 'react';
 //  - a jeweled progress bar with traveling shimmer + glowing leading dot
 // Each loading screen keeps its own progress logic and passes the current
 // percentage here.
-
-const LOGO_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e0ebe2f88_InShot_20260722_150739877.jpg';
 
 // Fallback backdrop so the loading screen is never a plain black stage when a
 // screen doesn't pass its own background image (already preloaded at splash).
@@ -102,59 +101,8 @@ export default function PremiumGameLoader({ progress, title = 'Loading', bgImage
       <CornerFlourish className="bottom-3 left-3" style={{ transform: 'scaleY(-1)', animation: 'loaderCornerGlow 3.5s ease-in-out 0.8s infinite' }} />
       <CornerFlourish className="bottom-3 right-3" style={{ transform: 'scale(-1)', animation: 'loaderCornerGlow 3.5s ease-in-out 1.2s infinite' }} />
 
-      {/* Logo with triple spinning gold rings */}
-      <div className="relative mb-7" style={{ width: '128px', height: '128px' }}>
-        {/* Outer ring — slow gold arc spin */}
-        <div
-          className="absolute inset-0 rounded-full animate-spin"
-          style={{
-            animationDuration: '4s',
-            border: '2px solid transparent',
-            borderTopColor: 'rgba(255,215,0,0.95)',
-            borderRightColor: 'rgba(255,215,0,0.45)',
-            boxShadow: '0 0 32px rgba(255,200,80,0.55), inset 0 0 16px rgba(255,200,80,0.14)',
-          }}
-        />
-        {/* Middle ring — reeded coin edge, slow rotation */}
-        <div
-          className="absolute inset-[6px] rounded-full"
-          style={{
-            animation: 'loaderCoinEdge 8s linear infinite',
-            background: 'conic-gradient(from 0deg, transparent 0deg, rgba(255,215,0,0.25) 5deg, transparent 10deg, rgba(255,215,0,0.25) 15deg, transparent 20deg, rgba(255,215,0,0.25) 25deg, transparent 30deg, rgba(255,215,0,0.25) 35deg, transparent 40deg, rgba(255,215,0,0.25) 45deg, transparent 50deg, rgba(255,215,0,0.25) 55deg, transparent 60deg, rgba(255,215,0,0.25) 65deg, transparent 70deg, rgba(255,215,0,0.25) 75deg, transparent 80deg, rgba(255,215,0,0.25) 85deg, transparent 90deg)',
-            mask: 'radial-gradient(circle, transparent 58%, black 60%, black 66%, transparent 68%)',
-            WebkitMask: 'radial-gradient(circle, transparent 58%, black 60%, black 66%, transparent 68%)',
-          }}
-        />
-        {/* Inner ring — fast dashed counter-spin */}
-        <div
-          className="absolute inset-[14px] rounded-full animate-spin"
-          style={{
-            animationDuration: '2.2s',
-            animationDirection: 'reverse',
-            border: '1.5px dashed rgba(255,235,150,0.6)',
-          }}
-        />
-        {/* Gold-framed logo medallion */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div
-            className="rounded-full flex items-center justify-center animate-[saGlowPulse_1.8s_ease-in-out_infinite]"
-            style={{
-              width: '68px',
-              height: '68px',
-              border: '2px solid rgba(214,178,98,0.95)',
-              boxShadow: '0 0 26px rgba(255,200,80,0.85), inset 0 0 12px rgba(255,210,120,0.35)',
-              background: 'radial-gradient(circle, rgba(26,18,9,0.95), rgba(10,8,5,0.98))',
-            }}
-          >
-            <img
-              src={LOGO_URL}
-              alt="Golden Bounty"
-              className="rounded-full object-cover"
-              style={{ width: '52px', height: '52px', boxShadow: '0 0 10px rgba(255,200,80,0.6)' }}
-            />
-          </div>
-        </div>
-      </div>
+      {/* The app's signature quad-ring gold emblem with logo medallion */}
+      <GoldenEmblem className="mb-8" />
 
       {/* Radial gold burst behind the wordmark */}
       <div
