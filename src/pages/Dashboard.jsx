@@ -183,7 +183,7 @@ export default function Dashboard() {
         </div>
 
         {menuOpen && (
-          <div className="max-w-none mx-auto px-4 pb-3 flex items-center gap-2" style={{ animation: 'dashFadeIn 250ms ease both' }}>
+          <div className="max-w-none mx-auto px-4 pb-3 flex items-center gap-2 overflow-x-auto" style={{ animation: 'dashFadeIn 250ms ease both', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
             {TABS.map(tb => {
               const Icon = tb.icon;
               const active = tab === tb.id;
@@ -192,7 +192,7 @@ export default function Dashboard() {
                   key={tb.id}
                   onClick={() => { goTab(tb.id); setMenuOpen(false); }}
                   title={t(tb.label)}
-                  className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95"
+                  className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95 shrink-0 whitespace-nowrap"
                   style={{
                     border: active ? '1px solid rgba(212,175,55,0.6)' : '1px solid rgba(212,175,55,0.22)',
                     background: active ? 'linear-gradient(135deg,#FFD700,#C89B3C)' : 'rgba(255,255,255,0.03)',
@@ -206,7 +206,7 @@ export default function Dashboard() {
             <button
               onClick={() => { window.location.href = '/swap'; }}
               title={t("Swap")}
-              className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95"
+              className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95 shrink-0 whitespace-nowrap"
               style={{ border: '1px solid rgba(212,175,55,0.22)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
             >
               <ArrowLeftRight className="w-4 h-4" /> {t("Swap")}
@@ -215,7 +215,7 @@ export default function Dashboard() {
               <button
                 onClick={() => { window.location.href = '/agent'; }}
                 title={t("Agent Panel")}
-                className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95"
+                className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95 shrink-0 whitespace-nowrap"
                 style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
               >
                 <Shield className="w-4 h-4" /> {t("Agent")}
@@ -225,10 +225,10 @@ export default function Dashboard() {
               <button
                 onClick={() => { window.location.href = '/admin'; }}
                 title={t("Admin Panel")}
-                className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
+                className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95 shrink-0 whitespace-nowrap"
                 style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
               >
-                <Shield className="w-4 h-4" />
+                <Shield className="w-4 h-4" /> {t("Admin")}
               </button>
             )}
           </div>
