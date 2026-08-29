@@ -6,9 +6,9 @@
 // URLs are collected from the engine/symbol/component files that define them,
 // so adding a new asset to a game only requires adding its URL here too.
 
-const CDN = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776';
+const CDN = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44';
 const u = (id) => `${CDN}/${id}`;
-const SND = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776';
+const SND = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44';
 const s = (id) => `${SND}/${id}`;
 
 // ---- Shared assets (logo, plaque, loading screen) ----

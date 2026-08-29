@@ -19,7 +19,7 @@ export const PAYLINES = [
   [1, 0, 0, 0, 1], // 10 dip
 ];
 
-const IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776';
+const IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44';
 export const SYMBOLS = {
   wild:    { id: 'wild',    emoji: '🐂', name: 'Wild Bull',     kind: 'wild',    image: `${IMG}/aa8365d9b_file_000000003078820b89250f27c56de62e.png` },
   scatter: { id: 'scatter', emoji: '⛵', name: 'Argo Ship',     kind: 'scatter', image: `${IMG}/58d0858d9_file_000000008fa0820bb5da9eef0fb09545.png` },

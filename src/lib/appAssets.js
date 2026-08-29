@@ -10,7 +10,7 @@
 
 import { PG_GAMES } from '@/lib/pgGames';
 
-const CDN = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776';
+const CDN = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44';
 const u = (id) => `${CDN}/${id}`;
 
 // ---- Splash + shared backgrounds ----
