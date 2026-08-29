@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -76,14 +76,21 @@ function CoinLogo({ logo, color }) {
 }
 
 export default function Withdraw() {
-  const params = new URLSearchParams(window.location.search);
+  const [params, setParams] = useSearchParams();
   const amount = Number(params.get('amount') || 0);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { demoMode, wagerRemaining, maxWithdrawable } = useCasinoBalance();
   const { user } = useAuth();
-  const [view, setView] = useState('choose');
+  // The chosen method lives in the URL, so the device/browser back button
+  // returns to the method list instead of leaving the page.
+  const view = params.get('view') || 'choose';
+  const setView = (v) => {
+    const next = new URLSearchParams(params);
+    if (v === 'choose') next.delete('view'); else next.set('view', v);
+    setParams(next);
+  };
   const [usdtNets, setUsdtNets] = useState(DEFAULT_USDT_NETS);
   const [selectedNet, setSelectedNet] = useState(null);
   const [walletAddr, setWalletAddr] = useState('');
@@ -188,7 +195,7 @@ export default function Withdraw() {
         <div className="relative max-w-none mx-auto px-4 py-3 flex items-center gap-3">
           {(!hasTelegramBackButton() || view !== 'choose') && (
             <button
-              onClick={() => (view !== 'choose' ? (setView('choose'), setSelectedNet(null)) : window.history.back())}
+              onClick={() => { setSelectedNet(null); window.history.back(); }}
               title="Back"
               className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
               style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
