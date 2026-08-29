@@ -211,6 +211,16 @@ export default function Dashboard() {
             >
               <ArrowLeftRight className="w-4 h-4" /> {t("Swap")}
             </button>
+            {(user?.role === 'agent' || user?.role === 'admin') && (
+              <button
+                onClick={() => { window.location.href = '/agent'; }}
+                title={t("Agent Panel")}
+                className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95"
+                style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
+              >
+                <Shield className="w-4 h-4" /> {t("Agent")}
+              </button>
+            )}
             {user?.role === 'admin' && (
               <button
                 onClick={() => { window.location.href = '/admin'; }}
