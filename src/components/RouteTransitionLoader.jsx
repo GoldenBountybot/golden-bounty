@@ -4,7 +4,7 @@ import AppLoadingScreen from '@/components/AppLoadingScreen';
 
 // Shows the same branded loading screen used when entering the app whenever the
 // user navigates from one page to another, so every transition feels identical.
-const DURATION = 700;
+const DURATION = 2000;
 
 export default function RouteTransitionLoader() {
   const { pathname } = useLocation();

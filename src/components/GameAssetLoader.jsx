@@ -15,7 +15,7 @@ export default function GameAssetLoader({
   assets = [],
   onDone,
   bgImage,
-  minDuration = 700,
+  minDuration = 2000,
 }) {
   const [progress, setProgress] = useState(0);
   const doneRef = useRef(false);
