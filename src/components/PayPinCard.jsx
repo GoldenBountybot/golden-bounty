@@ -23,10 +23,14 @@ export default function PayPinCard() {
     setBusy(true);
     const existing = await getPayPin();
     if (existing) { setBusy(false); setHasPin(true); return; }
-    await savePayPin(pin);
+    try {
+      await savePayPin(pin);
+      setHasPin(true);
+      setPin(''); setConfirm('');
+    } catch (e) {
+      setErr(t("Could not save your pin. Please try again."));
+    }
     setBusy(false);
-    setHasPin(true);
-    setPin(''); setConfirm('');
   };
 
   if (hasPin === null) return null;

@@ -8,7 +8,6 @@ import { verifyPayPin } from '@/lib/payPin';
 // Player → agent withdrawal. Funds move instantly to the agent's balance.
 export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
   const [q, setQ] = useState('');
-  const [amount, setAmount] = useState(initialAmount > 0 ? String(initialAmount) : '');
   const [agents, setAgents] = useState([]);
   const [min, setMin] = useState(5);
   const [pin, setPin] = useState('');
@@ -34,7 +33,7 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
 
   const submit = async () => {
     setErr(null);
-    const amt = Number(amount);
+    const amt = Number(initialAmount);
     if (!q.trim()) { setErr('Enter the agent username or ID.'); return; }
     if (!isFinite(amt) || amt <= 0) { setErr('Enter a valid amount.'); return; }
     if (amt < min) { setErr(`Minimum withdrawal is $${min.toFixed(2)}.`); return; }
@@ -73,7 +72,7 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
     <div className="dash-card p-5 flex flex-col gap-3">
       <h2 className="text-base font-bold" style={{ color: '#D4AF37' }}>Withdraw via Agent</h2>
       <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
-        Enter the agent's username or ID and the amount. Minimum ${min.toFixed(2)}.
+        Enter the agent's username or ID. Minimum ${min.toFixed(2)}.
       </p>
       <div className="flex items-center gap-2">
         <User className="w-4 h-4 shrink-0" style={{ color: 'rgba(212,175,55,0.8)' }} />
@@ -88,10 +87,11 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
           ))}
         </div>
       )}
-      <div className="flex items-center gap-2">
-        <DollarSign className="w-4 h-4 shrink-0" style={{ color: 'rgba(212,175,55,0.8)' }} />
-        <input value={amount} onChange={e => setAmount(e.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal"
-          placeholder="Amount" className="dash-input flex-1 px-3 py-3 text-sm tabular-nums" />
+      <div className="flex items-center justify-between px-3 py-3 rounded-xl" style={{ border: '1px solid rgba(212,175,55,0.25)', background: 'rgba(255,255,255,0.03)' }}>
+        <span className="flex items-center gap-2 text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
+          <DollarSign className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.8)' }} /> Amount
+        </span>
+        <span className="text-sm font-bold tabular-nums" style={{ color: '#fff' }}>${Number(initialAmount).toFixed(2)}</span>
       </div>
       <PayPinInput value={pin} onChange={setPin} label="Pay Pin (4 digits)" />
       <button onClick={submit} disabled={busy}
