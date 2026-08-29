@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import BackButton from '@/components/BackButton';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
@@ -124,34 +124,28 @@ function CoinLogo({ symbol, color, logo }) {
 }
 
 export default function PayMethod() {
-  const params = new URLSearchParams(window.location.search);
-  const amount = Number(params.get('amount') || 0);
+  const [sp, setSp] = useSearchParams();
+  const amount = Number(sp.get('amount') || 0);
   const { toast } = useToast();
   const { t } = useLanguage();
   const { demoMode } = useCasinoBalance();
   const navigate = useNavigate();
-  // Restore the phantom-sol view after a Phantom deep-link redirect (the
-  // return URL carries method=phantom-sol so the deposit component remounts
-  // and can process the encrypted connect/sign response params).
-  // Leaving the app for an external wallet can make the mobile/Telegram
-  // webview reload on return, so remember which payment screen was open and
-  // restore it instead of dropping the user back on "Choose Payment".
-  const savedView = (() => { try { return sessionStorage.getItem('gb_pay_view') || ''; } catch { return ''; } })();
-  const [view, setView] = useState(['phantom-sol', 'metamask', 'trust', 'tonkeeper'].includes(params.get('method')) ? params.get('method') : (savedView || 'choose')); // 'choose' | 'usdt' | 'usdc' | 'crypto' | 'binance'
+  // The chosen payment method lives in the URL (?method=...), so the device
+  // back button steps back to "Choose Payment" instead of jumping straight to
+  // the dashboard, and a brand-new deposit always starts on "Choose Payment".
+  // It also restores the wallet screen after an external wallet deep-link
+  // redirect, which returns to this route with method=... in the URL.
+  const view = sp.get('method') || 'choose'; // 'choose' | 'usdt' | 'usdc' | 'crypto' | wallet ids
+  const setView = (v) => {
+    const next = new URLSearchParams(sp);
+    if (!v || v === 'choose') next.delete('method');
+    else next.set('method', v);
+    setSp(next);
+  };
 
-  useEffect(() => {
-    try { sessionStorage.setItem('gb_pay_view', view); } catch { /* private mode */ }
-  }, [view]);
-
-  // Leaving this page normally (back / new deposit request) must forget the
-  // remembered wallet screen, so a fresh deposit always starts on "Choose
-  // Payment". Only a webview reload (which skips React cleanup) restores it.
   useEffect(() => {
     return () => {
-      try {
-        sessionStorage.removeItem('gb_pay_view');
-        sessionStorage.removeItem('gb_pay_net');
-      } catch { /* private mode */ }
+      try { sessionStorage.removeItem('gb_pay_net'); } catch { /* private mode */ }
     };
   }, []);
   const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, usdc: USDC_NETWORKS, crypto: CRYPTO_NETWORKS });
@@ -168,6 +162,10 @@ export default function PayMethod() {
       else sessionStorage.removeItem('gb_pay_net');
     } catch { /* private mode */ }
   }, [selNet]);
+
+  // Switching method always starts on that method's own first screen.
+  useEffect(() => { setSelNet(null); }, [view]);
+
   const [enteredAmount, setEnteredAmount] = useState('');
   const [prices, setPrices] = useState({});
 
