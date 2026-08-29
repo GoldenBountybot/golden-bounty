@@ -55,6 +55,7 @@ import BottomNavLayout from '@/components/BottomNavLayout';
 import NotificationToaster from '@/components/NotificationToaster';
 import TelegramBackButton from '@/components/TelegramBackButton';
 import PromoWelcomeGate from '@/components/PromoWelcomeGate';
+import GeoBlockGate from '@/components/GeoBlockGate';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
 import RouteTransitionLoader from '@/components/RouteTransitionLoader';
 import { LanguageProvider } from '@/lib/LanguageContext';
@@ -142,6 +143,7 @@ const AuthenticatedApp = () => {
     <TelegramBackButton />
     <NotificationToaster />
     <PromoWelcomeGate />
+    <GeoBlockGate />
     <Routes>
       {/* Public auth pages — no login required */}
       <Route path="/login" element={<Login />} />
