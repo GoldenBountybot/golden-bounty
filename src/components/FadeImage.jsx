@@ -20,12 +20,18 @@ export default function FadeImage({
   // (still fade for polish). Otherwise start hidden and fade on load.
   const [ready, setReady] = useState(() => isCached(src));
   const imgRef = useRef(null);
+  // Already-cached images must appear with NO fade at all — otherwise every
+  // remount (e.g. navigating back to a page) replays the fade and looks like
+  // the image is downloading again.
+  const instantRef = useRef(isCached(src));
 
   // If the src changes, re-evaluate readiness. Also check `complete` directly:
   // a browser-cached image finishes loading before React attaches onLoad, so
   // without this check the image would stay invisible forever.
   useEffect(() => {
-    if (isCached(src) || imgRef.current?.complete) setReady(true);
+    const cached = isCached(src) || imgRef.current?.complete;
+    instantRef.current = cached;
+    if (cached) setReady(true);
   }, [src]);
 
   const onLoad = (e) => {
@@ -39,13 +45,14 @@ export default function FadeImage({
       ref={imgRef}
       src={src}
       alt={alt}
-      decoding={decoding}
+      decoding={instantRef.current ? 'sync' : decoding}
+      loading="eager"
       onLoad={onLoad}
       className={className}
       style={{
         ...style,
         opacity: ready ? 1 : 0,
-        transition: `opacity ${durationMs}ms ease-out`,
+        transition: instantRef.current ? 'none' : `opacity ${durationMs}ms ease-out`,
       }}
     />
   );
