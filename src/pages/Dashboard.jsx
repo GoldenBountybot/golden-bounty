@@ -4,7 +4,6 @@ import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, 
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
 import { reloadBalance, getBalance, getMaxWithdrawable } from '@/lib/useCasinoBalance';
 import { useStake, LOCK_DAYS } from '@/lib/useStake';
-import DashboardMenu from '@/components/dashboard/DashboardMenu';
 import StackMining from '@/components/StackMining';
 import TotalFundsPanel from '@/components/TotalFundsPanel';
 import PendingDepositCard from '@/components/wallet/PendingDepositCard';
@@ -183,13 +182,57 @@ export default function Dashboard() {
           </button>
         </div>
 
-        <DashboardMenu
-          open={menuOpen}
-          tab={tab}
-          role={user?.role}
-          onSelectTab={goTab}
-          onClose={() => setMenuOpen(false)}
-        />
+        {menuOpen && (
+          <div className="max-w-none mx-auto px-4 pb-3 flex items-center gap-2" style={{ animation: 'dashFadeIn 250ms ease both' }}>
+            {TABS.map(tb => {
+              const Icon = tb.icon;
+              const active = tab === tb.id;
+              return (
+                <button
+                  key={tb.id}
+                  onClick={() => { goTab(tb.id); setMenuOpen(false); }}
+                  title={t(tb.label)}
+                  className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95"
+                  style={{
+                    border: active ? '1px solid rgba(212,175,55,0.6)' : '1px solid rgba(212,175,55,0.22)',
+                    background: active ? 'linear-gradient(135deg,#FFD700,#C89B3C)' : 'rgba(255,255,255,0.03)',
+                    color: active ? '#1a1408' : '#D4AF37',
+                  }}
+                >
+                  <Icon className="w-4 h-4" /> {t(tb.label)}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => { window.location.href = '/swap'; }}
+              title={t("Swap")}
+              className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95"
+              style={{ border: '1px solid rgba(212,175,55,0.22)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
+            >
+              <ArrowLeftRight className="w-4 h-4" /> {t("Swap")}
+            </button>
+            {(user?.role === 'agent' || user?.role === 'admin') && (
+              <button
+                onClick={() => { window.location.href = '/agent'; }}
+                title={t("Agent Panel")}
+                className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95"
+                style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
+              >
+                <Shield className="w-4 h-4" /> {t("Agent")}
+              </button>
+            )}
+            {user?.role === 'admin' && (
+              <button
+                onClick={() => { window.location.href = '/admin'; }}
+                title={t("Admin Panel")}
+                className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
+                style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
+              >
+                <Shield className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )}
       </header>
 
       <main className="relative z-10 max-w-none mx-auto px-4 py-4 flex flex-col gap-4">
