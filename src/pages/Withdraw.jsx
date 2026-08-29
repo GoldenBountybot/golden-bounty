@@ -9,6 +9,8 @@ import { useAuth } from '@/lib/AuthContext';
 import StylishNotify from '@/components/StylishNotify';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import AgentWithdrawCard from '@/components/agent/AgentWithdrawCard';
+import PayPinInput from '@/components/PayPinInput';
+import { verifyPayPin } from '@/lib/payPin';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -85,6 +87,7 @@ export default function Withdraw() {
   const [usdtNets, setUsdtNets] = useState(DEFAULT_USDT_NETS);
   const [selectedNet, setSelectedNet] = useState(null);
   const [walletAddr, setWalletAddr] = useState('');
+  const [payPin, setPayPin] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [notify, setNotify] = useState(null);
   const showNotify = (title, description) => setNotify({ title, description });
@@ -106,9 +109,17 @@ export default function Withdraw() {
     if (view === 'usdt') {
       if (!selectedNet) { toast({ title: t("Select a network first") }); return; }
       if (!walletAddr.trim()) { toast({ title: t("Enter your wallet address") }); return; }
+      if (payPin.length !== 4) { toast({ title: t("Invalid pay pin") }); return; }
     }
     setSubmitting(true);
     try {
+      const pinCheck = await verifyPayPin(payPin);
+      if (pinCheck !== 'ok') {
+        setSubmitting(false);
+        if (pinCheck === 'not_set') showNotify(t("Pay Pin required"), t("Set your Pay Pin first from Dashboard → Pay Pin."));
+        else toast({ title: t("Invalid pay pin") });
+        return;
+      }
       const me = await base44.auth.me().catch(() => null);
       if (!me) { toast({ title: t("Please log in first") }); setSubmitting(false); return; }
       // All validation now happens server-side in submitWithdrawal (balance,
@@ -155,7 +166,7 @@ export default function Withdraw() {
         });
       } catch (_e) { /* non-critical — withdrawal already saved */ }
       toast({ title: t("Withdrawal requested"), description: t("Pending admin approval.") });
-      setWalletAddr(''); setSelectedNet(null);
+      setWalletAddr(''); setSelectedNet(null); setPayPin('');
       setTimeout(() => { navigate('/dashboard?tab=wallet'); }, 1000);
     } catch {
       toast({ title: t("Submission failed"), description: t("Please try again.") });
@@ -317,6 +328,7 @@ export default function Withdraw() {
                       className="dash-input w-full px-4 py-3 text-sm"
                       style={{ fontFamily: 'ui-monospace, monospace' }}
                     />
+                    <PayPinInput value={payPin} onChange={setPayPin} label={t("Pay Pin (4 digits)")} />
                     <button
                       onClick={submit}
                       disabled={submitting}

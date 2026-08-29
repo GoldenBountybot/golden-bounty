@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Send, User, DollarSign, CheckCircle2 } from 'lucide-react';
 import { agentOps, agentError } from '@/lib/agentApi';
+import PayPinInput from '@/components/PayPinInput';
+import { verifyPayPin } from '@/lib/payPin';
 
 // Player → agent withdrawal. Funds move instantly to the agent's balance.
 export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
@@ -8,6 +10,7 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
   const [amount, setAmount] = useState(initialAmount > 0 ? String(initialAmount) : '');
   const [agents, setAgents] = useState([]);
   const [min, setMin] = useState(5);
+  const [pin, setPin] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
   const [done, setDone] = useState(null);
@@ -23,7 +26,14 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
     if (!q.trim()) { setErr('Enter the agent username or ID.'); return; }
     if (!isFinite(amt) || amt <= 0) { setErr('Enter a valid amount.'); return; }
     if (amt < min) { setErr(`Minimum withdrawal is $${min.toFixed(2)}.`); return; }
+    if (pin.length !== 4) { setErr('Invalid pay pin'); return; }
     setBusy(true);
+    const pinCheck = await verifyPayPin(pin);
+    if (pinCheck !== 'ok') {
+      setBusy(false);
+      setErr(pinCheck === 'not_set' ? 'Set your Pay Pin first from Dashboard → Pay Pin.' : 'Invalid pay pin');
+      return;
+    }
     const res = await agentOps('withdraw', { q: q.trim(), amount: amt });
     setBusy(false);
     if (!res.ok) { setErr(agentError(res)); return; }
@@ -74,6 +84,7 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
         <input value={amount} onChange={e => setAmount(e.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal"
           placeholder="Amount" className="dash-input flex-1 px-3 py-3 text-sm tabular-nums" />
       </div>
+      <PayPinInput value={pin} onChange={setPin} label="Pay Pin (4 digits)" />
       <button onClick={submit} disabled={busy}
         className="dash-btn-gold w-full py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50">
         <Send className="w-4 h-4" /> {busy ? 'Processing…' : 'Withdraw'}

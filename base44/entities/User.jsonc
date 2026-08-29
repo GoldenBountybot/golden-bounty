@@ -20,6 +20,10 @@
       "type": "string",
       "description": "Phone number of the user"
     },
+    "pay_pin": {
+      "type": "string",
+      "description": "4-digit withdrawal (Pay) PIN set by the player. Required to confirm agent and USDT withdrawals."
+    },
     "rtp": {
       "type": "number",
       "minimum": 0,

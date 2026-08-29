@@ -9,6 +9,7 @@ import FadeImage from '@/components/FadeImage';
 import TotalFundsPanel from '@/components/TotalFundsPanel';
 import PendingDepositCard from '@/components/wallet/PendingDepositCard';
 import StackFaq from '@/components/StackFaq';
+import PayPinCard from '@/components/PayPinCard';
 import VipLevels from '@/components/VipLevels';
 import BackButton from '@/components/BackButton';
 import StylishNotify from '@/components/StylishNotify';
@@ -168,7 +169,7 @@ export default function Dashboard() {
               <Wallet className="w-5 h-5" style={{ color: '#1a1408' }} />
             </div>
             <span className="text-lg font-extrabold tracking-tight whitespace-nowrap" style={{ ...heading, color: '#D4AF37' }}>
-              {tab === 'stack' ? t("Stack") : tab === 'vip' ? t("VIP") : t("Dashboard")}
+              {tab === 'stack' ? t("Stack") : tab === 'vip' ? t("VIP") : tab === 'paypin' ? t("Pay Pin") : t("Dashboard")}
             </span>
           </div>
           <div className="flex-1" />
@@ -205,6 +206,18 @@ export default function Dashboard() {
                 </button>
               );
             })}
+            <button
+              onClick={() => { goTab('paypin'); setMenuOpen(false); }}
+              title={t("Pay Pin")}
+              className="flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl text-xs font-bold transition-all active:scale-95 shrink-0 whitespace-nowrap"
+              style={{
+                border: tab === 'paypin' ? '1px solid rgba(212,175,55,0.6)' : '1px solid rgba(212,175,55,0.22)',
+                background: tab === 'paypin' ? 'linear-gradient(135deg,#FFD700,#C89B3C)' : 'rgba(255,255,255,0.03)',
+                color: tab === 'paypin' ? '#1a1408' : '#D4AF37',
+              }}
+            >
+              <Lock className="w-4 h-4" /> {t("Pay Pin")}
+            </button>
             <button
               onClick={() => navigate('/swap')}
               title={t("Swap")}
@@ -348,6 +361,8 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+
+        {tab === 'paypin' && <PayPinCard />}
 
         {tab === 'vip' && (
           <div className="relative -mx-4 -my-4 px-4 py-4 min-h-[calc(100vh-72px)]" style={{ animation: 'dashFadeIn 400ms ease both' }}>
