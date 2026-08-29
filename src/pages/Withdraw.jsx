@@ -7,6 +7,7 @@ import { Wallet, ArrowLeft, Send, AlertTriangle, ArrowUpFromLine, Menu, Shield }
 import { useAuth } from '@/lib/AuthContext';
 import StylishNotify from '@/components/StylishNotify';
 import { hasTelegramBackButton } from '@/lib/telegram';
+import AgentWithdrawCard from '@/components/agent/AgentWithdrawCard';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -25,6 +26,7 @@ const LOGOS = {
 
 const METHODS = [
   { id: 'usdt', label: 'USDT (Crypto)', logo: LOGOS.tether, color: '#26a17b', hint: 'Withdraw USDT to your wallet' },
+  { id: 'agent', label: 'Agent (Instant)', logo: null, color: '#D4AF37', hint: 'Send your balance to an agent instantly' },
 ];
 
 const NET_COLORS = {
@@ -187,7 +189,7 @@ export default function Withdraw() {
               <ArrowUpFromLine className="w-5 h-5" style={{ color: '#062018' }} />
             </div>
             <span className="text-lg font-extrabold tracking-tight" style={{ ...heading, color: '#D4AF37' }}>
-              {view === 'choose' ? t("Withdraw") : t("USDT Withdraw")}
+              {view === 'choose' ? t("Withdraw") : view === 'agent' ? t("Agent Withdraw") : t("USDT Withdraw")}
             </span>
           </div>
           <div className="flex-1" />
@@ -249,8 +251,10 @@ export default function Withdraw() {
                     className="dash-card w-full flex items-center gap-4 p-4 text-left transition-all active:scale-[0.98]"
                   >
                     <div className="flex items-center justify-center w-12 h-12 rounded-full shrink-0 overflow-hidden"
-                      style={{ background: '#fff', boxShadow: '0 0 0 1px rgba(255,255,255,0.12)' }}>
-                      <img src={m.logo} alt={m.label} className="w-8 h-8 object-contain" />
+                      style={{ background: m.logo ? '#fff' : 'linear-gradient(135deg,#FFD700,#C89B3C)', boxShadow: '0 0 0 1px rgba(255,255,255,0.12)' }}>
+                      {m.logo
+                        ? <img src={m.logo} alt={m.label} className="w-8 h-8 object-contain" />
+                        : <Shield className="w-6 h-6" style={{ color: '#1a1408' }} />}
                     </div>
                     <div className="flex-1">
                       <h2 className="text-base font-bold" style={{ ...heading, color: '#fff' }}>{m.label}</h2>
@@ -268,6 +272,12 @@ export default function Withdraw() {
                     </p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {view === 'agent' && (
+              <div style={{ animation: 'dashFadeIn 400ms ease both' }}>
+                <AgentWithdrawCard initialAmount={amount} />
               </div>
             )}
 

@@ -17,10 +17,12 @@ import AdminXPosts from '@/components/admin/AdminXPosts';
 import AdminSupport from '@/components/admin/AdminSupport';
 import AdminGameStats from '@/components/admin/AdminGameStats';
 import AdminPgCurrency from '@/components/admin/AdminPgCurrency';
+import AdminAgents from '@/components/admin/AdminAgents';
 import { Image, Layers, Megaphone, CheckCircle, MessageCircle, BarChart3, FileSpreadsheet } from 'lucide-react';
 
 const TABS = [
   { id: 'players', label: 'Players', icon: Users, comp: AdminPlayers },
+  { id: 'agents', label: 'Agents', icon: Shield, comp: AdminAgents },
   { id: 'transactions', label: 'Transactions', icon: Receipt, comp: AdminTransactions },
   { id: 'stats', label: 'Game Stats', icon: BarChart3, comp: AdminGameStats },
   { id: 'games', label: 'Game RTP', icon: SlidersHorizontal, comp: AdminGameSettings },
