@@ -1,5 +1,4 @@
 import React from 'react';
-import FadeImage from '@/components/FadeImage';
 
 // Premium luxury iconic loading screen (Phase 2) — shown after the cinematic
 // splash while the app preloads assets and auth. Ultra-luxe casino-brand
@@ -77,15 +76,15 @@ export default function AppLoadingScreen({ progress = 0 }) {
       className="fixed inset-0 z-[9998] flex flex-col items-center justify-center overflow-hidden"
       style={{ background: 'linear-gradient(to bottom, #0a0805 0%, #1a1208 50%, #0a0805 100%)' }}
     >
-      {/* Splash background image — dim, fades in when ready */}
-      <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.5 }}>
-        <FadeImage
-          src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f8c7eb4bd_golden_bounty_fullscreen_vertical.png"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          durationMs={600}
-        />
-      </div>
+      {/* Splash background image — painted as a CSS background so it shows the
+          instant the bytes arrive (preloaded in index.html), no fade delay. */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          opacity: 0.5,
+          background: 'url(https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f8c7eb4bd_golden_bounty_fullscreen_vertical.png) center/cover no-repeat',
+        }}
+      />
 
       {/* Rotating sunburst light rays behind the emblem */}
       <div
