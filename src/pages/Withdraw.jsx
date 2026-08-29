@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
@@ -76,6 +77,7 @@ export default function Withdraw() {
   const params = new URLSearchParams(window.location.search);
   const amount = Number(params.get('amount') || 0);
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const { demoMode, wagerRemaining, maxWithdrawable } = useCasinoBalance();
   const { user } = useAuth();
@@ -154,7 +156,7 @@ export default function Withdraw() {
       } catch (_e) { /* non-critical — withdrawal already saved */ }
       toast({ title: t("Withdrawal requested"), description: t("Pending admin approval.") });
       setWalletAddr(''); setSelectedNet(null);
-      setTimeout(() => { window.location.href = '/dashboard?tab=wallet'; }, 1000);
+      setTimeout(() => { navigate('/dashboard?tab=wallet'); }, 1000);
     } catch {
       toast({ title: t("Submission failed"), description: t("Please try again.") });
     }
@@ -195,7 +197,7 @@ export default function Withdraw() {
           <div className="flex-1" />
 
           <button
-            onClick={() => window.location.href = '/dashboard'}
+            onClick={() => navigate('/dashboard')}
             title="Menu"
             className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
             style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
@@ -214,7 +216,7 @@ export default function Withdraw() {
             <p className="text-sm font-bold" style={{ color: '#fb923c' }}>{t("Demo Mode is active.")}</p>
             <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("Deposits are disabled while using the practice balance. Turn off Demo from the home page to deposit real funds.")}</p>
             <button
-              onClick={() => window.location.href = '/'}
+              onClick={() => navigate('/')}
               className="dash-btn-gold px-6 py-3 text-sm"
             >{t("Back to Home")}</button>
           </div>

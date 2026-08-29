@@ -85,7 +85,7 @@ export default function Dashboard() {
     const n = Number(amount);
     if (!n || n <= 0) { toast({ title: t("Enter a valid amount") }); return; }
     if (n < 3) { toast({ title: t("Minimum deposit is $3.00") }); return; }
-    window.location.href = `/pay?amount=${encodeURIComponent(n)}`;
+    navigate(`/pay?amount=${encodeURIComponent(n)}`);
     setDepAmt('');
   };
 
@@ -113,7 +113,7 @@ export default function Dashboard() {
       );
       return;
     }
-    window.location.href = `/withdraw?amount=${encodeURIComponent(n)}`;
+    navigate(`/withdraw?amount=${encodeURIComponent(n)}`);
     setWdAmt('');
   };
 
@@ -353,7 +353,7 @@ export default function Dashboard() {
             <div className="relative z-10 flex flex-col gap-4">
               <VipLevels totalDeposits={stake.totalDeposits} />
               <button
-                onClick={() => window.location.href = '/airdrop'}
+                onClick={() => navigate('/airdrop')}
                 className="w-full py-3.5 text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
                 style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', border: 'none', borderRadius: '14px', fontWeight: 800, boxShadow: '0 4px 14px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.45)' }}
               >
