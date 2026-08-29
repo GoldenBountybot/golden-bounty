@@ -157,7 +157,16 @@ export async function preloadDynamicAssets(base44) {
       rows.forEach((r) => { if (r && r[field]) urls.add(r[field]); });
     } catch {}
   };
+  // The signed-in user's own avatar — preloaded before the loading screen
+  // disappears so the Profile page never shows it downloading.
+  const meAvatar = (async () => {
+    try {
+      const me = await base44.auth.me();
+      if (me?.avatar_url) urls.add(me.avatar_url);
+    } catch {}
+  })();
   await Promise.all([
+    meAvatar,
     safeList('Banner', 'image_url'),
     safeList('PaymentAddress', 'qr_image_url'),
     safeList('SiteSetting', 'image_url'),
