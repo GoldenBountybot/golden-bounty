@@ -195,6 +195,7 @@ export default function HiLo() {
   const [pot, setPot] = useState(0);
   const [message, setMessage] = useState('Deal a card to start!');
   const [streak, setStreak] = useState(0);
+  const [busy, setBusy] = useState(false); // blocks taps during reveal/animation
   const serverWinRef = useRef(0);
   const serverRoundPromiseRef = useRef(null); // pending beginRound promise — awaited lazily on first guess/collect
 
@@ -255,16 +256,22 @@ export default function HiLo() {
   };
 
   const guess = async (dir) => {
-    if (phase !== 'guessing') return;
+    if (phase !== 'guessing' || busy) return;
+    // Instant feedback — lock the buttons and show the pick right away, even
+    // if the server round is still in flight.
+    setBusy(true);
+    setMessage(dir === 'high' ? 'Higher…' : 'Lower…');
+    playDeal();
     // Wait for the server round to complete so we know the win cap.
-    if (!(await ensureServerRound())) return;
+    if (!(await ensureServerRound())) { setBusy(false); return; }
     // Decide correctness PROBABILISTICALLY based on RTP. The win chance per
     // guess is DIRECTLY the RTP fraction (e.g. 50% RTP → 50% win chance per
     // guess), so admin RTP changes are immediately visible in gameplay.
     // The server cap is still enforced as a hard ceiling — if the pot would
     // exceed it, force a loss.
     const rtpVal = Number(rtp || 50);
-    const rtpFrac = Math.max(0, Math.min(1, rtpVal / 100));
+    // Slight winning-chance boost per guess (capped at 95%).
+    const rtpFrac = Math.min(0.95, Math.max(0, rtpVal / 100) * 1.08);
     const withinCap = serverWinRef.current > 0 && (pot * 2) <= serverWinRef.current;
     const wantCorrect = withinCap && Math.random() < rtpFrac;
     const next = pickCard(dir, current.rank, wantCorrect);
@@ -277,6 +284,7 @@ export default function HiLo() {
       setPot(0);
       settleBet(bet, 0, 'hi-lo');
       playLoss();
+      setBusy(false);
     } else if (correct) {
       const newPot = pot * 2;
       setPot(newPot);
@@ -286,6 +294,7 @@ export default function HiLo() {
       setTimeout(() => {
         setCurrent(next);
         setRevealed(null);
+        setBusy(false);
       }, 1100);
     } else {
       setPhase('idle');
@@ -293,11 +302,12 @@ export default function HiLo() {
       setPot(0);
       settleBet(bet, 0, 'hi-lo');
       playLoss();
+      setBusy(false);
     }
   };
 
   const collect = async () => {
-    if (phase !== 'guessing' || pot === 0) return;
+    if (phase !== 'guessing' || pot === 0 || busy) return;
     // Wait for the server round to complete so we know the win cap.
     if (!(await ensureServerRound())) return;
     const win = Math.min(pot, serverWinRef.current);
@@ -427,10 +437,10 @@ export default function HiLo() {
         {/* Guessing actions */}
         {phase === 'guessing' && (
           <div className="grid grid-cols-2 gap-3 w-full">
-            <button onClick={() => guess('high')} className="py-4 rounded-xl flex items-center justify-center gap-2" style={dealBtn}>
+            <button onClick={() => guess('high')} disabled={busy} className="py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50" style={dealBtn}>
               <ArrowUp className="w-5 h-5" /> HIGHER
             </button>
-            <button onClick={() => guess('low')} className="py-4 rounded-xl flex items-center justify-center gap-2" style={{
+            <button onClick={() => guess('low')} disabled={busy} className="py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50" style={{
               ...goldBtn,
               border: `2px solid ${GOLD_BRIGHT}`,
               color: CREAM,
@@ -439,7 +449,7 @@ export default function HiLo() {
             }}>
               <ArrowDown className="w-5 h-5" /> LOWER
             </button>
-            <button onClick={collect} className="col-span-2 py-3 rounded-xl flex items-center justify-center gap-2" style={{
+            <button onClick={collect} disabled={busy} className="col-span-2 py-3 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform disabled:opacity-50" style={{
               background: `linear-gradient(to bottom, ${GOLD_BRIGHT}, ${GOLD})`,
               border: `2px solid ${GOLD_HIGHLIGHT}`,
               color: DEEP_BLACK,
