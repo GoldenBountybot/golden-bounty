@@ -163,8 +163,10 @@ export async function preloadDynamicAssets(base44) {
     safeList('SiteSetting', 'image_url'),
     safeList('Avatar', 'image_url'),
   ]);
-  if (!urls.size) return;
-  await preloadAssets([...urls]);
+  // Default Stack banner (used when no admin SiteSetting override exists)
+  urls.add('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e4a14a054_file_0000000014cc821197a44e24a1a46272.png');
+  // strict: wait until fully downloaded + decoded so nothing pops in later
+  await preloadAssets([...urls], null, false, true);
 }
 
 // Background-warm ALL game assets so that by the time the user taps a game
