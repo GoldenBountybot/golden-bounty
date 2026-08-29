@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { preloadAssets } from '@/lib/assetPreloader';
-import PremiumGameLoader from '@/components/PremiumGameLoader';
+import AppLoadingScreen from '@/components/AppLoadingScreen';
 
 // Game loading screen that shows REAL preload progress (0% → 100%) while all
 // the game's image assets are fetched in parallel and decoded. Only once
@@ -65,5 +65,7 @@ export default function GameAssetLoader({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <PremiumGameLoader progress={progress} title={title} bgImage={bgImage} />;
+  // Same branded loading screen the app itself opens with — one single
+  // loading experience across app entry and every game.
+  return <AppLoadingScreen progress={progress} />;
 }
