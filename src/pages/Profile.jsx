@@ -11,7 +11,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { getVipLevel, getNextVipLevel, BASE_RATE } from '@/lib/vipLevels';
 import AnimatedNumber from '@/components/AnimatedNumber';
-import ProfileMenu from '@/components/profile/ProfileMenu';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/lib/LanguageContext';
 import TaskSystem from '@/components/TaskSystem';
 import XPostTask from '@/components/XPostTask';
@@ -235,12 +235,74 @@ export default function Profile() {
           </div>
           <div className="flex-1" />
 
-          <ProfileMenu
-            open={menuOpen}
-            onClose={() => setMenuOpen(false)}
-            onCashback={() => { setView('cashback'); setMenuOpen(false); }}
-          />
-
+          {menuOpen && (
+            <div className="absolute left-4 top-14 z-40 w-[280px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-3xl p-2.5 flex flex-col gap-1.5"
+              style={{
+                border: '1px solid rgba(212,175,55,0.35)',
+                background: 'rgba(10,10,10,0.82)',
+                backdropFilter: 'blur(22px)',
+                WebkitBackdropFilter: 'blur(22px)',
+                boxShadow: '0 24px 60px rgba(0,0,0,0.75), 0 0 30px rgba(212,175,55,0.12), inset 0 1px 0 rgba(255,255,255,0.05)',
+                animation: 'dashFadeIn 220ms ease both',
+              }}>
+              {[
+                { to: '/pay', label: t("Deposit"), Icon: ArrowDownToLine, color: '#34d399', active: true },
+                { to: '/withdraw', label: t("Withdraw"), Icon: ArrowUpFromLine, color: '#f87171' },
+                { to: '/history', label: t("History"), Icon: History, color: '#D4AF37' },
+                { to: '/bonus', label: t("Bonus"), Icon: Gift, color: '#D4AF37' },
+                { onClick: () => { setView('cashback'); setMenuOpen(false); }, label: t("Cashback"), Icon: RotateCcw, color: '#34d399' },
+                { to: '/referrals', label: t("Referrals"), Icon: Users, color: '#D4AF37' },
+                { to: '/events', label: t("Events"), Icon: Sparkles, color: '#D4AF37' },
+                { to: '/live-support', label: t("Support 7/24"), Icon: Headphones, color: '#34d399' },
+                { to: '/migrate', label: t("Bind Old Account"), Icon: ArrowRightLeft, color: '#D4AF37' },
+              ].map((item) => {
+                const Inner = (
+                  <>
+                    <div className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0 transition-all"
+                      style={{
+                        background: item.active
+                          ? 'linear-gradient(135deg, rgba(255,215,0,0.22), rgba(212,175,55,0.12))'
+                          : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${item.active ? 'rgba(255,215,0,0.5)' : 'rgba(212,175,55,0.22)'}`,
+                        boxShadow: item.active ? '0 0 12px rgba(255,215,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' : 'inset 0 1px 0 rgba(255,255,255,0.04)',
+                      }}>
+                      <item.Icon className="w-4 h-4" style={{ color: item.color, filter: item.active ? 'drop-shadow(0 0 5px rgba(255,215,0,0.6))' : 'none' }} />
+                    </div>
+                    <span className="flex-1 text-[13px] font-semibold tracking-tight" style={{ color: item.active ? '#fff' : 'rgba(255,255,255,0.92)' }}>
+                      {item.label}
+                    </span>
+                    <ChevronRight className="w-4 h-4 shrink-0 transition-transform" style={{ color: item.active ? '#FFD700' : 'rgba(212,175,55,0.55)' }} />
+                  </>
+                );
+                const baseStyle = {
+                  background: item.active
+                    ? 'linear-gradient(135deg, rgba(255,215,0,0.14), rgba(212,175,55,0.06), rgba(20,20,20,0.6))'
+                    : 'linear-gradient(135deg, rgba(26,26,26,0.9), rgba(16,16,16,0.85))',
+                  border: `1px solid ${item.active ? 'rgba(255,215,0,0.55)' : 'rgba(212,175,55,0.2)'}`,
+                  boxShadow: item.active
+                    ? '0 0 18px rgba(255,215,0,0.28), 0 6px 18px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)'
+                    : '0 4px 14px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)',
+                };
+                const hoverClass = 'transition-all duration-200 active:scale-[0.98] hover:-translate-y-0.5';
+                return item.to ? (
+                  <Link key={item.label} to={item.to} onClick={() => setMenuOpen(false)}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl ${hoverClass}`}
+                    style={baseStyle}>
+                    {Inner}
+                  </Link>
+                ) : (
+                  <button key={item.label} onClick={item.onClick}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl w-full text-left ${hoverClass}`}
+                    style={baseStyle}>
+                    {Inner}
+                  </button>
+                );
+              })}
+              <div className="mt-1 px-1 pt-2" style={{ borderTop: '1px solid rgba(212,175,55,0.15)' }}>
+                <LanguageSwitcher variant="compact" />
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
