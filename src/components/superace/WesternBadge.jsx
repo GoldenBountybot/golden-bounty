@@ -38,7 +38,7 @@ function StarPath({ cx = 50, cy = 50, r = 46, ri = 19 }) {
 }
 
 // ---------- WILD emblem (image) ----------
-const WILD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/93a12d6af_wild.png';
+const WILD_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/93a12d6af_wild.png';
 
 function WildEmblem() {
   return (
@@ -55,7 +55,7 @@ function WildEmblem() {
 }
 
 // ---------- SCATTER emblem (image, black bg → white) ----------
-const SCATTER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c725b5a50_wild-ace-02.png';
+const SCATTER_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c725b5a50_wild-ace-02.png';
 
 function ScatterEmblem() {
   return (

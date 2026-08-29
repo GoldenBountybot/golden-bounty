@@ -57,7 +57,7 @@ export default function GatesFreeSpinEndBanner({ amount, onDone }) {
           textAlign: 'center',
         }}>
           <img
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d5525b830_file_00000000e7fc8211826f062956600ef9.png"
+            src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/d5525b830_file_00000000e7fc8211826f062956600ef9.png"
             alt="Free Spins Complete"
             className="absolute inset-0 w-full h-full object-cover"
             draggable={false}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Gift, Coins, Loader2, Check, Sparkles, ArrowDownToLine, Map, X } from 'lucide-react';
 
-const PDF_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/cf7fd6d28_Golden_Bounty_Roadmap_2026_2027_Updated.pdf';
+const PDF_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/cf7fd6d28_Golden_Bounty_Roadmap_2026_2027_Updated.pdf';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -12,7 +12,7 @@ import { hasTelegramBackButton } from '@/lib/telegram';
 import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
-const BOUNTY_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
+const BOUNTY_LOGO = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
 
 // Airdrop page — Bounty token allocation.
 // Allocation = total approved USDT deposits (1:1). Claiming persists the
@@ -86,7 +86,7 @@ export default function Airdrop() {
 
   return (
     <div className="relative min-h-screen pb-24" style={{ background: '#0D0D0D', fontFamily: SANS }}>
-      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.12), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.06), transparent 60%), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat', backgroundAttachment: 'fixed' }} />
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.12), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.06), transparent 60%), url(https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat', backgroundAttachment: 'fixed' }} />
 
       {/* Header */}
       <header
@@ -165,7 +165,7 @@ export default function Airdrop() {
         >
           <div className="relative overflow-hidden rounded-xl" style={{ background: '#0D0D0D' }}>
             <img
-              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c36d89e4b_file_000000000d648211a1ae80116606f30d.png"
+              src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c36d89e4b_file_000000000d648211a1ae80116606f30d.png"
               alt="BOUNTY — The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit and 1 BOUNTY for every referral."
               className="block select-none w-full"
               draggable={false}

@@ -213,5 +213,5 @@ const STAR_DIRS = [
   { x: -6, y: -22 }, { x: 8, y: 20 }, { x: -20, y: 18 }, { x: 22, y: -6 },
 ];
 
-const CARD_BACK = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fcd98f4f5_InShot_20260718_152559101.jpg';
-const GOLDEN_WILD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6060a2364_wild-ace-01.png';
+const CARD_BACK = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/fcd98f4f5_InShot_20260718_152559101.jpg';
+const GOLDEN_WILD_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/6060a2364_wild-ace-01.png';

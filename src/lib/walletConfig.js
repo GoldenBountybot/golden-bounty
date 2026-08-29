@@ -11,5 +11,5 @@ export const WALLETCONNECT_METADATA = {
   url: 'https://golden-bounty.com',
   // Wallets need at least one icon; an empty array makes some wallets discard
   // the session proposal instead of showing the connection request.
-  icons: ['https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png'],
+  icons: ['https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png'],
 };

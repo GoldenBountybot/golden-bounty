@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { playWinCountUp } from '@/lib/superaceSounds';
 
-const MEGA_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e3c7dc482_file_00000000233881faa2d49279db01c3b7.png';
+const MEGA_WIN_BANNER = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e3c7dc482_file_00000000233881faa2d49279db01c3b7.png';
 
 // Ornate "MEGA WIN" banner shown when the player hits a x8+ multiplier.
 // The winning amount counts up inside the dark purple pill at the bottom.

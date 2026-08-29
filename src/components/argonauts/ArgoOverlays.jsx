@@ -6,7 +6,7 @@ import ArgoFreeSpinEndBanner from './ArgoFreeSpinEndBanner';
 import ArgoPaytable from './ArgoPaytable';
 import ArgoRules from './ArgoRules';
 
-const COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b4e358bc4_generated_image.png';
+const COIN_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/b4e358bc4_generated_image.png';
 
 // Centered modal overlay over the game.
 function Overlay({ children, onClose }) {

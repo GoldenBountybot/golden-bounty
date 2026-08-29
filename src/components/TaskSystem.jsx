@@ -11,7 +11,7 @@ import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
 let TASKS_CACHE = null;
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
-const BOUNTY_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
+const BOUNTY_LOGO = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
 
 const XLogo = ({ className, style }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className} style={style}>

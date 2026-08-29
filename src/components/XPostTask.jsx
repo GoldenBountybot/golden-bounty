@@ -6,7 +6,7 @@ import { Loader2, Check, Gift, ExternalLink, Clock, CheckCircle2, Send, ChevronD
 import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
-const BOUNTY_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
+const BOUNTY_LOGO = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png';
 const REWARD = 10;
 const WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
 const APP_X_HANDLE = '@golden_bounty_x'; // our official X account users must tag

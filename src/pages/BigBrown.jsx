@@ -31,7 +31,7 @@ export default function BigBrown() {
     <div
       className="min-h-screen"
       style={{
-        backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9a6ce937b_generated_image.png'), linear-gradient(to bottom, #00122e, #02091a)",
+        backgroundImage: "url('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/9a6ce937b_generated_image.png'), linear-gradient(to bottom, #00122e, #02091a)",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',

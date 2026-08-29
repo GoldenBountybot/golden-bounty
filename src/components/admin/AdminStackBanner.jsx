@@ -5,7 +5,7 @@ import WesternFrame from '@/components/wildbounty/WesternFrame';
 import { Save, Upload, Layers } from 'lucide-react';
 
 const SETTING_KEY = 'stack_banner';
-const DEFAULT_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ce2101293_InShot_20260718_173817740.jpg';
+const DEFAULT_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/ce2101293_InShot_20260718_173817740.jpg';
 
 export default function AdminStackBanner() {
   const [rec, setRec] = useState(null);

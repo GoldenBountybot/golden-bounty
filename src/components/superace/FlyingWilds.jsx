@@ -2,7 +2,7 @@ import React from 'react';
 import { COLS, ROWS } from '@/lib/superaceEngine';
 
 // Golden Wild image used for both the flying copies and the source tile.
-export const GOLDEN_WILD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6060a2364_wild-ace-01.png';
+export const GOLDEN_WILD_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/6060a2364_wild-ace-01.png';
 
 // Convert a flat grid index to a percentage center within the grid area.
 function pos(idx) {

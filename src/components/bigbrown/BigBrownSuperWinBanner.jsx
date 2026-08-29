@@ -8,7 +8,7 @@ import { playSuperWinSound } from '@/lib/bigBrownSuperWinSound';
 // plays (background music ducks automatically).
 
 const SUPER_WIN_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4b986ee28_file_0000000057d881fbaa643e8f2dd979ce.png';
+  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/4b986ee28_file_0000000057d881fbaa643e8f2dd979ce.png';
 
 const GOLD_TEXT = {
   fontFamily: 'Rye, Georgia, serif',

@@ -13,24 +13,24 @@ export const WILD_REELS = new Set([0, 1, 2, 3, 4]);
 // Bear-only image (black bg, dropped via mix-blend-mode:screen). The WILD
 // label is rendered as an HTML gold plaque so it's always legible.
 export const WILD_EXPAND_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42a9ab939_generated_image.png';
+  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/42a9ab939_generated_image.png';
 
 // Symbol image URLs (generated to match reference screenshots).
 const IMG = {
-  scatter: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/98a234d10_generated_image.png',
-  brown:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/31ddcdcb0_generated_image.png',
-  spirit:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/31ddcdcb0_generated_image.png',
-  buffalo: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d5e8a8396_generated_image.png',
-  eagle:   'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/049e21afd_file_00000000263c820eb39538b113dcdcdc.png',
-  cougar:  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/678cbc6de_generated_image.png',
-  wolf:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d03f81032_generated_image.png',
-  deer:    'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/75af4c854_generated_image.png',
-  A: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b7e1c393e_generated_image.png',
-  K: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0563064f0_generated_image.png',
-  Q: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11e4aee1c_generated_image.png',
-  J: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/aa1e47a19_generated_image.png',
-  '10': 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9765e60dc_generated_image.png',
-  '9':  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e5f443649_generated_image.png',
+  scatter: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/98a234d10_generated_image.png',
+  brown:   'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/31ddcdcb0_generated_image.png',
+  spirit:  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/31ddcdcb0_generated_image.png',
+  buffalo: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/d5e8a8396_generated_image.png',
+  eagle:   'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/049e21afd_file_00000000263c820eb39538b113dcdcdc.png',
+  cougar:  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/678cbc6de_generated_image.png',
+  wolf:    'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/d03f81032_generated_image.png',
+  deer:    'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/75af4c854_generated_image.png',
+  A: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/b7e1c393e_generated_image.png',
+  K: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/0563064f0_generated_image.png',
+  Q: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/11e4aee1c_generated_image.png',
+  J: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/aa1e47a19_generated_image.png',
+  '10': 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/9765e60dc_generated_image.png',
+  '9':  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e5f443649_generated_image.png',
 };
 
 // Pay values are multipliers of betUnit (= bet / 20).

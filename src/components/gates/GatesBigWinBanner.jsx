@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { playCountUp } from '@/lib/gatesSound';
 
 const IMAGES = {
-  super: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/422880cd4_file_0000000057d881fbaa643e8f2dd979ce.png',
-  mega: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b90df1f5b_file_00000000233881faa2d49279db01c3b7.png',
+  super: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/422880cd4_file_0000000057d881fbaa643e8f2dd979ce.png',
+  mega: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/b90df1f5b_file_00000000233881faa2d49279db01c3b7.png',
 };
 
 // Floating SUPER WIN / MEGA WIN overlay banner.

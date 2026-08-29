@@ -10,7 +10,7 @@ function getCtx() {
   return ctx;
 }
 
-const SPIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/8c2379326_spinbuttonx.mp3';
+const SPIN_SOUND_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/8c2379326_spinbuttonx.mp3';
 let spinBuffer = null;
 let spinLoaded = false;
 
@@ -42,7 +42,7 @@ export function playSpinSound() {
   } catch { /* ignore */ }
 }
 
-const REEL_DROP_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/ac74277f6_spinrelldropx.mp3';
+const REEL_DROP_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/ac74277f6_spinrelldropx.mp3';
 let dropBuffer = null;
 let dropLoaded = false;
 
@@ -136,7 +136,7 @@ export function playReelLandSound() {
   n.start(t);
 }
 
-const FLY_COIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/f5879041c_Flycoin.mp3';
+const FLY_COIN_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f5879041c_Flycoin.mp3';
 let flyBuffer = null;
 let flyLoaded = false;
 
@@ -172,7 +172,7 @@ export function playFlyCoinSound() {
   } catch { /* ignore */ }
 }
 
-const SLOW_MO_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/267bdd3bb_slowmoson_0.mp3';
+const SLOW_MO_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/267bdd3bb_slowmoson_0.mp3';
 let slowMoBuffer = null;
 let slowMoLoaded = false;
 
@@ -213,7 +213,7 @@ export function playSlowMoSound() {
   } catch { /* ignore */ }
 }
 
-const MACH_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/8377373e5_mach.mp3';
+const MACH_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/8377373e5_mach.mp3';
 let machBuffer = null;
 let machLoaded = false;
 
@@ -246,7 +246,7 @@ export function playMachSound() {
   } catch { /* ignore */ }
 }
 
-const LOW_VALUE_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/bf9aec464_lowvalue.mp3';
+const LOW_VALUE_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/bf9aec464_lowvalue.mp3';
 let lowValueBuffer = null;
 let lowValueLoaded = false;
 
@@ -282,7 +282,7 @@ export function playLowValueSound() {
   } catch { /* ignore */ }
 }
 
-const HIGH_VALUE_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/d7690f0ab_highvalue.mp3';
+const HIGH_VALUE_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/d7690f0ab_highvalue.mp3';
 let highValueBuffer = null;
 let highValueLoaded = false;
 

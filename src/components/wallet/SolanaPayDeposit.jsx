@@ -7,7 +7,7 @@ import { Wallet, Loader2, CheckCircle2, AlertTriangle, ArrowRight, ExternalLink,
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 const PHANTOM_PURPLE = '#AB9FF2';
-const PHANTOM_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1a373c31c_file_00000000bf088207bca808f6fa5670a3.png';
+const PHANTOM_LOGO = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/1a373c31c_file_00000000bf088207bca808f6fa5670a3.png';
 const ADMIN_SOL = 'ftmbTXAc6XWyT6ieXHLiEZ7zuJFDPVSAdvrvrTveniW';
 const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 

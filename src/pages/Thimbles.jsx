@@ -249,7 +249,7 @@ export default function Thimbles() {
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
-          backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/47b6716b5_file_000000001a38820bbc8591d3888ea292.png')",
+          backgroundImage: "url('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/47b6716b5_file_000000001a38820bbc8591d3888ea292.png')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           opacity: 0.35,
@@ -275,7 +275,7 @@ export default function Thimbles() {
         </div>
 
         {/* Game area — ornate gilded wood table with three barrels (full width edge-to-edge) */}
-        <div className="relative overflow-hidden flex-1 flex flex-col justify-center lg:!w-full lg:!ml-0" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', marginTop: '-50px', backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div className="relative overflow-hidden flex-1 flex flex-col justify-center lg:!w-full lg:!ml-0" style={{ width: '100vw', marginLeft: 'calc(-50vw + 50%)', marginTop: '-50px', backgroundImage: "url('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/156d0d0e6_file_00000000647481fab85bdbbf2ac788cc.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
 
           {/* Three barrels */}
           <div className="relative w-full max-w-[380px] mx-auto px-4" style={{ height: '200px' }}>
@@ -312,14 +312,14 @@ export default function Thimbles() {
             className="flex-1 transition-all active:scale-95"
             style={{ opacity: mode === 'single' ? 1 : 0.45 }}
           >
-            <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/1fd7f6441_file_0000000066e081f7a29c25fb6bde36e0.png" alt="1 BALL X 2.88" draggable={false} className="w-full h-auto select-none" />
+            <img src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/1fd7f6441_file_0000000066e081f7a29c25fb6bde36e0.png" alt="1 BALL X 2.88" draggable={false} className="w-full h-auto select-none" />
           </button>
           <button
             onClick={() => phase === 'idle' && setMode('two')}
             className="flex-1 transition-all active:scale-95"
             style={{ opacity: mode === 'two' ? 1 : 0.45, marginTop: '15px' }}
           >
-            <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/de25c864e_file_00000000c2f081f79b316882b62f9e13.png" alt="2 BALLS X 1.44" draggable={false} className="w-full h-auto select-none" />
+            <img src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/de25c864e_file_00000000c2f081f79b316882b62f9e13.png" alt="2 BALLS X 1.44" draggable={false} className="w-full h-auto select-none" />
           </button>
         </div>
 
@@ -405,11 +405,11 @@ export default function Thimbles() {
   );
 }
 
-const BET_BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2c9406808_file_000000003fc481fab86dd38fbe7b4787.png';
-const SPIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/06b6ee99c_file_000000003c488211a7ea3420ca9b6b25.png';
-const BARREL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f1d422732_file_000000002c8c81f789fe32b56de1dcdf.png';
-const HISTORY_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4fcee62b8_file_000000001a688230909747b265fab779.png';
-const WIN_BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6b98787a0_file_00000000eee082308b42773bcc9edee4.png';
+const BET_BANNER_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/2c9406808_file_000000003fc481fab86dd38fbe7b4787.png';
+const SPIN_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/06b6ee99c_file_000000003c488211a7ea3420ca9b6b25.png';
+const BARREL_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f1d422732_file_000000002c8c81f789fe32b56de1dcdf.png';
+const HISTORY_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/4fcee62b8_file_000000001a688230909747b265fab779.png';
+const WIN_BANNER_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/6b98787a0_file_00000000eee082308b42773bcc9edee4.png';
 
 function Barrel({ lifted, hasBall, reveal, won }) {
   return (
@@ -438,7 +438,7 @@ function Barrel({ lifted, hasBall, reveal, won }) {
   );
 }
 
-const BALL_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8a7398106_file_00000000fdcc81fa9090dcaff6ecfea6.png';
+const BALL_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/8a7398106_file_00000000fdcc81fa9090dcaff6ecfea6.png';
 
 function GoldenBall({ size = 28 }) {
   return (

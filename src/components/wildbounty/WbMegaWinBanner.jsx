@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { sfx } from './sounds';
 
-const MEGA_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/abe2184b1_file_00000000233881faa2d49279db01c3b7.png';
+const MEGA_WIN_BANNER = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/abe2184b1_file_00000000233881faa2d49279db01c3b7.png';
 
 // "MEGA WIN" banner for Wild Bounty — triggers at x32+ multiplier or a huge
 // payout. The winning amount counts up below the banner as "Win [amount]".

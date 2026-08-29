@@ -50,8 +50,8 @@ export default function BottomNav() {
         }}
       >
         <div className="grid grid-cols-5 gap-1 lg:gap-8 items-center">
-          <ImgTile to="/dashboard" label={t("Dashboard")} src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0bf2d07ee_file_000000009cf082119790d647b9b4d6d2.png" />
-          <ImgTile to="/dashboard?tab=stack" label={t("Stack")} src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5ee916b61_file_0000000084f082119192d2d5866b87d5.png" />
+          <ImgTile to="/dashboard" label={t("Dashboard")} src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/0bf2d07ee_file_000000009cf082119790d647b9b4d6d2.png" />
+          <ImgTile to="/dashboard?tab=stack" label={t("Stack")} src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/5ee916b61_file_0000000084f082119192d2d5866b87d5.png" />
 
           {/* Center Play button — 777 medallion; takes you to the Home games list */}
           <Link
@@ -66,7 +66,7 @@ export default function BottomNav() {
               }}
             >
               <FadeImage
-                src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a37f15d57_file_00000000710c8207a086cbd3402c46e3.png"
+                src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/a37f15d57_file_00000000710c8207a086cbd3402c46e3.png"
                 alt="777 Play"
                 draggable={false}
                 durationMs={250}
@@ -76,8 +76,8 @@ export default function BottomNav() {
             </span>
           </Link>
 
-          <ImgTile to="/dashboard?tab=vip" label={t("VIP")} src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e130df042_file_00000000003c81fab9a795d126ebcf40.png" />
-          <ImgTile to="/profile" label={t("Profile")} src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/991ab5d3e_file_00000000a2b081fa9b55e7aca49962fc.png" />
+          <ImgTile to="/dashboard?tab=vip" label={t("VIP")} src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e130df042_file_00000000003c81fab9a795d126ebcf40.png" />
+          <ImgTile to="/profile" label={t("Profile")} src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/991ab5d3e_file_00000000a2b081fa9b55e7aca49962fc.png" />
         </div>
       </div>
     </div>

@@ -20,7 +20,7 @@ import PlayerHistoryButton from '@/components/PlayerHistoryButton';
 // Falling-money backdrop used inside each reel strip so screen-blended symbols
 // have a real backdrop to blend against even while the strip's transform
 // animation isolates its stacking context during a spin.
-const MONEY_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f28be6c98_.jpg';
+const MONEY_BG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f28be6c98_.jpg';
 
 const DiamondBG = (
   <div
@@ -627,7 +627,7 @@ export default function CrownCoinsMachine() {
         <div ref={bannerRef} className="relative flex items-center justify-center mt-1 mx-auto" style={{ width: '78%' }}>
           <BetTierBanners bet={bet} />
           <img
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9e18b75a6_file_00000000700081fab7c3b36c02964e06.png"
+            src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/9e18b75a6_file_00000000700081fab7c3b36c02964e06.png"
             alt="Crown Coins"
             className="w-full relative z-0"
             style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.45))' }}
@@ -644,7 +644,7 @@ export default function CrownCoinsMachine() {
           }}
         >
           <img
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f28be6c98_.jpg"
+            src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f28be6c98_.jpg"
             alt=""
             className="absolute inset-0 w-full h-full object-cover rounded-md pointer-events-none"
             style={{ opacity: 1 }}

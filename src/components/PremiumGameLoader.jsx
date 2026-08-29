@@ -12,11 +12,11 @@ import React, { useMemo } from 'react';
 // Each loading screen keeps its own progress logic and passes the current
 // percentage here.
 
-const LOGO_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e0ebe2f88_InShot_20260722_150739877.jpg';
+const LOGO_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e0ebe2f88_InShot_20260722_150739877.jpg';
 
 // Fallback backdrop so the loading screen is never a plain black stage when a
 // screen doesn't pass its own background image (already preloaded at splash).
-const FALLBACK_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png';
+const FALLBACK_BG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png';
 
 // Stable random particle config so it doesn't re-randomize each render.
 function useParticles(count) {

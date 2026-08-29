@@ -6,7 +6,7 @@ import React from 'react';
 // floating randomly. Two stacked layers (wide blue halo + thin white core)
 // flicker at different rates for a living crackle. mix-blend-mode: screen
 // keys out the black background so only the body's edges glow.
-const ZEUS_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/84fd16eb6_file_00000000e474820ba9fd196f5f5c9f06.png';
+const ZEUS_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/84fd16eb6_file_00000000e474820ba9fd196f5f5c9f06.png';
 
 export default function GatesZeusElectric() {
   return (

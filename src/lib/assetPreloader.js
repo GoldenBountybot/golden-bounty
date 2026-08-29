@@ -173,7 +173,7 @@ export async function preloadDynamicAssets(base44) {
     safeList('Avatar', 'image_url'),
   ]);
   // Default Stack banner (used when no admin SiteSetting override exists)
-  urls.add('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e4a14a054_file_0000000014cc821197a44e24a1a46272.png');
+  urls.add('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e4a14a054_file_0000000014cc821197a44e24a1a46272.png');
   // strict: wait until fully downloaded + decoded so nothing pops in later
   await preloadAssets([...urls], null, false, true);
 }

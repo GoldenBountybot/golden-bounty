@@ -284,7 +284,7 @@ export default function Mines() {
   return (
     <div className="min-h-screen text-amber-100 flex flex-col relative" style={{ background: 'linear-gradient(to bottom, #1a1108, #0d0905)', ...W }}>
       {!loaded && <GameAssetLoader title="Mines" assets={MINES_ASSETS} bgImage={GAME_BG.mines} onDone={() => setLoaded(true)} />}
-      <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7ad5415af_.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5, mixBlendMode: 'screen' }} />
+      <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: "url('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/7ad5415af_.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5, mixBlendMode: 'screen' }} />
       <GameHeader title="Mines" balance={Number(balance || 0)} />
 
       <main className="max-w-none lg:max-w-[600px] xl:max-w-[660px] w-full mx-auto px-4 py-5 flex flex-col gap-4 flex-1">
@@ -357,7 +357,7 @@ export default function Mines() {
               </filter>
             </svg>
             <button onClick={start} disabled={balance < bet} className="w-full relative -mt-20 -mb-28 rounded-xl text-base transition-all disabled:opacity-40 overflow-hidden" style={{ ...W }}>
-              <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/47e470df6_file_000000002200820baadd0a1f2df2f8ce.png" alt="" aria-hidden="true" className="block w-full h-auto pointer-events-none" style={{ filter: 'url(#minesBetBg)' }} />
+              <img src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/47e470df6_file_000000002200820baadd0a1f2df2f8ce.png" alt="" aria-hidden="true" className="block w-full h-auto pointer-events-none" style={{ filter: 'url(#minesBetBg)' }} />
               <div className="absolute inset-0 flex items-center justify-center gap-2 px-4" style={{ transform: 'translateY(-6px)' }}>
                 <Pickaxe className="w-5 h-5" style={{ color: '#f0e68c', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.85))' }} />
                 <span className="text-base" style={{ color: '#f0e68c', textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>BET ${bet.toFixed(2)} · {mines} MINES</span>

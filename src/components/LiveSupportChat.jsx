@@ -7,7 +7,7 @@ import { getBotReply } from '@/lib/supportBot';
 import { formatTime } from '@/lib/dateFormat';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
-const BOT_LOGO = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/89345e410_file_00000000f5f88207ba2a1422c54f7ec0.png';
+const BOT_LOGO = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/89345e410_file_00000000f5f88207ba2a1422c54f7ec0.png';
 
 // Derive the current agent status from the thread's control messages.
 // "none"  -> bot mode (AI auto-replies)

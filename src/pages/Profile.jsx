@@ -197,7 +197,7 @@ export default function Profile() {
 
   return (
     <div className="relative min-h-screen pb-24 lg:pb-6" style={{ background: '#0D0D0D', fontFamily: SANS }}>
-      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 55% at 50% -10%, rgba(212,175,55,0.12), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.06), transparent 60%), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat', backgroundAttachment: 'fixed' }} />
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 55% at 50% -10%, rgba(212,175,55,0.12), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.06), transparent 60%), url(https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat', backgroundAttachment: 'fixed' }} />
 
       {/* Header — text unchanged */}
       <header
@@ -366,7 +366,7 @@ export default function Profile() {
             style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(255,255,255,0.03))', border: '1px solid rgba(212,175,55,0.4)' }}
           >
             <div className="flex items-center gap-3">
-              <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png" alt="Bounty" className="w-9 h-9" />
+              <img src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/11d70dbce_file_000000007ca8820782fc88a9cf61d873.png" alt="Bounty" className="w-9 h-9" />
               <div className="text-left">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Bounty Token Allocation")}</p>
                 <p className="text-[14px] font-bold mt-0.5 tabular-nums" style={{ color: (bountyAllocation + taskBounty) > 0 ? '#34d399' : 'rgba(255,255,255,0.5)' }}>

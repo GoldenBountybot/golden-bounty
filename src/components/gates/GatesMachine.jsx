@@ -222,7 +222,7 @@ export default function GatesMachine() {
       {/* ── GATES OF OLYMPUS TITLE BANNER ── sits just above the board border */}
       <div className="relative flex items-center justify-start shrink-0 pt-10 pb-0 pl-1"
         style={{ background: 'linear-gradient(to bottom,rgba(50,10,90,0.95),transparent)', marginBottom: 10, marginLeft: -6, zIndex: 20 }}>
-        <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5a4c02bcc_file_000000003af0820bb4a62aa92952a91e.png"
+        <img src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/5a4c02bcc_file_000000003af0820bb4a62aa92952a91e.png"
           alt="Gates of Olympus"
           style={{ width: '60%', maxWidth: 240, height: 'auto', objectFit: 'contain',
             marginTop: -58,
@@ -230,7 +230,7 @@ export default function GatesMachine() {
         {/* Zeus figure on the right side of the banner */}
         <div className="pointer-events-none select-none"
           style={{ position: 'absolute', right: '-10%', bottom: -12, width: '58%', maxWidth: 220 }}>
-          <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/84fd16eb6_file_00000000e474820ba9fd196f5f5c9f06.png"
+          <img src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/84fd16eb6_file_00000000e474820ba9fd196f5f5c9f06.png"
             alt="Zeus"
             style={{ width: '100%', height: 'auto', objectFit: 'contain',
               clipPath: 'inset(0 0 6px 0)',

@@ -8,7 +8,7 @@ import React from 'react';
 // The Feature Buy flow keeps its own separate banner — this is only for the
 // scatter-awarded free-spins start (always 10 spins, matching the baked "10").
 const BANNER =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c59383f07_file_00000000f68481fab97bfcf72831e629.png';
+  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c59383f07_file_00000000f68481fab97bfcf72831e629.png';
 
 export default function FreeSpinStart({ count, onStart }) {
   return (

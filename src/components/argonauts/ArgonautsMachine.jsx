@@ -28,9 +28,9 @@ import ArgoOverlays from './ArgoOverlays';
 import FreeGamesBanner from './FreeGamesBanner';
 import { playSpinSound } from './argoSounds';
 
-const BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png';
+const BG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/766629235_generated_image.png';
 // Palace-with-golden-coins backdrop, fades in during the coin free-spin round.
-const COIN_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2a63f4def_generated_image.png';
+const COIN_BG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/2a63f4def_generated_image.png';
 
 // Spinning reel strip — tall vertical column of random symbols scrolling
 // seamlessly (Big Brown style). 4 blocks, last = first for a seamless loop.
@@ -148,7 +148,7 @@ export default function ArgonautsMachine() {
       {/* Metallic title band */}
       <div className="relative pt-0 pb-0 flex justify-center" style={{ marginTop: '-28px' }}>
         <img
-          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8ed43464_generated_image.png"
+          src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f8ed43464_generated_image.png"
           alt="ARGONAUTS"
           draggable={false}
           className="select-none"
@@ -347,7 +347,7 @@ export default function ArgonautsMachine() {
             }}
           >
             <img
-              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/71f946c63_file_00000000e5d881fab7f33117c10362eb.png"
+              src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/71f946c63_file_00000000e5d881fab7f33117c10362eb.png"
               alt="SPIN"
               draggable={false}
               className="block w-full h-full object-contain"

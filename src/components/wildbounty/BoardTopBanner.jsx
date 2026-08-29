@@ -14,7 +14,7 @@ import MultiplierStrip from './MultiplierStrip';
 // art stays opaque and untouched while pure black + halo vanish.
 
 const BANNER_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/34377a521_file_00000000ce28820b9b425fc57f1c795e.png';
+  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/34377a521_file_00000000ce28820b9b425fc57f1c795e.png';
 
 // Clean hard key — only pure/near-black background is cut; every other pixel
 // (including the dark wood and the dark halo fringe) stays FULLY OPAQUE so

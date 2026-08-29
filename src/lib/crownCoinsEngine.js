@@ -2,7 +2,7 @@
 // Crown Coin (scatter/bonus) triggers the Royal Treasury hold-and-win round.
 
 // Bonus coin assets — blank value coin (text overlaid dynamically) + 4 jackpot coins.
-export const VALUE_COIN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/09f3a23e1_generated_image.png';
+export const VALUE_COIN_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/09f3a23e1_generated_image.png';
 
 // Value coins — reel symbols that fly to the Crown Coins banner with a sound.
 // Purely visual; do NOT add to balance. Dollar value = mult × bet.
@@ -49,10 +49,10 @@ export function jackpotMult(tier) {
   return j ? j.amount : 0;
 }
 export const JACKPOT_COINS = {
-  MIN: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f672115c5_generated_image.png',
-  MID: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/462282802_generated_image.png',
-  MAX: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d95929e49_generated_image.png',
-  ULTRA: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/681750740_generated_image.png',
+  MIN: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f672115c5_generated_image.png',
+  MID: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/462282802_generated_image.png',
+  MAX: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/d95929e49_generated_image.png',
+  ULTRA: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/681750740_generated_image.png',
 };
 // Display value for a bonus cell in dollars. (JACKPOTS defined below.)
 export function cellValue(cell, bet) {
@@ -64,16 +64,16 @@ export function cellValue(cell, bet) {
 }
 
 const IMG = {
-  cherry: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e193ac3ef_generated_image.png',
-  seven: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9190b625b_generated_image.png',
-  lemon: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7e3526539_generated_image.png',
-  plum: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/b17d8bc3d_generated_image.png',
-  watermelon: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/478f58171_generated_image.png',
-  orange: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/d06a66723_generated_image.png',
-  bell: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/32ed52293_generated_image.png',
-  bar: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/3a13fd6fd_generated_image.png',
-  grape: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fdc47a05f_generated_image.png',
-  coin: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/7b32fae4a_generated_image.png',
+  cherry: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e193ac3ef_generated_image.png',
+  seven: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/9190b625b_generated_image.png',
+  lemon: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/7e3526539_generated_image.png',
+  plum: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/b17d8bc3d_generated_image.png',
+  watermelon: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/478f58171_generated_image.png',
+  orange: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/d06a66723_generated_image.png',
+  bell: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/32ed52293_generated_image.png',
+  bar: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/3a13fd6fd_generated_image.png',
+  grape: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/fdc47a05f_generated_image.png',
+  coin: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/7b32fae4a_generated_image.png',
 };
 
 export const SYMBOLS = [

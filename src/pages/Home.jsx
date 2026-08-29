@@ -18,18 +18,18 @@ import { PG_GAMES } from '@/lib/pgGames';
 import { JILI_GAMES } from '@/lib/jiliGames';
 
 const GAMES = [
-  { id: 'free-spin', titleKey: 'Daily Free Spin', category: 'Arcade', desc: 'Spin every 24h · win $1000', accent: 'from-amber-500 to-yellow-700', tag: 'FREE', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png', path: '/free-spin' },
-  { id: 'wild-bounty', titleKey: 'Wild Bounty Showdown', category: 'Slots', desc: '3600 Ways · Cascade Wins', accent: 'from-amber-500 to-orange-700', tag: 'HOT', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/af2b94fcd_InShot_20260717_194156078.jpg' },
-  { id: 'hi-lo', titleKey: 'High or Low', category: 'Cards', desc: 'Guess the Next Card', accent: 'from-emerald-500 to-green-700', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/162440517_generated_image.png' },
-  { id: 'plinko', titleKey: 'Plinko Drop', category: 'Arcade', desc: 'Drop & Win', accent: 'from-pink-500 to-fuchsia-700', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/22ada4a2e_generated_image.png' },
-  { id: 'fullhouse', titleKey: 'JILI Super ACE', category: 'Cards', desc: 'Golden Wild · Free Spins', accent: 'from-amber-500 to-orange-700', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/199c00bd0_generated_image.png' },
-  { id: 'mines', titleKey: 'Mines', category: 'Arcade', desc: 'Find the Gems · Avoid the Mines', accent: 'from-cyan-500 to-blue-700', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/446327a76_mines.jpg' },
-  { id: 'rocket-crash', titleKey: 'Aviator', category: 'Arcade', desc: 'Cash Out in Time', accent: 'from-indigo-500 to-purple-700', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/61f59a253_aviator-game-cover.png' },
-  { id: 'crown-coins', titleKey: 'Crown Coins', category: 'Slots', desc: 'Royal Treasury · 5 Lines', accent: 'from-amber-400 to-yellow-700', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ef3b69c4c_generated_image.png' },
-  { id: 'big-brown', titleKey: 'Big Brown', category: 'Slots', desc: '4096 Ways · Expanding Wilds', accent: 'from-amber-700 to-stone-900', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a6f715d21_generated_image.png' },
-  { id: 'argonauts', titleKey: 'Argonauts', category: 'Slots', desc: '10 Lines · Free Spins · Bonus', accent: 'from-sky-500 to-indigo-800', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/766629235_generated_image.png' },
-  { id: 'gates-of-olympus', titleKey: 'Gates of Olympus', category: 'Slots', desc: '8+ Pays · Tumbles · ×500 Mult', accent: 'from-indigo-500 to-amber-700', tag: 'HOT', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2125c8cfd_generated_image.png' },
-  { id: 'thimbles', titleKey: 'Thimbles', category: 'Table', desc: 'Find the Ball · 2.88x Payout', accent: 'from-amber-600 to-stone-800', tag: 'NEW', image: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/25ec953a6_generated_image.png', path: '/games/thimbles' },
+  { id: 'free-spin', titleKey: 'Daily Free Spin', category: 'Arcade', desc: 'Spin every 24h · win $1000', accent: 'from-amber-500 to-yellow-700', tag: 'FREE', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png', path: '/free-spin' },
+  { id: 'wild-bounty', titleKey: 'Wild Bounty Showdown', category: 'Slots', desc: '3600 Ways · Cascade Wins', accent: 'from-amber-500 to-orange-700', tag: 'HOT', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/af2b94fcd_InShot_20260717_194156078.jpg' },
+  { id: 'hi-lo', titleKey: 'High or Low', category: 'Cards', desc: 'Guess the Next Card', accent: 'from-emerald-500 to-green-700', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/162440517_generated_image.png' },
+  { id: 'plinko', titleKey: 'Plinko Drop', category: 'Arcade', desc: 'Drop & Win', accent: 'from-pink-500 to-fuchsia-700', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/22ada4a2e_generated_image.png' },
+  { id: 'fullhouse', titleKey: 'JILI Super ACE', category: 'Cards', desc: 'Golden Wild · Free Spins', accent: 'from-amber-500 to-orange-700', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/199c00bd0_generated_image.png' },
+  { id: 'mines', titleKey: 'Mines', category: 'Arcade', desc: 'Find the Gems · Avoid the Mines', accent: 'from-cyan-500 to-blue-700', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/446327a76_mines.jpg' },
+  { id: 'rocket-crash', titleKey: 'Aviator', category: 'Arcade', desc: 'Cash Out in Time', accent: 'from-indigo-500 to-purple-700', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/61f59a253_aviator-game-cover.png' },
+  { id: 'crown-coins', titleKey: 'Crown Coins', category: 'Slots', desc: 'Royal Treasury · 5 Lines', accent: 'from-amber-400 to-yellow-700', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/ef3b69c4c_generated_image.png' },
+  { id: 'big-brown', titleKey: 'Big Brown', category: 'Slots', desc: '4096 Ways · Expanding Wilds', accent: 'from-amber-700 to-stone-900', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/a6f715d21_generated_image.png' },
+  { id: 'argonauts', titleKey: 'Argonauts', category: 'Slots', desc: '10 Lines · Free Spins · Bonus', accent: 'from-sky-500 to-indigo-800', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/766629235_generated_image.png' },
+  { id: 'gates-of-olympus', titleKey: 'Gates of Olympus', category: 'Slots', desc: '8+ Pays · Tumbles · ×500 Mult', accent: 'from-indigo-500 to-amber-700', tag: 'HOT', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/2125c8cfd_generated_image.png' },
+  { id: 'thimbles', titleKey: 'Thimbles', category: 'Table', desc: 'Find the Ball · 2.88x Payout', accent: 'from-amber-600 to-stone-800', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/25ec953a6_generated_image.png', path: '/games/thimbles' },
 ];
 
 // PG SOFT titles are folded straight into the main lobby under their own
@@ -107,7 +107,7 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen pb-24 lg:pl-20 bg-[#0b0b0d]">
-      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.10), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.05), transparent 60%), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat' }} />
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.10), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.05), transparent 60%), url(https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat' }} />
       {/* Header */}
       <header
         className="sticky top-0 z-20 backdrop-blur-md"
@@ -168,7 +168,7 @@ export default function Home() {
             </div>
             <div className="flex-1 min-w-0 self-start">
               <FadeImage
-                src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png"
+                src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png"
                 alt="Golden Bounty"
                 className="-mt-6 translate-x-2 w-full"
                 durationMs={400}
@@ -266,7 +266,7 @@ export default function Home() {
       <section className="relative z-10 max-w-none mx-auto px-4 lg:px-6 pb-2">
         <Link to="/airdrop" className="block relative overflow-hidden rounded-2xl transition-transform active:scale-[0.99]" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
           <FadeImage
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/954aff594_file_00000000d7b081fab9598b09e1590c28.png"
+            src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/954aff594_file_00000000d7b081fab9598b09e1590c28.png"
             alt="Golden Bounty Airdrop — Claim BOUNTY tokens"
             className="w-full h-auto block"
             durationMs={500}

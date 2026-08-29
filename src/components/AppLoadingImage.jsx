@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const SPLASH_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8c7eb4bd_golden_bounty_fullscreen_vertical.png';
+const SPLASH_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f8c7eb4bd_golden_bounty_fullscreen_vertical.png';
 
 // Full-screen premium luxury splash (Phase 1). Cinematic Ken Burns zoom,
 // dual gold light sweeps, center radial glow pulse, gold dust particles,

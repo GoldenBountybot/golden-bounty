@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { VALUE_COIN_IMG } from './argonautsEngine';
 import { playCoinCountSound, playCoinWinSound } from './argoSounds';
 
-const MEGA_WIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/cf4003fa2_file_00000000233881faa2d49279db01c3b7.png';
+const MEGA_WIN_BANNER = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/cf4003fa2_file_00000000233881faa2d49279db01c3b7.png';
 
 // Shown when the coin hold-and-spin round ends: the "MEGA WIN" banner floats
 // up, the winning coins shimmer behind it, and the total win amount counts

@@ -13,7 +13,7 @@ function getCtx() {
 }
 
 // Spin button click sound — same sample as Crown Coins for consistency.
-const SPIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/8c2379326_spinbuttonx.mp3';
+const SPIN_SOUND_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/8c2379326_spinbuttonx.mp3';
 let spinBuffer = null;
 let spinLoaded = false;
 
@@ -117,7 +117,7 @@ export function playReelDropSound(reelIndex = 0) {
 // High-value win sound — the user-supplied bgbn_0.mp3 sample, played when a
 // winning combination includes any high-value animal symbol (buffalo, eagle,
 // cougar, wolf) or the mid-value deer.
-const HIGH_WIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/f73b711cd_bgbn_0.mp3';
+const HIGH_WIN_SOUND_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f73b711cd_bgbn_0.mp3';
 let highWinBuffer = null;
 let highWinLoaded = false;
 
@@ -153,7 +153,7 @@ export function playHighValueWinSound() {
 
 // Low-value win sound — the user-supplied BigBrown.mp3 sample, played when a
 // winning combination is made up of low-value card symbols (A, K, Q, J, 10, 9).
-const LOW_WIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/b0087b27a_BigBrown.mp3';
+const LOW_WIN_SOUND_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/b0087b27a_BigBrown.mp3';
 let lowWinBuffer = null;
 let lowWinLoaded = false;
 

@@ -49,7 +49,7 @@ export default function Dashboard() {
   const [stkAmt, setStkAmt] = useState('');
   const [history, setHistory] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [stackBanner, setStackBanner] = useState('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e4a14a054_file_0000000014cc821197a44e24a1a46272.png');
+  const [stackBanner, setStackBanner] = useState('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e4a14a054_file_0000000014cc821197a44e24a1a46272.png');
   const [notify, setNotify] = useState(null);
   const showNotify = (title, description) => setNotify({ title, description });
 
@@ -139,7 +139,7 @@ export default function Dashboard() {
   return (
     <div className="relative min-h-screen pb-24 lg:pb-6" style={{ background: '#0D0D0D', fontFamily: SANS }}>
       {/* soft gold glow backdrop */}
-      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.12), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.06), transparent 60%), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat', backgroundAttachment: 'fixed' }} />
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.12), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.06), transparent 60%), url(https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat', backgroundAttachment: 'fixed' }} />
 
       {/* Sticky top navigation */}
       <header

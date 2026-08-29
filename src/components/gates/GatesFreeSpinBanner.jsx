@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BANNER_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0435e5ab7_file_0000000056708207b1ac35d409201618.png';
+const BANNER_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/0435e5ab7_file_0000000056708207b1ac35d409201618.png';
 
 // Ornate "Congratulations — 15 Free Spins" popup. Floats up into the centre
 // of the board when 4+ scatters trigger the bonus. Clicking anywhere starts

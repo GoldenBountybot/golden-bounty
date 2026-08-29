@@ -2,7 +2,7 @@ import React from 'react';
 
 // Full-scene background (street at night, ornate gold frame, coin cluster,
 // light burst) generated to match the reference 100%.
-const BANNER_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2921f28f1_generated_image.png';
+const BANNER_BG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/2921f28f1_generated_image.png';
 
 // "YOU WON THE GOLDEN FLEECE BONUS GAME!" trigger banner — 100% match to the
 // reference: the generated ornate gold-framed coin scene as background, with a

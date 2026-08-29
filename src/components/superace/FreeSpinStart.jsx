@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FREE_SPIN_BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/eb8a29b62_file_00000000cf3081f895784c4d5383afd4.png';
+const FREE_SPIN_BANNER = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/eb8a29b62_file_00000000cf3081f895784c4d5383afd4.png';
 
 // Free-spin interstitial using the ornate "10 Free Spin" banner image.
 // Tapping the banner itself starts the free spins — no separate button.

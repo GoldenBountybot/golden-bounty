@@ -4,9 +4,9 @@ import { sfx } from './sounds';
 // Metallic circular-arrow spin icon (black bg keyed out via screen blend)
 // layered on top of a carved wooden disk (black corners clipped by rounded-full).
 const SPIN_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c6ef02281_file_00000000a90081fa8732fd40e55cc3ef.png';
+  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c6ef02281_file_00000000a90081fa8732fd40e55cc3ef.png';
 const WOOD_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/12ac78246_file_00000000b0cc81faafcdac64067dd1a1.png';
+  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/12ac78246_file_00000000b0cc81faafcdac64067dd1a1.png';
 
 // One full revolution decelerating to a stop.
 const COAST_ANIM = 'saSpinRotate 1.8s cubic-bezier(0.12, 0.55, 0.06, 1) forwards';

@@ -2,7 +2,7 @@ import React from 'react';
 
 // Premium western wooden plaque banner for stat displays (Balance/Bet/Win).
 const WOOD_URL =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/8252d57aa_generated_image.png';
+  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/8252d57aa_generated_image.png';
 
 const STUD = 'absolute w-1.5 h-1.5 rounded-full bg-amber-200 shadow-[0_0_4px_rgba(255,210,120,0.9)]';
 

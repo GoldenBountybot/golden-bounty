@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4ba013c10_file_00000000142481fabe264564bd974c86.png';
+const BANNER = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/4ba013c10_file_00000000142481fabe264564bd974c86.png';
 
 // The "8 FREE GAMES!" feature-trigger banner. Shown when 3+ scatter ships
 // land during the base game. The whole banner is clickable to start the free

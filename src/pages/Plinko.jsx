@@ -13,8 +13,8 @@ import { isInsideTelegram } from '@/lib/telegram';
 
 const MULTS = [100, 50, 25, 10, 5, 2, 0.1, 2, 5, 10, 25, 50, 100];
 const ROWS = MULTS.length - 1; // 12 rows: bottom row has 12 pegs between 13 slots
-const BOARD_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/41d1489a2_file_000000005b9881faa2d49d948685f05d.png';
-const DROP_BTN_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a402172b3_file_000000002200820baadd0a1f2df2f8ce.png';
+const BOARD_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/41d1489a2_file_000000005b9881faa2d49d948685f05d.png';
+const DROP_BTN_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/a402172b3_file_000000002200820baadd0a1f2df2f8ce.png';
 const BETS = [0.1, 1, 5, 10];
 // Bucket multipliers are decided server-side (see roundLogic.ts plinko branch):
 // 0.1x: 67.4% · 2x: 25% · 5x: 5% · 10x: 2% · 25x: 0.4% · 50x: 0.5% · 100x: 0.1%.
@@ -154,7 +154,7 @@ function colorFor(m) {
   return { bg: '#718096', glow: 'rgba(113,128,150,0.5)' };
 }
 
-const STAT_BANNER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0dfe151f2_file_0000000012f4820b97f8bd8f450c0d36.png';
+const STAT_BANNER_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/0dfe151f2_file_0000000012f4820b97f8bd8f450c0d36.png';
 
 function Stat({ label, value, accent }) {
   return (
@@ -353,13 +353,13 @@ export default function Plinko() {
     <div className="min-h-screen text-white flex flex-col" style={{ background: 'radial-gradient(circle at 50% 0%, #1a0f2e 0%, #0a0a12 55%, #000 100%)', fontFamily: FONT }}>
       {!loaded && <GameAssetLoader title="Plinko Drop" assets={PLINKO_ASSETS} bgImage={GAME_BG.plinko} onDone={() => setLoaded(true)} />}
       <div className="fixed inset-0 pointer-events-none opacity-50" style={{ backgroundImage: 'radial-gradient(1px 1px at 20% 30%, #fff, transparent), radial-gradient(1px 1px at 70% 60%, #b9a, transparent), radial-gradient(1px 1px at 40% 80%, #fff, transparent), radial-gradient(1.5px 1.5px at 85% 20%, #c8e, transparent), radial-gradient(1px 1px at 10% 70%, #fff, transparent)', backgroundSize: '300px 300px' }} />
-      <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/9908875c4_file_00000000fcd081fa8582ee43f34c550f.png')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.35 }} />
+      <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: "url('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/9908875c4_file_00000000fcd081fa8582ee43f34c550f.png')", backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.35 }} />
 
       {/* Header — western wooden bar */}
       <header className="sticky top-0 z-30" style={{ ...woodFrame, borderBottomWidth: 1, fontFamily: FONT, borderRadius: 0, background: 'linear-gradient(to bottom, rgba(58,40,18,0.96), rgba(26,18,9,0.98))', paddingTop: isInsideTelegram() ? 'calc(env(safe-area-inset-top, 0px) + 42px)' : 0 }}>
         <div className="max-w-none mx-auto px-3 py-2 relative">
           {/* Full-width title frame, text centered */}
-          <div className="w-full flex items-center justify-center gap-1.5 py-1.5 pl-12 pr-36" style={{ background: "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/670fa1a3e_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))", border: '1px solid rgba(190,140,55,0.75)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), 0 2px 6px rgba(0,0,0,0.55)' }}>
+          <div className="w-full flex items-center justify-center gap-1.5 py-1.5 pl-12 pr-36" style={{ background: "url('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/670fa1a3e_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))", border: '1px solid rgba(190,140,55,0.75)', boxShadow: 'inset 0 1px 0 rgba(255,210,120,0.3), 0 2px 6px rgba(0,0,0,0.55)' }}>
             <DollarSign className="w-5 h-5 relative" style={{ color: '#f5c542' }} />
             <span className="text-sm font-black italic relative tracking-wide" style={{ color: '#f3e2b3', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.7)' }}>Plinko Drop</span>
           </div>
@@ -430,7 +430,7 @@ export default function Plinko() {
 
         {/* Message — ornate wooden banner (black bg removed via screen blend) */}
         <div className="mx-auto relative" style={{ width: '66.67%', marginTop: '-92px' }}>
-          <img src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/08830b540_file_00000000e134820babf1565cf66cbd5b.png" alt="message" draggable={false} className="w-full h-auto select-none block" style={{ mixBlendMode: 'screen' }} />
+          <img src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/08830b540_file_00000000e134820babf1565cf66cbd5b.png" alt="message" draggable={false} className="w-full h-auto select-none block" style={{ mixBlendMode: 'screen' }} />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: 'translateY(-7px)' }}>
             <span className="text-sm font-black italic" style={{ color: '#f5c542', fontFamily: FONT, textShadow: '0 1px 2px rgba(0,0,0,0.9)' }}>{message}</span>
           </div>
@@ -540,7 +540,7 @@ export default function Plinko() {
             style={{ width: '50%' }}
           >
             <img
-              src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/50a48430e_file_000000002fc08211917ff24d7e23cfbc.png"
+              src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/50a48430e_file_000000002fc08211917ff24d7e23cfbc.png"
               alt="History"
               draggable={false}
               className="w-full h-auto select-none block"

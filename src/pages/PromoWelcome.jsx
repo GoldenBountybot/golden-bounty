@@ -5,7 +5,7 @@ import { useToast } from '@/components/ui/use-toast';
 import FadeImage from '@/components/FadeImage';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
-const BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f23530b9f_file_00000000588c81f7b3cdd650f71b7b28.png';
+const BANNER = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f23530b9f_file_00000000588c81f7b3cdd650f71b7b28.png';
 
 export default function PromoWelcome() {
   const { toast } = useToast();

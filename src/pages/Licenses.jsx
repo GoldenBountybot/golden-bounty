@@ -4,7 +4,7 @@ import InfoLayout, { InfoSection } from '@/components/InfoLayout';
 import { base44 } from '@/api/base44Client';
 
 export default function Licenses() {
-  const [certImg, setCertImg] = useState('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/747317502_Gemini_Generated_Image_wb9p68wb9p68wb9p.png');
+  const [certImg, setCertImg] = useState('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/747317502_Gemini_Generated_Image_wb9p68wb9p68wb9p.png');
 
   useEffect(() => {
     base44.entities.SiteSetting.filter({ name: 'license_certificate', active: true })

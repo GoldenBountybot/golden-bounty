@@ -13,7 +13,7 @@ export default function Login() {
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center px-6 bg-[#0b0805]">
       <img
-        src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png"
+        src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png"
         alt="Golden Bounty"
         className="w-24 h-24 object-contain mb-4"
       />

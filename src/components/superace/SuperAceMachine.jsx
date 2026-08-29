@@ -512,7 +512,7 @@ export default function SuperAceMachine() {
       className="min-h-screen"
       style={{
         ...W,
-        backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/753cb0ea7_file_00000000788881fa92ac18ec92116526.png)',
+        backgroundImage: 'url(https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/753cb0ea7_file_00000000788881fa92ac18ec92116526.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center top',
         backgroundRepeat: 'no-repeat',
@@ -653,7 +653,7 @@ export default function SuperAceMachine() {
                       }}
                     >
                       <img
-                        src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4c5d3e4ce_file_00000000541c8211a6dd57b4e4dcf69f.png"
+                        src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/4c5d3e4ce_file_00000000541c8211a6dd57b4e4dcf69f.png"
                         alt="SPIN"
                         className="w-full h-full object-contain"
                         style={{ mixBlendMode: 'screen' }}

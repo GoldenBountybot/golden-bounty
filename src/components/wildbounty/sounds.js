@@ -5,16 +5,16 @@ let ctx = null;
 const VOL = 1.5;
 
 // Uploaded mechanical spin sound (looped while reels are spinning).
-const SPIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/42593c193_20260717094905_0_0.mp3';
+const SPIN_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/42593c193_20260717094905_0_0.mp3';
 // Uploaded win-sequence sound — plays through the whole matching/shatter/
 // multiplier chain until the round ends.
-const WINSEQ_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/3d0b01f51_20260717094905_2.mp3';
+const WINSEQ_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/3d0b01f51_20260717094905_2.mp3';
 // Uploaded scatter-land sting — plays once per scatter that lands.
-const SCATTER_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/8260a4cd3_scater_0.mp3';
+const SCATTER_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/8260a4cd3_scater_0.mp3';
 // Uploaded spin-button click sound — plays once when the player taps Spin.
-const SPIN_CLICK_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/d0ba94ac5_spinbuttonclicksound.mp3';
+const SPIN_CLICK_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/d0ba94ac5_spinbuttonclicksound.mp3';
 // Uploaded symbol-match sound — plays when spinning symbols match.
-const SYM_MATCH_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/08650935f_SpinSymbleMachSound_0.mp3';
+const SYM_MATCH_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/08650935f_SpinSymbleMachSound_0.mp3';
 let spinBuffer = null;
 let spinLoading = false;
 let spinAudio = null;
@@ -141,7 +141,7 @@ function playSymMatch() {
 // Total-win sound — uploaded sting that plays while the Super/Mega Win
 // banner counts up the win amount. The count-up lasts exactly as long as
 // this sound plays.
-const TOTAL_WIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/d58be1dc8_Totalwinsound.mp3';
+const TOTAL_WIN_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/d58be1dc8_Totalwinsound.mp3';
 let totalWinBuffer = null;
 let totalWinLoading = false;
 
@@ -254,7 +254,7 @@ function tone({ freq, type = 'sine', dur = 0.2, gain = VOL, delay = 0, sweepTo }
 // recording: high-pass removes low rumble, a compressor acts as a noise
 // gate to suppress quiet background sounds, and EQ boosts the music.
 // Volume ducks down whenever a spin / win / scatter event fires.
-const BG_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/22fed69b4_backgroundsong.mp3';
+const BG_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/22fed69b4_backgroundsong.mp3';
 const BG_VOL = 0.225;      // background music volume (50% of previous)
 let bgBuffer = null;
 let bgLoading = false;

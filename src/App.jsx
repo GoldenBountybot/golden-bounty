@@ -84,8 +84,8 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     // The loading screen's own background + logo first, so it paints instantly.
-    preloadImage('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e1d861111_golden_bounty_fullscreen_vertical.png');
-    preloadImage('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png');
+    preloadImage('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e1d861111_golden_bounty_fullscreen_vertical.png');
+    preloadImage('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png');
     // Track static preload progress (0..100) for the loading bar; dynamic
     // assets don't report progress so we just fold them into the final 100.
     preloadAssets(APP_ASSETS, (p) => setLoadProgress(Math.min(p, 90)), false, true)

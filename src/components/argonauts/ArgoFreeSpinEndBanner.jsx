@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { playCoinCountSound, playCoinWinSound } from './argoSounds';
 
-const BANNER = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6abe5be40_file_0000000057d881fbaa643e8f2dd979ce.png';
+const BANNER = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/6abe5be40_file_0000000057d881fbaa643e8f2dd979ce.png';
 
 // Shown when the scatter free-spin session ends with a total win: the ornate
 // "SUPER WIN" banner floats in, and the total win amount counts up from zero

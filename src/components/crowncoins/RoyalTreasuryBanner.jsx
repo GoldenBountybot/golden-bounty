@@ -5,7 +5,7 @@ import { Crown } from 'lucide-react';
 // Dark wood plank backdrop with gold trim, embossed gilt headline,
 // and a studded leather frame. Shown both before the free-spin round
 // (no amount) and after it ends (with the won amount).
-const PLANK_BG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f28be6c98_.jpg';
+const PLANK_BG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f28be6c98_.jpg';
 
 export default function RoyalTreasuryBanner({ onContinue, winAmount }) {
   const isWin = winAmount != null;

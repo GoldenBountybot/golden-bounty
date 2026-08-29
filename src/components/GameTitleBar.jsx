@@ -2,7 +2,7 @@ import React from 'react';
 import { isInsideTelegram } from '@/lib/telegram';
 
 const PLAQUE_BG =
-  "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/670fa1a3e_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))";
+  "url('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/670fa1a3e_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.92), rgba(26,18,9,0.95))";
 
 // Full-width western plaque title bar: the game title sits centered inside a
 // gold-trimmed wooden plaque that stretches edge to edge, with optional

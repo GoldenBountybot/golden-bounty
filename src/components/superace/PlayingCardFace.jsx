@@ -11,10 +11,10 @@ const DARK = '#1a1a1a';
 const ORANGE = '#c75b26';
 
 const COURT_IMG = {
-  K: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e40b4b48f_generated_image.png',
-  Q: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/21f5a1dbb_generated_image.png',
-  J: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a23681e83_generated_image.png',
-  A: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/4e53e6ae2_generated_image.png',
+  K: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e40b4b48f_generated_image.png',
+  Q: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/21f5a1dbb_generated_image.png',
+  J: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/a23681e83_generated_image.png',
+  A: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/4e53e6ae2_generated_image.png',
 };
 
 const SUIT_GLYPH = { S: '♠', H: '♥', D: '♦', C: '♣' };

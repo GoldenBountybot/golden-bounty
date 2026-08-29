@@ -70,7 +70,7 @@ export default function WildBountyMachine() {
       <div
         className="flex flex-col gap-2 overflow-hidden relative"
         style={{
-          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/25cab1181_file_00000000b50c8230a0ebee9ef44b2ebe.png)',
+          backgroundImage: 'url(https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/25cab1181_file_00000000b50c8230a0ebee9ef44b2ebe.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -85,7 +85,7 @@ export default function WildBountyMachine() {
         ref={boardRef}
         className="relative mx-0 my-0 -mt-24"
         style={{
-          backgroundImage: 'url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c1acaec26_file_000000001de88211868a1e08115c5695.png)',
+          backgroundImage: 'url(https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c1acaec26_file_000000001de88211868a1e08115c5695.png)',
           backgroundSize: '108% 100%',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -141,7 +141,7 @@ export default function WildBountyMachine() {
           }}
         >
           <img
-            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a422458cf_file_000000001fe0823080289c04ab45bfdf.png"
+            src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/a422458cf_file_000000001fe0823080289c04ab45bfdf.png"
             alt="Feature Buy"
             className="block w-full h-auto"
             draggable={false}

@@ -6,7 +6,7 @@ const fmt = (v) => `$${v.toFixed(2)}`;
 // Wooden plaque background — same wood texture used by the dashboard header
 // (WesternTitleBadge) so the bonus menu carries the same Western gilt frame.
 const PLAQUE_BG =
-  "url('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/670fa1a3e_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.94), rgba(26,18,9,0.96))";
+  "url('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/670fa1a3e_generated_image.png') center / cover, linear-gradient(to bottom, rgba(58,40,18,0.94), rgba(26,18,9,0.96))";
 
 // BONUS POP — circular gold emblem with red price badge + an overlay menu
 // offering 8/12/16/24 free games. The menu floats over the reel board inside

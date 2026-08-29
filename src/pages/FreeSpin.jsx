@@ -199,14 +199,14 @@ export default function FreeSpin() {
 
   if (!assetsReady) {
     return (
-      <div className="min-h-screen relative" style={{ ...W, backgroundImage: 'linear-gradient(rgba(10,8,6,0.8), rgba(10,8,6,0.8)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bd52e9c49_file_00000000a50c8207b70a5b0acc15d3dc.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      <div className="min-h-screen relative" style={{ ...W, backgroundImage: 'linear-gradient(rgba(10,8,6,0.8), rgba(10,8,6,0.8)), url(https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/bd52e9c49_file_00000000a50c8207b70a5b0acc15d3dc.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
         <GameAssetLoader title="Daily Free Spin" assets={FREE_SPIN_ASSETS} bgImage={GAME_BG.freeSpin} onDone={() => setAssetsReady(true)} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen relative" style={{ ...W, backgroundImage: 'linear-gradient(rgba(10,8,6,0.8), rgba(10,8,6,0.8)), url(https://media.base44.com/images/public/6a5698edffaa42a5b6637776/bd52e9c49_file_00000000a50c8207b70a5b0acc15d3dc.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+    <div className="min-h-screen relative" style={{ ...W, backgroundImage: 'linear-gradient(rgba(10,8,6,0.8), rgba(10,8,6,0.8)), url(https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/bd52e9c49_file_00000000a50c8207b70a5b0acc15d3dc.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Header */}
       <header className="sticky top-0 z-20 bg-stone-950/90 backdrop-blur-xl border-b border-amber-700/30">
         <GameTitleBar
@@ -247,7 +247,7 @@ export default function FreeSpin() {
             <div className="absolute inset-0 flex items-center justify-center animate-[freeWinFloat_0.6s_ease-out]">
               <div className="relative w-full" style={{ filter: 'drop-shadow(0 0 14px rgba(255,200,80,0.45))' }}>
                 <img
-                  src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/58482abdf_file_0000000099f08207bd615be46766e77b.png"
+                  src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/58482abdf_file_0000000099f08207bd615be46766e77b.png"
                   alt="Win banner"
                   draggable={false}
                   className="block w-full h-auto"
@@ -283,7 +283,7 @@ export default function FreeSpin() {
               style={{ background: 'transparent', border: 'none', padding: 0, cursor: spinning ? 'not-allowed' : 'pointer' }}
             >
               <img
-                src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/2856c6533_file_00000000a3c8820ba092dc2cb1951125.png"
+                src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/2856c6533_file_00000000a3c8820ba092dc2cb1951125.png"
                 alt="Spin"
                 draggable={false}
                 className="block w-full h-auto"

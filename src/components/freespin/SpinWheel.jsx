@@ -8,17 +8,17 @@ import React from 'react';
 // the board inside the central circle; nudge them if the frame image differs.
 
 const FRAME_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/6f64aed99_file_00000000c4c881fa936f6d4b80af30a1.png';
+  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/6f64aed99_file_00000000c4c881fa936f6d4b80af30a1.png';
 
 const WHEEL_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png';
+  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png';
 
 // Golden fleur-de-lis shield pointer — the user's original asset on a pure
 // black background. We render it with mix-blend-mode: screen so the black
 // background drops out completely (black → transparent) and the gold pointer
 // shows through with no rectangular backdrop.
 const POINTER_IMG =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/664f53d7d_file_00000000bc488207a04754014a812972.png';
+  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/664f53d7d_file_00000000bc488207a04754014a812972.png';
 
 // Board placement within the frame, measured from the uploaded stand image
 // (1024×1024). The central circular opening's center is at (50.5%, 42.4%)

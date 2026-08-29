@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Subtle ambient backdrop for minimal premium pages.
-const BG_IMAGE = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0dafcc686_.jpg';
+const BG_IMAGE = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/0dafcc686_.jpg';
 
 export default function WesternBackdrop({ opacity = 0.08 }) {
   return (

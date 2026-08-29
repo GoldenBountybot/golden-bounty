@@ -13,7 +13,7 @@ function getCtx() {
   return ctx;
 }
 
-const SPIN_SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/8c2379326_spinbuttonx.mp3';
+const SPIN_SOUND_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/8c2379326_spinbuttonx.mp3';
 let spinBuffer = null;
 let spinLoaded = false;
 
@@ -32,7 +32,7 @@ function loadSpinSound() {
 loadSpinSound();
 
 // Value-coin landing sound — played when a value coin drops onto the reels.
-const VALUE_COIN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/b5a389fb5_valuecn.mp3';
+const VALUE_COIN_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/b5a389fb5_valuecn.mp3';
 let valueCoinBuffer = null;
 let valueCoinLoaded = false;
 
@@ -95,7 +95,7 @@ export function playValueCoinSound() {
 }
 
 // Dove (pigeon) symbol win sound — played when a Dove line wins.
-const DOVE_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/2c0205154_mixkobutor.mp3';
+const DOVE_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/2c0205154_mixkobutor.mp3';
 let doveBuffer = null;
 let doveLoaded = false;
 
@@ -130,7 +130,7 @@ export function playDoveSound() {
 }
 
 // Amphora (cup) symbol win sound — played when an Amphora line wins.
-const AMPHORA_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/f95aef0f5_AmphoraSymbol.mp3';
+const AMPHORA_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f95aef0f5_AmphoraSymbol.mp3';
 let amphoraBuffer = null;
 let amphoraLoaded = false;
 
@@ -165,7 +165,7 @@ export function playAmphoraSound() {
 }
 
 // Golden Lyre (harp) symbol win sound — played when a Lyre line wins.
-const LYRE_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/a42c40c82_GoldenLyre.mp3';
+const LYRE_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/a42c40c82_GoldenLyre.mp3';
 let lyreBuffer = null;
 let lyreLoaded = false;
 
@@ -200,7 +200,7 @@ export function playLyreSound() {
 }
 
 // Bow (arrow) symbol win sound — played when a Bow line wins.
-const BOW_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/e3ff9a2c4_CrossedSwords.mp3';
+const BOW_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e3ff9a2c4_CrossedSwords.mp3';
 let bowBuffer = null;
 let bowLoaded = false;
 
@@ -235,7 +235,7 @@ export function playBowSound() {
 }
 
 // Green Dragon (lizard/serpent) symbol win sound — played when a Serpent line wins.
-const DRAGON_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/865659119_GreenDragon.mp3';
+const DRAGON_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/865659119_GreenDragon.mp3';
 let dragonBuffer = null;
 let dragonLoaded = false;
 
@@ -701,7 +701,7 @@ export function playWildSound() {
 }
 
 // Spartan Warrior (Jason) symbol win sound — played when a Jason line wins.
-const SPARTAN_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/478cbdd23_SpartanWarrior.mp3';
+const SPARTAN_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/478cbdd23_SpartanWarrior.mp3';
 let spartanBuffer = null;
 let spartanLoaded = false;
 

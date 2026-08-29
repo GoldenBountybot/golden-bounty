@@ -6,7 +6,7 @@ import React from 'react';
 // zones over CANCEL / START so the artwork stays pixel-perfect.
 // START awards 10 free spins; CANCEL returns to the board.
 const PANEL_URL =
-  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ed1ba82bf_file_00000000de4c8230a7b6890bc5104bb2.png';
+  'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/ed1ba82bf_file_00000000de4c8230a7b6890bc5104bb2.png';
 
 export default function FeatureBuyConfirm({ cost, onStart, onCancel }) {
   return (

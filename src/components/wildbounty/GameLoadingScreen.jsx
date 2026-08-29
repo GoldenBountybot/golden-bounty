@@ -3,7 +3,7 @@ import PremiumGameLoader from '@/components/PremiumGameLoader';
 
 // Loading screen shown when entering Wild Bounty. Plays the uploaded intro
 // sound and reveals the game only after the sound finishes.
-const SOUND_URL = 'https://media.base44.com/files/public/6a5698edffaa42a5b6637776/73abdca12_20260717094905.mp3';
+const SOUND_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/73abdca12_20260717094905.mp3';
 export default function GameLoadingScreen({ onDone }) {
   const audioRef = useRef(null);
   const [progress, setProgress] = useState(0);

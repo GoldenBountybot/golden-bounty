@@ -9,11 +9,11 @@ export default function DesktopSidebar() {
   const { pathname, search } = useLocation();
 
   const items = [
-    { to: '/dashboard', label: t('Dashboard'), src: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/0bf2d07ee_file_000000009cf082119790d647b9b4d6d2.png' },
-    { to: '/dashboard?tab=stack', label: t('Stack'), src: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/5ee916b61_file_0000000084f082119192d2d5866b87d5.png' },
-    { to: '/', label: t('Play Games'), src: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/a37f15d57_file_00000000710c8207a086cbd3402c46e3.png', center: true },
-    { to: '/dashboard?tab=vip', label: t('VIP'), src: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/e130df042_file_00000000003c81fab9a795d126ebcf40.png' },
-    { to: '/profile', label: t('Profile'), src: 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/991ab5d3e_file_00000000a2b081fa9b55e7aca49962fc.png' },
+    { to: '/dashboard', label: t('Dashboard'), src: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/0bf2d07ee_file_000000009cf082119790d647b9b4d6d2.png' },
+    { to: '/dashboard?tab=stack', label: t('Stack'), src: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/5ee916b61_file_0000000084f082119192d2d5866b87d5.png' },
+    { to: '/', label: t('Play Games'), src: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/a37f15d57_file_00000000710c8207a086cbd3402c46e3.png', center: true },
+    { to: '/dashboard?tab=vip', label: t('VIP'), src: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e130df042_file_00000000003c81fab9a795d126ebcf40.png' },
+    { to: '/profile', label: t('Profile'), src: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/991ab5d3e_file_00000000a2b081fa9b55e7aca49962fc.png' },
   ];
 
   const isActive = (item) => {

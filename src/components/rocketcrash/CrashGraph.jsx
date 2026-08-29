@@ -3,7 +3,7 @@ import { crashStore } from './crashStore';
 
 const GROWTH = 1.10;
 
-const BOMBER_IMG = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/15e34753b_generated_image.png';
+const BOMBER_IMG = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/15e34753b_generated_image.png';
 const SAMPLES = 24; // reduced from 48 — halves per-frame path computation cost
 const WIN_T = 8;    // seconds of flight visible across the x axis
 const PLOT_TOP = 0.5; // reserve the top half so the bomber flies above the tip

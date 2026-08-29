@@ -8,7 +8,7 @@ import FadeImage from '@/components/FadeImage';
 // ornamental corner flourishes, floating gold particles, and an elegant
 // progress bar with a glowing leading dot. Pure loading indicator.
 
-const LOGO_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
+const LOGO_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
 
 export default function AppLoadingScreen({ progress = 0 }) {
   const pct = Math.max(0, Math.min(100, Math.round(progress)));
@@ -80,7 +80,7 @@ export default function AppLoadingScreen({ progress = 0 }) {
       {/* Splash background image — dim, fades in when ready */}
       <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.5 }}>
         <FadeImage
-          src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/f8c7eb4bd_golden_bounty_fullscreen_vertical.png"
+          src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f8c7eb4bd_golden_bounty_fullscreen_vertical.png"
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
           durationMs={600}

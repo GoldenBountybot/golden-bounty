@@ -1,8 +1,8 @@
 import React, { forwardRef } from 'react';
 
 // Golden-frame wooden sign banner used as the win message backdrop.
-const BANNER_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/ded9f1015_file_00000000d1a0820eb551f775dc672260.png';
-const SKULL_URL = 'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/fd2e464cf_file_000000002a3c820b808b197402106ca0.png';
+const BANNER_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/ded9f1015_file_00000000d1a0820eb551f775dc672260.png';
+const SKULL_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/fd2e464cf_file_000000002a3c820b808b197402106ca0.png';
 
 const PlaqueBanner = forwardRef(function PlaqueBanner({ children, className = '', style = {}, glow = false, glowKey = 0, showSkull = false }, ref) {
   return (
