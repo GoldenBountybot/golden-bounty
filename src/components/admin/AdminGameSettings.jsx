@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
-import WesternFrame from '@/components/wildbounty/WesternFrame';
+import GameRtpCard from '@/components/admin/GameRtpCard';
 
 export default function AdminGameSettings() {
   const [rows, setRows] = useState([]);
@@ -10,24 +10,34 @@ export default function AdminGameSettings() {
 
   const load = async () => {
     setLoading(true);
-    // Always the same order — an unordered list came back reshuffled after
-    // every save, so a card would suddenly show another game's RTP and it
-    // looked like lowering the value raised it.
-    try { setRows(await base44.entities.GameSetting.list('game_id')); }
-    catch { toast({ title: 'Failed to load' }); }
+    try {
+      const list = await base44.entities.GameSetting.list();
+      // Sort locally so the order NEVER changes after a save (server ordering
+      // by updated_date used to reshuffle the cards, which looked like one
+      // game's RTP jumping when another was lowered).
+      list.sort((a, b) => {
+        if (a.game_id === '*') return -1;
+        if (b.game_id === '*') return 1;
+        return String(a.game_id).localeCompare(String(b.game_id));
+      });
+      setRows(list);
+    } catch { toast({ title: 'Failed to load' }); }
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
 
-  const update = (id, patch) => setRows(rs => rs.map(r => (r.id === id ? { ...r, ...patch } : r)));
-
   const save = async (r) => {
     try {
-      await base44.entities.GameSetting.update(r.id, {
-        rtp: Number(r.rtp), demo_rtp: Number(r.demo_rtp ?? 50), enabled: r.enabled,
-        min_bet: Number(r.min_bet), max_bet: Number(r.max_bet),
+      // Update strictly by this record's own id, with only its own values.
+      const updated = await base44.entities.GameSetting.update(r.id, {
+        rtp: Number(r.rtp),
+        demo_rtp: Number(r.demo_rtp ?? 50),
+        enabled: !!r.enabled,
+        min_bet: Number(r.min_bet),
+        max_bet: Number(r.max_bet),
       });
-      toast({ title: `Saved — RTP ${Number(r.rtp)}%` });
+      setRows(rs => rs.map(x => (x.id === r.id ? { ...x, ...(updated || r) } : x)));
+      toast({ title: `${r.game_id === '*' ? 'Global Default' : r.game_name} saved — RTP ${Number(r.rtp)}%` });
     } catch (e) { toast({ title: 'Failed to save', description: e?.message || 'Unknown error' }); }
   };
 
@@ -39,31 +49,7 @@ export default function AdminGameSettings() {
       {loading ? (
         <p className="text-amber-100/60">Loading...</p>
       ) : rows.map(r => (
-        <WesternFrame key={r.id} className="p-3 flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-bold text-amber-100">{r.game_id === '*' ? 'Global Default' : r.game_name}</p>
-              <p className="text-xs text-amber-100/50">{r.game_id}</p>
-            </div>
-            <label className="flex items-center gap-1.5 text-xs text-amber-100/80">
-              <input type="checkbox" checked={r.enabled} onChange={e => update(r.id, { enabled: e.target.checked })} /> Enabled
-            </label>
-          </div>
-          <div className="flex items-center gap-2">
-            <input type="range" min="0" max="100" value={r.rtp} onChange={e => update(r.id, { rtp: Number(e.target.value) })} className="flex-1 accent-amber-400" />
-            <span className="w-12 text-right font-bold text-yellow-200">{r.rtp}%</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] uppercase tracking-wide text-emerald-300/80 w-16 shrink-0">Demo RTP</span>
-            <input type="range" min="0" max="100" value={r.demo_rtp ?? 50} onChange={e => update(r.id, { demo_rtp: Number(e.target.value) })} className="flex-1 accent-emerald-400" />
-            <span className="w-12 text-right font-bold text-emerald-200">{r.demo_rtp ?? 50}%</span>
-          </div>
-          <div className="flex gap-2 items-center">
-            <input type="number" value={r.min_bet} onChange={e => update(r.id, { min_bet: e.target.value })} placeholder="Min bet" className="w-24 px-2 py-1 rounded bg-black/40 border border-amber-700/40 text-amber-100 text-sm" />
-            <input type="number" value={r.max_bet} onChange={e => update(r.id, { max_bet: e.target.value })} placeholder="Max bet" className="w-24 px-2 py-1 rounded bg-black/40 border border-amber-700/40 text-amber-100 text-sm" />
-            <button onClick={() => save(r)} className="ml-auto px-3 py-1.5 rounded-lg bg-amber-400 text-stone-900 text-sm font-bold italic" style={{ fontFamily: 'Georgia, serif' }}>Save</button>
-          </div>
-        </WesternFrame>
+        <GameRtpCard key={r.id} row={r} onSave={save} />
       ))}
     </div>
   );
