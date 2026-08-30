@@ -142,7 +142,23 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: '0x' + net.chainId.toString(16) }],
           });
-        } catch {
+        } catch (swErr) {
+          // 4902 = the chain isn't in the wallet yet → ask permission to add it,
+          // then switch to it.
+          if (swErr?.code === 4902 || /unrecognized chain/i.test(swErr?.message || '')) {
+            try {
+              await p.request({
+                method: 'wallet_addEthereumChain',
+                params: [{
+                  chainId: '0x' + net.chainId.toString(16),
+                  chainName: net.label,
+                  nativeCurrency: { name: net.nativeName, symbol: net.nativeSymbol, decimals: 18 },
+                  rpcUrls: [net.rpc],
+                  blockExplorerUrls: [net.explorer],
+                }],
+              });
+            } catch {}
+          }
           try { await switchNetwork(networkByChainId(net.chainId)); } catch {}
         }
         const after = await p.request({ method: 'eth_chainId' });
