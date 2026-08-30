@@ -32,7 +32,10 @@ function stackedAmount() {
 }
 // Claimed profit — one-decimal float (e.g. 56.5, 80.4, 408.8).
 function claimedAmount() {
-  return rand(5, 400).toFixed(1);
+  const r = Math.random();
+  if (r < 0.97) return rand(0.5, 50).toFixed(1);   // almost always under $50
+  if (r < 0.998) return rand(50, 150).toFixed(1);
+  return rand(150, 400).toFixed(1);
 }
 // Game wins: two-decimal floats — mostly small ($0.02–$5), with higher
 // amounts showing progressively less often. $100–$5000 appears rarely;
@@ -41,9 +44,9 @@ function winAmount() {
   const r = Math.random();
   if (r < 0.90) return rand(0.02, 5).toFixed(2);       // 90% — small wins
   if (r < 0.98) return rand(5, 20).toFixed(2);         // 8% — medium wins
-  if (r < 0.995) return rand(40, 100).toFixed(2);      // 1.5% — bigger wins
-  if (r < 0.9997) return rand(100, 1500).toFixed(2);   // rare — large wins
-  return rand(1500, 8000).toFixed(2);                 // ~1 in 3000
+  if (r < 0.996) return rand(20, 50).toFixed(2);       // still under $50
+  if (r < 0.9995) return rand(50, 300).toFixed(2);     // very rare above $50
+  return rand(300, 2000).toFixed(2);                   // ~1 in 2000
 }
 
 // Build a feed with unique names (shuffled) so the same user/message never
