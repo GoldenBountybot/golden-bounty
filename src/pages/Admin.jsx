@@ -19,24 +19,26 @@ import AdminGameStats from '@/components/admin/AdminGameStats';
 import AdminPgCurrency from '@/components/admin/AdminPgCurrency';
 import AdminAgents from '@/components/admin/AdminAgents';
 import AdminFinance from '@/components/admin/AdminFinance';
+import AdminShell from '@/components/admin/AdminShell';
+import AdminTabsNav from '@/components/admin/AdminTabsNav';
 import { Image, Layers, Megaphone, CheckCircle, MessageCircle, BarChart3, FileSpreadsheet, LineChart } from 'lucide-react';
 
 const TABS = [
-  { id: 'players', label: 'Players', icon: Users, comp: AdminPlayers },
-  { id: 'agents', label: 'Agents', icon: Shield, comp: AdminAgents },
-  { id: 'transactions', label: 'Transactions', icon: Receipt, comp: AdminTransactions },
-  { id: 'finance', label: 'Finance', icon: LineChart, comp: AdminFinance },
-  { id: 'stats', label: 'Game Stats', icon: BarChart3, comp: AdminGameStats },
-  { id: 'games', label: 'Game RTP', icon: SlidersHorizontal, comp: AdminGameSettings },
-  { id: 'bonuses', label: 'Bonuses', icon: Gift, comp: AdminBonuses },
-  { id: 'banners', label: 'Banners', icon: Image, comp: AdminBanners },
-  { id: 'pay', label: 'Pay Addr', icon: Wallet, comp: AdminPaymentAddresses },
-  { id: 'stack', label: 'Stack', icon: Layers, comp: AdminStackBanner },
-  { id: 'notices', label: 'Notices', icon: Megaphone, comp: AdminNotices },
-  { id: 'tasks', label: 'Tasks', icon: CheckCircle, comp: AdminTasks },
-  { id: 'xposts', label: 'X Posts', icon: CheckCircle, comp: AdminXPosts },
-  { id: 'support', label: 'Support', icon: MessageCircle, comp: AdminSupport },
-  { id: 'pgcurrency', label: 'PG USD', icon: FileSpreadsheet, comp: AdminPgCurrency },
+  { id: 'players', label: 'Players', icon: Users, comp: AdminPlayers, group: 'Operations', desc: 'Manage player accounts, balances and bans' },
+  { id: 'agents', label: 'Agents', icon: Shield, comp: AdminAgents, group: 'Operations', desc: 'Agent accounts and transfer limits' },
+  { id: 'transactions', label: 'Transactions', icon: Receipt, comp: AdminTransactions, group: 'Operations', desc: 'Approve or reject deposits and withdrawals' },
+  { id: 'support', label: 'Support', icon: MessageCircle, comp: AdminSupport, group: 'Operations', desc: 'Live chat with players' },
+  { id: 'finance', label: 'Finance', icon: LineChart, comp: AdminFinance, group: 'Reports', desc: 'Monthly deposits, withdrawals and net profit' },
+  { id: 'stats', label: 'Game Stats', icon: BarChart3, comp: AdminGameStats, group: 'Reports', desc: 'Bets, wins and house edge per game' },
+  { id: 'games', label: 'Game RTP', icon: SlidersHorizontal, comp: AdminGameSettings, group: 'Configuration', desc: 'Winning chance and bet limits per game' },
+  { id: 'bonuses', label: 'Bonuses', icon: Gift, comp: AdminBonuses, group: 'Configuration', desc: 'Signup, daily and deposit bonuses' },
+  { id: 'pay', label: 'Pay Addr', icon: Wallet, comp: AdminPaymentAddresses, group: 'Configuration', desc: 'Deposit wallet addresses and QR codes' },
+  { id: 'tasks', label: 'Tasks', icon: CheckCircle, comp: AdminTasks, group: 'Configuration', desc: 'Social tasks and token rewards' },
+  { id: 'pgcurrency', label: 'PG USD', icon: FileSpreadsheet, comp: AdminPgCurrency, group: 'Configuration', desc: 'PG SOFT currency registration forms' },
+  { id: 'banners', label: 'Banners', icon: Image, comp: AdminBanners, group: 'Content', desc: 'Home page promotional banners' },
+  { id: 'stack', label: 'Stack', icon: Layers, comp: AdminStackBanner, group: 'Content', desc: 'Stack page banner image' },
+  { id: 'notices', label: 'Notices', icon: Megaphone, comp: AdminNotices, group: 'Content', desc: 'Broadcast notifications to all users' },
+  { id: 'xposts', label: 'X Posts', icon: CheckCircle, comp: AdminXPosts, group: 'Content', desc: 'Review player X post submissions' },
 ];
 
 export default function Admin() {
@@ -63,7 +65,8 @@ export default function Admin() {
     return null;
   }
 
-  const Active = TABS.find(t => t.id === tab).comp;
+  const activeTab = TABS.find(t => t.id === tab);
+  const Active = activeTab.comp;
 
   return (
     <div className="min-h-screen bg-[#0b0b0d] pb-10">
@@ -77,18 +80,10 @@ export default function Admin() {
         </div>
       </header>
       <main className="max-w-none mx-auto px-4 py-5 flex flex-col gap-4">
-        <div className="grid grid-cols-4 gap-2">
-          {TABS.map(t => {
-            const Icon = t.icon;
-            const active = tab === t.id;
-            return (
-              <button key={t.id} onClick={() => setTab(t.id)} className="flex flex-col items-center gap-1 py-2.5 rounded-[8px] transition-colors" style={{ fontFamily: 'Georgia, serif', border: active ? '1px solid rgba(214,178,98,0.85)' : '1px solid rgba(214,178,98,0.3)', background: active ? 'linear-gradient(to bottom,#f5c542,#c8881e)' : 'rgba(20,17,13,0.6)', color: active ? '#2a1a06' : '#e8c878' }}>
-                <Icon className="w-5 h-5" /><span className="text-[11px] font-bold italic">{t.label}</span>
-              </button>
-            );
-          })}
-        </div>
-        <Active />
+        <AdminTabsNav tabs={TABS} active={tab} onChange={setTab} />
+        <AdminShell title={activeTab.label} description={activeTab.desc} icon={activeTab.icon}>
+          <Active />
+        </AdminShell>
       </main>
     </div>
   );
