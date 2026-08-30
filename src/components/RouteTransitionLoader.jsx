@@ -15,6 +15,10 @@ export default function RouteTransitionLoader() {
   useEffect(() => {
     // The app's own entry loading screen already covers the first render.
     if (first.current) { first.current = false; return; }
+    // Game pages show their own asset loading screen. Running this one too
+    // stacked two identical loaders on top of each other for a moment, and
+    // their doubled gold glows read as a sudden lightning-like flash.
+    if (pathname.startsWith('/games/') || pathname === '/free-spin') return;
     setShow(true);
     setProgress(8);
     const start = Date.now();
