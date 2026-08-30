@@ -131,6 +131,32 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     const acct = accountRef.current;
     if (!p || !acct) return;
     setStatus('sending'); setErrMsg('');
+    // Make sure the wallet is actually on the selected network BEFORE asking for
+    // the payment — otherwise a BNB deposit is presented to the user as an ETH
+    // request (wallet still on Ethereum), which looks like a scam.
+    try {
+      const current = await p.request({ method: 'eth_chainId' });
+      if (parseInt(current, 16) !== net.chainId) {
+        try {
+          await p.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0x' + net.chainId.toString(16) }],
+          });
+        } catch {
+          try { await switchNetwork(networkByChainId(net.chainId)); } catch {}
+        }
+        const after = await p.request({ method: 'eth_chainId' });
+        if (parseInt(after, 16) !== net.chainId) {
+          setErrMsg(`Please switch your wallet to ${net.label} and try again.`);
+          setStatus('error');
+          return;
+        }
+      }
+    } catch {
+      setErrMsg(`Could not verify the wallet network. Switch to ${net.label} in your wallet and try again.`);
+      setStatus('error');
+      return;
+    }
     // AppKit dispatches the request and foregrounds the wallet itself (via
     // Telegram's openLink inside the Mini App), so we just await the response.
     const sendTx = (txParams) =>
