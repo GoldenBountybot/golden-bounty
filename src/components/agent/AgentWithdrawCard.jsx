@@ -21,6 +21,7 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
   const matches = term
     ? agents.filter(a =>
         String(a.id || '').toLowerCase() === term ||
+        String(a.uid || '').toLowerCase().includes(term) ||
         String(a.username || '').toLowerCase().includes(term) ||
         String(a.full_name || a.name || '').toLowerCase().includes(term)
       ).slice(0, 5)
@@ -83,7 +84,7 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
         <div className="flex flex-col gap-2">
           {matches.map(a => (
             <AgentMatchCard key={a.id} agent={a} selected={picked?.id === a.id}
-              onSelect={(ag) => { setPicked(ag); setQ(ag.username || String(ag.id)); }} />
+              onSelect={(ag) => { setPicked(ag); setQ(ag.uid || ag.username || String(ag.id)); }} />
           ))}
         </div>
       )}

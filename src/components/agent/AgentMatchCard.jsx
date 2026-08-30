@@ -25,7 +25,7 @@ export default function AgentMatchCard({ agent, selected, onSelect }) {
       <div className="min-w-0 flex-1">
         <p className="text-sm font-bold truncate" style={{ color: '#fff' }}>{name}</p>
         <p className="text-[11px] truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>
-          @{agent.username} · ID {agent.id}
+          @{agent.username} · ID {agent.uid || agent.id}
         </p>
       </div>
       <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full shrink-0"
