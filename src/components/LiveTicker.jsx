@@ -63,7 +63,12 @@ function buildFeed(n = 26) {
     else if (r < 0.07) items.push({ icon: '↑', text: `${name} withdrew $${withdrawAmount()}` });
     else if (r < 0.11) items.push({ icon: '⛏', text: `${name} stacked $${stackedAmount()}` });
     else if (r < 0.16) items.push({ icon: '✓', text: `${name} claimed $${claimedAmount()}`, tone: 'win' });
-    else if (r < 0.45) items.push({ icon: '★', text: `${name} won on ${pick(GAMES)} $${winAmount()}`, tone: 'win' });
+    else if (r < 0.45) {
+      // In-house games — wins and losses (losses slightly more frequent)
+      const g = pick(GAMES);
+      if (Math.random() < 0.45) items.push({ icon: '★', text: `${name} won on ${g} $${winAmount()}`, tone: 'win' });
+      else items.push({ icon: '✖', text: `${name} lost on ${g} -$${jiliLoss()}`, tone: 'loss' });
+    }
     else if (r < 0.72) {
       // JILI provider games — wins and losses
       const g = pickJiliGame();
