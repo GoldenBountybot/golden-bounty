@@ -51,7 +51,12 @@ export default function Dashboard() {
   const [stkAmt, setStkAmt] = useState('');
   const [history, setHistory] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [stackBanner, setStackBanner] = useState('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e4a14a054_file_0000000014cc821197a44e24a1a46272.png');
+  // Remember the resolved Stack banner so it paints from the very first render
+  // (it's already preloaded on app start — without this the admin override URL
+  // only arrives after the SiteSetting fetch, so the image visibly swaps in).
+  const [stackBanner, setStackBanner] = useState(() =>
+    localStorage.getItem('gb_stack_banner') ||
+    'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e4a14a054_file_0000000014cc821197a44e24a1a46272.png');
   const [notify, setNotify] = useState(null);
   const [stackHistOpen, setStackHistOpen] = useState(false);
   const showNotify = (title, description) => setNotify({ title, description });
@@ -73,7 +78,10 @@ export default function Dashboard() {
       } catch { /* ignore */ }
       try {
         const list = await base44.entities.SiteSetting.filter({ name: 'stack_banner', active: true });
-        if (active && list[0]?.image_url) setStackBanner(list[0].image_url);
+        if (list[0]?.image_url) {
+          localStorage.setItem('gb_stack_banner', list[0].image_url);
+          if (active) setStackBanner(list[0].image_url);
+        }
       } catch { /* ignore */ }
     })();
     return () => { active = false; };
