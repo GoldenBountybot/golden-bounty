@@ -9,6 +9,7 @@
 // game's own loading screen (GameAssetLoader).
 
 import { PG_GAMES } from '@/lib/pgGames';
+import { SUPABASE_URL } from '@/api/supabaseClient';
 
 const CDN = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44';
 const u = (id) => `${CDN}/${id}`;
@@ -71,6 +72,12 @@ const PROMO = [
 // ---- Airdrop page ----
 const AIRDROP = [
   u('c36d89e4b_file_000000000d648211a1ae80116606f30d.png'), // BOUNTY token banner
+];
+
+// ---- Bonus page banners (Supabase media bucket) ----
+const BONUS = [
+  `${SUPABASE_URL}/storage/v1/object/public/media/bonus/weekly-bonus.png`,
+  `${SUPABASE_URL}/storage/v1/object/public/media/bonus/monthly-bonus.png`,
 ];
 
 // ---- Game card cover images (Home lobby grid) ----
@@ -136,6 +143,7 @@ export const APP_ASSETS = [
   ...VIP,
   ...PROMO,
   ...AIRDROP,
+  ...BONUS,
   ...GAME_CARDS,
   ...COIN_LOGOS,
   ...SUPPORT,
