@@ -5,6 +5,7 @@ import BackButton from '@/components/BackButton';
 import AgentTransferForm from '@/components/agent/AgentTransferForm';
 import AgentTransferHistory from '@/components/agent/AgentTransferHistory';
 import { agentOps } from '@/lib/agentApi';
+import { base44 } from '@/api/base44Client';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, sans-serif";
 
@@ -19,6 +20,18 @@ export default function AgentPanel() {
       setInfo(r);
     });
   }, [key, navigate]);
+
+  // Live update: a player withdrawal creates a notification for this agent —
+  // refresh balance + transfer history the moment it arrives.
+  useEffect(() => {
+    let unsub = null;
+    try {
+      unsub = base44.entities.UserNotification.subscribe?.((event) => {
+        if (event?.type === 'create') setKey(k => k + 1);
+      });
+    } catch { /* realtime unavailable */ }
+    return () => { if (typeof unsub === 'function') unsub(); };
+  }, []);
 
   return (
     <div className="min-h-screen pb-24" style={{ background: '#0D0D0D', fontFamily: SANS }}>
