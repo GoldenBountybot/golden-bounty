@@ -48,9 +48,10 @@ export function jiliWin() {
 // bigger losses appearing less often.
 export function pgLoss() {
   const r = Math.random();
-  if (r < 0.58) return step(rand(0.2, 2), 0.1);
-  if (r < 0.86) return step(rand(2, 20), 0.1);
-  if (r < 0.97) return step(rand(20, 100), 0.1);
+  if (r < 0.45) return step(rand(0.2, 0.6), 0.1);   // 0.20 / 0.30 / 0.40 …
+  if (r < 0.75) return step(rand(0.6, 3), 0.1);
+  if (r < 0.92) return step(rand(3, 20), 0.1);
+  if (r < 0.985) return step(rand(20, 100), 0.1);
   return step(rand(100, 400), 0.1);
 }
 
