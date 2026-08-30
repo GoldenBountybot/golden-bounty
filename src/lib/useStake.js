@@ -159,6 +159,10 @@ export function useStake() {
   const claimProfit = useCallback(async () => {
     const p = computeProfit(staked, stakedAt, lastClaim, rate);
     if (p <= 0) return 0;
+    // Optimistic: zero out the pending profit immediately so the button and the
+    // numbers react on the FIRST click (the server value lands right after).
+    const prevClaim = lastClaim;
+    setLastClaim(new Date().toISOString());
     try {
       // Route through the secure stakeOperation backend function — profit is
       // computed server-side from the VIP rate so a client can't fake it. The
@@ -173,6 +177,7 @@ export function useStake() {
       }
       return Number(res?.data?.credited ?? p) || p;
     } catch {
+      setLastClaim(prevClaim);
       return 0;
     }
   }, [staked, stakedAt, lastClaim, rate, totalDeposits]);

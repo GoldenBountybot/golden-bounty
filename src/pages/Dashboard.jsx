@@ -130,8 +130,13 @@ export default function Dashboard() {
     else toast({ title: t("Insufficient balance") });
   };
 
+  const [claiming, setClaiming] = useState(false);
+
   const doClaimProfit = async () => {
+    if (claiming) return;
+    setClaiming(true);
     const p = await stake.claimProfit();
+    setClaiming(false);
     if (p > 0) showNotify(t("Profit claimed!"), `+$${p.toFixed(2)} added to balance`);
     else toast({ title: t("No profit to claim yet") });
   };
@@ -414,7 +419,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-center gap-2">
               <button
                 onClick={doClaimProfit}
-                disabled={stake.pendingProfit <= 0}
+                disabled={claiming || stake.pendingProfit <= 0}
                 className="px-6 py-3 text-sm flex items-center gap-2 rounded-2xl font-extrabold transition-all active:scale-95 disabled:opacity-45 disabled:cursor-not-allowed"
                 style={{
                   background: 'linear-gradient(135deg, #34d399, #059669)',

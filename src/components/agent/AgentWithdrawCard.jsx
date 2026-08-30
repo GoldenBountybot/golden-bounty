@@ -3,6 +3,7 @@ import { Send, User, CheckCircle2 } from 'lucide-react';
 import { agentOps, agentError } from '@/lib/agentApi';
 import PayPinInput from '@/components/PayPinInput';
 import AgentMatchCard from '@/components/agent/AgentMatchCard';
+import PlayerLookup from '@/components/agent/PlayerLookup';
 import { verifyPayPin } from '@/lib/payPin';
 
 // Player → agent withdrawal. Funds move instantly to the agent's balance.
@@ -80,13 +81,18 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
         <input value={q} onChange={e => { setQ(e.target.value); setPicked(null); }} placeholder="Agent username or ID"
           className="dash-input flex-1 px-3 py-3 text-sm" />
       </div>
-      {matches.length > 0 && (
+      {matches.length > 0 ? (
         <div className="flex flex-col gap-2">
           {matches.map(a => (
             <AgentMatchCard key={a.id} agent={a} selected={picked?.id === a.id}
               onSelect={(ag) => { setPicked(ag); setQ(ag.uid || ag.username || String(ag.id)); }} />
           ))}
         </div>
+      ) : (
+        /* No local match yet — look the typed username / ID up on the server so
+           the profile card appears as soon as it's typed. */
+        <PlayerLookup query={q} picked={picked}
+          onPick={(u) => { setPicked(u); setQ(u.uid || u.username || String(u.id)); }} />
       )}
       <PayPinInput value={pin} onChange={setPin} label="Pay Pin (4 digits)" />
       <button onClick={submit} disabled={busy}
