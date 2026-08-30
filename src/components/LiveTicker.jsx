@@ -44,8 +44,9 @@ function claimedAmount() {
 // $5000–$50000 is extremely rare (~1 in 1000 messages).
 function winAmount() {
   const r = Math.random();
-  if (r < 0.90) return rand(0.02, 5).toFixed(2);       // 90% — small wins
-  if (r < 0.98) return rand(5, 20).toFixed(2);         // 8% — medium wins
+  if (r < 0.82) return rand(0.02, 2).toFixed(2);       // mostly under $2
+  if (r < 0.94) return rand(2, 5).toFixed(2);
+  if (r < 0.98) return rand(5, 20).toFixed(2);         // medium wins
   if (r < 0.996) return rand(20, 50).toFixed(2);       // still under $50
   if (r < 0.9995) return rand(50, 300).toFixed(2);     // very rare above $50
   return rand(300, 2000).toFixed(2);                   // ~1 in 2000

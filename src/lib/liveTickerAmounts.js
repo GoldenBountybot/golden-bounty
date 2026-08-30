@@ -30,9 +30,9 @@ export const pickJiliGame = () => (Math.random() < 0.85 && JILI_POPULAR.length ?
 // Small losses dominate, bigger ones show up less often.
 export function jiliLoss() {
   const r = Math.random();
-  if (r < 0.62) return step(rand(0.05, 1), 0.05);
-  if (r < 0.88) return step(rand(1, 10), 0.05);
-  if (r < 0.98) return step(rand(10, 60), 0.05);
+  if (r < 0.82) return step(rand(0.05, 2), 0.05);
+  if (r < 0.94) return step(rand(2, 10), 0.05);
+  if (r < 0.99) return step(rand(10, 60), 0.05);
   return step(rand(60, 250), 0.05);
 }
 
@@ -40,7 +40,8 @@ export function jiliLoss() {
 // Anything above $50 is very rare.
 export function jiliWin() {
   const r = Math.random();
-  if (r < 0.93) return rand(0.01, 5).toFixed(2);
+  if (r < 0.82) return rand(0.01, 2).toFixed(2);
+  if (r < 0.95) return rand(2, 5).toFixed(2);
   if (r < 0.99) return rand(5, 20).toFixed(2);
   if (r < 0.9975) return rand(20, 50).toFixed(2);
   if (r < 0.9998) return rand(50, 200).toFixed(2);
@@ -51,9 +52,9 @@ export function jiliWin() {
 // bigger losses appearing less often.
 export function pgLoss() {
   const r = Math.random();
-  if (r < 0.45) return step(rand(0.2, 0.6), 0.1);   // 0.20 / 0.30 / 0.40 …
-  if (r < 0.75) return step(rand(0.6, 3), 0.1);
-  if (r < 0.92) return step(rand(3, 20), 0.1);
+  if (r < 0.6) return step(rand(0.2, 0.9), 0.1);   // 0.20 / 0.30 / 0.40 …
+  if (r < 0.85) return step(rand(0.9, 2), 0.1);
+  if (r < 0.95) return step(rand(2, 20), 0.1);
   if (r < 0.985) return step(rand(20, 100), 0.1);
   return step(rand(100, 400), 0.1);
 }
@@ -62,7 +63,8 @@ export function pgLoss() {
 // Anything above $50 is very rare.
 export function pgWin() {
   const r = Math.random();
-  if (r < 0.94) return rand(0.02, 20).toFixed(2);
+  if (r < 0.82) return rand(0.02, 2).toFixed(2);
+  if (r < 0.94) return rand(2, 20).toFixed(2);
   if (r < 0.9975) return rand(20, 50).toFixed(2);
   if (r < 0.9998) return rand(50, 300).toFixed(2);
   return rand(300, 1000).toFixed(2);
