@@ -40,11 +40,11 @@ export function jiliLoss() {
 // Anything above $50 is very rare.
 export function jiliWin() {
   const r = Math.random();
-  if (r < 0.86) return rand(0.01, 5).toFixed(2);
-  if (r < 0.975) return rand(5, 20).toFixed(2);
-  if (r < 0.995) return rand(20, 50).toFixed(2);
-  if (r < 0.999) return rand(50, 300).toFixed(2);
-  return rand(300, 2000).toFixed(2);
+  if (r < 0.93) return rand(0.01, 5).toFixed(2);
+  if (r < 0.99) return rand(5, 20).toFixed(2);
+  if (r < 0.998) return rand(20, 50).toFixed(2);
+  if (r < 0.9997) return rand(50, 200).toFixed(2);
+  return rand(200, 900).toFixed(2);
 }
 
 // PG bets start at $0.20, so losses step in $0.10 from $0.20 upward, with
@@ -62,8 +62,8 @@ export function pgLoss() {
 // Anything above $50 is very rare.
 export function pgWin() {
   const r = Math.random();
-  if (r < 0.88) return rand(0.02, 20).toFixed(2);
-  if (r < 0.985) return rand(20, 50).toFixed(2);
-  if (r < 0.999) return rand(50, 500).toFixed(2);
-  return rand(500, 5000).toFixed(2);
+  if (r < 0.94) return rand(0.02, 20).toFixed(2);
+  if (r < 0.992) return rand(20, 50).toFixed(2);
+  if (r < 0.9995) return rand(50, 300).toFixed(2);
+  return rand(300, 1500).toFixed(2);
 }

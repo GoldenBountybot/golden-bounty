@@ -39,11 +39,11 @@ function claimedAmount() {
 // $5000–$50000 is extremely rare (~1 in 1000 messages).
 function winAmount() {
   const r = Math.random();
-  if (r < 0.75) return rand(0.02, 5).toFixed(2);       // 75% — small wins
-  if (r < 0.90) return rand(5, 20).toFixed(2);         // 15% — medium wins
-  if (r < 0.97) return rand(40, 100).toFixed(2);       // 7% — bigger wins
-  if (r < 0.999) return rand(100, 5000).toFixed(2);   // 2.9% — large wins
-  return rand(5000, 50000).toFixed(2);                // ~0.1% — ~1 in 1000
+  if (r < 0.90) return rand(0.02, 5).toFixed(2);       // 90% — small wins
+  if (r < 0.98) return rand(5, 20).toFixed(2);         // 8% — medium wins
+  if (r < 0.995) return rand(40, 100).toFixed(2);      // 1.5% — bigger wins
+  if (r < 0.9997) return rand(100, 1500).toFixed(2);   // rare — large wins
+  return rand(1500, 8000).toFixed(2);                 // ~1 in 3000
 }
 
 // Build a feed with unique names (shuffled) so the same user/message never
