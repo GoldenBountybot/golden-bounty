@@ -11,6 +11,8 @@ const NAMES = ['Alex','Brandon','Carlos','Diego','Emma','Fatima','Gabriel','Hass
 const GAMES = IN_HOUSE_GAMES;
 
 const GOLD = '#d4a017';
+const WIN_GREEN = '#22c55e';
+const LOSS_RED = '#ef4444';
 const rand = (min, max) => Math.random() * (max - min) + min;
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -60,18 +62,18 @@ function buildFeed(n = 26) {
     if (r < 0.04) items.push({ icon: '↓', text: `${name} deposited $${depositAmount()}` });
     else if (r < 0.07) items.push({ icon: '↑', text: `${name} withdrew $${withdrawAmount()}` });
     else if (r < 0.11) items.push({ icon: '⛏', text: `${name} stacked $${stackedAmount()}` });
-    else if (r < 0.16) items.push({ icon: '✓', text: `${name} claimed $${claimedAmount()}` });
-    else if (r < 0.45) items.push({ icon: '★', text: `${name} won $${winAmount()} on ${pick(GAMES)}` });
+    else if (r < 0.16) items.push({ icon: '✓', text: `${name} claimed $${claimedAmount()}`, tone: 'win' });
+    else if (r < 0.45) items.push({ icon: '★', text: `${name} won $${winAmount()} on ${pick(GAMES)}`, tone: 'win' });
     else if (r < 0.72) {
       // JILI provider games — wins and losses
       const g = pickJiliGame();
-      if (Math.random() < 0.6) items.push({ icon: '★', text: `${name} won $${jiliWin()} on ${g}` });
-      else items.push({ icon: '✖', text: `${name} lost $${jiliLoss()} on ${g}` });
+      if (Math.random() < 0.6) items.push({ icon: '★', text: `${name} won $${jiliWin()} on ${g}`, tone: 'win' });
+      else items.push({ icon: '✖', text: `${name} lost -$${jiliLoss()} on ${g}`, tone: 'loss' });
     } else {
       // PG SOFT provider games — wins and losses
       const g = pickPgGame();
-      if (Math.random() < 0.6) items.push({ icon: '★', text: `${name} won $${pgWin()} on ${g}` });
-      else items.push({ icon: '✖', text: `${name} lost $${pgLoss()} on ${g}` });
+      if (Math.random() < 0.6) items.push({ icon: '★', text: `${name} won $${pgWin()} on ${g}`, tone: 'win' });
+      else items.push({ icon: '✖', text: `${name} lost -$${pgLoss()} on ${g}`, tone: 'loss' });
     }
   }
   return items;
@@ -86,12 +88,15 @@ export default function LiveTicker() {
 
   const Row = ({ k }) => (
     <div className="flex items-center gap-6 px-6 shrink-0" key={k}>
-      {feed.map((it, i) => (
-        <span key={i} className="flex items-center gap-1.5 whitespace-nowrap text-[12px] font-bold italic" style={{ color: GOLD, fontFamily: 'Georgia, serif' }}>
-          <span style={{ color: GOLD, opacity: 0.85 }}>{it.icon}</span>
-          {it.text}
-        </span>
-      ))}
+      {feed.map((it, i) => {
+        const c = it.tone === 'win' ? WIN_GREEN : it.tone === 'loss' ? LOSS_RED : GOLD;
+        return (
+          <span key={i} className="flex items-center gap-1.5 whitespace-nowrap text-[12px] font-bold italic" style={{ color: c, fontFamily: 'Georgia, serif' }}>
+            <span style={{ color: c, opacity: 0.85 }}>{it.icon}</span>
+            {it.text}
+          </span>
+        );
+      })}
     </div>
   );
 
