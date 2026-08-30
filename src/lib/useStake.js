@@ -27,13 +27,23 @@ export function computeProfit(staked, stakedAt, lastClaim, rate = BASE_RATE) {
   return Math.floor(profit * 100) / 100;
 }
 
+// Last-known stake snapshot so the Stack page paints its numbers instantly
+// while the fresh server values load in the background.
+function readStakeCache() {
+  try { return JSON.parse(sessionStorage.getItem('stake_cache')) || null; } catch { return null; }
+}
+function writeStakeCache(data) {
+  try { sessionStorage.setItem('stake_cache', JSON.stringify(data)); } catch { /* ignore */ }
+}
+
 export function useStake() {
   const { balance, demoMode } = useCasinoBalance();
-  const [staked, setStaked] = useState(0);
-  const [stakedAt, setStakedAt] = useState(null);
-  const [lastClaim, setLastClaim] = useState(null);
-  const [totalDeposits, setTotalDeposits] = useState(0);
-  const [loaded, setLoaded] = useState(false);
+  const cached = useRef(readStakeCache()).current;
+  const [staked, setStaked] = useState(cached?.staked ?? 0);
+  const [stakedAt, setStakedAt] = useState(cached?.stakedAt ?? null);
+  const [lastClaim, setLastClaim] = useState(cached?.lastClaim ?? null);
+  const [totalDeposits, setTotalDeposits] = useState(cached?.totalDeposits ?? 0);
+  const [loaded, setLoaded] = useState(!!cached);
   // Re-render every second so the live, per-second profit ticks visibly.
   const [, setTick] = useState(0);
   const autoUnlockRef = useRef(null);
@@ -52,19 +62,18 @@ export function useStake() {
   const load = useCallback(async () => {
     try {
       const me = await base44.auth.me();
-      // Fetch total approved/completed deposits first to determine the VIP rate.
+      // Fetch deposits (for the VIP rate) and the wallet IN PARALLEL — these
+      // are independent, and running them sequentially made the Stack page
+      // wait twice as long before showing any numbers.
       let td = 0;
-      try {
-        const txs = await base44.entities.Transaction.filter({ user_id: me.id, type: 'deposit' }, '-created_date', 500);
-        td = txs
-          .filter(t => t.status === 'approved' || t.status === 'completed')
-          .reduce((s, t) => s + (Number(t.amount) || 0), 0);
-        setTotalDeposits(td);
-      } catch { /* ignore */ }
-
-      // Read staking fields from the secure Wallet entity via getWallet —
-      // the Wallet RLS blocks users from modifying these directly.
-      const res = await base44.functions.invoke('getWallet', {});
+      const [txsRes, res] = await Promise.all([
+        base44.entities.Transaction.filter({ user_id: me.id, type: 'deposit' }, '-created_date', 500).catch(() => []),
+        base44.functions.invoke('getWallet', {}),
+      ]);
+      td = (txsRes || [])
+        .filter(t => t.status === 'approved' || t.status === 'completed')
+        .reduce((s, t) => s + (Number(t.amount) || 0), 0);
+      setTotalDeposits(td);
       let sa = Number(res?.data?.staked_amount ?? 0) || 0;
       let sat = res?.data?.staked_at ?? null;
       let lc = res?.data?.last_profit_claim ?? null;
@@ -89,6 +98,7 @@ export function useStake() {
       setStaked(sa);
       setStakedAt(sat);
       setLastClaim(lc);
+      writeStakeCache({ staked: sa, stakedAt: sat, lastClaim: lc, totalDeposits: td });
     } catch {
       // not logged in
     }
@@ -114,12 +124,13 @@ export function useStake() {
         setStakedAt(res.data.staked_at ?? null);
         setLastClaim(res.data.last_profit_claim ?? null);
         applyServerWallet(res.data.balance, res.data.wager_remaining);
+        writeStakeCache({ staked: Number(res.data.staked_amount ?? 0) || 0, stakedAt: res.data.staked_at ?? null, lastClaim: res.data.last_profit_claim ?? null, totalDeposits });
       }
       return true;
     } catch {
       return false;
     }
-  }, [balance, demoMode]);
+  }, [balance, demoMode, totalDeposits]);
 
   // claim accrued profit into the playable balance
   const claimProfit = useCallback(async () => {
@@ -155,9 +166,10 @@ export function useStake() {
         setStakedAt(res.data.staked_at ?? null);
         setLastClaim(res.data.last_profit_claim ?? null);
         applyServerWallet(res.data.balance, res.data.wager_remaining);
+        writeStakeCache({ staked: Number(res.data.staked_amount ?? 0) || 0, stakedAt: res.data.staked_at ?? null, lastClaim: res.data.last_profit_claim ?? null, totalDeposits });
       }
     } catch { /* still locked or nothing staked — ignore */ }
-  }, [staked, stakedAt, lastClaim, rate]);
+  }, [staked, stakedAt, lastClaim, rate, totalDeposits]);
   autoUnlockRef.current = autoUnlock;
 
   const elapsedDays = stakedAt ? (Date.now() - new Date(stakedAt).getTime()) / DAY : 0;
