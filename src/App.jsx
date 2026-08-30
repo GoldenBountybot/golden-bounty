@@ -66,6 +66,7 @@ import { base44 } from '@/api/base44Client';
 import { SUPABASE_URL } from '@/api/supabaseClient';
 import { isStandaloneApp } from '@/lib/isStandaloneApp';
 import { warmProfileCache } from '@/lib/profileCache';
+import { warmStakeCache } from '@/lib/useStake';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -112,6 +113,9 @@ const AuthenticatedApp = () => {
     // Warm the profile data (name, username, transactions, game history)
     // right away so the Profile page opens instantly with no loading delay.
     warmProfileCache();
+    // Warm the Stack numbers (staked amount, profit, VIP rate) so the Stack
+    // page paints them instantly on first open instead of loading on entry.
+    warmStakeCache();
     // Warm the remaining PG SOFT lobby covers (beyond the first screenful) at
     // low priority so scrolling the lobby never shows an image downloading.
     preloadAssets(PG_CARDS_REST, null, true);

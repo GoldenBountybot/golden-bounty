@@ -30,10 +30,33 @@ export function computeProfit(staked, stakedAt, lastClaim, rate = BASE_RATE) {
 // Last-known stake snapshot so the Stack page paints its numbers instantly
 // while the fresh server values load in the background.
 function readStakeCache() {
-  try { return JSON.parse(sessionStorage.getItem('stake_cache')) || null; } catch { return null; }
+  // localStorage (not sessionStorage) so the numbers are already there on the
+  // very first Stack visit after the app is reopened — no waiting for network.
+  try { return JSON.parse(localStorage.getItem('stake_cache')) || null; } catch { return null; }
 }
 function writeStakeCache(data) {
-  try { sessionStorage.setItem('stake_cache', JSON.stringify(data)); } catch { /* ignore */ }
+  try { localStorage.setItem('stake_cache', JSON.stringify(data)); } catch { /* ignore */ }
+}
+
+// Warm the stake snapshot right after the app finishes loading, so the Stack
+// page shows staked amount / profit / VIP rate the instant it is opened.
+export async function warmStakeCache() {
+  try {
+    const me = await base44.auth.me();
+    const [txs, res] = await Promise.all([
+      base44.entities.Transaction.filter({ user_id: me.id, type: 'deposit' }, '-created_date', 500).catch(() => []),
+      base44.functions.invoke('getWallet', {}),
+    ]);
+    const totalDeposits = (txs || [])
+      .filter(t => t.status === 'approved' || t.status === 'completed')
+      .reduce((s, t) => s + (Number(t.amount) || 0), 0);
+    writeStakeCache({
+      staked: Number(res?.data?.staked_amount ?? 0) || 0,
+      stakedAt: res?.data?.staked_at ?? null,
+      lastClaim: res?.data?.last_profit_claim ?? null,
+      totalDeposits,
+    });
+  } catch { /* not logged in — nothing to warm */ }
 }
 
 export function useStake() {
