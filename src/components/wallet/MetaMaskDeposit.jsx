@@ -340,6 +340,16 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
 
 
 
+      {/* USDT explainer — wallets show a token transfer as a contract call with
+          "0 {native}", which players misread as being charged in BNB/ETH. */}
+      {payAsset === 'usdt' && (status === 'connected' || status === 'error') && (
+        <div className="px-4 py-3 rounded-[14px] text-[12.5px]"
+          style={{ border: '1px solid rgba(212,175,55,0.35)', background: 'rgba(212,175,55,0.08)', color: 'rgba(255,255,255,0.8)' }}>
+          Your wallet will show this as a <b style={{ color: '#F6851A' }}>contract interaction with 0 {net.nativeSymbol}</b> — that is
+          normal for USDT. The {amount.toFixed(2)} USDT amount is inside the token transfer, and only a few cents of {net.nativeSymbol} is used as gas.
+        </div>
+      )}
+
       {/* Connected — send */}
       {(status === 'connected' || (status === 'error' && account)) && (
         <button onClick={deposit} disabled={payAsset === 'native' && !price}
