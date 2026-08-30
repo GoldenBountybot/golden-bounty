@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, User, DollarSign, CheckCircle2 } from 'lucide-react';
+import { Send, User, CheckCircle2 } from 'lucide-react';
 import { agentOps, agentError } from '@/lib/agentApi';
 import PayPinInput from '@/components/PayPinInput';
 import AgentMatchCard from '@/components/agent/AgentMatchCard';
@@ -88,12 +88,6 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
           ))}
         </div>
       )}
-      <div className="flex items-center justify-between px-3 py-3 rounded-xl" style={{ border: '1px solid rgba(212,175,55,0.25)', background: 'rgba(255,255,255,0.03)' }}>
-        <span className="flex items-center gap-2 text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
-          <DollarSign className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.8)' }} /> Amount
-        </span>
-        <span className="text-sm font-bold tabular-nums" style={{ color: '#fff' }}>${Number(initialAmount).toFixed(2)}</span>
-      </div>
       <PayPinInput value={pin} onChange={setPin} label="Pay Pin (4 digits)" />
       <button onClick={submit} disabled={busy}
         className="dash-btn-gold w-full py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50">
