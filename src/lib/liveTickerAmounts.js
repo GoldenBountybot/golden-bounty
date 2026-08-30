@@ -8,12 +8,15 @@ export const IN_HOUSE_GAMES = ['Wild Bounty', 'Gates of Olympus', 'Plinko', 'Min
 
 // PG_GAMES is already sorted popular-first, so the head of the list is the
 // popular pool.
-const PG_ALL = PG_GAMES.map(g => g.title);
+// Our own Rocket Crash game (and any crash-style title) is never mentioned
+// in the ticker.
+const isCrash = (t) => /crash/i.test(t || '');
+const PG_ALL = PG_GAMES.map(g => g.title).filter(t => !isCrash(t));
 const PG_POPULAR = PG_ALL.slice(0, 24);
 
 // JILI's best known titles (categories 2 = Popular in the catalogue).
-const JILI_ALL = JILI_GAMES.map(g => g.name);
-const JILI_POPULAR = JILI_GAMES.filter(g => g.cat === 2).map(g => g.name);
+const JILI_ALL = JILI_GAMES.map(g => g.name).filter(t => !isCrash(t));
+const JILI_POPULAR = JILI_GAMES.filter(g => g.cat === 2).map(g => g.name).filter(t => !isCrash(t));
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 export const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
