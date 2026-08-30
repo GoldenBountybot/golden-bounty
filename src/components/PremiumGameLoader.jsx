@@ -120,7 +120,11 @@ export default function PremiumGameLoader({ progress, title = 'Loading', bgImage
           className="absolute inset-[6px] rounded-full"
           style={{
             animation: 'loaderCoinEdge 8s linear infinite',
-            background: 'conic-gradient(from 0deg, transparent 0deg, rgba(255,215,0,0.25) 5deg, transparent 10deg, rgba(255,215,0,0.25) 15deg, transparent 20deg, rgba(255,215,0,0.25) 25deg, transparent 30deg, rgba(255,215,0,0.25) 35deg, transparent 40deg, rgba(255,215,0,0.25) 45deg, transparent 50deg, rgba(255,215,0,0.25) 55deg, transparent 60deg, rgba(255,215,0,0.25) 65deg, transparent 70deg, rgba(255,215,0,0.25) 75deg, transparent 80deg, rgba(255,215,0,0.25) 85deg, transparent 90deg)',
+            /* Evenly repeating ridges all the way around — a single 0-90deg
+               conic gradient left the other 270deg blank, so each rotation
+               swept one bright arc past the logo and looked like a lightning
+               flash. Repeating it removes that flash. */
+            background: 'repeating-conic-gradient(from 0deg, transparent 0deg 5deg, rgba(255,215,0,0.22) 5deg 10deg)',
             mask: 'radial-gradient(circle, transparent 58%, black 60%, black 66%, transparent 68%)',
             WebkitMask: 'radial-gradient(circle, transparent 58%, black 60%, black 66%, transparent 68%)',
           }}
