@@ -9,6 +9,7 @@ import FadeImage from '@/components/FadeImage';
 import TotalFundsPanel from '@/components/TotalFundsPanel';
 import PendingDepositCard from '@/components/wallet/PendingDepositCard';
 import StackFaq from '@/components/StackFaq';
+import StackHistoryModal from '@/components/StackHistoryModal';
 import PayPinCard from '@/components/PayPinCard';
 import VipLevels from '@/components/VipLevels';
 import BackButton from '@/components/BackButton';
@@ -52,6 +53,7 @@ export default function Dashboard() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [stackBanner, setStackBanner] = useState('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e4a14a054_file_0000000014cc821197a44e24a1a46272.png');
   const [notify, setNotify] = useState(null);
+  const [stackHistOpen, setStackHistOpen] = useState(false);
   const showNotify = (title, description) => setNotify({ title, description });
 
   // Keep the active tab in sync with the URL query param so navigation from the
@@ -409,19 +411,28 @@ export default function Dashboard() {
               })}
             </div>
 
-            <button
-              onClick={doClaimProfit}
-              disabled={stake.pendingProfit <= 0}
-              className="mx-auto px-6 py-3 text-sm flex items-center gap-2 rounded-2xl font-extrabold transition-all active:scale-95 disabled:opacity-45 disabled:cursor-not-allowed"
-              style={{
-                background: 'linear-gradient(135deg, #34d399, #059669)',
-                color: '#062018',
-                border: 'none',
-                boxShadow: '0 4px 14px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.45)',
-              }}
-            >
-              <Coins className="w-4 h-4" /> {t("CLAIM PROFIT")} ${stake.pendingProfit.toFixed(2)}
-            </button>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={doClaimProfit}
+                disabled={stake.pendingProfit <= 0}
+                className="px-6 py-3 text-sm flex items-center gap-2 rounded-2xl font-extrabold transition-all active:scale-95 disabled:opacity-45 disabled:cursor-not-allowed"
+                style={{
+                  background: 'linear-gradient(135deg, #34d399, #059669)',
+                  color: '#062018',
+                  border: 'none',
+                  boxShadow: '0 4px 14px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.45)',
+                }}
+              >
+                <Coins className="w-4 h-4" /> {t("CLAIM PROFIT")} ${stake.pendingProfit.toFixed(2)}
+              </button>
+              <button
+                onClick={() => setStackHistOpen(true)}
+                className="px-4 py-3 text-sm flex items-center gap-2 rounded-2xl font-extrabold transition-all active:scale-95"
+                style={{ border: '1px solid rgba(212,175,55,0.4)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
+              >
+                <History className="w-4 h-4" /> {t("History")}
+              </button>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="dash-card p-5 flex flex-col gap-3">
@@ -461,6 +472,7 @@ export default function Dashboard() {
         )}
       </main>
       <StylishNotify data={notify} onDone={() => setNotify(null)} />
+      <StackHistoryModal open={stackHistOpen} onClose={() => setStackHistOpen(false)} />
     </div>
   );
 }
