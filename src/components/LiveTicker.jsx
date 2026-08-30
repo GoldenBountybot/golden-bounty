@@ -11,6 +11,8 @@ const NAMES = ['Alex','Brandon','Carlos','Diego','Emma','Fatima','Gabriel','Hass
 const GAMES = IN_HOUSE_GAMES;
 
 const GOLD = '#d4a017';
+const WIN_GREEN = '#22c55e';
+const LOSS_RED = '#ef4444';
 const rand = (min, max) => Math.random() * (max - min) + min;
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -60,38 +62,41 @@ function buildFeed(n = 26) {
     if (r < 0.04) items.push({ icon: '↓', text: `${name} deposited $${depositAmount()}` });
     else if (r < 0.07) items.push({ icon: '↑', text: `${name} withdrew $${withdrawAmount()}` });
     else if (r < 0.11) items.push({ icon: '⛏', text: `${name} stacked $${stackedAmount()}` });
-    else if (r < 0.16) items.push({ icon: '✓', text: `${name} claimed $${claimedAmount()}` });
-    else if (r < 0.45) items.push({ icon: '★', text: `${name} won $${winAmount()} on ${pick(GAMES)}` });
+    else if (r < 0.16) items.push({ icon: '✓', text: `${name} claimed $${claimedAmount()}`, tone: 'win' });
+    else if (r < 0.45) items.push({ icon: '★', text: `${name} won on ${pick(GAMES)} $${winAmount()}`, tone: 'win' });
     else if (r < 0.72) {
       // JILI provider games — wins and losses
       const g = pickJiliGame();
-      if (Math.random() < 0.6) items.push({ icon: '★', text: `${name} won $${jiliWin()} on ${g}` });
-      else items.push({ icon: '✖', text: `${name} lost $${jiliLoss()} on ${g}` });
+      if (Math.random() < 0.6) items.push({ icon: '★', text: `${name} won on ${g} $${jiliWin()}`, tone: 'win' });
+      else items.push({ icon: '✖', text: `${name} lost on ${g} -$${jiliLoss()}`, tone: 'loss' });
     } else {
       // PG SOFT provider games — wins and losses
       const g = pickPgGame();
-      if (Math.random() < 0.6) items.push({ icon: '★', text: `${name} won $${pgWin()} on ${g}` });
-      else items.push({ icon: '✖', text: `${name} lost $${pgLoss()} on ${g}` });
+      if (Math.random() < 0.6) items.push({ icon: '★', text: `${name} won on ${g} $${pgWin()}`, tone: 'win' });
+      else items.push({ icon: '✖', text: `${name} lost on ${g} -$${pgLoss()}`, tone: 'loss' });
     }
   }
   return items;
 }
 
-export default function LiveTicker() {
+function LiveTicker() {
   const [feed, setFeed] = useState(() => buildFeed(26));
-  useEffect(() => {
-    const id = setInterval(() => setFeed(buildFeed(26)), 7000);
-    return () => clearInterval(id);
-  }, []);
+  // A new feed has a different total width, so swapping it mid-scroll makes the
+  // marquee visibly jump. Instead we swap ONLY at the moment the animation loops
+  // back to its start, so the change is invisible and the motion stays smooth.
+  const onIteration = () => setFeed(buildFeed(26));
 
   const Row = ({ k }) => (
     <div className="flex items-center gap-6 px-6 shrink-0" key={k}>
-      {feed.map((it, i) => (
-        <span key={i} className="flex items-center gap-1.5 whitespace-nowrap text-[12px] font-bold italic" style={{ color: GOLD, fontFamily: 'Georgia, serif' }}>
-          <span style={{ color: GOLD, opacity: 0.85 }}>{it.icon}</span>
-          {it.text}
-        </span>
-      ))}
+      {feed.map((it, i) => {
+        const c = it.tone === 'win' ? WIN_GREEN : it.tone === 'loss' ? LOSS_RED : GOLD;
+        return (
+          <span key={i} className="flex items-center gap-1.5 whitespace-nowrap text-[12px] font-bold italic" style={{ color: c, fontFamily: 'Georgia, serif' }}>
+            <span style={{ color: c, opacity: 0.85 }}>{it.icon}</span>
+            {it.text}
+          </span>
+        );
+      })}
     </div>
   );
 
@@ -105,7 +110,7 @@ export default function LiveTicker() {
           <Volume2 className="w-4 h-4" />
         </span>
         <div className="relative flex-1 overflow-hidden">
-          <div className="flex w-max" style={{ animation: 'liveMarquee 25s linear infinite', willChange: 'transform' }}>
+          <div className="flex w-max" onAnimationIteration={onIteration} style={{ animation: 'liveMarquee 25s linear infinite', willChange: 'transform', backfaceVisibility: 'hidden' }}>
             <Row k="a" />
             <Row k="b" />
           </div>
@@ -117,3 +122,7 @@ export default function LiveTicker() {
     </div>
   );
 }
+
+// Memoized so the home banner rotating above it never re-renders the ticker
+// (re-renders were restarting the marquee and causing the "jolt" effect).
+export default React.memo(LiveTicker);
