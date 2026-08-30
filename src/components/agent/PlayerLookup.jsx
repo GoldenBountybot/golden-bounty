@@ -10,13 +10,15 @@ export default function PlayerLookup({ query, onPick, picked }) {
 
   useEffect(() => {
     const q = (query || '').trim();
-    if (q.length < 3) { setUser(null); setState('idle'); return; }
+    if (q.length < 2) { setUser(null); setState('idle'); return; }
     setState('searching');
+    // Very short debounce so the profile card appears almost the instant the
+    // correct username / ID is typed.
     const t = setTimeout(async () => {
       const res = await agentOps('lookup', { q });
       if (res.user) { setUser(res.user); setState('idle'); }
       else { setUser(null); setState('none'); }
-    }, 400);
+    }, 120);
     return () => clearTimeout(t);
   }, [query]);
 
