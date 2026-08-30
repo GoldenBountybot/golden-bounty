@@ -67,12 +67,12 @@ function buildFeed(n = 26) {
     else if (r < 0.72) {
       // JILI provider games — wins and losses
       const g = pickJiliGame();
-      if (Math.random() < 0.6) items.push({ icon: '★', text: `${name} won on ${g} $${jiliWin()}`, tone: 'win' });
+      if (Math.random() < 0.45) items.push({ icon: '★', text: `${name} won on ${g} $${jiliWin()}`, tone: 'win' });
       else items.push({ icon: '✖', text: `${name} lost on ${g} -$${jiliLoss()}`, tone: 'loss' });
     } else {
       // PG SOFT provider games — wins and losses
       const g = pickPgGame();
-      if (Math.random() < 0.6) items.push({ icon: '★', text: `${name} won on ${g} $${pgWin()}`, tone: 'win' });
+      if (Math.random() < 0.45) items.push({ icon: '★', text: `${name} won on ${g} $${pgWin()}`, tone: 'win' });
       else items.push({ icon: '✖', text: `${name} lost on ${g} -$${pgLoss()}`, tone: 'loss' });
     }
   }
