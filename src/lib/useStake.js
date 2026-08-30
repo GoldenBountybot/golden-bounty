@@ -167,12 +167,15 @@ export function useStake() {
       if (res?.data) {
         setLastClaim(res.data.last_profit_claim ?? null);
         applyServerWallet(res.data.balance, res.data.wager_remaining);
+        // Keep the instant-paint snapshot in sync so re-entering Stack doesn't
+        // show the already-claimed profit again.
+        writeStakeCache({ staked, stakedAt, lastClaim: res.data.last_profit_claim ?? null, totalDeposits });
       }
       return Number(res?.data?.credited ?? p) || p;
     } catch {
       return 0;
     }
-  }, [staked, stakedAt, lastClaim, rate]);
+  }, [staked, stakedAt, lastClaim, rate, totalDeposits]);
 
   // Auto-unlock once the 15 days have passed: staked + remaining profit
   // return to the playable balance so the user can withdraw or re-stack.
