@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Volume2, Mail } from 'lucide-react';
-import { IN_HOUSE_GAMES, PG_NAMES, JILI_NAMES, pick as pickOne, jiliWin, jiliLoss, pgWin, pgLoss } from '@/lib/liveTickerAmounts';
+import { IN_HOUSE_GAMES, pickPgGame, pickJiliGame, jiliWin, jiliLoss, pgWin, pgLoss } from '@/lib/liveTickerAmounts';
 
 // Live ticker shown below the home banners: a black pill-shaped marquee with
 // golden text scrolling right→left. The feed regenerates every few seconds
@@ -61,12 +61,12 @@ function buildFeed(n = 26) {
     else if (r < 0.70) items.push({ icon: '★', text: `${name} won $${winAmount()} on ${pick(GAMES)}` });
     else if (r < 0.85) {
       // JILI provider games — wins and losses
-      const g = pickOne(JILI_NAMES);
+      const g = pickJiliGame();
       if (Math.random() < 0.6) items.push({ icon: '★', text: `${name} won $${jiliWin()} on ${g}` });
       else items.push({ icon: '✖', text: `${name} lost $${jiliLoss()} on ${g}` });
     } else {
       // PG SOFT provider games — wins and losses
-      const g = pickOne(PG_NAMES);
+      const g = pickPgGame();
       if (Math.random() < 0.6) items.push({ icon: '★', text: `${name} won $${pgWin()} on ${g}` });
       else items.push({ icon: '✖', text: `${name} lost $${pgLoss()} on ${g}` });
     }
