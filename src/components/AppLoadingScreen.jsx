@@ -185,7 +185,11 @@ export default function AppLoadingScreen({ progress = 0 }) {
               width: '80px', height: '80px',
               border: '3px solid rgba(214,178,98,0.95)',
               background: 'radial-gradient(circle, rgba(40,28,14,0.98), rgba(14,10,6,1))',
-              animation: 'appCoinGlow 2.2s ease-in-out infinite, appEmblemBreath 3s ease-in-out infinite',
+              /* One single calm glow. Previously two glow animations (2.2s +
+                 3s) ran together and their peaks lined up every few seconds,
+                 producing a sudden lightning-like flash behind the ring. */
+              boxShadow: '0 0 22px rgba(255,200,80,0.65), inset 0 0 12px rgba(255,210,120,0.3)',
+              animation: 'appCoinGlow 3s ease-in-out infinite',
             }}
           >
             <img
