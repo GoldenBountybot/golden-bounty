@@ -328,7 +328,7 @@ export default function ArgonautsMachine() {
       </div>
 
       {/* Control panel */}
-      <div className="relative px-3 pb-2" style={{ marginTop: '40px', transform: 'translateY(-18px)' }}>
+      <div className="relative px-3 pb-2" style={{ marginTop: '40px', transform: 'translateY(-40px)' }}>
         <div className="mx-auto max-w-none lg:max-w-[620px] xl:max-w-[700px] flex flex-col items-center gap-2">
           {/* Spin button — centered on its own row above the rest */}
           <button
