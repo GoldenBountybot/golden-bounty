@@ -4,7 +4,7 @@ import FadeImage from '@/components/FadeImage';
 
 // Floating suggestion card shown while typing a UID / username in the agent
 // withdraw form. Tapping it locks that agent in.
-export default function AgentMatchCard({ agent, selected, onSelect }) {
+export default function AgentMatchCard({ agent, selected, onSelect, badge = 'Agent' }) {
   const name = agent.full_name || agent.name || agent.username;
   const avatar = agent.avatar_url || agent.avatar || agent.photo_url || '';
   return (
@@ -30,7 +30,7 @@ export default function AgentMatchCard({ agent, selected, onSelect }) {
       </div>
       <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full shrink-0"
         style={{ color: selected ? '#34d399' : '#D4AF37', background: 'rgba(0,0,0,0.35)' }}>
-        <BadgeCheck className="w-3.5 h-3.5" /> {selected ? 'Selected' : 'Agent'}
+        <BadgeCheck className="w-3.5 h-3.5" /> {selected ? 'Selected' : badge}
       </span>
     </button>
   );

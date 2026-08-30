@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Send, User, DollarSign, CheckCircle2 } from 'lucide-react';
 import { agentOps, agentError } from '@/lib/agentApi';
+import PlayerLookup from '@/components/agent/PlayerLookup';
 
 // Admin / agent → player balance transfer. Lands as a deposit for the player.
 export default function AgentTransferForm({ onDone }) {
@@ -8,6 +9,7 @@ export default function AgentTransferForm({ onDone }) {
   const [amount, setAmount] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [picked, setPicked] = useState(null);
 
   const send = async () => {
     setMsg(null);
@@ -19,7 +21,7 @@ export default function AgentTransferForm({ onDone }) {
     setBusy(false);
     if (!res.ok) { setMsg({ ok: false, text: agentError(res) }); return; }
     setMsg({ ok: true, text: `Sent $${amt.toFixed(2)} to ${res.to?.username}. Your balance: $${Number(res.balance).toFixed(2)}` });
-    setQ(''); setAmount('');
+    setQ(''); setAmount(''); setPicked(null);
     onDone?.();
   };
 
@@ -28,9 +30,11 @@ export default function AgentTransferForm({ onDone }) {
       <h3 className="text-sm font-bold" style={{ color: '#D4AF37' }}>Send Balance to Player</h3>
       <div className="flex items-center gap-2">
         <User className="w-4 h-4 shrink-0" style={{ color: 'rgba(212,175,55,0.8)' }} />
-        <input value={q} onChange={e => setQ(e.target.value)} placeholder="Username, ID or email"
+        <input value={q} onChange={e => { setQ(e.target.value); setPicked(null); }} placeholder="Username, ID or email"
           className="dash-input flex-1 px-3 py-2.5 text-sm" />
       </div>
+      <PlayerLookup query={q} picked={picked}
+        onPick={(u) => { setPicked(u); setQ(u.uid || u.username || String(u.id)); }} />
       <div className="flex items-center gap-2">
         <DollarSign className="w-4 h-4 shrink-0" style={{ color: 'rgba(212,175,55,0.8)' }} />
         <input value={amount} onChange={e => setAmount(e.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal"
