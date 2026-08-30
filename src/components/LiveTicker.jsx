@@ -56,7 +56,7 @@ function buildFeed(n = 26) {
     const r = Math.random();
     if (r < 0.04) items.push({ icon: '↓', text: `${name} deposited $${depositAmount()}` });
     else if (r < 0.07) items.push({ icon: '↑', text: `${name} withdrew $${withdrawAmount()}` });
-    else if (r < 0.40) items.push({ icon: '⛏', text: `${name} stacked $${stackedAmount()}` });
+    else if (r < 0.11) items.push({ icon: '⛏', text: `${name} stacked $${stackedAmount()}` });
     else if (r < 0.55) items.push({ icon: '✓', text: `${name} claimed $${claimedAmount()}` });
     else if (r < 0.70) items.push({ icon: '★', text: `${name} won $${winAmount()} on ${pick(GAMES)}` });
     else if (r < 0.85) {
