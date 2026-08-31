@@ -257,7 +257,7 @@ async function addRealBalance(amount, type = 'bonus', note = '', claimedLoss = 0
 //   3. settleBet credits the server-decided win (total payout = multiplier ×
 //      bet, which INCLUDES the bet). Final balance = preBet - bet + winAmount
 //      = preBet + (multiplier - 1) × bet. This matches real slot games.
-async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed') {
+async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed', extra = {}) {
   roundActive = true;
   roundDisplayWin = 0;
   // Instant visual feedback: deduct the bet locally right away. The server
@@ -318,7 +318,7 @@ async function beginRound(bet, gameId, isFreeSpin = false, settleMode = 'fixed')
   }
   try {
     const res = await base44.functions.invoke('beginRound', {
-      bet_amount: bet, game_id: gameId, is_free_spin: isFreeSpin, settle_mode: settleMode,
+      bet_amount: bet, game_id: gameId, is_free_spin: isFreeSpin, settle_mode: settleMode, ...extra,
     });
     const data = res?.data || {};
     pendingRoundToken = data.round_token || null;

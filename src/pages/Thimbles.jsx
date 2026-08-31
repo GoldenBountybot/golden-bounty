@@ -107,7 +107,7 @@ export default function Thimbles() {
     if (phase !== 'idle' && phase !== 'over') return;
     if (!bet || bet < MIN_BET) { setMessage(`Min bet is ${MIN_BET} USDT`); return; }
     if (balance < bet) { setMessage('Not enough balance'); return; }
-    const _serverRoundPromise = beginRound(bet, 'thimbles', false, 'cap');
+    const _serverRoundPromise = beginRound(bet, 'thimbles', false, 'cap', { thimbles_mode: mode });
 
     // Wait for the server's pre-decided outcome.
     const serverRound = await _serverRoundPromise;
