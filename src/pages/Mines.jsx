@@ -138,7 +138,6 @@ export default function Mines() {
   const serverWinRef = useRef(Number.POSITIVE_INFINITY);
   const serverRoundPromiseRef = useRef(null); // pending beginRound — awaited lazily on first pick
   const startingRef = useRef(false);
-  const revealingRef = useRef(false);
   const logActivity = useLogActivity();
 
   const currentMult = pot;
@@ -201,9 +200,10 @@ export default function Mines() {
   // Await the pending beginRound promise (if still in flight) and stash the
   // server-decided win cap. Returns true on success, false on failure.
   const ensureServerRound = async () => {
-    if (!serverRoundPromiseRef.current) return true;
-    const serverRound = await serverRoundPromiseRef.current;
-    serverRoundPromiseRef.current = null;
+    const p = serverRoundPromiseRef.current;
+    if (!p) return true;
+    const serverRound = await p;
+    if (serverRoundPromiseRef.current === p) serverRoundPromiseRef.current = null;
     if (!serverRound || serverRound.failed) {
       // beginRound failed — the server did NOT deduct the bet (beginRound
       // already reverted its local deduction). Reset the board.
@@ -219,33 +219,29 @@ export default function Mines() {
     return true;
   };
 
-  const reveal = async (idx) => {
-    if (phase !== 'playing' || revealed.has(idx) || revealingRef.current) return;
-    // The server decides win/loss (cap mode) — before the FIRST pick, make
-    // sure the server outcome is known. On a server-decided loss (cap = 0),
-    // force the first pick to be a mine so the player loses immediately. On
-    // a server-decided win (cap = max), let the player play normally.
-    if (revealed.size === 0) {
-      revealingRef.current = true;
-      const ok = await ensureServerRound();
-      revealingRef.current = false;
-      if (!ok || phase !== 'playing') return;
-    }
-    const forceFirstMine = serverWinRef.current === 0;
+  const reveal = (idx) => {
+    if (phase !== 'playing' || revealed.has(idx)) return;
+    // NEVER block the tap on the server — resolve the pending round in the
+    // background. The tile flips instantly; the server-decided cap/loss is
+    // applied as soon as it's known (usually within the first moments).
+    if (serverRoundPromiseRef.current) ensureServerRound();
+    // Server-decided loss (cap = 0): force this pick to be a mine so the
+    // round ends. While the outcome is still unknown (Infinity), play the
+    // natural board — cashout awaits the server cap, so money stays safe.
+    const forceMine = serverWinRef.current === 0;
     const effective = new Set(mineSet);
-    if (revealed.size === 0) {
-      if (forceFirstMine) {
-        if (!effective.has(idx)) {
-          effective.add(idx);
-          const others = [...effective].filter((x) => x !== idx);
-          if (others.length) effective.delete(others[Math.floor(Math.random() * others.length)]);
-        }
-      } else if (effective.has(idx)) {
-        effective.delete(idx);
-        const cands = [];
-        for (let i = 0; i < TOTAL; i++) if (i !== idx && !effective.has(i)) cands.push(i);
-        if (cands.length) effective.add(cands[Math.floor(Math.random() * cands.length)]);
+    if (forceMine) {
+      if (!effective.has(idx)) {
+        effective.add(idx);
+        const others = [...effective].filter((x) => x !== idx);
+        if (others.length) effective.delete(others[Math.floor(Math.random() * others.length)]);
       }
+      setMineSet(effective);
+    } else if (revealed.size === 0 && effective.has(idx)) {
+      effective.delete(idx);
+      const cands = [];
+      for (let i = 0; i < TOTAL; i++) if (i !== idx && !effective.has(i)) cands.push(i);
+      if (cands.length) effective.add(cands[Math.floor(Math.random() * cands.length)]);
       setMineSet(effective);
     }
     const newRev = new Set(revealed);
@@ -278,8 +274,12 @@ export default function Mines() {
     }
   };
 
-  const cashout = () => {
+  const cashout = async () => {
     if (phase !== 'playing' || revealed.size === 0) return;
+    // Make sure the server cap is known before paying out (almost always
+    // already resolved by now — no visible wait).
+    if (!(await ensureServerRound())) return;
+    if (phase !== 'playing') return;
     const win = Math.min(bet * pot, serverWinRef.current);
     settleBet(bet, win, 'mines');
     setLastWin(win);

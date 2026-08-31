@@ -227,6 +227,7 @@ export default function HiLo() {
     // bet instantly for immediate visual feedback. The promise is awaited
     // lazily on the first guess/collect so the server's win cap is known.
     serverRoundPromiseRef.current = beginRound(bet, 'hi-lo', false, 'cap');
+    serverWinRef.current = Number.POSITIVE_INFINITY; // unknown until the server responds
     // Immediate UI feedback — card appears instantly, no waiting for server.
     setPot(bet);
     setCurrent(drawCard());
@@ -240,9 +241,10 @@ export default function HiLo() {
   // Await the pending beginRound promise (if still in flight) and stash the
   // server-decided win cap. Returns true on success, false on failure.
   const ensureServerRound = async () => {
-    if (!serverRoundPromiseRef.current) return true;
-    const serverRound = await serverRoundPromiseRef.current;
-    serverRoundPromiseRef.current = null;
+    const p = serverRoundPromiseRef.current;
+    if (!p) return true;
+    const serverRound = await p;
+    if (serverRoundPromiseRef.current === p) serverRoundPromiseRef.current = null;
     if (!serverRound || serverRound.failed || serverRound.win_amount == null) {
       setMessage('Round failed — try a different bet amount.');
       setPhase('idle');
@@ -262,8 +264,10 @@ export default function HiLo() {
     setBusy(true);
     setMessage(dir === 'high' ? 'Higher…' : 'Lower…');
     playDeal();
-    // Wait for the server round to complete so we know the win cap.
-    if (!(await ensureServerRound())) { setBusy(false); return; }
+    // NEVER block the card flip on the server — resolve the pending round in
+    // the background. While the cap is unknown (Infinity), play optimistically;
+    // collect() awaits the cap before paying out, so money stays safe.
+    if (serverRoundPromiseRef.current) ensureServerRound();
     // Decide correctness PROBABILISTICALLY based on RTP. The win chance per
     // guess is DIRECTLY the RTP fraction (e.g. 50% RTP → 50% win chance per
     // guess), so admin RTP changes are immediately visible in gameplay.
