@@ -135,9 +135,10 @@ export default function Mines() {
   const [pot, setPot] = useState(1);
   const [lastWin, setLastWin] = useState(0);
   const [message, setMessage] = useState('Place yer bet an\' pick the mines');
-  const [forceFirstMine, setForceFirstMine] = useState(false);
-  const serverWinRef = useRef(0);
+  const serverWinRef = useRef(Number.POSITIVE_INFINITY);
+  const serverRoundPromiseRef = useRef(null); // pending beginRound — awaited lazily on first pick
   const startingRef = useRef(false);
+  const revealingRef = useRef(false);
   const logActivity = useLogActivity();
 
   const currentMult = pot;
@@ -172,24 +173,17 @@ export default function Mines() {
     else startMinesMusic();
   }, [muted]);
 
-  const start = async () => {
+  const start = () => {
     if (phase === 'playing' || startingRef.current) return;
     if (!bet || bet < MIN_BET) { setMessage('Min bet is $0.05'); return; }
     if (balance < bet) { setMessage('Not enough gold, partner'); return; }
     playClick();
-    startingRef.current = true;
-    const _serverRoundPromise = beginRound(bet, 'mines', false, 'cap');
-    // Wait for the server's pre-decided outcome.
-    const serverRound = await _serverRoundPromise;
-    // If beginRound failed, the server did NOT deduct the bet (beginRound
-    // already reverted its local deduction). Just abort.
-    if (serverRound.failed) {
-      startingRef.current = false;
-      setPhase('idle');
-      setMessage('Connection error — try again');
-      return;
-    }
-    serverWinRef.current = Number(serverRound.win_amount ?? 0);
+    // Kick off the server round in the background — beginRound deducts the
+    // bet instantly (local + server) for immediate balance feedback. The
+    // promise is awaited lazily on the FIRST tile pick so the board opens
+    // with zero delay.
+    serverRoundPromiseRef.current = beginRound(bet, 'mines', false, 'cap');
+    serverWinRef.current = Number.POSITIVE_INFINITY; // unknown until server responds
     const positions = Array.from({ length: TOTAL }, (_, i) => i);
     for (let i = positions.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -200,18 +194,44 @@ export default function Mines() {
     setRevealedOrder([]);
     setPot(1);
     setLastWin(0);
-    // The server now decides win/loss (cap mode). On a server-decided loss
-    // (cap = 0), force the first pick to be a mine so the player loses
-    // immediately. On a server-decided win (cap = max), let the player play
-    // normally — their tile choices determine the actual win, capped at max.
-    setForceFirstMine(serverWinRef.current === 0);
-    startingRef.current = false;
     setPhase('playing');
     setMessage(`Find ${safe} gold bars · dodge ${mines} TNT`);
   };
 
-  const reveal = (idx) => {
-    if (phase !== 'playing' || revealed.has(idx)) return;
+  // Await the pending beginRound promise (if still in flight) and stash the
+  // server-decided win cap. Returns true on success, false on failure.
+  const ensureServerRound = async () => {
+    if (!serverRoundPromiseRef.current) return true;
+    const serverRound = await serverRoundPromiseRef.current;
+    serverRoundPromiseRef.current = null;
+    if (!serverRound || serverRound.failed) {
+      // beginRound failed — the server did NOT deduct the bet (beginRound
+      // already reverted its local deduction). Reset the board.
+      setPhase('idle');
+      setRevealed(new Set());
+      setRevealedOrder([]);
+      setMineSet(new Set());
+      setPot(1);
+      setMessage('Connection error — try again');
+      return false;
+    }
+    serverWinRef.current = Number(serverRound.win_amount ?? 0);
+    return true;
+  };
+
+  const reveal = async (idx) => {
+    if (phase !== 'playing' || revealed.has(idx) || revealingRef.current) return;
+    // The server decides win/loss (cap mode) — before the FIRST pick, make
+    // sure the server outcome is known. On a server-decided loss (cap = 0),
+    // force the first pick to be a mine so the player loses immediately. On
+    // a server-decided win (cap = max), let the player play normally.
+    if (revealed.size === 0) {
+      revealingRef.current = true;
+      const ok = await ensureServerRound();
+      revealingRef.current = false;
+      if (!ok || phase !== 'playing') return;
+    }
+    const forceFirstMine = serverWinRef.current === 0;
     const effective = new Set(mineSet);
     if (revealed.size === 0) {
       if (forceFirstMine) {

@@ -270,8 +270,8 @@ export default function HiLo() {
     // The server cap is still enforced as a hard ceiling — if the pot would
     // exceed it, force a loss.
     const rtpVal = Number(rtp || 50);
-    // Slight winning-chance boost per guess (capped at 95%).
-    const rtpFrac = Math.min(0.95, Math.max(0, rtpVal / 100) * 1.08);
+    // Winning-chance boost per guess (capped at 95%).
+    const rtpFrac = Math.min(0.95, Math.max(0, rtpVal / 100) * 1.2);
     const withinCap = serverWinRef.current > 0 && (pot * 2) <= serverWinRef.current;
     const wantCorrect = withinCap && Math.random() < rtpFrac;
     const next = pickCard(dir, current.rank, wantCorrect);
