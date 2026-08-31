@@ -19,9 +19,10 @@ import AdminGameStats from '@/components/admin/AdminGameStats';
 import AdminPgCurrency from '@/components/admin/AdminPgCurrency';
 import AdminAgents from '@/components/admin/AdminAgents';
 import AdminFinance from '@/components/admin/AdminFinance';
+import AdminProviderReport from '@/components/admin/AdminProviderReport';
 import AdminShell from '@/components/admin/AdminShell';
 import AdminTabsNav from '@/components/admin/AdminTabsNav';
-import { Image, Layers, Megaphone, CheckCircle, MessageCircle, BarChart3, FileSpreadsheet, LineChart } from 'lucide-react';
+import { Image, Layers, Megaphone, CheckCircle, MessageCircle, BarChart3, FileSpreadsheet, LineChart, Handshake } from 'lucide-react';
 
 const TABS = [
   { id: 'players', label: 'Players', icon: Users, comp: AdminPlayers, group: 'Operations', desc: 'Manage player accounts, balances and bans' },
@@ -30,6 +31,7 @@ const TABS = [
   { id: 'support', label: 'Support', icon: MessageCircle, comp: AdminSupport, group: 'Operations', desc: 'Live chat with players' },
   { id: 'finance', label: 'Finance', icon: LineChart, comp: AdminFinance, group: 'Reports', desc: 'Monthly deposits, withdrawals and net profit' },
   { id: 'stats', label: 'Game Stats', icon: BarChart3, comp: AdminGameStats, group: 'Reports', desc: 'Bets, wins and house edge per game' },
+  { id: 'provider', label: 'Provider Report', icon: Handshake, comp: AdminProviderReport, group: 'Reports', desc: 'Traffic, GGR and retention metrics to send to game providers' },
   { id: 'games', label: 'Game RTP', icon: SlidersHorizontal, comp: AdminGameSettings, group: 'Configuration', desc: 'Winning chance and bet limits per game' },
   { id: 'bonuses', label: 'Bonuses', icon: Gift, comp: AdminBonuses, group: 'Configuration', desc: 'Signup, daily and deposit bonuses' },
   { id: 'pay', label: 'Pay Addr', icon: Wallet, comp: AdminPaymentAddresses, group: 'Configuration', desc: 'Deposit wallet addresses and QR codes' },
