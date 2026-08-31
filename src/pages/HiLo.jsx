@@ -267,10 +267,12 @@ export default function HiLo() {
     setBusy(true);
     setMessage(dir === 'high' ? 'Higher…' : 'Lower…');
     playDeal();
-    // NEVER block the card flip on the server — resolve the pending round in
-    // the background. While the cap is unknown (Infinity), play optimistically;
-    // collect() awaits the cap before paying out, so money stays safe.
-    if (serverRoundPromiseRef.current) ensureServerRound();
+    // The server pre-decides the win cap. It MUST be known before the first
+    // guess, otherwise a loss round would build an un-collectable pot.
+    // beginRound was fired at deal time, so this is effectively instant.
+    if (!isFinite(serverWinRef.current)) {
+      if (!(await ensureServerRound())) { setBusy(false); return; }
+    }
     // Decide correctness PROBABILISTICALLY based on RTP. The win chance per
     // guess is DIRECTLY the RTP fraction (e.g. 50% RTP → 50% win chance per
     // guess), so admin RTP changes are immediately visible in gameplay.

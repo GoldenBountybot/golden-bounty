@@ -222,15 +222,19 @@ export default function Mines() {
     return true;
   };
 
-  const reveal = (idx) => {
+  const reveal = async (idx) => {
     if (phase !== 'playing' || revealed.has(idx)) return;
-    // NEVER block the tap on the server — resolve the pending round in the
-    // background. The tile flips instantly; the server-decided cap/loss is
-    // applied as soon as it's known (usually within the first moments).
-    if (serverRoundPromiseRef.current) ensureServerRound();
+    // The server pre-decides win/loss. It MUST be known before the first tile
+    // is opened, otherwise a loss round would leave an un-payable pot on the
+    // board (Cash Out would credit $0). beginRound was fired at bet time, so
+    // by the time the player taps it has almost always already resolved —
+    // this await is effectively instant.
+    if (!isFinite(serverWinRef.current)) {
+      if (!(await ensureServerRound())) return;
+      if (revealed.has(idx)) return;
+    }
     // Server-decided loss (cap = 0): force this pick to be a mine so the
-    // round ends. While the outcome is still unknown (Infinity), play the
-    // natural board — cashout awaits the server cap, so money stays safe.
+    // round ends immediately instead of building an un-payable pot.
     const forceMine = serverWinRef.current === 0;
     const effective = new Set(mineSet);
     if (forceMine) {
