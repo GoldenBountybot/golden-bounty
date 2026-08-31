@@ -227,7 +227,6 @@ export default function HiLo() {
     // bet instantly for immediate visual feedback. The promise is awaited
     // lazily on the first guess/collect so the server's win cap is known.
     serverRoundPromiseRef.current = beginRound(bet, 'hi-lo', false, 'cap');
-    serverWinRef.current = -1; // -1 = cap unknown (server round still in flight)
     // Immediate UI feedback — card appears instantly, no waiting for server.
     setPot(bet);
     setCurrent(drawCard());
@@ -263,17 +262,8 @@ export default function HiLo() {
     setBusy(true);
     setMessage(dir === 'high' ? 'Higher…' : 'Lower…');
     playDeal();
-    // Resolve the server round in the BACKGROUND — never block the card
-    // reveal on the network. The cap is enforced on later guesses once known,
-    // and Collect always awaits the server before paying out.
-    if (serverRoundPromiseRef.current) {
-      serverRoundPromiseRef.current
-        .then((sr) => {
-          serverRoundPromiseRef.current = null;
-          serverWinRef.current = (sr && !sr.failed && sr.win_amount != null) ? Number(sr.win_amount) : 0;
-        })
-        .catch(() => { serverRoundPromiseRef.current = null; serverWinRef.current = 0; });
-    }
+    // Wait for the server round to complete so we know the win cap.
+    if (!(await ensureServerRound())) { setBusy(false); return; }
     // Decide correctness PROBABILISTICALLY based on RTP. The win chance per
     // guess is DIRECTLY the RTP fraction (e.g. 50% RTP → 50% win chance per
     // guess), so admin RTP changes are immediately visible in gameplay.
@@ -281,10 +271,8 @@ export default function HiLo() {
     // exceed it, force a loss.
     const rtpVal = Number(rtp || 50);
     // Slight winning-chance boost per guess (capped at 95%).
-    const rtpFrac = Math.min(0.95, Math.max(0, rtpVal / 100) * 1.18);
-    // Cap unknown (-1) → allow the guess; once the server responds, the cap
-    // applies to the next guesses and to Collect.
-    const withinCap = serverWinRef.current === -1 || (serverWinRef.current > 0 && (pot * 2) <= serverWinRef.current);
+    const rtpFrac = Math.min(0.95, Math.max(0, rtpVal / 100) * 1.08);
+    const withinCap = serverWinRef.current > 0 && (pot * 2) <= serverWinRef.current;
     const wantCorrect = withinCap && Math.random() < rtpFrac;
     const next = pickCard(dir, current.rank, wantCorrect);
     setRevealed(next);
@@ -322,7 +310,7 @@ export default function HiLo() {
     if (phase !== 'guessing' || pot === 0 || busy) return;
     // Wait for the server round to complete so we know the win cap.
     if (!(await ensureServerRound())) return;
-    const win = serverWinRef.current >= 0 ? Math.min(pot, serverWinRef.current) : 0;
+    const win = Math.min(pot, serverWinRef.current);
     settleBet(bet, win, 'hi-lo');
     setMessage(`Collected $${win.toFixed(2)}!`);
     playCollect();

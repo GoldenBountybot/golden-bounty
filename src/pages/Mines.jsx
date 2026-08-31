@@ -97,7 +97,7 @@ const GIFT_STRIPES = ['#ffffff', '#e53935', '#1e88e5', '#fdd835', '#43a047'];
 
 
 // House-edge-adjusted multiplier for k revealed safe tiles given m mines.
-const EDGE = 0.015;
+const EDGE = 0.03;
 function multiplierFor(k, m) {
   const safe = TOTAL - m;
   if (k <= 0) return 1;
