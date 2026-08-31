@@ -110,7 +110,10 @@ export default async function(req) {
       );
       const total = recentRounds.length;
       const freeCount = recentRounds.filter(r => r.is_free_spin).length;
-      if (freeCount >= 15 || (total >= 20 && freeCount / total > 0.25)) {
+      // Legitimate bonus rounds award 8-24 free spins in a row, so a strict
+      // ratio/count limit blocked real free spins (their wins never credited).
+      // The limits below still make sustained free-spin-only abuse impossible.
+      if (freeCount >= 70 || (total >= 40 && freeCount / total > 0.8)) {
         return Response.json({ error: 'free-spin-rate-limit' }, { status: 429 });
       }
     }

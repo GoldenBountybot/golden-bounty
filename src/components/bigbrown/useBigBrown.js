@@ -182,6 +182,8 @@ export function useBigBrown() {
     // deduction). Just abort.
     if (serverRound.failed) {
       setSpinning(false);
+      // Give the free spin back — it was consumed above but never played.
+      if (usingFree) setFreeSpins(f => f + 1);
       setMessage('Connection error — try again');
       return;
     }
