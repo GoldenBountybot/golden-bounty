@@ -281,7 +281,7 @@ export default function HiLo() {
     // exceed it, force a loss.
     const rtpVal = Number(rtp || 50);
     // Slight winning-chance boost per guess (capped at 95%).
-    const rtpFrac = Math.min(0.95, Math.max(0, rtpVal / 100) * 1.08);
+    const rtpFrac = Math.min(0.95, Math.max(0, rtpVal / 100) * 1.18);
     // Cap unknown (-1) → allow the guess; once the server responds, the cap
     // applies to the next guesses and to Collect.
     const withinCap = serverWinRef.current === -1 || (serverWinRef.current > 0 && (pot * 2) <= serverWinRef.current);
