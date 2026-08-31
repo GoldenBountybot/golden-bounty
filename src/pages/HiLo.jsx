@@ -241,10 +241,13 @@ export default function HiLo() {
   // Await the pending beginRound promise (if still in flight) and stash the
   // server-decided win cap. Returns true on success, false on failure.
   const ensureServerRound = async () => {
+    // NOTE: the promise ref is intentionally NOT cleared here — it is replaced
+    // when the next hand is dealt. Clearing it would let a later call (e.g.
+    // collect) return before the server cap was known, sending an unresolved
+    // win amount to the server and failing the payout.
     const p = serverRoundPromiseRef.current;
     if (!p) return true;
     const serverRound = await p;
-    if (serverRoundPromiseRef.current === p) serverRoundPromiseRef.current = null;
     if (!serverRound || serverRound.failed || serverRound.win_amount == null) {
       setMessage('Round failed — try a different bet amount.');
       setPhase('idle');
@@ -314,7 +317,8 @@ export default function HiLo() {
     if (phase !== 'guessing' || pot === 0 || busy) return;
     // Wait for the server round to complete so we know the win cap.
     if (!(await ensureServerRound())) return;
-    const win = Math.min(pot, serverWinRef.current);
+    const cap = serverWinRef.current;
+    const win = isFinite(cap) ? Math.min(pot, cap) : pot;
     settleBet(bet, win, 'hi-lo');
     setMessage(`Collected $${win.toFixed(2)}!`);
     playCollect();

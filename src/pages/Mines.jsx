@@ -200,10 +200,13 @@ export default function Mines() {
   // Await the pending beginRound promise (if still in flight) and stash the
   // server-decided win cap. Returns true on success, false on failure.
   const ensureServerRound = async () => {
+    // NOTE: the promise ref is intentionally NOT cleared here — it is replaced
+    // when the next round starts. Clearing it would let a later call (e.g.
+    // cashout) return before the server cap was known, sending an unresolved
+    // win amount to the server and failing the payout.
     const p = serverRoundPromiseRef.current;
     if (!p) return true;
     const serverRound = await p;
-    if (serverRoundPromiseRef.current === p) serverRoundPromiseRef.current = null;
     if (!serverRound || serverRound.failed) {
       // beginRound failed — the server did NOT deduct the bet (beginRound
       // already reverted its local deduction). Reset the board.
@@ -263,29 +266,29 @@ export default function Mines() {
     const newPot = multiplierFor(k, mines);
     setPot(newPot);
     if (k === safe) {
-      const win = Math.min(bet * newPot, serverWinRef.current);
-      settleBet(bet, win, 'mines');
-      setLastWin(win);
-      setMessage(`Strike it rich! +$${win.toFixed(2)} (${newPot.toFixed(2)}x)`);
-      logActivity('mines', bet, win, 'win');
       setPhase('over');
+      payout(newPot);
     } else {
       setMessage(`Gold! Pot be $${(bet * newPot).toFixed(2)}`);
     }
   };
 
-  const cashout = async () => {
-    if (phase !== 'playing' || revealed.size === 0) return;
-    // Make sure the server cap is known before paying out (almost always
-    // already resolved by now — no visible wait).
+  // Credit a win: always resolves the server cap first so the amount sent to
+  // the server is a real, finite number.
+  const payout = async (mult) => {
     if (!(await ensureServerRound())) return;
-    if (phase !== 'playing') return;
-    const win = Math.min(bet * pot, serverWinRef.current);
+    const cap = serverWinRef.current;
+    const win = isFinite(cap) ? Math.min(bet * mult, cap) : bet * mult;
     settleBet(bet, win, 'mines');
     setLastWin(win);
-    setMessage(`Cashed out $${win.toFixed(2)} (${pot.toFixed(2)}x)`);
+    setMessage(`Cashed out $${win.toFixed(2)} (${mult.toFixed(2)}x)`);
     logActivity('mines', bet, win, 'win');
+  };
+
+  const cashout = () => {
+    if (phase !== 'playing' || revealed.size === 0) return;
     setPhase('over');
+    payout(pot);
   };
 
   const newGame = () => {
