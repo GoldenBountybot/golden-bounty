@@ -4,7 +4,7 @@ import InfoLayout, { InfoSection } from '@/components/InfoLayout';
 import { base44 } from '@/api/base44Client';
 
 export default function Licenses() {
-  const [certImg, setCertImg] = useState('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/747317502_Gemini_Generated_Image_wb9p68wb9p68wb9p.png');
+  const [certImg, setCertImg] = useState('https://media.base44.com/images/public/6a5698edffaa42a5b6637776/72507a602_file_00000000a6708208b5597e69d94d4e75.png');
 
   useEffect(() => {
     base44.entities.SiteSetting.filter({ name: 'license_certificate', active: true })
@@ -23,10 +23,10 @@ export default function Licenses() {
 
         <InfoSection title="Authorization Details">
           <div className="flex flex-col gap-2">
-            <div className="flex justify-between gap-3"><span style={{ color: 'rgba(38,161,123,0.75)' }}>Resolution</span><span className="font-semibold text-right" style={{ color: 'rgba(38,161,123,0.95)' }}>CONAJZAR No. 07/2026</span></div>
-            <div className="flex justify-between gap-3"><span style={{ color: 'rgba(38,161,123,0.75)' }}>Resolution Date</span><span className="font-semibold text-right" style={{ color: 'rgba(38,161,123,0.95)' }}>31 January 2026</span></div>
-            <div className="flex justify-between gap-3"><span style={{ color: 'rgba(38,161,123,0.75)' }}>Certificate of Adhesion</span><span className="font-semibold text-right" style={{ color: 'rgba(38,161,123,0.95)' }}>24 April 2026</span></div>
-            <div className="flex justify-between gap-3"><span style={{ color: 'rgba(38,161,123,0.75)' }}>RUC</span><span className="font-semibold text-right" style={{ color: 'rgba(38,161,123,0.95)' }}>80137969-1</span></div>
+            <div className="flex justify-between gap-3"><span style={{ color: 'rgba(38,161,123,0.75)' }}>Resolution</span><span className="font-semibold text-right" style={{ color: 'rgba(38,161,123,0.95)' }}>CONAJZAR No. 08/2024</span></div>
+            <div className="flex justify-between gap-3"><span style={{ color: 'rgba(38,161,123,0.75)' }}>Resolution Date</span><span className="font-semibold text-right" style={{ color: 'rgba(38,161,123,0.95)' }}>31 January 2024</span></div>
+            <div className="flex justify-between gap-3"><span style={{ color: 'rgba(38,161,123,0.75)' }}>Certificate of Adhesion</span><span className="font-semibold text-right" style={{ color: 'rgba(38,161,123,0.95)' }}>24 April 2025</span></div>
+            <div className="flex justify-between gap-3"><span style={{ color: 'rgba(38,161,123,0.75)' }}>RUC</span><span className="font-semibold text-right" style={{ color: 'rgba(38,161,123,0.95)' }}>80137968-7</span></div>
           </div>
         </InfoSection>
 
