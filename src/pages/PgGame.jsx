@@ -16,36 +16,44 @@ export default function PgGame() {
   const title = PG_GAMES.find((g) => g.id === gameId)?.title || 'PG SOFT';
 
   const frameRef = useRef(null);
+  const progressRef = useRef(0);
+  const connectTimer = useRef(null);
+
+  // Keep the latest progress readable from the frame-load handler.
+  useEffect(() => { progressRef.current = progress; }, [progress]);
 
   // The PG frame mounts hidden behind our branded loader, so PG's own
   // "connecting" step happens *during* our loading screen instead of after it.
+  // We only creep up to ~70% here, leaving the last stretch for the connection
+  // phase that runs once the frame has loaded.
   useEffect(() => {
     setReady(false);
     setProgress(3);
-    const iv = setInterval(() => setProgress((p) => (p < 96 ? p + 1 : p)), 260);
-    return () => clearInterval(iv);
+    const iv = setInterval(() => setProgress((p) => (p < 70 ? p + 1 : p)), 220);
+    return () => {
+      clearInterval(iv);
+      if (connectTimer.current) clearInterval(connectTimer.current);
+    };
   }, [gameId]);
 
-  // Once the PG document has loaded we keep our loader up and watch the frame
-  // until the game itself is actually rendering (its canvas has real pixels) —
-  // so PG's own black "connecting" screen never becomes visible. A hard cap
-  // makes sure the player is never stuck on our loader.
+  // Once the PG document has loaded, PG runs its own connecting/handshake step
+  // inside the hidden frame. We hold our branded loader for that whole window
+  // (PG's frame is cross-origin, so we can't inspect it) and drive the progress
+  // bar smoothly to 100 over the same period — so the connection completes
+  // *inside* our loading screen and PG's own loader is what appears next.
   const onFrameLoad = () => {
+    const CONNECT_MS = 9000;
     const started = Date.now();
-    const reveal = () => { setProgress(100); setReady(true); };
-    const poll = setInterval(() => {
-      const elapsed = Date.now() - started;
-      let painted = false;
-      try {
-        const doc = frameRef.current?.contentDocument;
-        const c = doc?.querySelector('canvas');
-        painted = !!c && c.clientWidth > 0 && c.clientHeight > 0;
-      } catch { /* cross-origin — fall back to the time cap */ }
-      if ((painted && elapsed > 4000) || elapsed > 20000) {
-        clearInterval(poll);
-        reveal();
+    const from = progressRef.current;
+    const tick = setInterval(() => {
+      const t = Math.min(1, (Date.now() - started) / CONNECT_MS);
+      setProgress(Math.round(from + (100 - from) * t));
+      if (t >= 1) {
+        clearInterval(tick);
+        setReady(true);
       }
-    }, 400);
+    }, 120);
+    connectTimer.current = tick;
   };
 
   useEffect(() => {
