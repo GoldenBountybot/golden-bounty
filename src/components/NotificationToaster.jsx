@@ -8,7 +8,7 @@ import { useNotifications } from '@/lib/useNotifications';
 // then slides back up. Multiple new ones stack. Tapping it opens the
 // notifications page. The initial load does NOT trigger toasts — only
 // genuinely new arrivals after the app is open do.
-const HOLD_MS = 4500;
+const HOLD_MS = 1500;
 
 export default function NotificationToaster() {
   const { items } = useNotifications();
@@ -62,7 +62,10 @@ export default function NotificationToaster() {
   };
 
   return (
-    <div className="fixed top-0 inset-x-0 z-[120] flex flex-col items-center px-3 pt-2 pointer-events-none">
+    <div
+      className="fixed top-0 inset-x-0 z-[120] flex flex-col items-center px-3 pointer-events-none"
+      style={{ paddingTop: 'calc(env(safe-area-inset-top) + 88px)' }}
+    >
       {toasts.map((t) => (
         <div
           key={t.id}

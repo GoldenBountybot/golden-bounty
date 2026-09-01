@@ -17,7 +17,7 @@ export default function StylishNotify({ data, onDone, duration = 1500 }) {
       <div
         className="w-full max-w-md rounded-xl px-3 py-2 flex items-center gap-2"
         style={{
-          marginTop: 'calc(env(safe-area-inset-top) + 56px)',
+          marginTop: 'calc(env(safe-area-inset-top) + 88px)',
           background: 'linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,225,150,0.08) 100%)',
           border: '1px solid rgba(245,210,120,0.5)',
           boxShadow: '0 8px 28px rgba(0,0,0,0.35), 0 0 18px rgba(255,200,90,0.18), inset 0 1px 0 rgba(255,255,255,0.28)',

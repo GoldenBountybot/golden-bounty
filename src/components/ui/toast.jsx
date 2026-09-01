@@ -7,7 +7,7 @@ const ToastProvider = React.forwardRef(({ ...props }, ref) => (
   <div
     ref={ref}
     className="fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse gap-2 px-3 pb-3 md:max-w-[400px]"
-    style={{ paddingTop: 'calc(env(safe-area-inset-top) + 56px)' }}
+    style={{ paddingTop: 'calc(env(safe-area-inset-top) + 88px)' }}
     {...props}
   />
 ));
@@ -17,7 +17,7 @@ const ToastViewport = React.forwardRef(({ ...props }, ref) => (
   <div
     ref={ref}
     className="fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse gap-2 px-3 pb-3 md:max-w-[400px]"
-    style={{ paddingTop: 'calc(env(safe-area-inset-top) + 56px)' }}
+    style={{ paddingTop: 'calc(env(safe-area-inset-top) + 88px)' }}
     {...props}
   />
 ));
