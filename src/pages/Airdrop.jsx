@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Gift, Coins, Loader2, Check, Sparkles, ArrowDownToLine, Map, X } from 'lucide-react';
 
-const PDF_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/cf7fd6d28_Golden_Bounty_Roadmap_2026_2027_Updated.pdf';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -124,13 +123,12 @@ export default function Airdrop() {
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="flex-1 overflow-hidden">
-            <iframe
-              src={`https://docs.google.com/viewer?url=${encodeURIComponent(PDF_URL)}&embedded=true`}
-              className="w-full h-full"
-              title="Golden Bounty Roadmap"
-              style={{ border: 'none' }}
-            />
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 px-6 text-center">
+            <img src={BOUNTY_LOGO} alt="Bounty" className="w-16 h-16" style={{ mixBlendMode: 'screen' }} />
+            <p className="text-xl font-extrabold" style={{ color: '#D4AF37' }}>{t("Coming Soon")}</p>
+            <p className="text-[12px] max-w-[280px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              {t("The Golden Bounty roadmap will be published here shortly.")}
+            </p>
           </div>
         </div>
       )}
@@ -291,7 +289,7 @@ export default function Airdrop() {
        >
          <img src={BOUNTY_LOGO} alt="Bounty" className="w-9 h-9 shrink-0" style={{ mixBlendMode: 'screen' }} />
          <p className="text-[12px] font-semibold leading-snug" style={{ color: 'rgba(255,255,255,0.85)' }}>
-           {t("Token Will Be Listed In Quarter 4 2026 On Top-Tier Exchanges")}
+           {t("Token Will Be Listed In Quarter 1 2027 On Top-Tier Exchanges")}
          </p>
        </div>
       </div>
