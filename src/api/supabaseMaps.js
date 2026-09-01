@@ -66,6 +66,8 @@ export const FUNCTIONS = {
 export const FIELD_ALIASES = {
   created_date: 'created_at',
   updated_date: 'updated_at',
+  // BOUNTY token balance lives in profiles.tokens
+  bounty_allocation: 'tokens',
 };
 
 export function toColumn(field) {
@@ -80,6 +82,7 @@ export function rowOut(row) {
     created_date: row.created_at ?? row.created_date,
     updated_date: row.updated_at ?? row.updated_date,
     created_by_id: row.created_by_id ?? row.user_id,
+    bounty_allocation: row.bounty_allocation ?? row.tokens,
   };
 }
 
@@ -89,5 +92,11 @@ export function rowIn(data) {
   delete out.created_date;
   delete out.updated_date;
   delete out.created_by_id;
+  // BOUNTY tokens are stored in profiles.tokens; these legacy fields have no column.
+  if ('bounty_allocation' in out) {
+    out.tokens = out.bounty_allocation;
+    delete out.bounty_allocation;
+  }
+  delete out.bounty_claimed_at;
   return out;
 }
