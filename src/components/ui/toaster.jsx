@@ -18,10 +18,15 @@ export function Toaster() {
           <Toast
             key={id}
             {...props}
-            className="!bg-black !border-amber-500/60"
-            style={{ boxShadow: '0 4px 18px rgba(0,0,0,0.7), 0 0 12px rgba(212,175,55,0.35)' }}
+            className="!border-amber-400/35"
+            style={{
+              background: 'rgba(20,16,8,0.55)',
+              backdropFilter: 'blur(18px) saturate(160%)',
+              WebkitBackdropFilter: 'blur(18px) saturate(160%)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.55), 0 0 18px rgba(212,175,55,0.2), inset 0 1px 0 rgba(255,255,255,0.18)',
+            }}
           >
-            <div className="grid gap-0.5">
+            <div className="grid gap-1">
               {title && (
                 <ToastTitle
                   className="!text-amber-300"
