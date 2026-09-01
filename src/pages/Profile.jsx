@@ -77,6 +77,8 @@ export default function Profile() {
   const [profile, setProfile] = useState(cached.profile);
   const [username, setUsername] = useState(cached.profile?.username || cached.profile?.telegram_username || '');
   const [phone, setPhone] = useState(cached.profile?.phone || '');
+  const [gender, setGender] = useState(cached.profile?.gender || '');
+  const [dob, setDob] = useState(cached.profile?.date_of_birth || '');
   const [saving, setSaving] = useState(false);
   const [tab, setTab] = useState('wallet');
   const [txs, setTxs] = useState(cached.txs || []);
@@ -108,6 +110,8 @@ export default function Profile() {
         setProfile(u);
         setUsername(u.username || u.telegram_username || '');
         setPhone(u.phone || '');
+        setGender(u.gender || '');
+        setDob(u.date_of_birth || '');
         setBountyAllocation(Number(u?.bounty_allocation ?? 0));
         setTaskBounty(Number(u?.task_bounty ?? 0));
       } catch {
@@ -163,8 +167,8 @@ export default function Profile() {
   const save = async () => {
     setSaving(true);
     try {
-      await base44.auth.updateMe({ username, phone });
-      setProfile((p) => ({ ...p, username, phone }));
+      await base44.auth.updateMe({ gender, date_of_birth: dob, phone });
+      setProfile((p) => ({ ...p, gender, date_of_birth: dob, phone }));
       toast({ title: t("Profile updated") });
     } catch (e) {
       toast({ title: t("Update failed"), description: e.message });
@@ -420,11 +424,26 @@ export default function Profile() {
               <button onClick={() => setEditOpen(false)} className="text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.55)' }}>{t("close")}</button>
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Name / Username")}</label>
+              <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Gender")}</label>
+              <div className="grid grid-cols-2 gap-2">
+                {[{ v: 'male', l: t("Male") }, { v: 'female', l: t("Female") }].map((g) => (
+                  <button
+                    key={g.v}
+                    onClick={() => setGender(g.v)}
+                    className="px-4 py-2.5 rounded-[12px] text-sm font-bold transition-all active:scale-95"
+                    style={gender === g.v ? goldActiveStyle : goldIdleStyle}
+                  >
+                    {g.l}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'rgba(212,175,55,0.8)' }}>{t("Date of Birth")}</label>
               <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder={t("Set a username")}
+                type="date"
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
                 className="dash-input w-full px-4 py-2.5 text-sm"
               />
             </div>
