@@ -19,6 +19,10 @@ const loaded = new Set();
 // the decoded bitmap alive for the whole session. Without this the elements are
 // garbage-collected and images visibly re-fetch/re-decode when a page remounts.
 const retained = [];
+// url -> in-memory blob: object URL. Pinned app assets (nav icons, banners,
+// page images) are fetched once and kept as blobs, so every later <img> mount
+// paints from memory — no network / disk-cache round-trip is ever visible.
+const blobUrls = new Map();
 
 // Preload a single image URL. Returns a promise that resolves when the image
 // is fully decoded and ready to paint. Deduplicates against the global cache
@@ -28,18 +32,20 @@ const retained = [];
 // `strict` = never resolve early on a timeout; wait until the image is really
 // downloaded + decoded (used by game loading screens, where nothing may pop in
 // after the game appears).
-export function preloadImage(url, lowPriority = false, strict = false) {
+// `pin` = additionally keep the image bytes in memory (blob URL) so later
+// mounts never touch the network or disk cache (used for app-wide assets).
+export function preloadImage(url, lowPriority = false, strict = false, pin = false) {
   if (!url || typeof url !== 'string') return Promise.resolve();
-  if (loaded.has(url)) return Promise.resolve();
+  if (loaded.has(url) && (!pin || blobUrls.has(url))) return Promise.resolve();
   if (/\.(mp3|ogg|wav|m4a)(\?|$)/i.test(url)) return preloadAudioFile(url);
   const existing = cache.get(url);
   if (existing) {
-    if (!strict) return existing;
+    if (!strict && !pin) return existing;
     // In strict mode an in-flight (possibly timed-out) promise isn't enough —
     // once it settles, if the image still isn't fully loaded, load it for real.
-    return existing.then(() => (loaded.has(url) ? undefined : loadStrict(url, lowPriority)));
+    return existing.then(() => ((loaded.has(url) && (!pin || blobUrls.has(url))) ? undefined : loadStrict(url, lowPriority, pin)));
   }
-  if (strict) return loadStrict(url, lowPriority);
+  if (strict || pin) return loadStrict(url, lowPriority, pin);
 
   const p = new Promise((resolve) => {
     let settled = false;
@@ -107,25 +113,50 @@ function preloadAudioFile(url) {
 
 // Strict single-image load: resolves only once the image is fully downloaded
 // and decoded (or errors out — a broken URL must never hang forever).
-function loadStrict(url, lowPriority) {
-  const p = new Promise((resolve) => {
-    const img = new Image();
-    img.decoding = 'async';
-    if ('fetchPriority' in img) img.fetchPriority = lowPriority ? 'low' : 'high';
-    const done = () => { loaded.add(url); resolve(); };
-    img.onload = () => {
-      if (typeof img.decode === 'function') img.decode().then(done).catch(done);
-      else done();
-    };
-    img.onerror = () => { cache.delete(url); resolve(); };
-    img.src = url;
-    retained.push(img);
-  });
+function loadStrict(url, lowPriority, pin = false) {
+  const p = (async () => {
+    let src = url;
+    if (pin) {
+      // Pull the bytes into memory once; if the host blocks CORS we simply
+      // fall back to a normal image load below.
+      try {
+        const r = await fetch(url, { mode: 'cors', cache: 'force-cache' });
+        if (r.ok) src = URL.createObjectURL(await r.blob());
+      } catch { /* fall back to direct URL */ }
+    }
+    await new Promise((resolve) => {
+      const img = new Image();
+      img.decoding = 'async';
+      if ('fetchPriority' in img) img.fetchPriority = lowPriority ? 'low' : 'high';
+      const done = () => {
+        loaded.add(url);
+        if (src !== url) blobUrls.set(url, src);
+        resolve();
+      };
+      img.onload = () => {
+        if (typeof img.decode === 'function') img.decode().then(done).catch(done);
+        else done();
+      };
+      img.onerror = () => {
+        if (src !== url) { URL.revokeObjectURL(src); src = url; img.src = url; return; }
+        cache.delete(url);
+        resolve();
+      };
+      img.src = src;
+      retained.push(img);
+    });
+  })();
   cache.set(url, p);
   return p;
 }
 
-export function preloadAssets(urls, onProgress, lowPriority = false, strict = false) {
+// Resolve the src an <img> should use: the in-memory blob copy when the image
+// was pinned, otherwise the original URL.
+export function getCachedSrc(url) {
+  return blobUrls.get(url) || url;
+}
+
+export function preloadAssets(urls, onProgress, lowPriority = false, strict = false, pin = false) {
   const unique = [...new Set(urls.filter(Boolean))];
   if (!unique.length) {
     if (onProgress) onProgress(100);
@@ -138,7 +169,7 @@ export function preloadAssets(urls, onProgress, lowPriority = false, strict = fa
     if (onProgress) onProgress(Math.round((done / unique.length) * 100));
   };
 
-  return Promise.all(unique.map((url) => preloadImage(url, lowPriority, strict).then(report)));
+  return Promise.all(unique.map((url) => preloadImage(url, lowPriority, strict, pin).then(report)));
 }
 
 // Check whether a URL has FULLY finished loading (not merely in flight).
@@ -180,8 +211,8 @@ export async function preloadDynamicAssets(base44) {
   ]);
   // Default Stack banner (used when no admin SiteSetting override exists)
   urls.add('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/e4a14a054_file_0000000014cc821197a44e24a1a46272.png');
-  // strict: wait until fully downloaded + decoded so nothing pops in later
-  await preloadAssets([...urls], null, false, true);
+  // strict + pin: fully decoded and kept in memory so nothing pops in later
+  await preloadAssets([...urls], null, false, true, true);
 }
 
 // Background-warm ALL game assets so that by the time the user taps a game

@@ -6,6 +6,7 @@ import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/LanguageContext';
 import AnimatedNumber from '@/components/AnimatedNumber';
+import FadeImage from '@/components/FadeImage';
 import StylishNotify from '@/components/StylishNotify';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
@@ -104,7 +105,7 @@ export default function Airdrop() {
             </button>
           )}
           <div className="flex-1 flex items-center justify-center gap-2">
-            <img src={BOUNTY_LOGO} alt="Bounty" className="w-9 h-9" style={{ mixBlendMode: 'screen' }} />
+            <FadeImage src={BOUNTY_LOGO} alt="Bounty" className="w-9 h-9" style={{ mixBlendMode: 'screen' }} />
             <span className="text-lg font-extrabold tracking-tight" style={{ ...heading, color: '#D4AF37' }}>{t("Airdrop")}</span>
           </div>
           <div className="w-10" />
@@ -124,7 +125,7 @@ export default function Airdrop() {
             </button>
           </div>
           <div className="flex-1 flex flex-col items-center justify-center gap-3 px-6 text-center">
-            <img src={BOUNTY_LOGO} alt="Bounty" className="w-16 h-16" style={{ mixBlendMode: 'screen' }} />
+            <FadeImage src={BOUNTY_LOGO} alt="Bounty" className="w-16 h-16" style={{ mixBlendMode: 'screen' }} />
             <p className="text-xl font-extrabold" style={{ color: '#D4AF37' }}>{t("Coming Soon")}</p>
             <p className="text-[12px] max-w-[280px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
               {t("The Golden Bounty roadmap will be published here shortly.")}
@@ -162,7 +163,7 @@ export default function Airdrop() {
           }}
         >
           <div className="relative overflow-hidden rounded-xl" style={{ background: '#0D0D0D' }}>
-            <img
+            <FadeImage
               src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c36d89e4b_file_000000000d648211a1ae80116606f30d.png"
               alt="BOUNTY — The Golden Bounty platform token. Earn 2 BOUNTY for every 1 USDT you deposit and 1 BOUNTY for every referral."
               className="block select-none w-full"
@@ -176,7 +177,7 @@ export default function Airdrop() {
         {/* Allocation card */}
         <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
           <div className="flex items-center gap-2">
-            <img src={BOUNTY_LOGO} alt="Bounty" className="w-9 h-9" style={{ mixBlendMode: 'screen' }} />
+            <FadeImage src={BOUNTY_LOGO} alt="Bounty" className="w-9 h-9" style={{ mixBlendMode: 'screen' }} />
             <h3 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Your Allocation")}</h3>
           </div>
 
@@ -287,7 +288,7 @@ export default function Airdrop() {
          className="dash-card p-4 flex items-center gap-3"
          style={{ animation: 'dashFadeIn 400ms ease both', background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.02))', border: '1px solid rgba(212,175,55,0.3)' }}
        >
-         <img src={BOUNTY_LOGO} alt="Bounty" className="w-9 h-9 shrink-0" style={{ mixBlendMode: 'screen' }} />
+         <FadeImage src={BOUNTY_LOGO} alt="Bounty" className="w-9 h-9 shrink-0" style={{ mixBlendMode: 'screen' }} />
          <p className="text-[12px] font-semibold leading-snug" style={{ color: 'rgba(255,255,255,0.85)' }}>
            {t("Token Will Be Listed In Quarter 1 2027 On Top-Tier Exchanges")}
          </p>

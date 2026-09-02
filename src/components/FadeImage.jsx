@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useRef } from 'react';
-import { isCached, markLoaded } from '@/lib/assetPreloader';
+import { isCached, markLoaded, getCachedSrc } from '@/lib/assetPreloader';
 
 // Drop-in <img> replacement that fades in smoothly when the image is ready,
 // so the user never sees a raw image "download/pop in" — it just appears
@@ -49,7 +49,7 @@ export default function FadeImage({
     <img
       {...rest}
       ref={imgRef}
-      src={src}
+      src={getCachedSrc(src)}
       alt={alt}
       decoding={instantRef.current ? 'sync' : decoding}
       loading="eager"

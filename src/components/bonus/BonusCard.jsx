@@ -1,6 +1,7 @@
 import React from 'react';
 import { Loader2, Check } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
+import FadeImage from '@/components/FadeImage';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -19,7 +20,7 @@ export default function BonusCard({ icon: Icon, title, subtitle, actionLabel, on
   return (
     <div className="dash-card p-5 flex flex-col gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
       {image && (
-        <img
+        <FadeImage
           src={image}
           alt={title}
           draggable={false}
