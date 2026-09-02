@@ -47,5 +47,15 @@
 - Open: http://localhost:8080/api/sessions/seamless/rest/v1?exit=http://google.com&nodeId=8&token=d1fe901b577f459abc0b2298a1f9f1dd&sign=cadf144fb63950a9eb813ca44a5e1ac77a906e4e
 - Send HTML results + "seamless wallet integration.txt" to Endorphina.
 
+## Implementation status (done 2026-09-02)
+- Supabase edge function `endorphina` serves all callbacks under
+  https://ovyrljtgviabkamomjso.supabase.co/functions/v1/endorphina/{session|balance|bet|refund|win|promoWin|endSession|check}
+- `endorphina-launch-game` builds the signed launch URL (frontend: base44.functions.invoke('endorphinaLaunchGame')).
+- Tables: endorphina_sessions, endorphina_transactions (migration in supabase/migrations/endorphina_tables.sql).
+- Secrets: ENDORPHINA_NODE_ID / ENDORPHINA_SALT / ENDORPHINA_API_URL — currently the MOCK values (8 / 0D93…8824 / test.endorphina.com).
+- Frontend: src/lib/endorphinaGames.js (185 games, ENDORPHINA_LIVE=false hides them from the lobby), src/pages/EndorphinaGame.jsx, route /games/endorphina/:slug.
+- Filled provider form: src/Endorphina_Integration_Form_Answers.md
+- Live test passed: check / bad-sign 401 / unknown token 404 / bet→win→refund cycle idempotent / insufficient 402.
+
 ## Contacts
 - api@endorphina.com (Skype api.endorphina), support@endorphina.com
