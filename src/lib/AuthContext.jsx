@@ -6,7 +6,10 @@ import { invoke } from '@/api/supabaseFunctions';
 import { setSession } from '@/api/supabaseAuth';
 import { adoptHandoffSession } from '@/lib/sessionHandoff';
 
-const AuthContext = createContext();
+// Keep one context instance across dev hot-reloads — otherwise a reloaded
+// AuthContext module creates a fresh context that consumers compiled earlier
+// don't see, and useAuth throws "must be used within an AuthProvider".
+const AuthContext = (globalThis.__gbAuthContext ||= createContext());
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
