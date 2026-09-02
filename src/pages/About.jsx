@@ -15,7 +15,7 @@ export default function About() {
             We offer 12 carefully selected games and flexible Staking Plans that pay daily profit according to the plan you choose.
           </p>
           <p className="text-sm leading-relaxed mt-3" style={{ color: 'rgba(38,161,123,0.95)' }}>
-            Golden Bounty is authorized by BDS INFO S.A. under CONAJZAR Resolution No. 07/2026 (dated 31 January 2026). The Certificate of Adhesion was issued on 24 April 2026. This authorization allows operation in markets outside the territory of Paraguay.
+            Golden Bounty is authorized by BDS INFO S.A. under CONAJZAR Resolution No. 08/2024 (dated 31 January 2024). The Certificate of Adhesion was issued on 24 April 2025. This authorization allows operation in markets outside the territory of Paraguay.
           </p>
         </div>
 
@@ -33,7 +33,7 @@ export default function About() {
         <div className="dash-card p-5 flex flex-col items-center gap-3 text-center" style={{ animation: 'dashFadeIn 400ms ease both', background: 'linear-gradient(135deg, rgba(212,175,55,0.10), rgba(255,255,255,0.03))', borderColor: 'rgba(212,175,55,0.4)' }}>
           <ShieldCheck className="w-8 h-8" style={{ color: '#D4AF37' }} />
           <p className="text-sm font-bold" style={{ color: '#fff' }}>Licensed & Authorized</p>
-          <p className="text-[12px]" style={{ color: 'rgba(38,161,123,0.85)' }}>CONAJZAR Resolution No. 07/2026 · Certificate issued 24 April 2026</p>
+          <p className="text-[12px]" style={{ color: 'rgba(38,161,123,0.85)' }}>CONAJZAR Resolution No. 08/2024 · Certificate issued 24 April 2025</p>
           <Link to="/licenses" className="dash-btn-gold px-5 py-2.5 text-xs mt-1">View Licenses</Link>
         </div>
       </div>
