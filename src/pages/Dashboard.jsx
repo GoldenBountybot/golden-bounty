@@ -105,14 +105,18 @@ export default function Dashboard() {
     const n = Number(wdAmt);
     if (!n || n <= 0) { toast({ title: t("Enter a valid amount") }); return; }
     if (n < 2) { toast({ title: t("Minimum withdrawal is $2.00") }); return; }
-    // Force a fresh server sync before the balance check — the local cache
-    // can be stale (e.g., after a deposit that hasn't been picked up yet),
-    // causing a false "Insufficient balance" even when the server has enough.
-    // Read the fresh values via getBalance()/getMaxWithdrawable() because the
-    // acct.* closure still holds the pre-await (stale) values.
-    await reloadBalance();
-    const freshBalance = getBalance();
-    const freshMax = getMaxWithdrawable();
+    // Check the local cache first so the button responds instantly. Only when
+    // the cached numbers fail the check do we sync with the server — the cache
+    // can be stale (e.g. a deposit not yet picked up) and produce a false
+    // "Insufficient balance".
+    const cents = Math.round(n * 100);
+    let freshBalance = getBalance();
+    let freshMax = getMaxWithdrawable();
+    if (cents > Math.round(freshBalance * 100) || cents > Math.round(freshMax * 100)) {
+      await reloadBalance();
+      freshBalance = getBalance();
+      freshMax = getMaxWithdrawable();
+    }
     // Compare in whole cents to avoid floating-point false negatives
     // (e.g. balance 2.6499999 vs entered 2.65).
     if (Math.round(n * 100) > Math.round(freshBalance * 100)) { toast({ title: t("Insufficient balance") }); return; }
