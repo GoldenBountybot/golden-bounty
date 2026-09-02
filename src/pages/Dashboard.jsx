@@ -48,6 +48,7 @@ export default function Dashboard() {
   const { toast } = useToast();
   const [depAmt, setDepAmt] = useState('');
   const [wdAmt, setWdAmt] = useState('');
+  const [wdChecking, setWdChecking] = useState(false);
   const [stkAmt, setStkAmt] = useState('');
   const [history, setHistory] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -105,12 +106,19 @@ export default function Dashboard() {
     const n = Number(wdAmt);
     if (!n || n <= 0) { toast({ title: t("Enter a valid amount") }); return; }
     if (n < 2) { toast({ title: t("Minimum withdrawal is $2.00") }); return; }
-    // Force a fresh server sync before the balance check — the local cache
-    // can be stale (e.g., after a deposit that hasn't been picked up yet),
-    // causing a false "Insufficient balance" even when the server has enough.
-    // Read the fresh values via getBalance()/getMaxWithdrawable() because the
-    // acct.* closure still holds the pre-await (stale) values.
+    // Fast path: if the cached balance already allows this amount, open the
+    // withdraw page instantly (the server re-validates on submit anyway).
+    const cents = Math.round(n * 100);
+    if (cents <= Math.round(getBalance() * 100) && cents <= Math.round(getMaxWithdrawable() * 100)) {
+      navigate(`/withdraw?amount=${encodeURIComponent(n)}`);
+      setWdAmt('');
+      return;
+    }
+    // Slow path: the cache may be stale (e.g. a deposit not yet picked up),
+    // so sync with the server before showing an error.
+    setWdChecking(true);
     await reloadBalance();
+    setWdChecking(false);
     const freshBalance = getBalance();
     const freshMax = getMaxWithdrawable();
     // Compare in whole cents to avoid floating-point false negatives
@@ -324,14 +332,15 @@ export default function Dashboard() {
                   <input type="number" value={wdAmt} onChange={e => setWdAmt(e.target.value)} placeholder={t("Amount to withdraw")} className="dash-input flex-1 px-4 py-3 text-sm" />
                   <button
                     onClick={doWithdraw}
-                    className="px-6 py-3 text-sm rounded-2xl font-extrabold transition-all active:scale-95"
+                    disabled={wdChecking}
+                    className="px-6 py-3 text-sm rounded-2xl font-extrabold transition-all active:scale-95 disabled:opacity-60"
                     style={{
                       background: 'linear-gradient(135deg, #34d399, #059669)',
                       color: '#062018',
                       border: 'none',
                       boxShadow: '0 4px 14px rgba(52,211,153,0.35), inset 0 1px 0 rgba(255,255,255,0.45)',
                     }}
-                  >{t("Withdraw")}</button>
+                  >{wdChecking ? t("Checking...") : t("Withdraw")}</button>
                 </div>
                 <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("Withdraw creates a request — funds sent after admin approval.")}</p>
               </div>
