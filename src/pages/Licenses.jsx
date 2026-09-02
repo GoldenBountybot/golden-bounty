@@ -41,7 +41,7 @@ export default function Licenses() {
         <InfoSection title="Address">
           <div className="flex items-start gap-2">
             <MapPin className="w-4 h-4 mt-0.5 shrink-0" style={{ color: '#D4AF37' }} />
-            <span>Office 2305, Boulevard Plaza Tower 1, Sheikh Mohammed bin Rashid Boulevard, Downtown Dubai, Dubai, United Arab Emirates</span>
+            <span>Plot-03, Shop No. FF-A (1st Floor), Road No. 1, Rupayan Latifa Shamsuddin Square, Shah Ali PS, Dhaka-1216, Bangladesh</span>
           </div>
         </InfoSection>
 
