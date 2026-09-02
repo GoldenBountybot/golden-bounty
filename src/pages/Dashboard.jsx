@@ -166,7 +166,7 @@ export default function Dashboard() {
           className="relative max-w-none mx-auto px-4 py-3 flex items-center gap-3"
           /* Telegram fullscreen overlays the very top of the screen with its own
              chrome, so nudge the row down out of the untappable strip. */
-          style={hasTelegramBackButton() ? { paddingTop: 'calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 2.25rem) + 0.5rem)' } : undefined}
+          style={hasTelegramBackButton() ? { paddingTop: 'calc(var(--tg-content-safe-area-inset-top, 2.25rem) + 0.25rem)' } : undefined}
         >
           {!hasTelegramBackButton() && (
             <button
