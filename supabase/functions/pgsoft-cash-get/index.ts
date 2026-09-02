@@ -1,6 +1,6 @@
 // PG SOFT → Cash/Get (Get Player Wallet)
 // Returns the player's authoritative wallet balance.
-import { CURRENCY, ERR, ensureWallet, fail, ok, preflight, readParams, checkOperatorToken } from '../_shared/pgsoft.ts';
+import { pgCurrency, ERR, ensureWallet, fail, ok, preflight, readParams, checkOperatorToken } from '../_shared/pgsoft.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return preflight();
@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
 
     const balance = Number(wallet.balance || 0);
     return ok({
-      currency_code: CURRENCY,
+      currency_code: pgCurrency(wallet),
       balance_amount: balance,
       updated_time: Date.now(),
     });

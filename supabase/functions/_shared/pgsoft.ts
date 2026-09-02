@@ -18,9 +18,12 @@ export const API_DOMAIN = (() => {
 export const PROXY_URL = (Deno.env.get('PGSOFT_PROXY_URL') || '').replace(/\/$/, '');
 export const PROXY_TOKEN = Deno.env.get('PGSOFT_PROXY_TOKEN') || '';
 
-// PG SOFT renders the currency symbol from this code. USD is now enabled on
-// our operator account, so every session/wallet callback reports 'USD' ("$").
+// PG SOFT locks a player's currency on their first login, so it is stored per
+// wallet: players who already played PG games are tagged 'USDT' in
+// wallets.pg_currency; everyone else (new accounts) gets 'USD' ("$").
 export const CURRENCY = 'USD';
+export const pgCurrency = (wallet: { pg_currency?: string | null } | null | undefined) =>
+  wallet?.pg_currency || CURRENCY;
 
 // PG SOFT error codes used by our callbacks.
 export const ERR = {

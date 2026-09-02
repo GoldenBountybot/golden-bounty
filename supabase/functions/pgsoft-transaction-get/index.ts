@@ -3,7 +3,7 @@
 // find out whether we actually processed it. If we have the transaction stored
 // we return its details; otherwise we return an error so PG SOFT treats the
 // deduction as never having happened.
-import { CURRENCY, ERR, OPERATOR_TOKEN, ensureWallet, fail, ok, preflight, readParams, checkOperatorToken, checkSecretKey, svc } from '../_shared/pgsoft.ts';
+import { pgCurrency, ERR, OPERATOR_TOKEN, ensureWallet, fail, ok, preflight, readParams, checkOperatorToken, checkSecretKey, svc } from '../_shared/pgsoft.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return preflight();
@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
     return ok({
       operator_token: OPERATOR_TOKEN,
       player_name: tx.user_id,
-      currency_code: CURRENCY,
+      currency_code: pgCurrency(wallet),
       transaction_amount: Number(tx.bet_amount || 0),
       balance_amount: Number(wallet.balance || 0),
       updated_time: Number(tx.updated_time || Date.now()),

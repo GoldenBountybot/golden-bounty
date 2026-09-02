@@ -1,7 +1,7 @@
 // PG SOFT → Cash/TransferInOut (Bet Payout)
 // Applies the signed player win/loss to the wallet. Fully idempotent: a
 // repeated transaction_id returns the stored result without moving money again.
-import { CURRENCY, ERR, applyDelta, ensureWallet, fail, num, ok, preflight, readParams, checkOperatorToken, svc } from '../_shared/pgsoft.ts';
+import { pgCurrency, ERR, applyDelta, ensureWallet, fail, num, ok, preflight, readParams, checkOperatorToken, svc } from '../_shared/pgsoft.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return preflight();
@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
       if (!prev) return fail({ code: ERR.INTERNAL.code, message: claim.error.message });
       if (prev.status !== 'success') return fail(ERR.INSUFFICIENT);
       return ok({
-        currency_code: CURRENCY,
+        currency_code: pgCurrency(wallet),
         balance_amount: Number(prev.balance_after || 0),
         updated_time: Number(prev.updated_time || Date.now()),
         // real_transfer_amount is only echoed back when PG SOFT asks for it.
@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
     }
 
     return ok({
-      currency_code: CURRENCY,
+      currency_code: pgCurrency(wallet),
       balance_amount: balance,
       updated_time: updatedTime,
       ...(p.real_transfer_amount !== undefined ? { real_transfer_amount: num(p.real_transfer_amount) } : {}),

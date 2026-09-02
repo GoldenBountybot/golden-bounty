@@ -1,7 +1,7 @@
 // PG SOFT → VerifySession
 // Validates the operator_player_session token we generated at game launch and
 // returns the player identity + currency.
-import { ERR, ensureWallet, fail, ok, preflight, readParams, checkOperatorToken, svc, CURRENCY } from '../_shared/pgsoft.ts';
+import { ERR, ensureWallet, fail, ok, preflight, readParams, checkOperatorToken, svc, pgCurrency } from '../_shared/pgsoft.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return preflight();
@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
     return ok({
       player_name: session.user_id,
       nickname: (profile?.full_name || (profile?.email || '').split('@')[0] || 'Player').slice(0, 30),
-      currency: CURRENCY,
+      currency: pgCurrency(wallet),
     });
   } catch (e) {
     return fail({ code: ERR.INTERNAL.code, message: String(e?.message || e) });
