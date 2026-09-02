@@ -11,7 +11,7 @@ const SECTIONS = [
   { n: 6, title: 'Staking', body: 'Staking plans are available. You receive daily profit according to the selected plan. Profit rates, lock periods, and conditions are clearly displayed before you confirm. Early unstaking is subject to the plan rules.' },
   { n: 7, title: 'Deposits & Withdrawals', body: 'Supported payment methods are shown in your wallet. No KYC is required for withdrawals. Withdrawals are processed as quickly as possible after request.' },
   { n: 8, title: 'Prohibited Activities', body: 'You may not use multiple accounts, engage in fraud, collusion, bonus abuse, or any illegal activity.' },
-  { n: 9, title: 'License & Regulation', body: 'Golden Bounty operates under the authorization of BDS INFO S.A. pursuant to CONAJZAR Resolution No. 07/2026 (31 January 2026). Certificate of Adhesion issued on 24 April 2026. Authorized for markets outside the territory of Paraguay.' },
+  { n: 9, title: 'License & Regulation', body: 'Golden Bounty operates under the authorization of BDS INFO S.A. pursuant to CONAJZAR Resolution No. 08/2024 (31 January 2024). Certificate of Adhesion issued on 24 April 2025. Authorized for markets outside the territory of Paraguay.' },
   { n: 10, title: 'Limitation of Liability', body: 'The Platform is provided "as is". We are not liable for any losses arising from the use of the Platform, except where required by law.' },
   { n: 11, title: 'Changes to Terms', body: 'We may update these Terms at any time. Continued use of the Platform constitutes acceptance of the updated Terms.' },
   { n: 12, title: 'Contact', body: 'For any questions, contact our 24/7 Support team through the Platform.' },
