@@ -146,6 +146,12 @@ export function isCached(url) {
   return loaded.has(url);
 }
 
+// Record a URL as fully loaded (called by FadeImage once an <img> has painted)
+// so any later mount of the same image is instant — no replayed fade.
+export function markLoaded(url) {
+  if (url) loaded.add(url);
+}
+
 // Fetch dynamic entity images (admin-added banners, payment QR codes, site
 // settings) and preload them so they don't pop in after the splash disappears.
 // Each entity is fetched independently; a failure in one never blocks the others.

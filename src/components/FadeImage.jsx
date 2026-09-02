@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { isCached } from '@/lib/assetPreloader';
+import React, { useState, useLayoutEffect, useRef } from 'react';
+import { isCached, markLoaded } from '@/lib/assetPreloader';
 
 // Drop-in <img> replacement that fades in smoothly when the image is ready,
 // so the user never sees a raw image "download/pop in" — it just appears
@@ -28,13 +28,19 @@ export default function FadeImage({
   // If the src changes, re-evaluate readiness. Also check `complete` directly:
   // a browser-cached image finishes loading before React attaches onLoad, so
   // without this check the image would stay invisible forever.
-  useEffect(() => {
-    const cached = isCached(src) || imgRef.current?.complete;
+  // Layout effect: runs BEFORE the browser paints, so a browser-cached image
+  // (complete === true) is shown at full opacity on its very first frame —
+  // no hidden→visible flicker that looks like a re-download on remount.
+  useLayoutEffect(() => {
+    const cached = isCached(src) || (imgRef.current?.complete && imgRef.current?.naturalWidth > 0);
     instantRef.current = cached;
-    if (cached) setReady(true);
+    if (cached) { markLoaded(src); setReady(true); }
   }, [src]);
 
   const onLoad = (e) => {
+    // Remember this URL as loaded so every later mount (navigating back from a
+    // game / page) paints instantly instead of fading in again.
+    markLoaded(src);
     setReady(true);
     rest.onLoad?.(e);
   };
