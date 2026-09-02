@@ -65,7 +65,7 @@ unknown token → 404 ✓, bet → win → refund cycle with idempotent retries 
 refund of unknown bet ✓, late bet after refund ✓, insufficient funds → 402 ✓.
 
 The test session token from the manual (d1fe901b577f459abc0b2298a1f9f1dd — lower AND upper case) is
-pre-registered on our side with a 90-day expiry, so Endorphina's team can run the acceptance test
+pre-registered on our side with a 10-year expiry (valid until 2036), so Endorphina's team can run the acceptance test
 directly against our staging URL. Message to send them (Telegram group / tech email):
 
 > Hi team, our seamless wallet endpoints are ready on staging:
