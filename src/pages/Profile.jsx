@@ -18,7 +18,7 @@ import XPostTask from '@/components/XPostTask';
 import CashbackPanel from '@/components/CashbackPanel';
 import { formatDateTime } from '@/lib/dateFormat';
 import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
-import { hasTelegramBackButton, isInsideTelegram } from '@/lib/telegram';
+import { hasTelegramBackButton } from '@/lib/telegram';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -211,8 +211,7 @@ export default function Profile() {
         <div
           className="max-w-none mx-auto px-4 py-3 flex items-center gap-3 relative"
           data-menu
-          /* Same inset the Home header uses — its buttons are tappable in Telegram fullscreen. */
-          style={isInsideTelegram() ? { paddingTop: 'calc(env(safe-area-inset-top, 0px) + 42px)' } : undefined}
+          style={hasTelegramBackButton() ? { paddingTop: 'calc(var(--tg-content-safe-area-inset-top, 2.25rem) + 0.25rem)' } : undefined}
         >
           <button
             onClick={() => setMenuOpen(o => !o)}

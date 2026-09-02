@@ -20,7 +20,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
 import { base44 } from '@/api/base44Client';
 import { formatDateTime } from '@/lib/dateFormat';
-import { hasTelegramBackButton, isInsideTelegram } from '@/lib/telegram';
+import { hasTelegramBackButton } from '@/lib/telegram';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -159,8 +159,7 @@ export default function Dashboard() {
       >
         <div
           className="relative max-w-none mx-auto px-4 py-3 flex items-center gap-3"
-          /* Same inset the Home header uses — its buttons are tappable in Telegram fullscreen. */
-          style={isInsideTelegram() ? { paddingTop: 'calc(env(safe-area-inset-top, 0px) + 42px)' } : undefined}
+          style={hasTelegramBackButton() ? { paddingTop: 'calc(var(--tg-content-safe-area-inset-top, 2.25rem) + 0.25rem)' } : undefined}
         >
           {!hasTelegramBackButton() && (
             <button
