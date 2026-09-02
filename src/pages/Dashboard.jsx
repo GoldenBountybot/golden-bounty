@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History, Menu, CheckCircle2, Clock, XCircle, Gift, ArrowLeftRight } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
-import { reloadBalance, getBalance, getMaxWithdrawable } from '@/lib/useCasinoBalance';
+import { getBalance, getMaxWithdrawable } from '@/lib/useCasinoBalance';
 import { useStake, LOCK_DAYS } from '@/lib/useStake';
 import StackMining from '@/components/StackMining';
 import FadeImage from '@/components/FadeImage';
@@ -101,36 +101,27 @@ export default function Dashboard() {
     setDepAmt('');
   };
 
-  const doWithdraw = async () => {
+  const doWithdraw = () => {
     const n = Number(wdAmt);
-    if (!n || n <= 0) { toast({ title: t("Enter a valid amount") }); return; }
-    if (n < 2) { toast({ title: t("Minimum withdrawal is $2.00") }); return; }
-    // Check the local cache first so the button responds instantly. Only when
-    // the cached numbers fail the check do we sync with the server — the cache
-    // can be stale (e.g. a deposit not yet picked up) and produce a false
-    // "Insufficient balance".
+    if (!n || n <= 0) { showNotify(t("Enter a valid amount")); return; }
+    if (n < 2) { showNotify(t("Minimum withdrawal is $2.00")); return; }
+    // Purely local, synchronous checks so the button responds instantly —
+    // never wait on the server here. The server re-validates on submit.
     const cents = Math.round(n * 100);
-    let freshBalance = getBalance();
-    let freshMax = getMaxWithdrawable();
-    if (cents > Math.round(freshBalance * 100) || cents > Math.round(freshMax * 100)) {
-      await reloadBalance();
-      freshBalance = getBalance();
-      freshMax = getMaxWithdrawable();
-    }
-    // Compare in whole cents to avoid floating-point false negatives
-    // (e.g. balance 2.6499999 vs entered 2.65).
-    if (Math.round(n * 100) > Math.round(freshBalance * 100)) { toast({ title: t("Insufficient balance") }); return; }
-    if (Math.round(n * 100) > Math.round(freshMax * 100)) {
+    const bal = getBalance();
+    const max = getMaxWithdrawable();
+    if (cents > Math.round(bal * 100)) { showNotify(t("Insufficient balance")); return; }
+    if (cents > Math.round(max * 100)) {
       showNotify(
         t("Wagering requirement not met"),
-        freshBalance - freshMax > 0
-          ? `Play through or stack $${(freshBalance - freshMax).toFixed(2)} of your deposit before withdrawing.`
+        bal - max > 0
+          ? `Play through or stack $${(bal - max).toFixed(2)} of your deposit before withdrawing.`
           : t("Only winnings above your locked deposit can be withdrawn.")
       );
       return;
     }
-    navigate(`/withdraw?amount=${encodeURIComponent(n)}`);
     setWdAmt('');
+    navigate(`/withdraw?amount=${encodeURIComponent(n)}`);
   };
 
   const doStake = async (amount) => {
