@@ -219,7 +219,7 @@ export default function Profile() {
             onClick={() => setMenuOpen(o => !o)}
             className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-95"
             /* Nudged right so Telegram's own top-left back button doesn't cover it */
-            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37', marginLeft: hasTelegramBackButton() ? 'calc(2.75rem + 8px)' : '8px' }}
+            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37', marginLeft: hasTelegramBackButton() ? 'calc(2.75rem + 20px)' : '8px' }}
             title={t("Menu")}
           >
             <Menu className="w-5 h-5" />

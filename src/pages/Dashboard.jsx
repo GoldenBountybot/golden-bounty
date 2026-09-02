@@ -189,18 +189,20 @@ export default function Dashboard() {
           </div>
           <div className="flex-1" />
 
-          <button
-            onClick={() => setMenuOpen(o => !o)}
-            title="Menu"
-            className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95 shrink-0"
-            /* Nudged left so Telegram's own top-right controls don't cover it */
-            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37', marginRight: hasTelegramBackButton() ? 'calc(2.75rem + 8px)' : '8px' }}
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+          {tab !== 'stack' && tab !== 'vip' && (
+            <button
+              onClick={() => setMenuOpen(o => !o)}
+              title="Menu"
+              className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95 shrink-0"
+              /* Nudged left so Telegram's own top-right controls don't cover it */
+              style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37', marginRight: hasTelegramBackButton() ? 'calc(2.75rem + 20px)' : '8px' }}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
-        {menuOpen && (
+        {menuOpen && tab !== 'stack' && tab !== 'vip' && (
           <div className="max-w-none mx-auto px-4 pb-3 flex items-center gap-2 overflow-x-auto" style={{ animation: 'dashFadeIn 250ms ease both', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
             {TABS.map(tb => {
               const Icon = tb.icon;

@@ -4,7 +4,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useLanguage } from '@/lib/LanguageContext';
-import { Wallet, ArrowLeft, Send, AlertTriangle, ArrowUpFromLine, Menu, Shield } from 'lucide-react';
+import { Wallet, ArrowLeft, Send, AlertTriangle, ArrowUpFromLine, Shield } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import StylishNotify from '@/components/StylishNotify';
 import { hasTelegramBackButton } from '@/lib/telegram';
@@ -207,15 +207,6 @@ export default function Withdraw() {
             </span>
           </div>
           <div className="flex-1" />
-
-          <button
-            onClick={() => navigate('/dashboard')}
-            title="Menu"
-            className="flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95"
-            style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}
-          >
-            <Menu className="w-5 h-5" />
-          </button>
         </div>
       </header>
 
