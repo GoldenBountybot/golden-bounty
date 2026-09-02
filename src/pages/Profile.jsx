@@ -18,6 +18,8 @@ import XPostTask from '@/components/XPostTask';
 import CashbackPanel from '@/components/CashbackPanel';
 import { formatDateTime } from '@/lib/dateFormat';
 import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
+import { pickRandomAvatar } from '@/lib/pickAvatar';
+import { getCachedSrc } from '@/lib/assetPreloader';
 import { hasTelegramBackButton } from '@/lib/telegram';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
@@ -167,8 +169,19 @@ export default function Profile() {
   const save = async () => {
     setSaving(true);
     try {
-      await base44.auth.updateMe({ gender, date_of_birth: dob, phone });
-      setProfile((p) => ({ ...p, gender, date_of_birth: dob, phone }));
+      const patch = { gender, date_of_birth: dob, phone };
+      // New or changed gender → assign a random avatar of that gender, already
+      // fully decoded in memory so it appears instantly with no download.
+      if (gender && (gender !== profile?.gender || !profile?.avatar_url)) {
+        const url = await pickRandomAvatar(gender);
+        if (url) patch.avatar_url = url;
+      }
+      await base44.auth.updateMe(patch);
+      setProfile((p) => {
+        const next = { ...p, ...patch };
+        updateProfileCache({ profile: next });
+        return next;
+      });
       toast({ title: t("Profile updated") });
     } catch (e) {
       toast({ title: t("Update failed"), description: e.message });
@@ -316,7 +329,7 @@ export default function Profile() {
             <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 14px rgba(212,175,55,0.25)', transform: 'scale(1.1)' }} />
             <div className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center relative" style={{ border: '2px solid rgba(212,175,55,0.6)', background: 'linear-gradient(135deg, #FFD700, #C89B3C)' }}>
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                <img src={getCachedSrc(profile.avatar_url)} alt="avatar" className="w-full h-full object-cover" />
               ) : (
                 <UserIcon className="w-10 h-10" style={{ color: '#1a1408' }} />
               )}
