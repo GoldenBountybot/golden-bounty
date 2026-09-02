@@ -41,8 +41,12 @@ export default function PgGame() {
   // (PG's frame is cross-origin, so we can't inspect it) and drive the progress
   // bar smoothly to 100 over the same period — so the connection completes
   // *inside* our loading screen and PG's own loader is what appears next.
+  // The launch HTML is a tiny redirect stub, so the frame fires `load` twice:
+  // once for the stub (instantly) and again for PG's real game page. Restart
+  // the connect window on every load so it is measured from the *last* one.
   const onFrameLoad = () => {
-    const CONNECT_MS = 9000;
+    if (connectTimer.current) clearInterval(connectTimer.current);
+    const CONNECT_MS = 12000;
     const started = Date.now();
     const from = progressRef.current;
     const tick = setInterval(() => {
