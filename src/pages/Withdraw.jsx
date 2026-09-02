@@ -10,7 +10,6 @@ import StylishNotify from '@/components/StylishNotify';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import AgentWithdrawCard from '@/components/agent/AgentWithdrawCard';
 import PayPinInput from '@/components/PayPinInput';
-import { verifyPayPin } from '@/lib/payPin';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -120,15 +119,12 @@ export default function Withdraw() {
     }
     setSubmitting(true);
     try {
-      const pinCheck = await verifyPayPin(payPin);
-      if (pinCheck !== 'ok') {
-        setSubmitting(false);
-        if (pinCheck === 'not_set') showNotify(t("Pay Pin required"), t("Set your Pay Pin first from Dashboard → Pay Pin."));
-        else toast({ title: t("Invalid pay pin") });
-        return;
-      }
+      // One profile read covers both the login check and the Pay Pin check.
       const me = await base44.auth.me().catch(() => null);
       if (!me) { toast({ title: t("Please log in first") }); setSubmitting(false); return; }
+      const stored = me.pay_pin || '';
+      if (!stored) { setSubmitting(false); showNotify(t("Pay Pin required"), t("Set your Pay Pin first from Dashboard → Pay Pin.")); return; }
+      if (String(payPin) !== String(stored)) { setSubmitting(false); toast({ title: t("Invalid pay pin") }); return; }
       // All validation now happens server-side in submitWithdrawal (balance,
       // wager requirement, banned check, pending-withdrawal spam limit).
       // The client-side maxWithdrawable check is kept only for a faster
@@ -164,17 +160,15 @@ export default function Withdraw() {
         setSubmitting(false);
         return;
       }
-      // Auto-notify every admin by email (admins auto-picked server-side).
-      try {
-        await base44.functions.invoke('notifyAdminWithdrawal', {
-          amount,
-          network: selectedNet.name,
-          wallet: walletAddr.trim(),
-        });
-      } catch (_e) { /* non-critical — withdrawal already saved */ }
+      // Auto-notify admins in the background — don't make the user wait on it.
+      base44.functions.invoke('notifyAdminWithdrawal', {
+        amount,
+        network: selectedNet.name,
+        wallet: walletAddr.trim(),
+      }).catch(() => { /* non-critical — withdrawal already saved */ });
       toast({ title: t("Withdrawal requested"), description: t("Pending admin approval.") });
       setWalletAddr(''); setSelectedNet(null); setPayPin('');
-      setTimeout(() => { navigate('/dashboard?tab=wallet'); }, 1000);
+      navigate('/dashboard?tab=wallet');
     } catch {
       toast({ title: t("Submission failed"), description: t("Please try again.") });
     }
