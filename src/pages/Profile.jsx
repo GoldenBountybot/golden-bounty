@@ -213,7 +213,7 @@ export default function Profile() {
           data-menu
           /* Telegram fullscreen overlays the very top of the screen with its own
              chrome, so nudge the row down out of the untappable strip. */
-          style={hasTelegramBackButton() ? { paddingTop: 'calc(env(safe-area-inset-top) + 2.25rem)' } : undefined}
+          style={hasTelegramBackButton() ? { paddingTop: 'calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 2.25rem) + 0.5rem)' } : undefined}
         >
           <button
             onClick={() => setMenuOpen(o => !o)}
