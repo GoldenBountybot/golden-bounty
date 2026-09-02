@@ -61,7 +61,7 @@ import RouteTransitionLoader from '@/components/RouteTransitionLoader';
 import { LanguageProvider } from '@/lib/LanguageContext';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { preloadAssets, preloadDynamicAssets, preloadAllGameAssets, preloadImage } from '@/lib/assetPreloader';
-import { APP_ASSETS, PG_CARDS_REST } from '@/lib/appAssets';
+import { APP_ASSETS, PROVIDER_CARDS_REST } from '@/lib/appAssets';
 import { base44 } from '@/api/base44Client';
 import { SUPABASE_URL } from '@/api/supabaseClient';
 import { isStandaloneApp } from '@/lib/isStandaloneApp';
@@ -116,9 +116,10 @@ const AuthenticatedApp = () => {
     // Warm the Stack numbers (staked amount, profit, VIP rate) so the Stack
     // page paints them instantly on first open instead of loading on entry.
     warmStakeCache();
-    // Warm the remaining PG SOFT lobby covers (beyond the first screenful) at
-    // low priority so scrolling the lobby never shows an image downloading.
-    preloadAssets(PG_CARDS_REST, null, true);
+    // Warm the remaining PG SOFT + JILI lobby covers (beyond the first
+    // screenful) at low priority so scrolling the lobby never shows an image
+    // downloading.
+    preloadAssets(PROVIDER_CARDS_REST, null, true);
     const t = setTimeout(() => { preloadAllGameAssets(); }, 300);
     return () => clearTimeout(t);
   }, [showLoadingScreen]);

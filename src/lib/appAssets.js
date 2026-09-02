@@ -9,6 +9,7 @@
 // game's own loading screen (GameAssetLoader).
 
 import { PG_GAMES } from '@/lib/pgGames';
+import { JILI_GAMES } from '@/lib/jiliGames';
 import { SUPABASE_URL } from '@/api/supabaseClient';
 
 const CDN = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44';
@@ -124,13 +125,16 @@ const SUPPORT = [
   'https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg',
 ];
 
-// ---- PG SOFT lobby covers ----
-// The catalogue holds 150+ covers — only the first screenful is preloaded on
-// the splash (the lobby mounts 36 tiles at a time). The rest are warmed in the
-// background after entry via PG_CARDS_REST.
+// ---- PG SOFT + JILI lobby covers ----
+// The lobby's first screenful alternates PG SOFT popular titles with JILI
+// popular titles, so both leading slices are preloaded on the splash. The rest
+// of both catalogues (300+ covers) are warmed in the background after entry
+// via PROVIDER_CARDS_REST, before the user can scroll to them.
 const PG_CARD_URLS = PG_GAMES.map((g) => g.image).filter(Boolean);
-const PG_CARDS = PG_CARD_URLS.slice(0, 40);
-export const PG_CARDS_REST = PG_CARD_URLS.slice(40);
+const JILI_POPULAR_URLS = JILI_GAMES.filter((g) => g.cat === 2).map((g) => g.cover);
+const JILI_OTHER_URLS = JILI_GAMES.filter((g) => g.cat !== 2).map((g) => g.cover);
+const PG_CARDS = [...PG_CARD_URLS.slice(0, 30), ...JILI_POPULAR_URLS.slice(0, 30)];
+export const PROVIDER_CARDS_REST = [...PG_CARD_URLS.slice(30), ...JILI_POPULAR_URLS.slice(30), ...JILI_OTHER_URLS];
 
 // The complete list of app-wide images to preload during the splash screen.
 export const APP_ASSETS = [

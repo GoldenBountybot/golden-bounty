@@ -28,7 +28,18 @@ function CasinoGameCard({ game }) {
         containIntrinsicSize: '180px',
       }}
     >
-      {game.image ? (
+      {game.image && game.provider ? (
+        // Provider (PG SOFT / JILI) covers are square icons — show the whole
+        // artwork uncropped on top of a blurred copy of itself, so nothing is
+        // cut off and the tile still fills edge to edge.
+        <>
+          <div
+            className="absolute inset-0 scale-125"
+            style={{ backgroundImage: `url(${game.image})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(14px) brightness(0.55) saturate(1.3)' }}
+          />
+          <FadeImage src={game.image} alt={game.title} className="absolute inset-x-0 top-0 w-full h-[76%] object-contain object-top" durationMs={350} loading="lazy" decoding="async" style={{ filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.6))' }} />
+        </>
+      ) : game.image ? (
         <FadeImage src={game.image} alt={game.title} className="absolute inset-0 w-full h-full object-cover" durationMs={350} loading="lazy" decoding="async" />
       ) : (
         <div className={`absolute inset-0 bg-gradient-to-br ${game.accent}`} />
