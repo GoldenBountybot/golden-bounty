@@ -46,7 +46,7 @@ export default function PgGame() {
   // the connect window on every load so it is measured from the *last* one.
   const onFrameLoad = () => {
     if (connectTimer.current) clearInterval(connectTimer.current);
-    const CONNECT_MS = 12000;
+    const CONNECT_MS = 9000;
     const started = Date.now();
     const from = progressRef.current;
     const tick = setInterval(() => {
