@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Gift, Sparkles, CalendarDays, CalendarRange, Clock } from 'lucide-react';
-import { supabase } from '@/api/supabaseClient';
+import { supabase, SUPABASE_URL } from '@/api/supabaseClient';
 import { base44 } from '@/api/base44Client';
 import { reloadBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
@@ -9,8 +9,8 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import BonusCard from '@/components/bonus/BonusCard';
 
-// Banners are served from the GitHub assets CDN (no Supabase egress).
-const BANNER = (name) => `https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/bonus_${name}.png`;
+// Banners are served from the app's own Supabase storage bucket (no credits used).
+const BANNER = (name) => `${SUPABASE_URL}/storage/v1/object/public/media/bonus/${name}.png`;
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 

@@ -10,6 +10,7 @@
 
 import { PG_GAMES } from '@/lib/pgGames';
 import { JILI_GAMES } from '@/lib/jiliGames';
+import { SUPABASE_URL } from '@/api/supabaseClient';
 
 const CDN = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44';
 const u = (id) => `${CDN}/${id}`;
@@ -74,10 +75,10 @@ const AIRDROP = [
   u('c36d89e4b_file_000000000d648211a1ae80116606f30d.png'), // BOUNTY token banner
 ];
 
-// ---- Bonus page banners ----
+// ---- Bonus page banners (Supabase media bucket) ----
 const BONUS = [
-  u('bonus_weekly-bonus.png'),
-  u('bonus_monthly-bonus.png'),
+  `${SUPABASE_URL}/storage/v1/object/public/media/bonus/weekly-bonus.png`,
+  `${SUPABASE_URL}/storage/v1/object/public/media/bonus/monthly-bonus.png`,
 ];
 
 // ---- Game card cover images (Home lobby grid) ----
