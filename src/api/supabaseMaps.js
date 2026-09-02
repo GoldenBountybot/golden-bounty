@@ -82,7 +82,9 @@ export function rowOut(row) {
     created_date: row.created_at ?? row.created_date,
     updated_date: row.updated_at ?? row.updated_date,
     created_by_id: row.created_by_id ?? row.user_id,
-    bounty_allocation: row.bounty_allocation ?? row.tokens,
+    // profiles.tokens is the authoritative BOUNTY balance (the legacy
+    // bounty_allocation column still exists but is never written anymore).
+    bounty_allocation: row.tokens ?? row.bounty_allocation,
   };
 }
 
