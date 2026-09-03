@@ -10,6 +10,7 @@
 
 import { PG_GAMES } from '@/lib/pgGames';
 import { JILI_GAMES } from '@/lib/jiliGames';
+import { ENDORPHINA_GAMES } from '@/lib/endorphinaGames';
 import { SUPABASE_URL } from '@/api/supabaseClient';
 
 const CDN = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44';
@@ -134,7 +135,8 @@ const PG_CARD_URLS = PG_GAMES.map((g) => g.image).filter(Boolean);
 const JILI_POPULAR_URLS = JILI_GAMES.filter((g) => g.cat === 2).map((g) => g.cover);
 const JILI_OTHER_URLS = JILI_GAMES.filter((g) => g.cat !== 2).map((g) => g.cover);
 const PG_CARDS = [...PG_CARD_URLS.slice(0, 30), ...JILI_POPULAR_URLS.slice(0, 30)];
-export const PROVIDER_CARDS_REST = [...PG_CARD_URLS.slice(30), ...JILI_POPULAR_URLS.slice(30), ...JILI_OTHER_URLS];
+const ENDO_CARD_URLS = ENDORPHINA_GAMES.map((g) => g.cover).filter(Boolean);
+export const PROVIDER_CARDS_REST = [...PG_CARD_URLS.slice(30), ...JILI_POPULAR_URLS.slice(30), ...JILI_OTHER_URLS, ...ENDO_CARD_URLS.slice(24)];
 
 // Only what the user actually SEES on entry (loading screen + home lobby's
 // first screenful). The loading screen waits for these — keeping it short is
@@ -155,6 +157,7 @@ export const CRITICAL_ASSETS = [
 export const DEFERRED_ASSETS = [
   ...PG_CARD_URLS.slice(8, 30),
   ...JILI_POPULAR_URLS.slice(8, 30),
+  ...ENDO_CARD_URLS.slice(0, 24),
   ...DASHBOARD,
   ...VIP,
   ...PROMO,
