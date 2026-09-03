@@ -21,7 +21,6 @@ import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
 import { pickRandomAvatar } from '@/lib/pickAvatar';
 import { getCachedSrc } from '@/lib/assetPreloader';
 import { hasTelegramBackButton } from '@/lib/telegram';
-import ProfileAvatar from '@/components/ProfileAvatar';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -329,7 +328,11 @@ export default function Profile() {
           <div className="relative">
             <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 14px rgba(212,175,55,0.25)', transform: 'scale(1.1)' }} />
             <div className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center relative" style={{ border: '2px solid rgba(212,175,55,0.6)', background: 'linear-gradient(135deg, #FFD700, #C89B3C)' }}>
-              <ProfileAvatar fallbackSrc={profile?.avatar_url ? getCachedSrc(profile.avatar_url) : ''} />
+              {profile?.avatar_url ? (
+                <img src={getCachedSrc(profile.avatar_url)} alt="avatar" className="w-full h-full object-cover" />
+              ) : (
+                <UserIcon className="w-10 h-10" style={{ color: '#1a1408' }} />
+              )}
             </div>
           </div>
 
