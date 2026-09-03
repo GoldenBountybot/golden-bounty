@@ -254,10 +254,14 @@ const RAW = [
   ['gladiators', 'Gladiators', 'gladiators-3b8c1199e1-371x371.png'],
 ];
 
+// Covers are mirrored onto our own CDN (endorphina.com blocks hotlinking from
+// the browser, so the cards showed up empty when loaded straight from them).
+const CDN = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/endo';
+
 export const ENDORPHINA_GAMES = RAW.map(([id, name, thumb]) => ({
   id,
   name,
-  cover: `${THUMB}/${thumb}`,
+  cover: `${CDN}/${id}.${thumb.endsWith('.jpg') ? 'jpg' : 'png'}`,
   code: `endorphina_${pascal(id)}@ENDORPHINA`,
 }));
 
