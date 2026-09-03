@@ -16,6 +16,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { isInsideTelegram } from '@/lib/telegram';
 import { PG_GAMES } from '@/lib/pgGames';
 import { JILI_GAMES } from '@/lib/jiliGames';
+import { ENDORPHINA_GAMES, ENDORPHINA_LIVE } from '@/lib/endorphinaGames';
 
 const GAMES = [
   { id: 'free-spin', titleKey: 'Daily Free Spin', category: 'Arcade', desc: 'Spin every 24h · win $1000', accent: 'from-amber-500 to-yellow-700', tag: 'FREE', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png', path: '/free-spin' },
@@ -63,6 +64,19 @@ const JILI_LOBBY_GAMES = JILI_GAMES.map(g => ({
   path: `/games/jili/${g.id}`,
 }));
 
+// Endorphina titles — all slots, folded into the same lobby.
+const ENDO_LOBBY_GAMES = (ENDORPHINA_LIVE ? ENDORPHINA_GAMES : []).map(g => ({
+  id: `endo-${g.id}`,
+  titleKey: g.name,
+  category: 'Slots',
+  desc: 'Endorphina',
+  accent: 'from-amber-500 to-red-800',
+  tag: '',
+  provider: 'ENDORPHINA',
+  image: g.cover,
+  path: `/games/endorphina/${g.id}`,
+}));
+
 // Popular alternates one PG SOFT title, one JILI title, so the tab shows a
 // balanced mix of both providers.
 const PG_POPULAR = PG_LOBBY_GAMES.filter(g => g.category === 'Popular');
@@ -74,7 +88,7 @@ for (let i = 0; i < Math.max(PG_POPULAR.length, JILI_POPULAR.length); i++) {
 }
 const OTHER_PROVIDER_GAMES = [...PG_LOBBY_GAMES, ...JILI_LOBBY_GAMES].filter(g => g.category !== 'Popular');
 
-const ALL_GAMES = [...GAMES, ...MIXED_POPULAR, ...OTHER_PROVIDER_GAMES];
+const ALL_GAMES = [...GAMES, ...MIXED_POPULAR, ...ENDO_LOBBY_GAMES, ...OTHER_PROVIDER_GAMES];
 
 // Temporarily hidden from the lobby (routes still work if opened directly).
 // Remove an id from this list to show the game again.

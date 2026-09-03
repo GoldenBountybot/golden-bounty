@@ -36,6 +36,7 @@ export const FUNCTIONS = {
   getReferralStats: 'referral-stats',
   getWallet: 'get-wallet',
   jiliLaunchGame: 'jili-launch-game',
+  endorphinaLaunchGame: 'endorphina-launch-game',
   getWithdrawalRiskAssessment: 'withdrawal-risk-assessment',
   manualDepositCreate: 'manual-deposit-create',
   manualDepositCheck: 'manual-deposit-check',

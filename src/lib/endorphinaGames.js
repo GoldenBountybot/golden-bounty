@@ -1,0 +1,153 @@
+// Endorphina game catalogue (titles + covers taken from endorphina.com).
+//
+// `id` is the Endorphina website slug, used as our route param.
+// `code` is the provider game id sent to Endorphina at session time. The
+// format is endorphina_<PascalCaseName>@ENDORPHINA (API v1.8.1). It is derived
+// from the slug — any title whose provider code differs from the derived value
+// gets an explicit `code` override below.
+//
+// Staging node: nodeId 3740 (Brand: Golden Bounty), endo_url https://test.endorphina.network
+
+// Flip to false to hide all Endorphina titles from the lobby (e.g. while the
+// production key is pending).
+export const ENDORPHINA_LIVE = true;
+
+const THUMB = 'https://endorphina.com/uploads/thumbs';
+
+const pascal = (slug) =>
+  slug.split('-').map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join('');
+
+// [slug, display name, thumbnail file]
+const RAW = [
+  ['3-golden-chests', '3 Golden Chests', '371x371-b05f11643c-371x371.png'],
+  ['hell-hot-1000', 'Hell Hot 1000', '371x371website-icon-4f3fdc710e-371x371.jpg'],
+  ['groovin-tiger', 'Groovin Tiger', '371x371-0bcd1c6f1f-371x371.png'],
+  ['gift-of-midas', 'Gift of Midas', '371x371-f676ed9b8c-371x371.jpg'],
+  ['burning-coins-20-dice', 'Burning Coins 20 Dice', '371x371-c0e3574658-371x371.jpg'],
+  ['zalatar', 'Zalatar', '371h371-16d293534c-371x371.jpg'],
+  ['moofo', 'MooFo', '371x371tag-newwithout-7b2fcf882d-371x371.jpg'],
+  ['burning-coins-100', 'Burning Coins 100', '371x371-24f573c10a-371x371.png'],
+  ['druids-fortune', 'Druids Fortune', '371x371-2d5f98acb9-371x371.jpg'],
+  ['chance-machine-90s', 'Chance Machine 90s', '371h371-4024c6df0a-371x371.jpg'],
+  ['fortune-bankers', 'Fortune Bankers', '371x371-3549df6b9c-371x371.png'],
+  ['football-2026', 'Football 2026', '371x371-d4ef607a33-371x371.png'],
+  ['sloth-game', 'Sloth Game', '371h371-1d045b795a-371x371.jpg'],
+  ['lucky-streak-1000-dice', 'Lucky Streak 1000 Dice', '371x371-30cf6526a0-371x371.jpg'],
+  ['burning-hell-3000', 'Burning Hell 3000', '371x371-b9400aeae7-371x371.png'],
+  ['nazar-wishes', 'Nazar Wishes', '371x371-b61a22240d-371x371.jpg'],
+  ['gambleman', 'Gambleman', '371h371-54a9f8b118-371x371.jpg'],
+  ['clover-flames-dice', 'Clover Flames Dice', '371x371-ab4a491ef6-371x371.jpg'],
+  ['2026-hit-slot', '2026 Hit Slot', '371h371-2b190c6c42-371x371.png'],
+  ['3-coin-towers', '3 Coin Towers', '371x371website-icon-7341a90f76-371x371.jpg'],
+  ['love-show', 'Love Show', 'loveshow-3612e7f083-371x371.png'],
+  ['3-royal-dracos', '3 Royal Dracos', '3royaldracos-fdf1cdfc67-371x371.png'],
+  ['cockroach-fortune', 'Cockroach Fortune', 'task-360018371x371-bc33275081-371x371.png'],
+  ['crown-coins-dice', 'Crown Coins Dice', 'crowncoinsdice371x371-34ef08db39-371x371.png'],
+  ['bad-santa', 'Bad Santa', '371h371-1997c28d01-371x371.png'],
+  ['best-xmas', 'Best Xmas', 'bestxmas-e35985a0f0-371x371.png'],
+  ['burning-hell', 'Burning Hell', 'burninghell-c480a1a51d-371x371.png'],
+  ['burning-coins-40', 'Burning Coins 40', 'burningcoins40-aca5f2a22b-371x371.png'],
+  ['book-of-ganesha', 'Book of Ganesha', 'bookofganesha-319fc20de5-371x371.png'],
+  ['royal-xmass-2-dice', 'Royal Xmass 2 Dice', 'royalxmass2dice-ea3d21f081-371x371.png'],
+  ['mr-bells-40', 'Mr. Bells 40', 'mrbells40endorphina-4896de6130-371x371.png'],
+  ['3-witch-pots', '3 Witch Pots', '3witchpotsnewslotrelease-c0c693b4d5-371x371.png'],
+  ['fortune-stars', 'Fortune Stars', 'fortunestars-9883398b86-371x371.png'],
+  ['sloteus-gold', 'Sloteus Gold', '371h371-5eb3e490cf-371x371.png'],
+  ['fortune-chests', 'Fortune Chests', 'fortunechestsmainicon-27b314c1c2-371x371.jpg'],
+  ['thunder-crown', 'Thunder Crown', 'thundercrown-490beb7c93-371x371.png'],
+  ['prestige-crown', 'Prestige Crown', 'prestigecrown-cd25bd0e75-371x371.png'],
+  ['sticky-lips', 'Sticky Lips', 'stickylips-2d2c43e6ea-371x371.png'],
+  ['amazons-riches', 'Amazons Riches', 'amazonsriches-f058c2b23c-371x371.png'],
+  ['burning-coins-20', 'Burning Coins 20', 'burningcoins-3b126d0f4b-371x371.png'],
+  ['starshine-crystals', 'Starshine Crystals', 'starshinecrystals-dc9a3e5e26-371x371.png'],
+  ['fortune-capybara', 'Fortune Capybara', 'fortunecapybara-830d24a471-371x371.png'],
+  ['janissaries', 'Janissaries', 'janissaries-b79ee7e303-371x371.png'],
+  ['2025-hit-slot', '2025 Hit Slot', 'hitslot2025-ab49153fbc-371x371.png'],
+  ['clover-flames', 'Clover Flames', 'clover-flames-39aaf3e5eb-371x371.png'],
+  ['chance-machine-100-dice', 'Chance Machine 100 Dice', '371h371-e4b45df577-371x371.png'],
+  ['book-of-vlad-dice', 'Book of Vlad Dice', '371x371-822433bc3a-371x371.png'],
+  ['crystal-skull-dice', 'Crystal Skull Dice', '371x371-4a7153b32b-371x371.png'],
+  ['fortune-snake', 'Fortune Snake', '371x371-6983468608-371x371.png'],
+  ['power-balls', 'Power Balls', '371x371-b8ab5f8a2b-371x371.jpg'],
+  ['book-of-santa-dice', 'Book of Santa Dice', 'bookofsantadice-ef706dda7f-371x371.png'],
+  ['mr-jingle-bells', 'Mr. Jingle Bells', '371x371-24fae1bce2-371x371.png'],
+  ['jolly-santa', 'Jolly Santa', 'jollysanta-4c254f62bf-371x371.jpg'],
+  ['xmas-burst', 'Xmas Burst', 'xmasburst-fe1aed34a2-371x371.png'],
+  ['lucky-streak-1000', 'Lucky Streak 1000', '371x371-6d6b6cc36a-371x371.png'],
+  ['chance-machine-40-dice', 'Chance Machine 40 Dice', '371x371-e93fddf9c4-371x371.png'],
+  ['big-brown', 'Big Brown', 'bigbrown-97f70d531a-371x371.jpg'],
+  ['vampires-2-dice', 'The Vampires II Dice', 'thevampires2dice-61520f94eb-371x371.png'],
+  ['vikings-way', 'Vikings Way', 'vikingsway-77cd701218-371x371.png'],
+  ['panda-strike', 'Panda Strike', 'pandastrike-13adea8988-371x371.png'],
+  ['golden-brew', 'Golden Brew', 'goldenbrew-5820919365-371x371.png'],
+  ['age-of-glory', 'Age of Glory', 'ageofglory-031a6f1d16-371x371.png'],
+  ['81-burning-ways', '81 Burning Ways', '81bruningways-ae76ae9ae2-371x371.png'],
+  ['cash-streak-dice', 'Cash Streak Dice', '371x371-be6502115a-371x371.png'],
+  ['lucky-streak-27', 'Lucky Streak 27', 'luckystreak27-eb3257418f-371x371.png'],
+  ['cows-and-ufos', 'Cows & UFOs', 'cowsufos-36c933b79c-371x371.png'],
+  ['blue-slot-dice', 'Blue Slot Dice', 'blueslotdice-db31ebbe30-371x371.png'],
+  ['raging-wings', 'Raging Wings', 'ragingwings-26207e5964-371x371.png'],
+  ['crown-coins', 'Crown Coins', 'crowncoins-201264b694-371x371.png'],
+  ['football-mayhem', 'Football Mayhem', 'footballmayhem-e8606ccaaa-371x371.png'],
+  ['festa-junina', 'Festa Junina', 'festajunina-b1a939af59-371x371.png'],
+  ['temple-of-ra', 'Temple of Ra', 'templeofra-49d4043b93-371x371.png'],
+  ['dazzling-crown', 'Dazzling Crown', 'dazzlingcrown-0a06f9d271-371x371.png'],
+  ['joker-stoker-dice', 'Joker Stoker Dice', 'jokerstokerdice-e55be05398-371x371.png'],
+  ['chance-machine-20-dice', 'Chance Machine 20 Dice', 'chancemachine20dice-3fe7c09d59-371x371.png'],
+  ['jolly-queen', 'Jolly Queen', 'jollyqueen-6523e428e8-371x371.png'],
+  ['moon-tiger', 'Moon Tiger', 'moontiger-c3a0453c34-371x371.png'],
+  ['joker-ra-sunrise', 'Joker Ra: Sunrise', 'jokerrasunrise-0aa7460e4d-371x371.png'],
+  ['all-ways-luck', 'All Ways Luck', 'allwaysluck-4779fb609f-371x371.png'],
+  ['rainbow-ray', 'Rainbow Ray', 'rainbowray-a85b616a4b-371x371.png'],
+  ['aristocats', 'Aristocats', 'aristocats-5b43eb1eab-371x371.png'],
+  ['valentines-heart', "Valentine's Heart", 'valentinesheart-dd6e0fe789-371x371.png'],
+  ['2024-hit-slot', '2024 Hit Slot', '2024hitslot-86e24d8dd2-371x371.jpg'],
+  ['oriental-dragon', 'Oriental Dragon', 'orientaldragon-2f79457ea9-371x371.png'],
+  ['jade-coins', 'Jade Coins', 'jadecoins-ba6e4e125b-371x371.png'],
+  ['book-of-conquistador', 'Book of Conquistador', 'bookofconquistador-77735a0b5e-371x371.png'],
+  ['royal-xmass-dice', 'Royal Xmass Dice', 'royalxmassdice-13d9bec704-371x371.png'],
+  ['santas-puzzle', "Santa's Puzzle", 'santaspuzzle-8d80b8106a-371x371.jpg'],
+  ['2023-hit-slot-dice', '2023 Hit Slot Dice', '2023hitslotdice-db2d12b737-371x371.png'],
+  ['hot-puzzle', 'Hot Puzzle', 'hotpuzzle-24b6c5bb1a-371x371.jpg'],
+  ['royal-xmass-2', 'Royal Xmass 2', 'royalxmass2-96a9b4ba53-371x371.jpg'],
+  ['cyber-wolf-dice', 'Cyber Wolf Dice', 'cyberwolfdice-1495f7cb40-371x371.png'],
+  ['chance-machine-5-dice', 'Chance Machine 5 Dice', 'chancemachine5dice-71b75dbbae-371x371.png'],
+  ['dia-de-los-muertos-2', 'Dia De Los Muertos 2', 'dia-de-los-muertos-2-0f86acb4fc-371x371.png'],
+  ['lucky-streak-x', 'Lucky Streak X', 'lucky-streak-x-6f87f62f82-371x371.png'],
+  ['joker-ra-dice', 'Joker Ra Dice', 'joker-ra-dice-5354b973e6-371x371.png'],
+  ['fresh-crush', 'Fresh Crush', 'fresh-crush-5ac8d1c266-371x371.png'],
+  ['argonauts', 'Argonauts', 'argonauts-6b725a3f5b-371x371.jpg'],
+  ['late-night-win', 'Late Night Win', 'late-night-win-399aeeca16-371x371.jpg'],
+  ['lord-of-the-seas', 'Lord of the Seas', 'lord-of-the-seas-8c52d939c4-371x371.png'],
+  ['giant-wild-goose-pagoda', 'Giant Wild Goose Pagoda', 'giant-wild-goose-pagoda-b7c047610d-371x371.jpg'],
+  ['silk-road', 'Silk Road', 'silk-road-9fc1bf90e2-371x371.jpg'],
+  ['green-slot', 'Green Slot', 'green-slot-cc6def96cf-371x371.jpg'],
+  ['multistar-fruits', 'Multistar Fruits', 'multistar-fruits-e74f2faef8-371x371.jpg'],
+  ['joker-ra', 'Joker Ra', 'joker-ra-f9831b22a8-371x371.jpg'],
+  ['lucky-cloverland-dice', 'Lucky Cloverland Dice', 'lucky-cloverland-dice-539cca4f9f-371x371.jpg'],
+  ['fruletta-dice', 'Fruletta Dice', 'fruletta-dice-a8778cd55d-371x371.png'],
+  ['cash-streak', 'Cash Streak', '371x-371-8-199d6c4d9a-371x371.png'],
+  ['hell-hot-dice-40', 'Hell Hot Dice 40', '371x371-7-e29c0f85e4-371x371.jpg'],
+  ['hell-hot-dice-100', 'Hell Hot Dice 100', '371x371-6-e9ca59ed4c-371x371.jpg'],
+  ['2023-hit-slot', '2023 Hit Slot', '371x371-4-a6be1e9e9d-371x371.jpg'],
+  ['riches-of-caliph', 'Riches of Caliph', '371x371-3-2f5360c550-371x371.png'],
+  ['blue-slot', 'Blue Slot', '371x371-2-eb1ea78c33-371x371.png'],
+  ['hell-hot-dice-20', 'Hell Hot Dice 20', '371x371-1-678319043c-371x371.png'],
+  ['rabbits', 'Rabbits, Rabbits, Rabbits!', '371x371-3bed8e4329-371x371.png'],
+  ['santas-gift', "Santa's Gift", '371x371-a1e160a6b6-371x371.jpg'],
+  ['the-vampires-2', 'The Vampires II', '371x371new-aafb624595-371x371.jpg'],
+  ['crystal-skull', 'Crystal Skull', '371x371website-icon-eb45fe1e75-371x371.png'],
+  ['wild-streak', 'Wild Streak', '371x371-7e8d75a7b3-371x371.jpg'],
+  ['minotauros-dice', 'Minotauros Dice', '371x371-1-dd230a4adf-371x371.jpg'],
+];
+
+export const ENDORPHINA_GAMES = RAW.map(([id, name, thumb]) => ({
+  id,
+  name,
+  cover: `${THUMB}/${thumb}`,
+  code: `endorphina_${pascal(id)}@ENDORPHINA`,
+}));
+
+export function getEndorphinaGame(id) {
+  return ENDORPHINA_GAMES.find((g) => g.id === id);
+}

@@ -21,6 +21,7 @@ import Argonauts from './pages/Argonauts';
 import Thimbles from './pages/Thimbles';
 import PgGame from './pages/PgGame';
 import JiliGame from './pages/JiliGame';
+import EndorphinaGame from './pages/EndorphinaGame';
 import FreeSpin from './pages/FreeSpin';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -172,6 +173,7 @@ const AuthenticatedApp = () => {
         <Route path="/games/thimbles" element={<Thimbles />} />
         <Route path="/games/pg/:gameId" element={<PgGame />} />
         <Route path="/games/jili/:gameId" element={<JiliGame />} />
+        <Route path="/games/endorphina/:gameId" element={<EndorphinaGame />} />
 
         {/* Admin — admin-only */}
         <Route element={<AdminRoute />}>
