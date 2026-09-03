@@ -136,19 +136,33 @@ const JILI_OTHER_URLS = JILI_GAMES.filter((g) => g.cat !== 2).map((g) => g.cover
 const PG_CARDS = [...PG_CARD_URLS.slice(0, 30), ...JILI_POPULAR_URLS.slice(0, 30)];
 export const PROVIDER_CARDS_REST = [...PG_CARD_URLS.slice(30), ...JILI_POPULAR_URLS.slice(30), ...JILI_OTHER_URLS];
 
-// The complete list of app-wide images to preload during the splash screen.
-export const APP_ASSETS = [
-  ...PG_CARDS,
+// Only what the user actually SEES on entry (loading screen + home lobby's
+// first screenful). The loading screen waits for these — keeping it short is
+// what makes app entry fast.
+export const CRITICAL_ASSETS = [
   ...SPLASH,
+  ...BOTTOM_NAV,
   ...HOME,
   ...BANNERS,
-  ...BOTTOM_NAV,
+  ...GAME_CARDS,
+  ...PG_CARD_URLS.slice(0, 8),
+  ...JILI_POPULAR_URLS.slice(0, 8),
+];
+
+// Everything else (other pages, coin logos, VIP badges, remaining provider
+// covers) is warmed in the background right after entry, so those pages are
+// still instant without delaying the app opening.
+export const DEFERRED_ASSETS = [
+  ...PG_CARD_URLS.slice(8, 30),
+  ...JILI_POPULAR_URLS.slice(8, 30),
   ...DASHBOARD,
   ...VIP,
   ...PROMO,
   ...AIRDROP,
   ...BONUS,
-  ...GAME_CARDS,
   ...COIN_LOGOS,
   ...SUPPORT,
 ];
+
+// The complete list of app-wide images.
+export const APP_ASSETS = [...CRITICAL_ASSETS, ...DEFERRED_ASSETS];

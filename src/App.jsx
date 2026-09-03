@@ -59,7 +59,7 @@ import RouteTransitionLoader from '@/components/RouteTransitionLoader';
 import { LanguageProvider } from '@/lib/LanguageContext';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { preloadAssets, preloadDynamicAssets, preloadAllGameAssets, preloadImage } from '@/lib/assetPreloader';
-import { APP_ASSETS, PROVIDER_CARDS_REST } from '@/lib/appAssets';
+import { CRITICAL_ASSETS, DEFERRED_ASSETS, PROVIDER_CARDS_REST } from '@/lib/appAssets';
 import { base44 } from '@/api/base44Client';
 import { SUPABASE_URL } from '@/api/supabaseClient';
 import { isStandaloneApp } from '@/lib/isStandaloneApp';
@@ -74,12 +74,11 @@ const AuthenticatedApp = () => {
   // stays there until every app image is downloaded AND decoded, so nothing is
   // ever seen loading in after entry.
   const [staticReady, setStaticReady] = useState(false);
-  const [dynamicReady, setDynamicReady] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
 
   // The loading screen stays up until auth AND every app image (static assets
   // plus admin-uploaded banners / QR codes / avatars) is fully decoded.
-  const showLoadingScreen = loading || !staticReady || !dynamicReady;
+  const showLoadingScreen = loading || !staticReady;
 
   useEffect(() => {
     // The loading screen's own background + logo first, so it paints instantly.
@@ -88,20 +87,18 @@ const AuthenticatedApp = () => {
     preloadImage('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png');
     // Track static preload progress (0..100) for the loading bar; dynamic
     // assets don't report progress so we just fold them into the final 100.
-    preloadAssets(APP_ASSETS, (p) => setLoadProgress(Math.min(p, 90)), false, true, true)
+    // Only the first-screen assets block entry — everything else is warmed
+    // afterwards, so opening the app is fast.
+    preloadAssets(CRITICAL_ASSETS, (p) => setLoadProgress(Math.min(p, 95)), false, true, true)
       .then(() => { setStaticReady(true); setLoadProgress(100); })
       .catch(() => setStaticReady(true));
-    preloadDynamicAssets(base44)
-      .then(() => setDynamicReady(true))
-      .catch(() => setDynamicReady(true));
     // Global safety net: no matter what happens (a hanging CDN, a stalled
     // decode, anything), never let the loading screen trap the user — force
     // the app open after 15s so they can use it even with missing assets.
     const safety = setTimeout(() => {
       setStaticReady(true);
-      setDynamicReady(true);
       setLoadProgress(100);
-    }, 45000);
+    }, 12000);
     return () => clearTimeout(safety);
   }, []);
 
@@ -118,6 +115,8 @@ const AuthenticatedApp = () => {
     // Warm the remaining PG SOFT + JILI lobby covers (beyond the first
     // screenful) at low priority so scrolling the lobby never shows an image
     // downloading.
+    preloadAssets(DEFERRED_ASSETS, null, true, false, true);
+    preloadDynamicAssets(base44).catch(() => {});
     preloadAssets(PROVIDER_CARDS_REST, null, true);
     const t = setTimeout(() => { preloadAllGameAssets(); }, 300);
     return () => clearTimeout(t);
