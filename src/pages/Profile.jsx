@@ -19,7 +19,7 @@ import CashbackPanel from '@/components/CashbackPanel';
 import { formatDateTime } from '@/lib/dateFormat';
 import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
 import { pickRandomAvatar } from '@/lib/pickAvatar';
-import { getCachedSrc } from '@/lib/assetPreloader';
+import ProfileAvatar from '@/components/ProfileAvatar';
 import { hasTelegramBackButton } from '@/lib/telegram';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
@@ -324,17 +324,8 @@ export default function Profile() {
       <main className="relative z-10 max-w-none mx-auto px-4 py-4 flex flex-col gap-4">
         {/* Profile card */}
         <div className="dash-card p-5 flex flex-col items-center gap-3" style={{ animation: 'dashFadeIn 400ms ease both' }}>
-          {/* Avatar with golden glow */}
-          <div className="relative">
-            <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 14px rgba(212,175,55,0.25)', transform: 'scale(1.1)' }} />
-            <div className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center relative" style={{ border: '2px solid rgba(212,175,55,0.6)', background: 'linear-gradient(135deg, #FFD700, #C89B3C)' }}>
-              {profile?.avatar_url ? (
-                <img src={getCachedSrc(profile.avatar_url)} alt="avatar" className="w-full h-full object-cover" />
-              ) : (
-                <UserIcon className="w-10 h-10" style={{ color: '#1a1408' }} />
-              )}
-            </div>
-          </div>
+          {/* Avatar with golden glow — Telegram profile picture when available */}
+          <ProfileAvatar avatarUrl={profile?.avatar_url} size={96} />
 
           {/* Name + edit */}
           <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: '#fff' }}>

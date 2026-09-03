@@ -66,6 +66,27 @@ export function tgUserId() {
   return '';
 }
 
+// Telegram profile picture of whoever launched the mini app. Served straight
+// from Telegram's own CDN (t.me/cdn-telegram.org), so it never touches our
+// storage and adds zero egress. Cached locally so it keeps showing on later
+// visits even if Telegram doesn't hand the photo over again.
+const PHOTO_KEY = 'gb_tg_photo_url';
+
+export function tgPhotoUrl() {
+  let url = tgUser()?.photo_url || '';
+  if (!url) {
+    try {
+      const raw = new URLSearchParams(tgInitData()).get('user');
+      if (raw) url = JSON.parse(raw).photo_url || '';
+    } catch { /* malformed payload */ }
+  }
+  try {
+    if (url) localStorage.setItem(PHOTO_KEY, url);
+    else url = localStorage.getItem(PHOTO_KEY) || '';
+  } catch { /* private mode */ }
+  return url;
+}
+
 // Expands the mini app to full height and applies the dark casino chrome.
 export function tgReady() {
   const wa = tgWebApp();
