@@ -86,6 +86,11 @@ const AuthenticatedApp = () => {
     preloadImage('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/f8c7eb4bd_golden_bounty_fullscreen_vertical.png');
     preloadImage('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/logo_192.png');
     preloadImage('https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png');
+    // Account data (profile, transactions, history, stake numbers) is fetched
+    // WHILE the images download — waiting until the loading screen finished
+    // was what made the account data appear seconds after entry.
+    warmProfileCache();
+    warmStakeCache();
     // Track static preload progress (0..100) for the loading bar; dynamic
     // assets don't report progress so we just fold them into the final 100.
     // Only the first-screen assets block entry — everything else is warmed
@@ -107,12 +112,6 @@ const AuthenticatedApp = () => {
   // are already cached when the user taps into a game — near-instant load.
   useEffect(() => {
     if (showLoadingScreen) return;
-    // Warm the profile data (name, username, transactions, game history)
-    // right away so the Profile page opens instantly with no loading delay.
-    warmProfileCache();
-    // Warm the Stack numbers (staked amount, profit, VIP rate) so the Stack
-    // page paints them instantly on first open instead of loading on entry.
-    warmStakeCache();
     // Warm the remaining PG SOFT + JILI lobby covers (beyond the first
     // screenful) at low priority so scrolling the lobby never shows an image
     // downloading.

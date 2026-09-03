@@ -56,12 +56,15 @@ function setDemoMode(on) {
 
 async function loadBalance() {
   try {
-    const me = await base44.auth.me();
+    // Identity + the authoritative wallet are fetched in PARALLEL — waiting for
+    // me() before starting getWallet doubled the time before account data
+    // appeared on app entry. The Wallet entity's RLS blocks users from
+    // modifying it, so this balance can't be hacked.
+    const [me, res] = await Promise.all([
+      base44.auth.me(),
+      base44.functions.invoke('getWallet', {}),
+    ]);
     userId = me?.id ?? null;
-    // Read the authoritative balance from the secure Wallet entity via the
-    // getWallet backend function (service role). The Wallet entity's RLS
-    // blocks users from modifying it, so this balance can't be hacked.
-    const res = await base44.functions.invoke('getWallet', {});
     const b = Number(res?.data?.balance ?? 0);
     committedBalance = isFinite(b) ? b : 0;
     // During an active round, the server balance already reflects the bet
