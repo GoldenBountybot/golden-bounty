@@ -64,11 +64,11 @@ const JILI_LOBBY_GAMES = JILI_GAMES.map(g => ({
   path: `/games/jili/${g.id}`,
 }));
 
-// Endorphina titles — all slots, folded into the same lobby.
+// Endorphina titles — Dice variants sit under Table, everything else is Slots.
 const ENDO_LOBBY_GAMES = (ENDORPHINA_LIVE ? ENDORPHINA_GAMES : []).map(g => ({
   id: `endo-${g.id}`,
   titleKey: g.name,
-  category: 'Slots',
+  category: /\bdice\b/i.test(g.name) ? 'Table' : 'Slots',
   desc: 'Endorphina',
   accent: 'from-amber-500 to-red-800',
   tag: '',
