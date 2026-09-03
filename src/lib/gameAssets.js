@@ -19,10 +19,8 @@ const SHARED = [
 
 // ---- Full-screen category/feature background per game (from the lobby cards) ----
 export const GAME_BG = {
-  wildBounty:  u('af2b94fcd_InShot_20260717_194156078.jpg'),
   superAce:    u('199c00bd0_generated_image.png'),
   crownCoins:  u('ef3b69c4c_generated_image.png'),
-  gates:       u('2125c8cfd_generated_image.png'),
   bigBrown:    u('a6f715d21_generated_image.png'),
   argonauts:   u('766629235_generated_image.png'),
   rocketCrash: u('61f59a253_aviator-game-cover.png'),
@@ -32,51 +30,6 @@ export const GAME_BG = {
   thimbles:    u('25ec953a6_generated_image.png'),
   freeSpin:    u('580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png'),
 };
-
-// ---- Wild Bounty (SlotGame) ----
-export const WILD_BOUNTY_ASSETS = [
-  ...SHARED,
-  // background + frame
-  u('25cab1181_file_00000000b50c8230a0ebee9ef44b2ebe.png'),
-  u('c1acaec26_file_000000001de88211868a1e08115c5695.png'),
-  u('a422458cf_file_000000001fe0823080289c04ab45bfdf.png'), // feature buy
-  // top banner + plaque
-  u('34377a521_file_00000000ce28820b9b425fc57f1c795e.png'),
-  u('ded9f1015_file_00000000d1a0820eb551f775dc672260.png'),
-  u('fd2e464cf_file_000000002a3c820b808b197402106ca0.png'),
-  // symbols
-  u('47b80dfa7_file_00000000ed3081fa8b2b38b3213ec99a.png'), // bandit
-  u('1d7f9ad2f_file_00000000936c81fa8c6b61333fddd167.png'), // revolver
-  u('d20ec7196_file_0000000029f08207838de49974589b4b.png'), // whiskey
-  u('c71ef50cc_file_000000003d0c8211b8397d0e8ffb44b1.png'), // hat
-  u('00ba69c97_file_0000000019208211ab3b4e56cdb92344.png'), // scatter
-  u('c970620bf_file_0000000037f88207a4992e01551e3e21.png'), // wild
-  u('0fd153331_file_0000000005e881faa113be069715c687.png'), // A
-  u('82aafe905_file_000000003f80820786167aa236a07df2.png'), // K
-  u('fea6fbacb_file_0000000071cc81faa25eed7055b02650.png'), // Q
-  u('8257788f9_file_0000000090808211a1f59f4ce81dde17.png'), // J
-  // decor frame + win light
-  u('779f97a01_file_000000008b6081fab70937ee49f1af71.png'),
-  u('bc304a051_file_0000000019b081faa7b2dd0cdc894459.png'),
-  // spin button
-  u('c6ef02281_file_00000000a90081fa8732fd40e55cc3ef.png'),
-  u('12ac78246_file_00000000b0cc81faafcdac64067dd1a1.png'),
-  // win banners
-  u('bc8844e96_file_0000000057d881fbaa643e8f2dd979ce.png'), // super win
-  u('abe2184b1_file_00000000233881faa2d49279db01c3b7.png'), // mega win
-  u('ed1ba82bf_file_00000000de4c8230a7b6890bc5104bb2.png'), // feature buy confirm
-  u('c59383f07_file_00000000f68481fab97bfcf72831e629.png'), // free spin start
-  u('8252d57aa_generated_image.png'),                        // stat banner
-  // sounds — downloaded during the loading screen so nothing streams in mid-game
-  s('73abdca12_20260717094905.mp3'),
-  s('42593c193_20260717094905_0_0.mp3'),
-  s('3d0b01f51_20260717094905_2.mp3'),
-  s('8260a4cd3_scater_0.mp3'),
-  s('d0ba94ac5_spinbuttonclicksound.mp3'),
-  s('08650935f_SpinSymbleMachSound_0.mp3'),
-  s('d58be1dc8_Totalwinsound.mp3'),
-  s('22fed69b4_backgroundsong.mp3'),
-];
 
 // ---- Super Ace / Full House ----
 export const SUPER_ACE_ASSETS = [
@@ -122,34 +75,6 @@ export const CROWN_COINS_ASSETS = [
   u('462282802_generated_image.png'), // MID
   u('d95929e49_generated_image.png'), // MAX
   u('681750740_generated_image.png'), // ULTRA
-];
-
-// ---- Gates of Olympus ----
-export const GATES_ASSETS = [
-  ...SHARED,
-  u('1f0dcd8e1_file_00000000534882308373132046ad84c6.png'), // bg
-  u('5a4c02bcc_file_000000003af0820bb4a62aa92952a91e.png'), // title banner
-  u('84fd16eb6_file_00000000e474820ba9fd196f5f5c9f06.png'), // zeus figure
-  u('0435e5ab7_file_0000000056708207b1ac35d409201618.png'), // free spin trigger
-  u('d5525b830_file_00000000e7fc8211826f062956600ef9.png'), // free spins complete
-  u('422880cd4_file_0000000057d881fbaa643e8f2dd979ce.png'), // super win
-  u('b90df1f5b_file_00000000233881faa2d49279db01c3b7.png'), // mega win
-  // symbols
-  u('4948c7cf4_file_00000000e1408207955e20cec7981d33.png'), // zeus
-  u('a4332bd7e_file_0000000095bc8207a1c24e7d2fa722cf.png'), // crown
-  u('be9cc5ec1_file_000000000bd08207a5a1b4e77ea10f33.png'), // hourglass
-  u('73a72a368_file_0000000013888230a3cd720eb1652b16.png'), // ring
-  u('03fca0540_file_00000000fc488207a16c5e1464febce2.png'), // goblet
-  u('b9b6c1bde_file_00000000004c8207b95b7bf99154cb6d.png'), // red
-  u('a3a411a0b_file_0000000004448207843751971532abdf.png'), // blue
-  u('d3a4e2228_file_000000009bc08207a95209fcf33e096b.png'), // green
-  u('3829a472c_file_000000000e088230b3afc17f467dd494.png'), // yellow
-  u('e121379a7_file_000000008b68820baaa63ab2e653d35f.png'), // scatter
-  // multiplier symbols
-  u('05d1b7bd2_file_00000000bf888230ad3b50315b7d1792.png'), // mult
-  u('d7806105b_file_00000000c01481f886567f0ea4c79c5e.png'), // mult_blue
-  u('1b3f46fa4_file_000000006288820bb1867ae53a90b18e.png'), // mult_pink
-  u('744c32f73_file_000000009458820bb0170dc02a86f11c.png'), // mult_red
 ];
 
 // ---- Big Brown ----
@@ -278,10 +203,8 @@ export const FREE_SPIN_ASSETS = [
 // preloading a game's assets the moment the player hovers its card —
 // long before they click through to the loading screen.
 export const GAME_ASSET_MAP = {
-  'wild-bounty': WILD_BOUNTY_ASSETS,
   'fullhouse': SUPER_ACE_ASSETS,
   'crown-coins': CROWN_COINS_ASSETS,
-  'gates-of-olympus': GATES_ASSETS,
   'big-brown': BIG_BROWN_ASSETS,
   'argonauts': ARGONAUTS_ASSETS,
   'rocket-crash': ROCKET_CRASH_ASSETS,

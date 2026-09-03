@@ -18,9 +18,7 @@ export const GAME_REGISTRY: Record<string, {
   settleMode: 'fixed' | 'cap';
   supportsFreeSpins: boolean;
 }> = {
-  'wild-bounty':      { settleMode: 'cap',   supportsFreeSpins: true },
   'fullhouse':        { settleMode: 'fixed', supportsFreeSpins: true },
-  'gates-of-olympus': { settleMode: 'fixed', supportsFreeSpins: true },
   'big-brown':        { settleMode: 'cap',   supportsFreeSpins: true },
   'argonauts':        { settleMode: 'fixed', supportsFreeSpins: true },
   'crown-coins':      { settleMode: 'fixed', supportsFreeSpins: true },
