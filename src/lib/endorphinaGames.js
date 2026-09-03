@@ -12,10 +12,7 @@
 // production key is pending).
 export const ENDORPHINA_LIVE = true;
 
-const THUMB = 'https://endorphina.com/uploads/thumbs';
-
-const pascal = (slug) =>
-  slug.split('-').map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join('');
+import { ENDORPHINA_CODES } from './endorphinaCodes';
 
 // [slug, display name, thumbnail file]
 const RAW = [
@@ -258,11 +255,14 @@ const RAW = [
 // the browser, so the cards showed up empty when loaded straight from them).
 const CDN = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/endo';
 
-export const ENDORPHINA_GAMES = RAW.map(([id, name, thumb]) => ({
+// Only titles whose provider game code is verified available on our node are
+// listed — an unknown code makes the provider bounce straight back to the
+// lobby (black screen), so those titles are hidden instead.
+export const ENDORPHINA_GAMES = RAW.filter(([id]) => ENDORPHINA_CODES[id]).map(([id, name]) => ({
   id,
   name,
   cover: `${CDN}/sm/${id}.webp`,
-  code: `endorphina_${pascal(id)}@ENDORPHINA`,
+  code: ENDORPHINA_CODES[id],
 }));
 
 export function getEndorphinaGame(id) {
