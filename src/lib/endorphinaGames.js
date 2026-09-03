@@ -261,7 +261,7 @@ const CDN = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@ma
 export const ENDORPHINA_GAMES = RAW.map(([id, name, thumb]) => ({
   id,
   name,
-  cover: `${CDN}/${id}.${thumb.endsWith('.jpg') ? 'jpg' : 'png'}`,
+  cover: `${CDN}/sm/${id}.webp`,
   code: `endorphina_${pascal(id)}@ENDORPHINA`,
 }));
 
