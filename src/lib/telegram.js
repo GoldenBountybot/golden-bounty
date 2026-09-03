@@ -66,6 +66,22 @@ export function tgUserId() {
   return '';
 }
 
+// Telegram profile picture URL of the current player, as provided by Telegram
+// itself inside the launch payload. It points at Telegram's public CDN
+// (https://t.me/i/userpic/...), so the browser loads the image directly from
+// Telegram — we never upload, store or proxy it, meaning zero extra egress on
+// our side. Empty when Telegram doesn't expose a photo (privacy setting) or
+// when the app runs outside Telegram.
+export function tgPhotoUrl() {
+  const u = tgUser();
+  if (u?.photo_url) return String(u.photo_url);
+  try {
+    const raw = new URLSearchParams(tgInitData()).get('user');
+    if (raw) return String(JSON.parse(raw).photo_url || '');
+  } catch { /* malformed payload */ }
+  return '';
+}
+
 // Expands the mini app to full height and applies the dark casino chrome.
 export function tgReady() {
   const wa = tgWebApp();
