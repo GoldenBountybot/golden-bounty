@@ -28,7 +28,7 @@ export default function EndorphinaGame() {
     let alive = true;
     setUrl(''); setError('');
     base44.functions
-      .invoke('endorphinaLaunchGame', { game: game?.code, slug: gameId })
+      .invoke('endorphinaLaunchGame', { game_id: game?.code || gameId })
       .then(({ data }) => {
         if (!alive) return;
         if (data?.ok && data.url) setUrl(data.url);
