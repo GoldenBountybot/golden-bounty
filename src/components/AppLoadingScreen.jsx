@@ -7,7 +7,10 @@ import React from 'react';
 // ornamental corner flourishes, floating gold particles, and an elegant
 // progress bar with a glowing leading dot. Pure loading indicator.
 
-const LOGO_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
+// Same logo artwork, but a small 192px copy (25KB instead of 715KB) and it is
+// painted as a CSS background — preloaded in index.html, so it appears with the
+// ring instantly instead of being visibly downloaded every time.
+const LOGO_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/logo_192.png';
 
 export default function AppLoadingScreen({ progress = 0 }) {
   const pct = Math.max(0, Math.min(100, Math.round(progress)));
@@ -192,11 +195,14 @@ export default function AppLoadingScreen({ progress = 0 }) {
               animation: 'appCoinGlow 3s ease-in-out infinite',
             }}
           >
-            <img
-              src={LOGO_URL}
-              alt="Golden Bounty"
-              className="object-contain"
-              style={{ width: '64px', height: '64px', filter: 'drop-shadow(0 0 6px rgba(255,200,80,0.5))' }}
+            <div
+              role="img"
+              aria-label="Golden Bounty"
+              style={{
+                width: '64px', height: '64px',
+                background: `url(${LOGO_URL}) center/contain no-repeat`,
+                filter: 'drop-shadow(0 0 6px rgba(255,200,80,0.5))',
+              }}
             />
           </div>
         </div>
