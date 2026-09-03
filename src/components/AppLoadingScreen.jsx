@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+const LOGO_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
 
 // Premium luxury iconic loading screen (Phase 2) — shown after the cinematic
 // splash while the app preloads assets and auth. Ultra-luxe casino-brand
@@ -9,6 +11,7 @@ import React from 'react';
 
 export default function AppLoadingScreen({ progress = 0 }) {
   const pct = Math.max(0, Math.min(100, Math.round(progress)));
+  const [logoReady, setLogoReady] = useState(false);
 
   // 12 gold studs evenly placed on the outer ring
   const studs = Array.from({ length: 12 }, (_, i) => {
@@ -190,24 +193,22 @@ export default function AppLoadingScreen({ progress = 0 }) {
               animation: 'appCoinGlow 3s ease-in-out infinite',
             }}
           >
-            {/* Pure CSS/HTML monogram — no image download, so nothing is ever
-                seen loading in the middle of the ring. */}
-            <span
+            {/* The logo stays fully hidden until it is completely downloaded &
+                decoded, so it never appears mid-download — it just pops in. */}
+            <img
+              src={LOGO_URL}
+              alt="Golden Bounty"
+              fetchPriority="high"
+              decoding="sync"
+              onLoad={() => setLogoReady(true)}
+              className="object-contain"
               style={{
-                fontFamily: 'Cinzel, Georgia, serif',
-                fontWeight: 900,
-                fontSize: '32px',
-                letterSpacing: '0.02em',
-                lineHeight: 1,
-                background: 'linear-gradient(160deg, #fff8d4 0%, #ffd75a 45%, #b8860b 100%)',
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,200,80,0.55))',
+                width: '64px', height: '64px',
+                opacity: logoReady ? 1 : 0,
+                transition: 'opacity 180ms ease-out',
+                filter: 'drop-shadow(0 0 6px rgba(255,200,80,0.5))',
               }}
-            >
-              GB
-            </span>
+            />
           </div>
         </div>
       </div>
