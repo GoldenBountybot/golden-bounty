@@ -4,6 +4,7 @@
 // the credit_deposit RPC (idempotent by tx hash) — no TxID submission needed.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 import { Address } from 'https://esm.sh/@ton/core@0.60.1';
+import { applyReferralCommission } from '../_shared/referral.ts';
 
 const SB_URL = Deno.env.get('SUPABASE_URL');
 const svc = createClient(SB_URL, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false } });
@@ -281,6 +282,8 @@ Deno.serve(async (req) => {
         await svc.from('manual_deposit_requests').update({ status: 'pending', tx_hash: '' }).eq('id', id);
         return json({ ok: false, reason: error.message });
       }
+      await applyReferralCommission(svc, user.id, Number(row.amount_usd), c.tx);
+
       return json({ ok: true, status: 'completed', amount: Number(row.amount_usd), balance: credit?.balance });
     }
 

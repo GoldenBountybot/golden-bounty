@@ -3,6 +3,7 @@
 // Idempotent by tx hash. The on-chain value must exactly match the expectedWei
 // the frontend sent (= $amount / live price). Public RPCs — no secret needed.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+import { applyReferralCommission } from '../_shared/referral.ts';
 
 const SB_URL = Deno.env.get('SUPABASE_URL');
 const svc = createClient(SB_URL, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false } });
@@ -84,6 +85,8 @@ Deno.serve(async (req) => {
       p_note: `Wallet · ${net.label}`,
     });
     if (error) return json({ ok: false, reason: error.message });
+
+    await applyReferralCommission(svc, user.id, amount, txHash);
 
     return json({ ok: true, amount, already: false, balance: credit?.balance });
   } catch (e) {
