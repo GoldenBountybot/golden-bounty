@@ -96,3 +96,46 @@ drop trigger if exists t_transactions_referral_commission on public.transactions
 create trigger t_transactions_referral_commission
   after insert or update of status on public.transactions
   for each row execute function public.t_referral_commission();
+
+-- ---------------------------------------------------------------------
+-- Agent deposits (agent -> player) live in their own table, so they get
+-- their own trigger. Anything that is not a withdraw counts as a deposit.
+-- ---------------------------------------------------------------------
+create or replace function public.t_agent_referral_commission()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  v_ref uuid;
+begin
+  if coalesce(new.kind, '') = 'withdraw' then return null; end if;
+  if new.to_user is null or coalesce(new.amount, 0) <= 0 then return null; end if;
+
+  -- Safety against double payment: if this agent transfer ALSO wrote a normal
+  -- deposit row (already paid by the transactions trigger), skip.
+  select referred_by into v_ref from public.profiles where id = new.to_user;
+  if v_ref is null then return null; end if;
+  if exists (
+    select 1 from public.transactions
+    where user_id = v_ref
+      and method = 'referral-commission'
+      and amount = round(new.amount * 0.05, 2)
+      and created_at > now() - interval '10 minutes'
+  ) then
+    return null;
+  end if;
+
+  perform public.pay_referral_commission(new.to_user, new.amount, 'agenttx:' || new.id::text);
+  return null;
+exception when others then
+  return null;
+end $$;
+
+do $$
+begin
+  if exists (select 1 from information_schema.tables
+             where table_schema = 'public' and table_name = 'agent_transfers') then
+    execute 'drop trigger if exists t_agent_transfers_referral_commission on public.agent_transfers';
+    execute 'create trigger t_agent_transfers_referral_commission
+               after insert on public.agent_transfers
+               for each row execute function public.t_agent_referral_commission()';
+  end if;
+end $$;
