@@ -7,8 +7,6 @@ import React from 'react';
 // ornamental corner flourishes, floating gold particles, and an elegant
 // progress bar with a glowing leading dot. Pure loading indicator.
 
-const LOGO_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
-
 export default function AppLoadingScreen({ progress = 0 }) {
   const pct = Math.max(0, Math.min(100, Math.round(progress)));
 
@@ -192,12 +190,24 @@ export default function AppLoadingScreen({ progress = 0 }) {
               animation: 'appCoinGlow 3s ease-in-out infinite',
             }}
           >
-            <img
-              src={LOGO_URL}
-              alt="Golden Bounty"
-              className="object-contain"
-              style={{ width: '64px', height: '64px', filter: 'drop-shadow(0 0 6px rgba(255,200,80,0.5))' }}
-            />
+            {/* Pure CSS/HTML monogram — no image download, so nothing is ever
+                seen loading in the middle of the ring. */}
+            <span
+              style={{
+                fontFamily: 'Cinzel, Georgia, serif',
+                fontWeight: 900,
+                fontSize: '32px',
+                letterSpacing: '0.02em',
+                lineHeight: 1,
+                background: 'linear-gradient(160deg, #fff8d4 0%, #ffd75a 45%, #b8860b 100%)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,200,80,0.55))',
+              }}
+            >
+              GB
+            </span>
           </div>
         </div>
       </div>
