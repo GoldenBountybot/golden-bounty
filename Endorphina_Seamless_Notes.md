@@ -52,7 +52,15 @@
   https://ovyrljtgviabkamomjso.supabase.co/functions/v1/endorphina/{session|balance|bet|refund|win|promoWin|endSession|check}
 - `endorphina-launch-game` builds the signed launch URL (frontend: base44.functions.invoke('endorphinaLaunchGame')).
 - Tables: endorphina_sessions, endorphina_transactions (migration in supabase/migrations/endorphina_tables.sql).
-- Secrets: ENDORPHINA_NODE_ID / ENDORPHINA_SALT / ENDORPHINA_API_URL — currently the MOCK values (8 / 0D93…8824 / test.endorphina.com).
+- Secrets (Supabase Edge Function secrets) — STAGING values received 2026-09-04:
+  ENDORPHINA_NODE_ID=3740
+  ENDORPHINA_SALT=D629F6F6FCA4405697A90D16D208EAF5
+  ENDORPHINA_API_URL=https://test.endorphina.network
+  ENDORPHINA_CURRENCY=USD   (node currencies enabled: EUR, USD, USDT; ratio 1:1000)
+- Node config confirmed by Endorphina: /win with amount=0 ON, /endSession ON,
+  optional game parameters ON, tournament + prize drop ON, free spins/credits OFF.
+- Demo/staging IPs to allow: 213.227.129.215, 159.69.160.125, 188.165.138.84
+  (hosts: test.endorphina.network, edemo.endorphina.network, endorphinademo.com)
 - Frontend: src/lib/endorphinaGames.js (185 games, ENDORPHINA_LIVE=false hides them from the lobby), src/pages/EndorphinaGame.jsx, route /games/endorphina/:slug.
 - Filled provider form: src/Endorphina_Integration_Form_Answers.md
 - Live test passed: check / bad-sign 401 / unknown token 404 / bet→win→refund cycle idempotent / insufficient 402.
