@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-
-const LOGO_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
+import React from 'react';
 
 // Premium luxury iconic loading screen (Phase 2) — shown after the cinematic
 // splash while the app preloads assets and auth. Ultra-luxe casino-brand
@@ -9,9 +7,10 @@ const LOGO_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-asse
 // ornamental corner flourishes, floating gold particles, and an elegant
 // progress bar with a glowing leading dot. Pure loading indicator.
 
+const LOGO_URL = 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png';
+
 export default function AppLoadingScreen({ progress = 0 }) {
   const pct = Math.max(0, Math.min(100, Math.round(progress)));
-  const [logoReady, setLogoReady] = useState(false);
 
   // 12 gold studs evenly placed on the outer ring
   const studs = Array.from({ length: 12 }, (_, i) => {
@@ -193,21 +192,11 @@ export default function AppLoadingScreen({ progress = 0 }) {
               animation: 'appCoinGlow 3s ease-in-out infinite',
             }}
           >
-            {/* The logo stays fully hidden until it is completely downloaded &
-                decoded, so it never appears mid-download — it just pops in. */}
             <img
               src={LOGO_URL}
               alt="Golden Bounty"
-              fetchPriority="high"
-              decoding="sync"
-              onLoad={() => setLogoReady(true)}
               className="object-contain"
-              style={{
-                width: '64px', height: '64px',
-                opacity: logoReady ? 1 : 0,
-                transition: 'opacity 180ms ease-out',
-                filter: 'drop-shadow(0 0 6px rgba(255,200,80,0.5))',
-              }}
+              style={{ width: '64px', height: '64px', filter: 'drop-shadow(0 0 6px rgba(255,200,80,0.5))' }}
             />
           </div>
         </div>
