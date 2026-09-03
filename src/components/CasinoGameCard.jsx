@@ -29,7 +29,7 @@ function CasinoGameCard({ game }) {
       }}
     >
       {game.image ? (
-        <FadeImage src={game.image} alt={game.title} className="absolute inset-0 w-full h-full object-cover" durationMs={350} loading="lazy" decoding="async" />
+        <FadeImage src={game.image} alt={game.title} className="absolute inset-0 w-full h-full object-cover" durationMs={350} loading="lazy" decoding="async" referrerPolicy="no-referrer" />
       ) : (
         <div className={`absolute inset-0 bg-gradient-to-br ${game.accent}`} />
       )}
