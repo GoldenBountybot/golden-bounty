@@ -90,10 +90,19 @@ for (let i = 0; i < Math.max(PG_POPULAR.length, JILI_POPULAR.length, ENDO_POPULA
   if (JILI_POPULAR[i]) MIXED_POPULAR.push(JILI_POPULAR[i]);
   if (ENDO_POPULAR[i]) MIXED_POPULAR.push(ENDO_POPULAR[i]);
 }
-const OTHER_PROVIDER_GAMES = [...PG_LOBBY_GAMES, ...JILI_LOBBY_GAMES].filter(g => g.category !== 'Popular');
-
+// The rest of each provider's catalogue, interleaved one PG → one JILI → one
+// Endorphina so the All tab always shows a balanced mix of the three.
+const PG_REST = PG_LOBBY_GAMES.filter(g => g.category !== 'Popular');
+const JILI_REST = JILI_LOBBY_GAMES.filter(g => g.category !== 'Popular');
 const ENDO_REST = ENDO_LOBBY_GAMES.filter(g => g.category !== 'Popular');
-const ALL_GAMES = [...GAMES, ...MIXED_POPULAR, ...ENDO_REST, ...OTHER_PROVIDER_GAMES];
+const OTHER_PROVIDER_GAMES = [];
+for (let i = 0; i < Math.max(PG_REST.length, JILI_REST.length, ENDO_REST.length); i++) {
+  if (PG_REST[i]) OTHER_PROVIDER_GAMES.push(PG_REST[i]);
+  if (JILI_REST[i]) OTHER_PROVIDER_GAMES.push(JILI_REST[i]);
+  if (ENDO_REST[i]) OTHER_PROVIDER_GAMES.push(ENDO_REST[i]);
+}
+
+const ALL_GAMES = [...GAMES, ...MIXED_POPULAR, ...OTHER_PROVIDER_GAMES];
 
 // Temporarily hidden from the lobby (routes still work if opened directly).
 // Remove an id from this list to show the game again.
