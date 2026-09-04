@@ -17,7 +17,6 @@ import FullHouse from './pages/FullHouse';
 import RocketCrash from './pages/RocketCrash';
 import CrownCoins from './pages/CrownCoins';
 import BigBrown from './pages/BigBrown';
-import Argonauts from './pages/Argonauts';
 import Thimbles from './pages/Thimbles';
 import PgGame from './pages/PgGame';
 import JiliGame from './pages/JiliGame';
@@ -168,7 +167,6 @@ const AuthenticatedApp = () => {
         <Route path="/games/rocket-crash" element={<RocketCrash />} />
         <Route path="/games/crown-coins" element={<CrownCoins />} />
         <Route path="/games/big-brown" element={<BigBrown />} />
-        <Route path="/games/argonauts" element={<Argonauts />} />
         <Route path="/games/thimbles" element={<Thimbles />} />
         <Route path="/games/pg/:gameId" element={<PgGame />} />
         <Route path="/games/jili/:gameId" element={<JiliGame />} />

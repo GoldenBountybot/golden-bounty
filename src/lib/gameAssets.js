@@ -22,7 +22,6 @@ export const GAME_BG = {
   superAce:    u('199c00bd0_generated_image.png'),
   crownCoins:  u('ef3b69c4c_generated_image.png'),
   bigBrown:    u('a6f715d21_generated_image.png'),
-  argonauts:   u('766629235_generated_image.png'),
   rocketCrash: u('61f59a253_aviator-game-cover.png'),
   plinko:      u('22ada4a2e_generated_image.png'),
   mines:       u('446327a76_mines.jpg'),
@@ -106,42 +105,6 @@ export const BIG_BROWN_ASSETS = [
   s('b0087b27a_BigBrown.mp3'),
 ];
 
-// ---- Argonauts ----
-export const ARGONAUTS_ASSETS = [
-  ...SHARED,
-  u('766629235_generated_image.png'), // bg
-  u('2a63f4def_generated_image.png'), // coin free-spin palace backdrop
-  u('5e1ba97ff_file_000000008624820bb05d279226f89912.png'), // value coin
-  u('f8ed43464_generated_image.png'), // title banner
-  u('71f946c63_file_00000000e5d881fab7f33117c10362eb.png'), // spin button
-  u('2921f28f1_generated_image.png'), // golden fleece banner bg
-  u('4ba013c10_file_00000000142481fabe264564bd974c86.png'), // free games banner
-  u('6abe5be40_file_0000000057d881fbaa643e8f2dd979ce.png'), // super win banner
-  u('cf4003fa2_file_00000000233881faa2d49279db01c3b7.png'), // mega win banner
-  u('b4e358bc4_generated_image.png'), // overlays (free-spin transition bg)
-  // symbols
-  u('aa8365d9b_file_000000003078820b89250f27c56de62e.png'), // wild
-  u('58d0858d9_file_000000008fa0820bb5da9eef0fb09545.png'), // scatter
-  u('1c288effb_file_00000000b92c820ba7b84e338f31f43a.png'), // bonus
-  u('87ea31954_file_000000001b80820b8d6d3c9e756709e7.png'), // jason
-  u('5e79860d9_file_000000004900820b9b740d0a7100cb38.png'), // atlanta
-  u('ad27ed152_file_00000000e8cc820b9c45251d35e5fbfb.png'), // lizard
-  u('8281d4090_file_00000000d4b0820baceab77e6055cfc7.png'), // dove
-  u('46043deed_file_00000000d370820bb6e81b120d4d648b.png'), // harp
-  u('a7c4a453e_file_00000000330c820bb7083c0ecb826172.png'), // cup
-  u('f3c47cc81_file_0000000019e481f8a4cdf17759a2b277.png'), // potion
-  u('c3399d723_file_000000006180820b9453462a52494a1b.png'), // bow
-  // sounds — loaded up-front too, so nothing streams in mid-game
-  s('8c2379326_spinbuttonx.mp3'),
-  s('b5a389fb5_valuecn.mp3'),
-  s('2c0205154_mixkobutor.mp3'),
-  s('f95aef0f5_AmphoraSymbol.mp3'),
-  s('a42c40c82_GoldenLyre.mp3'),
-  s('e3ff9a2c4_CrossedSwords.mp3'),
-  s('865659119_GreenDragon.mp3'),
-  s('478cbdd23_SpartanWarrior.mp3'),
-];
-
 // ---- Rocket Crash (Aviator) ----
 export const ROCKET_CRASH_ASSETS = [
   ...SHARED,
@@ -206,7 +169,6 @@ export const GAME_ASSET_MAP = {
   'fullhouse': SUPER_ACE_ASSETS,
   'crown-coins': CROWN_COINS_ASSETS,
   'big-brown': BIG_BROWN_ASSETS,
-  'argonauts': ARGONAUTS_ASSETS,
   'rocket-crash': ROCKET_CRASH_ASSETS,
   'plinko': PLINKO_ASSETS,
   'mines': MINES_ASSETS,

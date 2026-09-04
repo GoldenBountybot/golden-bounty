@@ -28,7 +28,6 @@ const GAMES = [
   { id: 'rocket-crash', titleKey: 'Aviator', category: 'Arcade', desc: 'Cash Out in Time', accent: 'from-indigo-500 to-purple-700', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/61f59a253_aviator-game-cover.png' },
   { id: 'crown-coins', titleKey: 'Crown Coins', category: 'Slots', desc: 'Royal Treasury · 5 Lines', accent: 'from-amber-400 to-yellow-700', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/ef3b69c4c_generated_image.png' },
   { id: 'big-brown', titleKey: 'Big Brown', category: 'Slots', desc: '4096 Ways · Expanding Wilds', accent: 'from-amber-700 to-stone-900', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/a6f715d21_generated_image.png' },
-  { id: 'argonauts', titleKey: 'Argonauts', category: 'Slots', desc: '10 Lines · Free Spins · Bonus', accent: 'from-sky-500 to-indigo-800', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/766629235_generated_image.png' },
   { id: 'thimbles', titleKey: 'Thimbles', category: 'Table', desc: 'Find the Ball · 2.88x Payout', accent: 'from-amber-600 to-stone-800', tag: 'NEW', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/25ec953a6_generated_image.png', path: '/games/thimbles' },
 ];
 

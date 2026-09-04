@@ -93,7 +93,6 @@ const GAME_CARDS = [
   u('61f59a253_aviator-game-cover.png'),                     // rocket-crash
   u('ef3b69c4c_generated_image.png'),                         // crown-coins
   u('a6f715d21_generated_image.png'),                         // big-brown
-  u('766629235_generated_image.png'),                         // argonauts
   u('2125c8cfd_generated_image.png'),                         // gates
   u('25ec953a6_generated_image.png'),                         // thimbles
 ];

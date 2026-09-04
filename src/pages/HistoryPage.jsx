@@ -20,7 +20,6 @@ const GAME_LABELS = {
   'rocket-crash': 'Rocket Crash',
   'crown-coins': 'Crown Coins',
   'big-brown': 'Big Brown',
-  'argonauts': 'Argonauts',
   'gates-of-olympus': 'Gates of Olympus',
   'thimbles': 'Thimbles',
   'free-spin': 'Lucky Wheel',
