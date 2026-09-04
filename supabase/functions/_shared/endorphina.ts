@@ -51,7 +51,7 @@ export async function makeSign(params: Record<string, string>): Promise<string> 
 }
 
 export async function validSign(params: Record<string, string>): Promise<boolean> {
-  if (!SALT) return true; // not configured yet — don't block integration testing
+  if (!SALT) return false; // fail closed — never accept unsigned money calls
   const given = String(params.sign || '').toLowerCase();
   return !!given && given === (await makeSign(params));
 }

@@ -161,13 +161,16 @@ Deno.serve(async (req) => {
 
       const userId = (session?.user_id || String(p.player || '')) as string;
       if (!userId) return fail('TOKEN_NOT_FOUND');
+      // We do not run Endorphina promo campaigns / tournaments, so promo wins are
+      // acknowledged (the provider must not retry) but NEVER credited — otherwise
+      // their promo tools can add money that no player actually won.
       const amount = toUnits(p.amount);
-      const balance = amount > 0 ? await applyDelta(userId, amount) : await walletBalance(userId);
+      const balance = await walletBalance(userId);
       const response = { transactionId: newTxId(), balance: toThousandths(balance) };
       await saveTx({
         provider_id: id, kind: 'promoWin', user_id: userId, token,
         game: String(p.game || ''), game_id: String(p.gameId || ''),
-        amount, balance_after: balance, status: 'ok', response,
+        amount: 0, balance_after: balance, status: 'ignored', response,
       });
       return json(response);
     }
