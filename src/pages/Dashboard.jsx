@@ -21,6 +21,8 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { base44 } from '@/api/base44Client';
 import { formatDateTime } from '@/lib/dateFormat';
 import { hasTelegramBackButton } from '@/lib/telegram';
+import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
+import { getCurrentUserIdSync } from '@/lib/currentUserId';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -49,7 +51,10 @@ export default function Dashboard() {
   const [depAmt, setDepAmt] = useState('');
   const [wdAmt, setWdAmt] = useState('');
   const [stkAmt, setStkAmt] = useState('');
-  const [history, setHistory] = useState([]);
+  // Seeded from the warm account cache so the transaction list is on screen
+  // immediately when the dashboard opens.
+  const [history, setHistory] = useState(() =>
+    (getProfileCache().txs || []).filter(t => t.type === 'deposit' || t.type === 'withdraw'));
   const [menuOpen, setMenuOpen] = useState(false);
   // Remember the resolved Stack banner so it paints from the very first render
   // (it's already preloaded on app start — without this the admin override URL
@@ -71,9 +76,12 @@ export default function Dashboard() {
     let active = true;
     (async () => {
       try {
-        const me = await base44.auth.me().catch(() => null);
-        if (!me || !active) return;
-        const rows = await base44.entities.Transaction.filter({ user_id: me.id }, '-created_date', 50);
+        // Start immediately with the id from the stored session — no profile
+        // round-trip before the query.
+        const uid = getCurrentUserIdSync() || (await base44.auth.me().catch(() => null))?.id;
+        if (!uid || !active) return;
+        const rows = await base44.entities.Transaction.filter({ user_id: uid }, '-created_date', 50);
+        updateProfileCache({ txs: rows });
         if (active) setHistory(rows.filter(t => t.type === 'deposit' || t.type === 'withdraw'));
       } catch { /* ignore */ }
       try {

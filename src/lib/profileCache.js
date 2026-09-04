@@ -24,27 +24,47 @@ const read = () => {
 
 let cache = read();
 let inflight = null;
+const listeners = new Set();
 
 const persist = () => {
   try { localStorage.setItem(KEY, JSON.stringify(cache)); } catch { /* ignore */ }
 };
+const notify = () => listeners.forEach((l) => { try { l(cache); } catch { /* ignore */ } });
+
+// Any page/component can subscribe and re-render the moment fresh data lands,
+// instead of firing its own duplicate requests.
+export function subscribeProfileCache(listener) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
 
 export function warmProfileCache() {
   if (inflight) return inflight;
   inflight = (async () => {
     try {
+      // The user id is already known synchronously from the stored session, so
+      // the history queries start IMMEDIATELY — in parallel with me() — instead
+      // of waiting a full round-trip for the profile first.
+      const knownId = getCurrentUserIdSync();
+      const histFor = (id) => Promise.all([
+        base44.entities.Transaction.filter({ user_id: id }, '-created_date', 50),
+        base44.entities.PlayerActivity.filter({ user_id: id }, '-created_date', 50),
+      ]);
+      const earlyHist = knownId ? histFor(knownId).catch(() => null) : null;
+
       const u = await base44.auth.me();
       // A different account than the cached one → drop the stale data instead
       // of showing it alongside the new user's.
       if (cache.user_id && cache.user_id !== u.id) cache = { ...EMPTY };
       cache = { ...cache, user_id: u.id, profile: u };
       persist();
-      const [t, a] = await Promise.all([
-        base44.entities.Transaction.filter({ user_id: u.id }, '-created_date', 50),
-        base44.entities.PlayerActivity.filter({ user_id: u.id }, '-created_date', 50),
-      ]);
+      notify();
+
+      const hist = (earlyHist && knownId === u.id) ? await earlyHist : null;
+      const [t, a] = hist || await histFor(u.id);
       cache = { user_id: u.id, profile: u, txs: t, activity: a };
       persist();
+      notify();
     } catch {
       /* not logged in — nothing to warm */
     } finally {
@@ -62,9 +82,11 @@ export function updateProfileCache(patch) {
   cache = { ...cache, ...patch };
   if (patch.profile?.id) cache.user_id = patch.profile.id;
   persist();
+  notify();
 }
 
 export function clearProfileCache() {
   cache = { ...EMPTY };
   try { localStorage.removeItem(KEY); } catch { /* ignore */ }
+  notify();
 }

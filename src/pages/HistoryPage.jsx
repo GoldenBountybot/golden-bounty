@@ -8,6 +8,8 @@ import { formatDateTime } from '@/lib/dateFormat';
 import PeriodTabs, { periodStart } from '@/components/history/PeriodTabs';
 import BetStatsPanel from '@/components/history/BetStatsPanel';
 import { gameLabel } from '@/lib/gameLabel';
+import { getProfileCache } from '@/lib/profileCache';
+import { getCurrentUserIdSync } from '@/lib/currentUserId';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -52,11 +54,28 @@ function StatCard({ icon: Icon, label, value, color, prefix = '' }) {
 
 export default function HistoryPage() {
   const { t } = useLanguage();
-  const [loading, setLoading] = useState(true);
+  // Seed from the warm account cache so history paints instantly on entry; the
+  // full (larger) history still loads in the background right after.
+  const cached = getProfileCache();
+  const sumTotals = (txs, acts) => {
+    let dep = 0, wd = 0, win = 0, loss = 0;
+    (txs || []).forEach((tx) => {
+      const amt = Number(tx.amount) || 0;
+      const ok = tx.status === 'completed' || tx.status === 'approved';
+      if (tx.type === 'deposit' && ok) dep += amt;
+      if (tx.type === 'withdraw' && ok) wd += amt;
+    });
+    (acts || []).forEach((a) => {
+      if (a.outcome === 'win') win += Number(a.win) || 0;
+      else if (a.outcome === 'loss') loss += Number(a.bet) || 0;
+    });
+    return { deposit: dep, withdraw: wd, win, loss };
+  };
+  const [loading, setLoading] = useState(!(cached.txs && cached.activity));
   const [error, setError] = useState(false);
-  const [totals, setTotals] = useState({ deposit: 0, withdraw: 0, win: 0, loss: 0 });
-  const [transactions, setTransactions] = useState([]);
-  const [activities, setActivities] = useState([]);
+  const [totals, setTotals] = useState(() => sumTotals(cached.txs, cached.activity));
+  const [transactions, setTransactions] = useState(() => (cached.txs || []).filter((x) => x.type === 'deposit' || x.type === 'withdraw'));
+  const [activities, setActivities] = useState(cached.activity || []);
   const [view, setView] = useState('games'); // 'games' | 'wallet'
   const [period, setPeriod] = useState('daily'); // daily | weekly | monthly | lifetime
 
@@ -64,11 +83,14 @@ export default function HistoryPage() {
     let active = true;
     (async () => {
       try {
-        const me = await base44.auth.me();
-        if (!me || !active) return;
+        // The user id is already known synchronously from the stored session,
+        // so the queries start immediately instead of waiting for a profile
+        // round-trip first.
+        const uid = getCurrentUserIdSync() || (await base44.auth.me())?.id;
+        if (!uid || !active) return;
         const [txs, acts] = await Promise.all([
-          base44.entities.Transaction.filter({ user_id: me.id }, '-created_date', 500).catch(() => []),
-          base44.entities.PlayerActivity.filter({ user_id: me.id }, '-created_date', 1000).catch(() => []),
+          base44.entities.Transaction.filter({ user_id: uid }, '-created_date', 500).catch(() => []),
+          base44.entities.PlayerActivity.filter({ user_id: uid }, '-created_date', 1000).catch(() => []),
         ]);
         if (!active) return;
 

@@ -18,7 +18,7 @@ import TaskSystem from '@/components/TaskSystem';
 import XPostTask from '@/components/XPostTask';
 import CashbackPanel from '@/components/CashbackPanel';
 import { formatDateTime } from '@/lib/dateFormat';
-import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
+import { getProfileCache, updateProfileCache, subscribeProfileCache, warmProfileCache } from '@/lib/profileCache';
 import { pickRandomAvatar } from '@/lib/pickAvatar';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import { hasTelegramBackButton } from '@/lib/telegram';
@@ -98,18 +98,15 @@ export default function Profile() {
   const [bountyAllocation, setBountyAllocation] = useState(Number(cached.profile?.bounty_allocation ?? 0));
   const [taskBounty, setTaskBounty] = useState(Number(cached.profile?.task_bounty ?? 0));
 
+  // All account data comes from the shared warm cache: it renders instantly
+  // from the cached copy and re-renders the moment fresh data lands — no
+  // duplicate per-page requests, so nothing is ever seen loading in late.
   useEffect(() => {
     let active = true;
-    (async () => {
-      try {
-        let u = await base44.auth.me();
-        // Player ID: their Telegram id when available, otherwise a generated one.
-        if (!u.uid) {
-          const uid = String(u.telegram_id || genUid());
-          try { await base44.auth.updateMe({ uid, promo_code: uid }); u = { ...u, uid, promo_code: uid }; } catch { u = { ...u, uid }; }
-        }
-        if (!active) return;
-        updateProfileCache({ profile: u });
+    const apply = (c) => {
+      if (!active) return;
+      if (c.profile) {
+        const u = c.profile;
         setProfile(u);
         setUsername(u.username || u.telegram_username || '');
         setPhone(u.phone || '');
@@ -117,11 +114,27 @@ export default function Profile() {
         setDob(u.date_of_birth || '');
         setBountyAllocation(Number(u?.bounty_allocation ?? 0));
         setTaskBounty(Number(u?.task_bounty ?? 0));
-      } catch {
-        /* ignore */
+        // Player ID: their Telegram id when available, otherwise a generated one.
+        if (!u.uid) {
+          const uid = String(u.telegram_id || genUid());
+          base44.auth.updateMe({ uid, promo_code: uid })
+            .then(() => updateProfileCache({ profile: { ...u, uid, promo_code: uid } }))
+            .catch(() => {});
+        }
       }
-    })();
-    return () => { active = false; };
+      if (c.txs) {
+        setTxs(c.txs);
+        setTotalDeposits(c.txs
+          .filter(x => x.type === 'deposit' && (x.status === 'approved' || x.status === 'completed'))
+          .reduce((s, x) => s + (Number(x.amount) || 0), 0));
+      }
+      if (c.activity) setActivity(c.activity);
+      if (c.txs && c.activity) setLoadingHist(false);
+    };
+    const unsub = subscribeProfileCache(apply);
+    apply(getProfileCache());
+    warmProfileCache();
+    return () => { active = false; unsub(); };
   }, []);
 
   useEffect(() => {
@@ -130,31 +143,6 @@ export default function Profile() {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [menuOpen]);
-
-  const loadHistory = useCallback(async () => {
-    if (!profile) return;
-    // Only show the loading state when there's no cached data to display.
-    if (!getProfileCache().txs) setLoadingHist(true);
-    try {
-      const [t, a] = await Promise.all([
-        base44.entities.Transaction.filter({ user_id: profile.id }, '-created_date', 50),
-        base44.entities.PlayerActivity.filter({ user_id: profile.id }, '-created_date', 50),
-      ]);
-      updateProfileCache({ txs: t, activity: a });
-      setTxs(t);
-      setActivity(a);
-      const td = t
-        .filter(x => x.type === 'deposit' && (x.status === 'approved' || x.status === 'completed'))
-        .reduce((s, x) => s + (Number(x.amount) || 0), 0);
-      setTotalDeposits(td);
-    } catch {
-      /* ignore */
-    } finally {
-      setLoadingHist(false);
-    }
-  }, [profile]);
-
-  useEffect(() => { loadHistory(); }, [loadHistory]);
 
   const loadRewards = useCallback(async () => {
     if (!profile) return;
