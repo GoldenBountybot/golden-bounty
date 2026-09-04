@@ -7,34 +7,9 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { formatDateTime } from '@/lib/dateFormat';
 import PeriodTabs, { periodStart } from '@/components/history/PeriodTabs';
 import BetStatsPanel from '@/components/history/BetStatsPanel';
-import { ENDORPHINA_GAMES } from '@/lib/endorphinaGames';
+import { gameLabel } from '@/lib/gameLabel';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
-
-const GAME_LABELS = {
-  'wild-bounty': 'Wild Bounty',
-  'hi-lo': 'High or Low',
-  'plinko': 'Plinko',
-  'mines': 'Mines',
-  'fullhouse': 'Super ACE',
-  'rocket-crash': 'Rocket Crash',
-  'crown-coins': 'Crown Coins',
-  'big-brown': 'Big Brown',
-  'gates-of-olympus': 'Gates of Olympus',
-  'thimbles': 'Thimbles',
-  'free-spin': 'Lucky Wheel',
-};
-
-// Provider rounds are logged as "<provider>:<provider game code>".
-function gameLabel(gameId = '') {
-  if (GAME_LABELS[gameId]) return GAME_LABELS[gameId];
-  if (gameId.startsWith('endorphina:')) {
-    const code = gameId.slice('endorphina:'.length);
-    return ENDORPHINA_GAMES.find((g) => g.code === code)?.name || 'Endorphina';
-  }
-  if (gameId.startsWith('jili:')) return 'JILI';
-  return gameId || '?';
-}
 
 const OUTCOME_META = {
   win:  { color: '#34d399', bg: 'rgba(52,211,153,0.14)', border: 'rgba(52,211,153,0.4)', label: 'Win' },

@@ -13,6 +13,7 @@ import { getVipLevel, getNextVipLevel, BASE_RATE } from '@/lib/vipLevels';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/lib/LanguageContext';
+import { gameLabel } from '@/lib/gameLabel';
 import TaskSystem from '@/components/TaskSystem';
 import XPostTask from '@/components/XPostTask';
 import CashbackPanel from '@/components/CashbackPanel';
@@ -716,7 +717,7 @@ export default function Profile() {
                       <Gamepad2 className="w-4 h-4" style={{ color: '#D4AF37' }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold" style={{ color: '#fff' }}>{t(GAME_NAMES[a.game_id] || a.game_id)}</p>
+                      <p className="text-sm font-bold truncate" style={{ color: '#fff' }}>{t(gameLabel(a.game_id))}</p>
                       <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{t("Bet")} ${Number(a.bet).toFixed(2)} · {fmtDate(a.created_date)}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1 shrink-0">
