@@ -67,7 +67,7 @@ import { isStandaloneApp } from '@/lib/isStandaloneApp';
 import { warmAllAccountData } from '@/lib/warmAccount';
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isAuthenticated, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const loading = isLoadingPublicSettings || isLoadingAuth;
 
   // No splash image — the app opens straight on the branded loading screen and
@@ -91,10 +91,8 @@ const AuthenticatedApp = () => {
     // was what made the account data appear seconds after entry.
     // Hold the loading screen until the CURRENT account's data has actually
     // landed, so the user never sees details updating after entering.
-    // Wait for ALL account data (profile, wallet, history, stake,
-    // notifications) — a couple of extra seconds on the loading screen is
-    // preferred over details filling in after the app opens.
-    warmAllAccountData().finally(() => setDataReady(true));
+    // Account data is warmed in the effect below — only AFTER authentication
+    // finished, otherwise the requests run without a session and return nothing.
     // Track static preload progress (0..100) for the loading bar; dynamic
     // assets don't report progress so we just fold them into the final 100.
     // Only the first-screen assets block entry — everything else is warmed
@@ -112,6 +110,19 @@ const AuthenticatedApp = () => {
     }, 20000);
     return () => clearTimeout(safety);
   }, []);
+
+  // Preload EVERY account dataset (profile name/username, wallet, transactions,
+  // game history, stake, notifications) while the loading screen is still up —
+  // but only once authentication resolved, so the requests actually carry the
+  // signed-in session. Inside Telegram this is what made the profile open empty:
+  // the warm-up ran before the account was authenticated.
+  useEffect(() => {
+    if (isLoadingAuth) return;
+    if (!isAuthenticated) { setDataReady(true); return; }
+    let alive = true;
+    warmAllAccountData().finally(() => { if (alive) setDataReady(true); });
+    return () => { alive = false; };
+  }, [isLoadingAuth, isAuthenticated]);
 
   // Once the loading screen is done, warm all game assets in the background so they
   // are already cached when the user taps into a game — near-instant load.
