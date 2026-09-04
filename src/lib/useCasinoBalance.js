@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
+import { getCurrentUserIdSync } from '@/lib/currentUserId';
 
 // Backend-backed, per-user casino balance.
 // Source of truth = the user's `balance` field on the server (updated by
@@ -8,10 +9,23 @@ import { base44 } from '@/api/base44Client';
 // after reload/focus — so the balance never randomly changes and is identical
 // everywhere.
 const CACHE_KEY = 'casino_balance_cache';
+const CACHE_OWNER_KEY = 'casino_balance_owner';
 
 // Initialise synchronously from cache so the balance is available the instant a
 // game mounts (no 0 flash, no false "insufficient balance" before me() resolves).
-let balance = (() => { try { return parseFloat(localStorage.getItem(CACHE_KEY)) || 0; } catch { return 0; } })();
+// The cache is tagged with its owner, so switching accounts on the same device
+// never shows the previous account's balance.
+let balance = (() => {
+  try {
+    const owner = localStorage.getItem(CACHE_OWNER_KEY);
+    const current = getCurrentUserIdSync();
+    if (owner && current && owner !== current) {
+      localStorage.removeItem(CACHE_KEY);
+      return 0;
+    }
+    return parseFloat(localStorage.getItem(CACHE_KEY)) || 0;
+  } catch { return 0; }
+})();
 let committedBalance = balance;   // last backend-confirmed balance
 let uncommittedDelta = 0;   // local gameplay delta not yet pushed to backend
 // Wagering requirement: deposited funds that must be played through (bet in
@@ -65,6 +79,7 @@ async function loadBalance() {
       base44.functions.invoke('getWallet', {}),
     ]);
     userId = me?.id ?? null;
+    try { if (userId) localStorage.setItem(CACHE_OWNER_KEY, userId); } catch {}
     const b = Number(res?.data?.balance ?? 0);
     committedBalance = isFinite(b) ? b : 0;
     // During an active round, the server balance already reflects the bet
