@@ -291,7 +291,7 @@ export default function Home() {
       <section className="relative z-10 max-w-none mx-auto px-4 lg:px-6 pb-2">
         <Link to="/airdrop" className="block relative overflow-hidden rounded-2xl transition-transform active:scale-[0.99]" style={{ border: '1px solid rgba(212,175,55,0.3)', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
           <FadeImage
-            src="https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/954aff594_file_00000000d7b081fab9598b09e1590c28.png"
+            src="https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c5be74b57_file_0000000070fc8211810809fdf8ca482e.png"
             alt="Golden Bounty Airdrop — Claim BOUNTY tokens"
             className="w-full h-auto block"
             durationMs={500}
