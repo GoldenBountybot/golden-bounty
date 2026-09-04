@@ -5,6 +5,7 @@ import PayPinInput from '@/components/PayPinInput';
 import AgentMatchCard from '@/components/agent/AgentMatchCard';
 import PlayerLookup from '@/components/agent/PlayerLookup';
 import { verifyPayPin } from '@/lib/payPin';
+import { applyServerWallet } from '@/lib/useCasinoBalance';
 
 // Player → agent withdrawal. Funds move instantly to the agent's balance.
 export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
@@ -52,6 +53,9 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
     const res = await agentOps('withdraw', { q: q.trim(), amount: amt });
     setBusy(false);
     if (!res.ok) { setErr(agentError(res)); return; }
+    // Funds already left the wallet server-side — sync the local balance now so
+    // the same amount can't be withdrawn again.
+    applyServerWallet(res.balance, res.wager_remaining);
     setDone({ amount: amt, agent: res.agent?.username, balance: res.balance });
     onSuccess?.(res);
   };
