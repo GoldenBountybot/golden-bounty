@@ -78,7 +78,7 @@ export default function NotificationToaster() {
           onClick={() => open(t)}
         >
           <div
-            className="rounded-xl px-3 py-2 flex items-start gap-2"
+            className="rounded-lg px-3 py-2 flex items-start gap-2"
             style={GOLD_GLASS}
           >
             <span

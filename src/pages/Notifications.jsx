@@ -78,7 +78,7 @@ export default function Notifications() {
               return (
                 <div
                   key={n.id}
-                  className="rounded-xl px-3 py-2 flex gap-2"
+                  className="rounded-lg px-3 py-2 flex gap-2"
                   style={GOLD_GLASS}
                 >
                   <div

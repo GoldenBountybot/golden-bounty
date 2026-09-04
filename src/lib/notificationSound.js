@@ -18,19 +18,20 @@ export function playNotificationSound() {
   if (!ac) return;
   try {
     const now = ac.currentTime;
-    // Two ascending sine tones — a bright "ding-dong" feel.
+    // Soft chat-style "pop-ding": a quick low blip followed by a light bell,
+    // the same gentle messenger chime feel.
     const tones = [
-      { f: 880, t: 0,    d: 0.18 },
-      { f: 1320, t: 0.12, d: 0.28 },
+      { f: 660,  t: 0,    d: 0.10, v: 0.16 },
+      { f: 1046, t: 0.07, d: 0.22, v: 0.20 },
     ];
-    tones.forEach(({ f, t, d }) => {
+    tones.forEach(({ f, t, d, v }) => {
       const osc = ac.createOscillator();
       const gain = ac.createGain();
       osc.type = 'sine';
       osc.frequency.value = f;
       const start = now + t;
       gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(0.22, start + 0.02);
+      gain.gain.linearRampToValueAtTime(v, start + 0.012);
       gain.gain.exponentialRampToValueAtTime(0.0008, start + d);
       osc.connect(gain).connect(ac.destination);
       osc.start(start);
