@@ -75,11 +75,12 @@ const AuthenticatedApp = () => {
   // stays there until every app image is downloaded AND decoded, so nothing is
   // ever seen loading in after entry.
   const [staticReady, setStaticReady] = useState(false);
+  const [dataReady, setDataReady] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
 
   // The loading screen stays up until auth AND every app image (static assets
   // plus admin-uploaded banners / QR codes / avatars) is fully decoded.
-  const showLoadingScreen = loading || !staticReady;
+  const showLoadingScreen = loading || !staticReady || !dataReady;
 
   useEffect(() => {
     // The loading screen's own background + logo first, so it paints instantly.
@@ -89,7 +90,9 @@ const AuthenticatedApp = () => {
     // Account data (profile, transactions, history, stake numbers) is fetched
     // WHILE the images download — waiting until the loading screen finished
     // was what made the account data appear seconds after entry.
-    warmProfileCache();
+    // Hold the loading screen until the CURRENT account's data has actually
+    // landed, so the user never sees details updating after entering.
+    warmProfileCache().finally(() => setDataReady(true));
     warmStakeCache();
     // Track static preload progress (0..100) for the loading bar; dynamic
     // assets don't report progress so we just fold them into the final 100.
@@ -103,6 +106,7 @@ const AuthenticatedApp = () => {
     // the app open after 15s so they can use it even with missing assets.
     const safety = setTimeout(() => {
       setStaticReady(true);
+      setDataReady(true);
       setLoadProgress(100);
     }, 12000);
     return () => clearTimeout(safety);
