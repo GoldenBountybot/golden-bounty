@@ -5,20 +5,24 @@
 // Telegram accounts on one device) never shows the previous account's details.
 import { base44 } from '@/api/base44Client';
 import { getCurrentUserIdSync } from '@/lib/currentUserId';
+import { getAccountKey } from '@/lib/accountKey';
 
 const KEY = 'gb_profile_cache_v1';
-const EMPTY = { user_id: null, profile: null, txs: null, activity: null };
+const EMPTY = { user_id: null, account_key: null, profile: null, txs: null, activity: null };
 
 const read = () => {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const c = JSON.parse(raw);
-      const current = getCurrentUserIdSync();
-      // Only trust the cache when it belongs to the account logged in now.
-      if (c?.user_id && current && c.user_id === current) return c;
+      const current = getAccountKey();
+      // Only trust the cache when it belongs to the account open RIGHT NOW
+      // (Telegram account id when inside Telegram — correct the instant the
+      // user switches account, unlike the stored session).
+      if (c?.account_key && current && c.account_key === current) return c;
     }
   } catch { /* ignore */ }
+  try { localStorage.removeItem(KEY); } catch { /* ignore */ }
   return { ...EMPTY };
 };
 
@@ -45,7 +49,13 @@ export function warmProfileCache() {
       // The user id is already known synchronously from the stored session, so
       // the history queries start IMMEDIATELY — in parallel with me() — instead
       // of waiting a full round-trip for the profile first.
-      const knownId = getCurrentUserIdSync();
+      // Only reuse the stored session id when it belongs to the account open
+      // right now — after a Telegram account switch it's still the previous
+      // account, and fetching its history would flash the old details.
+      const accountKey = getAccountKey();
+      const knownId = cache.account_key && cache.account_key === accountKey
+        ? getCurrentUserIdSync()
+        : null;
       const histFor = (id) => Promise.all([
         base44.entities.Transaction.filter({ user_id: id }, '-created_date', 50),
         base44.entities.PlayerActivity.filter({ user_id: id }, '-created_date', 50),
@@ -56,13 +66,21 @@ export function warmProfileCache() {
       // A different account than the cached one → drop the stale data instead
       // of showing it alongside the new user's.
       if (cache.user_id && cache.user_id !== u.id) cache = { ...EMPTY };
-      cache = { ...cache, user_id: u.id, profile: u };
+      // Inside Telegram, ignore a profile that isn't the account currently
+      // open (re-auth for the new account may still be in flight).
+      const liveKey = getAccountKey();
+      if (liveKey?.startsWith('tg:') && u.telegram_id && liveKey !== 'tg:' + String(u.telegram_id)) {
+        cache = { ...EMPTY };
+        notify();
+        return;
+      }
+      cache = { ...cache, user_id: u.id, account_key: liveKey, profile: u };
       persist();
       notify();
 
       const hist = (earlyHist && knownId === u.id) ? await earlyHist : null;
       const [t, a] = hist || await histFor(u.id);
-      cache = { user_id: u.id, profile: u, txs: t, activity: a };
+      cache = { user_id: u.id, account_key: liveKey, profile: u, txs: t, activity: a };
       persist();
       notify();
     } catch {
@@ -80,7 +98,10 @@ export function getProfileCache() {
 
 export function updateProfileCache(patch) {
   cache = { ...cache, ...patch };
-  if (patch.profile?.id) cache.user_id = patch.profile.id;
+  if (patch.profile?.id) {
+    cache.user_id = patch.profile.id;
+    cache.account_key = getAccountKey();
+  }
   persist();
   notify();
 }

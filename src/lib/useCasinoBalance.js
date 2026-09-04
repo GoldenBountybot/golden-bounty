@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { getCurrentUserIdSync } from '@/lib/currentUserId';
+import { getAccountKey } from '@/lib/accountKey';
 
 // Backend-backed, per-user casino balance.
 // Source of truth = the user's `balance` field on the server (updated by
@@ -18,8 +18,8 @@ const CACHE_OWNER_KEY = 'casino_balance_owner';
 let balance = (() => {
   try {
     const owner = localStorage.getItem(CACHE_OWNER_KEY);
-    const current = getCurrentUserIdSync();
-    if (owner && current && owner !== current) {
+    const current = getAccountKey();
+    if (!owner || !current || owner !== current) {
       localStorage.removeItem(CACHE_KEY);
       return 0;
     }
@@ -79,7 +79,7 @@ async function loadBalance() {
       base44.functions.invoke('getWallet', {}),
     ]);
     userId = me?.id ?? null;
-    try { if (userId) localStorage.setItem(CACHE_OWNER_KEY, userId); } catch {}
+    try { const k = getAccountKey(); if (k) localStorage.setItem(CACHE_OWNER_KEY, k); } catch {}
     const b = Number(res?.data?.balance ?? 0);
     committedBalance = isFinite(b) ? b : 0;
     // During an active round, the server balance already reflects the bet
