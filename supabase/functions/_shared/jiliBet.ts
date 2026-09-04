@@ -4,7 +4,12 @@
 import { CURRENCY, JILI_ERR, applyDelta, ensureWallet, reply, replyError, svc } from './jili.ts';
 
 export async function resolvePlayer(token: string, userId: string) {
+  // A bare userId is not proof of anything, so it is only accepted when that
+  // player actually has a JILI session (i.e. really launched a JILI game).
   if (userId) {
+    const { data: seen } = await svc
+      .from('jili_sessions').select('user_id').eq('user_id', userId).limit(1);
+    if (!seen?.length) return null;
     const wallet = await ensureWallet(userId);
     return wallet ? { userId, wallet } : null;
   }

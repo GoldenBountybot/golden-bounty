@@ -77,9 +77,11 @@ export async function readParams(req: Request): Promise<Record<string, string>> 
   return out;
 }
 
+// Fail closed: the operator token must be configured AND present on the
+// callback. Previously a missing token passed, so anyone who knew a callback
+// URL + a player id could move money.
 export function checkOperatorToken(p: Record<string, string>): boolean {
-  if (!OPERATOR_TOKEN) return true; // not configured yet — don't block integration testing
-  return !p.operator_token || p.operator_token === OPERATOR_TOKEN;
+  return !!OPERATOR_TOKEN && p.operator_token === OPERATOR_TOKEN;
 }
 
 // PG SOFT sends the shared passphrase on every callback. Only enforced once
