@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { getEndorphinaGame } from '@/lib/endorphinaGames';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
 import { useGameFullscreen } from '@/lib/useGameFullscreen';
+import { useProviderBalanceSync } from '@/lib/useProviderBalanceSync';
 
 // Launches an Endorphina game: our backend creates the seamless-wallet session
 // token, signs the launch URL, and we render it full screen.
@@ -16,6 +17,7 @@ export default function EndorphinaGame() {
   const [ready, setReady] = useState(false);
   const game = getEndorphinaGame(gameId);
   useGameFullscreen();
+  useProviderBalanceSync();
 
   useEffect(() => {
     setReady(false);

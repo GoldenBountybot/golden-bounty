@@ -72,6 +72,13 @@ Deno.serve(async (req) => {
         game: String(p.game || session.game || ''), game_id: String(p.gameId || ''),
         amount: -amount, balance_after: balance, status: 'ok', response,
       });
+      // Bets count toward the deposit play-through requirement.
+      if (amount > 0) {
+        const { data: w } = await svc.from('wallets').select('wager_remaining').eq('user_id', session.user_id).maybeSingle();
+        await svc.from('wallets')
+          .update({ wager_remaining: Math.max(0, Number(w?.wager_remaining || 0) - amount) })
+          .eq('user_id', session.user_id);
+      }
       return json(response);
     }
 
@@ -83,22 +90,34 @@ Deno.serve(async (req) => {
 
       // A win may arrive for a bet from an earlier session (gameId=0); fall back
       // to the bet transaction's owner when the token no longer resolves.
-      let userId = session?.user_id as string | undefined;
-      if (!userId && p.betTransactionId) {
-        const { data } = await svc.from('endorphina_transactions').select('user_id')
-          .eq('kind', 'bet').eq('provider_id', String(p.betTransactionId)).maybeSingle();
-        userId = data?.user_id;
-      }
+      // Endorphina sends a win (possibly 0) for every bet, so the matching bet
+      // row gives us the stake — this is where one full round is known.
+      const bet = p.betTransactionId ? await findTx(String(p.betTransactionId), 'bet') : null;
+      let userId = (session?.user_id || bet?.user_id) as string | undefined;
       if (!userId) return fail('TOKEN_NOT_FOUND');
 
       const amount = toUnits(p.amount);
       const balance = amount > 0 ? await applyDelta(userId, amount) : await walletBalance(userId);
       const response = { transactionId: newTxId(), balance: toThousandths(balance) };
+      const game = String(p.game || session?.game || bet?.game || '');
       await saveTx({
         provider_id: id, kind: 'win', user_id: userId, token,
-        game: String(p.game || session?.game || ''), game_id: String(p.gameId || ''),
+        game, game_id: String(p.gameId || ''),
         amount, balance_after: balance, status: 'ok', response,
       });
+
+      // Player history entry for this round (same shape as our own games).
+      const stake = Math.abs(Number(bet?.amount || 0));
+      if (stake > 0 || amount > 0) {
+        await svc.from('player_activity').insert({
+          user_id: userId,
+          game_id: `endorphina:${game}`,
+          bet: stake,
+          win: amount,
+          outcome: amount > stake ? 'win' : amount === stake ? 'push' : 'loss',
+          multiplier: stake > 0 ? amount / stake : 0,
+        });
+      }
       return json(response);
     }
 

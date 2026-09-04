@@ -7,6 +7,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { formatDateTime } from '@/lib/dateFormat';
 import PeriodTabs, { periodStart } from '@/components/history/PeriodTabs';
 import BetStatsPanel from '@/components/history/BetStatsPanel';
+import { ENDORPHINA_GAMES } from '@/lib/endorphinaGames';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -24,6 +25,17 @@ const GAME_LABELS = {
   'thimbles': 'Thimbles',
   'free-spin': 'Lucky Wheel',
 };
+
+// Provider rounds are logged as "<provider>:<provider game code>".
+function gameLabel(gameId = '') {
+  if (GAME_LABELS[gameId]) return GAME_LABELS[gameId];
+  if (gameId.startsWith('endorphina:')) {
+    const code = gameId.slice('endorphina:'.length);
+    return ENDORPHINA_GAMES.find((g) => g.code === code)?.name || 'Endorphina';
+  }
+  if (gameId.startsWith('jili:')) return 'JILI';
+  return gameId || '?';
+}
 
 const OUTCOME_META = {
   win:  { color: '#34d399', bg: 'rgba(52,211,153,0.14)', border: 'rgba(52,211,153,0.4)', label: 'Win' },
@@ -216,10 +228,10 @@ export default function HistoryPage() {
                   <div key={a.id} className="dash-card p-3 flex items-center justify-between" style={{ animation: 'dashFadeIn 400ms ease both' }}>
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0" style={{ background: meta.bg, border: `1px solid ${meta.border}` }}>
-                        <span className="text-xs font-extrabold" style={{ color: meta.color }}>{(GAME_LABELS[a.game_id] || a.game_id || '?').charAt(0)}</span>
+                        <span className="text-xs font-extrabold" style={{ color: meta.color }}>{gameLabel(a.game_id).charAt(0)}</span>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-bold truncate" style={{ color: '#fff' }}>{GAME_LABELS[a.game_id] || a.game_id}</p>
+                        <p className="text-sm font-bold truncate" style={{ color: '#fff' }}>{gameLabel(a.game_id)}</p>
                         <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: meta.bg, border: `1px solid ${meta.border}`, color: meta.color }}>
                           {t(meta.label)}
                         </span>

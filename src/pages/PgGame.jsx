@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { PG_GAMES } from '@/lib/pgGames';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
+import { useProviderBalanceSync } from '@/lib/useProviderBalanceSync';
 
 // Launches a PG SOFT game: our backend creates the seamless-wallet session
 // and returns the PG launch HTML, which we render inside a full-screen frame.
@@ -14,6 +15,7 @@ export default function PgGame() {
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false); // our loader stays until PG is done connecting
   const title = PG_GAMES.find((g) => g.id === gameId)?.title || 'PG SOFT';
+  useProviderBalanceSync();
 
   const frameRef = useRef(null);
   const progressRef = useRef(0);
