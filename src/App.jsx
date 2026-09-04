@@ -64,9 +64,7 @@ import { CRITICAL_ASSETS, DEFERRED_ASSETS, PROVIDER_CARDS_REST } from '@/lib/app
 import { base44 } from '@/api/base44Client';
 import { SUPABASE_URL } from '@/api/supabaseClient';
 import { isStandaloneApp } from '@/lib/isStandaloneApp';
-import { warmProfileCache } from '@/lib/profileCache';
-import { warmStakeCache } from '@/lib/useStake';
-import { warmNotificationCache } from '@/lib/notificationCache';
+import { warmAllAccountData } from '@/lib/warmAccount';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -93,9 +91,10 @@ const AuthenticatedApp = () => {
     // was what made the account data appear seconds after entry.
     // Hold the loading screen until the CURRENT account's data has actually
     // landed, so the user never sees details updating after entering.
-    warmProfileCache().finally(() => setDataReady(true));
-    warmStakeCache();
-    warmNotificationCache();
+    // Wait for ALL account data (profile, wallet, history, stake,
+    // notifications) — a couple of extra seconds on the loading screen is
+    // preferred over details filling in after the app opens.
+    warmAllAccountData().finally(() => setDataReady(true));
     // Track static preload progress (0..100) for the loading bar; dynamic
     // assets don't report progress so we just fold them into the final 100.
     // Only the first-screen assets block entry — everything else is warmed
@@ -110,7 +109,7 @@ const AuthenticatedApp = () => {
       setStaticReady(true);
       setDataReady(true);
       setLoadProgress(100);
-    }, 12000);
+    }, 20000);
     return () => clearTimeout(safety);
   }, []);
 
