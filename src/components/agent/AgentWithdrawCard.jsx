@@ -36,15 +36,17 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
   const submit = async () => {
     setErr(null);
     const amt = Number(initialAmount);
-    if (!q.trim()) { setErr('Enter the agent username or ID.'); return; }
-    if (!isFinite(amt) || amt <= 0) { setErr('Enter a valid amount.'); return; }
-    if (amt < min) { setErr(`Minimum withdrawal is $${min.toFixed(2)}.`); return; }
-    if (pin.length !== 4) { setErr('Invalid pay pin'); return; }
+    if (!q.trim()) { setErr('Please enter the agent\u2019s username or ID.'); return; }
+    if (!isFinite(amt) || amt <= 0) { setErr('Please enter a valid withdrawal amount.'); return; }
+    if (amt < min) { setErr(`The minimum withdrawal amount is $${min.toFixed(2)}.`); return; }
+    if (pin.length !== 4) { setErr('Please enter your 4-digit Pay PIN.'); return; }
     setBusy(true);
     const pinCheck = await verifyPayPin(pin);
     if (pinCheck !== 'ok') {
       setBusy(false);
-      setErr(pinCheck === 'not_set' ? 'Set your Pay Pin first from Dashboard → Pay Pin.' : 'Invalid pay pin');
+      setErr(pinCheck === 'not_set'
+        ? 'Please set your Pay PIN first from Dashboard → Pay PIN to continue.'
+        : 'The Pay PIN you entered is incorrect. Please try again.');
       return;
     }
     const res = await agentOps('withdraw', { q: q.trim(), amount: amt });
@@ -60,11 +62,11 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
         <div className="flex items-center justify-center w-14 h-14 rounded-full" style={{ background: 'rgba(52,211,153,0.15)' }}>
           <CheckCircle2 className="w-8 h-8" style={{ color: '#34d399' }} />
         </div>
-        <p className="text-lg font-extrabold" style={{ color: '#34d399' }}>Withdraw Successful</p>
+        <p className="text-lg font-extrabold" style={{ color: '#34d399' }}>Withdrawal Completed Successfully</p>
         <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
-          ${done.amount.toFixed(2)} sent to agent {done.agent}.
+          ${done.amount.toFixed(2)} has been transferred to agent {done.agent}. Please contact the agent to receive your payout.
         </p>
-        <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>New balance: ${Number(done.balance).toFixed(2)}</p>
+        <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>Your updated balance is ${Number(done.balance).toFixed(2)}.</p>
         <button onClick={() => (window.location.href = '/dashboard?tab=wallet')} className="dash-btn-gold px-6 py-3 text-sm">Back to Wallet</button>
       </div>
     );

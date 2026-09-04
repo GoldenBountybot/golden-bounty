@@ -18,8 +18,8 @@ export default function PayPinCard() {
 
   const submit = async () => {
     setErr(null);
-    if (pin.length !== 4) { setErr(t("Pay Pin must be exactly 4 digits.")); return; }
-    if (pin !== confirm) { setErr(t("The two pins do not match.")); return; }
+    if (pin.length !== 4) { setErr(t("Your Pay PIN must contain exactly 4 digits.")); return; }
+    if (pin !== confirm) { setErr(t("The PINs entered do not match. Please try again.")); return; }
     setBusy(true);
     const existing = await getPayPin();
     if (existing) { setBusy(false); setHasPin(true); return; }
@@ -28,7 +28,7 @@ export default function PayPinCard() {
       setHasPin(true);
       setPin(''); setConfirm('');
     } catch (e) {
-      setErr(t("Could not save your pin. Please try again."));
+      setErr(t("We couldn't save your Pay PIN at this time. Please try again."));
     }
     setBusy(false);
   };
@@ -41,9 +41,9 @@ export default function PayPinCard() {
         <div className="flex items-center justify-center w-12 h-12 rounded-xl" style={{ background: 'rgba(52,211,153,0.14)', border: '1px solid rgba(52,211,153,0.35)' }}>
           <CheckCircle2 className="w-6 h-6" style={{ color: '#34d399' }} />
         </div>
-        <p className="text-base font-bold" style={{ color: '#34d399' }}>{t("Your Pay Pin is already set")}</p>
+        <p className="text-base font-bold" style={{ color: '#34d399' }}>{t("Your Pay PIN has been successfully set")}</p>
         <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
-          {t("A Pay Pin can be set only once and cannot be changed. Keep it safe.")}
+          {t("Please make a note of it, as it cannot be reset or recovered if forgotten.")}
         </p>
       </div>
     );
@@ -61,7 +61,7 @@ export default function PayPinCard() {
       <div className="flex items-start gap-2 p-3 rounded-xl" style={{ background: 'rgba(251,146,60,0.10)', border: '1px solid rgba(251,146,60,0.35)' }}>
         <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" style={{ color: '#fb923c' }} />
         <p className="text-[12px] font-semibold" style={{ color: '#fb923c' }}>
-          {t("Warning: if you forget this pin it can never be changed. Write it down and keep it somewhere safe.")}
+          {t("Important: your Pay PIN can be set only once and cannot be reset or recovered. Please record it and store it securely.")}
         </p>
       </div>
 

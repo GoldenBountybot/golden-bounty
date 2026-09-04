@@ -13,14 +13,14 @@ export default function AgentTransferForm({ onDone }) {
 
   const send = async () => {
     setMsg(null);
-    if (!q.trim()) { setMsg({ ok: false, text: 'Enter a username or ID.' }); return; }
+    if (!q.trim()) { setMsg({ ok: false, text: 'Please enter the player\u2019s username or ID.' }); return; }
     const amt = Number(amount);
-    if (!isFinite(amt) || amt <= 0) { setMsg({ ok: false, text: 'Enter a valid amount.' }); return; }
+    if (!isFinite(amt) || amt <= 0) { setMsg({ ok: false, text: 'Please enter a valid transfer amount.' }); return; }
     setBusy(true);
     const res = await agentOps('transfer', { q: q.trim(), amount: amt });
     setBusy(false);
     if (!res.ok) { setMsg({ ok: false, text: agentError(res) }); return; }
-    setMsg({ ok: true, text: `Sent $${amt.toFixed(2)} to ${res.to?.username}. Your balance: $${Number(res.balance).toFixed(2)}` });
+    setMsg({ ok: true, text: `Transfer completed successfully. $${amt.toFixed(2)} has been credited to ${res.to?.username}'s account. Your remaining balance is $${Number(res.balance).toFixed(2)}.` });
     setQ(''); setAmount(''); setPicked(null);
     onDone?.();
   };
