@@ -17,6 +17,7 @@ import { isInsideTelegram } from '@/lib/telegram';
 import { PG_GAMES } from '@/lib/pgGames';
 import { JILI_GAMES } from '@/lib/jiliGames';
 import { ENDORPHINA_GAMES, ENDORPHINA_LIVE } from '@/lib/endorphinaGames';
+import { endorphinaCategory, ENDORPHINA_POPULAR_COUNT } from '@/lib/endorphinaCategories';
 
 const GAMES = [
   { id: 'free-spin', titleKey: 'Daily Free Spin', category: 'Arcade', desc: 'Spin every 24h · win $1000', accent: 'from-amber-500 to-yellow-700', tag: 'FREE', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png', path: '/free-spin' },
@@ -64,11 +65,12 @@ const JILI_LOBBY_GAMES = JILI_GAMES.map(g => ({
   path: `/games/jili/${g.id}`,
 }));
 
-// Endorphina titles — Dice variants sit under Table, everything else is Slots.
-const ENDO_LOBBY_GAMES = (ENDORPHINA_LIVE ? ENDORPHINA_GAMES : []).map(g => ({
+// Endorphina titles — the newest releases fill Popular, the rest are sorted
+// onto our lobby categories by title (Dice/Chance Machine → Table, etc.).
+const ENDO_LOBBY_GAMES = (ENDORPHINA_LIVE ? ENDORPHINA_GAMES : []).map((g, i) => ({
   id: `endo-${g.id}`,
   titleKey: g.name,
-  category: /\bdice\b/i.test(g.name) ? 'Table' : 'Slots',
+  category: i < ENDORPHINA_POPULAR_COUNT ? 'Popular' : endorphinaCategory(g.name),
   desc: 'Endorphina',
   accent: 'from-amber-500 to-red-800',
   tag: '',
@@ -81,14 +83,17 @@ const ENDO_LOBBY_GAMES = (ENDORPHINA_LIVE ? ENDORPHINA_GAMES : []).map(g => ({
 // balanced mix of both providers.
 const PG_POPULAR = PG_LOBBY_GAMES.filter(g => g.category === 'Popular');
 const JILI_POPULAR = JILI_LOBBY_GAMES.filter(g => g.category === 'Popular');
+const ENDO_POPULAR = ENDO_LOBBY_GAMES.filter(g => g.category === 'Popular');
 const MIXED_POPULAR = [];
-for (let i = 0; i < Math.max(PG_POPULAR.length, JILI_POPULAR.length); i++) {
+for (let i = 0; i < Math.max(PG_POPULAR.length, JILI_POPULAR.length, ENDO_POPULAR.length); i++) {
   if (PG_POPULAR[i]) MIXED_POPULAR.push(PG_POPULAR[i]);
   if (JILI_POPULAR[i]) MIXED_POPULAR.push(JILI_POPULAR[i]);
+  if (ENDO_POPULAR[i]) MIXED_POPULAR.push(ENDO_POPULAR[i]);
 }
 const OTHER_PROVIDER_GAMES = [...PG_LOBBY_GAMES, ...JILI_LOBBY_GAMES].filter(g => g.category !== 'Popular');
 
-const ALL_GAMES = [...GAMES, ...MIXED_POPULAR, ...ENDO_LOBBY_GAMES, ...OTHER_PROVIDER_GAMES];
+const ENDO_REST = ENDO_LOBBY_GAMES.filter(g => g.category !== 'Popular');
+const ALL_GAMES = [...GAMES, ...MIXED_POPULAR, ...ENDO_REST, ...OTHER_PROVIDER_GAMES];
 
 // Temporarily hidden from the lobby (routes still work if opened directly).
 // Remove an id from this list to show the game again.
