@@ -1,0 +1,60 @@
+{
+  "name": "AgentProfile",
+  "type": "object",
+  "properties": {
+    "agent_user_id": {
+      "type": "string",
+      "description": "User id of the agent (Supabase profile id)"
+    },
+    "username": {
+      "type": "string",
+      "default": "",
+      "description": "Agent display username shown to players"
+    },
+    "full_name": {
+      "type": "string",
+      "default": "",
+      "description": "Agent's name shown to players"
+    },
+    "uid": {
+      "type": "string",
+      "default": "",
+      "description": "Agent's 10-digit player id shown to players"
+    },
+    "country_code": {
+      "type": "string",
+      "default": "",
+      "description": "ISO 3166-1 alpha-2 country code, e.g. BD"
+    },
+    "country_name": {
+      "type": "string",
+      "default": "",
+      "description": "Country display name, e.g. Bangladesh"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "agent_user_id"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": true,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

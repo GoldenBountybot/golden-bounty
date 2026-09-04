@@ -47,6 +47,7 @@ import Events from './pages/Events';
 import Swap from './pages/Swap';
 import MigrateTelegram from './pages/MigrateTelegram';
 import AgentPanel from './pages/AgentPanel';
+import Agents from './pages/Agents';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminRoute from '@/components/AdminRoute';
 import BottomNavLayout from '@/components/BottomNavLayout';
@@ -200,6 +201,7 @@ const AuthenticatedApp = () => {
           <Route path="/swap" element={<Swap />} />
           <Route path="/migrate" element={<MigrateTelegram />} />
           <Route path="/agent" element={<AgentPanel />} />
+          <Route path="/agents" element={<Agents />} />
         </Route>
       </Route>
 
