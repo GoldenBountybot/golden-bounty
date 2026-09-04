@@ -66,6 +66,7 @@ import { SUPABASE_URL } from '@/api/supabaseClient';
 import { isStandaloneApp } from '@/lib/isStandaloneApp';
 import { warmProfileCache } from '@/lib/profileCache';
 import { warmStakeCache } from '@/lib/useStake';
+import { warmNotificationCache } from '@/lib/notificationCache';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -94,6 +95,7 @@ const AuthenticatedApp = () => {
     // landed, so the user never sees details updating after entering.
     warmProfileCache().finally(() => setDataReady(true));
     warmStakeCache();
+    warmNotificationCache();
     // Track static preload progress (0..100) for the loading bar; dynamic
     // assets don't report progress so we just fold them into the final 100.
     // Only the first-screen assets block entry — everything else is warmed

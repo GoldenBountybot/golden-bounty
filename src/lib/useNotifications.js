@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { playNotificationSound } from '@/lib/notificationSound';
+import { getNotificationCache } from '@/lib/notificationCache';
 
 // Loads the current user's notifications (own + broadcasts) and tracks the
 // unread count via a per-user `notifications_last_read_at` timestamp stored on
@@ -8,9 +9,11 @@ import { playNotificationSound } from '@/lib/notificationSound';
 // drives the red dot — this works for broadcasts too, since read state is per
 // user, not per notification record.
 export function useNotifications() {
-  const [items, setItems] = useState([]);
-  const [lastReadAt, setLastReadAt] = useState(0);
-  const [loading, setLoading] = useState(true);
+  // Preloaded at app entry, so the list and unread count show up instantly.
+  const preloaded = useRef(getNotificationCache()).current;
+  const [items, setItems] = useState(preloaded?.items || []);
+  const [lastReadAt, setLastReadAt] = useState(preloaded?.lastReadAt || 0);
+  const [loading, setLoading] = useState(!preloaded);
   // Track the newest created_date we've already seen so we only chime for
   // genuinely new arrivals (not the initial load or re-fetched existing ones).
   const seenNewestRef = useRef(0);
