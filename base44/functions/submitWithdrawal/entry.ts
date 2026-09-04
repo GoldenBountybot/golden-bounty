@@ -136,7 +136,20 @@ export default async function(req: Request): Promise<Response> {
       }, { status: 400 });
     }
 
-    // ── All checks passed — create the withdrawal transaction ──
+    // ── All checks passed — HOLD the funds immediately ──
+    // The amount leaves the wallet the moment the request is made, so the same
+    // balance can't be withdrawn again while the request awaits approval.
+    // Admin approval only marks it completed (no second deduction); rejection
+    // refunds the held amount.
+    await base44.asServiceRole.entities.Wallet.updateMany(
+      { user_id: user.id },
+      { $inc: { balance: -amount } }
+    );
+    const heldWallet = await findOrCreateWallet(base44, user.id);
+    const balanceAfter = Math.max(0, Number(heldWallet.balance ?? 0));
+    const wagerAfter = Math.max(0, Number(heldWallet.wager_remaining ?? 0));
+
+    // ── Create the withdrawal transaction ──
     const tx = await base44.asServiceRole.entities.Transaction.create({
       user_id: user.id,
       user_email: user.email || '',
@@ -175,8 +188,9 @@ export default async function(req: Request): Promise<Response> {
     return Response.json({
       ok: true,
       transaction_id: tx.id,
-      balance: balance,
-      available: available,
+      balance: balanceAfter,
+      wager_remaining: wagerAfter,
+      available: Math.max(0, balanceAfter - wagerAfter),
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

@@ -102,7 +102,14 @@ export default function AdminTransactions() {
         load();
         return;
       }
-      if (status === 'completed') {
+      // Withdrawals are already debited when the player submits the request
+      // (the funds are held), so approving must NOT debit again — and rejecting
+      // must give the held amount back.
+      if (tx.type === 'withdraw') {
+        if (status === 'rejected') {
+          await base44.functions.invoke('adminAdjustWallet', { user_id: tx.user_id, delta: Number(tx.amount) || 0, wager_delta: 0 });
+        }
+      } else if (status === 'completed') {
         const credit = tx.type === 'deposit' || tx.type === 'bonus';
         const amt = Number(tx.amount) || 0;
         // Apply through the secure adminAdjustWallet backend function — it

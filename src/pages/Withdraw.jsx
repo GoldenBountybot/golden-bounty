@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
-import { useCasinoBalance } from '@/lib/useCasinoBalance';
+import { useCasinoBalance, applyServerWallet } from '@/lib/useCasinoBalance';
 import { useLanguage } from '@/lib/LanguageContext';
 import { Wallet, ArrowLeft, Send, AlertTriangle, ArrowUpFromLine, Shield } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
@@ -160,6 +160,9 @@ export default function Withdraw() {
         setSubmitting(false);
         return;
       }
+      // The server already held (debited) the amount — reflect the new balance
+      // instantly so the same funds can't appear withdrawable again.
+      applyServerWallet(result.data.balance, result.data.wager_remaining);
       // Auto-notify admins in the background — don't make the user wait on it.
       base44.functions.invoke('notifyAdminWithdrawal', {
         amount,
