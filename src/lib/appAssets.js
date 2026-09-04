@@ -31,7 +31,7 @@ const SPLASH = [
 
 // ---- Home page banners ----
 const HOME = [
-  u('954aff594_file_00000000d7b081fab9598b09e1590c28.png'), // airdrop banner
+  'https://media.base44.com/images/public/6a5698edffaa42a5b6637776/c5be74b57_file_0000000070fc8211810809fdf8ca482e.png', // airdrop banner
 ];
 
 // ---- WesternGameBanners carousel ----
