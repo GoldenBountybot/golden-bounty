@@ -7,6 +7,7 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@/components/ui/toast";
+import { GOLD_GLASS } from "@/lib/glassCard";
 
 export function Toaster() {
   const { toasts } = useToast();
@@ -18,15 +19,9 @@ export function Toaster() {
           <Toast
             key={id}
             {...props}
-            className="!border-amber-400/35"
-            style={{
-              background: 'rgba(20,16,8,0.55)',
-              backdropFilter: 'blur(18px) saturate(160%)',
-              WebkitBackdropFilter: 'blur(18px) saturate(160%)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.55), 0 0 18px rgba(212,175,55,0.2), inset 0 1px 0 rgba(255,255,255,0.18)',
-            }}
+            style={GOLD_GLASS}
           >
-            <div className="grid gap-1">
+            <div className="grid gap-0.5">
               {title && (
                 <ToastTitle
                   className="!text-amber-300"

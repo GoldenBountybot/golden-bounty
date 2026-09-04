@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, X } from 'lucide-react';
 import { useNotifications } from '@/lib/useNotifications';
+import { GOLD_GLASS, GLASS_TOP_OFFSET } from '@/lib/glassCard';
 
 // Facebook/Telegram-style incoming-notification popups: when a new
 // notification arrives, a toast slides in from the top, holds a few seconds,
@@ -64,7 +65,7 @@ export default function NotificationToaster() {
   return (
     <div
       className="fixed top-0 inset-x-0 z-[120] flex flex-col items-center px-3 pointer-events-none"
-      style={{ paddingTop: 'calc(env(safe-area-inset-top) + 88px)' }}
+      style={{ paddingTop: GLASS_TOP_OFFSET }}
     >
       {toasts.map((t) => (
         <div
@@ -77,24 +78,18 @@ export default function NotificationToaster() {
           onClick={() => open(t)}
         >
           <div
-            className="rounded-xl px-3.5 py-2.5 flex items-start gap-2.5"
-            style={{
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,225,150,0.08) 100%)',
-              border: '1px solid rgba(245,210,120,0.5)',
-              boxShadow: '0 8px 28px rgba(0,0,0,0.35), 0 0 18px rgba(255,200,90,0.18), inset 0 1px 0 rgba(255,255,255,0.28)',
-              backdropFilter: 'blur(16px) saturate(160%)',
-              WebkitBackdropFilter: 'blur(16px) saturate(160%)',
-            }}
+            className="rounded-xl px-3 py-2 flex items-start gap-2"
+            style={GOLD_GLASS}
           >
             <span
-              className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full"
+              className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full"
               style={{ background: 'radial-gradient(circle at 35% 30%, #ffe9a8, #c8881e)', boxShadow: '0 0 10px rgba(255,210,90,0.7)' }}
             >
-              <Bell className="w-4 h-4 text-stone-900" strokeWidth={2.5} />
+              <Bell className="w-3.5 h-3.5 text-stone-900" strokeWidth={2.5} />
             </span>
             <div className="flex-1 min-w-0 text-left">
               <p
-                className="text-white font-black italic leading-tight tracking-wide"
+                className="text-white text-[13px] font-black italic leading-tight tracking-wide"
                 style={{ fontFamily: 'Rye, Georgia, serif', textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}
               >
                 {t.title}

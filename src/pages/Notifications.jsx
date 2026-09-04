@@ -5,6 +5,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
 import BackButton from '@/components/BackButton';
 import { toDate } from '@/lib/dateFormat';
+import { GOLD_GLASS } from '@/lib/glassCard';
 
 const TYPE_META = {
   bonus_arrived: { icon: Gift, color: '#f5c542', labelKey: 'Bonus Arrived' },
@@ -77,21 +78,17 @@ export default function Notifications() {
               return (
                 <div
                   key={n.id}
-                  className="rounded-xl p-3.5 flex gap-3"
-                  style={{
-                    background: 'rgba(20,17,13,0.6)',
-                    border: '1px solid rgba(214,178,98,0.28)',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                  }}
+                  className="rounded-xl px-3 py-2 flex gap-2"
+                  style={GOLD_GLASS}
                 >
                   <div
-                    className="shrink-0 mt-0.5 w-9 h-9 rounded-full flex items-center justify-center"
+                    className="shrink-0 mt-0.5 w-7 h-7 rounded-full flex items-center justify-center"
                     style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${m.color}66` }}
                   >
-                    <Icon className="w-4 h-4" style={{ color: m.color }} />
+                    <Icon className="w-3.5 h-3.5" style={{ color: m.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-0.5">
                       <p className="text-[11px] font-black italic" style={{ fontFamily: 'Georgia, serif', color: m.color }}>
                         {t(m.labelKey)}
                       </p>
