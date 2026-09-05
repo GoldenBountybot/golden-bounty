@@ -41,7 +41,8 @@ export default function Notifications() {
   React.useEffect(() => { markAllRead(); reload(); /* eslint-disable-next-line */ }, []);
 
   return (
-    <div className="min-h-screen pb-24 bg-[#0b0b0d]">
+    <div className="relative min-h-screen pb-24 bg-[#0b0b0d]">
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 60% at 50% -10%, rgba(212,175,55,0.10), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.05), transparent 60%), url(https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat' }} />
       {/* Header */}
       <header
         className="sticky top-0 z-20 backdrop-blur-xl"
@@ -53,7 +54,7 @@ export default function Notifications() {
         </div>
       </header>
 
-      <div className="max-w-none mx-auto px-4 pt-5">
+      <div className="relative z-10 max-w-none mx-auto px-4 pt-5">
         <p className="text-center text-[11px] text-amber-100/55 italic mb-4" style={{ fontFamily: 'Georgia, serif' }}>
           {items.length} {t("total")} · {unreadCount} {t("unread")}
         </p>
