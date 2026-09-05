@@ -124,7 +124,7 @@ const ALL_GAMES = [...GAMES, ...MIXED_POPULAR, ...OTHER_PROVIDER_GAMES];
 
 // Temporarily hidden from the lobby (routes still work if opened directly).
 // Remove an id from this list to show the game again.
-const HIDDEN_GAME_IDS = [];
+const HIDDEN_GAME_IDS = ['hi-lo', 'fullhouse', 'mines', 'big-brown'];
 
 // Base tabs, plus any extra category that actually has games (e.g. "Other"
 // when JILI ships a category we haven't mapped yet).
