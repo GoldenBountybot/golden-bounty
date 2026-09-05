@@ -30,7 +30,7 @@ export default function WgGame() {
     let alive = true;
     setUrl(''); setError('');
     base44.functions
-      .invoke('wg-launch-game', { kind_id: gameId, lang: 'en' })
+      .invoke('wgLaunchGame', { kind_id: gameId, lang: 'en' })
       .then(({ data }) => {
         if (!alive) return;
         if (data?.ok && data.url) setUrl(data.url);

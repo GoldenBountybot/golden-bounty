@@ -37,6 +37,7 @@ export const FUNCTIONS = {
   getWallet: 'get-wallet',
   jiliLaunchGame: 'jili-launch-game',
   endorphinaLaunchGame: 'endorphina-launch-game',
+  wgLaunchGame: 'wg-launch-game',
   getWithdrawalRiskAssessment: 'withdrawal-risk-assessment',
   manualDepositCreate: 'manual-deposit-create',
   manualDepositCheck: 'manual-deposit-check',
