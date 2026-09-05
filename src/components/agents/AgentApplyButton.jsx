@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Loader2, UserPlus, CheckCircle2, Headphones } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useLanguage } from '@/lib/LanguageContext';
 
@@ -40,12 +39,14 @@ export default function AgentApplyButton() {
         <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
           {t('Please contact support to complete your agent application.')}
         </p>
-        <Link
-          to="/live-support"
+        <a
+          href="https://t.me/golden_bounty_tg"
+          target="_blank"
+          rel="noopener noreferrer"
           className="dash-btn-gold px-4 py-2.5 text-sm flex items-center justify-center gap-2 mt-1"
         >
           <Headphones className="w-4 h-4" /> {t('Contact Support')}
-        </Link>
+        </a>
       </div>
     );
   }
