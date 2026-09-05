@@ -67,35 +67,35 @@ function buildFeed(n = 26) {
     else if (r < 0.45) {
       // In-house games — wins and losses (losses slightly more frequent)
       const g = pick(GAMES);
-      if (Math.random() < 0.42) items.push({ icon: '★', text: `${name} won on ${g} $${winAmount()}`, tone: 'win' });
+      if (Math.random() < 0.35) items.push({ icon: '★', text: `${name} won on ${g} $${winAmount()}`, tone: 'win' });
       else items.push({ icon: '✖', text: `${name} lost on ${g} -$${jiliLoss()}`, tone: 'loss' });
     }
     else if (r < 0.62) {
       // JILI provider games — wins and losses
       const g = pickJiliGame();
-      if (Math.random() < 0.42) items.push({ icon: '★', text: `${name} won on ${g} $${jiliWin()}`, tone: 'win' });
+      if (Math.random() < 0.35) items.push({ icon: '★', text: `${name} won on ${g} $${jiliWin()}`, tone: 'win' });
       else items.push({ icon: '✖', text: `${name} lost on ${g} -$${jiliLoss()}`, tone: 'loss' });
     }
     else if (r < 0.8) {
       // PG SOFT provider games — wins and losses
       const g = pickPgGame();
-      if (Math.random() < 0.42) items.push({ icon: '★', text: `${name} won on ${g} $${pgWin()}`, tone: 'win' });
+      if (Math.random() < 0.35) items.push({ icon: '★', text: `${name} won on ${g} $${pgWin()}`, tone: 'win' });
       else items.push({ icon: '✖', text: `${name} lost on ${g} -$${pgLoss()}`, tone: 'loss' });
     }
     else if (r < 0.9 && hasEndoGames) {
       // Endorphina provider games — wins and losses
       const g = pickEndoGame();
-      if (Math.random() < 0.42) items.push({ icon: '★', text: `${name} won on ${g} $${pgWin()}`, tone: 'win' });
+      if (Math.random() < 0.35) items.push({ icon: '★', text: `${name} won on ${g} $${pgWin()}`, tone: 'win' });
       else items.push({ icon: '✖', text: `${name} lost on ${g} -$${pgLoss()}`, tone: 'loss' });
     }
     else if (hasWgGames) {
       // WG provider games — wins and losses
       const g = pickWgGame();
-      if (Math.random() < 0.42) items.push({ icon: '★', text: `${name} won on ${g} $${jiliWin()}`, tone: 'win' });
+      if (Math.random() < 0.35) items.push({ icon: '★', text: `${name} won on ${g} $${jiliWin()}`, tone: 'win' });
       else items.push({ icon: '✖', text: `${name} lost on ${g} -$${jiliLoss()}`, tone: 'loss' });
     } else {
       const g = pickPgGame();
-      if (Math.random() < 0.42) items.push({ icon: '★', text: `${name} won on ${g} $${pgWin()}`, tone: 'win' });
+      if (Math.random() < 0.35) items.push({ icon: '★', text: `${name} won on ${g} $${pgWin()}`, tone: 'win' });
       else items.push({ icon: '✖', text: `${name} lost on ${g} -$${pgLoss()}`, tone: 'loss' });
     }
   }
