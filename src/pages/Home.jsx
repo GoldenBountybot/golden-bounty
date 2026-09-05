@@ -8,6 +8,7 @@ import DesktopSidebar from '@/components/DesktopSidebar';
 import SiteFooter from '@/components/SiteFooter';
 import NotificationBell from '@/components/NotificationBell';
 import HomeSidebar from '@/components/HomeSidebar';
+import TelegramBotCta from '@/components/TelegramBotCta';
 import FadeImage from '@/components/FadeImage';
 import { Wallet, FlaskConical, Gift } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
@@ -307,6 +308,8 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      <TelegramBotCta />
 
       {/* Airdrop banner */}
       <section className="relative z-10 max-w-none mx-auto px-4 lg:px-6 pb-2">
