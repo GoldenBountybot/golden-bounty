@@ -18,6 +18,7 @@ import { PG_GAMES } from '@/lib/pgGames';
 import { JILI_GAMES } from '@/lib/jiliGames';
 import { ENDORPHINA_GAMES, ENDORPHINA_LIVE } from '@/lib/endorphinaGames';
 import { endorphinaCategory, ENDORPHINA_POPULAR_COUNT } from '@/lib/endorphinaCategories';
+import { WG_GAMES, WG_POPULAR_COUNT } from '@/lib/wgGames';
 
 const GAMES = [
   { id: 'free-spin', titleKey: 'Daily Free Spin', category: 'Arcade', desc: 'Spin every 24h · win $1000', accent: 'from-amber-500 to-yellow-700', tag: 'FREE', image: 'https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/580f5a5e8_file_00000000f1f081fb9825395d20f29cb7.png', path: '/free-spin' },
@@ -78,27 +79,45 @@ const ENDO_LOBBY_GAMES = (ENDORPHINA_LIVE ? ENDORPHINA_GAMES : []).map((g, i) =>
   path: `/games/endorphina/${g.id}`,
 }));
 
+// WG (Win Gaming) titles — provider category ids mapped onto our lobby tabs.
+const WG_CAT_MAP = { 1: 'Cards', 2: 'Slots', 3: 'Fishing', 11: 'Arcade' };
+const WG_LOBBY_GAMES = WG_GAMES.map((g, i) => ({
+  id: `wg-${g.id}`,
+  titleKey: g.name,
+  category: i < WG_POPULAR_COUNT ? 'Popular' : (WG_CAT_MAP[g.cat] || 'Other'),
+  desc: 'WG',
+  accent: 'from-amber-500 to-yellow-800',
+  tag: '',
+  provider: 'WG',
+  image: g.cover,
+  path: `/games/wg/${g.id}`,
+}));
+
 // Popular alternates one PG SOFT title, one JILI title, so the tab shows a
 // balanced mix of both providers.
 const PG_POPULAR = PG_LOBBY_GAMES.filter(g => g.category === 'Popular');
 const JILI_POPULAR = JILI_LOBBY_GAMES.filter(g => g.category === 'Popular');
 const ENDO_POPULAR = ENDO_LOBBY_GAMES.filter(g => g.category === 'Popular');
+const WG_POPULAR = WG_LOBBY_GAMES.filter(g => g.category === 'Popular');
 const MIXED_POPULAR = [];
-for (let i = 0; i < Math.max(PG_POPULAR.length, JILI_POPULAR.length, ENDO_POPULAR.length); i++) {
+for (let i = 0; i < Math.max(PG_POPULAR.length, JILI_POPULAR.length, ENDO_POPULAR.length, WG_POPULAR.length); i++) {
   if (PG_POPULAR[i]) MIXED_POPULAR.push(PG_POPULAR[i]);
   if (JILI_POPULAR[i]) MIXED_POPULAR.push(JILI_POPULAR[i]);
   if (ENDO_POPULAR[i]) MIXED_POPULAR.push(ENDO_POPULAR[i]);
+  if (WG_POPULAR[i]) MIXED_POPULAR.push(WG_POPULAR[i]);
 }
 // The rest of each provider's catalogue, interleaved one PG → one JILI → one
 // Endorphina so the All tab always shows a balanced mix of the three.
 const PG_REST = PG_LOBBY_GAMES.filter(g => g.category !== 'Popular');
 const JILI_REST = JILI_LOBBY_GAMES.filter(g => g.category !== 'Popular');
 const ENDO_REST = ENDO_LOBBY_GAMES.filter(g => g.category !== 'Popular');
+const WG_REST = WG_LOBBY_GAMES.filter(g => g.category !== 'Popular');
 const OTHER_PROVIDER_GAMES = [];
-for (let i = 0; i < Math.max(PG_REST.length, JILI_REST.length, ENDO_REST.length); i++) {
+for (let i = 0; i < Math.max(PG_REST.length, JILI_REST.length, ENDO_REST.length, WG_REST.length); i++) {
   if (PG_REST[i]) OTHER_PROVIDER_GAMES.push(PG_REST[i]);
   if (JILI_REST[i]) OTHER_PROVIDER_GAMES.push(JILI_REST[i]);
   if (ENDO_REST[i]) OTHER_PROVIDER_GAMES.push(ENDO_REST[i]);
+  if (WG_REST[i]) OTHER_PROVIDER_GAMES.push(WG_REST[i]);
 }
 
 const ALL_GAMES = [...GAMES, ...MIXED_POPULAR, ...OTHER_PROVIDER_GAMES];
