@@ -112,7 +112,7 @@ export default function Dashboard() {
   const doWithdraw = () => {
     const n = Number(wdAmt);
     if (!n || n <= 0) { showNotify(t("Enter a valid amount")); return; }
-    if (n < 2) { showNotify(t("Minimum withdrawal is $2.00")); return; }
+    if (n < 3) { showNotify(t("Minimum withdrawal is $3.00")); return; }
     // Purely local, synchronous checks so the button responds instantly —
     // never wait on the server here. The server re-validates on submit.
     const cents = Math.round(n * 100);
