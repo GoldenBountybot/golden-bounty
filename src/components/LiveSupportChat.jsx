@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, Loader2, Headphones, UserRound, Plug, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
 import { getBotReply } from '@/lib/supportBot';
@@ -130,6 +131,8 @@ export default function LiveSupportChat() {
         text: '🔔 Requesting to connect with a live agent…',
         kind: 'agent_request',
       });
+      // Instantly ping every admin on the Telegram bot.
+      supabase.functions.invoke('tg-support-notify').catch(() => {});
       await loadMessages();
     } catch { /* ignore */ }
   };
