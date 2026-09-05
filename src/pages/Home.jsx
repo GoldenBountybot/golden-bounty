@@ -120,9 +120,9 @@ for (let i = 0; i < Math.max(PG_REST.length, JILI_REST.length, ENDO_REST.length,
   if (WG_REST[i]) OTHER_PROVIDER_GAMES.push(WG_REST[i]);
 }
 
-// Popular titles from all four providers (PG, JILI, Endorphina, WG) sit at the
-// very top of the lobby, then our own games, then the rest of the catalogue.
-const ALL_GAMES = [...MIXED_POPULAR, ...GAMES, ...OTHER_PROVIDER_GAMES];
+// Our own games first, then the popular titles from all four providers
+// (PG, JILI, Endorphina, WG), then the rest of the catalogue.
+const ALL_GAMES = [...GAMES, ...MIXED_POPULAR, ...OTHER_PROVIDER_GAMES];
 
 // Temporarily hidden from the lobby (routes still work if opened directly).
 // Remove an id from this list to show the game again.
