@@ -3,6 +3,9 @@
 // generated separately to look realistic.
 import { PG_GAMES } from '@/lib/pgGames';
 import { JILI_GAMES } from '@/lib/jiliGames';
+import { ENDORPHINA_GAMES, ENDORPHINA_LIVE } from '@/lib/endorphinaGames';
+import { ENDORPHINA_POPULAR_COUNT } from '@/lib/endorphinaCategories';
+import { WG_GAMES, WG_POPULAR_COUNT } from '@/lib/wgGames';
 
 export const IN_HOUSE_GAMES = ['Wild Bounty', 'Gates of Olympus', 'Plinko', 'Mines', 'Crown Coins', 'Big Brown', 'Argonauts', 'Super ACE'];
 
@@ -25,6 +28,18 @@ const step = (v, s) => (Math.round(v / s) * s).toFixed(2);
 // Popular titles show up most of the time; the rest of the catalogue rarely.
 export const pickPgGame = () => (Math.random() < 0.85 ? pick(PG_POPULAR) : pick(PG_ALL));
 export const pickJiliGame = () => (Math.random() < 0.85 && JILI_POPULAR.length ? pick(JILI_POPULAR) : pick(JILI_ALL));
+
+// Endorphina — the newest releases are the popular pool (same slicing the
+// lobby uses); WG likewise.
+const ENDO_ALL = (ENDORPHINA_LIVE ? ENDORPHINA_GAMES : []).map(g => g.name).filter(t => !isCrash(t));
+const ENDO_POPULAR = ENDO_ALL.slice(0, ENDORPHINA_POPULAR_COUNT);
+const WG_ALL = WG_GAMES.map(g => g.name).filter(t => !isCrash(t));
+const WG_POPULAR = WG_ALL.slice(0, WG_POPULAR_COUNT);
+
+export const hasEndoGames = ENDO_ALL.length > 0;
+export const hasWgGames = WG_ALL.length > 0;
+export const pickEndoGame = () => (Math.random() < 0.85 && ENDO_POPULAR.length ? pick(ENDO_POPULAR) : pick(ENDO_ALL));
+export const pickWgGame = () => (Math.random() < 0.85 && WG_POPULAR.length ? pick(WG_POPULAR) : pick(WG_ALL));
 
 // JILI losses move in $0.05 steps starting at $0.05 (0.05, 0.10, 0.15 …).
 // Small losses dominate, bigger ones show up less often.

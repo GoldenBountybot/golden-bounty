@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Volume2, Mail } from 'lucide-react';
-import { IN_HOUSE_GAMES, pickPgGame, pickJiliGame, jiliWin, jiliLoss, pgWin, pgLoss } from '@/lib/liveTickerAmounts';
+import { IN_HOUSE_GAMES, pickPgGame, pickJiliGame, pickEndoGame, pickWgGame, hasEndoGames, hasWgGames, jiliWin, jiliLoss, pgWin, pgLoss } from '@/lib/liveTickerAmounts';
 
 // Live ticker shown below the home banners: a black pill-shaped marquee with
 // golden text scrolling right→left. The feed regenerates every few seconds
@@ -70,13 +70,30 @@ function buildFeed(n = 26) {
       if (Math.random() < 0.45) items.push({ icon: '★', text: `${name} won on ${g} $${winAmount()}`, tone: 'win' });
       else items.push({ icon: '✖', text: `${name} lost on ${g} -$${jiliLoss()}`, tone: 'loss' });
     }
-    else if (r < 0.72) {
+    else if (r < 0.62) {
       // JILI provider games — wins and losses
       const g = pickJiliGame();
       if (Math.random() < 0.45) items.push({ icon: '★', text: `${name} won on ${g} $${jiliWin()}`, tone: 'win' });
       else items.push({ icon: '✖', text: `${name} lost on ${g} -$${jiliLoss()}`, tone: 'loss' });
-    } else {
+    }
+    else if (r < 0.8) {
       // PG SOFT provider games — wins and losses
+      const g = pickPgGame();
+      if (Math.random() < 0.45) items.push({ icon: '★', text: `${name} won on ${g} $${pgWin()}`, tone: 'win' });
+      else items.push({ icon: '✖', text: `${name} lost on ${g} -$${pgLoss()}`, tone: 'loss' });
+    }
+    else if (r < 0.9 && hasEndoGames) {
+      // Endorphina provider games — wins and losses
+      const g = pickEndoGame();
+      if (Math.random() < 0.45) items.push({ icon: '★', text: `${name} won on ${g} $${pgWin()}`, tone: 'win' });
+      else items.push({ icon: '✖', text: `${name} lost on ${g} -$${pgLoss()}`, tone: 'loss' });
+    }
+    else if (hasWgGames) {
+      // WG provider games — wins and losses
+      const g = pickWgGame();
+      if (Math.random() < 0.45) items.push({ icon: '★', text: `${name} won on ${g} $${jiliWin()}`, tone: 'win' });
+      else items.push({ icon: '✖', text: `${name} lost on ${g} -$${jiliLoss()}`, tone: 'loss' });
+    } else {
       const g = pickPgGame();
       if (Math.random() < 0.45) items.push({ icon: '★', text: `${name} won on ${g} $${pgWin()}`, tone: 'win' });
       else items.push({ icon: '✖', text: `${name} lost on ${g} -$${pgLoss()}`, tone: 'loss' });
