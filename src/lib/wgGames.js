@@ -15,7 +15,6 @@ const ROWS = [
   '3038|Fortune Snake|2',
   '3030|Super Fruits Slot 2|2',
   '3036|Queen of Bounty|2',
-  '3037|Wild Bounty Showdown|2',
   '3031|Fortune Tiger|2',
   '3032|Mahjong Ways 2|2',
   '3033|Fortune Ox|2',
