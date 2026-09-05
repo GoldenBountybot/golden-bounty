@@ -86,7 +86,8 @@ export default function TaskSystem({ profile, onClaimed }) {
           link: '/profile',
         });
       } catch { /* notification is best-effort */ }
-      toast({ title: t('Task Claimed!'), description: `+${task.reward} BOUNTY` });
+      // No toast here — the notification record already triggers the top pop-up,
+      // showing a toast too made it appear twice.
     } catch (e) {
       toast({ title: t('Claim failed'), description: e.message });
     }
