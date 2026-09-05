@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import WesternFrame from '@/components/wildbounty/WesternFrame';
+import { hitRateLabel } from '@/lib/gameHitRate';
 
 // One self-contained card per game. It keeps its OWN draft state, so editing
 // or saving one game can never touch another game's values.
@@ -30,9 +31,11 @@ export default function GameRtpCard({ row, onSave }) {
         </label>
       </div>
       <div className="flex items-center gap-2">
+        <span className="text-[10px] uppercase tracking-wide text-amber-300/80 w-16 shrink-0">RTP</span>
         <input type="range" min="0" max="100" value={draft.rtp ?? 50} onChange={e => set({ rtp: Number(e.target.value) })} className="flex-1 accent-amber-400" />
         <span className="w-12 text-right font-bold text-yellow-200">{draft.rtp ?? 50}%</span>
       </div>
+      <p className="text-[10px] text-amber-100/50 -mt-1 pl-[72px]">Return to player · {hitRateLabel(draft.game_id, draft.rtp)}</p>
       <div className="flex items-center gap-2">
         <span className="text-[10px] uppercase tracking-wide text-emerald-300/80 w-16 shrink-0">Demo RTP</span>
         <input type="range" min="0" max="100" value={draft.demo_rtp ?? 50} onChange={e => set({ demo_rtp: Number(e.target.value) })} className="flex-1 accent-emerald-400" />
