@@ -3,6 +3,7 @@
 // Frontend: supabase.functions.invoke('wg-launch-game', { body: { kind_id, lang } })
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 import { AGENT, API_URL, DES_KEY, MD5_KEY, ensureWallet, preflight, svc } from '../_shared/wg.ts';
+import { pgFetch } from '../_shared/pgsoft.ts';
 import { aesEcbEncrypt, makeKey } from '../_shared/wgCrypto.ts';
 
 const cors = {
@@ -66,7 +67,10 @@ Deno.serve(async (req) => {
       key: makeKey(AGENT, timestamp, MD5_KEY),
     }).toString();
 
-    const res = await fetch(`${API_URL}/api?${qs}`, { method: 'GET' });
+    // API_URL may already end with /api — never build ".../api/api".
+    const endpoint = /\/api$/.test(API_URL) ? API_URL : `${API_URL}/api`;
+    // Leaves through the static-IP relay so WG always sees our whitelisted IP.
+    const res = await pgFetch(`${endpoint}?${qs}`, { method: 'GET' });
     const out = await res.json().catch(() => null);
     if (!out || out.code !== 0 || !out?.data?.url) {
       return json({ ok: false, reason: `wg-error: ${out?.code ?? res.status} ${out?.msg ?? ''}` });
