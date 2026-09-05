@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Volume2, Mail } from 'lucide-react';
+import { LOCALE_NAMES } from '@/lib/localeNames';
 import { IN_HOUSE_GAMES, pickPgGame, pickJiliGame, pickEndoGame, pickWgGame, hasEndoGames, hasWgGames, jiliWin, jiliLoss, pgWin, pgLoss } from '@/lib/liveTickerAmounts';
 
 // Live ticker shown below the home banners: a black pill-shaped marquee with
@@ -55,7 +56,7 @@ function winAmount() {
 // Build a feed with unique names (shuffled) so the same user/message never
 // repeats within a batch.
 function buildFeed(n = 26) {
-  const names = [...NAMES].sort(() => Math.random() - 0.5);
+  const names = [...NAMES, ...LOCALE_NAMES].sort(() => Math.random() - 0.5);
   const items = [];
   for (let i = 0; i < n; i++) {
     const name = names[i % names.length];
