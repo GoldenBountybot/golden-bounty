@@ -27,6 +27,11 @@
       "type": "string",
       "format": "date-time",
       "description": "When this launch session token stops being valid"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description of this session"
     }
   },
   "required": [

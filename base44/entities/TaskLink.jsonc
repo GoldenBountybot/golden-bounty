@@ -26,6 +26,11 @@
     "order": {
       "type": "number",
       "default": 0
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description of this task"
     }
   },
   "required": [

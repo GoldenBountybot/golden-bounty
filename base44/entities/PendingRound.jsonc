@@ -50,12 +50,17 @@
     "settle_claim": {
       "type": "string",
       "default": "",
-      "description": "Atomic claim token used by settleBet to prevent double-credit race conditions. When settleBet claims a round, it atomically sets this to a unique UUID via updateMany({status:'pending'}). If a concurrent call already claimed it, the re-read shows a different token and the second call aborts without crediting."
+      "description": "Atomic claim token used by settleBet to prevent double-credit race conditions."
     },
     "expires_at": {
       "type": "string",
       "format": "date-time",
       "description": "When this round expires if never settled"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description of this round"
     }
   },
   "required": [

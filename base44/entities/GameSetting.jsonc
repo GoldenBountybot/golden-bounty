@@ -30,6 +30,11 @@
     "max_bet": {
       "type": "number",
       "default": 500
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description of this game"
     }
   },
   "required": [

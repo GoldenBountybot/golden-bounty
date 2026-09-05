@@ -51,6 +51,11 @@
       },
       "default": [],
       "description": "Recent crash points, newest first"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description of this round"
     }
   },
   "required": [

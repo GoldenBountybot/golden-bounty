@@ -17,6 +17,11 @@
     "assigned_to": {
       "type": "string",
       "description": "User id this avatar was assigned to at signup. Empty/null means still available."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description of this avatar"
     }
   },
   "required": [

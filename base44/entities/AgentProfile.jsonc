@@ -34,6 +34,11 @@
     "active": {
       "type": "boolean",
       "default": true
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description of this agent"
     }
   },
   "required": [

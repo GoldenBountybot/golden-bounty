@@ -49,6 +49,11 @@
       "type": "string",
       "default": "",
       "description": "Optional note from admin on rejection"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description of this submission"
     }
   },
   "required": [

@@ -32,6 +32,11 @@
       "type": "number",
       "default": 0,
       "description": "Round odds / multiplier the player cashed out at or the round busted at"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text description of this activity record"
     }
   },
   "required": [
