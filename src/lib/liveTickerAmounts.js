@@ -45,9 +45,10 @@ export const pickWgGame = () => (Math.random() < 0.85 && WG_POPULAR.length ? pic
 // Small losses dominate, bigger ones show up less often.
 export function jiliLoss() {
   const r = Math.random();
-  if (r < 0.82) return step(rand(0.05, 2), 0.05);
-  if (r < 0.94) return step(rand(2, 10), 0.05);
-  if (r < 0.99) return step(rand(10, 60), 0.05);
+  if (r < 0.80) return step(rand(0.05, 0.5), 0.05);  // most losses are tiny
+  if (r < 0.92) return step(rand(0.5, 2), 0.05);
+  if (r < 0.97) return step(rand(2, 10), 0.05);
+  if (r < 0.995) return step(rand(10, 60), 0.05);
   return step(rand(60, 250), 0.05);
 }
 
@@ -67,10 +68,10 @@ export function jiliWin() {
 // bigger losses appearing less often.
 export function pgLoss() {
   const r = Math.random();
-  if (r < 0.6) return step(rand(0.2, 0.9), 0.1);   // 0.20 / 0.30 / 0.40 …
-  if (r < 0.85) return step(rand(0.9, 2), 0.1);
-  if (r < 0.95) return step(rand(2, 20), 0.1);
-  if (r < 0.985) return step(rand(20, 100), 0.1);
+  if (r < 0.80) return step(rand(0.2, 0.5), 0.1);  // 0.20 / 0.30 / 0.40 / 0.50
+  if (r < 0.92) return step(rand(0.5, 2), 0.1);
+  if (r < 0.97) return step(rand(2, 20), 0.1);
+  if (r < 0.995) return step(rand(20, 100), 0.1);
   return step(rand(100, 400), 0.1);
 }
 
