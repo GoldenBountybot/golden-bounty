@@ -3,6 +3,7 @@ import { Shield } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import BackButton from '@/components/BackButton';
 import AgentCard from '@/components/agents/AgentCard';
+import AgentApplyButton from '@/components/agents/AgentApplyButton';
 import { countryFlag } from '@/lib/agentCountries';
 import { useLanguage } from '@/lib/LanguageContext';
 
@@ -88,6 +89,12 @@ export default function Agents() {
               {shown.map((a) => <AgentCard key={a.id} agent={a} />)}
             </div>
           </>
+        )}
+
+        {!loading && (
+          <div className="mt-4">
+            <AgentApplyButton />
+          </div>
         )}
       </main>
     </div>
