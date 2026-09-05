@@ -115,6 +115,7 @@ export default function Withdraw() {
     if (view === 'usdt') {
       if (!selectedNet) { toast({ title: t("Select a network first") }); return; }
       if (!walletAddr.trim()) { toast({ title: t("Enter your wallet address") }); return; }
+      if (amount < 3) { toast({ title: t("Minimum withdrawal is $3.00") }); return; }
       if (payPin.length !== 4) { toast({ title: t("Invalid pay pin") }); return; }
     }
     setSubmitting(true);

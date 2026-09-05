@@ -11,7 +11,8 @@ import { reloadBalance } from '@/lib/useCasinoBalance';
 export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
   const [q, setQ] = useState('');
   const [agents, setAgents] = useState([]);
-  const [min, setMin] = useState(5);
+  // Minimum agent withdrawal is $3.
+  const [min, setMin] = useState(3);
   const [pin, setPin] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
@@ -31,7 +32,7 @@ export default function AgentWithdrawCard({ initialAmount = 0, onSuccess }) {
 
   useEffect(() => {
     agentOps('agents').then(r => setAgents(r.agents || []));
-    agentOps('me').then(r => { if (r.min_withdraw) setMin(Number(r.min_withdraw)); });
+    agentOps('me').then(r => { if (r.min_withdraw) setMin(Math.min(3, Number(r.min_withdraw))); });
   }, []);
 
   const submit = async () => {
