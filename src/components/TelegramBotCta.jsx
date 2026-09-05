@@ -5,6 +5,7 @@ import { isStandaloneApp } from '@/lib/isStandaloneApp';
 
 const BOT_URL = 'https://t.me/GoldenBountybot';
 
+
 // Prominent "Play on Telegram" call-to-action for web visitors arriving from
 // search engines. Hidden for players already inside the Telegram mini app or
 // the installed app — they are already in, so the button would be noise.
