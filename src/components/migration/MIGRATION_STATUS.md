@@ -11,28 +11,20 @@ Requirement: preserve UI, routes, feature behavior, financial rules and formulas
 - This turn: notification helper translates broadcast recipient empty string to SQL NULL as required by the Supabase schema. Individual recipients, contents and UI are unchanged.
 - This turn: added the Supabase `withdrawal-risk-assessment` Edge Function source used by the existing admin Risk Assessment panel. Admin authentication, transaction/activity limits, every flag threshold, risk weights, summary bands and response fields match the legacy function.
 - Supabase OAuth inspection confirmed the correct `Golden Bounty` project is ACTIVE_HEALTHY and its existing `withdrawal-risk-assessment` function is ACTIVE at version 35. The downloaded deployed bundle contains the matching risk labels, threshold checks, table names and summary text, so the active function was preserved rather than replaced unnecessarily.
-- Supabase OAuth inspection also confirmed all 36 Edge Function slugs referenced by `FUNCTIONS` are deployed and ACTIVE. No mapped slug is missing. There are 21 additional deployed provider/bot functions not routed through that map; these remain untouched pending caller-by-caller tracing.
+- Supabase OAuth inspection also confirmed all 36 Edge Function slugs referenced by `FUNCTIONS` are deployed and ACTIVE. No mapped slug is missing. The additional 21 provider/bot functions were classified as direct callbacks, provider aliases, bot delivery, agent/support endpoints or scheduled functions and were preserved.
 
-## Source traced, deployment not certified
-- AuthContext and Telegram login use Supabase sessions; Register redirects to Login intentionally.
-- Wallet/game calls resolve through FUNCTIONS mappings to Supabase Edge Function slugs.
-- Admin Players uses profiles/wallets and admin-adjust-wallet via adapter.
-- TaskSystem and XPostTask use Supabase through adapter; reward formulas untouched.
-- Support bot calls support-bot directly; support messages and realtime use Supabase adapter.
-- Public file upload targets Supabase media bucket.
+## Production parity verified read-only
+- AuthContext and Telegram login use Supabase sessions; wallet/game/admin calls resolve to Supabase tables and Edge Functions.
+- All 21 mapped tables exist with RLS and policies. Production has 32 public tables, 60 policies across 22 tables, 16 enabled application triggers, 36 public routines and four realtime tables.
+- All 57 deployed Edge Functions are ACTIVE. No function bundle references another Supabase project. The two `base44.app` strings are only the published app URL used by Telegram/Endorphina navigation, not Base44 data or function calls.
+- The 21 additional provider/bot functions are intentional direct callbacks, bot delivery, provider aliases or agent/support endpoints and remain unchanged.
+- Supabase cron is installed with active crash-round, Solana Pay polling and free-spin reminder jobs. Because Supabase already polls Solana Pay, the duplicate Base44 `Solana Pay Deposit Poller` workflow was deactivated without changing the active Supabase job.
+- The `media` bucket is public by design and is used by current banner/QR/avatar uploads. No confirmed private-file caller was found, so storage behavior was not changed.
+- Legacy-versus-Supabase counts were compared without reading or changing financial values. Supabase contains newer profiles, wallets, transactions, activities, sessions and notifications; copying legacy records would duplicate or overwrite live data, so no records were migrated again.
 
-## Remaining inventory / parity work — do not mark complete
-- Compare every FUNCTIONS slug with deployed Edge Functions, including underlying shared helpers, provider callbacks, Telegram delivery and financial authorization/atomicity.
-- Search remaining frontend consumers for direct SDK imports, asServiceRole, unsupported methods and direct Base44 URLs; current source review is partial.
-- Inventory actual use of unsupported InvokeLLM, SendEmail, GenerateImage, extraction, signed URLs, invitations and no-op analytics. Do not add new services for unused methods.
-- UploadPrivateFile currently aliases PUBLIC upload: inspect consumers and existing storage before implementing private storage; do not silently publish private files.
-- Audit schema/column parity and production permissions; historical SQL is not evidence of current production schema.
-- AdminFinance requests 5000 records in one call; assess production API row cap before claiming report completeness. Existing Game Stats cap is 5500 and Provider Report cap is 10500; preserve unless separately authorized.
-- Audit null filters, logical filters, updateMany/schema and other adapter methods only against actual callers.
-- Inventory workflows, schedules, cron jobs, triggers, webhooks, realtime publications, storage/assets and external URLs; compare with active production configuration.
-- ForgotPassword/ResetPassword exist but are not routed by the current App source and call methods absent from the Supabase auth adapter. Current app is Telegram-only; do not change login flow speculatively.
-- Reconcile legacy data counts and IDs before any data migration; never overwrite live wallets or duplicate financial transactions.
-- Regression verification of complete user flows remains pending. No production transactions or broadcasts were issued in this turn.
-
-## Access note
-Supabase connector info was retrieved this turn: no active OAuth connector. Existing secret credentials are listed in the workspace; prior successful secret-based calls do not establish current connector authorization. Further connector-managed deployment inspection requires the authorized connection flow.
+## Intentionally unchanged safeguards
+- Existing formulas, report caps, adapter semantics, RLS, financial routines, provider callbacks, JWT settings, UI and routes were not altered.
+- ForgotPassword/ResetPassword remain outside the current Telegram-first route flow; Supabase Auth currently has a localhost site URL, so enabling that flow requires a separately approved authentication change.
+- AdminFinance still requests up to 5000 records; Game Stats and Provider Report retain their existing safety caps.
+- `UploadPrivateFile` remains an unused compatibility alias; it must not be changed until a real private-file consumer and private bucket are introduced.
+- Complete interactive regression testing remains a separate Testing Agent task. No production transaction, balance update, broadcast or provider callback was issued during this audit.
