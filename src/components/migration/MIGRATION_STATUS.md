@@ -23,8 +23,8 @@ Requirement: preserve UI, routes, feature behavior, financial rules and formulas
 - Legacy-versus-Supabase counts were compared without reading or changing financial values. Supabase contains newer profiles, wallets, transactions, activities, sessions and notifications; copying legacy records would duplicate or overwrite live data, so no records were migrated again.
 
 ## Intentionally unchanged safeguards
-- Existing formulas, report caps, adapter semantics, RLS, financial routines, provider callbacks, JWT settings, UI and routes were not altered.
+- Existing formulas, adapter semantics, RLS, financial routines, provider callbacks, JWT settings, UI and routes were not altered.
 - ForgotPassword/ResetPassword remain outside the current Telegram-first route flow; Supabase Auth currently has a localhost site URL, so enabling that flow requires a separately approved authentication change.
-- AdminFinance still requests up to 5000 records; Game Stats and Provider Report retain their existing safety caps.
+- Admin Finance, Game Stats and Provider Report now share complete 500-record Supabase pagination, removing partial-report caps without changing any aggregation formula or UI.
 - `UploadPrivateFile` remains an unused compatibility alias; it must not be changed until a real private-file consumer and private bucket are introduced.
 - Complete interactive regression testing remains a separate Testing Agent task. No production transaction, balance update, broadcast or provider callback was issued during this audit.

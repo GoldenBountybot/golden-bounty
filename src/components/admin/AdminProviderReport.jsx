@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Users, UserPlus, Activity, DollarSign, Coins, TrendingUp, Repeat, Copy, Check } from 'lucide-react';
 import ProviderStatCard from '@/components/admin/ProviderStatCard';
+import { fetchAllEntity } from '@/lib/fetchAllEntity';
 
 const GAME_LABELS = {
   'hi-lo': 'Hi-Lo', plinko: 'Plinko', mines: 'Mines', fullhouse: 'Super Ace',
@@ -9,20 +10,6 @@ const GAME_LABELS = {
   'big-brown': 'Big Brown', argonauts: 'Argonauts', 'gates-of-olympus': 'Gates of Olympus',
   thimbles: 'Thimbles', 'free-spin': 'Free Spin',
 };
-
-async function fetchAll(entity, sort) {
-  let all = [];
-  let skip = 0;
-  while (true) {
-    const batch = await base44.entities[entity].list(sort, 500, skip);
-    if (!batch || batch.length === 0) break;
-    all = all.concat(batch);
-    if (batch.length < 500) break;
-    skip += 500;
-    if (skip > 10000) break;
-  }
-  return all;
-}
 
 const dayKey = (d) => new Date(d).toISOString().slice(0, 10);
 const money = (n) => `$${(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -37,9 +24,9 @@ export default function AdminProviderReport() {
     (async () => {
       try {
         const [users, acts, txs] = await Promise.all([
-          fetchAll('User', '-created_date'),
-          fetchAll('PlayerActivity', '-created_date'),
-          fetchAll('Transaction', '-created_date'),
+          fetchAllEntity(base44.entities.User),
+          fetchAllEntity(base44.entities.PlayerActivity),
+          fetchAllEntity(base44.entities.Transaction),
         ]);
         if (!active) return;
 

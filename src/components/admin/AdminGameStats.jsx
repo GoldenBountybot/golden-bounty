@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { TrendingUp, TrendingDown, DollarSign, Users } from 'lucide-react';
+import { fetchAllEntity } from '@/lib/fetchAllEntity';
 
 const GAME_LABELS = {
   'hi-lo': 'Hi-Lo',
@@ -25,17 +26,7 @@ export default function AdminGameStats() {
     let active = true;
     (async () => {
       try {
-        // Fetch all player activity records (up to 500 per call)
-        let all = [];
-        let skip = 0;
-        while (true) {
-          const batch = await base44.entities.PlayerActivity.list('-created_date', 500, skip);
-          if (!batch || batch.length === 0) break;
-          all = all.concat(batch);
-          if (batch.length < 500) break;
-          skip += 500;
-          if (skip > 5000) break; // safety cap
-        }
+        const all = await fetchAllEntity(base44.entities.PlayerActivity);
         if (!active) return;
 
         // Aggregate by game_id

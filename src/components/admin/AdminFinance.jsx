@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowDownToLine, ArrowUpFromLine, TrendingUp, TrendingDown, Loader2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import { base44 } from '@/api/base44Client';
+import { fetchAllEntity } from '@/lib/fetchAllEntity';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DONE = ['approved', 'completed'];
@@ -15,7 +16,7 @@ export default function AdminFinance() {
   useEffect(() => {
     let active = true;
     (async () => {
-      const txs = await base44.entities.Transaction.list('-created_date', 5000).catch(() => []);
+      const txs = await fetchAllEntity(base44.entities.Transaction).catch(() => []);
       if (!active) return;
       const map = new Map();
       txs.forEach((t) => {
