@@ -29,7 +29,7 @@ export default function AdminGameStats() {
         let all = [];
         let skip = 0;
         while (true) {
-          const batch = await base44.asServiceRole.entities.PlayerActivity.list('-created_date', 500, skip);
+          const batch = await base44.entities.PlayerActivity.list('-created_date', 500, skip);
           if (!batch || batch.length === 0) break;
           all = all.concat(batch);
           if (batch.length < 500) break;

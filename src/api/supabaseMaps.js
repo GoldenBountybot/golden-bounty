@@ -23,6 +23,7 @@ export const TABLES = {
   ManualDepositRequest: 'manual_deposit_requests',
   PgSoftSession: 'pgsoft_sessions',
   PgSoftTransaction: 'pgsoft_transactions',
+  AgentProfile: 'agent_profiles',
 };
 
 export const FUNCTIONS = {

@@ -376,6 +376,25 @@ create table if not exists public.x_post_submissions (
 );
 create index if not exists ix_xps_user on public.x_post_submissions(user_id, created_at desc);
 
+-- Public agent directory; role/financial operations remain in secure functions.
+create table if not exists public.agent_profiles (
+  id            uuid primary key default gen_random_uuid(),
+  agent_user_id uuid not null unique references auth.users(id) on delete cascade,
+  username      text not null default '',
+  full_name     text not null default '',
+  uid           text not null default '',
+  country_code  text not null default '',
+  country_name  text not null default '',
+  active        boolean not null default true,
+  description   text default '',
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create index if not exists ix_agent_profiles_country on public.agent_profiles(country_code, active);
+drop trigger if exists t_agent_profiles_touch on public.agent_profiles;
+create trigger t_agent_profiles_touch before update on public.agent_profiles
+  for each row execute function public.touch_updated_at();
+
 -- =====================================================================
 -- ATOMIC MONEY HELPERS  (replaces Base44 $inc — run as service role only)
 -- =====================================================================
@@ -471,6 +490,7 @@ alter table public.bonus_settings          enable row level security;
 alter table public.task_links              enable row level security;
 alter table public.avatars                 enable row level security;
 alter table public.x_post_submissions      enable row level security;
+alter table public.agent_profiles          enable row level security;
 
 -- PROFILES: own row read/update; admins everything.
 drop policy if exists p_profiles_sel on public.profiles;
@@ -561,7 +581,7 @@ do $$
 declare t text;
 begin
   foreach t in array array['game_settings','crash_rounds','payment_addresses',
-                           'banners','site_settings','bonus_settings','task_links','avatars']
+                           'banners','site_settings','bonus_settings','task_links','avatars','agent_profiles']
   loop
     execute format('drop policy if exists p_%s_sel on public.%I', t, t);
     execute format('create policy p_%s_sel on public.%I for select using (true)', t, t);

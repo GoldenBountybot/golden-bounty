@@ -14,7 +14,7 @@ async function fetchAll(entity, sort) {
   let all = [];
   let skip = 0;
   while (true) {
-    const batch = await base44.asServiceRole.entities[entity].list(sort, 500, skip);
+    const batch = await base44.entities[entity].list(sort, 500, skip);
     if (!batch || batch.length === 0) break;
     all = all.concat(batch);
     if (batch.length < 500) break;

@@ -38,9 +38,12 @@ function entityApi(name) {
   const from = () => supabase.from(table);
 
   return {
-    async list(sort, limit) {
+    async list(sort, limit, skip) {
       let q = applySort(from().select('*'), sort);
-      if (limit) q = q.limit(limit);
+      if (skip !== undefined) {
+        // Stable tie-breaker for reports paging through equal timestamps.
+        q = q.order('id', { ascending: true }).range(skip, skip + (limit || 500) - 1);
+      } else if (limit) q = q.limit(limit);
       return unwrap(await q);
     },
     async filter(filterObj, sort, limit) {

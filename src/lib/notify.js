@@ -6,7 +6,8 @@ import { base44 } from '@/api/base44Client';
 export async function pushNotification({ user_id = '', type = 'system', title, body = '', amount = 0, link = '' }) {
   try {
     await base44.entities.UserNotification.create({
-      user_id,
+      // Supabase stores broadcasts as NULL, not an empty UUID string.
+      user_id: user_id === '' ? null : user_id,
       type,
       title,
       body,
