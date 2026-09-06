@@ -18,7 +18,7 @@ Requirement: preserve UI, routes, feature behavior, financial rules and formulas
 - All 21 mapped tables exist with RLS and policies. Production has 32 public tables, 60 policies across 22 tables, 16 enabled application triggers, 36 public routines and four realtime tables.
 - All 57 deployed Edge Functions are ACTIVE. No function bundle references another Supabase project. The two `base44.app` strings are only the published app URL used by Telegram/Endorphina navigation, not Base44 data or function calls.
 - The 21 additional provider/bot functions are intentional direct callbacks, bot delivery, provider aliases or agent/support endpoints and remain unchanged.
-- Supabase cron is installed with active crash-round, Solana Pay polling and free-spin reminder jobs. Because Supabase already polls Solana Pay, the duplicate Base44 `Solana Pay Deposit Poller` workflow was deactivated without changing the active Supabase job.
+- Supabase cron is installed with active crash-round, Solana Pay polling and free-spin reminder jobs. Because Supabase already polls Solana Pay, the duplicate Base44 `Solana Pay Deposit Poller` workflow was archived without changing the active Supabase job.
 - The `media` bucket is public by design and is used by current banner/QR/avatar uploads. No confirmed private-file caller was found, so storage behavior was not changed.
 - Legacy-versus-Supabase counts were compared without reading or changing financial values. Supabase contains newer profiles, wallets, transactions, activities, sessions and notifications; copying legacy records would duplicate or overwrite live data, so no records were migrated again.
 
