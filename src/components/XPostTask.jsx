@@ -137,12 +137,12 @@ export default function XPostTask({ profile, onClaimed }) {
     try {
       await base44.entities.XPostSubmission.update(submission.id, { claimed: true });
       const newBounty = Number(profile?.task_bounty ?? 0) + REWARD;
-      await base44.auth.updateMe({ task_bounty: newBounty });
+      const updatedProfile = await base44.auth.updateMe({ task_bounty: newBounty });
       setSubmission((s) => ({ ...s, claimed: true }));
-      // Keep the cached profile fresh so Profile shows the new token total instantly.
+      // Keep every returned profile field in sync with Supabase.
       const cp = getProfileCache().profile;
-      if (cp) updateProfileCache({ profile: { ...cp, task_bounty: newBounty } });
-      onClaimed?.(newBounty);
+      updateProfileCache({ profile: { ...(cp || {}), ...updatedProfile } });
+      onClaimed?.(Number(updatedProfile?.task_bounty ?? newBounty));
       try {
         await base44.entities.UserNotification.create({
           user_id: profile.id,

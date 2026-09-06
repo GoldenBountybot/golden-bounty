@@ -69,11 +69,16 @@ export default function Airdrop() {
     setClaiming(true);
     try {
       const newTotal = allocation;
-      await base44.auth.updateMe({ bounty_allocation: newTotal, bounty_claimed_at: new Date().toISOString() });
-      setClaimed(newTotal);
-      // Keep the cached profile fresh so Profile shows the new token total instantly.
+      const updatedProfile = await base44.auth.updateMe({
+        bounty_allocation: newTotal,
+        bounty_claimed_at: new Date().toISOString(),
+      });
+      const persistedTotal = Number(updatedProfile?.bounty_allocation ?? newTotal);
+      setClaimed(persistedTotal);
+      // Use the authoritative row returned by Supabase so tokens and its
+      // bounty_allocation alias cannot diverge in the shared profile cache.
       const cp = getProfileCache().profile;
-      if (cp) updateProfileCache({ profile: { ...cp, bounty_allocation: newTotal } });
+      updateProfileCache({ profile: { ...(cp || {}), ...updatedProfile } });
       showNotify(t("Airdrop Claimed!"), `${claimable.toFixed(2)} BOUNTY tokens added to your account`);
     } catch (e) {
       toast({ title: t("Claim failed"), description: e.message });

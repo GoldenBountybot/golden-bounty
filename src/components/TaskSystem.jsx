@@ -66,15 +66,15 @@ export default function TaskSystem({ profile, onClaimed }) {
     try {
       const newClaimed = [...claimedSet, task.name];
       const newBounty = Number(profile?.task_bounty ?? 0) + Number(task.reward || 5);
-      await base44.auth.updateMe({
+      const updatedProfile = await base44.auth.updateMe({
         claimed_tasks: newClaimed.join(','),
         task_bounty: newBounty,
       });
       setClaimedSet(new Set(newClaimed));
-      // Keep the cached profile fresh so Profile shows the new token total instantly.
+      // Keep every returned profile field in sync with Supabase.
       const cp = getProfileCache().profile;
-      if (cp) updateProfileCache({ profile: { ...cp, claimed_tasks: newClaimed.join(','), task_bounty: newBounty } });
-      onClaimed?.(newBounty);
+      updateProfileCache({ profile: { ...(cp || {}), ...updatedProfile } });
+      onClaimed?.(Number(updatedProfile?.task_bounty ?? newBounty));
       // Create a notification so it shows in the Notifications list
       try {
         await base44.entities.UserNotification.create({
