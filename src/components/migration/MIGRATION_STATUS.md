@@ -9,6 +9,7 @@ Requirement: preserve UI, routes, feature behavior, financial rules and formulas
 - Previous turn: created public.agent_profiles remotely, with public read/admin write rules and updated_at trigger; added AgentProfile mapping and historical schema definition. Legacy AgentProfile query returned zero records; no agent data was copied. Live role records/country tags have not been reconciled.
 - This turn: Game Stats and Provider Report now use the existing Supabase entity adapter instead of nonexistent frontend asServiceRole. Added optional skip/range support to list calls, with ID tie-breaker for paginated reads. Existing two-argument list calls, aggregation formulas and report caps remain unchanged.
 - This turn: notification helper translates broadcast recipient empty string to SQL NULL as required by the Supabase schema. Individual recipients, contents and UI are unchanged.
+- This turn: added the Supabase `withdrawal-risk-assessment` Edge Function source used by the existing admin Risk Assessment panel. Admin authentication, transaction/activity limits, every flag threshold, risk weights, summary bands and response fields match the legacy function. This source change is not evidence that the Edge Function has been deployed to the remote Supabase project.
 
 ## Source traced, deployment not certified
 - AuthContext and Telegram login use Supabase sessions; Register redirects to Login intentionally.
