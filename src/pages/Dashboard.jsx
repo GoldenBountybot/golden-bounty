@@ -10,6 +10,7 @@ import TotalFundsPanel from '@/components/TotalFundsPanel';
 import PendingDepositCard from '@/components/wallet/PendingDepositCard';
 import WalletBonusCard from '@/components/wallet/WalletBonusCard';
 import DepositBonusOfferCard from '@/components/wallet/DepositBonusOfferCard';
+import DepositBonusChips from '@/components/bonus/DepositBonusChips';
 import StackFaq from '@/components/StackFaq';
 import StackHistoryModal from '@/components/StackHistoryModal';
 import PayPinCard from '@/components/PayPinCard';
@@ -323,6 +324,7 @@ export default function Dashboard() {
                   </div>
                   <h2 className="text-base font-bold" style={{ ...heading, color: '#D4AF37' }}>{t("Deposit")}</h2>
                 </div>
+                <DepositBonusChips />
                 <div className="flex gap-2 flex-wrap mb-3">
                   {[50, 100, 500, 1000].map(a => (
                     <button key={a} onClick={() => doDeposit(a)} className="px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95" style={{ border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(255,255,255,0.03)', color: '#D4AF37' }}>
