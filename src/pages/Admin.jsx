@@ -8,6 +8,8 @@ import AdminPlayers from '@/components/admin/AdminPlayers';
 import AdminTransactions from '@/components/admin/AdminTransactions';
 import AdminGameSettings from '@/components/admin/AdminGameSettings';
 import AdminBonuses from '@/components/admin/AdminBonuses';
+import AdminBonusCampaigns from '@/components/admin/AdminBonusCampaigns';
+import AdminUserBonuses from '@/components/admin/AdminUserBonuses';
 import AdminBanners from '@/components/admin/AdminBanners';
 import AdminPaymentAddresses from '@/components/admin/AdminPaymentAddresses';
 import AdminStackBanner from '@/components/admin/AdminStackBanner';
@@ -22,7 +24,7 @@ import AdminFinance from '@/components/admin/AdminFinance';
 import AdminProviderReport from '@/components/admin/AdminProviderReport';
 import AdminShell from '@/components/admin/AdminShell';
 import AdminTabsNav from '@/components/admin/AdminTabsNav';
-import { Image, Layers, Megaphone, CheckCircle, MessageCircle, BarChart3, FileSpreadsheet, LineChart, Handshake } from 'lucide-react';
+import { Image, Layers, Megaphone, CheckCircle, MessageCircle, BarChart3, FileSpreadsheet, LineChart, Handshake, Target } from 'lucide-react';
 
 const TABS = [
   { id: 'players', label: 'Players', icon: Users, comp: AdminPlayers, group: 'Operations', desc: 'Manage player accounts, balances and bans' },
@@ -34,6 +36,8 @@ const TABS = [
   { id: 'provider', label: 'Provider Report', icon: Handshake, comp: AdminProviderReport, group: 'Reports', desc: 'Traffic, GGR and retention metrics to send to game providers' },
   { id: 'games', label: 'Game RTP', icon: SlidersHorizontal, comp: AdminGameSettings, group: 'Configuration', desc: 'Winning chance and bet limits per game' },
   { id: 'bonuses', label: 'Bonuses', icon: Gift, comp: AdminBonuses, group: 'Configuration', desc: 'Signup, daily and deposit bonuses' },
+  { id: 'depbonus', label: 'Deposit Bonus', icon: Gift, comp: AdminBonusCampaigns, group: 'Configuration', desc: 'Deposit bonus campaigns, wagering multipliers and game contributions' },
+  { id: 'userbonus', label: 'Player Bonuses', icon: Target, comp: AdminUserBonuses, group: 'Reports', desc: 'Granted bonuses, deposit source and turnover progress per player' },
   { id: 'pay', label: 'Pay Addr', icon: Wallet, comp: AdminPaymentAddresses, group: 'Configuration', desc: 'Deposit wallet addresses and QR codes' },
   { id: 'tasks', label: 'Tasks', icon: CheckCircle, comp: AdminTasks, group: 'Configuration', desc: 'Social tasks and token rewards' },
   { id: 'pgcurrency', label: 'PG USD', icon: FileSpreadsheet, comp: AdminPgCurrency, group: 'Configuration', desc: 'PG SOFT currency registration forms' },

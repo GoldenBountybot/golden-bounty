@@ -24,6 +24,9 @@ export const TABLES = {
   PgSoftSession: 'pgsoft_sessions',
   PgSoftTransaction: 'pgsoft_transactions',
   AgentProfile: 'agent_profiles',
+  BonusCampaign: 'bonus_campaigns',
+  UserBonus: 'user_bonuses',
+  BonusLog: 'bonus_logs',
 };
 
 export const FUNCTIONS = {
