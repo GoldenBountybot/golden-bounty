@@ -89,7 +89,6 @@ const ROWS = [
   '2006|Texas Hold\'em 2|1',
   '1007|Boom Red Packet|1',
   '1009|Big & Small|1',
-  '1002|Dragon Tiger|1',
   '1010|Andar Bahar|1',
   '2003|Cards Checker Bull Bull|1',
   '2002|Banker Bull Bull|1',
