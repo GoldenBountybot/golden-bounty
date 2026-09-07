@@ -134,14 +134,19 @@ export function useStake() {
   const stake = useCallback(async (amount) => {
     // Demo balance cannot be stacked — stacking is a real-wallet action that
     // locks funds for 15 days and earns real profit.
-    if (demoMode) return false;
+    if (demoMode) return { ok: false, reason: 'demo' };
     const n = Number(amount);
-    if (!n || n <= 0 || n > balance) return false;
+    if (!n || n <= 0 || n > balance) return { ok: false, reason: 'insufficient' };
     try {
       // Route through the secure stakeOperation backend function — the Wallet
       // RLS blocks users from updating staked_amount directly, so this is the
       // only way to lock funds. Balance decrease + staking reset are atomic.
       const res = await base44.functions.invoke('stakeOperation', { action: 'stake', amount: n });
+      // Bonus money can never be locked into the Stack — the server refuses and
+      // tells us why so the UI can explain it instead of showing a generic error.
+      if (res?.data?.ok === false || res?.data?.reason) {
+        return { ok: false, reason: String(res.data.reason || 'failed') };
+      }
       if (res?.data) {
         setStaked(Number(res.data.staked_amount ?? 0) || 0);
         setStakedAt(res.data.staked_at ?? null);
@@ -149,9 +154,9 @@ export function useStake() {
         applyServerWallet(res.data.balance, res.data.wager_remaining);
         writeStakeCache({ staked: Number(res.data.staked_amount ?? 0) || 0, stakedAt: res.data.staked_at ?? null, lastClaim: res.data.last_profit_claim ?? null, totalDeposits });
       }
-      return true;
-    } catch {
-      return false;
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, reason: String(e?.message || 'failed') };
     }
   }, [balance, demoMode, totalDeposits]);
 

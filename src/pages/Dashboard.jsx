@@ -136,8 +136,14 @@ export default function Dashboard() {
     if (acct.demoMode) { toast({ title: t("Stacking is not available in Demo mode"), description: t("Turn off Demo balance to lock real funds and earn profit.") }); return; }
     const n = Number(amount);
     if (!n || n <= 0) { toast({ title: t("Enter a valid amount") }); return; }
-    const ok = await stake.stake(n);
-    if (ok) { showNotify(t("Stacked!"), `$${n.toFixed(2)} locked · earning ${(stake.rate * 100).toFixed(2)}% daily`); setStkAmt(''); }
+    const res = await stake.stake(n);
+    if (res?.ok) { showNotify(t("Stacked!"), `$${n.toFixed(2)} locked · earning ${(stake.rate * 100).toFixed(2)}% daily`); setStkAmt(''); }
+    else if (String(res?.reason || '').toLowerCase().includes('bonus')) {
+      toast({
+        title: t("Bonus funds can't be stacked"),
+        description: t("Finish your bonus turnover first — only your own real balance can be locked in the Stack."),
+      });
+    }
     else toast({ title: t("Insufficient balance") });
   };
 
