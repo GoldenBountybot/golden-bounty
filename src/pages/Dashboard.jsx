@@ -25,6 +25,7 @@ import { formatDateTime } from '@/lib/dateFormat';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import { getProfileCache, updateProfileCache } from '@/lib/profileCache';
 import { getCurrentUserIdSync } from '@/lib/currentUserId';
+import { useBonusWagerLock } from '@/lib/useBonusWagerLock';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -47,6 +48,7 @@ export default function Dashboard() {
   const [tab, setTab] = useState(params.get('tab') || 'wallet');
   const acct = useCasinoAccount();
   const stake = useStake();
+  const bonusLock = useBonusWagerLock();
   const { user } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -112,6 +114,13 @@ export default function Dashboard() {
   };
 
   const doWithdraw = () => {
+    if (bonusLock.locked) {
+      showNotify(
+        t("Bonus turnover not completed"),
+        `Complete $${bonusLock.remaining.toFixed(2)} more turnover on your bonus before withdrawing.`
+      );
+      return;
+    }
     const n = Number(wdAmt);
     if (!n || n <= 0) { showNotify(t("Enter a valid amount")); return; }
     if (n < 3) { showNotify(t("Minimum withdrawal is $3.00")); return; }

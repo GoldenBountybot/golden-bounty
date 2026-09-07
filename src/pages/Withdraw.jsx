@@ -10,6 +10,7 @@ import StylishNotify from '@/components/StylishNotify';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import AgentWithdrawCard from '@/components/agent/AgentWithdrawCard';
 import PayPinInput from '@/components/PayPinInput';
+import { useBonusWagerLock } from '@/lib/useBonusWagerLock';
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -81,6 +82,7 @@ export default function Withdraw() {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { demoMode, wagerRemaining, maxWithdrawable } = useCasinoBalance();
+  const bonusLock = useBonusWagerLock();
   const { user } = useAuth();
   // The chosen method lives in the URL, so the device/browser back button
   // returns to the method list instead of leaving the page.
@@ -112,6 +114,13 @@ export default function Withdraw() {
   }, []);
 
   const submit = async () => {
+    if (bonusLock.locked) {
+      showNotify(
+        t("Bonus turnover not completed"),
+        `Complete $${bonusLock.remaining.toFixed(2)} more turnover on your bonus before withdrawing.`
+      );
+      return;
+    }
     if (view === 'usdt') {
       if (!selectedNet) { toast({ title: t("Select a network first") }); return; }
       if (!walletAddr.trim()) { toast({ title: t("Enter your wallet address") }); return; }
@@ -226,6 +235,17 @@ export default function Withdraw() {
               onClick={() => navigate('/')}
               className="dash-btn-gold px-6 py-3 text-sm"
             >{t("Back to Home")}</button>
+          </div>
+        ) : bonusLock.locked ? (
+          <div className="dash-card p-5 flex flex-col items-center gap-3 text-center" style={{ animation: 'dashFadeIn 400ms ease both', borderColor: 'rgba(251,146,60,0.4)' }}>
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl" style={{ background: 'rgba(251,146,60,0.14)', border: '1px solid rgba(251,146,60,0.35)' }}>
+              <AlertTriangle className="w-6 h-6" style={{ color: '#fb923c' }} />
+            </div>
+            <p className="text-sm font-bold" style={{ color: '#fb923c' }}>{t("Bonus turnover not completed")}</p>
+            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              {t("Your deposit bonus requires")} ${bonusLock.required.toFixed(2)} {t("turnover")} — ${bonusLock.completed.toFixed(2)} {t("done")}, ${bonusLock.remaining.toFixed(2)} {t("remaining")}. {t("Withdrawals unlock once the turnover is completed.")}
+            </p>
+            <button onClick={() => navigate('/bonus-turnover')} className="dash-btn-gold px-6 py-3 text-sm">{t("View Turnover")}</button>
           </div>
         ) : (
           <>
