@@ -64,7 +64,11 @@ export async function readRequest(req: Request): Promise<
     return { ok: false, code: 18, msg: 'AES decryption failed' };
   }
   const p = parseParam(plain);
-  if (SECRET_TOKEN && p.secretToken !== SECRET_TOKEN) {
+  // The API799 line does not carry `secretToken` on callbacks, so requiring it
+  // rejected every real call with 40. The request is already authenticated by
+  // agent + timestamp + MD5 signature and AES decryption above (only WG holds
+  // those keys); the token is only enforced when WG actually sends one.
+  if (SECRET_TOKEN && p.secretToken && p.secretToken !== SECRET_TOKEN) {
     return { ok: false, code: CODES.TOKEN_FAILED, msg: 'token verification failed' };
   }
   return { ok: true, p };
