@@ -187,7 +187,7 @@ export default function BonusOffer() {
               <Row k={t('Min deposit')} v={money(campaign.min_deposit)} />
               {Number(campaign.max_deposit) ? <Row k={t('Max deposit')} v={money(campaign.max_deposit)} /> : null}
               <Row k={t('Max bonus')} v={money(campaign.max_bonus)} />
-              <Row k={t('Turnover requirement')} v={`${Number(campaign.wager_multiplier) || 0}× ${t('bonus amount')}`} />
+              {myBonus ? <Row k={t('Turnover requirement')} v={money(req)} /> : null}
               <Row k={t('Bonus expires in')} v={`${Number(campaign.expiry_days) || 0} ${t('days')}`} />
               <Row k={t('Wagering deadline')} v={`${Number(campaign.wager_deadline_days) || 0} ${t('days')}`} />
             </div>
