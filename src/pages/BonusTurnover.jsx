@@ -3,6 +3,7 @@ import { Gift, Lock, CalendarClock, Info, History } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import WesternTitleBadge from '@/components/WesternTitleBadge';
 import TurnoverProgressCard from '@/components/bonus/TurnoverProgressCard';
+import AvailableBonusCampaigns from '@/components/bonus/AvailableBonusCampaigns';
 import { useUserBonus } from '@/lib/useUserBonus';
 
 const money = (n) => `$${(Number(n) || 0).toFixed(2)}`;
@@ -110,6 +111,8 @@ export default function BonusTurnover() {
             )}
           </>
         )}
+
+        {!loading && <AvailableBonusCampaigns />}
 
         {!loading && history.length > 0 && (
           <div className="dash-card p-4 flex flex-col gap-2">
