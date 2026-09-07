@@ -19,8 +19,9 @@ export default function BonusTurnover() {
   const { bonus, campaign, bonusBalance, history, loading } = useUserBonus();
 
   return (
-    <div className="min-h-screen bg-[#0b0b0d] pb-24">
-      <header className="sticky top-0 z-20 backdrop-blur-xl" style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
+    <div className="relative min-h-screen pb-24" style={{ background: '#0D0D0D' }}>
+      <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(120% 55% at 50% -10%, rgba(212,175,55,0.12), transparent 60%), radial-gradient(80% 50% at 100% 110%, rgba(212,175,55,0.06), transparent 60%), url(https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/42da6c35a_file_00000000a918820b81da42fc2ddfcfda.png) center/cover no-repeat', backgroundAttachment: 'fixed' }} />
+      <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(10,9,8,0.78)', borderBottom: '1px solid rgba(214,178,98,0.22)' }}>
         <div className="px-4 py-3 flex items-center gap-3">
           <BackButton />
           <div className="flex-1 flex items-center justify-center gap-2">
@@ -30,7 +31,7 @@ export default function BonusTurnover() {
         </div>
       </header>
 
-      <main className="px-4 py-5 flex flex-col gap-4 max-w-xl mx-auto">
+      <main className="relative z-10 px-4 py-5 flex flex-col gap-4 max-w-xl mx-auto">
         {loading && <p className="text-center text-white/50 text-sm py-10">Loading…</p>}
 
         {!loading && !bonus && (
