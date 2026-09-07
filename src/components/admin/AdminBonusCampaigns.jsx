@@ -19,9 +19,11 @@ const BLANK = {
   wager_deadline_days: 30,
   status: 'active',
   priority: 0,
+  deposit_from: 0,
+  deposit_to: 0,
 };
 
-const NUMS = ['percent', 'min_deposit', 'max_deposit', 'max_bonus', 'wager_multiplier', 'expiry_days', 'wager_deadline_days', 'priority'];
+const NUMS = ['percent', 'min_deposit', 'max_deposit', 'max_bonus', 'wager_multiplier', 'expiry_days', 'wager_deadline_days', 'priority', 'deposit_from', 'deposit_to'];
 
 function Field({ label, children, hint }) {
   return (
@@ -68,6 +70,8 @@ function CampaignForm({ value, onSave, onCancel }) {
         <Field label="Wagering deadline (days)"><input className="dash-input px-3 h-9 text-sm" value={f.wager_deadline_days} onChange={(e) => set('wager_deadline_days', e.target.value)} /></Field>
         <Field label="Start date"><input type="date" className="dash-input px-3 h-9 text-sm" value={(f.start_date || '').slice(0, 10)} onChange={(e) => set('start_date', e.target.value || null)} /></Field>
         <Field label="End date"><input type="date" className="dash-input px-3 h-9 text-sm" value={(f.end_date || '').slice(0, 10)} onChange={(e) => set('end_date', e.target.value || null)} /></Field>
+        <Field label="Deposit # from (0 = any)" hint="1 = first deposit"><input className="dash-input px-3 h-9 text-sm" value={f.deposit_from ?? 0} onChange={(e) => set('deposit_from', e.target.value)} /></Field>
+        <Field label="Deposit # to (0 = no limit)" hint="3 + 0 = third deposit onward"><input className="dash-input px-3 h-9 text-sm" value={f.deposit_to ?? 0} onChange={(e) => set('deposit_to', e.target.value)} /></Field>
       </div>
 
       <Field label="Description"><input className="dash-input px-3 h-9 text-sm" value={f.description || ''} onChange={(e) => set('description', e.target.value)} /></Field>
@@ -161,6 +165,7 @@ export default function AdminBonusCampaigns() {
               <p className="text-[11px] text-white/45">
                 {r.percent}% · min ${r.min_deposit} · max bonus ${r.max_bonus} · {r.wager_multiplier}× wagering
                 {r.first_deposit_only ? ' · first deposit only' : ''}
+                {(r.deposit_from || r.deposit_to) ? ` · deposit #${r.deposit_from || 1}${r.deposit_to ? (r.deposit_to === r.deposit_from ? '' : `–${r.deposit_to}`) : '+'}` : ''}
               </p>
               <p className="text-[10px] text-white/35">
                 methods: {(r.eligible_methods || []).join(', ')} · games: {JSON.stringify(r.game_contributions || {})}

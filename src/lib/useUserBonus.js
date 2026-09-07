@@ -6,6 +6,7 @@ import { base44 } from '@/api/base44Client';
 // this hook only displays it.
 export function useUserBonus() {
   const [bonus, setBonus] = useState(null);
+  const [offer, setOffer] = useState(null);
   const [campaign, setCampaign] = useState(null);
   const [bonusBalance, setBonusBalance] = useState(0);
   const [history, setHistory] = useState([]);
@@ -22,6 +23,8 @@ export function useUserBonus() {
       const active = list.find((b) => b.status === 'active') || null;
       setHistory(list);
       setBonus(active);
+      // Unclaimed (opt-in) deposit bonus offer, still inside its claim window.
+      setOffer(list.find((b) => b.status === 'offered' && (!b.expires_at || new Date(b.expires_at).getTime() > Date.now())) || null);
       setBonusBalance(Number(wallets?.[0]?.bonus_balance ?? 0) || 0);
       if (active?.campaign_id) {
         const camps = await base44.entities.BonusCampaign.filter({ id: active.campaign_id }, '-created_date', 1).catch(() => []);
@@ -35,5 +38,5 @@ export function useUserBonus() {
 
   useEffect(() => { load(); }, [load]);
 
-  return { bonus, campaign, bonusBalance, history, loading, reload: load };
+  return { bonus, offer, campaign, bonusBalance, history, loading, reload: load };
 }
