@@ -2,7 +2,7 @@
 // signed game url and returns it to the client.
 // Frontend: supabase.functions.invoke('wg-launch-game', { body: { kind_id, lang } })
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
-import { AGENT, API_URL, DES_KEY, MD5_KEY, SECRET_TOKEN, ensureWallet, preflight, svc } from '../_shared/wg.ts';
+import { AGENT, API_URL, DES_KEY, MD5_KEY, ensureWallet, preflight, svc } from '../_shared/wg.ts';
 import { pgFetch } from '../_shared/pgsoft.ts';
 import { aesEcbEncrypt, makeKey } from '../_shared/wgCrypto.ts';
 
@@ -57,9 +57,8 @@ Deno.serve(async (req) => {
       `lang=${lang}`,
       'lineCode=goldenbounty',
       `sessionId=${token}`,
-      // Operator identification (运营商身份识别) — WG rejects the call with
-      // 20003 无权操作业务 when this is missing.
-      ...(SECRET_TOKEN ? [`secretToken=${SECRET_TOKEN}`] : []),
+      // NOTE: no secretToken here — the API799 line rejects the launch call with
+      // 21 无法识别的参数 : secretToken.
     ].join('&');
 
     const timestamp = String(Date.now());
