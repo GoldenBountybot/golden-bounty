@@ -8,7 +8,6 @@ import StackMining from '@/components/StackMining';
 import FadeImage from '@/components/FadeImage';
 import TotalFundsPanel from '@/components/TotalFundsPanel';
 import PendingDepositCard from '@/components/wallet/PendingDepositCard';
-import WalletBonusCard from '@/components/wallet/WalletBonusCard';
 import DepositBonusOfferCard from '@/components/wallet/DepositBonusOfferCard';
 import DepositBonusChips from '@/components/bonus/DepositBonusChips';
 import StackFaq from '@/components/StackFaq';
@@ -314,7 +313,6 @@ export default function Dashboard() {
           <div className="flex flex-col gap-4" style={{ animation: 'dashFadeIn 400ms ease both' }}>
             <PendingDepositCard />
             <DepositBonusOfferCard />
-            <WalletBonusCard />
             {/* Deposit & Withdraw cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="dash-card p-5">
