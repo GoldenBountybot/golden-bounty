@@ -17,18 +17,25 @@ export default function TurnoverProgressCard({ required, completed }) {
         <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-amber-200/80">Turnover Progress</span>
       </div>
 
-      <p className="text-lg font-black tabular-nums text-white">
-        {money(done)} <span className="text-white/40">/ {money(req)}</span>
-        <span className="ml-2 text-sm text-amber-300">{pct.toFixed(0)}%</span>
-      </p>
+      <div className="flex items-end justify-between gap-2">
+        <p className="text-lg font-black tabular-nums text-white">
+          {money(done)} <span className="text-white/40">/ {money(req)}</span>
+        </p>
+        <span className="text-sm font-black text-amber-300 tabular-nums">{pct.toFixed(0)}%</span>
+      </div>
 
-      <div className="h-3 w-full rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
+      <div className="relative h-4 w-full rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
         <div className="h-full rounded-full transition-all duration-500"
           style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#f5c542,#c8881e)', boxShadow: '0 0 12px rgba(245,197,66,0.5)' }} />
       </div>
 
+      <div className="flex items-center justify-between text-[11px]">
+        <span className="text-white/55">Bet placed: <span className="font-bold text-amber-100 tabular-nums">{money(done)}</span></span>
+        <span className="text-white/55">Left to finish: <span className="font-bold text-amber-100 tabular-nums">{money(remaining)}</span></span>
+      </div>
+
       <div className="grid grid-cols-3 gap-2 text-center">
-        {[['Required', req], ['Completed', done], ['Remaining', remaining]].map(([label, val]) => (
+        {[['Required', req], ['Bet Placed', done], ['Remaining', remaining]].map(([label, val]) => (
           <div key={label} className="rounded-xl py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
             <p className="text-[9px] uppercase tracking-widest text-white/45">{label}</p>
             <p className="text-sm font-black tabular-nums text-amber-100">{money(val)}</p>
