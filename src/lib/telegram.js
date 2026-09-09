@@ -96,10 +96,6 @@ export function tgReady() {
     wa.expand();
     wa.setHeaderColor?.('#0b0805');
     wa.setBackgroundColor?.('#0b0805');
-    // True fullscreen (Bot API 8.0+): hides the Telegram chrome so the app
-    // fills the entire device screen the moment it launches. Older clients
-    // simply don't expose it and stay on the expanded (default) height.
-    wa.requestFullscreen?.();
     // Keep the phone from sleeping and stop an accidental swipe-down from
     // closing the mini app while playing — both part of the fullscreen feel.
     wa.disableVerticalSwipes?.();
