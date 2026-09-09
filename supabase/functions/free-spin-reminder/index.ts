@@ -7,6 +7,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 
 const TOKEN = Deno.env.get('TG_BOT_TOKEN') || Deno.env.get('TELEGRAM_BOT_TOKEN') || '';
 const APP_URL = Deno.env.get('TELEGRAM_WEBAPP_URL') || 'https://golden-bounty.com';
+const BOT = Deno.env.get('TELEGRAM_BOT_USERNAME') || 'GoldenBountybot';
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const svc = createClient(Deno.env.get('SUPABASE_URL')!, SERVICE_KEY, { auth: { persistSession: false } });
 
@@ -44,7 +45,7 @@ Deno.serve(async (req) => {
         chat_id: p.telegram_id,
         parse_mode: 'HTML',
         text: '🎡 <b>Your Free Spin is ready!</b>\n\nYour daily free spin is available again. Tap below to claim your prize now. 🎁',
-        reply_markup: { inline_keyboard: [[{ text: '🎁 Claim Free Spin', web_app: { url: `${APP_URL}/free-spin` } }]] },
+        reply_markup: { inline_keyboard: [[{ text: '🎁 Claim Free Spin', url: `https://t.me/${BOT}?startapp=freespin` }]] },
       }),
     }).catch(() => null);
     // Mark as reminded (even if the user blocked the bot, so we don't retry every run).
