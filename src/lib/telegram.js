@@ -94,9 +94,6 @@ export function tgReady() {
   try {
     wa.ready();
     wa.expand();
-    // Fullscreen on clients that support it — the game takes over the whole
-    // screen; Telegram still shows the native back button on top.
-    if (!wa.isFullscreen) wa.requestFullscreen?.();
     wa.setHeaderColor?.('#0b0805');
     wa.setBackgroundColor?.('#0b0805');
     // Paint the Android navigation bar in the same dark color so it blends
