@@ -1,7 +1,7 @@
 // Golden Bounty Telegram bot webhook.
 // Handles /start (with ref_<telegramId> referral payload) and the Refer button,
 // which builds each player's personal referral link from their Telegram id.
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 
 const TOKEN = Deno.env.get('TG_BOT_TOKEN') || Deno.env.get('TELEGRAM_BOT_TOKEN') || '';
 const BOT = Deno.env.get('TELEGRAM_BOT_USERNAME') || 'GoldenBountybot';
