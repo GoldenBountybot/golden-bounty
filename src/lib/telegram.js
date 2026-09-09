@@ -96,6 +96,9 @@ export function tgReady() {
     wa.expand();
     wa.setHeaderColor?.('#0b0805');
     wa.setBackgroundColor?.('#0b0805');
+    // Paint the Android navigation bar in the same dark color so it blends
+    // into the app — a mini app can never hide it, but it stops standing out.
+    wa.setBottomBarColor?.('#0b0805');
     // Keep the phone from sleeping and stop an accidental swipe-down from
     // closing the mini app while playing — both part of the fullscreen feel.
     wa.disableVerticalSwipes?.();
