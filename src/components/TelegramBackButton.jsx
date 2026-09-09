@@ -1,28 +1,30 @@
 import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { tgWebApp } from '@/lib/telegram';
 
-// Controls Telegram's native header button: on the home page the native
-// "Close" button stays as-is; on every other page it becomes the native
-// "Back" button, which navigates back inside the app.
+// Shows Telegram's native back button in the top-left corner of the mini app
+// on every screen except the home lobby, and wires it to in-app navigation
+// (history back, falling back to the lobby when there is nothing to go back to).
 export default function TelegramBackButton() {
+  const { pathname } = useLocation();
   const navigate = useNavigate();
-  const location = useLocation();
-  const wa = tgWebApp();
-  const bb = wa?.BackButton;
-  const isHome = location.pathname === '/';
 
   useEffect(() => {
+    const bb = tgWebApp()?.BackButton;
     if (!bb) return;
-    const onClick = () => navigate(-1);
-    if (isHome) {
-      bb.hide();
-    } else {
+
+    const onClick = () => {
+      if (window.history.length > 1) navigate(-1);
+      else navigate('/');
+    };
+
+    try {
       bb.onClick(onClick);
-      bb.show();
-    }
-    return () => bb.offClick(onClick);
-  }, [bb, isHome, navigate]);
+      if (pathname === '/') bb.hide(); else bb.show();
+    } catch { /* older Telegram clients */ }
+
+    return () => { try { bb.offClick(onClick); } catch { /* ignore */ } };
+  }, [pathname, navigate]);
 
   return null;
 }
