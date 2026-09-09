@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import UserBannedError from '@/components/UserBannedError';
 import ScrollToTop from './components/ScrollToTop';
+import { tgWebApp } from '@/lib/telegram';
 // Add page imports here
 import Home from './pages/Home';
 import HiLo from './pages/HiLo';
@@ -73,6 +74,15 @@ import { warmAllAccountData } from '@/lib/warmAccount';
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isAuthenticated, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const loading = isLoadingPublicSettings || isLoadingAuth;
+
+  // Bot buttons now launch the app through the Main Mini App link with a
+  // startapp payload — route straight to the matching screen on entry
+  // (freespins -> the Free Spin page).
+  const startParamNavigate = useNavigate();
+  useEffect(() => {
+    const sp = tgWebApp()?.initDataUnsafe?.start_param;
+    if (sp === 'freespin') startParamNavigate('/free-spin');
+  }, []);
 
   // No splash image — the app opens straight on the branded loading screen and
   // stays there until every app image is downloaded AND decoded, so nothing is
