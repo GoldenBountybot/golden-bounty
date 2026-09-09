@@ -96,12 +96,13 @@ export function tgReady() {
     wa.expand();
     wa.setHeaderColor?.('#0b0805');
     wa.setBackgroundColor?.('#0b0805');
-    // True fullscreen (Bot API 8.0+): hides the Telegram chrome so the app
-    // fills the entire device screen the moment it launches. Older clients
-    // simply don't expose it and stay on the expanded (default) height.
-    wa.requestFullscreen?.();
-    // Keep the phone from sleeping and stop an accidental swipe-down from
-    // closing the mini app while playing — both part of the fullscreen feel.
+    // NOTE: we deliberately do NOT call requestFullscreen(). True fullscreen
+    // (Bot API 8.0+) removes Telegram's standard header, and the native
+    // BackButton lives in that header — so fullscreen makes the back arrow
+    // disappear on every launch where it takes effect (deep links, inline
+    // buttons). expand() gives full height while keeping the header, so the
+    // native "Close"/"‹ Back" control is available on every entry point.
+    // Stop an accidental swipe-down from closing the mini app while playing.
     wa.disableVerticalSwipes?.();
   } catch { /* older Telegram clients */ }
 }
