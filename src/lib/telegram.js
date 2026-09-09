@@ -41,11 +41,23 @@ export function isInsideTelegram() {
   return tgInitData().length > 0;
 }
 
-// True when Telegram's own native back button (top-left of the mini app) is
-// available. The app's in-app back buttons hide in that case so there aren't
-// two back buttons stacked on the same screen.
+// True when the mini app is running in Telegram's true fullscreen mode
+// (Bot API 8.0+). In this mode Telegram hides its entire top chrome — INCLUDING
+// the native BackButton — so the native back button can never be seen even
+// though BackButton.show() reports success. When this is true the app must
+// fall back to its own in-app back buttons.
+export function isTelegramFullscreen() {
+  const wa = tgWebApp();
+  return !!(wa && wa.isFullscreen);
+}
+
+// True when we can rely on Telegram's own native back button being VISIBLE
+// (top-left of the mini app). That requires the BackButton API to exist AND the
+// app NOT to be in fullscreen, because fullscreen hides the chrome the native
+// button lives in. When this is false the app renders its own in-app back
+// buttons so the user is never stranded without a way back.
 export function hasTelegramBackButton() {
-  return !!tgWebApp()?.BackButton?.show;
+  return !!tgWebApp()?.BackButton?.show && !isTelegramFullscreen();
 }
 
 export function tgUser() {
