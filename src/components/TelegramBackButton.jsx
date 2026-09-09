@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { tgWebApp } from '@/lib/telegram';
 
-// Floating in-app back button for the Telegram Mini App.
-// Works in true fullscreen mode — where Telegram hides the native header
-// (and therefore the native BackButton) — because this button is rendered
-// inside the web content itself, not in Telegram's chrome.
+// Shows Telegram's native BackButton on every page (except home).
+// tgReady() in AuthContext runs AFTER this component's first effect and can
+// reset the button, so we re-show it with a short delay and on every route
+// change to keep it visible. A floating in-app button is rendered as a
+// fallback for true fullscreen mode where the native header is hidden.
 export default function TelegramBackButton() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -15,19 +16,35 @@ export default function TelegramBackButton() {
     setIsTelegram(!!tgWebApp());
   }, []);
 
-  // Also try the native BackButton — visible whenever the header is shown
-  // (i.e. when not in fullscreen). Harmless in fullscreen.
+  // Native BackButton — re-shown after a delay so it survives tgReady()
+  // and on every navigation so it stays visible across page changes.
   useEffect(() => {
     const wa = tgWebApp();
     const bb = wa?.BackButton;
     if (!bb) return;
+
     const onClick = () => {
       if (window.history.length > 1) navigate(-1);
       else wa?.close?.();
     };
-    try { bb.show(); bb.onClick(onClick); } catch { /* older clients */ }
-    return () => { try { bb.offClick(onClick); } catch { /* ignore */ } };
-  }, [navigate]);
+
+    let cancelled = false;
+    const show = () => {
+      if (cancelled) return;
+      try { bb.show(); bb.onClick(onClick); } catch { /* older clients */ }
+    };
+
+    show();
+    const t1 = setTimeout(show, 200);
+    const t2 = setTimeout(show, 600);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t1);
+      clearTimeout(t2);
+      try { bb.offClick(onClick); } catch { /* ignore */ }
+    };
+  }, [navigate, location.pathname]);
 
   // Hide the floating button on the root page — nothing to go back to
   if (!isTelegram || location.pathname === '/') return null;
