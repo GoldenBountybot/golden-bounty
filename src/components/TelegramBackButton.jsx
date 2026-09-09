@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { tgWebApp } from '@/lib/telegram';
 
 // Shows Telegram's native BackButton on every page except home.
@@ -7,8 +7,10 @@ import { tgWebApp } from '@/lib/telegram';
 // reset the button, so we re-show it with a delay and on every navigation.
 export default function TelegramBackButton() {
   const navigate = useNavigate();
+  const location = useLocation();
   const wa = tgWebApp();
   const bb = wa?.BackButton;
+  const isHome = location.pathname === '/';
 
   useEffect(() => {
     if (!bb) return;
@@ -17,14 +19,17 @@ export default function TelegramBackButton() {
       else wa?.close?.();
     };
     let cancelled = false;
-    const show = () => {
+    const apply = () => {
       if (cancelled) return;
-      try { bb.show(); bb.onClick(onClick); } catch { /* older clients */ }
+      try {
+        if (isHome) { bb.hide(); }
+        else { bb.show(); bb.onClick(onClick); }
+      } catch { /* older clients */ }
     };
-    show();
-    const t = setTimeout(show, 300);
+    apply();
+    const t = setTimeout(apply, 300);
     return () => { cancelled = true; clearTimeout(t); try { bb.offClick(onClick); } catch {} };
-  }, [navigate, bb]);
+  }, [navigate, bb, isHome]);
 
   return null;
 }
