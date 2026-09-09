@@ -21,8 +21,13 @@ const api = (method: string, body: unknown) =>
 
 const refLink = (tgId: number) => `https://t.me/${BOT}?start=ref_${tgId}`;
 
+// Open the app through the Main Mini App link instead of a raw web_app button:
+// mini apps launched that way (like from the bot's menu button) open in
+// fullscreen, while plain inline web_app windows can't request fullscreen.
+const appLink = (param = 'play') => `https://t.me/${BOT}?startapp=${param}`;
+
 const playKeyboard = [
-  [{ text: '🎰 Play Golden Bounty', web_app: { url: APP_URL } }],
+  [{ text: '🎰 Play Golden Bounty', url: appLink() }],
   [{ text: '🎁 Refer & Earn', callback_data: 'refer' }],
 ];
 
@@ -43,7 +48,7 @@ async function sendReferCard(chatId: number, tgId: number) {
     reply_markup: {
       inline_keyboard: [
         [{ text: '📤 Share my link', url: share }],
-        [{ text: '🎰 Open Golden Bounty', web_app: { url: APP_URL } }],
+        [{ text: '🎰 Open Golden Bounty', url: appLink() }],
       ],
     },
   });
