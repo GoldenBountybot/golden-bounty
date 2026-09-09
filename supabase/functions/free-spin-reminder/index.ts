@@ -3,7 +3,7 @@
 // with a button that opens the app on the Free Spin page. If they still
 // haven't spun 24h after that reminder, sends it again — and so on.
 // Spinning resets the cycle: the next reminder comes 24h after the new spin.
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 
 const TOKEN = Deno.env.get('TG_BOT_TOKEN') || Deno.env.get('TELEGRAM_BOT_TOKEN') || '';
 const APP_URL = Deno.env.get('TELEGRAM_WEBAPP_URL') || 'https://golden-bounty.com';
