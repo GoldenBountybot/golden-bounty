@@ -1,16 +1,25 @@
 import { useEffect } from 'react';
 import { tgWebApp } from '@/lib/telegram';
 
-// Maximizes a game screen inside the mini app: expand to full height and stop
-// an accidental swipe-down from closing the app. Never requests Telegram's
-// fullscreen mode — that hides the native header, and the header's Back
-// button is the only way back on game pages.
+// Puts a game screen into real fullscreen: Telegram's own fullscreen mode
+// (hides the mini-app chrome) plus the browser Fullscreen API where it is
+// allowed. Both are restored when leaving the game.
 export function useGameFullscreen() {
   useEffect(() => {
     const wa = tgWebApp();
     try {
+      wa?.requestFullscreen?.();
       wa?.expand?.();
       wa?.disableVerticalSwipes?.();
     } catch { /* older Telegram clients */ }
+
+    const el = document.documentElement;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.().catch(() => { /* needs a user gesture — Telegram fullscreen still applies */ });
+    }
+
+    return () => {
+      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+    };
   }, []);
 }
