@@ -96,12 +96,10 @@ export function tgReady() {
     wa.expand();
     wa.setHeaderColor?.('#0b0805');
     wa.setBackgroundColor?.('#0b0805');
-    // NOTE: we deliberately do NOT call requestFullscreen(). True fullscreen
-    // (Bot API 8.0+) removes Telegram's standard header, and the native
-    // BackButton lives in that header — so fullscreen makes the back arrow
-    // disappear on every launch where it takes effect (deep links, inline
-    // buttons). expand() gives full height while keeping the header, so the
-    // native "Close"/"‹ Back" control is available on every entry point.
+    // Fullscreen (Bot API 8.0+). Telegram keeps a floating top overlay in
+    // fullscreen that still hosts the native BackButton, so fullscreen and the
+    // back arrow coexist. Guarded because older clients lack the method.
+    try { wa.requestFullscreen?.(); } catch { /* not supported */ }
     // Stop an accidental swipe-down from closing the mini app while playing.
     wa.disableVerticalSwipes?.();
   } catch { /* older Telegram clients */ }
