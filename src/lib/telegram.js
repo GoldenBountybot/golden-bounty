@@ -94,6 +94,10 @@ export function tgReady() {
   try {
     wa.ready();
     wa.expand();
+    // Fullscreen right away when the launch type allows it (Main Mini App
+    // entries: menu button, profile button, t.me?startapp links). The header
+    // turns transparent but Telegram keeps the native back button on top.
+    if (!wa.isFullscreen) wa.requestFullscreen?.();
     wa.setHeaderColor?.('#0b0805');
     wa.setBackgroundColor?.('#0b0805');
     // Paint the Android navigation bar in the same dark color so it blends
@@ -103,4 +107,17 @@ export function tgReady() {
     // closing the mini app while playing — both part of the fullscreen feel.
     wa.disableVerticalSwipes?.();
   } catch { /* older Telegram clients */ }
+  // Some launches only allow fullscreen from a user gesture — retry on the
+  // first tap on any button or link anywhere in the app, until it sticks.
+  if (wa.requestFullscreen) {
+    const tryFullscreen = () => {
+      const t = tgWebApp();
+      if (t?.isFullscreen) {
+        document.removeEventListener('pointerdown', tryFullscreen);
+        return;
+      }
+      try { t?.requestFullscreen?.(); } catch { /* older Telegram clients */ }
+    };
+    document.addEventListener('pointerdown', tryFullscreen);
+  }
 }
