@@ -99,5 +99,17 @@ export function tgReady() {
     // Keep the phone from sleeping and stop an accidental swipe-down from
     // closing the mini app while playing — both part of the fullscreen feel.
     wa.disableVerticalSwipes?.();
+    // Full screen mode: the mini app takes over the whole screen and Telegram's
+    // native header (close button + title) stays hidden until the user taps.
+    if (typeof wa.requestFullscreen === 'function') {
+      try { wa.requestFullscreen(); } catch { /* unsupported client */ }
+      // Some clients only grant full screen after a user gesture — retry once
+      // on the first tap if the initial attempt didn't stick.
+      if (!wa.isFullscreen && typeof window !== 'undefined') {
+        window.addEventListener('pointerdown', () => {
+          try { if (!wa.isFullscreen) wa.requestFullscreen(); } catch { /* unsupported client */ }
+        }, { once: true });
+      }
+    }
   } catch { /* older Telegram clients */ }
 }
