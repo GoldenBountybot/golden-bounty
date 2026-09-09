@@ -56,6 +56,7 @@ import AdminRoute from '@/components/AdminRoute';
 import BottomNavLayout from '@/components/BottomNavLayout';
 import NotificationToaster from '@/components/NotificationToaster';
 import TelegramBackButton from '@/components/TelegramBackButton';
+import TgDebugPanel from '@/components/TgDebugPanel';
 import PromoWelcomeGate from '@/components/PromoWelcomeGate';
 import GeoBlockGate from '@/components/GeoBlockGate';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
@@ -163,6 +164,7 @@ const AuthenticatedApp = () => {
     <>
     <RouteTransitionLoader />
     <TelegramBackButton />
+    <TgDebugPanel />
     <NotificationToaster />
     <PromoWelcomeGate />
     <GeoBlockGate />
