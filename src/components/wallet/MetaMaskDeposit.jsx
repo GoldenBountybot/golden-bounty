@@ -101,6 +101,16 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     }
   }, [isConnected, address, walletProvider]);
 
+  // The connection usually settles only after the user comes back from the
+  // wallet — and AppKit's connect modal then stays open over the deposit
+  // screen, looking like nothing happened. Close it as soon as we're connected
+  // so the deposit UI (and the switch / payment requests) take over.
+  useEffect(() => {
+    if (isConnected) {
+      try { appKit.close(); } catch {}
+    }
+  }, [isConnected]);
+
   // Polygon has no native option here — fall back to USDT if it was selected.
   useEffect(() => { if (!nativeSupported && payAsset === 'native') setPayAsset('usdt'); }, [netKey, nativeSupported]);
 
