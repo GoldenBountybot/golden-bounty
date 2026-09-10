@@ -71,6 +71,11 @@ let watchdogTimer = null;
 // state, nudge timing, whether the approval ever settled).
 const diagT0 = Date.now();
 let diagLastConnecting = 0;
+// True from the moment the user taps connect on the deposit screen until the
+// session settles. The webview freezes before the watchdog can even notice
+// the connecting view, so this explicit mark is the only reliable record that
+// an attempt was in flight when Telegram suspended us.
+let connectAttemptStarted = false;
 function diag(event, detail) {
   try {
     supabase
@@ -132,6 +137,39 @@ async function reopenRelayTransport(relayer) {
     reopenInFlight = false;
     diag('nudge-done', JSON.stringify({ ms: Date.now() - nudgeT0, ...relayerState() }));
   }
+}
+
+// Marks that a wallet connect actually started on the deposit screen. Called
+// BEFORE appKit.open() hands the user to the wallet app, because the webview
+// freezes before any interval or router state change could be observed.
+export function noteConnectAttempt() {
+  connectAttemptStarted = true;
+  diag('attempt', JSON.stringify(relayerState()));
+}
+
+// The WalletConnect proposal lives 5 minutes; a longer stay in the wallet (or
+// a longer screen-off) kills the connect flow while the webview is frozen, and
+// the return lands on a dead "Connecting" screen. The resume nudge can still
+// settle an approval that arrived in time; wait a few seconds for that, and
+// if the wallet is still not connected and nothing is in flight, reopen the
+// connect modal once so a single tap restarts the connect instead of leaving
+// the user on a dead screen.
+let resumeRetryScheduled = false;
+function scheduleResumeRetry() {
+  if (!connectAttemptStarted || resumeRetryScheduled) return;
+  resumeRetryScheduled = true;
+  setTimeout(() => {
+    resumeRetryScheduled = false;
+    if (!connectAttemptStarted) return;
+    let connected = false;
+    try { connected = !!ChainController.state.activeCaipAddress?.eip155; } catch {}
+    let modalOpen = false;
+    try { modalOpen = !!ModalController.state.open; } catch {}
+    if (connected || isConnectingToWallet() || modalOpen) return;
+    connectAttemptStarted = false;
+    diag('auto-retry', JSON.stringify(relayerState()));
+    try { appKit.open(); } catch {}
+  }, 5000);
 }
 
 // Full close+open of the relay transport, used right after returning from the
@@ -253,6 +291,7 @@ async function ensureRelayConnected() {
   }
   let connectedNow = false;
   try { connectedNow = !!ChainController.state.activeCaipAddress?.eip155; } catch {}
+  if (connectedNow) connectAttemptStarted = false;
   if (connectedNow && diagLastConnecting) {
     diagLastConnecting = 0;
     diag('settled', JSON.stringify(relayerState()));
@@ -270,6 +309,7 @@ if (typeof document !== 'undefined') {
       clearInterval(watchdogTimer);
       watchdogTimer = setInterval(ensureRelayConnected, 3000);
       reconnectWalletConnectRelay();
+      scheduleResumeRetry();
     } else {
       diag('hidden', JSON.stringify({ connecting: isConnectingToWallet() }));
       clearInterval(watchdogTimer);
