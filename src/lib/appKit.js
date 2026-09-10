@@ -3,7 +3,7 @@
 // the Telegram Mini App webview (it opens wallet links through Telegram's own
 // openLink instead of navigating the webview to a dead deep link).
 import { createAppKit, CoreHelperUtil } from '@reown/appkit/react';
-import { ChainController } from '@reown/appkit-controllers';
+import { ChainController, ConnectorController } from '@reown/appkit-controllers';
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { bsc, mainnet, polygon } from '@reown/appkit/networks';
 import { WALLETCONNECT_PROJECT_ID, WALLETCONNECT_METADATA } from '@/lib/walletConfig';
@@ -52,6 +52,40 @@ CoreHelperUtil.openHref = (href, target, features) => {
   }
   originalOpenHref.call(CoreHelperUtil, href, target, features);
 };
+
+// Telegram suspends this webview — and with it the WalletConnect relay
+// WebSocket — while the wallet app is in the foreground. After the user
+// approves and returns, the frozen socket never reconnects by itself, so the
+// modal stays stuck on "Continue in MetaMask" and the settled session never
+// arrives. On every return to the foreground, force the relay to close and
+// re-open its transport: existing topics are re-subscribed and every message
+// the relay buffered while we were suspended is delivered as a batch right
+// away (that is how the missed session approval finally reaches us).
+let lastRelayNudge = 0;
+export async function reconnectWalletConnectRelay() {
+  if (!isInsideTelegram()) return;
+  if (Date.now() - lastRelayNudge < 3000) return;
+  lastRelayNudge = Date.now();
+  try {
+    const connector =
+      ConnectorController.state.connectors?.find((c) => c.type === 'WALLET_CONNECT') ||
+      ConnectorController.getConnectorById('WALLET_CONNECT');
+    const relayer = connector?.provider?.client?.core?.relayer;
+    if (!relayer) return;
+    try { await relayer.transportClose(); } catch {}
+    try { await relayer.transportOpen(); } catch {}
+  } catch {}
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') reconnectWalletConnectRelay();
+  });
+  window.addEventListener('focus', reconnectWalletConnectRelay);
+  // If Telegram reloaded the webview (fresh page) while the wallet was open,
+  // give AppKit a moment to initialize, then do the same nudge once.
+  setTimeout(reconnectWalletConnectRelay, 2500);
+}
 
 export function networkByChainId(chainId) {
   return networks.find((n) => Number(n.id) === Number(chainId)) || networks[0];
