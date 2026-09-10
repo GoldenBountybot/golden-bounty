@@ -80,7 +80,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
         const j = await r.json();
         if (j?.result) return j.result;
       } catch {}
-      await new Promise((rr) => setTimeout(rr, 2000));
+      await new Promise((rr) => setTimeout(rr, 1200));
     }
     return null;
   };
@@ -144,7 +144,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       }
       setStatus('done');
       toast({ title: 'Deposit successful', description: `$${Number(res.data.amount || amt).toFixed(2)} has been added to your balance.` });
-      setTimeout(() => onDone?.(), 1200);
+      setTimeout(() => onDone?.(), 500);
     } else {
       const reason = res?.data?.reason || 'unknown';
       setErrMsg(reason === 'pending' ? 'Transaction is still pending — please try again shortly.' : `Verification failed: ${reason}`);
@@ -212,7 +212,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       } finally { running = false; }
     };
     tick();
-    const id = setInterval(tick, 8000);
+    const id = setInterval(tick, 3000);
     return () => { cancelled = true; clearInterval(id); };
   }, [status, netKey, amount, payAsset]);
 
