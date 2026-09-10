@@ -66,12 +66,14 @@ export function networkByChainId(chainId) {
 // deposit request after it, then both target that network only.
 export function restrictToSelectedNetwork(chainId) {
   const selected = networkByChainId(chainId);
+  // Add the selected network FIRST so the list is never momentarily empty —
+  // clearing it would hide every EVM wallet from the connect modal.
+  try { ChainController.addNetwork(selected); } catch {}
   networks.forEach((n) => {
     if (n !== selected) {
       try { ChainController.removeNetwork('eip155', n.id); } catch {}
     }
   });
-  try { ChainController.addNetwork(selected); } catch {}
 }
 
 // Bring the full network list back after disconnecting, so the next deposit
