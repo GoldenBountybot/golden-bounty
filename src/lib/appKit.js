@@ -45,37 +45,20 @@ function normalizeAndroidDeepLink(href) {
   }
 }
 
-// The last wallet deep link we handed to the OS (e.g. metamask://wc?uri=...).
-// Real-device logs show our relay is healthy and the proposal goes out, but
-// MetaMask's own relay subscription after the deep link sometimes stalls and
-// the approval popup simply never shows — until the phone screen is toggled
-// off/on, which merely resumes the wallet app and its socket. Keep the exact
-// link so the app can re-open it once by itself after the user comes back
-// (pending-request restoration in ensureRelayConnected).
-let lastWalletDeepLink = null;
-
 const originalOpenHref = CoreHelperUtil.openHref;
 CoreHelperUtil.openHref = (href, target, features) => {
   if (isInsideTelegram()) {
-    const walletHref = normalizeAndroidDeepLink(href);
-    if (typeof walletHref === 'string' && walletHref.indexOf('wc?uri=') !== -1) {
-      lastWalletDeepLink = { href: walletHref, at: Date.now() };
-    }
-    openWalletLink(walletHref);
+    openWalletLink(normalizeAndroidDeepLink(href));
     return;
   }
   originalOpenHref.call(CoreHelperUtil, href, target, features);
 };
 
 // Telegram suspends this webview — and with it the WalletConnect relay
-// WebSocket — while the wallet app is in the foreground. After the user
-// approves and returns, the frozen socket never reconnects by itself, so the
-// modal stays stuck on "Continue in MetaMask" and the settled session never
-// arrives. On every return to the foreground, force the relay to close and
-// re-open its transport: existing topics are re-subscribed and every message
-// the relay buffered while we were suspended is delivered as a batch right
-// away (that is how the missed session approval finally reaches us).
-let lastRelayNudge = 0;
+// WebSocket — while the wallet app is in the foreground. WalletConnect's
+// own engine detects the dead socket and re-opens its transport by itself;
+// our recovery helper (recoverRelayIfDown below) only ever OPENS a transport
+// the engine reports as fully down, and never closes a live one mid-handshake.
 let watchdogTimer = null;
 
 // Silent diagnostics for the Telegram wallet-connect flow: one Supabase row per
@@ -84,16 +67,15 @@ let watchdogTimer = null;
 // state, nudge timing, whether the approval ever settled).
 const diagT0 = Date.now();
 let diagLastConnecting = 0;
-// When this webview last became visible again (set on resume and at load),
-// and a one-shot guard for the pending-request deep-link refire.
-let visibleSince = 0;
-let pendingRefired = false;
 // True from the moment the user taps connect on the deposit screen until the
 // session settles. The webview freezes before the watchdog can even notice
 // the connecting view, so this explicit mark is the only reliable record that
 // an attempt was in flight when Telegram suspended us.
 let connectAttemptStarted = false;
 function diag(event, detail) {
+  // Timestamped console trace for on-device debugging (chrome://inspect).
+  // Details are relay state only — never tokens, keys or user data.
+  try { console.log(`[gb-wc] +${Date.now() - diagT0}ms ${event} ${detail || ''}`); } catch {}
   try {
     supabase
       .from('wc_diag_logs')
@@ -119,10 +101,9 @@ function getWalletConnectRelayer() {
   } catch { return null; }
 }
 
-// transportClose()/transportOpen() can hang forever on the zombie socket the
-// suspended Telegram webview leaves behind — awaiting them plainly stalled
-// every nudge, so the re-open never actually ran. Race both calls against a
-// short timeout so the close+open always completes.
+// transportOpen() can hang forever on the zombie socket the suspended
+// Telegram webview sometimes leaves behind — race it against a timeout so
+// recovery always completes and releases its lock.
 function withTimeout(promise, ms) {
   return Promise.race([
     Promise.resolve(promise).catch(() => {}),
@@ -130,30 +111,28 @@ function withTimeout(promise, ms) {
   ]);
 }
 
-let reopenInFlight = false;
-
-async function reopenRelayTransport(relayer) {
-  // WalletConnect's close/open pair must run IN ORDER and to completion:
-  // transportClose() ends with subscriber.stop() and transportOpen() ends
-  // with subscriber.start() (fresh socket, then re-subscribe of every topic).
-  // Abandoning the close early with a short timeout let its trailing
-  // subscriber.stop() land AFTER the fresh re-subscribe had finished and wipe
-  // it — the relay then never re-delivered the buffered approval and the
-  // connect hung forever. transportClose is internally bounded (its
-  // provider.disconnect() carries a 2s timeout of its own), so the timeouts
-  // below only guard against pathological hangs, and the in-flight flag keeps
-  // a second nudge from racing this one.
-  if (reopenInFlight) return;
-  reopenInFlight = true;
-  diag('nudge-start', JSON.stringify(relayerState()));
-  const nudgeT0 = Date.now();
-  try {
-    await withTimeout(relayer.transportClose(), 6000);
-    await withTimeout(relayer.transportOpen(), 10000);
-  } finally {
-    reopenInFlight = false;
-    diag('nudge-done', JSON.stringify({ ms: Date.now() - nudgeT0, ...relayerState() }));
-  }
+// THE single recovery path for the relay transport — every trigger (connect
+// attempt, resume, focus, watchdog tick, page load) funnels through here.
+// It only ever OPENS a transport that WalletConnect itself reports as fully
+// down, and it NEVER closes a live or connecting socket: device logs showed
+// the old close+open "nudge" firing with the relay already connected during a
+// pending MetaMask approval — killing the healthy socket, forcing the
+// pairing topic to re-subscribe from scratch, and delaying or swallowing the
+// approval popup for 20-30 seconds (the exact reported symptom). The lock
+// guarantees no two recovery operations ever overlap; the throttle stops
+// tight retry loops.
+let relayRecoveryInProgress = false;
+let lastRecoveryAt = 0;
+async function recoverRelayIfDown(relayer) {
+  if (!relayer || relayer.connected || relayer.connecting) return;
+  if (relayRecoveryInProgress) return;
+  if (Date.now() - lastRecoveryAt < 3000) return;
+  relayRecoveryInProgress = true;
+  lastRecoveryAt = Date.now();
+  diag('recovery-start', JSON.stringify(relayerState()));
+  await withTimeout(relayer.transportOpen(), 10000);
+  relayRecoveryInProgress = false;
+  diag('recovery-done', JSON.stringify(relayerState()));
 }
 
 // Marks that a wallet connect actually started on the deposit screen. Called
@@ -161,15 +140,12 @@ async function reopenRelayTransport(relayer) {
 // freezes before any interval or router state change could be observed.
 export function noteConnectAttempt() {
   connectAttemptStarted = true;
-  pendingRefired = false;
   diag('attempt', JSON.stringify(relayerState()));
-  // Logs show the relay transport is often still down at this exact moment
-  // (the load-time open attempts no-op on the not-yet-ready engine), and the
-  // WalletConnect proposal only reaches the wallet app after a slow
-  // cold-start — that is the 15-20s wait for the request to appear in the
-  // wallet. Pre-warm the relay right here: the user then spends a few
-  // seconds picking MetaMask in the modal, and the proposal leaves over a
-  // live socket the instant they tap it.
+  // Make sure the relay transport is up before the user picks a wallet, so
+  // the proposal leaves over a live socket the instant they tap MetaMask.
+  // Safe by design: this only opens a fully-down transport and never
+  // touches a live or connecting one, and the shared recovery lock means it
+  // can never race another recovery operation.
   reconnectWalletConnectRelay();
 }
 
@@ -198,22 +174,12 @@ function scheduleResumeRetry() {
   }, 5000);
 }
 
-// Full close+open of the relay transport, used right after returning from the
-// wallet app: the suspended Telegram webview leaves behind a dead (or zombie)
-// socket that WalletConnect never recovers from on its own. Re-opening makes
-// the relay re-deliver the buffered session approval.
-// Closing the transport also stops the relay subscriber, and re-opening has
-// to re-subscribe every topic from scratch before the relay re-delivers
-// anything — that takes several seconds on a mobile webview. Nudging more
-// often than every ~15 seconds kills the re-subscription mid-flight every
-// time, so the buffered approval never arrives and the connect hangs forever.
+// Safe relay recovery for resume/focus/load triggers: open the transport only
+// when WalletConnect reports it fully down. Never close an active relay —
+// force-closing a live socket is what used to interrupt a pending approval.
 export async function reconnectWalletConnectRelay() {
   if (!isInsideTelegram()) return;
-  if (Date.now() - lastRelayNudge < 15000) return;
-  lastRelayNudge = Date.now();
-  const relayer = getWalletConnectRelayer();
-  if (!relayer) return;
-  await reopenRelayTransport(relayer);
+  await recoverRelayIfDown(getWalletConnectRelayer());
 }
 
 // Light health check while the app is visible: if the relay is down, try to
@@ -238,12 +204,9 @@ function isConnectingToWallet() {
 }
 
 // Runs on a short cycle while the app is visible. While the "Connecting to
-// MetaMask..." screen is up, re-open the relay transport until the buffered
-// approval arrives. Re-opens are spaced 15 seconds apart: each one stops and
-// restarts the relay subscriber, and the topic re-subscriptions it triggers
-// need time to complete before the relay re-delivers the buffered approval
-// — re-opening again too soon cancels them mid-flight and the connect
-// hangs forever (which is exactly what a repeated 3-second nudge caused).
+// MetaMask..." screen is up it only ASSISTS a transport WalletConnect itself
+// reports as fully down (see recoverRelayIfDown) — it never closes or
+// restarts a live relay, so a pending approval handshake is never interrupted.
 // A settled WalletConnect session is kept in localStorage, but after the page
 // reloads AppKit does not always wire that saved session up on its own — the
 // app then shows the wallet as disconnected even though it was connected
@@ -306,37 +269,16 @@ async function ensureRelayConnected() {
       diagLastConnecting = Date.now();
       diag('connecting', JSON.stringify(relayerState()));
     }
-    // Re-open the relay until the buffered approval arrives. Real-device
-    // logs show the first re-open right after resume often misses the
-    // buffered approval and a second re-open moments later delivers it
-    // (that is why switching the screen off/on used to "fix" it). So keep
-    // re-kicking every 7 seconds instead of waiting 15 — each re-open
-    // restarts the subscriber, and its re-subscription finishes in ~2-3s.
-    if (relayer && Date.now() - lastRelayNudge >= 7000) {
-      lastRelayNudge = Date.now();
-      await reopenRelayTransport(relayer);
-    }
+    // SAFE recovery only — never a close+open. The old 7-second reopen loop
+    // here killed a HEALTHY relay right while MetaMask was waiting for the
+    // pairing handshake (device logs: nudge-start connected:true →
+    // nudge-done connected:false, repeatedly), which forced the pairing topic
+    // to re-subscribe from scratch and delayed or swallowed the approval
+    // popup for 20-30 seconds. A connected relay is left strictly alone
+    // while a request is pending; we only open a transport the engine
+    // reports as fully down, under the shared recovery lock.
+    await recoverRelayIfDown(relayer);
     if (relayer && relayer.connected && connectAttemptStarted) {
-      // Pending-request restoration. Device logs show the relay here is
-      // healthy, the proposal went out on time, and the wallet simply never
-      // displayed it — only toggling the phone screen off/on (a resume
-      // retrigger for the wallet app) brought the popup up. Automate that:
-      // once the user has been back on this Connecting screen for a few
-      // seconds with no settlement (the resume nudge above re-delivers a
-      // buffered approval in ~2-3s, so give it 4.5s), re-open the SAME deep
-      // link once — no new pairing, no duplicate request, the wallet just
-      // comes back to the foreground and displays the still-pending approval.
-      if (!pendingRefired && visibleSince && Date.now() - visibleSince >= 4500) {
-        const link =
-          lastWalletDeepLink && Date.now() - lastWalletDeepLink.at <= 120000
-            ? lastWalletDeepLink.href
-            : null;
-        if (link) {
-          pendingRefired = true;
-          diag('refire', JSON.stringify(relayerState()));
-          openWalletLink(link);
-        }
-      }
       if (!stuckSince) stuckSince = Date.now();
       else if (Date.now() - stuckSince >= 30000 && !stuckHandoff) {
         stuckHandoff = true;
@@ -352,12 +294,9 @@ async function ensureRelayConnected() {
       stuckSince = 0;
     }
     // NOTE: no page-reload fallback here. A fresh page means a fresh
-    // WalletConnect engine with no pending session proposal — the buffered
-    // approval would replay into a page that can do nothing with it, so a
-    // reload silently discards the approval the user already gave and
-    // forces a second connect. Recovery must keep THIS page alive: the
-    // re-open above re-subscribes the pairing topic and lets the live
-    // engine settle the approval.
+    // WalletConnect engine with no pending session proposal — a reload
+    // would silently discard the approval the user already gave and force
+    // a second connect. Recovery must keep THIS page alive.
     return;
   }
   stuckSince = 0;
@@ -369,15 +308,12 @@ async function ensureRelayConnected() {
     diag('settled', JSON.stringify(relayerState()));
   }
   ensureWalletSessionRestored();
-  if (!relayer) return;
-  if (relayer.connected || relayer.connecting) return;
-  try { await relayer.transportOpen(); } catch {}
+  await recoverRelayIfDown(relayer);
 }
 
 if (typeof document !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      visibleSince = Date.now();
       diag('visible', JSON.stringify({ connecting: isConnectingToWallet(), ...relayerState() }));
       clearInterval(watchdogTimer);
       watchdogTimer = setInterval(ensureRelayConnected, 3000);
@@ -391,11 +327,10 @@ if (typeof document !== 'undefined') {
   window.addEventListener('focus', reconnectWalletConnectRelay);
   window.addEventListener('online', ensureRelayConnected);
   // If Telegram reloaded the webview (fresh page) while the wallet was open,
-  // give AppKit time to initialize, then nudge and start the watchdog.
+  // give AppKit time to initialize, then check the relay and start the watchdog.
   setTimeout(reconnectWalletConnectRelay, 2500);
   setTimeout(ensureRelayConnected, 6000);
   watchdogTimer = setInterval(ensureRelayConnected, 3000);
-  visibleSince = Date.now();
   diag('load', JSON.stringify({ ua: (navigator.userAgent || '').slice(0, 140), tg: isInsideTelegram() }));
 }
 
