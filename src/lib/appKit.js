@@ -3,7 +3,7 @@
 // the Telegram Mini App webview (it opens wallet links through Telegram's own
 // openLink instead of navigating the webview to a dead deep link).
 import { createAppKit, CoreHelperUtil } from '@reown/appkit/react';
-import { ChainController, ConnectorController } from '@reown/appkit-controllers';
+import { ChainController, ConnectorController, ModalController, RouterController } from '@reown/appkit-controllers';
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { bsc, mainnet, polygon } from '@reown/appkit/networks';
 import { WALLETCONNECT_PROJECT_ID, WALLETCONNECT_METADATA } from '@/lib/walletConfig';
@@ -92,11 +92,41 @@ export async function reconnectWalletConnectRelay() {
 // attempt failed (e.g. the network was not up yet the moment the webview
 // resumed) — after an explicit close WalletConnect gives up permanently, so
 // without this retry the "Connecting to MetaMask..." state hangs forever.
+function isConnectingToWallet() {
+  try {
+    const open = !!ModalController.state.open;
+    const view = RouterController.state.view;
+    return (
+      open &&
+      [
+        'ConnectingWalletConnect',
+        'ConnectingWalletConnectBasic',
+        'ConnectingExternal',
+        'ConnectingMultiChain',
+      ].includes(view)
+    );
+  } catch { return false; }
+}
+
+// Runs on a short cycle while the app is visible. While the "Connecting to
+// MetaMask..." screen is up, keep re-opening the relay transport until the
+// buffered approval arrives: a single reconnect attempt is sometimes not
+// enough after the webview was suspended, and the connect previously only
+// succeeded after the user turned the screen off and on — which repeats
+// exactly this nudge. This automates that recovery so the screen never has
+// to sleep first.
 async function ensureRelayConnected() {
   if (!isInsideTelegram()) return;
   if (document.visibilityState !== 'visible') return;
   const relayer = getWalletConnectRelayer();
-  if (!relayer || relayer.connected || relayer.connecting) return;
+  if (!relayer) return;
+  if (isConnectingToWallet() && Date.now() - lastRelayNudge >= 3000) {
+    lastRelayNudge = Date.now();
+    try { await relayer.transportClose(); } catch {}
+    try { await relayer.transportOpen(); } catch {}
+    return;
+  }
+  if (relayer.connected || relayer.connecting) return;
   try { await relayer.transportOpen(); } catch {}
 }
 
