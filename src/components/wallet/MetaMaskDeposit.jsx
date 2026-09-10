@@ -118,7 +118,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
 
   // Keep the wallet on the selected deposit network.
   useEffect(() => {
-    if (isConnected && Number(chainId) !== net.chainId) {
+    if (isConnected && chainId != null && Number(chainId) !== net.chainId) {
       try { switchNetwork(networkByChainId(net.chainId)); } catch {}
     }
   }, [netKey, isConnected]);
