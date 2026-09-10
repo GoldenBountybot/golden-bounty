@@ -3,6 +3,7 @@
 // the Telegram Mini App webview (it opens wallet links through Telegram's own
 // openLink instead of navigating the webview to a dead deep link).
 import { createAppKit, CoreHelperUtil } from '@reown/appkit/react';
+import { ChainController } from '@reown/appkit-controllers';
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { bsc, mainnet, polygon } from '@reown/appkit/networks';
 import { WALLETCONNECT_PROJECT_ID, WALLETCONNECT_METADATA } from '@/lib/walletConfig';
@@ -54,4 +55,29 @@ CoreHelperUtil.openHref = (href, target, features) => {
 
 export function networkByChainId(chainId) {
   return networks.find((n) => Number(n.id) === Number(chainId)) || networks[0];
+}
+
+// The wallet connect request must only mention the network the user picked on
+// the deposit screen. AppKit builds the WalletConnect session proposal from
+// every network it was created with, so by default the wallet is asked to
+// approve BSC + Ethereum + Polygon all at once — and any later transaction
+// rides on whichever chain the wallet picks. Trim the runtime network list down
+// to the selected chain right before connecting: the connect request, and the
+// deposit request after it, then both target that network only.
+export function restrictToSelectedNetwork(chainId) {
+  const selected = networkByChainId(chainId);
+  networks.forEach((n) => {
+    if (n !== selected) {
+      try { ChainController.removeNetwork('eip155', n.id); } catch {}
+    }
+  });
+  try { ChainController.addNetwork(selected); } catch {}
+}
+
+// Bring the full network list back after disconnecting, so the next deposit
+// starts from a clean state no matter which chain it targets.
+export function restoreAllNetworks() {
+  networks.forEach((n) => {
+    try { ChainController.addNetwork(n); } catch {}
+  });
 }
