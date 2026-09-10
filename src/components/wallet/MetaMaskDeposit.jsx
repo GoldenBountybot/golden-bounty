@@ -62,6 +62,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const accountRef = useRef(null);
   const lastBlockRef = useRef(null); // last block scanned while watching the chain
   const pollStartedRef = useRef(0);
+  // Single-open lock: a double-tap on Connect must never stack duplicate
+  // AppKit modals / connect requests.
+  const openModalRef = useRef(false);
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
@@ -134,9 +137,22 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   }, [netKey, isConnected]);
 
   const openConnectModal = async () => {
+    // One modal / one connect request at a time — extra taps while one is
+    // already opening are ignored instead of stacking duplicate requests.
+    if (openModalRef.current) return;
+    openModalRef.current = true;
     setErrMsg('');
-    noteConnectAttempt();
-    await appKit.open();
+    try {
+      console.log('[gb-wc] Connect tapped — recording attempt, opening AppKit once');
+      noteConnectAttempt();
+      await appKit.open();
+    } catch (error) {
+      console.error('[gb-wc] Wallet connection error:', error);
+      setErrMsg('Unable to open wallet connection. Please try again.');
+      setStatus((s) => (s === 'idle' ? 'error' : s));
+    } finally {
+      openModalRef.current = false;
+    }
   };
 
   const disconnectWallet = async () => {
