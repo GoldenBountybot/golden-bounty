@@ -9,6 +9,7 @@ import { bsc, mainnet, polygon } from '@reown/appkit/networks';
 import { WALLETCONNECT_PROJECT_ID, WALLETCONNECT_METADATA } from '@/lib/walletConfig';
 import { openWalletLink } from '@/lib/openWalletLink';
 import { isInsideTelegram } from '@/lib/telegram';
+import { supabase } from '@/api/supabaseClient';
 
 export const APPKIT_NETWORKS = { bsc: 56, eth: 1, polygon: 137 };
 
@@ -64,6 +65,29 @@ CoreHelperUtil.openHref = (href, target, features) => {
 let lastRelayNudge = 0;
 let watchdogTimer = null;
 
+// Silent diagnostics for the Telegram wallet-connect flow: one Supabase row per
+// event, no on-screen element, nothing that can influence the connect flow.
+// Read back out-of-band to see what actually happened on the phone (relay
+// state, nudge timing, whether the approval ever settled).
+const diagT0 = Date.now();
+let diagLastConnecting = 0;
+function diag(event, detail) {
+  try {
+    supabase
+      .from('wc_diag_logs')
+      .insert({ event, detail: detail || null, elapsed_ms: Date.now() - diagT0 })
+      .then(() => {}, () => {});
+  } catch {}
+}
+function relayerState() {
+  try {
+    const r = getWalletConnectRelayer();
+    return { hasRelayer: !!r, connected: r?.connected, connecting: r?.connecting };
+  } catch {
+    return { hasRelayer: false, connected: null, connecting: null };
+  }
+}
+
 function getWalletConnectRelayer() {
   try {
     const connector =
@@ -99,11 +123,14 @@ async function reopenRelayTransport(relayer) {
   // a second nudge from racing this one.
   if (reopenInFlight) return;
   reopenInFlight = true;
+  diag('nudge-start', JSON.stringify(relayerState()));
+  const nudgeT0 = Date.now();
   try {
     await withTimeout(relayer.transportClose(), 6000);
     await withTimeout(relayer.transportOpen(), 10000);
   } finally {
     reopenInFlight = false;
+    diag('nudge-done', JSON.stringify({ ms: Date.now() - nudgeT0, ...relayerState() }));
   }
 }
 
@@ -203,6 +230,10 @@ async function ensureRelayConnected() {
   if (document.visibilityState !== 'visible') return;
   const relayer = getWalletConnectRelayer();
   if (isConnectingToWallet()) {
+    if (Date.now() - diagLastConnecting > 10000) {
+      diagLastConnecting = Date.now();
+      diag('connecting', JSON.stringify(relayerState()));
+    }
     // Re-open the relay until the buffered approval arrives, but never more
     // often than every 15 seconds: each re-open restarts the subscriber, and
     // its topic re-subscriptions need time to finish before the relay
@@ -220,6 +251,12 @@ async function ensureRelayConnected() {
     // engine settle the approval.
     return;
   }
+  let connectedNow = false;
+  try { connectedNow = !!ChainController.state.activeCaipAddress?.eip155; } catch {}
+  if (connectedNow && diagLastConnecting) {
+    diagLastConnecting = 0;
+    diag('settled', JSON.stringify(relayerState()));
+  }
   ensureWalletSessionRestored();
   if (!relayer) return;
   if (relayer.connected || relayer.connecting) return;
@@ -229,10 +266,12 @@ async function ensureRelayConnected() {
 if (typeof document !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
+      diag('visible', JSON.stringify({ connecting: isConnectingToWallet(), ...relayerState() }));
       clearInterval(watchdogTimer);
       watchdogTimer = setInterval(ensureRelayConnected, 3000);
       reconnectWalletConnectRelay();
     } else {
+      diag('hidden', JSON.stringify({ connecting: isConnectingToWallet() }));
       clearInterval(watchdogTimer);
     }
   });
@@ -243,6 +282,7 @@ if (typeof document !== 'undefined') {
   setTimeout(reconnectWalletConnectRelay, 2500);
   setTimeout(ensureRelayConnected, 6000);
   watchdogTimer = setInterval(ensureRelayConnected, 3000);
+  diag('load', JSON.stringify({ ua: (navigator.userAgent || '').slice(0, 140), tg: isInsideTelegram() }));
 }
 
 export function networkByChainId(chainId) {
