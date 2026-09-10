@@ -77,9 +77,14 @@ function getWalletConnectRelayer() {
 // wallet app: the suspended Telegram webview leaves behind a dead (or zombie)
 // socket that WalletConnect never recovers from on its own. Re-opening makes
 // the relay re-deliver the buffered session approval.
+// Closing the transport also stops the relay subscriber, and re-opening has
+// to re-subscribe every topic from scratch before the relay re-delivers
+// anything — that takes several seconds on a mobile webview. Nudging more
+// often than every ~15 seconds kills the re-subscription mid-flight every
+// time, so the buffered approval never arrives and the connect hangs forever.
 export async function reconnectWalletConnectRelay() {
   if (!isInsideTelegram()) return;
-  if (Date.now() - lastRelayNudge < 3000) return;
+  if (Date.now() - lastRelayNudge < 15000) return;
   lastRelayNudge = Date.now();
   const relayer = getWalletConnectRelayer();
   if (!relayer) return;
@@ -109,12 +114,12 @@ function isConnectingToWallet() {
 }
 
 // Runs on a short cycle while the app is visible. While the "Connecting to
-// MetaMask..." screen is up, keep re-opening the relay transport until the
-// buffered approval arrives: a single reconnect attempt is sometimes not
-// enough after the webview was suspended, and the connect previously only
-// succeeded after the user turned the screen off and on — which repeats
-// exactly this nudge. This automates that recovery so the screen never has
-// to sleep first.
+// MetaMask..." screen is up, re-open the relay transport until the buffered
+// approval arrives. Re-opens are spaced 15 seconds apart: each one stops and
+// restarts the relay subscriber, and the topic re-subscriptions it triggers
+// need time to complete before the relay re-delivers the buffered approval
+// — re-opening again too soon cancels them mid-flight and the connect
+// hangs forever (which is exactly what a repeated 3-second nudge caused).
 // A settled WalletConnect session is kept in localStorage, but after the page
 // reloads AppKit does not always wire that saved session up on its own — the
 // app then shows the wallet as disconnected even though it was connected
@@ -165,10 +170,13 @@ async function ensureRelayConnected() {
   if (document.visibilityState !== 'visible') return;
   const relayer = getWalletConnectRelayer();
   if (isConnectingToWallet()) {
-    // Keep re-opening the relay until the buffered approval arrives. Never
-    // reload in this state: the session only reaches our storage when its
-    // approval arrives, so a reload would just cancel the pending connect.
-    if (relayer && Date.now() - lastRelayNudge >= 3000) {
+    // Re-open the relay until the buffered approval arrives, but never more
+    // often than every 15 seconds: each re-open restarts the subscriber, and
+    // its topic re-subscriptions need time to finish before the relay
+    // re-delivers the buffered approval. Also never reload in this state: the
+    // session only reaches our storage when its approval arrives, so a reload
+    // would just cancel the pending connect.
+    if (relayer && Date.now() - lastRelayNudge >= 15000) {
       lastRelayNudge = Date.now();
       try { await relayer.transportClose(); } catch {}
       try { await relayer.transportOpen(); } catch {}
