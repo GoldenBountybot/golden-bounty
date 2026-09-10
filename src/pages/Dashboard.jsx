@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Wallet, Crown, Layers, ArrowDownToLine, ArrowUpFromLine, Shield, Lock, Coins, Sparkles, History, Menu, CheckCircle2, Clock, XCircle, Gift, ArrowLeftRight } from 'lucide-react';
 import { useCasinoAccount } from '@/lib/useCasinoAccount';
@@ -111,6 +111,19 @@ export default function Dashboard() {
     if (n < 3) { toast({ title: t("Minimum deposit is $3.00") }); return; }
     navigate(`/pay?amount=${encodeURIComponent(n)}`);
     setDepAmt('');
+  };
+
+  // With the amount keyboard open, tapping Deposit hides the keyboard, which
+  // resizes the viewport and can move the button before the browser resolves
+  // the click — the FIRST tap then lands outside the button and is swallowed,
+  // so nothing happens and only the second tap navigates. Fire on pointerdown
+  // instead (the position at press time is what the user aimed at); a short
+  // lock keeps the synthetic click that follows from double-triggering it.
+  const lastDepositAt = useRef(0);
+  const fireDeposit = () => {
+    if (Date.now() - lastDepositAt.current < 500) return;
+    lastDepositAt.current = Date.now();
+    doDeposit(depAmt);
   };
 
   const doWithdraw = () => {
@@ -341,7 +354,7 @@ export default function Dashboard() {
                 </div>
                 <div className="flex gap-2">
                   <input type="number" value={depAmt} onChange={e => setDepAmt(e.target.value)} placeholder={t("Custom amount")} className="dash-input flex-1 px-4 py-3 text-sm" />
-                  <button onClick={() => doDeposit(depAmt)} className="dash-btn-gold px-6 py-3 text-sm">{t("Deposit")}</button>
+                  <button onPointerDown={fireDeposit} onClick={fireDeposit} className="dash-btn-gold px-6 py-3 text-sm">{t("Deposit")}</button>
                 </div>
               </div>
 
