@@ -17,21 +17,27 @@ export default function TelegramBackButton() {
 
     let cancelled = false;
 
-    const apply = () => {
+    // fullscreen chrome rebuild drops the arrow but Telegram still thinks it is
+    // visible, so a plain show() is ignored. hide() then show() forces it back.
+    const force = () => {
       if (cancelled) return;
       const bb = tgWebApp()?.BackButton;
       if (!bb) return;
       try {
         bb.onClick(goBack);
-        if (shouldShow) bb.show();
-        else bb.hide();
+        if (shouldShow) {
+          try { bb.hide(); } catch {}
+          bb.show();
+        } else {
+          bb.hide();
+        }
       } catch {}
     };
 
-    apply();
-    const interval = setInterval(apply, 400);
+    force();
+    const timers = [80, 250, 500, 900, 1400, 2200].map((ms) => setTimeout(force, ms));
 
-    const reapply = () => apply();
+    const reapply = () => force();
     try { wa?.onEvent?.('fullscreenChanged', reapply); } catch {}
     try { wa?.onEvent?.('viewportChanged', reapply); } catch {}
     try { wa?.onEvent?.('activated', reapply); } catch {}
@@ -39,7 +45,7 @@ export default function TelegramBackButton() {
 
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      timers.forEach(clearTimeout);
       const bb = tgWebApp()?.BackButton;
       try { bb?.offClick(goBack); } catch {}
       try { wa?.offEvent?.('fullscreenChanged', reapply); } catch {}
