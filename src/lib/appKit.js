@@ -62,7 +62,6 @@ CoreHelperUtil.openHref = (href, target, features) => {
 // the relay buffered while we were suspended is delivered as a batch right
 // away (that is how the missed session approval finally reaches us).
 let lastRelayNudge = 0;
-let connectingSince = 0;
 let watchdogTimer = null;
 
 function getWalletConnectRelayer() {
@@ -116,22 +115,49 @@ function isConnectingToWallet() {
 // succeeded after the user turned the screen off and on — which repeats
 // exactly this nudge. This automates that recovery so the screen never has
 // to sleep first.
-// The relay nudges above recover most suspended-webview cases, but on some
-// Android devices the socket dies in a state the SDK never recovers from no
-// matter how many times the transport is re-opened \u2014 only turning the
-// screen off and on (a full webview reset) lets the connect finish. Replicate
-// that reset in-app: if the "Connecting to MetaMask..." screen is still up
-// after 8 seconds of the app being visible (time spent in the wallet app does
-// not count), reload the page once. A fresh load re-initializes AppKit, which
-// restores the already-approved session from storage and shows the wallet
-// connected right away.
-function reloadIfConnectStuck() {
-  if (Date.now() - connectingSince < 8000) return;
+// A settled WalletConnect session is kept in localStorage, but after the page
+// reloads AppKit does not always wire that saved session up on its own — the
+// app then shows the wallet as disconnected even though it was connected
+// before, and the user has to connect all over again. When a session is
+// stored while AppKit reports no active account, give AppKit ten seconds to
+// finish restoring it, then reload the page once: a fresh AppKit
+// initialization restores the session and the wallet comes back connected.
+// This never runs while a connect is in progress — there is no stored session
+// yet in that case, and reloading would only cancel the pending approval in
+// the wallet and force the user to connect a second time.
+let restoreSince = 0;
+
+function reloadOnce() {
+  let count = 0;
   let lastReload = 0;
-  try { lastReload = Number(sessionStorage.getItem('gbWcReloadAt') || 0); } catch {}
-  if (Date.now() - lastReload < 45000) return;
-  try { sessionStorage.setItem('gbWcReloadAt', String(Date.now())); } catch {}
+  try {
+    count = Number(sessionStorage.getItem('gbWcReloadCount') || 0);
+    lastReload = Number(sessionStorage.getItem('gbWcReloadAt') || 0);
+  } catch {}
+  if (count >= 2 || Date.now() - lastReload < 45000) return;
+  try {
+    sessionStorage.setItem('gbWcReloadCount', String(count + 1));
+    sessionStorage.setItem('gbWcReloadAt', String(Date.now()));
+  } catch {}
   window.location.reload();
+}
+
+function ensureWalletSessionRestored() {
+  let storedSession = false;
+  try {
+    const connector =
+      ConnectorController.state.connectors?.find((c) => c.type === 'WALLET_CONNECT') ||
+      ConnectorController.getConnectorById('WALLET_CONNECT');
+    storedSession = !!connector?.provider?.session;
+  } catch {}
+  let connected = false;
+  try { connected = !!ChainController.state.activeCaipAddress?.eip155; } catch {}
+  if (connected || !storedSession) {
+    restoreSince = 0;
+    return;
+  }
+  if (!restoreSince) restoreSince = Date.now();
+  if (Date.now() - restoreSince >= 10000) reloadOnce();
 }
 
 async function ensureRelayConnected() {
@@ -139,16 +165,17 @@ async function ensureRelayConnected() {
   if (document.visibilityState !== 'visible') return;
   const relayer = getWalletConnectRelayer();
   if (isConnectingToWallet()) {
-    if (!connectingSince) connectingSince = Date.now();
+    // Keep re-opening the relay until the buffered approval arrives. Never
+    // reload in this state: the session only reaches our storage when its
+    // approval arrives, so a reload would just cancel the pending connect.
     if (relayer && Date.now() - lastRelayNudge >= 3000) {
       lastRelayNudge = Date.now();
       try { await relayer.transportClose(); } catch {}
       try { await relayer.transportOpen(); } catch {}
     }
-    reloadIfConnectStuck();
     return;
   }
-  connectingSince = 0;
+  ensureWalletSessionRestored();
   if (!relayer) return;
   if (relayer.connected || relayer.connecting) return;
   try { await relayer.transportOpen(); } catch {}
@@ -162,7 +189,6 @@ if (typeof document !== 'undefined') {
       reconnectWalletConnectRelay();
     } else {
       clearInterval(watchdogTimer);
-      connectingSince = 0;
     }
   });
   window.addEventListener('focus', reconnectWalletConnectRelay);
