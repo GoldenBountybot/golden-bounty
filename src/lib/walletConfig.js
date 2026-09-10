@@ -8,7 +8,10 @@ export const WALLETCONNECT_METADATA = {
   description: 'Golden Bounty — casino deposit',
   // Shown to the user inside the wallet's connection request — always the
   // brand domain, never the base44 host the Mini App may actually run on.
-  url: 'https://golden-bounty.com',
+  // Must match the origin the app actually runs on — golden-bounty.com
+  // 308-redirects to www, so any wallet 'return to dApp' would otherwise land
+  // on a different origin with no stored WalletConnect session.
+  url: 'https://www.golden-bounty.com',
   // Wallets need at least one icon; an empty array makes some wallets discard
   // the session proposal instead of showing the connection request.
   icons: ['https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png'],
