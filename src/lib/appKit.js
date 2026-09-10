@@ -62,6 +62,7 @@ CoreHelperUtil.openHref = (href, target, features) => {
 // the relay buffered while we were suspended is delivered as a batch right
 // away (that is how the missed session approval finally reaches us).
 let lastRelayNudge = 0;
+let connectingSince = 0;
 let watchdogTimer = null;
 
 function getWalletConnectRelayer() {
@@ -115,17 +116,40 @@ function isConnectingToWallet() {
 // succeeded after the user turned the screen off and on — which repeats
 // exactly this nudge. This automates that recovery so the screen never has
 // to sleep first.
+// The relay nudges above recover most suspended-webview cases, but on some
+// Android devices the socket dies in a state the SDK never recovers from no
+// matter how many times the transport is re-opened \u2014 only turning the
+// screen off and on (a full webview reset) lets the connect finish. Replicate
+// that reset in-app: if the "Connecting to MetaMask..." screen is still up
+// after 8 seconds of the app being visible (time spent in the wallet app does
+// not count), reload the page once. A fresh load re-initializes AppKit, which
+// restores the already-approved session from storage and shows the wallet
+// connected right away.
+function reloadIfConnectStuck() {
+  if (Date.now() - connectingSince < 8000) return;
+  let lastReload = 0;
+  try { lastReload = Number(sessionStorage.getItem('gbWcReloadAt') || 0); } catch {}
+  if (Date.now() - lastReload < 45000) return;
+  try { sessionStorage.setItem('gbWcReloadAt', String(Date.now())); } catch {}
+  window.location.reload();
+}
+
 async function ensureRelayConnected() {
   if (!isInsideTelegram()) return;
   if (document.visibilityState !== 'visible') return;
   const relayer = getWalletConnectRelayer();
-  if (!relayer) return;
-  if (isConnectingToWallet() && Date.now() - lastRelayNudge >= 3000) {
-    lastRelayNudge = Date.now();
-    try { await relayer.transportClose(); } catch {}
-    try { await relayer.transportOpen(); } catch {}
+  if (isConnectingToWallet()) {
+    if (!connectingSince) connectingSince = Date.now();
+    if (relayer && Date.now() - lastRelayNudge >= 3000) {
+      lastRelayNudge = Date.now();
+      try { await relayer.transportClose(); } catch {}
+      try { await relayer.transportOpen(); } catch {}
+    }
+    reloadIfConnectStuck();
     return;
   }
+  connectingSince = 0;
+  if (!relayer) return;
   if (relayer.connected || relayer.connecting) return;
   try { await relayer.transportOpen(); } catch {}
 }
@@ -138,6 +162,7 @@ if (typeof document !== 'undefined') {
       reconnectWalletConnectRelay();
     } else {
       clearInterval(watchdogTimer);
+      connectingSince = 0;
     }
   });
   window.addEventListener('focus', reconnectWalletConnectRelay);
