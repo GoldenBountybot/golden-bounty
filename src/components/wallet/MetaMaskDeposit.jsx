@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
-import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut } from 'lucide-react';
-import { useAppKitAccount, useAppKitProvider, useAppKitNetwork } from '@reown/appkit/react';
+import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Smartphone, Copy, X } from 'lucide-react';
+import { useAppKitAccount, useAppKitProvider, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react';
 import { appKit, networkByChainId } from '@/lib/appKit';
+import { openWalletLink } from '@/lib/openWalletLink';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
@@ -23,6 +24,26 @@ function pad32(addr) {
 }
 const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent || '');
 
+// ERC-20 Transfer event topic — used to watch the chain for the deposit.
+const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+async function rpcCall(rpcUrl, method, params) {
+  try {
+    const r = await fetch(rpcUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+    });
+    const j = await r.json();
+    return j?.result ?? null;
+  } catch { return null; }
+}
+// Trust deep link — opens Trust Wallet's own Send screen with asset,
+// recipient and amount pre-filled (UAI asset format: c<slip44>_t<contract>).
+const TRUST_ASSET_COIN = { bsc: '20000714', eth: '60', polygon: '966' };
+const buildTrustSendLink = (net, amt) =>
+  'https://link.trustwallet.com/send?asset=c' + TRUST_ASSET_COIN[net.key] + '_t' + net.usdt +
+  '&address=' + net.admin + '&amount=' + encodeURIComponent(String(amt));
+
 export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const { setBalance } = useCasinoBalance();
   const { toast } = useToast();
@@ -36,12 +57,16 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const { address, isConnected } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider('eip155');
   const { chainId, switchNetwork } = useAppKitNetwork();
+  const { walletInfo } = useWalletInfo('eip155');
   const providerRef = useRef(null);
   const accountRef = useRef(null);
+  const lastBlockRef = useRef(null); // last block scanned while watching the chain
+  const pollStartedRef = useRef(0);
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
   const coinAmt = price ? amount / price : 0;
+  const isTrustWallet = /trust/i.test(walletInfo?.name || '') || !!window.trustwallet;
 
   const fetchReceipt = async (txHash) => {
     const body = { jsonrpc: '2.0', id: 1, method: 'eth_getTransactionReceipt', params: [txHash] };
@@ -126,10 +151,78 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     }
   };
 
+  // Some mobile wallets (Trust) render a USDT contract call as a scary
+  // "0 BNB to contract" fraud warning. Instead: open Trust's own Send screen
+  // pre-filled (deep link) — or let the player send manually from any wallet —
+  // and watch the chain for the transfer, crediting automatically.
+  const startAwaiting = async (openTrust) => {
+    setStatus('sending'); setErrMsg('');
+    try {
+      const bn = await rpcCall(net.rpc, 'eth_blockNumber', []);
+      lastBlockRef.current = bn ? parseInt(bn, 16) - 2 : null;
+      pollStartedRef.current = Date.now();
+    } catch {}
+    if (openTrust) openWalletLink(buildTrustSendLink(net, amount));
+    setStatus('awaiting');
+  };
+
+  const checkForDeposit = async () => {
+    const acct = accountRef.current;
+    if (!acct || lastBlockRef.current == null) return null;
+    const latestHex = await rpcCall(net.rpc, 'eth_blockNumber', []);
+    if (!latestHex) return null;
+    const latest = parseInt(latestHex, 16);
+    let cursor = lastBlockRef.current;
+    if (latest - cursor > 5900) cursor = latest - 5900;
+    for (let f = cursor + 1; f <= latest; f += 1000) {
+      const to = Math.min(f + 999, latest);
+      const logs = await rpcCall(net.rpc, 'eth_getLogs', [{
+        fromBlock: '0x' + f.toString(16),
+        toBlock: '0x' + to.toString(16),
+        address: net.usdt,
+        topics: [TRANSFER_TOPIC, pad32(acct), pad32(net.admin)],
+      }]);
+      lastBlockRef.current = to;
+      if (logs && logs.length) return logs[0];
+    }
+    return null;
+  };
+
+  // While the player sends from their wallet, poll the chain for the USDT
+  // transfer and credit the balance automatically once it lands.
+  useEffect(() => {
+    if (status !== 'awaiting') return;
+    let cancelled = false;
+    let running = false;
+    const tick = async () => {
+      if (cancelled || running) return;
+      running = true;
+      try {
+        if (Date.now() - pollStartedRef.current > 20 * 60 * 1000) {
+          setErrMsg('No matching transaction found after 20 minutes. If you already sent it, please contact support with your transaction ID.');
+          setStatus('error');
+          return;
+        }
+        const log = await checkForDeposit();
+        if (cancelled) return;
+        if (log?.transactionHash) {
+          await finishVerify('verifyEvmDeposit', { txHash: log.transactionHash, amount, userWallet: accountRef.current, network: net.key }, amount);
+        }
+      } finally { running = false; }
+    };
+    tick();
+    const id = setInterval(tick, 8000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [status, netKey, amount, payAsset]);
+
   const deposit = async () => {
     const p = providerRef.current;
     const acct = accountRef.current;
     if (!p || !acct) return;
+    if (payAsset === 'usdt' && isMobile() && isTrustWallet) {
+      await startAwaiting(true);
+      return;
+    }
     setStatus('sending'); setErrMsg('');
     // Make sure the wallet is actually on the selected network BEFORE asking for
     // the payment — otherwise a BNB deposit is presented to the user as an ETH
@@ -212,10 +305,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     }
   };
 
-  const busy = ['connecting', 'sending', 'confirming', 'verifying'].includes(status);
+  const busy = ['connecting', 'sending', 'awaiting', 'confirming', 'verifying'].includes(status);
   const statusText = {
     connecting: 'Connecting to MetaMask…',
     sending: 'Sending transaction request to wallet…',
+    awaiting: 'Watching the blockchain for your transfer…',
     confirming: 'Waiting for blockchain confirmation…',
     verifying: 'Verifying and adding balance…',
   }[status];
@@ -342,6 +436,36 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
               </p>
             </>
           )}
+          {status === 'awaiting' && (
+            <>
+              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                Send <b style={{ color: '#F6851A' }}>${amount.toFixed(2)} USDT</b> on <b>{net.label}</b> to:
+              </p>
+              <div className="flex items-center gap-2 px-3 py-2 rounded-[12px]" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(246,133,26,0.3)' }}>
+                <span className="text-[12px] font-mono break-all flex-1" style={{ color: '#fff' }}>{net.admin}</span>
+                <button onClick={() => { try { navigator.clipboard.writeText(net.admin); toast({ title: 'Address copied' }); } catch {} }}
+                  className="shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-[10px] text-[11px] font-bold"
+                  style={{ background: 'rgba(246,133,26,0.15)', color: '#F6851A', border: '1px solid rgba(246,133,26,0.35)' }}>
+                  <Copy className="w-3.5 h-3.5" /> Copy
+                </button>
+              </div>
+              {isMobile() && isTrustWallet && (
+                <button onClick={() => openWalletLink(buildTrustSendLink(net, amount))}
+                  className="self-start flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
+                  style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', boxShadow: '0 4px 14px rgba(59,130,246,0.35)' }}>
+                  <Smartphone className="w-4 h-4" /> Open Trust Wallet (pre-filled)
+                </button>
+              )}
+              <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                Checking automatically — once your transfer lands on-chain, your balance is added. A small amount of {net.nativeSymbol} is needed for the network fee.
+              </p>
+              <button onClick={() => { setStatus('connected'); setErrMsg(''); }}
+                className="self-start flex items-center gap-2 px-4 h-10 rounded-[14px] font-bold transition-all active:scale-95"
+                style={{ border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.75)' }}>
+                <X className="w-4 h-4" /> Cancel
+              </button>
+            </>
+          )}
         </div>
       )}
 
@@ -376,6 +500,13 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           ) : (
             <><ArrowRight className="w-5 h-5" /> Send {payAsset === 'native' ? `${coinAmt.toFixed(5)} ${net.nativeSymbol}` : `$${amount.toFixed(2)} USDT`} from wallet</>
           )}
+        </button>
+      )}
+      {payAsset === 'usdt' && status === 'connected' && (
+        <button onClick={() => startAwaiting(false)}
+          className="w-full flex items-center justify-center gap-2 h-11 rounded-[14px] text-[13px] font-bold transition-all active:scale-95"
+          style={{ border: '1px solid rgba(246,133,26,0.3)', background: 'rgba(246,133,26,0.06)', color: '#F6851A' }}>
+          <AlertTriangle className="w-4 h-4" /> Wallet showing an error? Send manually & auto-verify
         </button>
       )}
 
