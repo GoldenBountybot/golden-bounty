@@ -62,29 +62,61 @@ CoreHelperUtil.openHref = (href, target, features) => {
 // the relay buffered while we were suspended is delivered as a batch right
 // away (that is how the missed session approval finally reaches us).
 let lastRelayNudge = 0;
-export async function reconnectWalletConnectRelay() {
-  if (!isInsideTelegram()) return;
-  if (Date.now() - lastRelayNudge < 3000) return;
-  lastRelayNudge = Date.now();
+let watchdogTimer = null;
+
+function getWalletConnectRelayer() {
   try {
     const connector =
       ConnectorController.state.connectors?.find((c) => c.type === 'WALLET_CONNECT') ||
       ConnectorController.getConnectorById('WALLET_CONNECT');
-    const relayer = connector?.provider?.client?.core?.relayer;
-    if (!relayer) return;
-    try { await relayer.transportClose(); } catch {}
-    try { await relayer.transportOpen(); } catch {}
-  } catch {}
+    return connector?.provider?.client?.core?.relayer || null;
+  } catch { return null; }
+}
+
+// Full close+open of the relay transport, used right after returning from the
+// wallet app: the suspended Telegram webview leaves behind a dead (or zombie)
+// socket that WalletConnect never recovers from on its own. Re-opening makes
+// the relay re-deliver the buffered session approval.
+export async function reconnectWalletConnectRelay() {
+  if (!isInsideTelegram()) return;
+  if (Date.now() - lastRelayNudge < 3000) return;
+  lastRelayNudge = Date.now();
+  const relayer = getWalletConnectRelayer();
+  if (!relayer) return;
+  try { await relayer.transportClose(); } catch {}
+  try { await relayer.transportOpen(); } catch {}
+}
+
+// Light health check while the app is visible: if the relay is down, try to
+// open it again. Covers the intermittent case where the first reconnect
+// attempt failed (e.g. the network was not up yet the moment the webview
+// resumed) — after an explicit close WalletConnect gives up permanently, so
+// without this retry the "Connecting to MetaMask..." state hangs forever.
+async function ensureRelayConnected() {
+  if (!isInsideTelegram()) return;
+  if (document.visibilityState !== 'visible') return;
+  const relayer = getWalletConnectRelayer();
+  if (!relayer || relayer.connected || relayer.connecting) return;
+  try { await relayer.transportOpen(); } catch {}
 }
 
 if (typeof document !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') reconnectWalletConnectRelay();
+    if (document.visibilityState === 'visible') {
+      clearInterval(watchdogTimer);
+      watchdogTimer = setInterval(ensureRelayConnected, 3000);
+      reconnectWalletConnectRelay();
+    } else {
+      clearInterval(watchdogTimer);
+    }
   });
   window.addEventListener('focus', reconnectWalletConnectRelay);
+  window.addEventListener('online', ensureRelayConnected);
   // If Telegram reloaded the webview (fresh page) while the wallet was open,
-  // give AppKit a moment to initialize, then do the same nudge once.
+  // give AppKit time to initialize, then nudge and start the watchdog.
   setTimeout(reconnectWalletConnectRelay, 2500);
+  setTimeout(ensureRelayConnected, 6000);
+  watchdogTimer = setInterval(ensureRelayConnected, 3000);
 }
 
 export function networkByChainId(chainId) {
