@@ -263,6 +263,14 @@ function ensureWalletSessionRestored() {
   if (Date.now() - restoreSince >= 10000) reloadOnce();
 }
 
+// If the "Connecting" screen is still up with a healthy relay well after
+// resume, the wallet's approval is simply gone — it was sent while this
+// webview was frozen and the relay does not redeliver it, so no amount of
+// nudging brings it back. Recover instead: close the dead screen and reopen
+// the wallet list so a single tap starts a fresh request.
+let stuckSince = 0;
+let stuckHandoff = false;
+
 async function ensureRelayConnected() {
   if (!isInsideTelegram()) return;
   if (document.visibilityState !== 'visible') return;
@@ -280,6 +288,21 @@ async function ensureRelayConnected() {
       lastRelayNudge = Date.now();
       await reopenRelayTransport(relayer);
     }
+    if (relayer && relayer.connected && connectAttemptStarted) {
+      if (!stuckSince) stuckSince = Date.now();
+      else if (Date.now() - stuckSince >= 12000 && !stuckHandoff) {
+        stuckHandoff = true;
+        stuckSince = 0;
+        diag('stuck', JSON.stringify(relayerState()));
+        try { ModalController.close(); } catch {}
+        setTimeout(() => {
+          stuckHandoff = false;
+          try { appKit.open({ view: 'Connect' }); } catch { try { appKit.open(); } catch {} }
+        }, 600);
+      }
+    } else {
+      stuckSince = 0;
+    }
     // NOTE: no page-reload fallback here. A fresh page means a fresh
     // WalletConnect engine with no pending session proposal — the buffered
     // approval would replay into a page that can do nothing with it, so a
@@ -289,6 +312,7 @@ async function ensureRelayConnected() {
     // engine settle the approval.
     return;
   }
+  stuckSince = 0;
   let connectedNow = false;
   try { connectedNow = !!ChainController.state.activeCaipAddress?.eip155; } catch {}
   if (connectedNow) connectAttemptStarted = false;
