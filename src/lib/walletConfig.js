@@ -12,6 +12,16 @@ export const WALLETCONNECT_METADATA = {
   // 308-redirects to www, so any wallet 'return to dApp' would otherwise land
   // on a different origin with no stored WalletConnect session.
   url: 'https://www.golden-bounty.com',
+
+  // Tell wallets how to come BACK to the Telegram Mini App. Without this,
+  // MetaMask's "Return to app" opens the dApp URL in an external browser —
+  // a fresh context with no WalletConnect session, so the user sees the
+  // connect screen again. Point both link types at the bot so the return
+  // lands in Telegram and the mini app reopens on the same origin.
+  redirect: {
+    native: 'tg://resolve?domain=GoldenBountybot',
+    universal: 'https://t.me/GoldenBountybot',
+  },
   // Wallets need at least one icon; an empty array makes some wallets discard
   // the session proposal instead of showing the connection request.
   icons: ['https://cdn.jsdelivr.net/gh/GoldenBountybot/golden-bounty-assets@main/b44/c39869f00_file_000000003b6c821193c37e7c968d77f2.png'],
