@@ -145,6 +145,14 @@ async function reopenRelayTransport(relayer) {
 export function noteConnectAttempt() {
   connectAttemptStarted = true;
   diag('attempt', JSON.stringify(relayerState()));
+  // Logs show the relay transport is often still down at this exact moment
+  // (the load-time open attempts no-op on the not-yet-ready engine), and the
+  // WalletConnect proposal only reaches the wallet app after a slow
+  // cold-start — that is the 15-20s wait for the request to appear in the
+  // wallet. Pre-warm the relay right here: the user then spends a few
+  // seconds picking MetaMask in the modal, and the proposal leaves over a
+  // live socket the instant they tap it.
+  reconnectWalletConnectRelay();
 }
 
 // The WalletConnect proposal lives 5 minutes; a longer stay in the wallet (or
