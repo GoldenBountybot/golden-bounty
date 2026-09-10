@@ -62,6 +62,7 @@ CoreHelperUtil.openHref = (href, target, features) => {
 // the relay buffered while we were suspended is delivered as a batch right
 // away (that is how the missed session approval finally reaches us).
 let lastRelayNudge = 0;
+let connectingSince = 0;
 let watchdogTimer = null;
 
 function getWalletConnectRelayer() {
@@ -71,6 +72,22 @@ function getWalletConnectRelayer() {
       ConnectorController.getConnectorById('WALLET_CONNECT');
     return connector?.provider?.client?.core?.relayer || null;
   } catch { return null; }
+}
+
+// transportClose()/transportOpen() can hang forever on the zombie socket the
+// suspended Telegram webview leaves behind — awaiting them plainly stalled
+// every nudge, so the re-open never actually ran. Race both calls against a
+// short timeout so the close+open always completes.
+function withTimeout(promise, ms) {
+  return Promise.race([
+    Promise.resolve(promise).catch(() => {}),
+    new Promise((resolve) => setTimeout(resolve, ms)),
+  ]);
+}
+
+async function reopenRelayTransport(relayer) {
+  await withTimeout(relayer.transportClose(), 2000);
+  await withTimeout(relayer.transportOpen(), 2000);
 }
 
 // Full close+open of the relay transport, used right after returning from the
@@ -88,8 +105,7 @@ export async function reconnectWalletConnectRelay() {
   lastRelayNudge = Date.now();
   const relayer = getWalletConnectRelayer();
   if (!relayer) return;
-  try { await relayer.transportClose(); } catch {}
-  try { await relayer.transportOpen(); } catch {}
+  await reopenRelayTransport(relayer);
 }
 
 // Light health check while the app is visible: if the relay is down, try to
@@ -173,16 +189,22 @@ async function ensureRelayConnected() {
     // Re-open the relay until the buffered approval arrives, but never more
     // often than every 15 seconds: each re-open restarts the subscriber, and
     // its topic re-subscriptions need time to finish before the relay
-    // re-delivers the buffered approval. Also never reload in this state: the
-    // session only reaches our storage when its approval arrives, so a reload
-    // would just cancel the pending connect.
+    // re-delivers the buffered approval.
     if (relayer && Date.now() - lastRelayNudge >= 15000) {
       lastRelayNudge = Date.now();
-      try { await relayer.transportClose(); } catch {}
-      try { await relayer.transportOpen(); } catch {}
+      await reopenRelayTransport(relayer);
     }
+    // Backstop: if the connect is still stuck 12 seconds after the user is
+    // back in the app, the re-opens clearly did not deliver the buffered
+    // approval. The only recovery that is proven to work today is the page
+    // reload Telegram itself performs on screen off/on (a fresh WalletConnect
+    // init replays the approval and completes the connect), so do that same
+    // reload ourselves once instead of making the user sleep the screen.
+    if (!connectingSince) connectingSince = Date.now();
+    else if (Date.now() - connectingSince >= 12000) reloadOnce();
     return;
   }
+  connectingSince = 0;
   ensureWalletSessionRestored();
   if (!relayer) return;
   if (relayer.connected || relayer.connecting) return;
@@ -194,6 +216,7 @@ if (typeof document !== 'undefined') {
     if (document.visibilityState === 'visible') {
       clearInterval(watchdogTimer);
       watchdogTimer = setInterval(ensureRelayConnected, 3000);
+      connectingSince = 0;
       reconnectWalletConnectRelay();
     } else {
       clearInterval(watchdogTimer);
