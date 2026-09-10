@@ -194,14 +194,25 @@ async function ensureRelayConnected() {
       lastRelayNudge = Date.now();
       await reopenRelayTransport(relayer);
     }
-    // Backstop: if the connect is still stuck 12 seconds after the user is
-    // back in the app, the re-opens clearly did not deliver the buffered
-    // approval. The only recovery that is proven to work today is the page
-    // reload Telegram itself performs on screen off/on (a fresh WalletConnect
-    // init replays the approval and completes the connect), so do that same
-    // reload ourselves once instead of making the user sleep the screen.
+    // Backstop: if the connect is still stuck 8 seconds after the user is
+    // back in the app, the re-opens did not deliver the buffered approval.
+    // The only recovery that is proven to work today is the page reload
+    // Telegram itself performs on screen off/on (a fresh WalletConnect init
+    // replays the approval and completes the connect), so do that same reload
+    // ourselves instead of making the user sleep the screen. This uses its
+    // own budget — the restore path's reloadOnce() counter is often already
+    // spent in a session, which silently killed this backstop — and is capped
+    // at one reload per minute so a replay that never arrives cannot turn
+    // this into a reload loop.
     if (!connectingSince) connectingSince = Date.now();
-    else if (Date.now() - connectingSince >= 12000) reloadOnce();
+    else if (Date.now() - connectingSince >= 8000) {
+      let lastConnectReload = 0;
+      try { lastConnectReload = Number(sessionStorage.getItem('gbConnectReloadAt') || 0); } catch {}
+      if (Date.now() - lastConnectReload > 60000) {
+        try { sessionStorage.setItem('gbConnectReloadAt', String(Date.now())); } catch {}
+        window.location.reload();
+      }
+    }
     return;
   }
   connectingSince = 0;
