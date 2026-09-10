@@ -45,10 +45,23 @@ function normalizeAndroidDeepLink(href) {
   }
 }
 
+// The last wallet deep link we handed to the OS (e.g. metamask://wc?uri=...).
+// Real-device logs show our relay is healthy and the proposal goes out, but
+// MetaMask's own relay subscription after the deep link sometimes stalls and
+// the approval popup simply never shows — until the phone screen is toggled
+// off/on, which merely resumes the wallet app and its socket. Keep the exact
+// link so the app can re-open it once by itself after the user comes back
+// (pending-request restoration in ensureRelayConnected).
+let lastWalletDeepLink = null;
+
 const originalOpenHref = CoreHelperUtil.openHref;
 CoreHelperUtil.openHref = (href, target, features) => {
   if (isInsideTelegram()) {
-    openWalletLink(normalizeAndroidDeepLink(href));
+    const walletHref = normalizeAndroidDeepLink(href);
+    if (typeof walletHref === 'string' && walletHref.indexOf('wc?uri=') !== -1) {
+      lastWalletDeepLink = { href: walletHref, at: Date.now() };
+    }
+    openWalletLink(walletHref);
     return;
   }
   originalOpenHref.call(CoreHelperUtil, href, target, features);
@@ -71,6 +84,10 @@ let watchdogTimer = null;
 // state, nudge timing, whether the approval ever settled).
 const diagT0 = Date.now();
 let diagLastConnecting = 0;
+// When this webview last became visible again (set on resume and at load),
+// and a one-shot guard for the pending-request deep-link refire.
+let visibleSince = 0;
+let pendingRefired = false;
 // True from the moment the user taps connect on the deposit screen until the
 // session settles. The webview freezes before the watchdog can even notice
 // the connecting view, so this explicit mark is the only reliable record that
@@ -144,6 +161,7 @@ async function reopenRelayTransport(relayer) {
 // freezes before any interval or router state change could be observed.
 export function noteConnectAttempt() {
   connectAttemptStarted = true;
+  pendingRefired = false;
   diag('attempt', JSON.stringify(relayerState()));
   // Logs show the relay transport is often still down at this exact moment
   // (the load-time open attempts no-op on the not-yet-ready engine), and the
@@ -299,6 +317,26 @@ async function ensureRelayConnected() {
       await reopenRelayTransport(relayer);
     }
     if (relayer && relayer.connected && connectAttemptStarted) {
+      // Pending-request restoration. Device logs show the relay here is
+      // healthy, the proposal went out on time, and the wallet simply never
+      // displayed it — only toggling the phone screen off/on (a resume
+      // retrigger for the wallet app) brought the popup up. Automate that:
+      // once the user has been back on this Connecting screen for a few
+      // seconds with no settlement (the resume nudge above re-delivers a
+      // buffered approval in ~2-3s, so give it 4.5s), re-open the SAME deep
+      // link once — no new pairing, no duplicate request, the wallet just
+      // comes back to the foreground and displays the still-pending approval.
+      if (!pendingRefired && visibleSince && Date.now() - visibleSince >= 4500) {
+        const link =
+          lastWalletDeepLink && Date.now() - lastWalletDeepLink.at <= 120000
+            ? lastWalletDeepLink.href
+            : null;
+        if (link) {
+          pendingRefired = true;
+          diag('refire', JSON.stringify(relayerState()));
+          openWalletLink(link);
+        }
+      }
       if (!stuckSince) stuckSince = Date.now();
       else if (Date.now() - stuckSince >= 30000 && !stuckHandoff) {
         stuckHandoff = true;
@@ -339,6 +377,7 @@ async function ensureRelayConnected() {
 if (typeof document !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
+      visibleSince = Date.now();
       diag('visible', JSON.stringify({ connecting: isConnectingToWallet(), ...relayerState() }));
       clearInterval(watchdogTimer);
       watchdogTimer = setInterval(ensureRelayConnected, 3000);
@@ -356,6 +395,7 @@ if (typeof document !== 'undefined') {
   setTimeout(reconnectWalletConnectRelay, 2500);
   setTimeout(ensureRelayConnected, 6000);
   watchdogTimer = setInterval(ensureRelayConnected, 3000);
+  visibleSince = Date.now();
   diag('load', JSON.stringify({ ua: (navigator.userAgent || '').slice(0, 140), tg: isInsideTelegram() }));
 }
 
