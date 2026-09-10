@@ -280,17 +280,19 @@ async function ensureRelayConnected() {
       diagLastConnecting = Date.now();
       diag('connecting', JSON.stringify(relayerState()));
     }
-    // Re-open the relay until the buffered approval arrives, but never more
-    // often than every 15 seconds: each re-open restarts the subscriber, and
-    // its topic re-subscriptions need time to finish before the relay
-    // re-delivers the buffered approval.
-    if (relayer && Date.now() - lastRelayNudge >= 15000) {
+    // Re-open the relay until the buffered approval arrives. Real-device
+    // logs show the first re-open right after resume often misses the
+    // buffered approval and a second re-open moments later delivers it
+    // (that is why switching the screen off/on used to "fix" it). So keep
+    // re-kicking every 7 seconds instead of waiting 15 — each re-open
+    // restarts the subscriber, and its re-subscription finishes in ~2-3s.
+    if (relayer && Date.now() - lastRelayNudge >= 7000) {
       lastRelayNudge = Date.now();
       await reopenRelayTransport(relayer);
     }
     if (relayer && relayer.connected && connectAttemptStarted) {
       if (!stuckSince) stuckSince = Date.now();
-      else if (Date.now() - stuckSince >= 12000 && !stuckHandoff) {
+      else if (Date.now() - stuckSince >= 30000 && !stuckHandoff) {
         stuckHandoff = true;
         stuckSince = 0;
         diag('stuck', JSON.stringify(relayerState()));
