@@ -27,7 +27,28 @@ function getInjectedProvider() {
   if (typeof window === 'undefined') return null;
   return window.trustwallet || window.ethereum || null;
 }
-const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent || '');
+const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent || '')
+
+// ERC-20 Transfer event topic — used to watch the chain for the deposit.
+const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+const topic32 = (addr) => '0x' + String(addr).toLowerCase().replace(/^0x/, '').padStart(64, '0');
+async function rpcCall(rpcUrl, method, params) {
+  try {
+    const r = await fetch(rpcUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+    });
+    const j = await r.json();
+    return j?.result ?? null;
+  } catch { return null; }
+}
+// Trust deep link — opens Trust Wallet's own Send screen with asset,
+// recipient and amount pre-filled (UAI asset format: c<slip44>_t<contract>).
+const TRUST_ASSET_COIN = { bsc: '20000714', eth: '60', polygon: '966' };
+const buildTrustSendLink = (net, amt) =>
+  'https://link.trustwallet.com/send?asset=c' + TRUST_ASSET_COIN[net.key] + '_t' + net.usdt +
+  '&address=' + net.admin + '&amount=' + encodeURIComponent(String(amt));
 
 export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const { setBalance } = useCasinoBalance();
@@ -43,6 +64,9 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const providerRef = useRef(null);
   const accountRef = useRef(null);
   const wcUriRef = useRef('');
+  const modeRef = useRef(''); // 'wc' | 'injected' — how the wallet was connected
+  const lastBlockRef = useRef(null); // last block scanned while watching the chain
+  const pollStartedRef = useRef(0);
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
@@ -111,6 +135,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     if (res && res.account) {
       providerRef.current = res.provider;
       accountRef.current = res.account;
+      modeRef.current = 'wc';
       setAccount(res.account);
       // The pairing URI is consumed once connected — keeping it would make the
       // "open wallet" link re-open an expired pairing, so the wallet appears
@@ -152,6 +177,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       }
       providerRef.current = p;
       accountRef.current = accts[0];
+      modeRef.current = 'injected';
       setAccount(accts[0]);
       setStatus('connected');
     } catch {
@@ -170,6 +196,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     if (res && res.account) {
       providerRef.current = res.provider;
       accountRef.current = res.account;
+      modeRef.current = 'wc';
       setAccount(res.account);
       wcUriRef.current = '';
       setWcUri('');
@@ -197,10 +224,78 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     }
   };
 
+  // Trust Wallet's WalletConnect renderer doesn't decode token transfers — it
+  // shows a scary "Send 0 BNB to <USDT contract>" screen with a fraud warning.
+  // On mobile, open Trust's own Send screen (deep link) with everything
+  // pre-filled instead, then watch the chain for the transfer.
+  const startTrustSend = async () => {
+    setStatus('sending'); setErrMsg('');
+    try {
+      const bn = await rpcCall(net.rpc, 'eth_blockNumber', []);
+      lastBlockRef.current = bn ? parseInt(bn, 16) - 2 : null;
+      pollStartedRef.current = Date.now();
+    } catch {}
+    openWalletLink(buildTrustSendLink(net, amount));
+    setStatus('awaiting');
+  };
+
+  const checkForDeposit = async () => {
+    const acct = accountRef.current;
+    if (!acct || lastBlockRef.current == null) return null;
+    const latestHex = await rpcCall(net.rpc, 'eth_blockNumber', []);
+    if (!latestHex) return null;
+    const latest = parseInt(latestHex, 16);
+    let cursor = lastBlockRef.current;
+    if (latest - cursor > 5900) cursor = latest - 5900;
+    for (let f = cursor + 1; f <= latest; f += 1000) {
+      const to = Math.min(f + 999, latest);
+      const logs = await rpcCall(net.rpc, 'eth_getLogs', [{
+        fromBlock: '0x' + f.toString(16),
+        toBlock: '0x' + to.toString(16),
+        address: net.usdt,
+        topics: [TRANSFER_TOPIC, topic32(acct), topic32(net.admin)],
+      }]);
+      lastBlockRef.current = to;
+      if (logs && logs.length) return logs[0];
+    }
+    return null;
+  };
+
+  // While the player confirms in Trust's Send screen, poll the chain for
+  // the USDT transfer and credit the balance automatically once it lands.
+  useEffect(() => {
+    if (status !== 'awaiting') return;
+    let cancelled = false;
+    let running = false;
+    const tick = async () => {
+      if (cancelled || running) return;
+      running = true;
+      try {
+        if (Date.now() - pollStartedRef.current > 20 * 60 * 1000) {
+          setErrMsg('No matching transaction found after 20 minutes. If you already sent it, please contact support with your transaction ID.');
+          setStatus('error');
+          return;
+        }
+        const log = await checkForDeposit();
+        if (cancelled) return;
+        if (log?.transactionHash) {
+          await finishVerify('verifyEvmDeposit', { txHash: log.transactionHash, amount, userWallet: accountRef.current, network: net.key }, amount);
+        }
+      } finally { running = false; }
+    };
+    tick();
+    const id = setInterval(tick, 8000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [status, netKey, amount, payAsset]);
+
   const deposit = async () => {
     const p = providerRef.current;
     const acct = accountRef.current;
     if (!p || !acct) return;
+    if (payAsset === 'usdt' && modeRef.current === 'wc' && isMobile()) {
+      await startTrustSend();
+      return;
+    }
     setStatus('sending'); setErrMsg('');
     // The request MUST be dispatched over the WalletConnect relay BEFORE the
     // wallet is foregrounded — opening the wallet first backgrounds (and in the
@@ -251,10 +346,11 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     }
   };
 
-  const busy = ['connecting', 'sending', 'confirming', 'verifying'].includes(status);
+  const busy = ['connecting', 'sending', 'awaiting', 'confirming', 'verifying'].includes(status);
   const statusText = {
     connecting: 'Connecting wallet…',
     sending: 'Sending transaction request to wallet…',
+    awaiting: 'Waiting for your transfer — checking automatically…',
     confirming: 'Waiting for blockchain confirmation…',
     verifying: 'Verifying and adding balance…',
   }[status];
@@ -413,6 +509,25 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
                 style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', boxShadow: '0 4px 14px rgba(59,130,246,0.35)' }}>
                 <Smartphone className="w-4 h-4" /> Open Trust Wallet
               </button>
+            </>
+          )}
+          {status === 'awaiting' && (
+            <>
+              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                Trust Wallet's Send screen is open with the recipient (<b style={{ color: '#D4AF37' }}>{net.admin.slice(0, 10)}…{net.admin.slice(-6)}</b>) and amount filled in. Confirm the send there, then come back — your balance is added automatically. A small amount of {net.nativeSymbol} is needed for the network fee.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button onClick={() => openWalletLink(buildTrustSendLink(net, amount))}
+                  className="flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
+                  style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', boxShadow: '0 4px 14px rgba(59,130,246,0.35)' }}>
+                  <Smartphone className="w-4 h-4" /> Open Trust Wallet
+                </button>
+                <button onClick={() => { setStatus('idle'); setErrMsg(''); }}
+                  className="flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
+                  style={{ border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.75)' }}>
+                  Cancel
+                </button>
+              </div>
             </>
           )}
         </div>
