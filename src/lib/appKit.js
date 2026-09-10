@@ -62,7 +62,6 @@ CoreHelperUtil.openHref = (href, target, features) => {
 // the relay buffered while we were suspended is delivered as a batch right
 // away (that is how the missed session approval finally reaches us).
 let lastRelayNudge = 0;
-let connectingSince = 0;
 let watchdogTimer = null;
 
 function getWalletConnectRelayer() {
@@ -85,9 +84,27 @@ function withTimeout(promise, ms) {
   ]);
 }
 
+let reopenInFlight = false;
+
 async function reopenRelayTransport(relayer) {
-  await withTimeout(relayer.transportClose(), 2000);
-  await withTimeout(relayer.transportOpen(), 2000);
+  // WalletConnect's close/open pair must run IN ORDER and to completion:
+  // transportClose() ends with subscriber.stop() and transportOpen() ends
+  // with subscriber.start() (fresh socket, then re-subscribe of every topic).
+  // Abandoning the close early with a short timeout let its trailing
+  // subscriber.stop() land AFTER the fresh re-subscribe had finished and wipe
+  // it — the relay then never re-delivered the buffered approval and the
+  // connect hung forever. transportClose is internally bounded (its
+  // provider.disconnect() carries a 2s timeout of its own), so the timeouts
+  // below only guard against pathological hangs, and the in-flight flag keeps
+  // a second nudge from racing this one.
+  if (reopenInFlight) return;
+  reopenInFlight = true;
+  try {
+    await withTimeout(relayer.transportClose(), 6000);
+    await withTimeout(relayer.transportOpen(), 10000);
+  } finally {
+    reopenInFlight = false;
+  }
 }
 
 // Full close+open of the relay transport, used right after returning from the
@@ -194,28 +211,15 @@ async function ensureRelayConnected() {
       lastRelayNudge = Date.now();
       await reopenRelayTransport(relayer);
     }
-    // Backstop: if the connect is still stuck 8 seconds after the user is
-    // back in the app, the re-opens did not deliver the buffered approval.
-    // The only recovery that is proven to work today is the page reload
-    // Telegram itself performs on screen off/on (a fresh WalletConnect init
-    // replays the approval and completes the connect), so do that same reload
-    // ourselves instead of making the user sleep the screen. This uses its
-    // own budget — the restore path's reloadOnce() counter is often already
-    // spent in a session, which silently killed this backstop — and is capped
-    // at one reload per minute so a replay that never arrives cannot turn
-    // this into a reload loop.
-    if (!connectingSince) connectingSince = Date.now();
-    else if (Date.now() - connectingSince >= 8000) {
-      let lastConnectReload = 0;
-      try { lastConnectReload = Number(sessionStorage.getItem('gbConnectReloadAt') || 0); } catch {}
-      if (Date.now() - lastConnectReload > 60000) {
-        try { sessionStorage.setItem('gbConnectReloadAt', String(Date.now())); } catch {}
-        window.location.reload();
-      }
-    }
+    // NOTE: no page-reload fallback here. A fresh page means a fresh
+    // WalletConnect engine with no pending session proposal — the buffered
+    // approval would replay into a page that can do nothing with it, so a
+    // reload silently discards the approval the user already gave and
+    // forces a second connect. Recovery must keep THIS page alive: the
+    // re-open above re-subscribes the pairing topic and lets the live
+    // engine settle the approval.
     return;
   }
-  connectingSince = 0;
   ensureWalletSessionRestored();
   if (!relayer) return;
   if (relayer.connected || relayer.connecting) return;
@@ -227,7 +231,6 @@ if (typeof document !== 'undefined') {
     if (document.visibilityState === 'visible') {
       clearInterval(watchdogTimer);
       watchdogTimer = setInterval(ensureRelayConnected, 3000);
-      connectingSince = 0;
       reconnectWalletConnectRelay();
     } else {
       clearInterval(watchdogTimer);
