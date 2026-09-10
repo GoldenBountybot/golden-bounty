@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Smartphone, Copy, X } from 'lucide-react';
 import { useAppKitAccount, useAppKitProvider, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react';
-import { appKit, networkByChainId, restoreAllNetworks } from '@/lib/appKit';
+import { appKit, networkByChainId, restoreAllNetworks, noteConnectAttempt } from '@/lib/appKit';
 import { openWalletLink } from '@/lib/openWalletLink';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
@@ -135,6 +135,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
 
   const openConnectModal = async () => {
     setErrMsg('');
+    noteConnectAttempt();
     await appKit.open();
   };
 
