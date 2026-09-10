@@ -231,8 +231,12 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     // the payment — otherwise a BNB deposit is presented to the user as an ETH
     // request (wallet still on Ethereum), which looks like a scam.
     try {
+      // WalletConnect returns eth_chainId as a decimal number (56) while
+      // injected wallets return hex ("0x38") — accept both, otherwise a wallet
+      // already on BSC is misread and the send is blocked with a switch error.
+      const chainNum = (v) => { const s = String(v == null ? '' : v); return /^0x/i.test(s) ? parseInt(s, 16) : parseInt(s, 10); };
       const current = await p.request({ method: 'eth_chainId' });
-      if (parseInt(current, 16) !== net.chainId) {
+      if (chainNum(current) !== net.chainId) {
         try {
           await p.request({
             method: 'wallet_switchEthereumChain',
@@ -258,7 +262,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           try { await switchNetwork(networkByChainId(net.chainId)); } catch {}
         }
         const after = await p.request({ method: 'eth_chainId' });
-        if (parseInt(after, 16) !== net.chainId) {
+        if (chainNum(after) !== net.chainId) {
           setErrMsg(`Please switch your wallet to ${net.label} and try again.`);
           setStatus('error');
           return;
