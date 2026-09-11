@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
-import { useLogActivity } from '@/lib/useLogActivity';
 import { playTakeoff, startFlying, stopFlying, playBlast } from './crashSounds';
 import { crashStore } from './crashStore';
 
@@ -87,7 +86,6 @@ const newPanel = () => ({ amount: 1, placed: false, cashedOut: false, cashOutMul
 
 export function useCrashGame() {
   const { balance, setBalance, beginRound, settleBet } = useCasinoBalance();
-  const logActivity = useLogActivity();
 
   const [phase, setPhase] = useState('waiting');
   const [multiplier, setMultiplier] = useState(1.00);
@@ -109,7 +107,6 @@ export function useCrashGame() {
   const runStartRef = useRef(0);
   const crashPointRef = useRef(1);
   const lastCountdownRef = useRef(WAIT_MS);
-  const loggedRoundRef = useRef(0);
   const blastedRoundRef = useRef(0);
   const crashSettledRef = useRef(0);
   const panelTokensRef = useRef([null, null]);
@@ -246,18 +243,10 @@ export function useCrashGame() {
       if (data.phase === 'crashed') setHistory(data.history || []);
     }
 
-    // Log once per round when the server confirms the bust.
-    if (data.phase === 'crashed' && loggedRoundRef.current !== data.round_id) {
-      loggedRoundRef.current = data.round_id;
-      const totalBet = betsRef.current.reduce((s, b) => s + (b.placed ? b.amount : 0), 0);
-      const totalWin = betsRef.current.reduce((s, b) => s + (b.cashedOut ? b.win : 0), 0);
-      // Odds: the player's cash-out multiplier when they won, otherwise the
-      // round's bust point (the odds they missed).
-      const cashed = betsRef.current.find((b) => b.cashedOut && b.cashOutMult);
-      const odds = cashed ? cashed.cashOutMult : crashPointRef.current;
-      logActivity('rocket-crash', totalBet, totalWin, totalWin > 0 ? 'win' : 'loss', odds);
-    }
-  }, [logActivity, setBalance]);
+    // Bet history: settleBet already writes one PlayerActivity row per bet
+    // on the server. A second local write here made every crash bet appear
+    // twice in the history page, so there is no local log.
+  }, [setBalance]);
 
   // Poll the shared round orchestrator.
   useEffect(() => {
