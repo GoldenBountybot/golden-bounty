@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Copy, X } from 'lucide-react';
 import { useAppKitAccount, useAppKitProvider, useAppKitNetwork } from '@reown/appkit/react';
-import { appKit, networkByChainId, restoreAllNetworks, noteConnectAttempt, restrictToSelectedNetwork, getConnectedWalletName, reconnectWalletConnectRelay } from '@/lib/appKit';
+import { appKit, networkByChainId, restoreAllNetworks, noteConnectAttempt, restrictToSelectedNetwork, getConnectedWalletName, reconnectWalletConnectRelay, diag as walletDiag } from '@/lib/appKit';
 import { openWalletLink } from '@/lib/openWalletLink';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
@@ -83,6 +83,12 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   // (deposit) always read the CURRENT chain instead of a stale closure value.
   const chainIdRef = useRef(chainId);
   useEffect(() => { chainIdRef.current = chainId; }, [chainId]);
+  // A Trust Send deep link that was built while the webview was hidden —
+  // Telegram drops openLink() from a hidden webview, so it is held here and
+  // fired the moment the player is back in the app (see the effect below).
+  const pendingSendLinkRef = useRef(null);
+  const statusRef = useRef('idle');
+  useEffect(() => { statusRef.current = status; }, [status]);
   // Prewarm the WalletConnect relay as soon as this screen opens, so the
   // socket is already live when the player taps Connect — the first connect
   // proposal then publishes instantly instead of racing the socket handshake
@@ -117,6 +123,24 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       setStatus((s) => (s === 'connected' ? 'idle' : s));
     }
   }, [isConnected, address, walletProvider]);
+
+  // Fires the Trust Send link that was held while the webview was hidden the
+  // moment the player returns to the app — the only moment Telegram's
+  // openLink() reliably hands the link to the wallet app.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      const link = pendingSendLinkRef.current;
+      if (!link) return;
+      // The flow was cancelled / left while the player was away — drop it.
+      if (statusRef.current !== 'awaiting') { pendingSendLinkRef.current = null; return; }
+      pendingSendLinkRef.current = null;
+      walletDiag('send-link', 'fired-on-visible');
+      openWalletLink(link);
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, []);
 
   // The connection usually settles only after the user comes back from the
   // wallet — and AppKit's connect modal then stays open over the deposit
@@ -221,18 +245,31 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       lastBlockRef.current = bn ? parseInt(bn, 16) - 2 : null;
       pollStartedRef.current = Date.now();
     } catch {}
-    let opened = false;
+    let link = null;
     if (openTrust && (await detectTrustWallet())) {
       if (payAsset === 'native') {
         // The link must carry the COIN amount, not the USD figure.
         const pr = price || (await getCryptoPrices())[nativeKey] || 0;
-        openWalletLink(buildTrustSendLink(net, pr ? amount / pr : amount, true));
+        link = buildTrustSendLink(net, pr ? amount / pr : amount, true);
       } else {
-        openWalletLink(buildTrustSendLink(net, amount));
+        link = buildTrustSendLink(net, amount);
       }
-      opened = true;
     }
-    setPrefilledInWallet(opened);
+    if (link) {
+      // The connect approval settles while the player is still inside Trust,
+      // so this code runs on a HIDDEN webview — and Telegram silently drops
+      // openLink() from a hidden webview (the prefilled Send screen then never
+      // opens, though the app claims it did). Hold the link when hidden and let
+      // the visibility effect above fire it the moment the player is back.
+      if (document.visibilityState === 'hidden') {
+        pendingSendLinkRef.current = link;
+        walletDiag('send-link', 'held-hidden');
+      } else {
+        walletDiag('send-link', 'fired-visible');
+        openWalletLink(link);
+      }
+    }
+    setPrefilledInWallet(!!link);
     setStatus('awaiting');
   };
 
