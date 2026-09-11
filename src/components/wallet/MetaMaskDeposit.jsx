@@ -98,7 +98,19 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       // deposit request automatically to the selected network/coin.
       if (autoDepositRef.current && walletProvider) {
         autoDepositRef.current = false;
-        setTimeout(() => depositRef.current?.(), 0);
+        // Switch the wallet to the selected network BEFORE the deposit request
+        // fires — otherwise the wallet is still on its old chain and the user
+        // sees the "please switch your wallet" mismatch error. Only once the
+        // switch lands (or the wallet is already on the right chain) do we send
+        // the payment, so it always targets the network the user picked.
+        (async () => {
+          try {
+            if (Number(chainId) !== net.chainId) {
+              await switchNetwork(networkByChainId(net.chainId));
+            }
+          } catch {}
+          depositRef.current?.();
+        })();
       }
     } else {
       providerRef.current = null;
