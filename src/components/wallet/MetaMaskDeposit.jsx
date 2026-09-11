@@ -98,17 +98,14 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       // deposit request automatically to the selected network/coin.
       if (autoDepositRef.current && walletProvider) {
         autoDepositRef.current = false;
-        // Switch the wallet to the selected network BEFORE the deposit request
-        // fires — otherwise the wallet is still on its old chain and the user
-        // sees the "please switch your wallet" mismatch error. Only once the
-        // switch lands (or the wallet is already on the right chain) do we send
-        // the payment, so it always targets the network the user picked.
+        // The wallet must be on the network the user selected BEFORE the
+        // payment request fires. ensureNetwork() asks the wallet for its REAL
+        // chain (AppKit's chainId only mirrors AppKit's own selection), switches
+        // it — adding the chain first if the wallet doesn't have it — and waits
+        // for the switch to land, so the deposit request then targets exactly
+        // the network picked in the app.
         (async () => {
-          try {
-            if (Number(chainId) !== net.chainId) {
-              await switchNetwork(networkByChainId(net.chainId));
-            }
-          } catch {}
+          try { await ensureNetwork(); } catch {}
           depositRef.current?.();
         })();
       }
@@ -238,6 +235,51 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return () => { cancelled = true; clearInterval(id); };
   }, [status, netKey, amount, payAsset]);
 
+  // Ask the wallet for its REAL current chain — AppKit's chainId only mirrors
+  // AppKit's own selected network, not the chain the wallet is actually on,
+  // so it can't be trusted here. If the wallet is elsewhere, switch it to the
+  // network the user selected on the deposit screen (adding the chain first if
+  // the wallet doesn't have it yet), then wait for the switch to actually land
+  // before sending anything: the payment request always targets the network
+  // the user picked in the app.
+  const ensureNetwork = async () => {
+    const p = providerRef.current;
+    if (!p) return false;
+    const wantHex = '0x' + net.chainId.toString(16);
+    const realChain = async () => {
+      try { return await p.request({ method: 'eth_chainId' }); } catch { return null; }
+    };
+    let cur = await realChain();
+    if (cur && parseInt(cur, 16) === net.chainId) return true;
+    try {
+      await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: wantHex }] });
+    } catch (swErr) {
+      // 4902 = the chain isn't in the wallet yet → ask permission to add it,
+      // then switch to it.
+      if (swErr?.code === 4902 || /unrecognized chain/i.test(swErr?.message || '')) {
+        try {
+          await p.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: wantHex,
+              chainName: net.label,
+              nativeCurrency: { name: net.nativeName, symbol: net.nativeSymbol, decimals: 18 },
+              rpcUrls: [net.rpc],
+              blockExplorerUrls: [net.explorer],
+            }],
+          });
+        } catch {}
+      }
+    }
+    // The wallet applies the switch asynchronously — poll until it really did.
+    for (let i = 0; i < 12; i++) {
+      await new Promise((r) => setTimeout(r, 1000));
+      cur = await realChain();
+      if (cur && parseInt(cur, 16) === net.chainId) return true;
+    }
+    return false;
+  };
+
   const deposit = async () => {
     const p = providerRef.current;
     const acct = accountRef.current;
@@ -250,42 +292,8 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     // Make sure the wallet is actually on the selected network BEFORE asking for
     // the payment — otherwise a BNB deposit is presented to the user as an ETH
     // request (wallet still on Ethereum), which looks like a scam.
-    try {
-      const current = await p.request({ method: 'eth_chainId' });
-      if (parseInt(current, 16) !== net.chainId) {
-        try {
-          await p.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x' + net.chainId.toString(16) }],
-          });
-        } catch (swErr) {
-          // 4902 = the chain isn't in the wallet yet → ask permission to add it,
-          // then switch to it.
-          if (swErr?.code === 4902 || /unrecognized chain/i.test(swErr?.message || '')) {
-            try {
-              await p.request({
-                method: 'wallet_addEthereumChain',
-                params: [{
-                  chainId: '0x' + net.chainId.toString(16),
-                  chainName: net.label,
-                  nativeCurrency: { name: net.nativeName, symbol: net.nativeSymbol, decimals: 18 },
-                  rpcUrls: [net.rpc],
-                  blockExplorerUrls: [net.explorer],
-                }],
-              });
-            } catch {}
-          }
-          try { await switchNetwork(networkByChainId(net.chainId)); } catch {}
-        }
-        const after = await p.request({ method: 'eth_chainId' });
-        if (parseInt(after, 16) !== net.chainId) {
-          setErrMsg(`Please switch your wallet to ${net.label} and try again.`);
-          setStatus('error');
-          return;
-        }
-      }
-    } catch {
-      setErrMsg(`Could not verify the wallet network. Switch to ${net.label} in your wallet and try again.`);
+    if (!(await ensureNetwork())) {
+      setErrMsg(`Please switch your wallet to ${net.label} and try again.`);
       setStatus('error');
       return;
     }
