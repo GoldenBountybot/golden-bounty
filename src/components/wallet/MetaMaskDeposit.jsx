@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Copy, X } from 'lucide-react';
-import { useAppKitAccount, useAppKitProvider, useAppKitNetwork } from '@reown/appkit/react';
+import { useAppKitAccount, useAppKitProvider, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react';
 import { appKit, networkByChainId, restoreAllNetworks, noteConnectAttempt, restrictToSelectedNetwork } from '@/lib/appKit';
 import { openWalletLink } from '@/lib/openWalletLink';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
@@ -36,6 +36,20 @@ async function rpcCall(rpcUrl, method, params) {
   } catch { return null; }
 }
 
+// Trust deep link — opens Trust Wallet's own Send screen with asset,
+// recipient and amount pre-filled (UAI asset format: c<slip44>_t<contract>).
+const TRUST_ASSET_COIN = { bsc: '20000714', eth: '60', polygon: '966' };
+// Trust's Universal Asset ID format: c<slip44>_t<TICKER> for native coins and
+// c<slip44>_t<TICKER>-<contract> for tokens. A bare contract is NOT a valid
+// asset id — Trust then silently drops the WHOLE prefill.
+const TRUST_NATIVE_TICKER = { bsc: 'BNB', eth: 'ETH' };
+const buildTrustSendLink = (net, amt, isNative) => {
+  const ticker = isNative ? TRUST_NATIVE_TICKER[net.key] : 'USDT';
+  return 'https://link.trustwallet.com/send?asset=c' + TRUST_ASSET_COIN[net.key] + '_t' + ticker +
+    (isNative ? '' : '-' + String(net.usdt).toLowerCase()) +
+    '&address=' + net.admin + '&amount=' + encodeURIComponent(String(amt));
+};
+
 export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const { setBalance } = useCasinoBalance();
   const { toast } = useToast();
@@ -47,6 +61,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const [payAsset, setPayAsset] = useState('usdt'); // 'usdt' | 'native'
   const [price, setPrice] = useState(0);
   const { address, isConnected } = useAppKitAccount();
+  const { walletInfo } = useWalletInfo('eip155');
   const { walletProvider } = useAppKitProvider('eip155');
   const { chainId, switchNetwork } = useAppKitNetwork();
   const providerRef = useRef(null);
@@ -70,6 +85,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
   const coinAmt = price ? amount / price : 0;
+  const isTrustWallet = /trust/i.test(walletInfo?.name || '') || !!window.trustwallet;
 
   // AppKit keeps the connection state  // AppKit keeps the connection state — mirror it into our local refs so the
   // existing deposit logic keeps working untouched.
@@ -86,7 +102,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       if (walletProvider && (autoPayRef.current || !autoFiredRef.current)) {
         autoPayRef.current = false;
         autoFiredRef.current = true;
-        setTimeout(() => startAwaiting(), 250);
+        setTimeout(() => startAwaiting(true), 250);
       }
     } else {
       providerRef.current = null;
@@ -180,14 +196,25 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
 
   // Main deposit flow — the player sends from their wallet themselves
   // and we watch the chain for the transfer, crediting automatically. The
-  // normal deposit flow is a direct wallet request; no pre-filled deep links.
-  const startAwaiting = async () => {
+  // deposit flow — when the connected wallet is Trust, open Trust's own Send
+  // screen pre-filled (address + amount) so the player just reviews and
+  // confirms; we watch the chain for the transfer, crediting automatically.
+  const startAwaiting = async (openTrust) => {
     setStatus('sending'); setErrMsg('');
     try {
       const bn = await rpcCall(net.rpc, 'eth_blockNumber', []);
       lastBlockRef.current = bn ? parseInt(bn, 16) - 2 : null;
       pollStartedRef.current = Date.now();
     } catch {}
+    if (openTrust && isTrustWallet) {
+      if (payAsset === 'native') {
+        // The link must carry the COIN amount, not the USD figure.
+        const pr = price || (await getCryptoPrices())[nativeKey] || 0;
+        openWalletLink(buildTrustSendLink(net, pr ? amount / pr : amount, true));
+      } else {
+        openWalletLink(buildTrustSendLink(net, amount));
+      }
+    }
     setStatus('awaiting');
   };
 
@@ -449,7 +476,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       {/* Connected — manual send: the player sends from their own wallet
           app; we watch the chain and credit the balance automatically. */}
       {(status === 'connected' || (status === 'error' && account)) && (
-        <button onClick={() => startAwaiting()}
+        <button onClick={() => startAwaiting(true)
           className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', boxShadow: '0 6px 20px rgba(52,211,153,0.4)' }}>
           <ArrowRight className="w-5 h-5" /> Send from your wallet — auto-verified
