@@ -5,7 +5,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { Bitcoin, Wallet, Copy, Check, ArrowLeft, AlertTriangle } from 'lucide-react';
-import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
 import MetaMaskDeposit from '@/components/wallet/MetaMaskDeposit';
 import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
 import PhantomSolanaDeposit from '@/components/wallet/PhantomSolanaDeposit';
@@ -402,15 +401,7 @@ export default function PayMethod() {
           </div>
         )}
 
-        {view === 'trust' && (
-          <TrustWalletDeposit
-            amount={amount}
-            onBack={() => { setView('choose'); }}
-            onDone={() => { navigate('/dashboard'); }}
-          />
-        )}
-
-        {view === 'metamask' && (
+        {(view === 'trust' || view === 'metamask') && (
           <MetaMaskDeposit
             amount={amount}
             onBack={() => { setView('choose'); }}
