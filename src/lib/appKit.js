@@ -61,7 +61,7 @@ CoreHelperUtil.openHref = (href, target, features) => {
       const handOff = () => openWalletLink(link);
       const waitForRelay = () => {
         const relayer = getWalletConnectRelayer();
-        if ((relayer && relayer.connected) || Date.now() - startedAt > 1500) {
+        if ((relayer && relayer.connected) || Date.now() - startedAt > 4000) {
           setTimeout(handOff, 350);
         } else {
           setTimeout(waitForRelay, 100);
