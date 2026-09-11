@@ -124,8 +124,8 @@ export default function Dashboard() {
   // arrives AFTER the Choose Payment screen has rendered, landing on whatever
   // method card sits at the old tap coordinates — an instant "ghost" method
   // select right after the deposit tap (device logs: /pay?amount=5 ->
-  /pay?amount=5&method=... within the very same second, different method each
-  time). Swallow exactly the one click that follows a deposit pointerdown.
+  // /pay?amount=5&method=... within the very same second, different method each
+  // time). Swallow exactly the one click that follows a deposit pointerdown.
   const swallowClickUntil = useRef(0);
   useEffect(() => {
     const swallow = (e) => {
