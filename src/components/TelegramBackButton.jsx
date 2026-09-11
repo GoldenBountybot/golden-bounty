@@ -12,7 +12,7 @@ export default function TelegramBackButton() {
     const wa = tgWebApp();
     const shouldShow = pathname !== '/';
 
-    navDiagRoute(pathname);
+    navDiagRoute(pathname + (window.location.search || ''));
     arrivedRef.current = Date.now();
 
     // A back event in the first moment after a page opens is spurious —
