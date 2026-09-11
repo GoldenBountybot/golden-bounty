@@ -60,7 +60,6 @@ import TelegramBackButton from '@/components/TelegramBackButton';
 import PromoWelcomeGate from '@/components/PromoWelcomeGate';
 import GeoBlockGate from '@/components/GeoBlockGate';
 import AppLoadingScreen from '@/components/AppLoadingScreen';
-import RouteTransitionLoader from '@/components/RouteTransitionLoader';
 import { LanguageProvider } from '@/lib/LanguageContext';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { preloadAssets, preloadDynamicAssets, preloadAllGameAssets, preloadImage } from '@/lib/assetPreloader';
@@ -171,7 +170,6 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <>
-    <RouteTransitionLoader />
     <TelegramBackButton />
     <NotificationToaster />
     <PromoWelcomeGate />
