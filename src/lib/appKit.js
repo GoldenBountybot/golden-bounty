@@ -38,8 +38,16 @@ function normalizeAndroidDeepLink(href) {
   if (!CoreHelperUtil.isTelegram() || !CoreHelperUtil.isAndroid()) return href;
   const i = href.indexOf('wc?uri=');
   if (i === -1) return href;
+  const payload = href.slice(i + 7);
+  // Decode ONLY a genuinely double-encoded payload. '%25' is what survives the
+  // first encoding pass ('wc%253A...'), so its presence proves AppKit added
+  // the extra layer for Telegram-Android. Newer AppKit builds hand us a
+  // single-encoded URI ('wc%3A...%402%3F...') — decoding that would corrupt it
+  // into a bare 'wc:...@2?...' string, the wallet then opens with an
+  // unparsable topic and silently shows NO connect request at all.
+  if (!payload.includes('%25')) return href;
   try {
-    return href.slice(0, i + 7) + decodeURIComponent(href.slice(i + 7));
+    return href.slice(0, i + 7) + decodeURIComponent(payload);
   } catch {
     return href;
   }
@@ -263,6 +271,32 @@ function scheduleResumeRetry() {
 export async function reconnectWalletConnectRelay() {
   if (!isInsideTelegram()) return;
   await recoverRelayIfDown(getWalletConnectRelayer());
+}
+
+// Every failed connect leaves a WalletConnect pairing behind (they persist for
+// 30 days). Some AppKit builds reuse that stale pairing instead of creating a
+// fresh one — Trust then opens the handed link, recognises a pairing it
+// already holds, and shows NO connect prompt. Called right before a fresh
+// connect attempt: wipe every stored pairing and any lingering session record
+// so the proposal always rides a brand-new pairing topic.
+export async function resetWalletConnectPairings() {
+  if (isWalletConnectedNow()) return;
+  try {
+    const connector = ConnectorController.state.connectors?.find((c) => c.type === 'WALLET_CONNECT');
+    const client = connector?.provider?.client;
+    const pairings = client?.pairing?.values || [];
+    for (const pairing of pairings) {
+      try { await client.core.pairing.delete(pairing.topic, { code: 400, message: 'stale pairing cleanup' }); } catch {}
+    }
+  } catch {}
+  try {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('wc@2')) keys.push(k);
+    }
+    keys.forEach((k) => localStorage.removeItem(k));
+  } catch {}
 }
 
 // Light health check while the app is visible: if the relay is down, try to
