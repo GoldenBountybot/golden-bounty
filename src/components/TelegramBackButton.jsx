@@ -4,7 +4,7 @@ import { tgWebApp } from '@/lib/telegram';
 import { navDiag, navDiagRoute } from '@/lib/navDiag';
 
 export default function TelegramBackButton() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const arrivedRef = useRef(Date.now());
 
@@ -24,6 +24,15 @@ export default function TelegramBackButton() {
       const sinceArrival = Date.now() - arrivedRef.current;
       if (sinceArrival < 1500) { navDiag('nav-back-blocked', pathname + ' +' + sinceArrival + 'ms'); return; }
       navDiag('nav-back', pathname + ' len=' + window.history.length);
+      // On the deposit flow's "Choose Payment" screen the history below may
+      // hold stale /pay entries left by earlier webview sessions — stepping
+      // back one entry at a time replays them press after press. Leave the
+      // flow directly instead (replacing this entry, so the stack shrinks
+      // and back from the dashboard keeps going where it should).
+      if (pathname === '/pay' && !window.location.search.includes('method=')) {
+        navigate('/dashboard', { replace: true });
+        return;
+      }
       if (window.history.length > 1) navigate(-1);
       else navigate('/');
     };
@@ -85,7 +94,7 @@ export default function TelegramBackButton() {
       try { wa?.offEvent?.('viewportChanged', apply); } catch {}
       try { wa?.offEvent?.('themeChanged', apply); } catch {}
     };
-  }, [pathname, navigate]);
+  }, [pathname, search, navigate]);
 
   return null;
 }
