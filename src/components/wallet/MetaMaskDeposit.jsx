@@ -40,9 +40,17 @@ async function rpcCall(rpcUrl, method, params) {
 // Trust deep link — opens Trust Wallet's own Send screen with asset,
 // recipient and amount pre-filled (UAI asset format: c<slip44>_t<contract>).
 const TRUST_ASSET_COIN = { bsc: '20000714', eth: '60', polygon: '966' };
-const buildTrustSendLink = (net, amt) =>
-  'https://link.trustwallet.com/send?asset=c' + TRUST_ASSET_COIN[net.key] + '_t' + net.usdt +
-  '&address=' + net.admin + '&amount=' + encodeURIComponent(String(amt));
+// Trust's Universal Asset ID format: c<slip44>_t<TICKER> for native coins and
+// c<slip44>_t<TICKER>-<contract> for tokens. A bare contract is NOT a valid
+// asset id — Trust then silently drops the WHOLE prefill (asset, recipient,
+// amount) and opens an empty Send screen.
+const TRUST_NATIVE_TICKER = { bsc: 'BNB', eth: 'ETH' };
+const buildTrustSendLink = (net, amt, isNative) => {
+  const ticker = isNative ? TRUST_NATIVE_TICKER[net.key] : 'USDT';
+  return 'https://link.trustwallet.com/send?asset=c' + TRUST_ASSET_COIN[net.key] + '_t' + ticker +
+    (isNative ? '' : '-' + String(net.usdt).toLowerCase()) +
+    '&address=' + net.admin + '&amount=' + encodeURIComponent(String(amt));
+};
 
 export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const { setBalance } = useCasinoBalance();
@@ -199,7 +207,15 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       lastBlockRef.current = bn ? parseInt(bn, 16) - 2 : null;
       pollStartedRef.current = Date.now();
     } catch {}
-    if (openTrust) openWalletLink(buildTrustSendLink(net, amount));
+    if (openTrust) {
+      if (payAsset === 'native') {
+        // The link must carry the COIN amount, not the USD figure.
+        const pr = price || (await getCryptoPrices())[nativeKey] || 0;
+        openWalletLink(buildTrustSendLink(net, pr ? amount / pr : amount, true));
+      } else {
+        openWalletLink(buildTrustSendLink(net, amount));
+      }
+    }
     setStatus('awaiting');
   };
 
@@ -209,6 +225,26 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     const latestHex = await rpcCall(net.rpc, 'eth_blockNumber', []);
     if (!latestHex) return null;
     const latest = parseInt(latestHex, 16);
+    if (payAsset === 'native') {
+      // Native coin transfers emit no logs — scan the block transactions for
+      // a payment from the player's wallet to the deposit address. The per-run
+      // cap works through a big backlog (the webview is suspended while the
+      // player is inside Trust) gradually over the next ticks.
+      let cursor = lastBlockRef.current;
+      if (latest - cursor > 5900) cursor = latest - 5900;
+      const stopAt = Math.min(latest, cursor + 60);
+      for (let b = cursor + 1; b <= stopAt; b++) {
+        const block = await rpcCall(net.rpc, 'eth_getBlockByNumber', ['0x' + b.toString(16), true]);
+        if (!block || !block.transactions) continue;
+        lastBlockRef.current = b;
+        const hit = block.transactions.find((tx) =>
+          tx?.from?.toLowerCase() === acct.toLowerCase() &&
+          tx?.to?.toLowerCase() === String(net.admin).toLowerCase() &&
+          BigInt(tx.value || '0x0') > BigInt(0));
+        if (hit) return { transactionHash: hit.hash, value: hit.value };
+      }
+      return null;
+    }
     let cursor = lastBlockRef.current;
     if (latest - cursor > 5900) cursor = latest - 5900;
     for (let f = cursor + 1; f <= latest; f += 1000) {
@@ -243,7 +279,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
         const log = await checkForDeposit();
         if (cancelled) return;
         if (log?.transactionHash) {
-          await finishVerify('verifyEvmDeposit', { txHash: log.transactionHash, amount, userWallet: accountRef.current, network: net.key }, amount);
+          if (payAsset === 'native') {
+            await finishVerify('verifyEvmNativeDeposit', { txHash: log.transactionHash, amount, userWallet: accountRef.current, network: net.key, expectedWei: log.value }, amount);
+          } else {
+            await finishVerify('verifyEvmDeposit', { txHash: log.transactionHash, amount, userWallet: accountRef.current, network: net.key }, amount);
+          }
         }
       } finally { running = false; }
     };
@@ -262,10 +302,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     const acct = accountRef.current;
     if (!p || !acct) return;
     // Only fall back to Trust's Send deep link when connected to Trust over
-    // WalletConnect (no injected provider — the WC loopback is unreliable
-    // there). Inside Trust's own browser the injected provider exists, so send
-    // directly and let the wallet show its NATIVE payment confirmation.
-    if (payAsset === 'usdt' && isMobile() && isTrustWallet && !trustInjected) {
+    // WalletConnect (no injected provider). Trust rejects WC session requests
+    // with code 5201 ("Unknown method(s) requested") — for USDT AND native
+    // coin sends alike. Inside Trust's own browser the injected provider
+    // exists, so send directly there instead.
+    if (isMobile() && isTrustWallet && !trustInjected) {
       await startAwaiting(true);
       return;
     }
@@ -494,7 +535,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           {status === 'awaiting' && (
             <>
               <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
-                Send <b style={{ color: '#F6851A' }}>${amount.toFixed(2)} USDT</b> on <b>{net.label}</b> to:
+                Send{' '}
+                {payAsset === 'native'
+                  ? <b style={{ color: '#F6851A' }}>{coinAmt ? coinAmt.toFixed(5) : '≈'} {net.nativeSymbol} (≈ ${amount.toFixed(2)})</b>
+                  : <b style={{ color: '#F6851A' }}>${amount.toFixed(2)} USDT</b>}{' '}
+                on <b>{net.label}</b> to:
               </p>
               <div className="flex items-center gap-2 px-3 py-2 rounded-[12px]" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(246,133,26,0.3)' }}>
                 <span className="text-[12px] font-mono break-all flex-1" style={{ color: '#fff' }}>{net.admin}</span>
@@ -557,7 +602,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           )}
         </button>
       )}
-      {payAsset === 'usdt' && status === 'connected' && (
+      {status === 'connected' && (
         <button onClick={() => startAwaiting(false)}
           className="w-full flex items-center justify-center gap-2 h-11 rounded-[14px] text-[13px] font-bold transition-all active:scale-95"
           style={{ border: '1px solid rgba(246,133,26,0.3)', background: 'rgba(246,133,26,0.06)', color: '#F6851A' }}>
