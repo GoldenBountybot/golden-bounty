@@ -251,6 +251,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     };
     let cur = await realChain();
     if (cur && parseInt(cur, 16) === net.chainId) return true;
+    // Ask the wallet to switch — both through AppKit (which relays it over
+    // the WalletConnect session) and directly through the provider.
+    try { switchNetwork(networkByChainId(net.chainId)); } catch {}
     try {
       await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: wantHex }] });
     } catch (swErr) {
@@ -271,9 +274,25 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
         } catch {}
       }
     }
-    // The wallet applies the switch asynchronously — poll until it really did.
-    for (let i = 0; i < 12; i++) {
-      await new Promise((r) => setTimeout(r, 1000));
+    // A wallet that is already awake (browser extension) switches on its own —
+    // give it a couple of seconds before doing anything drastic.
+    for (let i = 0; i < 2; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
+      cur = await realChain();
+      if (cur && parseInt(cur, 16) === net.chainId) return true;
+    }
+    // A mobile wallet in the Telegram Mini App sits in the BACKGROUND — the
+    // switch request reaches it but it cannot act on the request (or show its
+    // confirmation sheet) until the app is open. That is why the switch never
+    // happened. Open the wallet now: MetaMask auto-confirms the switch to a
+    // known chain (BSC/Ethereum/Polygon) as soon as it processes the request,
+    // and the player returns to the app right after.
+    openWalletLink(isTrustWallet ? 'https://link.trustwallet.com/' : 'https://metamask.app.link/');
+    // Keep watching for the switch to land — the moment the player is back and
+    // the chain matches, the payment request fires automatically on exactly
+    // the network the user picked in the app.
+    for (let i = 0; i < 20; i++) {
+      await new Promise((r) => setTimeout(r, 3000));
       cur = await realChain();
       if (cur && parseInt(cur, 16) === net.chainId) return true;
     }
