@@ -148,8 +148,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       // A previously saved session reconnects instantly — in that case show the
       // Send step instead of jumping straight into the wallet, so the player
       // can review the amount first.
-      if (freshPairing) await deposit();
-      else setStatus('connected');
+      await deposit();
     } else {
       setErrMsg('Wallet connection was cancelled or failed.');
       setStatus('error'); setWcUri('');
@@ -182,7 +181,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       accountRef.current = accts[0];
       modeRef.current = 'injected';
       setAccount(accts[0]);
-      setStatus('connected');
+      await deposit();
     } catch {
       setErrMsg('Wallet connection was cancelled.'); setStatus('error');
     }
@@ -203,7 +202,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       setAccount(res.account);
       wcUriRef.current = '';
       setWcUri('');
-      setStatus('connected');
+      await deposit();
     } else {
       setErrMsg('Mobile wallet connection failed or was cancelled.');
       setStatus('error'); setWcUri('');

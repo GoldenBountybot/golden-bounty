@@ -73,6 +73,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   // Single-open lock: a double-tap on Connect must never stack duplicate
   // AppKit modals / connect requests.
   const openModalRef = useRef(false);
+  const autoPayRef = useRef(false);
   // Live wallet chain: AppKit chainId state mirrored into a ref so async flows
   // (deposit) always read the CURRENT chain instead of a stale closure value.
   const chainIdRef = useRef(chainId);
@@ -108,6 +109,10 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       accountRef.current = address;
       setAccount(address);
       setStatus((s) => (s === 'idle' || s === 'connecting' || s === 'error' ? 'connected' : s));
+      if (autoPayRef.current) {
+        autoPayRef.current = false;
+        setTimeout(() => deposit(), 250);
+      }
     } else {
       providerRef.current = null;
       accountRef.current = null;
@@ -162,6 +167,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       // rides on whichever chain the wallet happened to pick.
       restrictToSelectedNetwork(net.chainId);
       noteConnectAttempt();
+      autoPayRef.current = true;
       await appKit.open();
     } catch (error) {
       console.error('[gb-wc] Wallet connection error:', error);
