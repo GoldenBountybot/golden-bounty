@@ -116,7 +116,7 @@ let diagLastConnecting = 0;
 // the connecting view, so this explicit mark is the only reliable record that
 // an attempt was in flight when Telegram suspended us.
 let connectAttemptStarted = false;
-function diag(event, detail) {
+export function diag(event, detail) {
   // Timestamped console trace for on-device debugging (chrome://inspect).
   // Details are relay state only — never tokens, keys or user data.
   try { console.log(`[gb-wc] +${Date.now() - diagT0}ms ${event} ${detail || ''}`); } catch {}
@@ -133,6 +133,21 @@ function relayerState() {
     return { hasRelayer: !!r, connected: r?.connected, connecting: r?.connecting };
   } catch {
     return { hasRelayer: false, connected: null, connecting: null };
+  }
+}
+
+// ChainController.state.activeCaipAddress is a CAIP-10 STRING ('eip155:56:0x...')
+// — not an object. Reading '.eip155' off it is always undefined, which made
+// every "is the wallet connected" check silently false: a successful connect was
+// never detected, the attempt flag never cleared, and the resume retry then
+// reopened the wallet modal over the deposit screen ~5s after every return
+// (device logs: auto-retry firing with the wallet already connected).
+function isWalletConnectedNow() {
+  try {
+    const addr = ChainController.state.activeCaipAddress;
+    return typeof addr === 'string' && addr.startsWith('eip155:');
+  } catch {
+    return false;
   }
 }
 
@@ -227,8 +242,7 @@ function scheduleResumeRetry() {
   setTimeout(() => {
     resumeRetryScheduled = false;
     if (!connectAttemptStarted) return;
-    let connected = false;
-    try { connected = !!ChainController.state.activeCaipAddress?.eip155; } catch {}
+    const connected = isWalletConnectedNow();
     let modalOpen = false;
     try { modalOpen = !!ModalController.state.open; } catch {}
     if (connected || isConnectingToWallet() || modalOpen) return;
@@ -338,8 +352,7 @@ async function ensureRelayConnected() {
     return;
   }
   stuckSince = 0;
-  let connectedNow = false;
-  try { connectedNow = !!ChainController.state.activeCaipAddress?.eip155; } catch {}
+  const connectedNow = isWalletConnectedNow();
   if (connectedNow) connectAttemptStarted = false;
   if (connectedNow && diagLastConnecting) {
     diagLastConnecting = 0;
