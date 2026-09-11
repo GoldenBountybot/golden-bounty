@@ -44,10 +44,13 @@ async function rpcCall(rpcUrl, method, params) {
   } catch { return null; }
 }
 // Trust deep link — opens Trust Wallet's own Send screen with asset,
-// recipient and amount pre-filled (UAI asset format: c<slip44>_t<contract>).
+// recipient and amount pre-filled. UAI asset format is c<slip44>_t<TICKER> for
+// native coins and c<slip44>_t<TICKER>-<contract> for tokens: a bare contract
+// is NOT a valid asset id — Trust then drops the whole prefill and opens an
+// empty Send screen.
 const TRUST_ASSET_COIN = { bsc: '20000714', eth: '60', polygon: '966' };
 const buildTrustSendLink = (net, amt) =>
-  'https://link.trustwallet.com/send?asset=c' + TRUST_ASSET_COIN[net.key] + '_t' + net.usdt +
+  'https://link.trustwallet.com/send?asset=c' + TRUST_ASSET_COIN[net.key] + '_tUSDT-' + String(net.usdt).toLowerCase() +
   '&address=' + net.admin + '&amount=' + encodeURIComponent(String(amt));
 
 export default function TrustWalletDeposit({ amount, onBack, onDone }) {
