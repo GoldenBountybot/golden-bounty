@@ -44,18 +44,11 @@ async function rpcCall(rpcUrl, method, params) {
   } catch { return null; }
 }
 // Trust deep link — opens Trust Wallet's own Send screen with asset,
-// recipient and amount pre-filled. UAI asset format is c<slip44>_t<TICKER>
-// for native coins and c<slip44>_t<TICKER>-<contract> for tokens: a bare
-// contract after _t is NOT a valid asset id — Trust silently drops the whole
-// prefill and opens an empty Send screen.
+// recipient and amount pre-filled (UAI asset format: c<slip44>_t<contract>).
 const TRUST_ASSET_COIN = { bsc: '20000714', eth: '60', polygon: '966' };
-const TRUST_NATIVE_TICKER = { bsc: 'BNB', eth: 'ETH' };
-const buildTrustSendLink = (net, amt, isNative) => {
-  const ticker = isNative ? TRUST_NATIVE_TICKER[net.key] : 'USDT';
-  return 'https://link.trustwallet.com/send?asset=c' + TRUST_ASSET_COIN[net.key] + '_t' + ticker +
-    (isNative ? '' : '-' + String(net.usdt).toLowerCase()) +
-    '&address=' + net.admin + '&amount=' + encodeURIComponent(String(amt));
-};
+const buildTrustSendLink = (net, amt) =>
+  'https://link.trustwallet.com/send?asset=c' + TRUST_ASSET_COIN[net.key] + '_t' + net.usdt +
+  '&address=' + net.admin + '&amount=' + encodeURIComponent(String(amt));
 
 export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const { setBalance } = useCasinoBalance();
@@ -66,11 +59,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const [status, setStatus] = useState('idle'); // idle|connecting|connected|sending|confirming|verifying|done|error
   const [errMsg, setErrMsg] = useState('');
   const [wcUri, setWcUri] = useState('');
-  // Remember the player's coin choice (USDT / native coin) across sessions.
-const [payAsset, setPayAsset] = useState(() => {
-  try { return localStorage.getItem('gbPayAsset') === 'native' ? 'native' : 'usdt'; } catch { return 'usdt'; }
-}); // 'usdt' | 'native'
-useEffect(() => { try { localStorage.setItem('gbPayAsset', payAsset); } catch {} }, [payAsset]);
+  const [payAsset, setPayAsset] = useState('usdt'); // 'usdt' | 'native'
   const [price, setPrice] = useState(0);
   const providerRef = useRef(null);
   const accountRef = useRef(null);
@@ -239,15 +228,6 @@ useEffect(() => { try { localStorage.setItem('gbPayAsset', payAsset); } catch {}
   // shows a scary "Send 0 BNB to <USDT contract>" screen with a fraud warning.
   // On mobile, open Trust's own Send screen (deep link) with everything
   // pre-filled instead, then watch the chain for the transfer.
-  // The native link must carry the COIN amount, not the USD figure.
-  const trustSendLinkFor = async () => {
-    if (payAsset === 'native') {
-      const pr = price || (await getCryptoPrices())[nativeKey] || 0;
-      return buildTrustSendLink(net, pr ? amount / pr : amount, true);
-    }
-    return buildTrustSendLink(net, amount);
-  };
-
   const startTrustSend = async () => {
     setStatus('sending'); setErrMsg('');
     try {
@@ -255,7 +235,7 @@ useEffect(() => { try { localStorage.setItem('gbPayAsset', payAsset); } catch {}
       lastBlockRef.current = bn ? parseInt(bn, 16) - 2 : null;
       pollStartedRef.current = Date.now();
     } catch {}
-    openWalletLink(await trustSendLinkFor());
+    openWalletLink(buildTrustSendLink(net, amount));
     setStatus('awaiting');
   };
 
@@ -265,26 +245,6 @@ useEffect(() => { try { localStorage.setItem('gbPayAsset', payAsset); } catch {}
     const latestHex = await rpcCall(net.rpc, 'eth_blockNumber', []);
     if (!latestHex) return null;
     const latest = parseInt(latestHex, 16);
-    if (payAsset === 'native') {
-      // Native coin transfers emit no logs — scan the block transactions for
-      // a payment from the player's wallet to the deposit address. The per-run
-      // cap works through a big backlog (the webview is suspended while the
-      // player is inside Trust) gradually over the next ticks.
-      let cursor = lastBlockRef.current;
-      if (latest - cursor > 5900) cursor = latest - 5900;
-      const stopAt = Math.min(latest, cursor + 60);
-      for (let b = cursor + 1; b <= stopAt; b++) {
-        const block = await rpcCall(net.rpc, 'eth_getBlockByNumber', ['0x' + b.toString(16), true]);
-        if (!block || !block.transactions) continue;
-        lastBlockRef.current = b;
-        const hit = block.transactions.find((tx) =>
-          tx?.from?.toLowerCase() === acct.toLowerCase() &&
-          tx?.to?.toLowerCase() === String(net.admin).toLowerCase() &&
-          BigInt(tx.value || '0x0') > BigInt(0));
-        if (hit) return { transactionHash: hit.hash, value: hit.value };
-      }
-      return null;
-    }
     let cursor = lastBlockRef.current;
     if (latest - cursor > 5900) cursor = latest - 5900;
     for (let f = cursor + 1; f <= latest; f += 1000) {
@@ -311,16 +271,15 @@ useEffect(() => { try { localStorage.setItem('gbPayAsset', payAsset); } catch {}
       if (cancelled || running) return;
       running = true;
       try {
-        // No timeout here: the Send screen keeps our address and the amount
-        // pre-filled, and we just keep waiting for the player's approve.
+        if (Date.now() - pollStartedRef.current > 20 * 60 * 1000) {
+          setErrMsg('No matching transaction found after 20 minutes. If you already sent it, please contact support with your transaction ID.');
+          setStatus('error');
+          return;
+        }
         const log = await checkForDeposit();
         if (cancelled) return;
         if (log?.transactionHash) {
-          if (payAsset === 'native') {
-            await finishVerify('verifyEvmNativeDeposit', { txHash: log.transactionHash, amount, userWallet: accountRef.current, network: net.key, expectedWei: log.value }, amount);
-          } else {
-            await finishVerify('verifyEvmDeposit', { txHash: log.transactionHash, amount, userWallet: accountRef.current, network: net.key }, amount);
-          }
+          await finishVerify('verifyEvmDeposit', { txHash: log.transactionHash, amount, userWallet: accountRef.current, network: net.key }, amount);
         }
       } finally { running = false; }
     };
@@ -333,11 +292,7 @@ useEffect(() => { try { localStorage.setItem('gbPayAsset', payAsset); } catch {}
     const p = providerRef.current;
     const acct = accountRef.current;
     if (!p || !acct) return;
-    // Trust rejects WalletConnect session requests with code 5201 ("Unknown
-    // method(s) requested") — for USDT AND native coin sends alike — so on
-    // mobile never send a payment request over WC: open Trust's own Send
-    // screen pre-filled instead, then watch the chain for the payment.
-    if (modeRef.current === 'wc' && isMobile()) {
+    if (payAsset === 'usdt' && modeRef.current === 'wc' && isMobile()) {
       await startTrustSend();
       return;
     }
@@ -562,7 +517,7 @@ useEffect(() => { try { localStorage.setItem('gbPayAsset', payAsset); } catch {}
                 Trust Wallet's Send screen is open with the recipient (<b style={{ color: '#D4AF37' }}>{net.admin.slice(0, 10)}…{net.admin.slice(-6)}</b>) and amount filled in. Confirm the send there, then come back — your balance is added automatically. A small amount of {net.nativeSymbol} is needed for the network fee.
               </p>
               <div className="flex flex-wrap gap-2">
-                <button onClick={async () => openWalletLink(await trustSendLinkFor())}
+                <button onClick={() => openWalletLink(buildTrustSendLink(net, amount))}
                   className="flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
                   style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', boxShadow: '0 4px 14px rgba(59,130,246,0.35)' }}>
                   <Smartphone className="w-4 h-4" /> Open Trust Wallet
