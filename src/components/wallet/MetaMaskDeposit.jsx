@@ -65,6 +65,10 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   // Single-open lock: a double-tap on Connect must never stack duplicate
   // AppKit modals / connect requests.
   const openModalRef = useRef(false);
+  // Live wallet chain: AppKit chainId state mirrored into a ref so async flows
+  // (deposit) always read the CURRENT chain instead of a stale closure value.
+  const chainIdRef = useRef(chainId);
+  useEffect(() => { chainIdRef.current = chainId; }, [chainId]);
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
@@ -260,13 +264,15 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     // Make sure the wallet is actually on the selected network BEFORE asking for
     // the payment — otherwise a BNB deposit is presented to the user as an ETH
     // request (wallet still on Ethereum), which looks like a scam.
-    try {
-      // WalletConnect returns eth_chainId as a decimal number (56) while
-      // injected wallets return hex ("0x38") — accept both, otherwise a wallet
-      // already on BSC is misread and the send is blocked with a switch error.
+        try {
+      // NEVER ask the wallet for eth_chainId over WalletConnect: that method is
+      // not part of the proposed session methods, so the wallet answers
+      // "unknown method" and every WC deposit dies at this step. AppKit already
+      // tracks the wallet's active chain (updated on each chainChanged event) —
+      // read that live state via chainIdRef instead.
       const chainNum = (v) => { const s = String(v == null ? '' : v); return /^0x/i.test(s) ? parseInt(s, 16) : parseInt(s, 10); };
-      const current = await p.request({ method: 'eth_chainId' });
-      if (chainNum(current) !== net.chainId) {
+      const onChain = () => chainNum(chainIdRef.current) === net.chainId;
+      if (!onChain()) {
         try {
           await p.request({
             method: 'wallet_switchEthereumChain',
@@ -291,8 +297,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           }
           try { await switchNetwork(networkByChainId(net.chainId)); } catch {}
         }
-        const after = await p.request({ method: 'eth_chainId' });
-        if (chainNum(after) !== net.chainId) {
+        // Wait for the wallet's chainChanged event to reach AppKit's state.
+        for (let i = 0; i < 20 && !onChain(); i++) {
+          await new Promise((r) => setTimeout(r, 200));
+        }
+        if (!onChain()) {
           setErrMsg(`Please switch your wallet to ${net.label} and try again.`);
           setStatus('error');
           return;
