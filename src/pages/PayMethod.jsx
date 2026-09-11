@@ -154,7 +154,11 @@ export default function PayMethod() {
 
   useEffect(() => {
     return () => {
+      // Leaving /pay entirely: no wallet screen of this flow is live anymore,
+      // so a later stale /pay?method=... entry must restore as "Choose
+      // Payment", never as the wallet screen.
       try { sessionStorage.removeItem('gb_pay_net'); } catch { /* private mode */ }
+      try { sessionStorage.removeItem('gb_pay_method_live'); } catch { /* private mode */ }
     };
   }, []);
   const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, usdc: USDC_NETWORKS, crypto: CRYPTO_NETWORKS });
@@ -181,7 +185,14 @@ export default function PayMethod() {
   // method chosen in this session (or a wallet deep-link return) may restore a
   // wallet screen; anything else starts on "Choose Payment".
   useEffect(() => {
-    if (view === 'choose') return;
+    if (view === 'choose') {
+      // No method selected right now — drop any leftover marker, e.g. after
+      // a spurious back delivered a stale wallet entry and this guard just
+      // stripped it. Otherwise the NEXT stale entry would sneak past as
+      // "live" and open the wallet screen on its own.
+      try { sessionStorage.removeItem('gb_pay_method_live'); } catch { /* private mode */ }
+      return;
+    }
     let live = false;
     try { live = sessionStorage.getItem('gb_pay_method_live') === '1'; } catch { live = true; }
     if (!live) {
