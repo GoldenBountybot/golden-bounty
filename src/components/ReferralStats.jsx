@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Trophy, Loader2, Coins, Crown, Medal, Gift } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { getReferralStatsCache } from '@/lib/pageWarmCache';
 import { useLanguage } from '@/lib/LanguageContext';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { formatDate } from '@/lib/dateFormat';
@@ -17,8 +18,8 @@ const RANK_META = {
 
 export default function ReferralStats({ profile, onBack }) {
   const { t } = useLanguage();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(() => getReferralStatsCache());
+  const [loading, setLoading] = useState(() => !getReferralStatsCache());
   const [error, setError] = useState('');
 
   useEffect(() => {
