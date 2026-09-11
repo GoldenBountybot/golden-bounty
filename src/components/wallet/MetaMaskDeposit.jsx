@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
-import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Smartphone, Copy, X } from 'lucide-react';
-import { useAppKitAccount, useAppKitProvider, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react';
+import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Copy, X } from 'lucide-react';
+import { useAppKitAccount, useAppKitProvider, useAppKitNetwork } from '@reown/appkit/react';
 import { appKit, networkByChainId, restoreAllNetworks, noteConnectAttempt, restrictToSelectedNetwork } from '@/lib/appKit';
 import { openWalletLink } from '@/lib/openWalletLink';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
@@ -22,8 +22,6 @@ function pad32(addr) {
   while (h.length < 64) h = '0' + h;
   return '0x' + h;
 }
-const isMobile = () => /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent || '');
-
 // ERC-20 Transfer event topic — used to watch the chain for the deposit.
 const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 async function rpcCall(rpcUrl, method, params) {
@@ -37,20 +35,6 @@ async function rpcCall(rpcUrl, method, params) {
     return j?.result ?? null;
   } catch { return null; }
 }
-// Trust deep link — opens Trust Wallet's own Send screen with asset,
-// recipient and amount pre-filled (UAI asset format: c<slip44>_t<contract>).
-const TRUST_ASSET_COIN = { bsc: '20000714', eth: '60', polygon: '966' };
-// Trust's Universal Asset ID format: c<slip44>_t<TICKER> for native coins and
-// c<slip44>_t<TICKER>-<contract> for tokens. A bare contract is NOT a valid
-// asset id — Trust then silently drops the WHOLE prefill (asset, recipient,
-// amount) and opens an empty Send screen.
-const TRUST_NATIVE_TICKER = { bsc: 'BNB', eth: 'ETH' };
-const buildTrustSendLink = (net, amt, isNative) => {
-  const ticker = isNative ? TRUST_NATIVE_TICKER[net.key] : 'USDT';
-  return 'https://link.trustwallet.com/send?asset=c' + TRUST_ASSET_COIN[net.key] + '_t' + ticker +
-    (isNative ? '' : '-' + String(net.usdt).toLowerCase()) +
-    '&address=' + net.admin + '&amount=' + encodeURIComponent(String(amt));
-};
 
 export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const { setBalance } = useCasinoBalance();
@@ -65,7 +49,6 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const { address, isConnected } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider('eip155');
   const { chainId, switchNetwork } = useAppKitNetwork();
-  const { walletInfo } = useWalletInfo('eip155');
   const providerRef = useRef(null);
   const accountRef = useRef(null);
   const lastBlockRef = useRef(null); // last block scanned while watching the chain
@@ -87,7 +70,6 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
   const coinAmt = price ? amount / price : 0;
-  const isTrustWallet = /trust/i.test(walletInfo?.name || '') || !!window.trustwallet;
 
   const fetchReceipt = async (txHash) => {
     const body = { jsonrpc: '2.0', id: 1, method: 'eth_getTransactionReceipt', params: [txHash] };
@@ -213,26 +195,16 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     }
   };
 
-  // Some mobile wallets (Trust) render a USDT contract call as a scary
-  // "0 BNB to contract" fraud warning. Instead: open Trust's own Send screen
-  // pre-filled (deep link) — or let the player send manually from any wallet —
-  // and watch the chain for the transfer, crediting automatically.
-  const startAwaiting = async (openTrust) => {
+  // Manual fallback only — the player sends from their wallet themselves
+  // and we watch the chain for the transfer, crediting automatically. The
+  // normal deposit flow is a direct wallet request; no pre-filled deep links.
+  const startAwaiting = async () => {
     setStatus('sending'); setErrMsg('');
     try {
       const bn = await rpcCall(net.rpc, 'eth_blockNumber', []);
       lastBlockRef.current = bn ? parseInt(bn, 16) - 2 : null;
       pollStartedRef.current = Date.now();
     } catch {}
-    if (openTrust) {
-      if (payAsset === 'native') {
-        // The link must carry the COIN amount, not the USD figure.
-        const pr = price || (await getCryptoPrices())[nativeKey] || 0;
-        openWalletLink(buildTrustSendLink(net, pr ? amount / pr : amount, true));
-      } else {
-        openWalletLink(buildTrustSendLink(net, amount));
-      }
-    }
     setStatus('awaiting');
   };
 
@@ -318,15 +290,6 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     const p = trustInjected || providerRef.current;
     const acct = accountRef.current;
     if (!p || !acct) return;
-    // Only fall back to Trust's Send deep link when connected to Trust over
-    // WalletConnect (no injected provider). Trust rejects WC session requests
-    // with code 5201 ("Unknown method(s) requested") — for USDT AND native
-    // coin sends alike. Inside Trust's own browser the injected provider
-    // exists, so send directly there instead.
-    if (isMobile() && isTrustWallet && !trustInjected) {
-      await startAwaiting(true);
-      return;
-    }
     setStatus('sending'); setErrMsg('');
     // Make sure the wallet is actually on the selected network BEFORE asking for
     // the payment — otherwise a BNB deposit is presented to the user as an ETH
@@ -390,7 +353,13 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
         if (!pr) { setErrMsg('Could not fetch coin price. Please try again.'); setStatus('error'); return; }
         const wei = BigInt(Math.round((amount / pr) * 1e18));
         const value = '0x' + wei.toString(16);
-        const txHash = await sendTx({ from: acct, to: net.admin, value });
+        // Trust Wallet over WalletConnect only accepts eth_sendTransaction
+        // when the tx carries a data field — plain value transfers get
+        // rejected with 5201 "Unknown method(s) requested". An empty '0x'
+        // data on a plain coin transfer is a no-op on-chain (the deposit
+        // address is not a contract) and every other wallet ignores it, so
+        // always include it and the request goes through on every wallet.
+        const txHash = await sendTx({ from: acct, to: net.admin, value, data: '0x' });
         setStatus('confirming');
         const receipt = await fetchReceipt(txHash);
         if (!receipt) { setErrMsg('Confirmation not yet received, please try again shortly.'); setStatus('error'); return; }
@@ -413,20 +382,6 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     } catch (e) {
       console.error('MetaMaskDeposit send error:', e);
       const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'cancelled/failed');
-      // Some mobile wallets (Trust and others) connected over WalletConnect
-      // reject direct transaction requests with code 5201 ("Unknown
-      // method(s) requested") — and on this path walletInfo doesn't always
-      // identify the wallet up front. Don't dead-end the deposit: fall back
-      // to the manual send flow, which watches the chain and credits the
-      // deposit automatically either way. Only open Trust's own pre-filled
-      // Send deep link when the connected wallet is actually confirmed to be
-      // Trust — forcing that link on a different wallet (e.g. MetaMask)
-      // would send the player to an app they never opened.
-      const raw = String(e?.code ?? '') + ' ' + String(msg);
-      if (/5201/.test(raw) || /unknown method/i.test(raw)) {
-        await startAwaiting(isTrustWallet);
-        return;
-      }
       setErrMsg('Transaction cancelled/failed: ' + msg);
       setStatus('error');
     }
@@ -580,13 +535,6 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
                   <Copy className="w-3.5 h-3.5" /> Copy
                 </button>
               </div>
-              {isMobile() && isTrustWallet && (
-                <button onClick={() => openWalletLink(buildTrustSendLink(net, amount))}
-                  className="self-start flex items-center gap-2 px-4 h-11 rounded-[14px] font-bold transition-all active:scale-95"
-                  style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff', boxShadow: '0 4px 14px rgba(59,130,246,0.35)' }}>
-                  <Smartphone className="w-4 h-4" /> Open Trust Wallet (pre-filled)
-                </button>
-              )}
               <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
                 Checking automatically — once your transfer lands on-chain, your balance is added. A small amount of {net.nativeSymbol} is needed for the network fee.
               </p>
@@ -634,7 +582,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
         </button>
       )}
       {status === 'connected' && (
-        <button onClick={() => startAwaiting(false)}
+        <button onClick={() => startAwaiting()}
           className="w-full flex items-center justify-center gap-2 h-11 rounded-[14px] text-[13px] font-bold transition-all active:scale-95"
           style={{ border: '1px solid rgba(246,133,26,0.3)', background: 'rgba(246,133,26,0.06)', color: '#F6851A' }}>
           <AlertTriangle className="w-4 h-4" /> Wallet showing an error? Send manually & auto-verify
