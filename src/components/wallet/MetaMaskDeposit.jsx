@@ -62,6 +62,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const accountRef = useRef(null);
   const lastBlockRef = useRef(null); // last block scanned while watching the chain
   const pollStartedRef = useRef(0);
+  const autoDepositRef = useRef(false); // fire deposit() automatically once a fresh connect lands
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
@@ -93,6 +94,12 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       accountRef.current = address;
       setAccount(address);
       setStatus((s) => (s === 'idle' || s === 'connecting' || s === 'error' ? 'connected' : s));
+      // After a fresh connect (started from the Connect button), fire the
+      // deposit request automatically to the selected network/coin.
+      if (autoDepositRef.current && walletProvider) {
+        autoDepositRef.current = false;
+        setTimeout(() => depositRef.current?.(), 0);
+      }
     } else {
       providerRef.current = null;
       accountRef.current = null;
@@ -125,6 +132,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
 
   const openConnectModal = async () => {
     setErrMsg('');
+    autoDepositRef.current = true; // after connecting, fire the deposit request automatically
     // Only the network the user selected may be part of the connect request.
     restrictToSelectedNetwork(net.chainId);
     await appKit.open();
@@ -307,6 +315,8 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       setStatus('error');
     }
   };
+  const depositRef = useRef(null);
+  depositRef.current = deposit;
 
   const busy = ['connecting', 'sending', 'awaiting', 'confirming', 'verifying'].includes(status);
   const statusText = {
