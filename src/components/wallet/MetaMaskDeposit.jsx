@@ -74,6 +74,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   // AppKit modals / connect requests.
   const openModalRef = useRef(false);
   const autoPayRef = useRef(false);
+  // Fires the payment request exactly once per connection — covers both a
+  // fresh Connect tap (autoPayRef) AND a session AppKit restores on mount
+  // (returning player, already connected from a previous visit), so the
+  // player never has to tap an extra "Send" button after approving connect.
+  const autoFiredRef = useRef(false);
   // Live wallet chain: AppKit chainId state mirrored into a ref so async flows
   // (deposit) always read the CURRENT chain instead of a stale closure value.
   const chainIdRef = useRef(chainId);
@@ -109,8 +114,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       accountRef.current = address;
       setAccount(address);
       setStatus((s) => (s === 'idle' || s === 'connecting' || s === 'error' ? 'connected' : s));
-      if (autoPayRef.current) {
+      if (autoPayRef.current || !autoFiredRef.current) {
         autoPayRef.current = false;
+        autoFiredRef.current = true;
         setTimeout(() => deposit(), 250);
       }
     } else {
@@ -181,6 +187,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const disconnectWallet = async () => {
     try { await appKit.disconnect(); } catch {}
     restoreAllNetworks();
+    autoFiredRef.current = false;
     setErrMsg('');
     setStatus('idle');
   };
