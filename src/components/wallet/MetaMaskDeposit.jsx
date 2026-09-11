@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Copy, X } from 'lucide-react';
 import { useAppKitAccount, useAppKitProvider, useAppKitNetwork } from '@reown/appkit/react';
-import { appKit, networkByChainId, restoreAllNetworks, noteConnectAttempt, restrictToSelectedNetwork, getConnectedWalletName, reconnectWalletConnectRelay, diag as walletDiag } from '@/lib/appKit';
+import { appKit, networkByChainId, restoreAllNetworks, noteConnectAttempt, restrictToSelectedNetwork, getConnectedWalletName, reconnectWalletConnectRelay, resetWalletConnectPairings, diag as walletDiag } from '@/lib/appKit';
 import { openWalletLink } from '@/lib/openWalletLink';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
@@ -187,6 +187,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       // approve BSC + Ethereum + Polygon all at once, and the deposit then
       // rides on whichever chain the wallet happened to pick.
       restrictToSelectedNetwork(net.chainId);
+      // Dead pairings left by earlier failed connects make Trust open without
+      // showing any connect prompt — clear them so this attempt is fresh.
+      await resetWalletConnectPairings();
       noteConnectAttempt();
       autoPayRef.current = true;
       await appKit.open();
