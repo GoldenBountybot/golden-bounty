@@ -253,7 +253,12 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   }, [status, netKey, amount, payAsset]);
 
   const deposit = async () => {
-    const p = providerRef.current;
+    // Inside Trust Wallet's own browser Trust injects a native EIP-1193
+    // provider (window.trustwallet). Sending over the WalletConnect loopback
+    // session there fails with code 5201 ("Unknown method(s) requested"), so
+    // always prefer the injected provider whenever it exists.
+    const trustInjected = window.trustwallet || (window.ethereum?.isTrust ? window.ethereum : null);
+    const p = trustInjected || providerRef.current;
     const acct = accountRef.current;
     if (!p || !acct) return;
     if (payAsset === 'usdt' && isMobile() && isTrustWallet) {
