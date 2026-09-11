@@ -261,7 +261,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     const p = trustInjected || providerRef.current;
     const acct = accountRef.current;
     if (!p || !acct) return;
-    if (payAsset === 'usdt' && isMobile() && isTrustWallet) {
+    // Only fall back to Trust's Send deep link when connected to Trust over
+    // WalletConnect (no injected provider — the WC loopback is unreliable
+    // there). Inside Trust's own browser the injected provider exists, so send
+    // directly and let the wallet show its NATIVE payment confirmation.
+    if (payAsset === 'usdt' && isMobile() && isTrustWallet && !trustInjected) {
       await startAwaiting(true);
       return;
     }
