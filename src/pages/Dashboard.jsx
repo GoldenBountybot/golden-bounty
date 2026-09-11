@@ -120,9 +120,29 @@ export default function Dashboard() {
   // instead (the position at press time is what the user aimed at); a short
   // lock keeps the synthetic click that follows from double-triggering it.
   const lastDepositAt = useRef(0);
+  // Navigating on pointerdown means the browser's own click for that tap
+  // arrives AFTER the Choose Payment screen has rendered, landing on whatever
+  // method card sits at the old tap coordinates — an instant "ghost" method
+  // select right after the deposit tap (device logs: /pay?amount=5 ->
+  /pay?amount=5&method=... within the very same second, different method each
+  time). Swallow exactly the one click that follows a deposit pointerdown.
+  const swallowClickUntil = useRef(0);
+  useEffect(() => {
+    const swallow = (e) => {
+      if (Date.now() > swallowClickUntil.current) return;
+      swallowClickUntil.current = 0;
+      e.stopPropagation();
+      e.preventDefault();
+    };
+    // Capture phase on window: runs before React's root listener, so the
+    // ghost click never reaches any handler on the freshly opened page.
+    window.addEventListener('click', swallow, true);
+    return () => window.removeEventListener('click', swallow, true);
+  }, []);
   const fireDeposit = () => {
     if (Date.now() - lastDepositAt.current < 500) return;
     lastDepositAt.current = Date.now();
+    swallowClickUntil.current = Date.now() + 900;
     doDeposit(depAmt);
   };
 
