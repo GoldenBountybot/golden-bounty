@@ -52,11 +52,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const [account, setAccount] = useState(null);
   const [status, setStatus] = useState('idle'); // idle|connecting|connected|sending|confirming|verifying|done|error
   const [errMsg, setErrMsg] = useState('');
-  // Remember the player's coin choice (USDT / native coin) across sessions.
-const [payAsset, setPayAsset] = useState(() => {
-  try { return localStorage.getItem('gbPayAsset') === 'native' ? 'native' : 'usdt'; } catch { return 'usdt'; }
-}); // 'usdt' | 'native'
-useEffect(() => { try { localStorage.setItem('gbPayAsset', payAsset); } catch {} }, [payAsset]);
+  const [payAsset, setPayAsset] = useState('usdt'); // 'usdt' | 'native'
   const [price, setPrice] = useState(0);
   const { address, isConnected } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider('eip155');
