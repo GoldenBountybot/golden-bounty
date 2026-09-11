@@ -5,11 +5,15 @@
 import { warmProfileCache } from '@/lib/profileCache';
 import { warmStakeCache } from '@/lib/useStake';
 import { warmNotificationCache } from '@/lib/notificationCache';
+import { warmBannerCache, warmAgentCache, warmReferralStatsCache } from '@/lib/pageWarmCache';
 
 export function warmAllAccountData() {
   return Promise.all([
     warmProfileCache(),
     warmStakeCache(),
     warmNotificationCache(),
+    warmBannerCache(),
+    warmAgentCache(),
+    warmReferralStatsCache(),
   ].map((p) => Promise.resolve(p).catch(() => null)));
 }
