@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Clock, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { getBannerCache } from '@/lib/pageWarmCache';
 import { useLanguage } from '@/lib/LanguageContext';
 import { hasTelegramBackButton } from '@/lib/telegram';
 
@@ -29,32 +30,34 @@ const DEFAULT_BANNERS = [
   },
 ];
 
+function toBanner(r) {
+  return {
+    id: r.id,
+    title: r.title || '',
+    description: r.description || '',
+    image_url: r.image_url || '',
+    link: r.link || '',
+    link_label: r.link_label || '',
+    gradient: 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)',
+    glow: 'rgba(212,175,55,0.35)',
+  };
+}
+
 function isExternal(url) {
   return /^https?:\/\//i.test(String(url || ''));
 }
 
 export default function Events() {
   const { t } = useLanguage();
-  const [banners, setBanners] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [banners, setBanners] = useState(() => (getBannerCache() || []).map(toBanner));
+  const [loading, setLoading] = useState(() => !getBannerCache());
 
   useEffect(() => {
     let active = true;
     base44.entities.Banner.filter({ active: true }, 'order', 50)
       .then((rows) => {
         if (!active) return;
-        // Admin-added banners (sorted by order). These may or may not have a link.
-        const mapped = rows.map((r) => ({
-          id: r.id,
-          title: r.title || '',
-          description: r.description || '',
-          image_url: r.image_url || '',
-          link: r.link || '',
-          link_label: r.link_label || '',
-          gradient: 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)',
-          glow: 'rgba(212,175,55,0.35)',
-        }));
-        setBanners(mapped);
+        setBanners((rows || []).map(toBanner));
       })
       .catch(() => {})
       .finally(() => { if (active) setLoading(false); });
