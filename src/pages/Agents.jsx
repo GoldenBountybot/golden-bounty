@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Shield } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { getAgentCache } from '@/lib/pageWarmCache';
 import BackButton from '@/components/BackButton';
 import AgentCard from '@/components/agents/AgentCard';
 import AgentApplyButton from '@/components/agents/AgentApplyButton';
@@ -11,8 +12,8 @@ const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-
 
 export default function Agents() {
   const { t } = useLanguage();
-  const [agents, setAgents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [agents, setAgents] = useState(() => getAgentCache() || []);
+  const [loading, setLoading] = useState(() => !getAgentCache());
   const [country, setCountry] = useState('');
 
   useEffect(() => {
