@@ -343,6 +343,16 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     } catch (e) {
       console.error('TrustWalletDeposit send error:', e);
       const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'cancelled/failed');
+      // Some wallets connected over WalletConnect reject direct transaction
+      // requests with code 5201 ("Unknown method(s) requested"). Don't
+      // dead-end the deposit here either: fall back to the pre-filled Send
+      // screen / manual flow, which watches the chain and credits the
+      // deposit automatically once it lands.
+      const raw = String(e?.code ?? '') + ' ' + String(msg);
+      if (/5201/.test(raw) || /unknown method/i.test(raw)) {
+        await startTrustSend();
+        return;
+      }
       setErrMsg('Transaction cancelled/failed: ' + msg);
       setStatus('error');
     }
