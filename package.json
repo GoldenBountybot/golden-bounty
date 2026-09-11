@@ -46,6 +46,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@reown/appkit": "^1.8.23",
     "@reown/appkit-adapter-ethers": "^1.8.23",
+    "@reown/appkit-controllers": "^1.8.23",
     "@solana/spl-token": "^0.4.15",
     "@solana/web3.js": "^1.98.4",
     "@stripe/react-stripe-js": "^3.0.0",
