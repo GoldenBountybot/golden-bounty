@@ -6,6 +6,7 @@ import { getBalance, getMaxWithdrawable } from '@/lib/useCasinoBalance';
 import { useStake, LOCK_DAYS } from '@/lib/useStake';
 import StackMining from '@/components/StackMining';
 import FadeImage from '@/components/FadeImage';
+import { swallowNextClick } from '@/lib/ghostClick';
 import TotalFundsPanel from '@/components/TotalFundsPanel';
 import PendingDepositCard from '@/components/wallet/PendingDepositCard';
 import DepositBonusOfferCard from '@/components/wallet/DepositBonusOfferCard';
@@ -125,24 +126,13 @@ export default function Dashboard() {
   // method card sits at the old tap coordinates — an instant "ghost" method
   // select right after the deposit tap (device logs: /pay?amount=5 ->
   // /pay?amount=5&method=... within the very same second, different method each
-  // time). Swallow exactly the one click that follows a deposit pointerdown.
-  const swallowClickUntil = useRef(0);
-  useEffect(() => {
-    const swallow = (e) => {
-      if (Date.now() > swallowClickUntil.current) return;
-      swallowClickUntil.current = 0;
-      e.stopPropagation();
-      e.preventDefault();
-    };
-    // Capture phase on window: runs before React's root listener, so the
-    // ghost click never reaches any handler on the freshly opened page.
-    window.addEventListener('click', swallow, true);
-    return () => window.removeEventListener('click', swallow, true);
-  }, []);
+  // time). Swallow exactly the one click that follows a deposit pointerdown
+  // via the module-level guard (src/lib/ghostClick.js), which survives this
+  // page unmounting the moment navigation starts.
   const fireDeposit = () => {
     if (Date.now() - lastDepositAt.current < 500) return;
     lastDepositAt.current = Date.now();
-    swallowClickUntil.current = Date.now() + 900;
+    swallowNextClick();
     doDeposit(depAmt);
   };
 
