@@ -128,10 +128,29 @@ export default async function(req) {
       }
       const profit = computeProfit(staked, stakedAt, lastClaim, rate);
       const total = staked + profit;
-      await base44.asServiceRole.entities.Wallet.updateMany(
-        { user_id: user.id },
+      // Atomic check-and-credit: the credit only lands if staked_amount is
+      // STILL the value we just read. Several parts of the app load the
+      // stake state at once (Dashboard + Stack page + the 1s tick), so
+      // concurrent autoUnlock calls all passed the elapsed check and each
+      // credited the balance — the stacked amount got added 2-3 times.
+      // The first winner sets staked_amount to 0; every other caller's
+      // filter then matches nothing, so no extra credit can happen.
+      const res = await base44.asServiceRole.entities.Wallet.updateMany(
+        { user_id: user.id, staked_amount: staked },
         { $inc: { balance: total }, $set: { staked_amount: 0, staked_at: null, last_profit_claim: null } }
       );
+      if (!res || Number(res.updated || 0) === 0) {
+        // Another call already unlocked — return the wallet as it is now.
+        const updated = await findOrCreateWallet(base44, user.id);
+        return Response.json({
+          balance: Number(updated.balance ?? 0),
+          wager_remaining: Math.max(0, Number(updated.wager_remaining ?? 0)),
+          staked_amount: Number(updated.staked_amount ?? 0) || 0,
+          staked_at: updated.staked_at || null,
+          last_profit_claim: updated.last_profit_claim || null,
+          credited: 0,
+        });
+      }
       credited = total;
       balance += total;
       staked = 0;
