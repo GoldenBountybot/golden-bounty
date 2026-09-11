@@ -35,9 +35,23 @@ export default function TelegramBackButton() {
 
     let cancelled = false;
 
-    // fullscreen chrome rebuild drops the arrow but Telegram still thinks it is
-    // visible, so a plain show() is ignored. hide() then show() forces it back.
-    const force = () => {
+    // Plain show()/hide() is safe to call any time. A hide() -> show() cycle is
+    // only needed when Telegram rebuilds the native chrome (fullscreen toggle,
+    // app reactivation) — there the button state goes stale and a plain show()
+    // is ignored. But hiding the button right as a page opens — exactly when
+    // the keyboard closes after tapping Deposit — made the Android client emit
+    // a spurious back event that bounced the user off the freshly opened page
+    // (deposit tap -> loading -> back to the dashboard, first time only).
+    const apply = () => {
+      if (cancelled) return;
+      const bb = tgWebApp()?.BackButton;
+      if (!bb) return;
+      try {
+        bb.onClick(goBack);
+        if (shouldShow) bb.show(); else bb.hide();
+      } catch {}
+    };
+    const applyHard = () => {
       if (cancelled) return;
       const bb = tgWebApp()?.BackButton;
       if (!bb) return;
@@ -52,14 +66,13 @@ export default function TelegramBackButton() {
       } catch {}
     };
 
-    force();
-    const timers = [80, 250, 500, 900, 1400, 2200].map((ms) => setTimeout(force, ms));
+    apply();
+    const timers = [80, 250, 500, 900, 1400, 2200].map((ms) => setTimeout(apply, ms));
 
-    const reapply = () => force();
-    try { wa?.onEvent?.('fullscreenChanged', reapply); } catch {}
-    try { wa?.onEvent?.('viewportChanged', reapply); } catch {}
-    try { wa?.onEvent?.('activated', reapply); } catch {}
-    try { wa?.onEvent?.('themeChanged', reapply); } catch {}
+    try { wa?.onEvent?.('fullscreenChanged', applyHard); } catch {}
+    try { wa?.onEvent?.('activated', applyHard); } catch {}
+    try { wa?.onEvent?.('viewportChanged', apply); } catch {}
+    try { wa?.onEvent?.('themeChanged', apply); } catch {}
 
     return () => {
       cancelled = true;
@@ -67,10 +80,10 @@ export default function TelegramBackButton() {
       window.removeEventListener('popstate', onPop);
       const bb = tgWebApp()?.BackButton;
       try { bb?.offClick(goBack); } catch {}
-      try { wa?.offEvent?.('fullscreenChanged', reapply); } catch {}
-      try { wa?.offEvent?.('viewportChanged', reapply); } catch {}
-      try { wa?.offEvent?.('activated', reapply); } catch {}
-      try { wa?.offEvent?.('themeChanged', reapply); } catch {}
+      try { wa?.offEvent?.('fullscreenChanged', applyHard); } catch {}
+      try { wa?.offEvent?.('activated', applyHard); } catch {}
+      try { wa?.offEvent?.('viewportChanged', apply); } catch {}
+      try { wa?.offEvent?.('themeChanged', apply); } catch {}
     };
   }, [pathname, navigate]);
 
