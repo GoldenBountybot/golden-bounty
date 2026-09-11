@@ -45,10 +45,32 @@ function normalizeAndroidDeepLink(href) {
   }
 }
 
+// Telegram Mini Apps can only hand http(s) URLs to the OS — custom schemes
+// (trust://, metamask://) die inside the webview (bugs.telegram.org/c/19188):
+// the wallet app is never given the pairing/request URI, so its connect
+// prompt never appears and the session NEVER settles (device logs: 36 connect
+// attempts, 0 ever settled). Rewrite known wallet native-scheme links to their
+// https universal equivalents, which Telegram opens externally and the wallet
+// app handles natively. The payload stays exactly as AppKit encoded it —
+// Trust / MetaMask decode it themselves.
+const UNIVERSAL_LINK_BASES = [
+  ['trust://wc?', 'https://link.trustwallet.com/wc?'],
+  ['metamask://wc?', 'https://metamask.app.link/wc?'],
+];
+function toUniversalLink(href) {
+  for (const [scheme, universal] of UNIVERSAL_LINK_BASES) {
+    if (href.startsWith(scheme)) return universal + href.slice(scheme.length);
+  }
+  return href;
+}
+
 const originalOpenHref = CoreHelperUtil.openHref;
 CoreHelperUtil.openHref = (href, target, features) => {
   if (isInsideTelegram()) {
-    const link = normalizeAndroidDeepLink(href);
+    const link = toUniversalLink(normalizeAndroidDeepLink(href));
+    // Device-log ground truth: which link form actually left the app.
+    // Prefix only — the pairing key further into the string is never logged.
+    diag('link', link.slice(0, 60));
     // Telegram suspends this webview the instant the OS switches to the
     // wallet, which can kill the relay socket BEFORE the freshly created
     // pairing / session proposal finishes publishing. On the FIRST connect
