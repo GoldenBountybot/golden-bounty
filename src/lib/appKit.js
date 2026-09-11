@@ -123,6 +123,26 @@ function getWalletConnectRelayer() {
   } catch { return null; }
 }
 
+// The connected wallet's name, read live from AppKit's controllers. The
+// useWalletInfo hook can still be empty right after a session settles — the
+// Trust pre-fill decision must not depend on it, so read the state directly.
+export function getConnectedWalletName() {
+  try {
+    if (typeof window !== 'undefined' && window.trustwallet) return 'Trust Wallet';
+    const active = ConnectorController.state.activeConnector;
+    const conn = ConnectorController.state.connectors?.find((c) => c.id === active?.id) || active;
+    const name = conn?.walletInfo?.name || conn?.provider?.walletInfo?.name;
+    if (name) return String(name);
+    const wc = ConnectorController.state.connectors?.find((c) => c.type === 'WALLET_CONNECT');
+    const sessions = wc?.provider?.client?.session?.values || [];
+    for (const s of sessions) {
+      const peer = s?.peer?.metadata?.name;
+      if (peer) return String(peer);
+    }
+  } catch {}
+  return '';
+}
+
 // transportOpen() can hang forever on the zombie socket the suspended
 // Telegram webview sometimes leaves behind — race it against a timeout so
 // recovery always completes and releases its lock.
