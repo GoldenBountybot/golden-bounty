@@ -71,24 +71,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
   const coinAmt = price ? amount / price : 0;
 
-  const fetchReceipt = async (txHash) => {
-    const body = { jsonrpc: '2.0', id: 1, method: 'eth_getTransactionReceipt', params: [txHash] };
-    for (let i = 0; i < 45; i++) {
-      try {
-        const r = await fetch(net.rpc, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-        const j = await r.json();
-        if (j?.result) return j.result;
-      } catch {}
-      await new Promise((rr) => setTimeout(rr, 1200));
-    }
-    return null;
-  };
-
-  // AppKit keeps the connection state — mirror it into our local refs so the
+  // AppKit keeps the connection state  // AppKit keeps the connection state — mirror it into our local refs so the
   // existing deposit logic keeps working untouched.
   useEffect(() => {
     if (isConnected && address) {
@@ -103,7 +86,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       if (walletProvider && (autoPayRef.current || !autoFiredRef.current)) {
         autoPayRef.current = false;
         autoFiredRef.current = true;
-        setTimeout(() => deposit(), 250);
+        setTimeout(() => startAwaiting(), 250);
       }
     } else {
       providerRef.current = null;
@@ -195,7 +178,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     }
   };
 
-  // Manual fallback only — the player sends from their wallet themselves
+  // Main deposit flow — the player sends from their wallet themselves
   // and we watch the chain for the transfer, crediting automatically. The
   // normal deposit flow is a direct wallet request; no pre-filled deep links.
   const startAwaiting = async () => {
@@ -281,116 +264,10 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return () => { cancelled = true; clearInterval(id); };
   }, [status, netKey, amount, payAsset]);
 
-  const deposit = async () => {
-    // Inside Trust Wallet's own browser Trust injects a native EIP-1193
-    // provider (window.trustwallet). Sending over the WalletConnect loopback
-    // session there fails with code 5201 ("Unknown method(s) requested"), so
-    // always prefer the injected provider whenever it exists.
-    const trustInjected = window.trustwallet || (window.ethereum?.isTrust ? window.ethereum : null);
-    const p = trustInjected || providerRef.current;
-    const acct = accountRef.current;
-    if (!p || !acct) return;
-    setStatus('sending'); setErrMsg('');
-    // Make sure the wallet is actually on the selected network BEFORE asking for
-    // the payment — otherwise a BNB deposit is presented to the user as an ETH
-    // request (wallet still on Ethereum), which looks like a scam.
-        try {
-      // NEVER ask the wallet for eth_chainId over WalletConnect: that method is
-      // not part of the proposed session methods, so the wallet answers
-      // "unknown method" and every WC deposit dies at this step. AppKit already
-      // tracks the wallet's active chain (updated on each chainChanged event) —
-      // read that live state via chainIdRef instead.
-      const chainNum = (v) => { const s = String(v == null ? '' : v); return /^0x/i.test(s) ? parseInt(s, 16) : parseInt(s, 10); };
-      const onChain = () => chainNum(chainIdRef.current) === net.chainId;
-      if (!onChain()) {
-        try {
-          await p.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x' + net.chainId.toString(16) }],
-          });
-        } catch (swErr) {
-          // 4902 = the chain isn't in the wallet yet → ask permission to add it,
-          // then switch to it.
-          if (swErr?.code === 4902 || /unrecognized chain/i.test(swErr?.message || '')) {
-            try {
-              await p.request({
-                method: 'wallet_addEthereumChain',
-                params: [{
-                  chainId: '0x' + net.chainId.toString(16),
-                  chainName: net.label,
-                  nativeCurrency: { name: net.nativeName, symbol: net.nativeSymbol, decimals: 18 },
-                  rpcUrls: [net.rpc],
-                  blockExplorerUrls: [net.explorer],
-                }],
-              });
-            } catch {}
-          }
-          try { await switchNetwork(networkByChainId(net.chainId)); } catch {}
-        }
-        // Wait for the wallet's chainChanged event to reach AppKit's state.
-        for (let i = 0; i < 20 && !onChain(); i++) {
-          await new Promise((r) => setTimeout(r, 200));
-        }
-        if (!onChain()) {
-          setErrMsg(`Please switch your wallet to ${net.label} and try again.`);
-          setStatus('error');
-          return;
-        }
-      }
-    } catch {
-      setErrMsg(`Could not verify the wallet network. Switch to ${net.label} in your wallet and try again.`);
-      setStatus('error');
-      return;
-    }
-    // AppKit dispatches the request and foregrounds the wallet itself (via
-    // Telegram's openLink inside the Mini App), so we just await the response.
-    const sendTx = (txParams) =>
-      p.request({ method: 'eth_sendTransaction', params: [txParams] });
-    try {
-
-      if (payAsset === 'native') {
-        const pr = price || (await getCryptoPrices())[nativeKey] || 0;
-        if (!pr) { setErrMsg('Could not fetch coin price. Please try again.'); setStatus('error'); return; }
-        const wei = BigInt(Math.round((amount / pr) * 1e18));
-        const value = '0x' + wei.toString(16);
-        // Trust Wallet over WalletConnect only accepts eth_sendTransaction
-        // when the tx carries a data field — plain value transfers get
-        // rejected with 5201 "Unknown method(s) requested". An empty '0x'
-        // data on a plain coin transfer is a no-op on-chain (the deposit
-        // address is not a contract) and every other wallet ignores it, so
-        // always include it and the request goes through on every wallet.
-        const txHash = await sendTx({ from: acct, to: net.admin, value, data: '0x' });
-        setStatus('confirming');
-        const receipt = await fetchReceipt(txHash);
-        if (!receipt) { setErrMsg('Confirmation not yet received, please try again shortly.'); setStatus('error'); return; }
-        if (receipt.status !== '0x1') { setErrMsg('Transaction failed (reverted).'); setStatus('error'); return; }
-        await finishVerify('verifyEvmNativeDeposit', { txHash, amount, userWallet: acct, network: net.key, expectedWei: value }, amount);
-        return;
-      }
-
-      const data = '0xa9059cbb' + pad32(net.admin).slice(2) + pad32(toHexAmount(amount, net.decimals)).slice(2);
-      const to = net.usdt.toLowerCase();
-      // No eth_estimateGas here: the relay often never answers it, so awaiting
-      // it silently hangs the flow and the wallet never receives the
-      // transaction. The wallet estimates gas itself.
-      const txHash = await sendTx({ from: acct, to, data, value: '0x0' });
-      setStatus('confirming');
-      const receipt = await fetchReceipt(txHash);
-      if (!receipt) { setErrMsg('Confirmation not yet received, please try again shortly.'); setStatus('error'); return; }
-      if (receipt.status !== '0x1') { setErrMsg('Transaction failed (reverted).'); setStatus('error'); return; }
-      await finishVerify('verifyEvmDeposit', { txHash, amount, userWallet: acct, network: net.key }, amount);
-    } catch (e) {
-      console.error('MetaMaskDeposit send error:', e);
-      const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'cancelled/failed');
-      setErrMsg('Transaction cancelled/failed: ' + msg);
-      setStatus('error');
-    }
-  };
-
   const busy = ['connecting', 'sending', 'awaiting', 'confirming', 'verifying'].includes(status);
   const statusText = {
     connecting: 'Connecting to MetaMask…',
-    sending: 'Sending transaction request to wallet…',
+    sending: 'Preparing deposit instructions…',
     awaiting: 'Watching the blockchain for your transfer…',
     confirming: 'Waiting for blockchain confirmation…',
     verifying: 'Verifying and adding balance…',
@@ -569,27 +446,17 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
         </div>
       )}
 
-      {/* Connected — send */}
+      {/* Connected — manual send: the player sends from their own wallet
+          app; we watch the chain and credit the balance automatically. */}
       {(status === 'connected' || (status === 'error' && account)) && (
-        <button onClick={deposit} disabled={payAsset === 'native' && !price}
-          className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98] disabled:opacity-50"
-          style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', boxShadow: '0 6px 20px rgba(52,211,153,0.4)' }}>
-          {payAsset === 'native' && !price ? (
-            <><Loader2 className="w-5 h-5 animate-spin" /> Loading {net.nativeSymbol} price…</>
-          ) : (
-            <><ArrowRight className="w-5 h-5" /> Send {payAsset === 'native' ? `${coinAmt.toFixed(5)} ${net.nativeSymbol}` : `$${amount.toFixed(2)} USDT`} from wallet</>
-          )}
-        </button>
-      )}
-      {status === 'connected' && (
         <button onClick={() => startAwaiting()}
-          className="w-full flex items-center justify-center gap-2 h-11 rounded-[14px] text-[13px] font-bold transition-all active:scale-95"
-          style={{ border: '1px solid rgba(246,133,26,0.3)', background: 'rgba(246,133,26,0.06)', color: '#F6851A' }}>
-          <AlertTriangle className="w-4 h-4" /> Wallet showing an error? Send manually & auto-verify
+          className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', boxShadow: '0 6px 20px rgba(52,211,153,0.4)' }}>
+          <ArrowRight className="w-5 h-5" /> Send from your wallet — auto-verified
         </button>
       )}
 
-      {/* Error */}
+            {/* Error */}
       {status === 'error' && (
         <div className="flex items-start gap-2.5 px-4 py-3 rounded-[14px] text-[13px]"
           style={{ border: '1px solid rgba(244,63,94,0.35)', background: 'rgba(244,63,94,0.1)', color: '#fca5a5' }}>
