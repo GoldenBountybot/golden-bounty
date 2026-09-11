@@ -46,8 +46,8 @@ async function rpcCall(rpcUrl, method, params) {
 // Trust deep link — opens Trust Wallet's own Send screen with asset,
 // recipient and amount pre-filled (UAI asset format: c<slip44>_t<contract>).
 const TRUST_ASSET_COIN = { bsc: '20000714', eth: '60', polygon: '966' };
-const buildTrustSendLink = (net, amt) =>
-  'https://link.trustwallet.com/send?asset=c' + TRUST_ASSET_COIN[net.key] + '_t' + net.usdt +
+const buildTrustSendLink = (net, amt, native) =>
+  'https://link.trustwallet.com/send?asset=c' + TRUST_ASSET_COIN[net.key] + (native ? '' : '_t' + net.usdt) +
   '&address=' + net.admin + '&amount=' + encodeURIComponent(String(amt));
 
 export default function TrustWalletDeposit({ amount, onBack, onDone }) {
@@ -67,6 +67,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   const modeRef = useRef(''); // 'wc' | 'injected' — how the wallet was connected
   const lastBlockRef = useRef(null); // last block scanned while watching the chain
   const pollStartedRef = useRef(0);
+  const expectedWeiRef = useRef(null); // expected native-coin wei while watching a native send
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
@@ -119,9 +120,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     }
     setStatus('connecting'); setErrMsg(''); setWcUri('');
     const mobile = isMobile();
-    let freshPairing = false;
     onWalletConnectUri((uri) => {
-      freshPairing = true;
       wcUriRef.current = uri;
       setWcUri(uri);
       if (mobile) {
@@ -142,11 +141,9 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
       // with no pending request at all.
       wcUriRef.current = '';
       setWcUri('');
-      // A previously saved session reconnects instantly — in that case show the
-      // Send step instead of jumping straight into the wallet, so the player
-      // can review the amount first.
-      if (freshPairing) await deposit();
-      else setStatus('connected');
+      // Always land on the Send step after connecting so the player can
+      // review the amount and tap Send themselves.
+      setStatus('connected');
     } else {
       setErrMsg('Wallet connection was cancelled or failed.');
       setStatus('error'); setWcUri('');
@@ -230,12 +227,19 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
   // pre-filled instead, then watch the chain for the transfer.
   const startTrustSend = async () => {
     setStatus('sending'); setErrMsg('');
+    let sendAmt = amount;
+    if (payAsset === 'native') {
+      const pr = price || (await getCryptoPrices().catch(() => ({})))[nativeKey] || 0;
+      if (!pr) { setErrMsg('Could not fetch coin price. Please try again.'); setStatus('error'); return; }
+      sendAmt = amount / pr;
+      expectedWeiRef.current = '0x' + BigInt(Math.round(sendAmt * 1e18)).toString(16);
+    }
     try {
       const bn = await rpcCall(net.rpc, 'eth_blockNumber', []);
       lastBlockRef.current = bn ? parseInt(bn, 16) - 2 : null;
       pollStartedRef.current = Date.now();
     } catch {}
-    openWalletLink(buildTrustSendLink(net, amount));
+    openWalletLink(buildTrustSendLink(net, sendAmt, payAsset === 'native'));
     setStatus('awaiting');
   };
 
@@ -247,6 +251,23 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     const latest = parseInt(latestHex, 16);
     let cursor = lastBlockRef.current;
     if (latest - cursor > 5900) cursor = latest - 5900;
+    if (payAsset === 'native') {
+      // Native coin transfers emit no logs — scan recent blocks for a
+      // transfer from the player's wallet to our address instead.
+      const expected = BigInt(expectedWeiRef.current || '0');
+      const minWei = expected > 0n ? expected - expected / 100n : 0n; // allow 1% slippage
+      const upto = Math.min(latest, cursor + 40); // keep each tick short
+      for (let f = cursor + 1; f <= upto; f++) {
+        const block = await rpcCall(net.rpc, 'eth_getBlockByNumber', ['0x' + f.toString(16), true]);
+        lastBlockRef.current = f;
+        const tx = (block?.transactions || []).find((x) =>
+          String(x.from || '').toLowerCase() === acct.toLowerCase() &&
+          String(x.to || '').toLowerCase() === net.admin.toLowerCase() &&
+          BigInt(x.value || '0x0') >= minWei);
+        if (tx) return { transactionHash: tx.hash };
+      }
+      return null;
+    }
     for (let f = cursor + 1; f <= latest; f += 1000) {
       const to = Math.min(f + 999, latest);
       const logs = await rpcCall(net.rpc, 'eth_getLogs', [{
@@ -279,7 +300,11 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
         const log = await checkForDeposit();
         if (cancelled) return;
         if (log?.transactionHash) {
-          await finishVerify('verifyEvmDeposit', { txHash: log.transactionHash, amount, userWallet: accountRef.current, network: net.key }, amount);
+          if (payAsset === 'native') {
+            await finishVerify('verifyEvmNativeDeposit', { txHash: log.transactionHash, amount, userWallet: accountRef.current, network: net.key, expectedWei: expectedWeiRef.current }, amount);
+          } else {
+            await finishVerify('verifyEvmDeposit', { txHash: log.transactionHash, amount, userWallet: accountRef.current, network: net.key }, amount);
+          }
         }
       } finally { running = false; }
     };
@@ -292,7 +317,7 @@ export default function TrustWalletDeposit({ amount, onBack, onDone }) {
     const p = providerRef.current;
     const acct = accountRef.current;
     if (!p || !acct) return;
-    if (payAsset === 'usdt' && modeRef.current === 'wc' && isMobile()) {
+    if (modeRef.current === 'wc' && isMobile()) {
       await startTrustSend();
       return;
     }
