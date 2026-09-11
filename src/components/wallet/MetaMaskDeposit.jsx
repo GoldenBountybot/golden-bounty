@@ -194,9 +194,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     }
   };
 
-  // Main deposit flow — the player sends from their wallet themselves
-  // and we watch the chain for the transfer, crediting automatically. The
-  // deposit flow — when the connected wallet is Trust, open Trust's own Send
+  // Main deposit flow — when the connected wallet is Trust, open Trust's own Send
   // screen pre-filled (address + amount) so the player just reviews and
   // confirms; we watch the chain for the transfer, crediting automatically.
   const startAwaiting = async (openTrust) => {
@@ -476,7 +474,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       {/* Connected — manual send: the player sends from their own wallet
           app; we watch the chain and credit the balance automatically. */}
       {(status === 'connected' || (status === 'error' && account)) && (
-        <button onClick={() => startAwaiting(true)
+        <button onClick={() => startAwaiting(true)}
           className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #34d399, #10b981)', color: '#06281f', boxShadow: '0 6px 20px rgba(52,211,153,0.4)' }}>
           <ArrowRight className="w-5 h-5" /> Send from your wallet — auto-verified
