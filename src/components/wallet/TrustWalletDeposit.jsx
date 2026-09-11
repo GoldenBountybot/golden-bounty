@@ -311,11 +311,8 @@ useEffect(() => { try { localStorage.setItem('gbPayAsset', payAsset); } catch {}
       if (cancelled || running) return;
       running = true;
       try {
-        if (Date.now() - pollStartedRef.current > 20 * 60 * 1000) {
-          setErrMsg('No matching transaction found after 20 minutes. If you already sent it, please contact support with your transaction ID.');
-          setStatus('error');
-          return;
-        }
+        // No timeout here: the Send screen keeps our address and the amount
+        // pre-filled, and we just keep waiting for the player's approve.
         const log = await checkForDeposit();
         if (cancelled) return;
         if (log?.transactionHash) {
