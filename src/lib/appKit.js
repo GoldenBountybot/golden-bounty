@@ -48,7 +48,29 @@ function normalizeAndroidDeepLink(href) {
 const originalOpenHref = CoreHelperUtil.openHref;
 CoreHelperUtil.openHref = (href, target, features) => {
   if (isInsideTelegram()) {
-    openWalletLink(normalizeAndroidDeepLink(href));
+    const link = normalizeAndroidDeepLink(href);
+    // Telegram suspends this webview the instant the OS switches to the
+    // wallet, which can kill the relay socket BEFORE the freshly created
+    // pairing / session proposal finishes publishing. On the FIRST connect
+    // there is no cached pairing yet, so MetaMask then opens an empty pairing
+    // and silently drops the request — the "first tap fails, second works"
+    // pattern. Keep the webview (and its live socket) alive briefly so the
+    // publish completes, and only then hand the link to the OS.
+    if (href.indexOf('wc?uri=') !== -1) {
+      const startedAt = Date.now();
+      const handOff = () => openWalletLink(link);
+      const waitForRelay = () => {
+        const relayer = getWalletConnectRelayer();
+        if ((relayer && relayer.connected) || Date.now() - startedAt > 1500) {
+          setTimeout(handOff, 350);
+        } else {
+          setTimeout(waitForRelay, 100);
+        }
+      };
+      waitForRelay();
+      return;
+    }
+    openWalletLink(link);
     return;
   }
   originalOpenHref.call(CoreHelperUtil, href, target, features);
