@@ -168,6 +168,11 @@ function scheduleResumeRetry() {
     let modalOpen = false;
     try { modalOpen = !!ModalController.state.open; } catch {}
     if (connected || isConnectingToWallet() || modalOpen) return;
+    // Resume only ever inside the deposit flow's wallet screen. Firing the
+    // modal anywhere else — dashboard, or the "Choose Payment" screen of a
+    // FRESH deposit — hijacks whatever the user is doing and looks like the
+    // deposit jumped straight to MetaMask on its own.
+    if (window.location.pathname !== '/pay' || !window.location.search.includes('method=')) return;
     connectAttemptStarted = false;
     diag('auto-retry', JSON.stringify(relayerState()));
     try { appKit.open(); } catch {}
@@ -210,47 +215,16 @@ function isConnectingToWallet() {
 // A settled WalletConnect session is kept in localStorage, but after the page
 // reloads AppKit does not always wire that saved session up on its own — the
 // app then shows the wallet as disconnected even though it was connected
-// before, and the user has to connect all over again. When a session is
-// stored while AppKit reports no active account, give AppKit ten seconds to
-// finish restoring it, then reload the page once: a fresh AppKit
-// initialization restores the session and the wallet comes back connected.
-// This never runs while a connect is in progress — there is no stored session
-// yet in that case, and reloading would only cancel the pending approval in
-// the wallet and force the user to connect a second time.
-let restoreSince = 0;
-
-function reloadOnce() {
-  let count = 0;
-  let lastReload = 0;
-  try {
-    count = Number(sessionStorage.getItem('gbWcReloadCount') || 0);
-    lastReload = Number(sessionStorage.getItem('gbWcReloadAt') || 0);
-  } catch {}
-  if (count >= 2 || Date.now() - lastReload < 45000) return;
-  try {
-    sessionStorage.setItem('gbWcReloadCount', String(count + 1));
-    sessionStorage.setItem('gbWcReloadAt', String(Date.now()));
-  } catch {}
-  window.location.reload();
-}
-
-function ensureWalletSessionRestored() {
-  let storedSession = false;
-  try {
-    const connector =
-      ConnectorController.state.connectors?.find((c) => c.type === 'WALLET_CONNECT') ||
-      ConnectorController.getConnectorById('WALLET_CONNECT');
-    storedSession = !!connector?.provider?.session;
-  } catch {}
-  let connected = false;
-  try { connected = !!ChainController.state.activeCaipAddress?.eip155; } catch {}
-  if (connected || !storedSession) {
-    restoreSince = 0;
-    return;
-  }
-  if (!restoreSince) restoreSince = Date.now();
-  if (Date.now() - restoreSince >= 10000) reloadOnce();
-}
+// before, and the user has to connect all over again.
+//
+// There is NO forced page reload for this anymore. The old recovery reload
+// fired anywhere in the app (e.g. mid-typing a deposit amount), slammed the
+// user back into the full entry loading screen and re-entered the app from
+// whatever URL was open — the exact "random loading while using the app"
+// reported on the phone. If the saved session doesn't come back on its own,
+// the wallet simply shows as disconnected and one tap from the deposit
+// screen reconnects it.
+function ensureWalletSessionRestored() {}
 
 // If the "Connecting" screen is still up with a healthy relay well after
 // resume, the wallet's approval is simply gone — it was sent while this
