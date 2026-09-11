@@ -111,11 +111,7 @@ export default function PhantomDeposit({ amount, onBack, onDone }) {
       providerRef.current = p;
       accountRef.current = accts[0];
       setAccount(accts[0]);
-      // Fire the payment request immediately after connect approval — the
-      // player only approves twice inside the wallet (connect, then pay),
-      // with no need to come back to the app and tap an extra "Send" button.
       setStatus('connected');
-      await deposit();
     } catch (e) {
       const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'cancelled');
       setErrMsg('Connection failed: ' + msg);

@@ -5,6 +5,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { Bitcoin, Wallet, Copy, Check, ArrowLeft, AlertTriangle } from 'lucide-react';
+import TrustWalletDeposit from '@/components/wallet/TrustWalletDeposit';
 import MetaMaskDeposit from '@/components/wallet/MetaMaskDeposit';
 import TonkeeperDeposit from '@/components/wallet/TonkeeperDeposit';
 import PhantomSolanaDeposit from '@/components/wallet/PhantomSolanaDeposit';
@@ -137,27 +138,14 @@ export default function PayMethod() {
   const view = sp.get('method') || 'choose'; // 'choose' | 'usdt' | 'usdc' | 'crypto' | wallet ids
   const setView = (v) => {
     const next = new URLSearchParams(sp);
-    if (!v || v === 'choose') {
-      next.delete('method');
-      try { sessionStorage.removeItem('gb_pay_method_live'); } catch { /* private mode */ }
-    } else {
-      next.set('method', v);
-      // Marks the method as chosen in THIS webview session, so the guard below
-      // can tell a genuine wallet screen (or a wallet deep-link return, whose
-      // session flag survives a webview reload) apart from a stale history
-      // entry left over from a previous session.
-      try { sessionStorage.setItem('gb_pay_method_live', '1'); } catch { /* private mode */ }
-    }
+    if (!v || v === 'choose') next.delete('method');
+    else next.set('method', v);
     setSp(next);
   };
 
   useEffect(() => {
     return () => {
-      // Leaving /pay entirely: no wallet screen of this flow is live anymore,
-      // so a later stale /pay?method=... entry must restore as "Choose
-      // Payment", never as the wallet screen.
       try { sessionStorage.removeItem('gb_pay_net'); } catch { /* private mode */ }
-      try { sessionStorage.removeItem('gb_pay_method_live'); } catch { /* private mode */ }
     };
   }, []);
   const [payData, setPayData] = useState({ usdt: USDT_NETWORKS, usdc: USDC_NETWORKS, crypto: CRYPTO_NETWORKS });
@@ -177,29 +165,6 @@ export default function PayMethod() {
 
   // Switching method always starts on that method's own first screen.
   useEffect(() => { setSelNet(null); }, [view]);
-
-  // Telegram's webview keeps old history entries across app restarts, so a
-  // back press on a fresh /pay can pop a stale /pay?method=... page from a
-  // previous session and dump the user straight onto a wallet screen. Only a
-  // method chosen in this session (or a wallet deep-link return) may restore a
-  // wallet screen; anything else starts on "Choose Payment".
-  useEffect(() => {
-    if (view === 'choose') {
-      // No method selected right now — drop any leftover marker, e.g. after
-      // a spurious back delivered a stale wallet entry and this guard just
-      // stripped it. Otherwise the NEXT stale entry would sneak past as
-      // "live" and open the wallet screen on its own.
-      try { sessionStorage.removeItem('gb_pay_method_live'); } catch { /* private mode */ }
-      return;
-    }
-    let live = false;
-    try { live = sessionStorage.getItem('gb_pay_method_live') === '1'; } catch { live = true; }
-    if (!live) {
-      const next = new URLSearchParams(sp);
-      next.delete('method');
-      setSp(next, { replace: true });
-    }
-  }, [sp]); // also fires on same-path history pops, which don't remount
 
   const [enteredAmount, setEnteredAmount] = useState('');
   const [prices, setPrices] = useState({});
@@ -401,7 +366,15 @@ export default function PayMethod() {
           </div>
         )}
 
-        {(view === 'trust' || view === 'metamask') && (
+        {view === 'trust' && (
+          <TrustWalletDeposit
+            amount={amount}
+            onBack={() => { setView('choose'); }}
+            onDone={() => { navigate('/dashboard'); }}
+          />
+        )}
+
+        {view === 'metamask' && (
           <MetaMaskDeposit
             amount={amount}
             onBack={() => { setView('choose'); }}
