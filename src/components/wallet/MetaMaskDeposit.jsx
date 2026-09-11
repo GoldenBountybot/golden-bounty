@@ -4,7 +4,7 @@ import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Smartphone, Copy, X } from 'lucide-react';
 import { useAppKitAccount, useAppKitProvider, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react';
-import { appKit, networkByChainId, restoreAllNetworks, noteConnectAttempt } from '@/lib/appKit';
+import { appKit, networkByChainId, restoreAllNetworks, noteConnectAttempt, restrictToSelectedNetwork } from '@/lib/appKit';
 import { openWalletLink } from '@/lib/openWalletLink';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
@@ -144,6 +144,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     setErrMsg('');
     try {
       console.log('[gb-wc] Connect tapped — recording attempt, opening AppKit once');
+      // Only the network the user picked on this screen may go into the
+      // connect request. Without this, the proposal asks the wallet to
+      // approve BSC + Ethereum + Polygon all at once, and the deposit then
+      // rides on whichever chain the wallet happened to pick.
+      restrictToSelectedNetwork(net.chainId);
       noteConnectAttempt();
       await appKit.open();
     } catch (error) {
