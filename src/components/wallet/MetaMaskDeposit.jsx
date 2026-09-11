@@ -114,7 +114,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       accountRef.current = address;
       setAccount(address);
       setStatus((s) => (s === 'idle' || s === 'connecting' || s === 'error' ? 'connected' : s));
-      if (autoPayRef.current || !autoFiredRef.current) {
+      // AppKit can publish isConnected/address before its EIP-1193 provider
+      // is ready. Do not consume the once-per-connection guard in that window;
+      // the effect runs again when walletProvider arrives and then sends the
+      // actual payment request to the same wallet session.
+      if (walletProvider && (autoPayRef.current || !autoFiredRef.current)) {
         autoPayRef.current = false;
         autoFiredRef.current = true;
         setTimeout(() => deposit(), 250);
