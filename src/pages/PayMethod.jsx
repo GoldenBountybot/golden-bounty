@@ -189,7 +189,7 @@ export default function PayMethod() {
       next.delete('method');
       setSp(next, { replace: true });
     }
-  }, []); // mount only
+  }, [sp]); // also fires on same-path history pops, which don't remount
 
   const [enteredAmount, setEnteredAmount] = useState('');
   const [prices, setPrices] = useState({});
