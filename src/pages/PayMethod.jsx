@@ -138,8 +138,17 @@ export default function PayMethod() {
   const view = sp.get('method') || 'choose'; // 'choose' | 'usdt' | 'usdc' | 'crypto' | wallet ids
   const setView = (v) => {
     const next = new URLSearchParams(sp);
-    if (!v || v === 'choose') next.delete('method');
-    else next.set('method', v);
+    if (!v || v === 'choose') {
+      next.delete('method');
+      try { sessionStorage.removeItem('gb_pay_method_live'); } catch { /* private mode */ }
+    } else {
+      next.set('method', v);
+      // Marks the method as chosen in THIS webview session, so the guard below
+      // can tell a genuine wallet screen (or a wallet deep-link return, whose
+      // session flag survives a webview reload) apart from a stale history
+      // entry left over from a previous session.
+      try { sessionStorage.setItem('gb_pay_method_live', '1'); } catch { /* private mode */ }
+    }
     setSp(next);
   };
 
@@ -165,6 +174,22 @@ export default function PayMethod() {
 
   // Switching method always starts on that method's own first screen.
   useEffect(() => { setSelNet(null); }, [view]);
+
+  // Telegram's webview keeps old history entries across app restarts, so a
+  // back press on a fresh /pay can pop a stale /pay?method=... page from a
+  // previous session and dump the user straight onto a wallet screen. Only a
+  // method chosen in this session (or a wallet deep-link return) may restore a
+  // wallet screen; anything else starts on "Choose Payment".
+  useEffect(() => {
+    if (view === 'choose') return;
+    let live = false;
+    try { live = sessionStorage.getItem('gb_pay_method_live') === '1'; } catch { live = true; }
+    if (!live) {
+      const next = new URLSearchParams(sp);
+      next.delete('method');
+      setSp(next, { replace: true });
+    }
+  }, []); // mount only
 
   const [enteredAmount, setEnteredAmount] = useState('');
   const [prices, setPrices] = useState({});
