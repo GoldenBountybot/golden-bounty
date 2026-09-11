@@ -396,6 +396,17 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     } catch (e) {
       console.error('MetaMaskDeposit send error:', e);
       const msg = e?.message || e?.code || (typeof e === 'string' ? e : 'cancelled/failed');
+      // Trust Wallet connected over WalletConnect rejects direct transaction
+      // requests with code 5201 ("Unknown method(s) requested") — and on this
+      // path walletInfo doesn't identify the wallet, so the Trust check above
+      // can't route around it up front. Don't dead-end the deposit: fall back
+      // to Trust's own pre-filled Send screen / manual flow, which watches the
+      // chain and credits the deposit automatically either way.
+      const raw = String(e?.code ?? '') + ' ' + String(msg);
+      if (/5201/.test(raw) || /unknown method/i.test(raw)) {
+        await startAwaiting(true);
+        return;
+      }
       setErrMsg('Transaction cancelled/failed: ' + msg);
       setStatus('error');
     }
