@@ -3,8 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Copy, X } from 'lucide-react';
-import { useAppKitAccount, useAppKitProvider, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react';
-import { appKit, networkByChainId, restoreAllNetworks, noteConnectAttempt, restrictToSelectedNetwork } from '@/lib/appKit';
+import { useAppKitAccount, useAppKitProvider, useAppKitNetwork } from '@reown/appkit/react';
+import { appKit, networkByChainId, restoreAllNetworks, noteConnectAttempt, restrictToSelectedNetwork, getConnectedWalletName, reconnectWalletConnectRelay } from '@/lib/appKit';
 import { openWalletLink } from '@/lib/openWalletLink';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
@@ -60,8 +60,10 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const [errMsg, setErrMsg] = useState('');
   const [payAsset, setPayAsset] = useState('usdt'); // 'usdt' | 'native'
   const [price, setPrice] = useState(0);
+  // True once the wallet's own Send screen has been opened pre-filled (Trust) —
+  // the app then shows no address or instructions at all, only the chain watch.
+  const [prefilledInWallet, setPrefilledInWallet] = useState(false);
   const { address, isConnected } = useAppKitAccount();
-  const { walletInfo } = useWalletInfo('eip155');
   const { walletProvider } = useAppKitProvider('eip155');
   const { chainId, switchNetwork } = useAppKitNetwork();
   const providerRef = useRef(null);
@@ -81,13 +83,17 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   // (deposit) always read the CURRENT chain instead of a stale closure value.
   const chainIdRef = useRef(chainId);
   useEffect(() => { chainIdRef.current = chainId; }, [chainId]);
+  // Prewarm the WalletConnect relay as soon as this screen opens, so the
+  // socket is already live when the player taps Connect — the first connect
+  // proposal then publishes instantly instead of racing the socket handshake
+  // (the "first tap fails, second works" pattern).
+  useEffect(() => { reconnectWalletConnectRelay(); }, []);
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
   const coinAmt = price ? amount / price : 0;
-  const isTrustWallet = /trust/i.test(walletInfo?.name || '') || !!window.trustwallet;
 
-  // AppKit keeps the connection state  // AppKit keeps the connection state — mirror it into our local refs so the
+  // AppKit keeps the connection state — mirror it into our local refs so the
   // existing deposit logic keeps working untouched.
   useEffect(() => {
     if (isConnected && address) {
@@ -194,9 +200,20 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     }
   };
 
-  // Main deposit flow — when the connected wallet is Trust, open Trust's own Send
-  // screen pre-filled (address + amount) so the player just reviews and
-  // confirms; we watch the chain for the transfer, crediting automatically.
+  // Main deposit flow — the pre-fill lives in the WALLET, not in the app:
+  // when the connected wallet is Trust, open Trust's own Send screen with the
+  // recipient and amount pre-filled so the player just reviews and confirms
+  // there; the app only watches the chain and credits automatically. The
+  // wallet name can take a moment to appear after the session settles, so
+  // poll for it briefly — otherwise the first connect misses the pre-fill.
+  const detectTrustWallet = async () => {
+    for (let i = 0; i < 12; i++) {
+      if (window.trustwallet || /trust/i.test(getConnectedWalletName())) return true;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+    return false;
+  };
+
   const startAwaiting = async (openTrust) => {
     setStatus('sending'); setErrMsg('');
     try {
@@ -204,7 +221,8 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       lastBlockRef.current = bn ? parseInt(bn, 16) - 2 : null;
       pollStartedRef.current = Date.now();
     } catch {}
-    if (openTrust && isTrustWallet) {
+    let opened = false;
+    if (openTrust && (await detectTrustWallet())) {
       if (payAsset === 'native') {
         // The link must carry the COIN amount, not the USD figure.
         const pr = price || (await getCryptoPrices())[nativeKey] || 0;
@@ -212,7 +230,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       } else {
         openWalletLink(buildTrustSendLink(net, amount));
       }
+      opened = true;
     }
+    setPrefilledInWallet(opened);
     setStatus('awaiting');
   };
 
@@ -292,7 +312,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const busy = ['connecting', 'sending', 'awaiting', 'confirming', 'verifying'].includes(status);
   const statusText = {
     connecting: 'Connecting to MetaMask…',
-    sending: 'Preparing deposit instructions…',
+    sending: 'Opening your wallet…',
     awaiting: 'Watching the blockchain for your transfer…',
     confirming: 'Waiting for blockchain confirmation…',
     verifying: 'Verifying and adding balance…',
@@ -422,21 +442,29 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           )}
           {status === 'awaiting' && (
             <>
-              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
-                Send{' '}
-                {payAsset === 'native'
-                  ? <b style={{ color: '#F6851A' }}>{coinAmt ? coinAmt.toFixed(5) : '≈'} {net.nativeSymbol} (≈ ${amount.toFixed(2)})</b>
-                  : <b style={{ color: '#F6851A' }}>${amount.toFixed(2)} USDT</b>}{' '}
-                on <b>{net.label}</b> to:
-              </p>
-              <div className="flex items-center gap-2 px-3 py-2 rounded-[12px]" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(246,133,26,0.3)' }}>
-                <span className="text-[12px] font-mono break-all flex-1" style={{ color: '#fff' }}>{net.admin}</span>
-                <button onClick={() => { try { navigator.clipboard.writeText(net.admin); toast({ title: 'Address copied' }); } catch {} }}
-                  className="shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-[10px] text-[11px] font-bold"
-                  style={{ background: 'rgba(246,133,26,0.15)', color: '#F6851A', border: '1px solid rgba(246,133,26,0.35)' }}>
-                  <Copy className="w-3.5 h-3.5" /> Copy
-                </button>
-              </div>
+              {prefilledInWallet ? (
+                <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                  Your wallet's <b style={{ color: '#F6851A' }}>Send screen</b> is open with the recipient and amount already pre-filled — just review and confirm the transfer there.
+                </p>
+              ) : (
+                <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                  Send{' '}
+                  {payAsset === 'native'
+                    ? <b style={{ color: '#F6851A' }}>{coinAmt ? coinAmt.toFixed(5) : '≈'} {net.nativeSymbol} (≈ ${amount.toFixed(2)})</b>
+                    : <b style={{ color: '#F6851A' }}>${amount.toFixed(2)} USDT</b>}{' '}
+                  on <b>{net.label}</b> to:
+                </p>
+              )}
+              {!prefilledInWallet && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-[12px]" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(246,133,26,0.3)' }}>
+                  <span className="text-[12px] font-mono break-all flex-1" style={{ color: '#fff' }}>{net.admin}</span>
+                  <button onClick={() => { try { navigator.clipboard.writeText(net.admin); toast({ title: 'Address copied' }); } catch {} }}
+                    className="shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-[10px] text-[11px] font-bold"
+                    style={{ background: 'rgba(246,133,26,0.15)', color: '#F6851A', border: '1px solid rgba(246,133,26,0.35)' }}>
+                    <Copy className="w-3.5 h-3.5" /> Copy
+                  </button>
+                </div>
+              )}
               <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
                 Checking automatically — once your transfer lands on-chain, your balance is added. A small amount of {net.nativeSymbol} is needed for the network fee.
               </p>
@@ -471,8 +499,8 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
         </div>
       )}
 
-      {/* Connected — manual send: the player sends from their own wallet
-          app; we watch the chain and credit the balance automatically. */}
+      {/* Connected — re-opens the wallet's own Send screen pre-filled;
+          the app only watches the chain and credits the balance automatically. */}
       {(status === 'connected' || (status === 'error' && account)) && (
         <button onClick={() => startAwaiting(true)}
           className="w-full flex items-center justify-center gap-2 h-14 rounded-[16px] font-extrabold transition-all active:scale-[0.98]"
