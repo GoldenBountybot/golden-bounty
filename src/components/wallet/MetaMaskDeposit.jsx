@@ -61,7 +61,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const accountRef = useRef(null);
   const lastBlockRef = useRef(null); // last block scanned while watching the chain
   const pollStartedRef = useRef(0);
-  const autoDepositRef = useRef(false); // fire deposit() automatically once a fresh connect lands
+  const netSyncRef = useRef(false); // sync the wallet to the app-selected network once per connection
+  const netSyncRunRef = useRef(null); // a single in-flight network sync — no duplicate switch requests
+  const sendingRef = useRef(false); // one in-flight payment request — never duplicate
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
@@ -93,28 +95,37 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       accountRef.current = address;
       setAccount(address);
       setStatus((s) => (s === 'idle' || s === 'connecting' || s === 'error' ? 'connected' : s));
-      // After a fresh connect (started from the Connect button), fire the
-      // deposit request automatically to the selected network/coin.
-      if (autoDepositRef.current && walletProvider) {
-        autoDepositRef.current = false;
-        // The wallet must be on the network the user selected BEFORE the
-        // payment request fires. ensureNetwork() asks the wallet for its REAL
-        // chain (AppKit's chainId only mirrors AppKit's own selection), switches
-        // it — adding the chain first if the wallet doesn't have it — and waits
-        // for the switch to land, so the deposit request then targets exactly
-        // the network picked in the app.
-        (async () => {
-          try { await ensureNetwork(); } catch {}
-          depositRef.current?.();
-        })();
+      // Right after connecting, sync the wallet to the network selected in the
+      // app: if it is already there nothing is asked; if it is on another
+      // chain, ONE switch request is sent (adding the chain first if the
+      // wallet doesn't have it). Connection and payment stay separate — this
+      // only syncs the network; the Send Payment button sends the payment.
+      if (!netSyncRef.current && walletProvider) {
+        netSyncRef.current = true;
+        (async () => { try { await ensureNetwork(); } catch {} })();
       }
     } else {
       providerRef.current = null;
       accountRef.current = null;
       setAccount(null);
+      netSyncRef.current = false;
       setStatus((s) => (s === 'connected' ? 'idle' : s));
     }
   }, [isConnected, address, walletProvider]);
+
+  // If the wallet modal is closed without connecting (rejected or cancelled),
+  // return to idle so the Connect button becomes usable again — a cancelled
+  // request must never leave the flow stuck on "connecting…".
+  useEffect(() => {
+    try {
+      const unsub = appKit.subscribeEvents?.((e) => {
+        if (e?.data?.event === 'MODAL_CLOSE') {
+          setStatus((s) => (s === 'connecting' ? 'idle' : s));
+        }
+      });
+      return unsub;
+    } catch { return undefined; }
+  }, []);
 
   // Polygon has no native option here — fall back to USDT if it was selected.
   useEffect(() => { if (!nativeSupported && payAsset === 'native') setPayAsset('usdt'); }, [netKey, nativeSupported]);
@@ -132,8 +143,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   }, [nativeKey, nativeSupported]);
 
   const openConnectModal = async () => {
+    if (status === 'connecting') return; // one connection request at a time
     setErrMsg('');
-    autoDepositRef.current = true; // after connecting, fire the deposit request automatically
+    setStatus('connecting'); // disables the button while the request is pending
     // Only the network the user selected may be part of the connect request.
     restrictToSelectedNetwork(net.chainId);
     await appKit.open();
@@ -234,7 +246,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   // the wallet doesn't have it yet), then wait for the switch to actually land
   // before sending anything: the payment request always targets the network
   // the user picked in the app.
-  const ensureNetwork = async () => {
+  const runNetworkSync = async () => {
     const p = providerRef.current;
     if (!p) return false;
     const wantHex = '0x' + net.chainId.toString(16);
@@ -300,7 +312,17 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return false;
   };
 
-  const deposit = async () => {
+  // One network sync at a time: if the connect-time sync is still in flight,
+  // Send Payment shares it instead of firing a second, duplicate switch
+  // request at the wallet.
+  const ensureNetwork = () => {
+    if (!netSyncRunRef.current) {
+      netSyncRunRef.current = runNetworkSync().finally(() => { netSyncRunRef.current = null; });
+    }
+    return netSyncRunRef.current;
+  };
+
+  const runDeposit = async () => {
     const p = providerRef.current;
     const acct = accountRef.current;
     if (!p || !acct) return;
@@ -355,8 +377,13 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       setStatus('error');
     }
   };
-  const depositRef = useRef(null);
-  depositRef.current = deposit;
+  // Send Payment — fires the payment request directly from the button click;
+  // the in-flight guard turns a double click into exactly one wallet request.
+  const deposit = async () => {
+    if (sendingRef.current) return;
+    sendingRef.current = true;
+    try { await runDeposit(); } finally { sendingRef.current = false; }
+  };
 
   const busy = ['connecting', 'sending', 'awaiting', 'confirming', 'verifying'].includes(status);
   const statusText = {
@@ -551,7 +578,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           {payAsset === 'native' && !price ? (
             <><Loader2 className="w-5 h-5 animate-spin" /> Loading {net.nativeSymbol} price…</>
           ) : (
-            <><ArrowRight className="w-5 h-5" /> Send {payAsset === 'native' ? `${coinAmt.toFixed(5)} ${net.nativeSymbol}` : `$${amount.toFixed(2)} USDT`} from wallet</>
+            <><ArrowRight className="w-5 h-5" /> Send Payment{payAsset === 'native' ? ` — ${coinAmt.toFixed(5)} ${net.nativeSymbol}` : ` — ${amount.toFixed(2)} USDT`}</>
           )}
         </button>
       )}
