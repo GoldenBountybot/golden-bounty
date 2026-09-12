@@ -261,6 +261,20 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   // the wallet doesn't have it yet), then wait for the switch to actually land
   // before sending anything: the payment request always targets the network
   // the user picked in the app.
+  // Official app-open links: hand the phone over to a BACKGROUND wallet so it
+  // can act on a pending request (network switch / payment approval). Only
+  // links from the wallets themselves (WalletConnect registry / proven
+  // universal links) are mapped — Coinbase shows its own OS notification and
+  // falls back to the toast nudge instead of a dead link.
+  const walletHome = () => {
+    const wName = walletInfo?.name || '';
+    if (isTrustWallet || /trust/i.test(wName)) return 'https://link.trustwallet.com/';
+    if (/metamask/i.test(wName)) return 'https://metamask.app.link/';
+    if (/binance wallet/i.test(wName)) return 'https://app.binance.com/cedefi';
+    if (/my wallet/i.test(wName)) return 'https://my.tt/wc/';
+    return null;
+  };
+
   const runNetworkSync = async () => {
     const p = providerRef.current;
     if (!p) return false;
@@ -322,14 +336,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     // happened. Open the wallet now: MetaMask auto-confirms the switch to a
     // known chain (BSC/Ethereum/Polygon) as soon as it processes the request,
     // and the player returns to the app right after.
-    // Only open a wallet app we can name — for MetaMask / Trust this handoff
-    // lets the background wallet process the switch. Coinbase / Binance / My
-    // Wallet would just get a dead MetaMask link; they show their own
-    // notification for pending requests instead.
-    const wName = walletInfo?.name || '';
-    const home = isTrustWallet ? 'https://link.trustwallet.com/'
-      : /metamask/i.test(wName) ? 'https://metamask.app.link/'
-      : null;
+    // Hand the phone over to a background wallet so it can act on the
+    // pending switch. Wallets we can't name rely on their own notification.
+    const home = walletHome();
     if (home) openWalletLink(home);
     // Keep watching for the switch to land — the moment the player is back and
     // the chain matches, the payment request fires automatically on exactly
@@ -378,10 +387,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     // Telegram-webview behaviour. Queue the request, then hand the phone over
     // to the wallet app (the same handoff the network sync uses) so the
     // confirmation sheet actually opens.
-    const wName = walletInfo?.name || '';
-    const home = isTrustWallet ? 'https://link.trustwallet.com/'
-      : /metamask/i.test(wName) ? 'https://metamask.app.link/'
-      : null;
+    const home = walletHome();
     const sendTx = (txParams) => {
       const res = p.request({ method: 'eth_sendTransaction', params: [txParams] });
       if (home) openWalletLink(home);
