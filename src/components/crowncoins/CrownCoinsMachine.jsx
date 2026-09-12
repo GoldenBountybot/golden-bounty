@@ -2,7 +2,6 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useGameSettings } from '@/lib/useGameSettings';
-import { useLogActivity } from '@/lib/useLogActivity';
 import { savePendingRound, clearPendingRound, getPendingRound } from '@/lib/pendingRound';
 import { useToast } from '@/components/ui/use-toast';
 import { SYMBOLS, JACKPOTS, spinGrid, evaluateGrid, runBonus, symbolByKey, cellValue, VALUE_COIN_IMG, JACKPOT_COINS, isValueCoin, valueCoinMult, isTierCoin, tierCoinLabel, isFreeSpinTrigger, spinFreeAccum, freeTotal } from '@/lib/crownCoinsEngine';
@@ -193,7 +192,6 @@ function ReelColumn({ result, phase, winMask, speed, bet, colIndex, amountCell, 
 export default function CrownCoinsMachine() {
   const { balance, setBalance, beginRound, settleBet } = useCasinoBalance();
   const { rtp, loading: sLoading, minBet, maxBet } = useGameSettings('crown-coins');
-  const logActivity = useLogActivity();
   const { toast } = useToast();
 
   // grid stored as 9 keys row-major; reels = 3 columns each 3 rows
@@ -398,7 +396,6 @@ export default function CrownCoinsMachine() {
         setWinMask([[false,false,false],[false,false,false],[false,false,false]]);
         setLastWin(runningTotal);
         setSpinning(false);
-        logActivity('crown-coins', 0, 0, 'push');
         try { base44.analytics.track({ eventName: 'crown_coins_free_spin', properties: { bet, stuck: runningTotal, remaining: freeSpinsRef.current, dropped: freeDropped } }); } catch {}
 
         if (freeSpinsRef.current > 0 && !allFilled) {
@@ -415,7 +412,6 @@ export default function CrownCoinsMachine() {
           setRoyalWin(total);
           setShowRoyalBanner(true);
           clearPendingRound('crown-coins');
-          logActivity('crown-coins', 0, total, total > 0 ? 'win' : 'loss');
         }
         return;
       }
@@ -538,7 +534,6 @@ export default function CrownCoinsMachine() {
         }
       }
       if (bonusResult && serverWin > 0) { setBonus(bonusResult); setRevealStep(0); autoRef.current = false; setAutoSpin(false); }
-      logActivity('crown-coins', bet, win, win > 0 ? 'win' : 'loss');
       try { base44.analytics.track({ eventName: 'crown_coins_spin', properties: { bet, win: Math.round(win * 100) / 100, coins, free: isFree } }); } catch {}
 
       if (bonusResult) {
@@ -555,7 +550,7 @@ export default function CrownCoinsMachine() {
       }
     }, settleAt);
     timers.current.push(tEnd);
-  }, [spinning, bet, balance, rtp, turbo, setBalance, logActivity, toast]);
+  }, [spinning, bet, balance, rtp, turbo, setBalance, toast]);
 
   // Recover an interrupted round on mount: credit the pending win and, if the
   // player was inside a free-spin round, restore the stuck coins + remaining
