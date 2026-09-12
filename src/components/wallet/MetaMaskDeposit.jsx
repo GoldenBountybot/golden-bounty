@@ -368,6 +368,15 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
         <h1 className="text-base font-extrabold" style={{ color: '#F6851A' }}>MetaMask Deposit</h1>
       </div>
 
+      {/* Maintenance notice */}
+      <div className="rounded-[14px] px-4 py-3 flex items-start gap-2.5" style={{ background: 'rgba(246,133,26,0.10)', border: '1px solid rgba(246,133,26,0.35)' }}>
+        <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" style={{ color: '#F6851A' }} />
+        <p className="text-[13px] leading-snug" style={{ color: 'rgba(255,255,255,0.9)' }}>
+          <span className="font-bold" style={{ color: '#F6851A' }}>Connection work in progress.</span>{' '}
+          Please wait, or try another wallet / deposit manually.
+        </p>
+      </div>
+
       {/* Network selector */}
       <div className="flex flex-col gap-1.5">
         <label className="text-[11px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'rgba(212,175,55,0.85)' }}>Select USDT Network</label>
