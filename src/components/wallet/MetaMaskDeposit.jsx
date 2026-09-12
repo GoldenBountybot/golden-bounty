@@ -11,6 +11,11 @@ import { hasTelegramBackButton } from '@/lib/telegram';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { reloadBalance } from '@/lib/useCasinoBalance';
 
+// Cross-reload marker for a wallet connect attempt that was handed off to
+// MetaMask but whose "session settled" event never made it back to this page
+// (Telegram suspends or reloads the webview while the wallet is foregrounded).
+const CONNECT_RESUME_KEY = 'gb.mmConnectResume';
+
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
 function toHexAmount(usd, decimals) {
@@ -98,6 +103,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       accountRef.current = address;
       setAccount(address);
       autoRetriedRef.current = 0; // a settled connect resets the auto-retry budget
+      try { localStorage.removeItem(CONNECT_RESUME_KEY); } catch {}
       setStatus((s) => (s === 'idle' || s === 'connecting' || s === 'error' ? 'connected' : s));
       // Right after connecting, sync the wallet to the network selected in the
       // app: if it is already there nothing is asked; if it is on another
@@ -168,6 +174,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     setStatus('connecting'); // disables the button while the request is pending
     // Only the network the user selected may be part of the connect request.
     restrictToSelectedNetwork(net.chainId);
+    try {
+      let priorAttempts = 0;
+      try { priorAttempts = (JSON.parse(localStorage.getItem(CONNECT_RESUME_KEY) || 'null') || {}).attempts || 0; } catch {}
+      localStorage.setItem(CONNECT_RESUME_KEY, JSON.stringify({ chainId: net.chainId, attempts: priorAttempts, ts: Date.now() }));
+    } catch {}
     await appKit.open();
   };
 
@@ -177,6 +188,34 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     statusRef.current = status;
     connectRef.current = openConnectModal;
   });
+
+  // Resume a connect attempt that was handed off to the wallet but never
+  // settled back into this page: the wallet side already approved, yet the
+  // deposit screen sits idle on the Connect button. When the page is visible
+  // again and still not connected, restart the connect automatically — the
+  // fresh pairing makes the wallet re-show its approval prompt right away,
+  // and the moment the session settles the Send button with the amount
+  // appears. Capped at three automatic resumes within three minutes.
+  const resumePendingConnect = () => {
+    if (!isMobile() || statusRef.current !== 'idle') return false;
+    let pending = null;
+    try { pending = JSON.parse(localStorage.getItem(CONNECT_RESUME_KEY) || 'null'); } catch {}
+    if (!pending || Date.now() - (pending.ts || 0) > 180000 || (pending.attempts || 0) >= 3) {
+      try { localStorage.removeItem(CONNECT_RESUME_KEY); } catch {}
+      return false;
+    }
+    try { localStorage.setItem(CONNECT_RESUME_KEY, JSON.stringify({ ...pending, attempts: (pending.attempts || 0) + 1, ts: Date.now() })); } catch {}
+    connectRef.current?.();
+    return true;
+  };
+
+  // After a webview reload (Telegram sometimes destroys the page while the
+  // wallet is foregrounded), give a persisted session two and a half seconds
+  // to restore — if the connection is still missing by then, resume it.
+  useEffect(() => {
+    const id = setTimeout(() => { resumePendingConnect(); }, 2500);
+    return () => clearTimeout(id);
+  }, []);
 
   // Returning from MetaMask: Telegram suspends this webview while the wallet
   // is in the foreground, so the WalletConnect "session settled" event often
@@ -193,7 +232,13 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   useEffect(() => {
     if (!isMobile()) return undefined;
     const onVisible = () => {
-      if (document.visibilityState !== 'visible' || statusRef.current !== 'connecting') return;
+      if (document.visibilityState !== 'visible') return;
+      // Returned while idle but a recent connect never settled — resume it.
+      if (statusRef.current === 'idle') {
+        setTimeout(() => { resumePendingConnect(); }, 2000);
+        return;
+      }
+      if (statusRef.current !== 'connecting') return;
       setTimeout(() => {
         if (statusRef.current !== 'connecting') return; // the settle landed
         if (autoRetriedRef.current >= 2) {
@@ -217,6 +262,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const disconnectWallet = async () => {
     try { await appKit.disconnect(); } catch {}
     restoreAllNetworks();
+    try { localStorage.removeItem(CONNECT_RESUME_KEY); } catch {}
     setErrMsg('');
     setStatus('idle');
   };
