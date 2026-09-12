@@ -3,8 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Smartphone, Copy, X } from 'lucide-react';
-import { useAppKitAccount, useAppKitProvider, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react';
-import { appKit, networkByChainId, restrictToSelectedNetwork, restoreAllNetworks } from '@/lib/appKit';
+import { useAppKitAccount, useAppKitProvider, useWalletInfo } from '@reown/appkit/react';
+import { appKit, restrictToSelectedNetwork, restoreAllNetworks } from '@/lib/appKit';
 import { openWalletLink } from '@/lib/openWalletLink';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
@@ -56,7 +56,6 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const [price, setPrice] = useState(0);
   const { address, isConnected } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider('eip155');
-  const { chainId, switchNetwork } = useAppKitNetwork();
   const { walletInfo } = useWalletInfo('eip155');
   const providerRef = useRef(null);
   const accountRef = useRef(null);
@@ -131,13 +130,6 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     })();
     return () => { alive = false; };
   }, [nativeKey, nativeSupported]);
-
-  // Keep the wallet on the selected deposit network.
-  useEffect(() => {
-    if (isConnected && Number(chainId) !== net.chainId) {
-      try { switchNetwork(networkByChainId(net.chainId)); } catch {}
-    }
-  }, [netKey, isConnected]);
 
   const openConnectModal = async () => {
     setErrMsg('');
@@ -251,9 +243,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     };
     let cur = await realChain();
     if (cur && parseInt(cur, 16) === net.chainId) return true;
-    // Ask the wallet to switch — both through AppKit (which relays it over
-    // the WalletConnect session) and directly through the provider.
-    try { switchNetwork(networkByChainId(net.chainId)); } catch {}
+    // ONE switch request over the WalletConnect session — sending it both
+    // through AppKit and the provider made the wallet show its network
+    // approval sheet twice.
     const addChain = async () => {
       try {
         await p.request({
