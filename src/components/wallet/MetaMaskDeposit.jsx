@@ -5,7 +5,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Smartphone, Copy, X } from 'lucide-react';
 import { useAppKitAccount, useAppKitProvider, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react';
 import { appKit, networkByChainId, restrictToSelectedNetwork, restoreAllNetworks } from '@/lib/appKit';
-import { openWalletLink } from '@/lib/openWalletLink';
+import { openWalletLink, openWalletApp } from '@/lib/openWalletLink';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
@@ -163,7 +163,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           // the wallet so the approval sheet is right in front of the player
           // and they come back already on the selected network.
           toast({ title: 'Approve the switch', description: `Allow your wallet to switch to ${net.label}.` });
-          try { openWalletLink(isTrustWallet ? 'https://link.trustwallet.com/' : 'https://metamask.app.link/'); } catch {}
+          try { openWalletApp(isTrustWallet ? 'trust' : 'metamask'); } catch {}
         }
       } finally {
         netSyncRunRef.current = false;
@@ -287,7 +287,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
         // phone over so the approval sheet is right there, then give it up to
         // half a minute to land before giving up.
         toast({ title: 'Approve the switch', description: `Allow your wallet to switch to ${net.label} — the payment continues automatically.` });
-        try { openWalletLink(isTrustWallet ? 'https://link.trustwallet.com/' : 'https://metamask.app.link/'); } catch {}
+        try { openWalletApp(isTrustWallet ? 'trust' : 'metamask'); } catch {}
         for (let k = 0; k < 30; k++) {
           await new Promise((r) => setTimeout(r, 1000));
           let c = null;
