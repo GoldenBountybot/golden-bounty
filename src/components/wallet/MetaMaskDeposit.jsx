@@ -374,10 +374,28 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       setStatus('error');
       return;
     }
-    // AppKit dispatches the request and foregrounds the wallet itself (via
-    // Telegram's openLink inside the Mini App), so we just await the response.
-    const sendTx = (txParams) =>
-      p.request({ method: 'eth_sendTransaction', params: [txParams] });
+    // A wallet sitting in the background cannot act on the request — the known
+    // Telegram-webview behaviour. Queue the request, then hand the phone over
+    // to the wallet app (the same handoff the network sync uses) so the
+    // confirmation sheet actually opens.
+    const wName = walletInfo?.name || '';
+    const home = isTrustWallet ? 'https://link.trustwallet.com/'
+      : /metamask/i.test(wName) ? 'https://metamask.app.link/'
+      : null;
+    const sendTx = (txParams) => {
+      const res = p.request({ method: 'eth_sendTransaction', params: [txParams] });
+      if (home) openWalletLink(home);
+      // If the handoff is blocked the request just sits unanswered — nudge
+      // the player after a bit instead of spinning silently forever.
+      let settled = false;
+      res.then(() => { settled = true; }, () => { settled = true; });
+      setTimeout(() => {
+        if (!settled) {
+          try { toast({ title: 'Waiting for your wallet', description: 'Open your wallet app to approve the payment.' }); } catch {}
+        }
+      }, 15000);
+      return res;
+    };
     try {
 
       if (payAsset === 'native') {
