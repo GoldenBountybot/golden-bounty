@@ -64,6 +64,9 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const netSyncRef = useRef(false); // sync the wallet to the app-selected network once per connection
   const netSyncRunRef = useRef(null); // a single in-flight network sync — no duplicate switch requests
   const sendingRef = useRef(false); // one in-flight payment request — never duplicate
+  const statusRef = useRef('idle'); // latest status for the return-from-wallet recovery
+  const connectRef = useRef(null); // latest openConnectModal, re-bound every render
+  const autoRetriedRef = useRef(0); // cap on automatic reconnect attempts after returning
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
@@ -94,6 +97,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       providerRef.current = walletProvider || null;
       accountRef.current = address;
       setAccount(address);
+      autoRetriedRef.current = 0; // a settled connect resets the auto-retry budget
       setStatus((s) => (s === 'idle' || s === 'connecting' || s === 'error' ? 'connected' : s));
       // Right after connecting, sync the wallet to the network selected in the
       // app: if it is already there nothing is asked; if it is on another
@@ -109,6 +113,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       accountRef.current = null;
       setAccount(null);
       netSyncRef.current = false;
+      autoRetriedRef.current = 0; // disconnected — next connect starts with a fresh retry budget
       setStatus((s) => (s === 'connected' ? 'idle' : s));
     }
   }, [isConnected, address, walletProvider]);
@@ -165,6 +170,49 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     restrictToSelectedNetwork(net.chainId);
     await appKit.open();
   };
+
+  // Latest status/connect closures for the visibility recovery below — re-bound
+  // after every render so the recovery always runs fresh code.
+  useEffect(() => {
+    statusRef.current = status;
+    connectRef.current = openConnectModal;
+  });
+
+  // Returning from MetaMask: Telegram suspends this webview while the wallet
+  // is in the foreground, so the WalletConnect "session settled" event often
+  // never reaches the page — MetaMask says connected, but the deposit screen
+  // stays stuck on "connecting…" and the Send button with the amount never
+  // shows. When the player comes back: give a settle that arrived just then a
+  // moment to be processed (the mirror effect flips to 'connected', the Send
+  // button appears and nothing else happens); if no settle ever landed, start
+  // a fresh connect attempt automatically — the pairing reset in appKit.js
+  // guarantees a brand-new pairing, so the wallet shows its approval prompt
+  // again right away, and the moment one settles the Send button appears.
+  // Capped at two automatic attempts; after that fall back to the Connect
+  // button with a hint instead of looping forever.
+  useEffect(() => {
+    if (!isMobile()) return undefined;
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible' || statusRef.current !== 'connecting') return;
+      setTimeout(() => {
+        if (statusRef.current !== 'connecting') return; // the settle landed
+        if (autoRetriedRef.current >= 2) {
+          setStatus('idle');
+          try { toast({ title: 'Connection not received', description: 'Please tap Connect Wallet again.' }); } catch {}
+          return;
+        }
+        autoRetriedRef.current += 1;
+        setStatus('idle'); // release the one-at-a-time guard for the retry
+        try { appKit.close(); } catch {}
+        setTimeout(() => {
+          if (statusRef.current !== 'idle') return; // settled while we waited
+          connectRef.current?.();
+        }, 400);
+      }, 2000);
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, []);
 
   const disconnectWallet = async () => {
     try { await appKit.disconnect(); } catch {}
