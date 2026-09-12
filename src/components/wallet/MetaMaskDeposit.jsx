@@ -127,6 +127,21 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     } catch { return undefined; }
   }, []);
 
+  // While connected, surface a wallet-side network change immediately. Send
+  // Payment re-syncs the network automatically before the transaction — this
+  // only warns the player, so a wrong-chain transfer is never a surprise.
+  useEffect(() => {
+    if (!isConnected || !walletProvider) return;
+    const onChainChanged = () => {
+      if (netSyncRunRef.current) return; // our own switch in flight — not a user action
+      try {
+        toast({ title: 'Wallet network changed', description: `Send Payment will switch your wallet back to ${net.label} before sending.` });
+      } catch {}
+    };
+    try { walletProvider.on?.('chainChanged', onChainChanged); } catch {}
+    return () => { try { walletProvider.off?.('chainChanged', onChainChanged); } catch {} };
+  }, [isConnected, walletProvider, net.label]);
+
   // Polygon has no native option here — fall back to USDT if it was selected.
   useEffect(() => { if (!nativeSupported && payAsset === 'native') setPayAsset('usdt'); }, [netKey, nativeSupported]);
 
@@ -270,15 +285,22 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
             blockExplorerUrls: [net.explorer],
           }],
         });
-      } catch {}
+        return true;
+      } catch {
+        return false;
+      }
     };
+    // A user rejecting in the wallet must fail FAST — silently polling for a
+    // minute afterwards makes "Send Payment" look broken.
+    const isRejection = (e) => e?.code === 4001 || /user rejected|rejected by user|user denied|request denied/i.test(e?.message || '');
     try {
       await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: wantHex }] });
     } catch (swErr) {
+      if (isRejection(swErr)) return false;
       // 4902 = the chain isn't in the wallet yet → ask permission to add it,
       // then switch to it.
       if (swErr?.code === 4902 || /unrecognized chain/i.test(swErr?.message || '')) {
-        await addChain();
+        if (!(await addChain())) return false;
       }
     }
     // A wallet that is already awake (browser extension) switches on its own —
@@ -300,7 +322,15 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     // happened. Open the wallet now: MetaMask auto-confirms the switch to a
     // known chain (BSC/Ethereum/Polygon) as soon as it processes the request,
     // and the player returns to the app right after.
-    openWalletLink(isTrustWallet ? 'https://link.trustwallet.com/' : 'https://metamask.app.link/');
+    // Only open a wallet app we can name — for MetaMask / Trust this handoff
+    // lets the background wallet process the switch. Coinbase / Binance / My
+    // Wallet would just get a dead MetaMask link; they show their own
+    // notification for pending requests instead.
+    const wName = walletInfo?.name || '';
+    const home = isTrustWallet ? 'https://link.trustwallet.com/'
+      : /metamask/i.test(wName) ? 'https://metamask.app.link/'
+      : null;
+    if (home) openWalletLink(home);
     // Keep watching for the switch to land — the moment the player is back and
     // the chain matches, the payment request fires automatically on exactly
     // the network the user picked in the app.
@@ -325,7 +355,12 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const runDeposit = async () => {
     const p = providerRef.current;
     const acct = accountRef.current;
-    if (!p || !acct) return;
+    if (!p || !acct) {
+      // The session dropped (or is still restoring) between the click and the
+      // request — tell the player instead of silently doing nothing.
+      try { toast({ title: 'Wallet not ready', description: 'Please try again in a moment.' }); } catch {}
+      return;
+    }
     if (payAsset === 'usdt' && isMobile() && isTrustWallet) {
       await startAwaiting(true);
       return;
@@ -387,7 +422,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
 
   const busy = ['connecting', 'sending', 'awaiting', 'confirming', 'verifying'].includes(status);
   const statusText = {
-    connecting: 'Connecting to MetaMask…',
+    connecting: 'Connecting to wallet…',
     sending: 'Sending transaction request to wallet…',
     awaiting: 'Watching the blockchain for your transfer…',
     confirming: 'Waiting for blockchain confirmation…',
@@ -490,7 +525,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       {account && (
         <div className="dash-card px-4 py-2.5 flex items-center justify-between gap-2"
           style={{ border: '1px solid rgba(246,133,26,0.25)' }}>
-          <span className="text-[12px] font-mono break-all" style={{ color: 'rgba(255,255,255,0.85)' }}>✓ Connected: {account}</span>
+          <span className="text-[12px] font-mono break-all" style={{ color: 'rgba(255,255,255,0.85)' }}>✓ {walletInfo?.name || 'Wallet'}: {account}</span>
           {!busy && (
             <button
               onClick={disconnectWallet}
