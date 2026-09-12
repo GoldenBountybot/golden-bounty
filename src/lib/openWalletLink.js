@@ -19,3 +19,10 @@ export function openWalletLink(url) {
   }
   try { window.open(url, '_blank'); } catch { /* popup blocked */ }
 }
+// Opens the wallet's own app — never a wallet web page. Routes through
+// /wallet-handoff.html, which deep-links straight into the installed app on
+// Android (intent://) and through the universal link on iOS, so connect and
+// deposit requests are always handled natively by the wallet app.
+export function openWalletApp(wallet) {
+  openWalletLink((window.location.origin || '') + '/wallet-handoff.html?w=' + encodeURIComponent(wallet));
+}
