@@ -254,24 +254,27 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     // Ask the wallet to switch — both through AppKit (which relays it over
     // the WalletConnect session) and directly through the provider.
     try { switchNetwork(networkByChainId(net.chainId)); } catch {}
+    const addChain = async () => {
+      try {
+        await p.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: wantHex,
+            chainName: net.label,
+            nativeCurrency: { name: net.nativeName, symbol: net.nativeSymbol, decimals: 18 },
+            rpcUrls: [net.rpc],
+            blockExplorerUrls: [net.explorer],
+          }],
+        });
+      } catch {}
+    };
     try {
       await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: wantHex }] });
     } catch (swErr) {
       // 4902 = the chain isn't in the wallet yet → ask permission to add it,
       // then switch to it.
       if (swErr?.code === 4902 || /unrecognized chain/i.test(swErr?.message || '')) {
-        try {
-          await p.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: wantHex,
-              chainName: net.label,
-              nativeCurrency: { name: net.nativeName, symbol: net.nativeSymbol, decimals: 18 },
-              rpcUrls: [net.rpc],
-              blockExplorerUrls: [net.explorer],
-            }],
-          });
-        } catch {}
+        await addChain();
       }
     }
     // A wallet that is already awake (browser extension) switches on its own —
@@ -281,6 +284,12 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       cur = await realChain();
       if (cur && parseInt(cur, 16) === net.chainId) return true;
     }
+    // MetaMask Mobile is known to ACK wallet_switchEthereumChain over
+    // WalletConnect without actually switching (reown-com/appkit#4766). If the
+    // wallet's real chain still doesn't match, force the issue with
+    // wallet_addEthereumChain: re-adding a chain the wallet already has opens
+    // its native "add / switch network" sheet, which really does switch it.
+    await addChain();
     // A mobile wallet in the Telegram Mini App sits in the BACKGROUND — the
     // switch request reaches it but it cannot act on the request (or show its
     // confirmation sheet) until the app is open. That is why the switch never
