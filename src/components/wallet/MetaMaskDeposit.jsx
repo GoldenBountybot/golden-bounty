@@ -116,12 +116,60 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return () => { alive = false; };
   }, [nativeKey, nativeSupported]);
 
-  // Keep the wallet on the selected deposit network.
-  useEffect(() => {
-    if (isConnected && Number(chainId) !== net.chainId) {
-      try { switchNetwork(networkByChainId(net.chainId)); } catch {}
+  // Ask the wallet to move to the network (and coin) selected in the app —
+  // direct switch first, add-the-chain fallback when the wallet doesn't know it.
+  const syncWalletNetwork = async (p) => {
+    try {
+      await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x' + net.chainId.toString(16) }] });
+    } catch (swErr) {
+      // 4902 = the chain isn't in the wallet yet → ask permission to add it,
+      // then switch to it.
+      if (swErr?.code === 4902 || /unrecognized chain/i.test(swErr?.message || '')) {
+        try {
+          await p.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: '0x' + net.chainId.toString(16),
+              chainName: net.label,
+              nativeCurrency: { name: net.nativeName, symbol: net.nativeSymbol, decimals: 18 },
+              rpcUrls: [net.rpc],
+              blockExplorerUrls: [net.explorer],
+            }],
+          });
+        } catch {}
+      }
     }
-  }, [netKey, isConnected]);
+    try { await switchNetwork(networkByChainId(net.chainId)); } catch {}
+  };
+
+  // Land the wallet on the network selected in the app right after connect —
+  // and again whenever the selection changes — so the Send step never hits a
+  // chain mismatch and the manual "switch your wallet" error never appears.
+  const netSyncRunRef = useRef(false);
+  useEffect(() => {
+    if (!isConnected || !address || !walletProvider) return;
+    if (netSyncRunRef.current) return;
+    netSyncRunRef.current = true;
+    (async () => {
+      try {
+        let cur = null;
+        try { cur = await walletProvider.request({ method: 'eth_chainId' }); } catch {}
+        if (!cur || parseInt(cur, 16) === net.chainId) return;
+        await syncWalletNetwork(walletProvider);
+        let after = null;
+        try { after = await walletProvider.request({ method: 'eth_chainId' }); } catch {}
+        if (!after || parseInt(after, 16) !== net.chainId) {
+          // A backgrounded wallet cannot process the switch — hand the phone to
+          // the wallet so the approval sheet is right in front of the player
+          // and they come back already on the selected network.
+          toast({ title: 'Approve the switch', description: `Allow your wallet to switch to ${net.label}.` });
+          try { openWalletLink(isTrustWallet ? 'https://link.trustwallet.com/' : 'https://metamask.app.link/'); } catch {}
+        }
+      } finally {
+        netSyncRunRef.current = false;
+      }
+    })();
+  }, [isConnected, address, netKey]);
 
   const openConnectModal = async () => {
     setErrMsg('');
@@ -233,33 +281,21 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     try {
       const current = await p.request({ method: 'eth_chainId' });
       if (parseInt(current, 16) !== net.chainId) {
-        try {
-          await p.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x' + net.chainId.toString(16) }],
-          });
-        } catch (swErr) {
-          // 4902 = the chain isn't in the wallet yet → ask permission to add it,
-          // then switch to it.
-          if (swErr?.code === 4902 || /unrecognized chain/i.test(swErr?.message || '')) {
-            try {
-              await p.request({
-                method: 'wallet_addEthereumChain',
-                params: [{
-                  chainId: '0x' + net.chainId.toString(16),
-                  chainName: net.label,
-                  nativeCurrency: { name: net.nativeName, symbol: net.nativeSymbol, decimals: 18 },
-                  rpcUrls: [net.rpc],
-                  blockExplorerUrls: [net.explorer],
-                }],
-              });
-            } catch {}
-          }
-          try { await switchNetwork(networkByChainId(net.chainId)); } catch {}
+        await syncWalletNetwork(p);
+        let landed = false;
+        // The wallet can only process the switch while it is open — hand the
+        // phone over so the approval sheet is right there, then give it up to
+        // half a minute to land before giving up.
+        toast({ title: 'Approve the switch', description: `Allow your wallet to switch to ${net.label} — the payment continues automatically.` });
+        try { openWalletLink(isTrustWallet ? 'https://link.trustwallet.com/' : 'https://metamask.app.link/'); } catch {}
+        for (let k = 0; k < 30; k++) {
+          await new Promise((r) => setTimeout(r, 1000));
+          let c = null;
+          try { c = await p.request({ method: 'eth_chainId' }); } catch {}
+          if (c && parseInt(c, 16) === net.chainId) { landed = true; break; }
         }
-        const after = await p.request({ method: 'eth_chainId' });
-        if (parseInt(after, 16) !== net.chainId) {
-          setErrMsg(`Please switch your wallet to ${net.label} and try again.`);
+        if (!landed) {
+          setErrMsg(`Could not switch the wallet to ${net.label}. Please approve the network switch in your wallet and try again.`);
           setStatus('error');
           return;
         }
