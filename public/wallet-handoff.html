@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Opening wallet…</title></head>
+<body>
+<script>
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var meta = {
+      metamask: { scheme: 'metamask', pkg: 'io.metamask', site: 'https://metamask.app.link/' },
+      trust: { scheme: 'trust', pkg: 'com.wallet.crypto.trustapp', site: 'https://link.trustwallet.com/' }
+    }[q.get('w') || 'metamask'];
+    if (!meta) { location.replace('https://metamask.app.link/'); return; }
+    if (/android/i.test(navigator.userAgent)) {
+      // Chrome opens the installed app directly via the intent:// URL and only
+      // falls back to the wallet's website when the app is missing — the
+      // deposit request is never handled through a web page.
+      location.replace(
+        'intent://#Intent;scheme=' + meta.scheme + ';package=' + meta.pkg +
+        ';S.browser_fallback_url=' + encodeURIComponent(meta.site) + ';end'
+      );
+    } else {
+      location.replace(meta.site);
+    }
+  })();
+</script>
+</body>
+</html>
