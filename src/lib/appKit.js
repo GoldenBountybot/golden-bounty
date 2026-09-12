@@ -3,7 +3,7 @@
 // the Telegram Mini App webview (it opens wallet links through Telegram's own
 // openLink instead of navigating the webview to a dead deep link).
 import { createAppKit, CoreHelperUtil } from '@reown/appkit/react';
-import { ChainController } from '@reown/appkit-controllers';
+import { ChainController, ConnectionController } from '@reown/appkit-controllers';
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { bsc, mainnet, polygon } from '@reown/appkit/networks';
 import { WALLETCONNECT_PROJECT_ID, WALLETCONNECT_METADATA } from '@/lib/walletConfig';
@@ -21,6 +21,23 @@ export const appKit = createAppKit({
   metadata: WALLETCONNECT_METADATA,
   features: { analytics: false, email: false, socials: false },
 });
+
+// In Telegram, AppKit caches the WalletConnect pairing URI for four minutes
+// and hands the SAME uri to the wallet on every retry in that window
+// (ConnectionController.connectWalletConnect reuses it when it is not expired).
+// A wallet that already consumed the pairing — the player rejected the
+// prompt, or approved it while Telegram had suspended the webview so the
+// session settle was missed — opens that cached uri and silently shows
+// nothing: tapping Connect again and again never brings up the approval
+// sheet, which is exactly "connected once in MetaMask but the app never
+// showed connected, and every retry did nothing". Clear the cached pairing
+// before every modal open so each attempt starts a FRESH pairing and the
+// wallet always shows its connection prompt.
+const originalAppKitOpen = appKit.open.bind(appKit);
+appKit.open = (...args) => {
+  try { ConnectionController.resetUri(); } catch {}
+  return originalAppKitOpen(...args);
+};
 
 // AppKit opens wallet deep links with window.open(), which Telegram's in-app
 // webview silently blocks — the modal lists the wallets, but tapping one never
