@@ -3,14 +3,13 @@ import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Smartphone, Copy, X } from 'lucide-react';
-import { getSdkProvider, disconnectMetaMask } from '@/lib/metaMaskSdk';
+import { useAppKitAccount, useAppKitProvider, useAppKitNetwork, useWalletInfo } from '@reown/appkit/react';
+import { appKit, networkByChainId, restrictToSelectedNetwork, restoreAllNetworks } from '@/lib/appKit';
 import { openWalletLink } from '@/lib/openWalletLink';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { reloadBalance } from '@/lib/useCasinoBalance';
-
-
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -55,18 +54,19 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const [errMsg, setErrMsg] = useState('');
   const [payAsset, setPayAsset] = useState('usdt'); // 'usdt' | 'native'
   const [price, setPrice] = useState(0);
+  const { address, isConnected } = useAppKitAccount();
+  const { walletProvider } = useAppKitProvider('eip155');
+  const { chainId, switchNetwork } = useAppKitNetwork();
+  const { walletInfo } = useWalletInfo('eip155');
   const providerRef = useRef(null);
   const accountRef = useRef(null);
   const lastBlockRef = useRef(null); // last block scanned while watching the chain
   const pollStartedRef = useRef(0);
-  const netSyncRef = useRef(false); // sync the wallet to the app-selected network once per connection
-  const netSyncRunRef = useRef(null); // a single in-flight network sync — no duplicate switch requests
-  const sendingRef = useRef(false); // one in-flight payment request — never duplicate
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
   const coinAmt = price ? amount / price : 0;
-  const isTrustWallet = !!window.trustwallet;
+  const isTrustWallet = /trust/i.test(walletInfo?.name || '') || !!window.trustwallet;
 
   const fetchReceipt = async (txHash) => {
     const body = { jsonrpc: '2.0', id: 1, method: 'eth_getTransactionReceipt', params: [txHash] };
@@ -85,61 +85,21 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return null;
   };
 
-  // The MetaMask SDK owns the connection now: initialize it once, surface a
-  // previously approved session without any prompt, and keep our refs in
-  // sync so the rest of the deposit logic works untouched.
+  // AppKit keeps the connection state — mirror it into our local refs so the
+  // existing deposit logic keeps working untouched.
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const { provider } = await getSdkProvider();
-      if (!provider || !mounted) return;
-      providerRef.current = provider;
-      const onAccountsChanged = (accts) => {
-        if (!Array.isArray(accts) || accts.length === 0) {
-          accountRef.current = null;
-          setAccount(null);
-          netSyncRef.current = false;
-          setStatus((s) => (s === 'connected' || s === 'connecting' ? 'idle' : s));
-        } else {
-          accountRef.current = accts[0];
-          setAccount(accts[0]);
-          setStatus((s) => (s === 'idle' || s === 'connecting' || s === 'error' ? 'connected' : s));
-        }
-      };
-      try { provider.on?.('accountsChanged', onAccountsChanged); } catch {}
-      try {
-        const accts = await Promise.race([
-          provider.request({ method: 'eth_accounts' }),
-          new Promise((r) => setTimeout(() => r([]), 8000)),
-        ]).catch(() => []);
-        if (!mounted || !accts?.length) return;
-        accountRef.current = accts[0];
-        setAccount(accts[0]);
-        setStatus((s) => (s === 'idle' ? 'connected' : s));
-        if (!netSyncRef.current) {
-          netSyncRef.current = true;
-          (async () => { try { await ensureNetwork(); } catch {} })();
-        }
-      } catch {}
-    })();
-    return () => { mounted = false; };
-  }, []);
-
-
-  // Payment re-syncs the network automatically before the transaction — this
-  // only warns the player, so a wrong-chain transfer is never a surprise.
-  useEffect(() => {
-    if (!account || !providerRef.current) return;
-    const p = providerRef.current;
-    const onChainChanged = () => {
-      if (netSyncRunRef.current) return; // our own switch in flight — not a user action
-      try {
-        toast({ title: 'Wallet network changed', description: `Send Payment will switch your wallet back to ${net.label} before sending.` });
-      } catch {}
-    };
-    try { p.on?.('chainChanged', onChainChanged); } catch {}
-    return () => { try { p.off?.('chainChanged', onChainChanged); } catch {} };
-  }, [account, net.label]);
+    if (isConnected && address) {
+      providerRef.current = walletProvider || null;
+      accountRef.current = address;
+      setAccount(address);
+      setStatus((s) => (s === 'idle' || s === 'connecting' || s === 'error' ? 'connected' : s));
+    } else {
+      providerRef.current = null;
+      accountRef.current = null;
+      setAccount(null);
+      setStatus((s) => (s === 'connected' ? 'idle' : s));
+    }
+  }, [isConnected, address, walletProvider]);
 
   // Polygon has no native option here — fall back to USDT if it was selected.
   useEffect(() => { if (!nativeSupported && payAsset === 'native') setPayAsset('usdt'); }, [netKey, nativeSupported]);
@@ -156,48 +116,28 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return () => { alive = false; };
   }, [nativeKey, nativeSupported]);
 
-  // Connect straight to MetaMask — no wallet picker, no QR, no WalletConnect
-  // pairing. The SDK hands the phone to the MetaMask app through Telegram's
-  // openLink, and the approval is held on MetaMask's own connection channel:
-  // even if Telegram freezes or reloads this webview while the wallet is
-  // open, the approval is still there when the player returns and the
-  // pending connect resolves right away.
-  const openConnectWallet = async () => {
-    if (status === 'connecting') return; // one connection request at a time
-    setErrMsg('');
-    setStatus('connecting'); // disables the button while the request is pending
-    try {
-      const { sdk, provider } = await getSdkProvider();
-      if (provider) providerRef.current = provider;
-      const accounts = await Promise.race([
-        sdk.connect(),
-        new Promise((_, rej) => setTimeout(() => rej(new Error('Timed out waiting for MetaMask')), 60000)),
-      ]);
-      const acct = Array.isArray(accounts) ? accounts[0] : null;
-      if (!acct) throw new Error('No account returned');
-      accountRef.current = acct;
-      setAccount(acct);
-      setStatus('connected');
-      netSyncRef.current = true;
-      (async () => { try { await ensureNetwork(); } catch {} })();
-    } catch (e) {
-      const declined = e?.code === 4001 || /user rejected|declined/i.test(e?.message || '');
-      setErrMsg(declined ? 'Connection request was declined in MetaMask.' : 'Connection failed: ' + (e?.message || e));
-      setStatus('idle');
+  // Keep the wallet on the selected deposit network.
+  useEffect(() => {
+    if (isConnected && Number(chainId) !== net.chainId) {
+      try { switchNetwork(networkByChainId(net.chainId)); } catch {}
     }
+  }, [netKey, isConnected]);
+
+  const openConnectModal = async () => {
+    setErrMsg('');
+    // Only the network the user selected may be part of the connect request.
+    restrictToSelectedNetwork(net.chainId);
+    await appKit.open();
   };
 
   const disconnectWallet = async () => {
-    try { await disconnectMetaMask(); } catch {}
-    providerRef.current = null;
-    accountRef.current = null;
-    setAccount(null);
-    netSyncRef.current = false;
+    try { await appKit.disconnect(); } catch {}
+    restoreAllNetworks();
     setErrMsg('');
     setStatus('idle');
   };
 
-
+  const finishVerify = async (fn, payload, amt) => {
     setStatus('verifying');
     const res = await base44.functions.invoke(fn, payload);
     if (res?.data?.ok) {
@@ -278,118 +218,10 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return () => { cancelled = true; clearInterval(id); };
   }, [status, netKey, amount, payAsset]);
 
-  // Ask the wallet for its REAL current chain — AppKit's chainId only mirrors
-  // AppKit's own selected network, not the chain the wallet is actually on,
-  // so it can't be trusted here. If the wallet is elsewhere, switch it to the
-  // network the user selected on the deposit screen (adding the chain first if
-  // the wallet doesn't have it yet), then wait for the switch to actually land
-  // before sending anything: the payment request always targets the network
-  // the user picked in the app.
-  // Official app-open links: hand the phone over to a BACKGROUND wallet so it
-  // can act on a pending request (network switch / payment approval). Only
-  // links from the wallets themselves (WalletConnect registry / proven
-  // universal links) are mapped — Coinbase shows its own OS notification and
-  // falls back to the toast nudge instead of a dead link.
-  const walletHome = () => {
-    if (isTrustWallet) return 'https://link.trustwallet.com/';
-    return 'https://metamask.app.link/';
-  };
-
-
-    const p = providerRef.current;
-    if (!p) return false;
-    const wantHex = '0x' + net.chainId.toString(16);
-    const realChain = async () => {
-      try { return await p.request({ method: 'eth_chainId' }); } catch { return null; }
-    };
-    let cur = await realChain();
-    if (cur && parseInt(cur, 16) === net.chainId) return true;
-    // ONE switch request over the WalletConnect session — sending it both
-    // through AppKit and the provider made the wallet show its network
-    // approval sheet twice.
-    const addChain = async () => {
-      try {
-        await p.request({
-          method: 'wallet_addEthereumChain',
-          params: [{
-            chainId: wantHex,
-            chainName: net.label,
-            nativeCurrency: { name: net.nativeName, symbol: net.nativeSymbol, decimals: 18 },
-            rpcUrls: [net.rpc],
-            blockExplorerUrls: [net.explorer],
-          }],
-        });
-        return true;
-      } catch {
-        return false;
-      }
-    };
-    // A user rejecting in the wallet must fail FAST — silently polling for a
-    // minute afterwards makes "Send Payment" look broken.
-    const isRejection = (e) => e?.code === 4001 || /user rejected|rejected by user|user denied|request denied/i.test(e?.message || '');
-    try {
-      await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: wantHex }] });
-    } catch (swErr) {
-      if (isRejection(swErr)) return false;
-      // 4902 = the chain isn't in the wallet yet → ask permission to add it,
-      // then switch to it.
-      if (swErr?.code === 4902 || /unrecognized chain/i.test(swErr?.message || '')) {
-        if (!(await addChain())) return false;
-      }
-    }
-    // A wallet that is already awake (browser extension) switches on its own —
-    // give it a couple of seconds before doing anything drastic.
-    for (let i = 0; i < 2; i++) {
-      await new Promise((r) => setTimeout(r, 2000));
-      cur = await realChain();
-      if (cur && parseInt(cur, 16) === net.chainId) return true;
-    }
-    // MetaMask Mobile is known to ACK wallet_switchEthereumChain over
-    // WalletConnect without actually switching (reown-com/appkit#4766). If the
-    // wallet's real chain still doesn't match, force the issue with
-    // wallet_addEthereumChain: re-adding a chain the wallet already has opens
-    // its native "add / switch network" sheet, which really does switch it.
-    await addChain();
-    // A mobile wallet in the Telegram Mini App sits in the BACKGROUND — the
-    // switch request reaches it but it cannot act on the request (or show its
-    // confirmation sheet) until the app is open. That is why the switch never
-    // happened. Open the wallet now: MetaMask auto-confirms the switch to a
-    // known chain (BSC/Ethereum/Polygon) as soon as it processes the request,
-    // and the player returns to the app right after.
-    // Hand the phone over to a background wallet so it can act on the
-    // pending switch. Wallets we can't name rely on their own notification.
-    const home = walletHome();
-    if (home) openWalletLink(home);
-    // Keep watching for the switch to land — the moment the player is back and
-    // the chain matches, the payment request fires automatically on exactly
-    // the network the user picked in the app.
-    for (let i = 0; i < 20; i++) {
-      await new Promise((r) => setTimeout(r, 3000));
-      cur = await realChain();
-      if (cur && parseInt(cur, 16) === net.chainId) return true;
-    }
-    return false;
-  };
-
-  // One network sync at a time: if the connect-time sync is still in flight,
-  // Send Payment shares it instead of firing a second, duplicate switch
-  // request at the wallet.
-  const ensureNetwork = () => {
-    if (!netSyncRunRef.current) {
-      netSyncRunRef.current = runNetworkSync().finally(() => { netSyncRunRef.current = null; });
-    }
-    return netSyncRunRef.current;
-  };
-
-  const runDeposit = async () => {
+  const deposit = async () => {
     const p = providerRef.current;
     const acct = accountRef.current;
-    if (!p || !acct) {
-      // The session dropped (or is still restoring) between the click and the
-      // request — tell the player instead of silently doing nothing.
-      try { toast({ title: 'Wallet not ready', description: 'Please try again in a moment.' }); } catch {}
-      return;
-    }
+    if (!p || !acct) return;
     if (payAsset === 'usdt' && isMobile() && isTrustWallet) {
       await startAwaiting(true);
       return;
@@ -398,30 +230,49 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     // Make sure the wallet is actually on the selected network BEFORE asking for
     // the payment — otherwise a BNB deposit is presented to the user as an ETH
     // request (wallet still on Ethereum), which looks like a scam.
-    if (!(await ensureNetwork())) {
-      setErrMsg(`Please switch your wallet to ${net.label} and try again.`);
+    try {
+      const current = await p.request({ method: 'eth_chainId' });
+      if (parseInt(current, 16) !== net.chainId) {
+        try {
+          await p.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0x' + net.chainId.toString(16) }],
+          });
+        } catch (swErr) {
+          // 4902 = the chain isn't in the wallet yet → ask permission to add it,
+          // then switch to it.
+          if (swErr?.code === 4902 || /unrecognized chain/i.test(swErr?.message || '')) {
+            try {
+              await p.request({
+                method: 'wallet_addEthereumChain',
+                params: [{
+                  chainId: '0x' + net.chainId.toString(16),
+                  chainName: net.label,
+                  nativeCurrency: { name: net.nativeName, symbol: net.nativeSymbol, decimals: 18 },
+                  rpcUrls: [net.rpc],
+                  blockExplorerUrls: [net.explorer],
+                }],
+              });
+            } catch {}
+          }
+          try { await switchNetwork(networkByChainId(net.chainId)); } catch {}
+        }
+        const after = await p.request({ method: 'eth_chainId' });
+        if (parseInt(after, 16) !== net.chainId) {
+          setErrMsg(`Please switch your wallet to ${net.label} and try again.`);
+          setStatus('error');
+          return;
+        }
+      }
+    } catch {
+      setErrMsg(`Could not verify the wallet network. Switch to ${net.label} in your wallet and try again.`);
       setStatus('error');
       return;
     }
-    // A wallet sitting in the background cannot act on the request — the known
-    // Telegram-webview behaviour. Queue the request, then hand the phone over
-    // to the wallet app (the same handoff the network sync uses) so the
-    // confirmation sheet actually opens.
-    const home = walletHome();
-    const sendTx = (txParams) => {
-      const res = p.request({ method: 'eth_sendTransaction', params: [txParams] });
-      if (home) openWalletLink(home);
-      // If the handoff is blocked the request just sits unanswered — nudge
-      // the player after a bit instead of spinning silently forever.
-      let settled = false;
-      res.then(() => { settled = true; }, () => { settled = true; });
-      setTimeout(() => {
-        if (!settled) {
-          try { toast({ title: 'Waiting for your wallet', description: 'Open your wallet app to approve the payment.' }); } catch {}
-        }
-      }, 15000);
-      return res;
-    };
+    // AppKit dispatches the request and foregrounds the wallet itself (via
+    // Telegram's openLink inside the Mini App), so we just await the response.
+    const sendTx = (txParams) =>
+      p.request({ method: 'eth_sendTransaction', params: [txParams] });
     try {
 
       if (payAsset === 'native') {
@@ -456,17 +307,10 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       setStatus('error');
     }
   };
-  // Send Payment — fires the payment request directly from the button click;
-  // the in-flight guard turns a double click into exactly one wallet request.
-  const deposit = async () => {
-    if (sendingRef.current) return;
-    sendingRef.current = true;
-    try { await runDeposit(); } finally { sendingRef.current = false; }
-  };
 
   const busy = ['connecting', 'sending', 'awaiting', 'confirming', 'verifying'].includes(status);
   const statusText = {
-    connecting: 'Connecting to wallet…',
+    connecting: 'Connecting to MetaMask…',
     sending: 'Sending transaction request to wallet…',
     awaiting: 'Watching the blockchain for your transfer…',
     confirming: 'Waiting for blockchain confirmation…',
@@ -569,7 +413,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       {account && (
         <div className="dash-card px-4 py-2.5 flex items-center justify-between gap-2"
           style={{ border: '1px solid rgba(246,133,26,0.25)' }}>
-          <span className="text-[12px] font-mono break-all" style={{ color: 'rgba(255,255,255,0.85)' }}>✓ {isTrustWallet ? 'Trust Wallet' : 'MetaMask'}: {account}</span>
+          <span className="text-[12px] font-mono break-all" style={{ color: 'rgba(255,255,255,0.85)' }}>✓ Connected: {account}</span>
           {!busy && (
             <button
               onClick={disconnectWallet}
@@ -631,7 +475,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       {/* Idle — one reliable connect button (Reown AppKit modal handles
           MetaMask / Trust / QR / extension, and works in Telegram's webview) */}
       {(status === 'idle' || (status === 'error' && !account)) && (
-        <button onClick={openConnectWallet}
+        <button onClick={openConnectModal}
           className="dash-btn-gold w-full flex items-center justify-center gap-2 h-14 rounded-[16px] text-[15px]">
           <Wallet className="w-5 h-5" /> Connect Wallet
         </button>
@@ -657,7 +501,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
           {payAsset === 'native' && !price ? (
             <><Loader2 className="w-5 h-5 animate-spin" /> Loading {net.nativeSymbol} price…</>
           ) : (
-            <><ArrowRight className="w-5 h-5" /> Send Payment{payAsset === 'native' ? ` — ${coinAmt.toFixed(5)} ${net.nativeSymbol}` : ` — ${amount.toFixed(2)} USDT`}</>
+            <><ArrowRight className="w-5 h-5" /> Send {payAsset === 'native' ? `${coinAmt.toFixed(5)} ${net.nativeSymbol}` : `$${amount.toFixed(2)} USDT`} from wallet</>
           )}
         </button>
       )}
