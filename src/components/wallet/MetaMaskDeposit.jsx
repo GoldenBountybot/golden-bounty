@@ -3,18 +3,14 @@ import { base44 } from '@/api/base44Client';
 import { useCasinoBalance } from '@/lib/useCasinoBalance';
 import { useToast } from '@/components/ui/use-toast';
 import { Wallet, Loader2, CheckCircle2, AlertTriangle, ChevronLeft, ArrowRight, ChevronDown, LogOut, Smartphone, Copy, X } from 'lucide-react';
-import { useAppKitAccount, useAppKitProvider, useWalletInfo } from '@reown/appkit/react';
-import { appKit, restrictToSelectedNetwork, restoreAllNetworks } from '@/lib/appKit';
+import { getSdkProvider, disconnectMetaMask } from '@/lib/metaMaskSdk';
 import { openWalletLink } from '@/lib/openWalletLink';
 import { USDT_NETWORKS } from '@/lib/usdtNetworks';
 import { hasTelegramBackButton } from '@/lib/telegram';
 import { getCryptoPrices } from '@/lib/cryptoPrices';
 import { reloadBalance } from '@/lib/useCasinoBalance';
 
-// Cross-reload marker for a wallet connect attempt that was handed off to
-// MetaMask but whose "session settled" event never made it back to this page
-// (Telegram suspends or reloads the webview while the wallet is foregrounded).
-const CONNECT_RESUME_KEY = 'gb.mmConnectResume';
+
 
 const SANS = "'Inter', 'Poppins', ui-sans-serif, system-ui, -apple-system, sans-serif";
 
@@ -59,9 +55,6 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const [errMsg, setErrMsg] = useState('');
   const [payAsset, setPayAsset] = useState('usdt'); // 'usdt' | 'native'
   const [price, setPrice] = useState(0);
-  const { address, isConnected } = useAppKitAccount();
-  const { walletProvider } = useAppKitProvider('eip155');
-  const { walletInfo } = useWalletInfo('eip155');
   const providerRef = useRef(null);
   const accountRef = useRef(null);
   const lastBlockRef = useRef(null); // last block scanned while watching the chain
@@ -69,14 +62,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   const netSyncRef = useRef(false); // sync the wallet to the app-selected network once per connection
   const netSyncRunRef = useRef(null); // a single in-flight network sync — no duplicate switch requests
   const sendingRef = useRef(false); // one in-flight payment request — never duplicate
-  const statusRef = useRef('idle'); // latest status for the return-from-wallet recovery
-  const connectRef = useRef(null); // latest openConnectModal, re-bound every render
-  const autoRetriedRef = useRef(0); // cap on automatic reconnect attempts after returning
   const net = USDT_NETWORKS.find((n) => n.key === netKey) || USDT_NETWORKS[0];
   const nativeSupported = net.key === 'bsc' || net.key === 'eth';
   const nativeKey = net.key === 'bsc' ? 'bnb' : 'eth';
   const coinAmt = price ? amount / price : 0;
-  const isTrustWallet = /trust/i.test(walletInfo?.name || '') || !!window.trustwallet;
+  const isTrustWallet = !!window.trustwallet;
 
   const fetchReceipt = async (txHash) => {
     const body = { jsonrpc: '2.0', id: 1, method: 'eth_getTransactionReceipt', params: [txHash] };
@@ -95,63 +85,61 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return null;
   };
 
-  // AppKit keeps the connection state — mirror it into our local refs so the
-  // existing deposit logic keeps working untouched.
+  // The MetaMask SDK owns the connection now: initialize it once, surface a
+  // previously approved session without any prompt, and keep our refs in
+  // sync so the rest of the deposit logic works untouched.
   useEffect(() => {
-    if (isConnected && address) {
-      providerRef.current = walletProvider || null;
-      accountRef.current = address;
-      setAccount(address);
-      autoRetriedRef.current = 0; // a settled connect resets the auto-retry budget
-      try { localStorage.removeItem(CONNECT_RESUME_KEY); } catch {}
-      setStatus((s) => (s === 'idle' || s === 'connecting' || s === 'error' ? 'connected' : s));
-      // Right after connecting, sync the wallet to the network selected in the
-      // app: if it is already there nothing is asked; if it is on another
-      // chain, ONE switch request is sent (adding the chain first if the
-      // wallet doesn't have it). Connection and payment stay separate — this
-      // only syncs the network; the Send Payment button sends the payment.
-      if (!netSyncRef.current && walletProvider) {
-        netSyncRef.current = true;
-        (async () => { try { await ensureNetwork(); } catch {} })();
-      }
-    } else {
-      providerRef.current = null;
-      accountRef.current = null;
-      setAccount(null);
-      netSyncRef.current = false;
-      autoRetriedRef.current = 0; // disconnected — next connect starts with a fresh retry budget
-      setStatus((s) => (s === 'connected' ? 'idle' : s));
-    }
-  }, [isConnected, address, walletProvider]);
-
-  // If the wallet modal is closed without connecting (rejected or cancelled),
-  // return to idle so the Connect button becomes usable again — a cancelled
-  // request must never leave the flow stuck on "connecting…".
-  useEffect(() => {
-    try {
-      const unsub = appKit.subscribeEvents?.((e) => {
-        if (e?.data?.event === 'MODAL_CLOSE') {
-          setStatus((s) => (s === 'connecting' ? 'idle' : s));
+    let mounted = true;
+    (async () => {
+      const { provider } = await getSdkProvider();
+      if (!provider || !mounted) return;
+      providerRef.current = provider;
+      const onAccountsChanged = (accts) => {
+        if (!Array.isArray(accts) || accts.length === 0) {
+          accountRef.current = null;
+          setAccount(null);
+          netSyncRef.current = false;
+          setStatus((s) => (s === 'connected' || s === 'connecting' ? 'idle' : s));
+        } else {
+          accountRef.current = accts[0];
+          setAccount(accts[0]);
+          setStatus((s) => (s === 'idle' || s === 'connecting' || s === 'error' ? 'connected' : s));
         }
-      });
-      return unsub;
-    } catch { return undefined; }
+      };
+      try { provider.on?.('accountsChanged', onAccountsChanged); } catch {}
+      try {
+        const accts = await Promise.race([
+          provider.request({ method: 'eth_accounts' }),
+          new Promise((r) => setTimeout(() => r([]), 8000)),
+        ]).catch(() => []);
+        if (!mounted || !accts?.length) return;
+        accountRef.current = accts[0];
+        setAccount(accts[0]);
+        setStatus((s) => (s === 'idle' ? 'connected' : s));
+        if (!netSyncRef.current) {
+          netSyncRef.current = true;
+          (async () => { try { await ensureNetwork(); } catch {} })();
+        }
+      } catch {}
+    })();
+    return () => { mounted = false; };
   }, []);
 
-  // While connected, surface a wallet-side network change immediately. Send
+
   // Payment re-syncs the network automatically before the transaction — this
   // only warns the player, so a wrong-chain transfer is never a surprise.
   useEffect(() => {
-    if (!isConnected || !walletProvider) return;
+    if (!account || !providerRef.current) return;
+    const p = providerRef.current;
     const onChainChanged = () => {
       if (netSyncRunRef.current) return; // our own switch in flight — not a user action
       try {
         toast({ title: 'Wallet network changed', description: `Send Payment will switch your wallet back to ${net.label} before sending.` });
       } catch {}
     };
-    try { walletProvider.on?.('chainChanged', onChainChanged); } catch {}
-    return () => { try { walletProvider.off?.('chainChanged', onChainChanged); } catch {} };
-  }, [isConnected, walletProvider, net.label]);
+    try { p.on?.('chainChanged', onChainChanged); } catch {}
+    return () => { try { p.off?.('chainChanged', onChainChanged); } catch {} };
+  }, [account, net.label]);
 
   // Polygon has no native option here — fall back to USDT if it was selected.
   useEffect(() => { if (!nativeSupported && payAsset === 'native') setPayAsset('usdt'); }, [netKey, nativeSupported]);
@@ -168,106 +156,48 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
     return () => { alive = false; };
   }, [nativeKey, nativeSupported]);
 
-  const openConnectModal = async () => {
+  // Connect straight to MetaMask — no wallet picker, no QR, no WalletConnect
+  // pairing. The SDK hands the phone to the MetaMask app through Telegram's
+  // openLink, and the approval is held on MetaMask's own connection channel:
+  // even if Telegram freezes or reloads this webview while the wallet is
+  // open, the approval is still there when the player returns and the
+  // pending connect resolves right away.
+  const openConnectWallet = async () => {
     if (status === 'connecting') return; // one connection request at a time
     setErrMsg('');
     setStatus('connecting'); // disables the button while the request is pending
-    // Only the network the user selected may be part of the connect request.
-    restrictToSelectedNetwork(net.chainId);
     try {
-      let priorAttempts = 0;
-      try { priorAttempts = (JSON.parse(localStorage.getItem(CONNECT_RESUME_KEY) || 'null') || {}).attempts || 0; } catch {}
-      localStorage.setItem(CONNECT_RESUME_KEY, JSON.stringify({ chainId: net.chainId, attempts: priorAttempts, ts: Date.now() }));
-    } catch {}
-    await appKit.open();
-  };
-
-  // Latest status/connect closures for the visibility recovery below — re-bound
-  // after every render so the recovery always runs fresh code.
-  useEffect(() => {
-    statusRef.current = status;
-    connectRef.current = openConnectModal;
-  });
-
-  // Resume a connect attempt that was handed off to the wallet but never
-  // settled back into this page: the wallet side already approved, yet the
-  // deposit screen sits idle on the Connect button. When the page is visible
-  // again and still not connected, restart the connect automatically — the
-  // fresh pairing makes the wallet re-show its approval prompt right away,
-  // and the moment the session settles the Send button with the amount
-  // appears. Capped at three automatic resumes within three minutes.
-  const resumePendingConnect = () => {
-    if (!isMobile() || statusRef.current !== 'idle') return false;
-    let pending = null;
-    try { pending = JSON.parse(localStorage.getItem(CONNECT_RESUME_KEY) || 'null'); } catch {}
-    if (!pending || Date.now() - (pending.ts || 0) > 180000 || (pending.attempts || 0) >= 3) {
-      try { localStorage.removeItem(CONNECT_RESUME_KEY); } catch {}
-      return false;
+      const { sdk, provider } = await getSdkProvider();
+      if (provider) providerRef.current = provider;
+      const accounts = await Promise.race([
+        sdk.connect(),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('Timed out waiting for MetaMask')), 60000)),
+      ]);
+      const acct = Array.isArray(accounts) ? accounts[0] : null;
+      if (!acct) throw new Error('No account returned');
+      accountRef.current = acct;
+      setAccount(acct);
+      setStatus('connected');
+      netSyncRef.current = true;
+      (async () => { try { await ensureNetwork(); } catch {} })();
+    } catch (e) {
+      const declined = e?.code === 4001 || /user rejected|declined/i.test(e?.message || '');
+      setErrMsg(declined ? 'Connection request was declined in MetaMask.' : 'Connection failed: ' + (e?.message || e));
+      setStatus('idle');
     }
-    try { localStorage.setItem(CONNECT_RESUME_KEY, JSON.stringify({ ...pending, attempts: (pending.attempts || 0) + 1, ts: Date.now() })); } catch {}
-    connectRef.current?.();
-    return true;
   };
-
-  // After a webview reload (Telegram sometimes destroys the page while the
-  // wallet is foregrounded), give a persisted session two and a half seconds
-  // to restore — if the connection is still missing by then, resume it.
-  useEffect(() => {
-    const id = setTimeout(() => { resumePendingConnect(); }, 2500);
-    return () => clearTimeout(id);
-  }, []);
-
-  // Returning from MetaMask: Telegram suspends this webview while the wallet
-  // is in the foreground, so the WalletConnect "session settled" event often
-  // never reaches the page — MetaMask says connected, but the deposit screen
-  // stays stuck on "connecting…" and the Send button with the amount never
-  // shows. When the player comes back: give a settle that arrived just then a
-  // moment to be processed (the mirror effect flips to 'connected', the Send
-  // button appears and nothing else happens); if no settle ever landed, start
-  // a fresh connect attempt automatically — the pairing reset in appKit.js
-  // guarantees a brand-new pairing, so the wallet shows its approval prompt
-  // again right away, and the moment one settles the Send button appears.
-  // Capped at two automatic attempts; after that fall back to the Connect
-  // button with a hint instead of looping forever.
-  useEffect(() => {
-    if (!isMobile()) return undefined;
-    const onVisible = () => {
-      if (document.visibilityState !== 'visible') return;
-      // Returned while idle but a recent connect never settled — resume it.
-      if (statusRef.current === 'idle') {
-        setTimeout(() => { resumePendingConnect(); }, 2000);
-        return;
-      }
-      if (statusRef.current !== 'connecting') return;
-      setTimeout(() => {
-        if (statusRef.current !== 'connecting') return; // the settle landed
-        if (autoRetriedRef.current >= 2) {
-          setStatus('idle');
-          try { toast({ title: 'Connection not received', description: 'Please tap Connect Wallet again.' }); } catch {}
-          return;
-        }
-        autoRetriedRef.current += 1;
-        setStatus('idle'); // release the one-at-a-time guard for the retry
-        try { appKit.close(); } catch {}
-        setTimeout(() => {
-          if (statusRef.current !== 'idle') return; // settled while we waited
-          connectRef.current?.();
-        }, 400);
-      }, 2000);
-    };
-    document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
-  }, []);
 
   const disconnectWallet = async () => {
-    try { await appKit.disconnect(); } catch {}
-    restoreAllNetworks();
-    try { localStorage.removeItem(CONNECT_RESUME_KEY); } catch {}
+    try { await disconnectMetaMask(); } catch {}
+    providerRef.current = null;
+    accountRef.current = null;
+    setAccount(null);
+    netSyncRef.current = false;
     setErrMsg('');
     setStatus('idle');
   };
 
-  const finishVerify = async (fn, payload, amt) => {
+
     setStatus('verifying');
     const res = await base44.functions.invoke(fn, payload);
     if (res?.data?.ok) {
@@ -361,15 +291,11 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
   // universal links) are mapped — Coinbase shows its own OS notification and
   // falls back to the toast nudge instead of a dead link.
   const walletHome = () => {
-    const wName = walletInfo?.name || '';
-    if (isTrustWallet || /trust/i.test(wName)) return 'https://link.trustwallet.com/';
-    if (/metamask/i.test(wName)) return 'https://metamask.app.link/';
-    if (/binance wallet/i.test(wName)) return 'https://app.binance.com/cedefi';
-    if (/my wallet/i.test(wName)) return 'https://my.tt/wc/';
-    return null;
+    if (isTrustWallet) return 'https://link.trustwallet.com/';
+    return 'https://metamask.app.link/';
   };
 
-  const runNetworkSync = async () => {
+
     const p = providerRef.current;
     if (!p) return false;
     const wantHex = '0x' + net.chainId.toString(16);
@@ -643,7 +569,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       {account && (
         <div className="dash-card px-4 py-2.5 flex items-center justify-between gap-2"
           style={{ border: '1px solid rgba(246,133,26,0.25)' }}>
-          <span className="text-[12px] font-mono break-all" style={{ color: 'rgba(255,255,255,0.85)' }}>✓ {walletInfo?.name || 'Wallet'}: {account}</span>
+          <span className="text-[12px] font-mono break-all" style={{ color: 'rgba(255,255,255,0.85)' }}>✓ {isTrustWallet ? 'Trust Wallet' : 'MetaMask'}: {account}</span>
           {!busy && (
             <button
               onClick={disconnectWallet}
@@ -705,7 +631,7 @@ export default function MetaMaskDeposit({ amount, onBack, onDone }) {
       {/* Idle — one reliable connect button (Reown AppKit modal handles
           MetaMask / Trust / QR / extension, and works in Telegram's webview) */}
       {(status === 'idle' || (status === 'error' && !account)) && (
-        <button onClick={openConnectModal}
+        <button onClick={openConnectWallet}
           className="dash-btn-gold w-full flex items-center justify-center gap-2 h-14 rounded-[16px] text-[15px]">
           <Wallet className="w-5 h-5" /> Connect Wallet
         </button>
